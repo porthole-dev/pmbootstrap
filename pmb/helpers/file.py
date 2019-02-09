@@ -19,6 +19,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import time
+
 import pmb.helpers.run
 
 
@@ -31,6 +32,38 @@ def replace(path, old, new):
 
     with open(path, "w", encoding="utf-8") as handle:
         handle.write(text)
+
+
+def replace_apkbuild(args, pkgname, key, new, in_quotes=False):
+    """ Replace one key=value line in an APKBUILD and verify it afterwards.
+        :param pkgname: package name, e.g. "hello-world"
+        :param key: key that should be replaced, e.g. "pkgver"
+        :param new: new value
+        :param in_quotes: expect the value to be in quotation marks ("") """
+    # Read old value
+    path = pmb.helpers.pmaports.find(args, pkgname) + "/APKBUILD"
+    apkbuild = pmb.parse.apkbuild(args, path)
+    old = apkbuild[key]
+
+    # Prepare old/new strings
+    if in_quotes:
+        line_old = '{}="{}"'.format(key, old)
+        line_new = '{}="{}"'.format(key, new)
+    else:
+        line_old = '{}={}'.format(key, old)
+        line_new = '{}={}'.format(key, new)
+
+    # Replace
+    replace(path, "\n" + line_old + "\n", "\n" + line_new + "\n")
+
+    # Verify
+    del (args.cache["apkbuild"][path])
+    apkbuild = pmb.parse.apkbuild(args, path)
+    if apkbuild[key] != str(new):
+        raise RuntimeError("Failed to set '{}' for pmaport '{}'. Make sure"
+                           " that there's a line with exactly the string '{}'"
+                           " and nothing else in: {}".format(key, pkgname,
+                                                             line_old, path))
 
 
 def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
