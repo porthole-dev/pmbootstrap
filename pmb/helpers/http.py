@@ -16,11 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import hashlib
-import shutil
+import json
 import logging
+import os
+import shutil
 import urllib.request
+
 import pmb.helpers.run
 
 
@@ -67,3 +69,36 @@ def download(args, url, prefix, cache=True, loglevel=logging.INFO,
 
     # Return path in cache
     return path
+
+
+def retrieve(url, headers=None, allow_404=False):
+    """ Fetch the content of a URL and returns it as string.
+
+        :param url: the http(s) address of to the resource to fetch
+        :param headers: dict of HTTP headers to use
+        :param allow_404: do not raise an exception when the server responds
+                          with a 404 Not Found error. Only display a warning
+        :returns: str with the content of the response
+    """
+    # Download the file
+    logging.verbose("Retrieving " + url)
+
+    if headers is None:
+        headers = {}
+
+    req = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(req) as response:
+            return response.read()
+    # Handle 404
+    except urllib.error.HTTPError as e:
+        if e.code == 404 and allow_404:
+            logging.warning("WARNING: failed to retrieve content from: " + url)
+            return None
+        raise
+
+
+def retrieve_json(*args, **kwargs):
+    """ Fetch the contents of a URL, parse it as JSON and return it. See retrieve() for the
+        list of all parameters. """
+    return json.loads(retrieve(*args, **kwargs))
