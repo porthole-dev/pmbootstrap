@@ -244,6 +244,11 @@ apkbuild_attributes = {
 
     # Overridden packages
     "_pkgver": {"array": False},
+    "_pkgname": {"array": False},
+
+    # git commit
+    "_commit": {"array": False},
+    "source": {"array": True},
 }
 
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
@@ -491,3 +496,9 @@ newapkbuild_arguments_switches_other = [
     ["-s", "sourceforge", "use sourceforge source URL"],
     ["-c", "copy_samples", "copy a sample init.d, conf.d and install script"],
 ]
+
+#
+# UPGRADE
+#
+# Patterns of package names to ignore for automatic pmaport upgrading ("pmbootstrap aportupgrade --all")
+upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*", "*-aarch64", "*-armhf", "*-armv7"]

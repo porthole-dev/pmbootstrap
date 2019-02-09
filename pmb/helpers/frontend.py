@@ -28,10 +28,10 @@ import sys
 import pmb.aportgen
 import pmb.build
 import pmb.build.autodetect
-import pmb.config
 import pmb.chroot
 import pmb.chroot.initfs
 import pmb.chroot.other
+import pmb.config
 import pmb.export
 import pmb.flasher
 import pmb.helpers.git
@@ -42,6 +42,7 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.repo_missing
 import pmb.helpers.run
+import pmb.helpers.aportupgrade
 import pmb.install
 import pmb.parse
 import pmb.qemu
@@ -338,6 +339,19 @@ def pkgrel_bump(args):
     if args.dry and would_bump:
         logging.info("Pkgrels of package(s) would have been bumped!")
         sys.exit(1)
+
+
+def aportupgrade(args):
+    if args.all or args.all_stable or args.all_git:
+        pmb.helpers.aportupgrade.upgrade_all(args)
+    else:
+        # Each package must exist
+        for package in args.packages:
+            pmb.helpers.pmaports.find(args, package)
+
+        # Check each package for a new version
+        for package in args.packages:
+            pmb.helpers.aportupgrade.upgrade(args, package)
 
 
 def qemu(args):

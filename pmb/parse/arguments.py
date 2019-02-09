@@ -178,6 +178,20 @@ def arguments_pkgrel_bump(subparser):
     return ret
 
 
+def arguments_aportupgrade(subparser):
+    ret = subparser.add_parser("aportupgrade")
+    ret.add_argument("--dry", action="store_true", help="instead of modifying APKBUILDs,"
+                     " print the changes that would be made")
+
+    # Mutually exclusive: "--all" or package names
+    mode = ret.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--all", action="store_true", help="iterate through all packages")
+    mode.add_argument("--all-stable", action="store_true", help="iterate through all non-git packages")
+    mode.add_argument("--all-git", action="store_true", help="iterate through all git packages")
+    mode.add_argument("packages", nargs="*", default=[])
+    return ret
+
+
 def arguments_newapkbuild(subparser):
     """
     Wrapper for Alpine's "newapkbuild" command.
@@ -386,6 +400,7 @@ def arguments():
     arguments_initfs(sub)
     arguments_qemu(sub)
     arguments_pkgrel_bump(sub)
+    arguments_aportupgrade(sub)
     arguments_newapkbuild(sub)
     arguments_lint(sub)
 
