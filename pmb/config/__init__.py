@@ -420,7 +420,7 @@ git_repos = {
 #
 aportgen = {
     "cross": {
-        "prefixes": ["binutils", "busybox-static", "gcc", "musl"],
+        "prefixes": ["binutils", "busybox-static", "gcc", "musl", "grub-efi"],
         "confirm_overwrite": False,
     },
     "device": {

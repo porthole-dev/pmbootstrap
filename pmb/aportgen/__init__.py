@@ -24,6 +24,7 @@ import pmb.aportgen.device
 import pmb.aportgen.gcc
 import pmb.aportgen.linux
 import pmb.aportgen.musl
+import pmb.aportgen.grub_efi
 import pmb.config
 import pmb.helpers.cli
 
