@@ -218,7 +218,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
         pmb.build.init(args, suffix)
         pmb.build.other.configure_abuild(args, suffix)
         pmb.build.other.configure_ccache(args, suffix)
-    if not strict and len(depends):
+    if not strict and "pmb:strict" not in apkbuild["options"] and len(depends):
         pmb.chroot.apk.install(args, depends, suffix)
     if src:
         pmb.chroot.apk.install(args, ["rsync"], suffix)
@@ -405,7 +405,10 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
 
     # Build the abuild command
     cmd = ["abuild", "-D", "postmarketOS"]
-    if strict:
+    if strict or "pmb:strict" in apkbuild["options"]:
+        if not strict:
+            logging.debug(apkbuild["pkgname"] + ": 'pmb:strict' found in"
+                          " options, building in strict mode")
         cmd += ["-r"]  # install depends with abuild
     else:
         cmd += ["-d"]  # do not install depends with abuild
@@ -435,7 +438,7 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
                                    arch + "/APKINDEX.tar.gz")
 
     # Uninstall build dependencies (strict mode)
-    if strict:
+    if strict or "pmb:strict" in apkbuild["options"]:
         logging.info("(" + suffix + ") uninstall build dependencies")
         pmb.chroot.user(args, ["abuild", "undeps"], suffix, "/home/pmos/build",
                         env={"SUDO_APK": "abuild-apk --no-progress"})

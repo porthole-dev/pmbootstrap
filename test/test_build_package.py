@@ -226,7 +226,7 @@ def test_init_buildenv(args, monkeypatch):
 
     # Shortcut and fake apkbuild
     func = pmb.build._package.init_buildenv
-    apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"]}
+    apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"], "options": []}
 
     # Build is necessary (various code paths)
     assert func(args, apkbuild, "armhf", strict=True) is True
@@ -297,7 +297,7 @@ def test_finish(args, monkeypatch):
 
     # Shortcut and fake apkbuild
     func = pmb.build._package.finish
-    apkbuild = {}
+    apkbuild = {"options": []}
 
     # Non-existing output path
     with pytest.raises(RuntimeError) as e:
