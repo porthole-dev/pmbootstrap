@@ -398,8 +398,8 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
         if args.verbose:
             env["DISTCC_VERBOSE"] = "1"
     if cross == "crossdirect":
-        env["CCACHE_PATH"] = "/native/usr/lib/crossdirect/" + arch + ":/usr/bin"
-        env["CCACHE_COMPILERCHECK"] = "string:" + get_gcc_version(args, arch)
+        env["PATH"] = ":".join(["/native/usr/lib/crossdirect/" + arch,
+                                pmb.config.chroot_path])
     if not args.ccache:
         env["CCACHE_DISABLE"] = "1"
 
