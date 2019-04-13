@@ -337,6 +337,22 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
     return ret
 
 
+def provider_shortest(providers, pkgname):
+    """
+    Get the provider with the shortest pkgname and log a message. In most cases
+    this should be sufficient, e.g. 'mesa-purism-gc7000-egl, mesa-egl' or
+    'gtk+2.0-maemo, gtk+2.0'.
+
+    :param providers: returned dict from providers(), must not be empty
+    :param pkgname: the package name we are interested in (for the log message)
+    """
+    ret = min(list(providers.keys()), key=len)
+    if len(providers) != 1:
+        logging.debug(pkgname + ": has multiple providers (" +
+                      ", ".join(providers.keys()) + "), picked shortest: " + ret)
+    return providers[ret]
+
+
 def package(args, package, arch=None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
@@ -362,12 +378,7 @@ def package(args, package, arch=None, must_exist=True, indexes=None):
 
     # Any provider
     if package_providers:
-        provider_pkgname = list(package_providers.keys())[0]
-        if len(package_providers) != 1:
-            logging.debug(package + ": provided by multiple packages (" +
-                          ", ".join(package_providers) + "), picked " +
-                          provider_pkgname)
-        return package_providers[provider_pkgname]
+        return pmb.parse.apkindex.provider_shortest(package_providers, package)
 
     # No provider
     if must_exist:

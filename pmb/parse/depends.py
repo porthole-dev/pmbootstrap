@@ -89,11 +89,8 @@ def package_provider(args, pkgname, pkgnames_install, suffix="native"):
                             " the '" + suffix + "' chroot already")
             return provider
 
-    # 5. Pick the first one
-    provider_pkgname = list(providers.keys())[0]
-    logging.debug(pkgname + " has multiple providers (" +
-                  ", ".join(providers) + "), picked: " + provider_pkgname)
-    return providers[provider_pkgname]
+    # 5. Pick the provider
+    return pmb.parse.apkindex.provider_shortest(providers, pkgname)
 
 
 def package_from_index(args, pkgname_depend, pkgnames_install, package_aport,
