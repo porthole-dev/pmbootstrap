@@ -164,13 +164,7 @@ def check_arch(args, pkgname, arch, binary=True):
         arches = get(args, pkgname, arch)["arch"]
     else:
         arches = pmb.helpers.pmaports.get(args, pkgname)["arch"]
-
-    if "!" + arch in arches:
-        return False
-    for value in [arch, "all", "noarch"]:
-        if value in arches:
-            return True
-    return False
+    return pmb.helpers.pmaports.check_arches(arches, arch)
 
 
 def check_arch_recurse(args, pkgname, arch):

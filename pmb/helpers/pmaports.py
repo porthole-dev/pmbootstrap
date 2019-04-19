@@ -166,3 +166,20 @@ def get_repo(args, pkgname, must_exist=True):
     if not aport:
         return None
     return os.path.basename(os.path.dirname(aport))
+
+
+def check_arches(arches, arch):
+    """ Check if building for a certain arch is allowed.
+
+        :param arches: list of all supported arches, as it can be found in the
+                       arch="" line of APKBUILDS (including all, noarch,
+                       !arch, ...). For example: ["x86_64", "x86", "!armhf"]
+        :param arch: the architecture to check for
+        :returns: True when building is allowed, False otherwise
+    """
+    if "!" + arch in arches:
+        return False
+    for value in [arch, "all", "noarch"]:
+        if value in arches:
+            return True
+    return False
