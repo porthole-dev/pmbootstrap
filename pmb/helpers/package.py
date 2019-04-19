@@ -184,8 +184,8 @@ def check_arch_recurse(args, pkgname, arch):
     for pkgname_i in depends_recurse(args, pkgname, arch):
         if not check_arch(args, pkgname_i, arch):
             if pkgname_i != pkgname:
-                logging.verbose(pkgname_i + ": (indirectly) depends on " +
-                                pkgname)
+                logging.verbose(pkgname + ": (indirectly) depends on " +
+                                pkgname_i)
             logging.verbose(pkgname_i + ": can't be built for " + arch)
             return False
     return True
