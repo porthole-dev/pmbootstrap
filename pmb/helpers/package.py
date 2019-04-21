@@ -74,7 +74,7 @@ def get(args, pkgname, arch, replace_subpkgnames=False):
         # Save as result if there was no pmaport, or if the pmaport can not be
         # built for the given arch, but there is a binary package for that arch
         # (e.g. temp/mesa can't be built for x86_64, but Alpine has it)
-        if not ret or ret_repo["arch"] == arch:
+        if not ret or (ret_repo and ret_repo["arch"] == arch):
             ret = ret_repo
 
     # Find in APKINDEX (other arches)
