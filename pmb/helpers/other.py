@@ -36,7 +36,11 @@ def folder_size(args, path):
     output = pmb.helpers.run.root(args, ["du", "--summarize",
                                          "--block-size=1",
                                          path], output_return=True)
-    ret = int(output.split("\t")[0])
+
+    # Only look at last line to filter out sudo garbage (#1766)
+    last_line = output.split("\n")[-2]
+
+    ret = int(last_line.split("\t")[0])
     return ret
 
 
