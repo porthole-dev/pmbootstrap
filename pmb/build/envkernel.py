@@ -142,7 +142,7 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     pmb.build.copy_to_buildpath(args, pkgname)
 
     # Create symlink from abuild working directory to envkernel build directory
-    build_output = "" if kbuild_out is None else "/" + kbuild_out
+    build_output = "" if kbuild_out == "" else "/" + kbuild_out
     if build_output != "":
         if os.path.islink(chroot + "/mnt/linux/" + build_output) and \
                 os.path.lexists(chroot + "/mnt/linux/" + build_output):
