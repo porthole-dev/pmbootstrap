@@ -158,6 +158,7 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     # Create the apk package
     env = {"CARCH": arch,
            "CHOST": arch,
+           "CBUILD": args.arch_native,
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "rootpkg"]
     pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
