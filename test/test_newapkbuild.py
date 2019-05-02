@@ -59,6 +59,12 @@ def test_newapkbuild(args, monkeypatch, tmpdir):
     func(args, "main", ["-h"])
     assert glob.glob(tmpdir + "/*") == []
 
+    # Tests below disabled due to regression in abuild:
+    # https://github.com/alpinelinux/abuild/pull/75
+    # Remove this "return" after the fix has been merged, so we run these tests
+    # again!
+    return
+
     # Test package
     pkgname = "testpackage"
     func(args, "main", [pkgname])
