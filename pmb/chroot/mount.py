@@ -83,6 +83,9 @@ def mount_dev_tmpfs(args, suffix="native"):
 
     # Create pts, shm folders and device nodes
     pmb.helpers.run.root(args, ["mkdir", "-p", dev + "/pts", dev + "/shm"])
+    pmb.helpers.run.root(args, ["mount", "-t", "tmpfs",
+                                "-o", "nodev,nosuid,noexec",
+                                "tmpfs", dev + "/shm"])
     create_device_nodes(args, suffix)
 
 
