@@ -116,7 +116,8 @@ initialize_chroot() {
 		make \
 		musl-dev \
 		ncurses-dev \
-		perl || return 1
+		perl \
+		xz || return 1
 
 	# Create /mnt/linux
 	sudo mkdir -p "$chroot/mnt/linux"
