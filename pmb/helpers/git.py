@@ -18,6 +18,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 import os
+import shutil
 
 import pmb.build
 import pmb.chroot.apk
@@ -69,6 +70,11 @@ def clone(args, name_repo, shallow=True, chown_to_user=False):
 
 
 def rev_parse(args, revision="HEAD"):
+    if shutil.which("git") is None:
+        logging.warning("WARNING: Cannot determine revision of git " +
+                        "repository at " + args.aports + ". Command 'git' " +
+                        "not found.")
+        return ""
     rev = pmb.helpers.run.user(args, ["git", "rev-parse", revision],
                                args.aports, output_return=True, check=False)
     if rev is None:
