@@ -69,11 +69,14 @@ def pmbootstrap_run(args, config, parameters, output="log"):
 
 def pmbootstrap_yes(args, config, parameters):
     """
-    Execute pmbootstrap.py with a test pmbootstrap.conf, and pipe "yes"
-    into it (so we can do a fully automated installation, using "y" as
-    password everywhere).
+    Execute pmbootstrap.py with a test pmbootstrap.conf, and pipe "yes" into it
+    (so we can do a fully automated installation, using "y" as password
+    everywhere). Use --details-to-stdout to avoid the pmbootstrap process from
+    looking like it is hanging, when downloading packages with apk (otherwise
+    it would write no output, and get killed by the timeout).
     """
-    command = "yes | ./pmbootstrap.py -c " + shlex.quote(config)
+    command = ("yes | ./pmbootstrap.py --details-to-stdout -c " +
+               shlex.quote(config))
     for parameter in parameters:
         command += " " + shlex.quote(parameter)
     return pmb.helpers.run.user(args, ["/bin/sh", "-c", command],
