@@ -119,7 +119,10 @@ def build_init(args):
 
 def checksum(args):
     for package in args.packages:
-        pmb.build.checksum(args, package)
+        if args.verify:
+            pmb.build.checksum.verify(args, package)
+        else:
+            pmb.build.checksum.check(args, package)
 
 
 def chroot(args):

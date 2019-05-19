@@ -18,7 +18,6 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 # Exported functions
 from pmb.build.init import init
-from pmb.build.checksum import checksum
 from pmb.build.envkernel import package_kernel
 from pmb.build.menuconfig import menuconfig
 from pmb.build.newapkbuild import newapkbuild

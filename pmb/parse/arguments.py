@@ -478,6 +478,9 @@ def arguments():
 
     # Action: checksum / aportgen / build
     checksum = sub.add_parser("checksum", help="update aport checksums")
+    checksum.add_argument("--verify", action="store_true", help="download"
+                          " sources and verify that the checksums of the"
+                          " APKBUILD match, instead of updating them")
     aportgen = sub.add_parser("aportgen", help="generate a postmarketOS"
                               " specific package build recipe (aport/APKBUILD)")
     build = sub.add_parser("build", help="create a package for a"
