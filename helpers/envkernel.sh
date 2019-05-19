@@ -178,6 +178,19 @@ set_alias_make() {
 		cross_compiler="/usr/bin/$prefix-"
 	fi
 
+	# Workaround for issue #1784 (can be removed after the following packages
+	# have been rebuilt with current abuild: binutils-armhf, gcc-armhf,
+	# gcc4-armhf, gcc6-armhf, musl-armhf)
+	if [ "$deviceinfo_arch" = "armhf" ] \
+			&& ! [ -e "${chroot}${cross_compiler}gcc" ]; then
+		echo "NOTE: using old armhf cross compiler name (#1784)"
+		_old="armv6-alpine-linux-muslgnueabihf"
+		_new="armv6-alpine-linux-musleabihf"
+		cc="$(echo "$cc" | sed "s/$_new/$_old/")"
+		cross_compiler="$(echo "$cross_compiler" | sed "s/$_new/$_old/")"
+		unset _old _new
+	fi
+
 	# Build make command
 	cmd="echo '*** pmbootstrap envkernel.sh active for $PWD! ***';"
 	cmd="$cmd pmbootstrap -q chroot --user --"
