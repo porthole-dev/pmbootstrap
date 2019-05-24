@@ -122,7 +122,7 @@ def checksum(args):
         if args.verify:
             pmb.build.checksum.verify(args, package)
         else:
-            pmb.build.checksum.check(args, package)
+            pmb.build.checksum.update(args, package)
 
 
 def chroot(args):

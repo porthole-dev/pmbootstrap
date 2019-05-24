@@ -24,7 +24,7 @@ import pmb.helpers.run
 import pmb.helpers.pmaports
 
 
-def check(args, pkgname):
+def update(args, pkgname):
     """ Fetch all sources and update the checksums in the APKBUILD. """
     pmb.build.init(args)
     pmb.build.copy_to_buildpath(args, pkgname)
