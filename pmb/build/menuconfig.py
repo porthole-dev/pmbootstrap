@@ -81,6 +81,9 @@ def get_outputdir(args, pkgname):
                           output_return=True).rstrip()
     if os.path.exists(chroot + ret + "/.config"):
         return ret
+    # Some Mediatek kernels use a 'kernel' subdirectory
+    if os.path.exists(chroot + ret + "/kernel/.config"):
+        return os.path.join(ret, "kernel")
 
     # Not found
     raise RuntimeError("Could not find the kernel config. Consider making a"
