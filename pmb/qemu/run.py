@@ -65,18 +65,6 @@ def which_qemu(args, arch):
                            " run qemu.")
 
 
-def which_spice(args):
-    """
-    Finds some SPICE executable or raises an exception otherwise
-    :returns: path_to_spice_executable or None
-    """
-    executables = ["remote-viewer", "spicy"]
-    for executable in executables:
-        if shutil.which(executable):
-            return executable
-    return None
-
-
 def command_spice(args):
     """
     Generate the full SPICE command with arguments connect to the virtual
@@ -87,15 +75,6 @@ def command_spice(args):
     if not args.spice_port:
         return None
 
-    spice_binary = which_spice(args)
-    if not spice_binary:
-        logging.warning("WARNING: Could not find any SPICE client (spicy,"
-                        " remote-viewer) in your PATH, starting without"
-                        " SPICE support!")
-        return None
-
-    if spice_binary == "spicy":
-        return ["spicy", "-h", "127.0.0.1", "-p", args.spice_port]
     return ["remote-viewer", "spice://127.0.0.1?port=" + args.spice_port]
 
 
@@ -289,6 +268,8 @@ def install_depends(args, arch):
                "mesa-gl", "mesa-egl", "mesa-dri-ati", "mesa-dri-freedreno",
                "mesa-dri-intel", "mesa-dri-nouveau", "mesa-dri-swrast",
                "mesa-dri-virtio", "mesa-dri-vmwgfx"]
+    if args.spice_port:
+        depends += ["virt-viewer", "font-noto"]
     pmb.chroot.apk.install(args, depends)
 
 
@@ -336,7 +317,10 @@ def run(args):
         output = "background" if spice_enabled else "interactive"
         process = pmb.helpers.run.user(args, qemu, output=output, env=env)
         if spice:
-            pmb.helpers.run.user(args, spice)
+            pmb.chroot.other.copy_xauthority(args)
+            pmb.chroot.user(args, spice, "native", output="tui",
+                            env={"DISPLAY": os.environ.get("DISPLAY"),
+                                 "XAUTHORITY": "/home/pmos/.Xauthority"})
     except KeyboardInterrupt:
         # Don't show a trace when pressing ^C
         pass
