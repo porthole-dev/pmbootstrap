@@ -55,7 +55,7 @@ config_keys = ["ccache_size", "device", "extra_packages", "hostname", "jobs",
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
-# overriden on the commandline)
+# overridden on the commandline)
 defaults = {
     "alpine_version": "edge",  # alternatively: latest-stable
     "aports": "$WORK/cache_git/pmaports",
@@ -153,7 +153,7 @@ apkindex_retention_time = 4
 # BUILD
 #
 # Officially supported host/target architectures for postmarketOS. Only
-# specify architectures supported by Alpine here. Fro cross-compiling,
+# specify architectures supported by Alpine here. For cross-compiling,
 # we need to generate the "musl-$ARCH", "binutils-$ARCH" and "gcc-$ARCH"
 # packages (use "pmbootstrap aportgen musl-armhf" etc.).
 build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]

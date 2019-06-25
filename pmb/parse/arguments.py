@@ -459,8 +459,8 @@ def arguments():
     install.add_argument("--cipher", help="cryptsetup cipher used to"
                          " encrypt the rootfs, eg. aes-xts-plain64")
     install.add_argument("--iter-time", help="cryptsetup iteration time (in"
-                         " miliseconds) to use when encrypting the system"
-                         " partiton")
+                         " milliseconds) to use when encrypting the system"
+                         " partition")
     install.add_argument("--add", help="comma separated list of packages to be"
                          " added to the rootfs (e.g. 'vim,gcc')")
     install.add_argument("--no-fde", help="do not use full disk encryption",

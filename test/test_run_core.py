@@ -111,7 +111,7 @@ def test_foreground_pipe(args):
 
     # Check if all child processes are killed after timeout.
     # The first command uses ps to get its process group id (pgid) and echo it
-    # to stdout. All of the test commmands will be running under that pgid.
+    # to stdout. All of the test commands will be running under that pgid.
     cmd = ["sudo", "sh", "-c",
            "pgid=$(ps -p ${1:-$$} -o pgid=);echo $pgid | tr -d '\n';" +
            "sleep 10 | sleep 20 | sleep 30"]

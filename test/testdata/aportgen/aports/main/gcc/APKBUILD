@@ -310,7 +310,7 @@ package() {
 
 	ln -s gcc "$pkgdir"/usr/bin/cc
 
-	# we dont support gcj -static
+	# we don't support gcj -static
 	# and saving 35MB is not bad.
 	find "$pkgdir" -name libgtkpeer.a \
 		-o -name libgjsmalsa.a -o \

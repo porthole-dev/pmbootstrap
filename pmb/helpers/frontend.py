@@ -274,7 +274,7 @@ def kconfig(args):
             if skipped:
                 logging.info("NOTE: " + str(skipped) + " kernel(s) was skipped"
                              " (consider 'pmbootstrap kconfig check -f')")
-            logging.info("kconfig check succeded!")
+            logging.info("kconfig check succeeded!")
     elif args.action_kconfig == "edit":
         pmb.build.menuconfig(args, args.package)
 

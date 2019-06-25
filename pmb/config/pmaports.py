@@ -46,7 +46,7 @@ def clone(args):
                  " the commands it runs, you can run 'pmbootstrap log' in a"
                  " second terminal.")
     logging.info("Setting up the native chroot and cloning the package build"
-                 " recipies (pmaports)...")
+                 " recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
     pmb.helpers.git.clone(args, "pmaports", False, True)

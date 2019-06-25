@@ -32,9 +32,9 @@ def binfmt_info(args, arch_qemu):
         for line in handle:
             if line.startswith('#') or "=" not in line:
                 continue
-            splitted = line.split("=")
-            key = splitted[0].strip()
-            value = splitted[1]
+            split = line.split("=")
+            key = split[0].strip()
+            value = split[1]
             full[key] = value[1:-2]
 
     ret = {}

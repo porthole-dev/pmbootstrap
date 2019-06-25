@@ -311,7 +311,7 @@ def embed_firmware(args):
 
     # Perform three checks prior to writing binaries to disk: 1) that binaries
     # exist, 2) that binaries do not extend into the first partition, 3) that
-    # binaries do not overlap eachother
+    # binaries do not overlap each other
     binary_ranges = {}
     binary_list = []
     for binary_offset in binaries:
