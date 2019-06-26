@@ -72,3 +72,9 @@ def test_kernels(args):
     ret = {"downstream": "Downstream description",
            "mainline": "Mainline description"}
     assert func(args, device) == ret
+
+
+def test_depends_in_depends(args):
+    path = pmb_src + "/test/testdata/apkbuild/APKBUILD.depends-in-depends"
+    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    assert apkbuild["depends"] == ["first", "second", "third"]

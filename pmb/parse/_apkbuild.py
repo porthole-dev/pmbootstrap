@@ -170,6 +170,13 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
                 i += 1
                 line_value = lines[i][:-1]
 
+            # Support depends="$depends hello-world" (#1800)
+            if attribute == "depends" and ("${depends}" in value or
+                                           "$depends" in value):
+                previous = " ".join(ret["depends"]) if "depends" in ret else ""
+                value = value.replace("${depends}", previous)
+                value = value.replace("$depends", previous)
+
             # Split up arrays, delete empty strings inside the list
             if options["array"]:
                 if value:
