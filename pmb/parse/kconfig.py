@@ -52,6 +52,7 @@ def check(args, pkgname, details=False):
     # Read all kernel configs in the aport
     ret = True
     aport = pmb.helpers.pmaports.find(args, "linux-" + flavor)
+    pkgver = pmb.parse.apkbuild(args, aport + "/APKBUILD")["pkgver"]
     for config_path in glob.glob(aport + "/config-*"):
         logging.debug("Check kconfig: " + config_path)
         with open(config_path) as handle:
@@ -64,34 +65,39 @@ def check(args, pkgname, details=False):
         # Loop trough necessary config options, and print a warning,
         # if any is missing
         path = "linux-" + flavor + "/" + os.path.basename(config_path)
-        for archs, options in pmb.config.necessary_kconfig_options.items():
-            if archs != "all":
-                # Split and check if the device's architecture architecture has special config
-                # options. If option does not contain the architecture of the device
-                # kernel, then just skip the option.
-                architectures = archs.split(" ")
-                if config_arch not in architectures:
-                    continue
+        for rule, archs_options in pmb.config.necessary_kconfig_options.items():
+            # Skip options irrelevant for the current kernel's version
+            if not pmb.parse.version.check_string(pkgver, rule):
+                continue
 
-            for option, option_value in options.items():
-                if option_value not in [True, False]:
-                    raise RuntimeError("kconfig check code can only handle"
-                                       " True/False right now, given value '" +
-                                       str(option_value) + "' is not supported. If you"
-                                       " need this, please open an issue.")
-                if option_value != is_set(config, option):
-                    ret = False
-                    if details:
-                        should = "should" if option_value else "should *not*"
-                        link = ("https://wiki.postmarketos.org/wiki/"
-                                "Kernel_configuration#CONFIG_" + option)
-                        logging.info("WARNING: " + path + ": CONFIG_" + option + " " +
-                                     should + " be set. See <" + link +
-                                     "> for details.")
-                    else:
-                        logging.warning("WARNING: " + path + " isn't configured"
-                                        " properly for postmarketOS, run"
-                                        " 'pmbootstrap kconfig check' for"
-                                        " details!")
-                        break
+            for archs, options in archs_options.items():
+                if archs != "all":
+                    # Split and check if the device's architecture architecture has special config
+                    # options. If option does not contain the architecture of the device
+                    # kernel, then just skip the option.
+                    architectures = archs.split(" ")
+                    if config_arch not in architectures:
+                        continue
+
+                for option, option_value in options.items():
+                    if option_value not in [True, False]:
+                        raise RuntimeError("kconfig check code can only handle"
+                                           " True/False right now, given value '" +
+                                           str(option_value) + "' is not supported. If you"
+                                           " need this, please open an issue.")
+                    if option_value != is_set(config, option):
+                        ret = False
+                        if details:
+                            should = "should" if option_value else "should *not*"
+                            link = ("https://wiki.postmarketos.org/wiki/"
+                                    "Kernel_configuration#CONFIG_" + option)
+                            logging.info("WARNING: " + path + ": CONFIG_" + option + " " +
+                                         should + " be set. See <" + link +
+                                         "> for details.")
+                        else:
+                            logging.warning("WARNING: " + path + " isn't configured"
+                                            " properly for postmarketOS, run"
+                                            " 'pmbootstrap kconfig check' for"
+                                            " details!")
+                            break
     return ret

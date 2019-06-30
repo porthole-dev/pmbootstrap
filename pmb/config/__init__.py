@@ -168,20 +168,29 @@ build_cross_native = ["linux-*", "arch-bin-masquerade", "u-boot*"]
 
 # Necessary kernel config options
 necessary_kconfig_options = {
-    "all": {
-        "ANDROID_PARANOID_NETWORK": False,
-        "BLK_DEV_INITRD": True,
-        "DEVTMPFS": True,
-        "DM_CRYPT": True,
-        "EXT4_FS": True,
-        "KINETO_GAN": False,
-        "PFT": False,
-        "SYSVIPC": True,
-        "VT": True,
-        "USE_VFB": False,
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "ANDROID_PARANOID_NETWORK": False,
+            "BLK_DEV_INITRD": True,
+            "DEVTMPFS": True,
+            "DM_CRYPT": True,
+            "EXT4_FS": True,
+            "KINETO_GAN": False,
+            "PFT": False,
+            "SYSVIPC": True,
+            "VT": True,
+            "USE_VFB": False,
+        }
     },
-    "armhf armv7 x86": {
-        "LBDAF": True
+    ">=4.0.0": {
+        "all": {
+            "UEVENT_HELPER": True,
+        },
+    },
+    "<5.2.0": {
+        "armhf armv7 x86": {
+            "LBDAF": True
+        }
     }
 }
 
