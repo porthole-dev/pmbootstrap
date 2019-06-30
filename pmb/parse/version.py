@@ -284,3 +284,42 @@ def compare(a_version, b_version, fuzzy=False):
     # The tokens are not the same, but previous checks revealed that it
     # is equal anyway (e.g. "1.0" == "1").
     return 0
+
+
+"""
+Convenience functions below are not modeled after apk's version.c.
+"""
+
+
+def check_string(a_version, rule):
+    """
+    Compare a version against a check string. This is used in "pmbootstrap
+    kconfig check", to only require certain options if the pkgver is in a
+    specified range (#1795).
+
+    :param a_version: "3.4.1"
+    :param rule: ">=1.0.0"
+    :returns: True if a_version matches rule, false otherwise.
+    """
+    # Operators and the expected returns of compare(a,b)
+    operator_results = {">=": [1, 0],
+                        "<": [-1]}
+
+    # Find the operator
+    b_version = None
+    expected_results = None
+    for operator in operator_results:
+        if rule.startswith(operator):
+            b_version = rule[len(operator):]
+            expected_results = operator_results[operator]
+            break
+
+    # No operator found
+    if not b_version:
+        raise RuntimeError("Could not find operator in '" + rule + "'. You"
+                           " probably need to adjust check_string() in"
+                           " pmb/parse/version.py.")
+
+    # Compare
+    result = compare(a_version, b_version)
+    return result in expected_results

@@ -72,3 +72,17 @@ def test_version(args):
     for error in errors:
         print(error)
     assert errors == []
+
+
+def test_version_check_string():
+    func = pmb.parse.version.check_string
+    assert func("3.2.4", ">=0.0.0") is True
+    assert func("3.2.4", ">=3.2.4") is True
+    assert func("3.2.4", "<4.0.0") is True
+
+    assert func("0.0.0", ">=0.0.1") is False
+    assert func("4.0.0", "<4.0.0") is False
+    assert func("4.0.1", "<4.0.0") is False
+
+    assert func("5.2.0_rc3", "<5.2.0") is False
+    assert func("5.2.0_rc3", ">=5.2.0") is True
