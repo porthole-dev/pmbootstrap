@@ -184,6 +184,8 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
             raise RuntimeError("DTB file not found: " + dtb_image)
         command += ["-dtb", dtb_image]
 
+    smp = os.cpu_count()
+
     if arch == "x86_64":
         command += ["-serial", "stdio"]
         command += ["-drive", "file=" + img_path + ",format=raw"]
@@ -193,6 +195,7 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
         command += ["-M", "vexpress-a9"]
         command += ["-sd", img_path]
         command += ["-device", "virtio-net-device,netdev=net0"]
+        smp = min(smp, 4)
 
     elif arch == "aarch64":
         command += ["-M", "virt"]
@@ -209,7 +212,7 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
     else:
         raise RuntimeError("Architecture {} not supported by this command yet.".format(arch))
 
-    command += ["-smp", str(os.cpu_count())]
+    command += ["-smp", str(smp)]
 
     # Kernel Virtual Machine (KVM) support
     native = True
