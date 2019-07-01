@@ -455,7 +455,7 @@ def arguments():
                        help="generate TWRP flashable zip",
                        action="store_true", dest="android_recovery_zip")
     install.add_argument("--rsync", help="update the sdcard using rsync,"
-                         " only works with --no-fde", action="store_true")
+                         " does not work with --fde", action="store_true")
     install.add_argument("--cipher", help="cryptsetup cipher used to"
                          " encrypt the rootfs, eg. aes-xts-plain64")
     install.add_argument("--iter-time", help="cryptsetup iteration time (in"
@@ -463,8 +463,10 @@ def arguments():
                          " partition")
     install.add_argument("--add", help="comma separated list of packages to be"
                          " added to the rootfs (e.g. 'vim,gcc')")
-    install.add_argument("--no-fde", help="do not use full disk encryption",
-                         action="store_false", dest="full_disk_encryption")
+    install.add_argument("--no-fde", help=argparse.SUPPRESS,
+                         action="store_true", dest="no_fde")
+    install.add_argument("--fde", help="use full disk encryption",
+                         action="store_true", dest="full_disk_encryption")
     install.add_argument("--flavor",
                          help="Specify kernel flavor to include in recovery"
                               " flashable zip", default=None)

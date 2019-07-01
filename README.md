@@ -96,9 +96,14 @@ Build the rootfs:
 $ pmbootstrap install
 ```
 
-Update existing installation on SD card (full disk encryption disabled):
+Build the rootfs with full disk encryption:
 ```
-$ pmbootstrap install --sdcard=/dev/mmcblk0 --no-fde --rsync
+$ pmbootstrap install --fde
+```
+
+Update existing installation on SD card:
+```
+$ pmbootstrap install --sdcard=/dev/mmcblk0 --rsync
 ```
 
 Run the image in Qemu:

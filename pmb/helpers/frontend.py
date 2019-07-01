@@ -184,6 +184,8 @@ def initfs(args):
 
 
 def install(args):
+    if args.no_fde:
+        logging.warning("WARNING: --no-fde is deprecated, as it is now the default.")
     if args.rsync and args.full_disk_encryption:
         raise ValueError("Installation using rsync is not compatible with full"
                          " disk encryption.")
