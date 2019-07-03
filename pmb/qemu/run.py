@@ -223,7 +223,7 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
     if native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
     else:
-        logging.info("WARNING: Qemu is not using KVM and will run slower!")
+        logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
     # 2D acceleration support via QXL/SPICE or virtio
     if spice_enabled:
@@ -278,7 +278,7 @@ def resize_image(args, img_size_new, img_path):
 
 def sigterm_handler(number, frame):
     raise RuntimeError("pmbootstrap was terminated by another process,"
-                       " and killed the Qemu VM it was running.")
+                       " and killed the QEMU VM it was running.")
 
 
 def install_depends(args, arch):
@@ -306,12 +306,12 @@ def run(args):
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
 
-    # Get the Qemu and spice commands
+    # Get the QEMU and spice commands
     spice = command_spice(args)
     spice_enabled = True if spice else False
     qemu, env = command_qemu(args, arch, device, img_path, spice_enabled)
 
-    # Workaround: Qemu runs as local user and needs write permissions in the
+    # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root
     if not os.access(img_path, os.W_OK):
         pmb.helpers.run.root(args, ["chmod", "666", img_path])
@@ -329,7 +329,7 @@ def run(args):
     logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
     logging.info("* (telnet) telnet localhost " + str(args.port + 1))
 
-    # Run Qemu (or Qemu + SPICE) and kill it together with pmbootstrap
+    # Run QEMU (or QEMU + SPICE) and kill it together with pmbootstrap
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)

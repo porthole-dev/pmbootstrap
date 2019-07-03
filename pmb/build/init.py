@@ -92,7 +92,7 @@ def init(args, suffix="native"):
                            "s/^ERROR_CLEANUP=.*/ERROR_CLEANUP=''/",
                            "/etc/abuild.conf"], suffix)
 
-    # Qemu workaround (aarch64 only)
+    # QEMU workaround (aarch64 only)
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
     emulate = pmb.parse.arch.cpu_emulation_required(args, arch)
     if emulate and arch == "aarch64":

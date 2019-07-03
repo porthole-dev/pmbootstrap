@@ -106,7 +106,7 @@ Update existing installation on SD card:
 $ pmbootstrap install --sdcard=/dev/mmcblk0 --rsync
 ```
 
-Run the image in Qemu:
+Run the image in QEMU:
 ```
 $ pmbootstrap qemu --image-size=1G
 ```

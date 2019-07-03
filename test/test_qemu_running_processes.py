@@ -18,7 +18,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 """
-This file runs various installations and boots into them with Qemu, then checks
+This file runs various installations and boots into them with QEMU, then checks
 via SSH if expected processes are running.
 
 We use an extra config file (based on ~/.config/pmbootstrap.cfg), because we
@@ -83,7 +83,7 @@ def pmbootstrap_yes(args, config, parameters):
                                 working_dir=pmb_src)
 
 
-class Qemu(object):
+class QEMU(object):
     def __init__(self, request):
         self.process = None
         request.addfinalizer(self.terminate)
@@ -92,7 +92,7 @@ class Qemu(object):
         if self.process:
             self.process.terminate()
         else:
-            print("WARNING: The Qemu process wasn't set, so it could not be"
+            print("WARNING: The QEMU process wasn't set, so it could not be"
                   " terminated.")
 
     def run(self, args, tmpdir, ui="none"):
@@ -119,12 +119,12 @@ class Qemu(object):
 
 @pytest.fixture
 def qemu(request):
-    return Qemu(request)
+    return QEMU(request)
 
 
 def ssh_run(args, command):
     """
-    Run a command in the Qemu VM on localhost via SSH.
+    Run a command in the QEMU VM on localhost via SSH.
 
     :param command: flat string of the command to execute, e.g. "ps au"
     :returns: the result from the SSH server

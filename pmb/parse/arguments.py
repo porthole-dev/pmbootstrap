@@ -144,7 +144,7 @@ def arguments_qemu(subparser):
                          help="use SPICE for 2D acceleration (default port:"
                          " 8077)")
     display.add_argument("--display", dest="qemu_display", const="sdl,gl=on",
-                         help="Qemu's display parameter (default: sdl,gl=on)",
+                         help="QEMU's display parameter (default: sdl,gl=on)",
                          default="sdl,gl=on", nargs="?")
 
     ret.add_argument("--host-qemu", dest="host_qemu", action='store_true',
