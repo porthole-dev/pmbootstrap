@@ -137,12 +137,12 @@ def ssh_run(args, command):
     return ret
 
 
-def is_running(args, programs, tries=180, sleep_before_retry=1):
+def is_running(args, programs, tries=300, sleep_before_retry=1):
     """
     Simple check that looks for program names in the output of "ps ax".
     This is error-prone, only use it with programs that have a unique name.
     With defaults retries and sleep_before_retry values, it will try each
-    second for 3 minutes.
+    second for 5 minutes.
 
     :param programs: list of programs to check for, e.g. ["xfce4-desktop"]
     :param tries: amount of tries with the wrong result before giving up
