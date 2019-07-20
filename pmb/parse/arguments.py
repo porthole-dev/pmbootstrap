@@ -227,6 +227,8 @@ def arguments_kconfig(subparser):
                        " kernels, even the ones that would be ignored by"
                        " default")
     check.add_argument("--arch", choices=arch_choices, dest="arch")
+    check.add_argument("--file", action="store_true", help="check a file"
+                       " directly instead of a config in a package")
     check_package = check.add_argument("package", default="", nargs='?')
     if argcomplete:
         check_package.completer = kernel_completer

@@ -247,6 +247,13 @@ def newapkbuild(args):
 
 def kconfig(args):
     if args.action_kconfig == "check":
+        # Handle passing a file directly
+        if args.file:
+            if pmb.parse.kconfig.check_file(args, args.package, details=True):
+                logging.info("kconfig check succeeded!")
+                return
+            raise RuntimeError("kconfig check failed!")
+
         # Default to all kernel packages
         packages = []
         if args.package == "" or args.package is None:
