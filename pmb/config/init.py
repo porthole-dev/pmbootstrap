@@ -357,7 +357,7 @@ def frontend(args):
                  " or \"none\"")
     extra = pmb.helpers.cli.ask(args, "Extra packages", None,
                                 args.extra_packages,
-                                validation_regex="^([-.+\w]+)(,[-.+\w]+)*$")
+                                validation_regex=r"^([-.+\w]+)(,[-.+\w]+)*$")
     cfg["pmbootstrap"]["extra_packages"] = extra
 
     # Configure timezone info

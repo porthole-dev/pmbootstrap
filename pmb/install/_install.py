@@ -170,7 +170,7 @@ def configure_apk(args):
         pmb.helpers.run.root(args, ["cp", key, rootfs + "/etc/apk/keys/"])
 
     # Disable pmbootstrap repository
-    pmb.helpers.run.root(args, ["sed", "-i", "/\/mnt\/pmbootstrap-packages/d",
+    pmb.helpers.run.root(args, ["sed", "-i", r"/\/mnt\/pmbootstrap-packages/d",
                                 rootfs + "/etc/apk/repositories"])
     pmb.helpers.run.user(args, ["cat", rootfs + "/etc/apk/repositories"])
 
@@ -281,7 +281,7 @@ def setup_hostname(args):
     suffix = "rootfs_" + args.device
     pmb.chroot.root(args, ["sh", "-c", "echo " + shlex.quote(hostname) +
                            " > /etc/hostname"], suffix)
-    regex = ("s/^127\.0\.0\.1.*/127.0.0.1\t" + re.escape(hostname) +
+    regex = (r"s/^127\.0\.0\.1.*/127.0.0.1\t" + re.escape(hostname) +
              " localhost.localdomain localhost/")
     pmb.chroot.root(args, ["sed", "-i", "-e", regex, "/etc/hosts"], suffix)
 
