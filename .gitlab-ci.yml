@@ -19,13 +19,38 @@ stages:
   - checks
   - tests
 
+# defaults for "only"
+# We need to run the CI jobs in a "merge request specific context", if CI is
+# running in a merge request. Otherwise the environment variable that holds the
+# merge request ID is not available. This means, we must set the "only"
+# variable accordingly - and if we only do it for one job, all other jobs will
+# not get executed. So have the defaults here, and use them in all jobs that
+# should run on both the master branch, and in merge requests.
+# https://docs.gitlab.com/ee/ci/merge_request_pipelines/index.html#excluding-certain-jobs
+.only-default: &only-default
+  only:
+    - master
+    - merge_requests
+    - tags
+
 static-code-analysis:
   stage: checks
+  <<: *only-default
   script:
     - "./test/static_code_analysis.sh"
 
+# MR settings
+# (Checks for "Allow commits from members who can merge to the target branch")
+mr-settings:
+  stage: checks
+  only:
+    - merge_requests
+  script:
+    - .gitlab/check_mr_settings.py
+
 test-pmbootstrap:
   stage: tests
+  <<: *only-default
   script:
     # Note: This script uses CI_PROJECT_DIR
     - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh"
@@ -46,6 +71,7 @@ test-pmbootstrap:
 
 pmbootstrap-qemu-tests:
   stage: tests
+  <<: *only-default
   only:
     variables:
       # This is configured in the gitlab project. Make sure there is a runner
