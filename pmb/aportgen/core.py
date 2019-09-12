@@ -19,6 +19,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 import fnmatch
 import logging
 import re
+import glob
 import pmb.helpers.git
 
 
@@ -149,26 +150,37 @@ def rewrite(args, pkgname, path_original, fields={}, replace_pkgname=None,
         handle.truncate()
 
 
-def get_upstream_aport(args, upstream_path):
+def get_upstream_aport(args, pkgname):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 
-    :param upstream_path: where the aport is in the git repository, e.g.
-                          "main/gcc"
+    :param pkgname: package name
     :returns: absolute path on disk where the Alpine aport is checked out
               example: /opt/pmbootstrap_work/cache_git/aports/upstream/main/gcc
     """
     # APKBUILD
     pmb.helpers.git.clone(args, "aports_upstream")
-    aport_path = (args.work + "/cache_git/aports_upstream/" + upstream_path)
+    aports_upstream_path = args.work + "/cache_git/aports_upstream"
+
+    # Search package
+    paths = glob.glob(aports_upstream_path + "/*/" + pkgname)
+    if len(paths) > 1:
+        raise RuntimeError("Package " + pkgname + " found in multiple"
+                           " aports subfolders.")
+    elif len(paths) == 0:
+        raise RuntimeError("Package " + pkgname + " not found in alpine"
+                           " aports repository.")
+    aport_path = paths[0]
+
+    # Parse APKBUILD
     apkbuild = pmb.parse.apkbuild(args, aport_path + "/APKBUILD",
                                   check_pkgname=False)
     apkbuild_version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 
     # Binary package
-    split = upstream_path.split("/", 1)
-    repo = split[0]
-    pkgname = split[1]
+    split = aport_path.split("/")
+    repo = split[-2]
+    pkgname = split[-1]
     index_path = pmb.helpers.repo.alpine_apkindex_path(args, repo)
     package = pmb.parse.apkindex.package(args, pkgname, indexes=[index_path])
 

@@ -24,7 +24,7 @@ import pmb.helpers.run
 def generate(args, pkgname):
     # Copy original aport
     arch = pkgname.split("-")[1]
-    upstream = pmb.aportgen.core.get_upstream_aport(args, "main/binutils")
+    upstream = pmb.aportgen.core.get_upstream_aport(args, "binutils")
     pmb.helpers.run.user(args, ["cp", "-r", upstream, args.work + "/aportgen"])
 
     # Architectures to build this package for

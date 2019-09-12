@@ -52,7 +52,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
 
     # Override get_upstream_aport() to point to testdata
     def func(args, upstream_path):
-        return testdata + "/aports/" + upstream_path
+        return testdata + "/aports/main/" + upstream_path
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 
     # Run aportgen and compare output
@@ -99,8 +99,8 @@ def test_aportgen_get_upstream_aport(args, monkeypatch):
 
     # Equal version
     func = pmb.aportgen.core.get_upstream_aport
-    upstream = "main/gcc"
-    upstream_full = args.work + "/cache_git/aports_upstream/" + upstream
+    upstream = "gcc"
+    upstream_full = args.work + "/cache_git/aports_upstream/main/" + upstream
     apkbuild = {"pkgver": "2.0", "pkgrel": "0"}
     package = {"version": "2.0-r0"}
     assert func(args, upstream) == upstream_full
