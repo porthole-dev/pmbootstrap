@@ -487,6 +487,8 @@ def arguments():
                           " APKBUILD match, instead of updating them")
     aportgen = sub.add_parser("aportgen", help="generate a postmarketOS"
                               " specific package build recipe (aport/APKBUILD)")
+    aportgen.add_argument("--fork-alpine", help="fork the alpine upstream package",
+                          action="store_true", dest="fork_alpine")
     build = sub.add_parser("build", help="create a package for a"
                            " specific architecture")
     build.add_argument("--arch", choices=arch_choices, default=None,

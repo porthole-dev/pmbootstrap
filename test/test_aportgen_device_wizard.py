@@ -35,6 +35,7 @@ def args(tmpdir, request):
     sys.argv = ["pmbootstrap.py", "build", "-i", "device-testsuite-testdevice"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
+    args.fork_alpine = False
     pmb.helpers.logging.init(args)
     request.addfinalizer(args.logfd.close)
 

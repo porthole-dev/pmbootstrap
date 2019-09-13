@@ -62,7 +62,7 @@ def format_function(name, body, remove_indent=4):
     return name + "() {\n" + ret + "}\n"
 
 
-def rewrite(args, pkgname, path_original, fields={}, replace_pkgname=None,
+def rewrite(args, pkgname, path_original="", fields={}, replace_pkgname=None,
             replace_functions={}, replace_simple={}, below_header="",
             remove_indent=4):
     """
@@ -70,6 +70,7 @@ def rewrite(args, pkgname, path_original, fields={}, replace_pkgname=None,
     lines (so they won't be bugged with issues regarding our generated aports),
     and add reference to the original aport.
 
+    :param path_original: The original path of the automatically generated aport
     :param fields: key-value pairs of fields, that shall be changed in the
         APKBUILD. For example: {"pkgdesc": "my new package", "subpkgs": ""}
     :param replace_pkgname: When set, $pkgname gets replaced with that string in
@@ -85,12 +86,18 @@ def rewrite(args, pkgname, path_original, fields={}, replace_pkgname=None,
 
     """
     # Header
-    lines_new = [
-        "# Automatically generated aport, do not edit!\n",
-        "# Generator: pmbootstrap aportgen " + pkgname + "\n",
-        "# Based on: " + path_original + "\n",
-        "\n",
-    ]
+    if path_original:
+        lines_new = [
+            "# Automatically generated aport, do not edit!\n",
+            "# Generator: pmbootstrap aportgen " + pkgname + "\n",
+            "# Based on: " + path_original + "\n",
+            "\n",
+        ]
+    else:
+        lines_new = [
+            "# Forked from Alpine INSERT-REASON-HERE (CHANGEME!)\n",
+            "\n",
+        ]
 
     if below_header:
         for line in below_header.split("\n"):

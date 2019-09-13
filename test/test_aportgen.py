@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
-import shutil
 import sys
 import pytest
 import filecmp
@@ -38,17 +37,17 @@ def args(tmpdir, request):
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
+    args.fork_alpine = False
     pmb.helpers.logging.init(args)
     request.addfinalizer(args.logfd.close)
     return args
 
 
 def test_aportgen_compare_output(args, tmpdir, monkeypatch):
-    # Copy pmaports testdata to tmpdir
-    tmpdir = str(tmpdir)
+    # Fake aports folder in tmpdir
+    args.aports = str(tmpdir)
+    os.mkdir(tmpdir + "/cross")
     testdata = pmb_src + "/test/testdata/aportgen"
-    shutil.copytree(testdata + "/pmaports/cross", tmpdir + "/cross")
-    args.aports = tmpdir
 
     # Override get_upstream_aport() to point to testdata
     def func(args, upstream_path):
@@ -63,6 +62,27 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
         path_old = testdata + "/pmaports/cross/" + pkgname + "/APKBUILD"
         assert os.path.exists(path_new)
         assert filecmp.cmp(path_new, path_old, False)
+
+
+def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
+    # Fake aports folder in tmpdir
+    args.aports = str(tmpdir)
+    os.mkdir(tmpdir + "/temp")
+    testdata = pmb_src + "/test/testdata/aportgen"
+    args.fork_alpine = True
+
+    # Override get_upstream_aport() to point to testdata
+    def func(args, upstream_path):
+        return testdata + "/aports/main/" + upstream_path
+    monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
+
+    # Run aportgen and compare output
+    pkgname = "binutils"
+    pmb.aportgen.generate(args, pkgname)
+    path_new = args.aports + "/temp/" + pkgname + "/APKBUILD"
+    path_old = testdata + "/pmaports/temp/" + pkgname + "/APKBUILD"
+    assert os.path.exists(path_new)
+    assert filecmp.cmp(path_new, path_old, False)
 
 
 def test_aportgen(args, tmpdir):
