@@ -91,10 +91,12 @@ def rewrite(args, pkgname, path_original, fields={}, replace_pkgname=None,
         "# Based on: " + path_original + "\n",
         "\n",
     ]
-    for line in below_header.split("\n"):
-        if not line[:8].strip():
-            line = line[8:]
-        lines_new += line.rstrip() + "\n"
+
+    if below_header:
+        for line in below_header.split("\n"):
+            if not line[:8].strip():
+                line = line[8:]
+            lines_new += line.rstrip() + "\n"
 
     # Copy/modify lines, skip Maintainer/Contributor
     path = args.work + "/aportgen/APKBUILD"
