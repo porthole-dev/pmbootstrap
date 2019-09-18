@@ -308,7 +308,7 @@ def arguments():
                         action="store_true")
     parser.add_argument("-t", "--timeout", help="seconds after which processes"
                         " get killed that stopped writing any output (default:"
-                        " 300)", default=300, type=float)
+                        " 900)", default=900, type=float)
     parser.add_argument("-w", "--work", help="folder where all data"
                         " gets stored (chroots, caches, built packages)")
     parser.add_argument("-y", "--assume-yes", help="Assume 'yes' to all"
