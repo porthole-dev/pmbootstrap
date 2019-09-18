@@ -66,6 +66,7 @@ defaults = {
     "config": os.path.expanduser("~") + "/.config/pmbootstrap.cfg",
     "device": "samsung-i9100",
     "extra_packages": "none",
+    "fork_alpine": False,
     "hostname": "",
     # A higher value is typically desired, but this can lead to VERY long open
     # times on slower devices due to host systems being MUCH faster than the
