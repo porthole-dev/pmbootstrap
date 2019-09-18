@@ -92,8 +92,13 @@ def alpine_to_hostspec(arch):
     """
     mapping = {
         "aarch64": "aarch64-alpine-linux-musl",
-        "armhf": "armv6-alpine-linux-muslgnueabihf",
+        "armel": "armv5-alpine-linux-musleabi",
+        "armhf": "armv6-alpine-linux-musleabihf",
         "armv7": "armv7-alpine-linux-musleabihf",
+        "mips": "mips-alpine-linux-musl",
+        "mips64": "mips64-alpine-linux-musl",
+        "mipsel": "mipsel-alpine-linux-musl",
+        "mips64el": "mips64el-alpine-linux-musl",
         "ppc": "powerpc-alpine-linux-musl",
         "ppc64": "powerpc64-alpine-linux-musl",
         "ppc64le": "powerpc64le-alpine-linux-musl",

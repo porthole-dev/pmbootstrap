@@ -272,8 +272,8 @@ def test_run_abuild(args, monkeypatch):
     # cross=native
     env = {"CARCH": "armhf",
            "SUDO_APK": "abuild-apk --no-progress",
-           "CROSS_COMPILE": "armv6-alpine-linux-muslgnueabihf-",
-           "CC": "armv6-alpine-linux-muslgnueabihf-gcc"}
+           "CROSS_COMPILE": "armv6-alpine-linux-musleabihf-",
+           "CC": "armv6-alpine-linux-musleabihf-gcc"}
     cmd = ["abuild", "-D", "postmarketOS", "-d"]
     assert func(args, apkbuild, "armhf", cross="native") == (output, cmd, env)
 
