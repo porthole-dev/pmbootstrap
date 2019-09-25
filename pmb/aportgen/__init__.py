@@ -79,3 +79,5 @@ def generate(args, pkgname):
         pmb.helpers.run.user(args, ["rm", "-r", path_target])
     pmb.helpers.run.user(
         args, ["mv", args.work + "/aportgen", path_target])
+
+    logging.info("*** pmaport generated: " + path_target)
