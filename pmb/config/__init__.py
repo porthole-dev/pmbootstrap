@@ -274,7 +274,6 @@ deviceinfo_attributes = [
     "flash_offset_tags",
     "flash_pagesize",
     "flash_fastboot_max_size",
-    "flash_fastboot_vendor_id",
     "flash_sparse",
     "rootfs_image_sector_size",
     "sd_embed_firmware",
@@ -339,7 +338,7 @@ $IMAGE: Path to the rootfs image
 $PARTITION_KERNEL: Partition to flash the kernel/boot.img to
 $PARTITION_SYSTEM: Partition to flash the rootfs to
 
-Fastboot specific: $KERNEL_CMDLINE, $VENDOR_ID
+Fastboot specific: $KERNEL_CMDLINE
 Heimdall specific: $PARTITION_INITFS
 uuu specific: $UUU_SCRIPT
 """
@@ -348,14 +347,12 @@ flashers = {
         "depends": ["android-tools"],
         "actions":
                 {
-                    "list_devices": [["fastboot", "-i", "$VENDOR_ID",
-                                      "devices", "-l"]],
-                    "flash_rootfs": [["fastboot", "-i", "$VENDOR_ID",
-                                      "flash", "$PARTITION_SYSTEM", "$IMAGE"]],
-                    "flash_kernel": [["fastboot", "-i", "$VENDOR_ID",
-                                      "flash", "$PARTITION_KERNEL", "$BOOT/boot.img-$FLAVOR"]],
-                    "boot": [["fastboot", "-i", "$VENDOR_ID",
-                              "-c", "$KERNEL_CMDLINE", "boot",
+                    "list_devices": [["fastboot", "devices", "-l"]],
+                    "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
+                                      "$IMAGE"]],
+                    "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
+                                      "$BOOT/boot.img-$FLAVOR"]],
+                    "boot": [["fastboot", "-c", "$KERNEL_CMDLINE", "boot",
                               "$BOOT/boot.img-$FLAVOR"]],
         },
     },

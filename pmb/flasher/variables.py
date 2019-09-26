@@ -39,7 +39,6 @@ def variables(args, flavor, method):
         "$BOOT": "/mnt/rootfs_" + args.device + "/boot",
         "$FLAVOR": flavor if flavor is not None else "",
         "$IMAGE": "/home/pmos/rootfs/" + args.device + ".img",
-        "$VENDOR_ID": args.deviceinfo["flash_fastboot_vendor_id"],
         "$KERNEL_CMDLINE": _cmdline,
         "$PARTITION_KERNEL": _partition_kernel,
         "$PARTITION_INITFS": args.deviceinfo["flash_heimdall_partition_initfs"] or "RECOVERY",
