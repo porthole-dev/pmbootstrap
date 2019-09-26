@@ -25,27 +25,21 @@ def sanity_check(info, path):
     # Resolve path for more readable error messages
     path = os.path.realpath(path)
 
-    # "flash_methods" is legacy
+    # Legacy errors
     if "flash_methods" in info:
         raise RuntimeError("deviceinfo_flash_methods has been renamed to"
                            " deviceinfo_flash_method. Please adjust your"
                            " deviceinfo file: " + path)
-
-    # "external_disk*" is legacy
     if "external_disk" in info or "external_disk_install" in info:
         raise RuntimeError("Instead of deviceinfo_external_disk and"
                            " deviceinfo_external_disk_install, please use the"
                            " new variable deviceinfo_external_storage in your"
                            " deviceinfo file: " + path)
-
-    # "msm_refresher" is legacy
     if "msm_refresher" in info:
         raise RuntimeError("It is enough to specify 'msm-fb-refresher' in the"
                            " depends of your device's package now. Please"
                            " delete the deviceinfo_msm_refresher line in: " +
                            path)
-
-    # "flash_fastboot_vendor_id" is legacy
     if "flash_fastboot_vendor_id" in info:
         raise RuntimeError("Fastboot doesn't allow specifying the vendor ID"
                            " anymore (#1830). Try removing the"
