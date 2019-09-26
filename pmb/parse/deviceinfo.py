@@ -45,6 +45,15 @@ def sanity_check(info, path):
                            " delete the deviceinfo_msm_refresher line in: " +
                            path)
 
+    # "flash_fastboot_vendor_id" is legacy
+    if "flash_fastboot_vendor_id" in info:
+        raise RuntimeError("Fastboot doesn't allow specifying the vendor ID"
+                           " anymore (#1830). Try removing the"
+                           " 'deviceinfo_flash_fastboot_vendor_id' line in: " +
+                           path + " (if you are sure that you need this, then"
+                           " we can probably bring it back to fastboot, just"
+                           " let us know in the postmarketOS issues!)")
+
     # "codename" is required
     codename = os.path.basename(os.path.dirname(path)).replace("device-", "")
     if "codename" not in info or info["codename"] != codename:
