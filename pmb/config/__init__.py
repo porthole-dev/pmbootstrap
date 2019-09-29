@@ -352,8 +352,8 @@ flashers = {
                                       "$IMAGE"]],
                     "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
                                       "$BOOT/boot.img-$FLAVOR"]],
-                    "boot": [["fastboot", "-c", "$KERNEL_CMDLINE", "boot",
-                              "$BOOT/boot.img-$FLAVOR"]],
+                    "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
+                              "boot", "$BOOT/boot.img-$FLAVOR"]],
         },
     },
     # Some Samsung devices need the initramfs to be baked into the kernel (e.g.
