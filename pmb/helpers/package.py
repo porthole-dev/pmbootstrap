@@ -25,7 +25,6 @@ Functions that work on both pmaports and (binary package) repos. See also:
 - pmb/helpers/repo.py (work on binary package repos)
 """
 
-import logging
 import copy
 
 import pmb.helpers.pmaports
@@ -171,21 +170,3 @@ def check_arch(args, pkgname, arch, binary=True):
     else:
         arches = pmb.helpers.pmaports.get(args, pkgname)["arch"]
     return pmb.helpers.pmaports.check_arches(arches, arch)
-
-
-def check_arch_recurse(args, pkgname, arch):
-    """ Recursively check if a package and its dependencies exist (binary repo)
-        or can be built (pmaports) for a certain architecture.
-        :param pkgname: name of the package
-        :param arch: architecture to check against
-        :returns: True when all the package's dependencies can be built or
-                  exist for the arch in question
-    """
-    for pkgname_i in depends_recurse(args, pkgname, arch):
-        if not check_arch(args, pkgname_i, arch):
-            if pkgname_i != pkgname:
-                logging.verbose(pkgname + ": (indirectly) depends on " +
-                                pkgname_i)
-            logging.verbose(pkgname_i + ": can't be built for " + arch)
-            return False
-    return True

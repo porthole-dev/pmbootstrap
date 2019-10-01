@@ -79,9 +79,9 @@ def test_filter_arch_packages(args, monkeypatch):
     func = pmb.helpers.repo_missing.filter_arch_packages
     check_arch = None
 
-    def stub(args, arch, pmaport):
+    def stub(args, arch, pmaport, binary=True):
         return check_arch
-    monkeypatch.setattr(pmb.helpers.package, "check_arch_recurse", stub)
+    monkeypatch.setattr(pmb.helpers.package, "check_arch", stub)
 
     check_arch = False
     assert func(args, "armhf", ["hello-world"]) == []
@@ -94,15 +94,15 @@ def test_get_relevant_packages(args, monkeypatch):
     """ Test ...repo_missing.get_relevant_packages() """
 
     # Set up fake return values
-    stub_data = {"check_arch_recurse": False,
+    stub_data = {"check_arch": False,
                  "depends_recurse": ["a", "b", "c", "d"],
                  "filter_arch_packages": ["a", "b", "c"],
                  "filter_aport_packages": ["b", "a"],
                  "filter_missing_packages": ["a"]}
 
-    def stub(args, arch, pmaport):
-        return stub_data["check_arch_recurse"]
-    monkeypatch.setattr(pmb.helpers.package, "check_arch_recurse", stub)
+    def stub(args, arch, pmaport, binary=True):
+        return stub_data["check_arch"]
+    monkeypatch.setattr(pmb.helpers.package, "check_arch", stub)
 
     def stub(args, arch, pmaport):
         return stub_data["depends_recurse"]
@@ -133,7 +133,7 @@ def test_get_relevant_packages(args, monkeypatch):
     assert "can't be built" in str(e.value)
 
     # Package can be built for given arch
-    stub_data["check_arch_recurse"] = True
+    stub_data["check_arch"] = True
     assert func(args, "armhf", "a") == ["a"]
     assert func(args, "armhf", "a", True) == ["a", "b"]
 

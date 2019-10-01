@@ -54,16 +54,14 @@ def filter_aport_packages(args, arch, pkgnames):
 
 def filter_arch_packages(args, arch, pkgnames):
     """ Create a subset of pkgnames with packages removed that can not be
-        built for a certain arch. The check is recursive, if one of the
-        dependencies of a package can not be built for the arch in question,
-        then it will not be in the final list either.
+        built for a certain arch.
 
         :param arch: architecture (e.g. "armhf")
         :param pkgnames: list of package names (e.g. ["hello-world", "test12"])
         :returns: subset of pkgnames (e.g. ["hello-world"]) """
     ret = []
     for pkgname in pkgnames:
-        if pmb.helpers.package.check_arch_recurse(args, pkgname, arch):
+        if pmb.helpers.package.check_arch(args, pkgname, arch, False):
             ret += [pkgname]
     return ret
 
@@ -77,11 +75,8 @@ def get_relevant_packages(args, arch, pkgname=None, built=False):
         :returns: an alphabetically sorted list of pkgnames, e.g.:
                   ["devicepkg-dev", "hello-world", "osk-sdl"] """
     if pkgname:
-        if not pmb.helpers.package.check_arch_recurse(args, pkgname, arch):
-            raise RuntimeError(pkgname + " can't be built for " + arch + "."
-                               " Either itself or one if its dependencies is"
-                               " not available for that architecture. Run with"
-                               " -v for details.")
+        if not pmb.helpers.package.check_arch(args, pkgname, arch, False):
+            raise RuntimeError(pkgname + " can't be built for " + arch + ".")
         ret = pmb.helpers.package.depends_recurse(args, pkgname, arch)
     else:
         ret = pmb.helpers.pmaports.get_list(args)
@@ -144,8 +139,8 @@ def generate(args, arch, overview, pkgname=None, built=False):
     """
     # Log message
     packages_str = pkgname if pkgname else "all packages"
-    logging.info("Calculate packages that need to be built ({}, {}) - this may"
-                 " take some time".format(packages_str, arch))
+    logging.info("Calculate packages that need to be built ({}, {})"
+                 "".format(packages_str, arch))
 
     # Order relevant packages
     ret = get_relevant_packages(args, arch, pkgname, built)

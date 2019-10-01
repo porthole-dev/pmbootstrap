@@ -154,32 +154,3 @@ def test_helpers_package_check_arch_pmaports(args, monkeypatch):
 
     fake_pmaport["arch"] = ["all", "!armhf"]
     assert func(args, "a", "armhf", False) is False
-
-
-def test_helpers_package_check_arch_recurse(args, monkeypatch):
-    """ Test pmb.helpers.package.check_arch_recurse() """
-    # Test data
-    func = pmb.helpers.package.check_arch_recurse
-    depends = ["a", "b", "c"]
-    arch_check_results = {}
-
-    def fake_depends_recurse(args, pkgname, arch):
-        return depends
-    monkeypatch.setattr(pmb.helpers.package, "depends_recurse",
-                        fake_depends_recurse)
-
-    def fake_check_arch(args, pkgname, arch):
-        return arch_check_results[pkgname]
-    monkeypatch.setattr(pmb.helpers.package, "check_arch", fake_check_arch)
-
-    # Result: True
-    arch_check_results = {"a": True,
-                          "b": True,
-                          "c": True}
-    assert func(args, "a", "armhf") is True
-
-    # Result: False
-    arch_check_results = {"a": True,
-                          "b": False,
-                          "c": True}
-    assert func(args, "a", "armhf") is False
