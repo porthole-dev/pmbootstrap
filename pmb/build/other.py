@@ -20,6 +20,7 @@ import glob
 import logging
 import os
 import shlex
+import datetime
 
 import pmb.chroot
 import pmb.helpers.file
@@ -111,9 +112,11 @@ def index_repo(args, arch=None):
             path_arch = os.path.basename(path)
             path_repo_chroot = "/home/pmos/packages/pmos/" + path_arch
             logging.debug("(native) index " + path_arch + " repository")
+            description = str(datetime.datetime.now())
             commands = [
                 # Wrap the index command with sh so we can use '*.apk'
                 ["sh", "-c", "apk -q index --output APKINDEX.tar.gz_"
+                 " --description " + shlex.quote(description) + ""
                  " --rewrite-arch " + shlex.quote(path_arch) + " *.apk"],
                 ["abuild-sign", "APKINDEX.tar.gz_"],
                 ["mv", "APKINDEX.tar.gz_", "APKINDEX.tar.gz"]
