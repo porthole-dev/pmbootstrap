@@ -29,6 +29,8 @@ def format_and_mount_boot(args):
                  mountpoint)
     if filesystem == "fat16":
         pmb.chroot.root(args, ["mkfs.fat", "-F", "16", "-n", "pmOS_boot", device])
+    elif filesystem == "fat32":
+        pmb.chroot.root(args, ["mkfs.fat", "-F", "32", "-n", "pmOS_boot", device])
     elif filesystem == "ext2":
         pmb.chroot.root(args, ["mkfs.ext2", "-F", "-q", "-L", "pmOS_boot", device])
     else:
