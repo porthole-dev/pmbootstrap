@@ -191,6 +191,12 @@ def package_kernel(args):
     arch = args.deviceinfo["arch"]
     apkbuild = pmb.parse.apkbuild(args, apkbuild_path, check_pkgname=False)
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
+
+    # Install package dependencies
+    depends, _ = pmb.build._package.build_depends(args, apkbuild, args.arch_native, strict=False)
+    pmb.build.init(args, suffix)
+    pmb.chroot.apk.install(args, depends, suffix)
+
     output = (arch + "/" + apkbuild["pkgname"] + "-" + apkbuild["pkgver"] +
               "-r" + apkbuild["pkgrel"] + ".apk")
     message = "(" + suffix + ") build " + output
