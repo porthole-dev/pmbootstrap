@@ -217,14 +217,41 @@ def ask_for_device_nonfree(args, device):
 
 
 def ask_for_device(args):
-    devices = sorted(pmb.helpers.devices.list_codenames(args))
-    logging.info("Target device (either an existing one, or a new one for"
-                 " porting).")
-    logging.info("Available (" + str(len(devices)) + "): " +
-                 ", ".join(devices))
+    vendors = sorted(pmb.helpers.devices.list_vendors(args))
+    logging.info("Choose your target device vendor (either an "
+                 "existing one, or a new one for porting).")
+    logging.info("Available vendors (" + str(len(vendors)) + "): " +
+                 ", ".join(vendors))
+
+    current_vendor = None
+    current_codename = None
+    if args.device:
+        current_vendor = args.device.split("-", 1)[0]
+        current_codename = args.device.split("-", 1)[1]
+
     while True:
-        device = pmb.helpers.cli.ask(args, "Device", None, args.device, False,
-                                     "[a-z0-9]+-[a-z0-9]+")
+        vendor = pmb.helpers.cli.ask(args, "Vendor", None, current_vendor,
+                                     False, r"[a-z0-9]+")
+
+        new_vendor = vendor not in vendors
+        if new_vendor:
+            logging.info(f"The specified vendor ({vendor}) could not be found "
+                         f"in existing ports, do you want to start a new port?")
+            if not pmb.helpers.cli.confirm(args, default=True):
+                continue
+        else:
+            devices = sorted(pmb.helpers.devices.list_codenames(args, vendor))
+            # Remove "vendor-" prefixes from device list
+            codenames = [x.split('-', 1)[1] for x in devices]
+            logging.info("Available codenames (" + str(len(codenames)) + "): " +
+                         ", ".join(codenames))
+
+        if current_vendor != vendor:
+            current_codename = ''
+        codename = pmb.helpers.cli.ask(args, "Device codename", None,
+                                       current_codename, False, r"[a-z0-9]+")
+
+        device = vendor + '-' + codename
         device_exists = os.path.exists(args.aports + "/device/device-" +
                                        device + "/deviceinfo")
         if not device_exists:
@@ -236,8 +263,11 @@ def ask_for_device(args):
             logging.info("You are about to do a new device port for '" +
                          device + "'.")
             if not pmb.helpers.cli.confirm(args, default=True):
+                current_vendor = vendor
                 continue
 
+            # New port creation confirmed
+            logging.info(f"Generating new aports for: {device}...")
             pmb.aportgen.generate(args, "device-" + device)
             pmb.aportgen.generate(args, "linux-" + device)
         break

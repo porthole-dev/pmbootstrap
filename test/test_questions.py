@@ -134,17 +134,25 @@ def test_questions_device(args, monkeypatch):
     # Existing device (without non-free components so we have defaults there)
     func = pmb.config.init.ask_for_device
     nonfree = {"firmware": True, "userland": False}
-    fake_answers(monkeypatch, ["lg-mako"])
+    fake_answers(monkeypatch, ["lg", "mako"])
     kernel = args.kernel
     assert func(args) == ("lg-mako", True, kernel, nonfree)
 
-    # Non-existing device, go back, existing device
-    fake_answers(monkeypatch, ["whoops-typo", "n", "lg-mako"])
+    # Non-existing vendor, go back, existing vendor+device
+    fake_answers(monkeypatch, ["whoops", "n", "lg", "mako"])
     assert func(args) == ("lg-mako", True, kernel, nonfree)
 
-    # New device
-    fake_answers(monkeypatch, ["new-device", "y"])
+    # Existing vendor, new device, go back, existing vendor+device
+    fake_answers(monkeypatch, ["lg", "nonexistent", "n", "lg", "mako"])
+    assert func(args) == ("lg-mako", True, kernel, nonfree)
+
+    # New vendor and new device (new port)
+    fake_answers(monkeypatch, ["new", "y", "device", "y"])
     assert func(args) == ("new-device", False, kernel, nonfree)
+
+    # Existing vendor, new device (new port)
+    fake_answers(monkeypatch, ["lg", "nonexistent", "y"])
+    assert func(args) == ("lg-nonexistent", False, kernel, nonfree)
 
 
 def test_questions_device_kernel(args, monkeypatch):

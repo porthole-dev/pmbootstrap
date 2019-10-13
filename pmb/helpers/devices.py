@@ -21,15 +21,29 @@ import glob
 import pmb.parse
 
 
-def list_codenames(args):
+def list_codenames(args, vendor=None):
     """
     Get all devices, for which aports are available
+    :param vendor: vendor name to choose devices from, or None for all vendors
     :returns: ["first-device", "second-device", ...]
     """
     ret = []
     for path in glob.glob(args.aports + "/device/device-*"):
         device = os.path.basename(path).split("-", 1)[1]
-        ret += [device]
+        if (vendor is None) or device.startswith(vendor + '-'):
+            ret.append(device)
+    return ret
+
+
+def list_vendors(args):
+    """
+    Get all device vendors, for which aports are available
+    :returns: {"vendor1", "vendor2", ...}
+    """
+    ret = set()
+    for path in glob.glob(args.aports + "/device/device-*"):
+        vendor = os.path.basename(path).split("-", 2)[1]
+        ret.add(vendor)
     return ret
 
 
