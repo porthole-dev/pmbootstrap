@@ -75,8 +75,8 @@ def bootimg(args, path):
         output["pagesize"] = f.read().replace('\n', '')
     with open(bootimg_path + "-cmdline", 'r') as f:
         output["cmdline"] = f.read().replace('\n', '')
-    output["qcdt"] = ("true" if os.path.isfile(bootimg_path + "-dtb") and
-                      os.path.getsize(bootimg_path + "-dtb") > 0 else "false")
+    output["qcdt"] = ("true" if os.path.isfile(bootimg_path + "-dt") and
+                      os.path.getsize(bootimg_path + "-dt") > 0 else "false")
 
     # Cleanup
     pmb.chroot.root(args, ["rm", "-r", temp_path])
