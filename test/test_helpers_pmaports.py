@@ -50,3 +50,18 @@ def test_guess_main(args, tmpdir):
     assert func(args, "qemu-system-x86_64") == tmpdir + "/temp/qemu"
     assert func(args, "some-pkg-sub-pkg") == tmpdir + "/main/some-pkg"
     assert func(args, "qemuPackageWithoutDashes") is None
+
+
+def test_guess_main_dev(args, tmpdir):
+    # Fake pmaports folder
+    tmpdir = str(tmpdir)
+    args.aports = tmpdir
+    os.makedirs(tmpdir + "/temp/plasma")
+
+    func = pmb.helpers.pmaports.guess_main_dev
+    assert func(args, "plasma-framework-dev") is None
+    assert func(args, "plasma-dev") == tmpdir + "/temp/plasma"
+
+    func = pmb.helpers.pmaports.guess_main
+    assert func(args, "plasma-framework-dev") is None
+    assert func(args, "plasma-randomsubpkg") == tmpdir + "/temp/plasma"

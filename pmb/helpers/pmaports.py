@@ -41,6 +41,28 @@ def get_list(args):
     return ret
 
 
+def guess_main_dev(args, subpkgname):
+    """
+    Check if a package without "-dev" at the end exists in pmaports or not, and
+    log the appropriate message. Don't call this function directly, use
+    guess_main() instead.
+
+    :param subpkgname: subpackage name, must end in "-dev"
+    :returns: full path to the pmaport or None
+    """
+    pkgname = subpkgname[:-4]
+    paths = glob.glob(args.aports + "/*/" + pkgname)
+    if paths:
+        logging.debug(subpkgname + ": guessed to be a subpackage of " +
+                      pkgname + " (just removed '-dev')")
+        return paths[0]
+
+    logging.debug(subpkgname + ": guessed to be a subpackage of " + pkgname +
+                  ", which we can't find in pmaports, so it's probably in"
+                  " Alpine")
+    return None
+
+
 def guess_main(args, subpkgname):
     """
     Find the main package by assuming it is a prefix of the subpkgname.
@@ -54,6 +76,15 @@ def guess_main(args, subpkgname):
                 "/home/user/code/pmbootstrap/aports/main/u-boot"
               * None when we couldn't find a main package
     """
+    # Packages ending in -dev: just assume that the originating aport has the
+    # same pkgname, except for the -dev at the end. If we use the other method
+    # below on subpackages, we may end up with the wrong package. For example,
+    # if something depends on plasma-framework-dev, and plasma-framework is in
+    # Alpine, but plasma is in pmaports, then the cutting algorithm below would
+    # pick plasma instead of plasma-framework.
+    if subpkgname.endswith("-dev"):
+        return guess_main_dev(args, subpkgname)
+
     # Iterate until the cut up subpkgname is gone
     words = subpkgname.split("-")
     while len(words) > 1:
