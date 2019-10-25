@@ -21,6 +21,14 @@ import logging
 import pmb
 
 
+def is_dtb(path):
+    if not os.path.isfile(path):
+        return False
+    with open(path, 'rb') as f:
+        # Check FDT magic identifier (0xd00dfeed)
+        return f.read(4) == b'\xd0\x0d\xfe\xed'
+
+
 def bootimg(args, path):
     if not os.path.exists(path):
         raise RuntimeError("Could not find file '" + path + "'")
@@ -77,6 +85,7 @@ def bootimg(args, path):
         output["cmdline"] = f.read().replace('\n', '')
     output["qcdt"] = ("true" if os.path.isfile(bootimg_path + "-dt") and
                       os.path.getsize(bootimg_path + "-dt") > 0 else "false")
+    output["dtb_second"] = ("true" if is_dtb(bootimg_path + "-second") else "false")
 
     # Cleanup
     pmb.chroot.root(args, ["rm", "-r", temp_path])

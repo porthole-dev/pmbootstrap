@@ -68,7 +68,8 @@ def test_bootimg_normal(args):
               "tags_offset": "0x0e000000",
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
-              "qcdt": "false"}
+              "qcdt": "false",
+              "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
 
@@ -81,5 +82,20 @@ def test_bootimg_qcdt(args):
               "tags_offset": "0x0e000000",
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
-              "qcdt": "true"}
+              "qcdt": "true",
+              "dtb_second": "false"}
+    assert pmb.parse.bootimg(args, path) == output
+
+
+def test_bootimg_dtb_second(args):
+    path = pmb_src + "/test/testdata/bootimg/dtb-second-boot.img"
+    output = {"base": "0x00000000",
+              "kernel_offset": "0x00008000",
+              "ramdisk_offset": "0x02000000",
+              "second_offset": "0x00f00000",
+              "tags_offset": "0x00000100",
+              "pagesize": "2048",
+              "cmdline": "bootopt=64S3,32S1,32S1",
+              "qcdt": "false",
+              "dtb_second": "true"}
     assert pmb.parse.bootimg(args, path) == output
