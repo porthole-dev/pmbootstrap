@@ -73,7 +73,7 @@ def test_keys(args):
         assert filecmp.cmp(mirror_path, original_path, False)
 
     # Find postmarketOS keys
-    keys_pmos = ["pmos-5a03a13a.rsa.pub"]
+    keys_pmos = ["pmos-5a03a13a.rsa.pub", "build.postmarketos.org.rsa.pub"]
     for key in keys_pmos:
         assert os.path.exists(mirror_path_keys + "/" + key)
 
