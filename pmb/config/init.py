@@ -235,8 +235,9 @@ def ask_for_device(args):
 
         new_vendor = vendor not in vendors
         if new_vendor:
-            logging.info(f"The specified vendor ({vendor}) could not be found "
-                         f"in existing ports, do you want to start a new port?")
+            logging.info("The specified vendor ({}) could not be found in"
+                         " existing ports, do you want to start a new"
+                         " port?".format(vendor))
             if not pmb.helpers.cli.confirm(args, default=True):
                 continue
         else:
@@ -267,7 +268,7 @@ def ask_for_device(args):
                 continue
 
             # New port creation confirmed
-            logging.info(f"Generating new aports for: {device}...")
+            logging.info("Generating new aports for: {}...".format(device))
             pmb.aportgen.generate(args, "device-" + device)
             pmb.aportgen.generate(args, "linux-" + device)
         break
