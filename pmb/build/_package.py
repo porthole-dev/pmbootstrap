@@ -143,6 +143,7 @@ def build_depends(args, apkbuild, arch, strict):
     # --no-depends: check for binary packages
     depends_built = []
     if "no_depends" in args and args.no_depends:
+        pmb.helpers.repo.update(args, arch)
         for depend in depends:
             if not pmb.parse.apkindex.package(args, depend, arch, False):
                 raise RuntimeError("Missing binary package for dependency '" +
