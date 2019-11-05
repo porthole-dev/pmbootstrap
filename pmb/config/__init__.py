@@ -173,6 +173,7 @@ necessary_kconfig_options = {
         "all": {  # all arches
             "ANDROID_PARANOID_NETWORK": False,
             "BLK_DEV_INITRD": True,
+            "CGROUPS": True,
             "DEVTMPFS": True,
             "DM_CRYPT": True,
             "EXT4_FS": True,
