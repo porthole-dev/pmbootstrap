@@ -350,6 +350,36 @@ def override_source(args, apkbuild, pkgver, src, suffix="native"):
     pmb.chroot.user(args, ["mv", append_path + "_", apkbuild_path], suffix)
 
 
+def link_to_git_dir(args, suffix):
+    """
+    Make /home/pmos/build/.git point to the .git dir from pmaports.git, with a
+    symlink so abuild does not fail (#1841).
+
+    abuild expects the current working directory to be a subdirectory of a
+    cloned git repository (e.g. main/openrc from aports.git). If git is
+    installed, it will try to get the last git commit from that repository, and
+    place it in the resulting apk (.PKGINFO) as well as use the date from that
+    commit as SOURCE_DATE_EPOCH (for reproducible builds).
+
+    With that symlink, we actually make it use the last git commit from
+    pmaports.git for SOURCE_DATE_EPOCH and have that in the resulting apk's
+    .PKGINFO.
+    """
+    # Mount pmaports.git in chroot, in case the user did not use pmbootstrap to
+    # clone it (e.g. how we build on sourcehut). Do this here and not at the
+    # initialization of the chroot, because the pmaports dir may not exist yet
+    # at that point. Use umount=True, so we don't have an old path mounted
+    # (some tests change the pmaports dir).
+    inside_destination = "/mnt/pmaports"
+    outside_destination = args.work + "/chroot_" + suffix + inside_destination
+    pmb.helpers.mount.bind(args, args.aports, outside_destination, umount=True)
+
+    # Create .git symlink
+    pmb.chroot.user(args, ["mkdir", "-p", "/home/pmos/build"], suffix)
+    pmb.chroot.user(args, ["ln", "-sf", inside_destination + "/.git",
+                           "/home/pmos/build/.git"], suffix)
+
+
 def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
                suffix="native", src=None):
     """
@@ -419,6 +449,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     # Copy the aport to the chroot and build it
     pmb.build.copy_to_buildpath(args, apkbuild["pkgname"], suffix)
     override_source(args, apkbuild, pkgver, src, suffix)
+    link_to_git_dir(args, suffix)
     pmb.chroot.user(args, cmd, suffix, "/home/pmos/build", env=env)
     return (output, cmd, env)
 

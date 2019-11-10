@@ -20,6 +20,7 @@ import logging
 import os
 import pytest
 import sys
+import shutil
 
 # Import from parent directory
 sys.path.insert(0, os.path.realpath(
@@ -40,6 +41,7 @@ def args(tmpdir, request):
 
     # Fake aports folder:
     tmpdir = str(tmpdir)
+    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
     setattr(args, "_aports_real", args.aports)
     args.aports = tmpdir
 

@@ -24,6 +24,7 @@ This file tests pmb.helper.pkgrel_bump
 import glob
 import os
 import pytest
+import shutil
 import sys
 
 # Import from parent directory
@@ -56,6 +57,11 @@ def pmbootstrap(args, tmpdir, parameters, zero_exit=True):
     # Run pmbootstrap
     aports = tmpdir + "/_aports"
     config = tmpdir + "/_pmbootstrap.cfg"
+
+    # Copy .git dir to fake pmaports
+    dot_git = tmpdir + "/_aports/.git"
+    if not os.path.exists(dot_git):
+        shutil.copytree(args.aports + "/.git", dot_git)
 
     try:
         pmb.helpers.run.user(args, ["./pmbootstrap.py", "--work=" + tmpdir,

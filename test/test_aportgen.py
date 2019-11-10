@@ -19,6 +19,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 import pytest
+import shutil
 import filecmp
 
 # Import from parent directory
@@ -45,7 +46,9 @@ def args(tmpdir, request):
 
 def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
-    args.aports = str(tmpdir)
+    tmpdir = str(tmpdir)
+    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    args.aports = tmpdir
     os.mkdir(tmpdir + "/cross")
     testdata = pmb_src + "/test/testdata/aportgen"
 
@@ -66,7 +69,9 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
 
 def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
-    args.aports = str(tmpdir)
+    tmpdir = str(tmpdir)
+    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    args.aports = tmpdir
     os.mkdir(tmpdir + "/temp")
     testdata = pmb_src + "/test/testdata/aportgen"
     args.fork_alpine = True
@@ -87,7 +92,9 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
 
 def test_aportgen(args, tmpdir):
     # Fake aports folder in tmpdir
-    args.aports = str(tmpdir)
+    tmpdir = str(tmpdir)
+    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    args.aports = tmpdir
     os.mkdir(tmpdir + "/cross")
 
     # Create aportgen folder -> code path where it still exists

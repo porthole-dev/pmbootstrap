@@ -385,8 +385,9 @@ def test_build_local_source_high_level(args, tmpdir):
     shutil.copy(pmb.config.pmb_src + "/test/testdata/build_local_src/APKBUILD",
                 aport)
 
-    # aports: Add pmaports.cfg
+    # aports: Add pmaports.cfg, .git
     shutil.copy(args.aports + "/pmaports.cfg", aports)
+    shutil.copytree(args.aports + "/.git", aports + "/.git")
 
     # src: Copy hello-world source files
     src = tmpdir + "/src"
