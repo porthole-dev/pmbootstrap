@@ -161,7 +161,7 @@ build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]
 
 # Packages, that will be installed in a chroot before it builds packages
 # for the first time
-build_packages = ["abuild", "build-base", "ccache"]
+build_packages = ["abuild", "build-base", "ccache", "git"]
 
 # fnmatch for supported pkgnames, that can be directly compiled inside
 # the native chroot and a cross-compiler, without using distcc
