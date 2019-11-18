@@ -260,6 +260,17 @@ def setup_keymap(args):
         layout, variant = args.keymap.split("/")
         pmb.chroot.root(args, ["setup-keymap", layout, variant], suffix,
                         output="interactive")
+
+        # Check xorg config
+        config = pmb.chroot.root(args, ["grep", "-rl", "XkbLayout", "/etc/X11/xorg.conf.d/"],
+                                 suffix, check=False, output_return=True)
+        if config:
+            # Multiple files can contain the keyboard layout, take last
+            config = config.splitlines()[-1]
+            old_text = "Option *\\\"XkbLayout\\\" *\\\".*\\\""
+            new_text = "Option \\\"XkbLayout\\\" \\\"" + layout + "\\\""
+            pmb.chroot.root(args, ["sed", "-i", "s/" + old_text + "/" + new_text + "/", config],
+                            suffix)
     else:
         logging.info("NOTE: No valid keymap specified for device")
 
