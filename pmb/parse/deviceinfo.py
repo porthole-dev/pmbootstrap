@@ -49,7 +49,9 @@ def sanity_check(info, path):
                            " let us know in the postmarketOS issues!)")
 
     # "codename" is required
-    codename = os.path.basename(os.path.dirname(path)).replace("device-", "")
+    codename = os.path.basename(os.path.dirname(path))
+    if codename.startswith("device-"):
+        codename = codename[7:]
     if "codename" not in info or info["codename"] != codename:
         raise RuntimeError("Please add 'deviceinfo_codename=\"" + codename +
                            "\"' to: " + path)
