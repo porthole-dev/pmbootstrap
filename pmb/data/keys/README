@@ -6,4 +6,4 @@ Sources for the keys (must be identical, there's a testcase that verifies this):
 	alpine-keys package
 
 In addition, this key holds keys for the official postmarketOS repository:
-	https://github.com/postmarketOS/pmbootstrap/issues/871
+	https://build.postmarketos.org
