@@ -93,6 +93,9 @@ initialize_chroot() {
 	if [ "$gcc6_arg" = "1" ]; then
 		gcc_pkgname="gcc6"
 	fi
+	if [ "$gcc4_arg" = "1" ]; then
+		gcc_pkgname="gcc4"
+	fi
 
 	# Don't initialize twice
 	flag="$chroot/tmp/envkernel/${gcc_pkgname}_setup_done"
@@ -172,6 +175,10 @@ set_alias_make() {
 		cc="gcc6-${prefix}-gcc"
 		hostcc="gcc6-gcc"
 		cross_compiler="/usr/bin/gcc6-$prefix-"
+	elif [ "$gcc4_arg" = "1" ]; then
+		cc="gcc4-${prefix}-gcc"
+		hostcc="gcc4-gcc"
+		cross_compiler="/usr/bin/gcc4-$prefix-"
 	else
 		cc="${prefix}-gcc"
 		hostcc="gcc"
@@ -236,6 +243,7 @@ print_usage() {
 	echo "optional arguments:"
 	echo "    --fish        Print fish alias syntax (internally used)"
 	echo "    --gcc6        Use GCC6 cross compiler"
+	echo "    --gcc4        Use GCC4 cross compiler"
 	echo "    --help        Show this help message"
 }
 
@@ -243,6 +251,7 @@ print_usage() {
 parse_args() {
 	unset fish_arg
 	unset gcc6_arg
+	unset gcc4_arg
 
 	while [ "${1:-}" != "" ]; do
 		case $1 in
@@ -252,6 +261,10 @@ parse_args() {
 			;;
 		--gcc6)
 			gcc6_arg=1
+			shift
+			;;
+		--gcc4)
+			gcc4_arg=1
 			shift
 			;;
 		--help)
