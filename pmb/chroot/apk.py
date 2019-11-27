@@ -170,6 +170,14 @@ def replace_aports_packages_with_path(args, packages, suffix, arch):
         aport = pmb.helpers.pmaports.find(args, package, False)
         if aport:
             data_repo = pmb.parse.apkindex.package(args, package, arch, False)
+            if not data_repo:
+                raise RuntimeError(package + ": could not find binary"
+                                   " package, although it should exist for"
+                                   " sure at this point in the code."
+                                   " Probably an APKBUILD subpackage parsing"
+                                   " bug. Related: https://gitlab.com/"
+                                   "postmarketOS/build.postmarketos.org/"
+                                   "issues/61")
             apk_path = ("/mnt/pmbootstrap-packages/" + arch + "/" +
                         package + "-" + data_repo["version"] + ".apk")
             if os.path.exists(args.work + "/chroot_" + suffix + apk_path):
