@@ -314,7 +314,7 @@ install_device_packages = [
 ]
 
 # Groups for the default user
-install_user_groups = ["wheel", "video", "audio", "input", "plugdev"]
+install_user_groups = ["wheel", "video", "audio", "input", "plugdev", "netdev"]
 
 #
 # FLASH
