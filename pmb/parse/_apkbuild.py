@@ -122,6 +122,64 @@ def read_file(path):
     return lines
 
 
+def parse_attribute(attribute, lines, i, path):
+    """
+    Parse one attribute from the APKBUILD.
+
+    It may be written across multiple lines, use a quoting sign and/or have
+    a comment at the end. Some examples:
+
+    pkgrel=3
+    options="!check" # ignore this comment
+    arch='all !armhf'
+    depends="
+        first-pkg
+        second-pkg"
+
+    :param attribute: from the APKBUILD, i.e. "pkgname"
+    :param lines: \n-terminated list of lines from the APKBUILD
+    :param i: index of the line we are currently looking at
+    :param path: full path to the APKBUILD (for error message)
+    :returns: (found, value, i)
+              found: True if the attribute was found in line i, False otherwise
+              value: that was parsed from the line
+              i: line that was parsed last
+    """
+    # Check for and cut off "attribute="
+    if not lines[i].startswith(attribute + "="):
+        return (False, None, i)
+    value = lines[i][len(attribute + "="):-1]
+
+    # Determine end quote sign
+    end_char = None
+    for char in ["'", "\""]:
+        if value.startswith(char):
+            end_char = char
+            value = value[1:]
+            break
+
+    # Single line
+    if not end_char:
+        return (True, value, i)
+    if end_char in value:
+        value = value.split(end_char, 1)[0]
+        return (True, value, i)
+
+    # Parse lines until reaching end quote
+    i += 1
+    while i < len(lines):
+        line = lines[i]
+        value += " "
+        if end_char in line:
+            value += line.split(end_char, 1)[0].strip()
+            return (True, value.strip(), i)
+        value += line.strip()
+        i += 1
+
+    raise RuntimeError("Can't find closing quote sign (" + end_char + ") for"
+                       " attribute '" + attribute + "' in: " + path)
+
+
 def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     """
     Parse relevant information out of the APKBUILD file. This is not meant
@@ -148,27 +206,9 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     ret = {}
     for i in range(len(lines)):
         for attribute, options in pmb.config.apkbuild_attributes.items():
-            if not lines[i].startswith(attribute + "="):
+            found, value, i = parse_attribute(attribute, lines, i, path)
+            if not found:
                 continue
-
-            # Extend the line value until we reach the ending quote sign
-            line_value = lines[i][len(attribute + "="):-1]
-            end_char = None
-            if line_value.startswith("\""):
-                end_char = "\""
-            value = ""
-            first_line = i
-            while i < len(lines) - 1:
-                value += line_value.replace("\"", "").strip()
-                if not end_char:
-                    break
-                elif line_value.endswith(end_char):
-                    # This check is needed to allow line break directly after opening quote
-                    if i != first_line or line_value.count(end_char) > 1:
-                        break
-                value += " "
-                i += 1
-                line_value = lines[i][:-1]
 
             # Support depends="$depends hello-world" (#1800)
             if attribute == "depends" and ("${depends}" in value or

@@ -78,3 +78,48 @@ def test_depends_in_depends(args):
     path = pmb_src + "/test/testdata/apkbuild/APKBUILD.depends-in-depends"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
     assert apkbuild["depends"] == ["first", "second", "third"]
+
+
+def test_parse_attributes():
+    # Convenience function for calling the function with a block of text
+    def func(attribute, block):
+        lines = block.split("\n")
+        for i in range(0, len(lines)):
+            lines[i] += "\n"
+        i = 0
+        path = "(testcase in " + __file__ + ")"
+        print("=== parsing attribute '" + attribute + "' in test block:")
+        print(block)
+        print("===")
+        return pmb.parse._apkbuild.parse_attribute(attribute, lines, i, path)
+
+    assert func("depends", "pkgname='test'") == (False, None, 0)
+
+    assert func("pkgname", 'pkgname="test"') == (True, "test", 0)
+
+    assert func("pkgname", "pkgname='test'") == (True, "test", 0)
+
+    assert func("pkgname", "pkgname=test") == (True, "test", 0)
+
+    assert func("pkgname", 'pkgname="test\n"') == (True, "test", 1)
+
+    assert func("pkgname", 'pkgname="\ntest\n"') == (True, "test", 2)
+
+    assert func("pkgname", 'pkgname="test" # random comment\npkgrel=3') == \
+        (True, "test", 0)
+
+    assert func("depends", "depends='\nfirst\nsecond\nthird\n'#") == \
+        (True, "first second third", 4)
+
+    assert func("depends", 'depends="\nfirst\n\tsecond third"') == \
+        (True, "first second third", 2)
+
+    assert func("depends", 'depends=') == (True, "", 0)
+
+    with pytest.raises(RuntimeError) as e:
+        func("depends", 'depends="\nmissing\nend\nquote\sign')
+    assert str(e.value).startswith("Can't find closing")
+
+    with pytest.raises(RuntimeError) as e:
+        func("depends", 'depends="')
+    assert str(e.value).startswith("Can't find closing")
