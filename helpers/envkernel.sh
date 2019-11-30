@@ -111,6 +111,7 @@ initialize_chroot() {
 		binutils-"$deviceinfo_arch" \
 		binutils \
 		bison \
+		findutils \
 		flex \
 		"$gcc_pkgname"-"$deviceinfo_arch" \
 		"$gcc_pkgname" \
