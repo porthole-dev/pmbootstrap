@@ -70,9 +70,16 @@ def format_and_mount_pm_crypt(args):
         # Some downstream kernels don't support metadata_csum (#1364).
         # When changing the options of mkfs.ext4, also change them in the
         # recovery zip code (see 'grep -r mkfs\.ext4')!
-        pmb.chroot.root(args, ["mkfs.ext4", "-O", "^metadata_csum", "-F",
-                               "-q", "-L", "pmOS_root", "-N", "100000",
-                               device])
+        mkfs_ext4_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F",
+                          "-q", "-L", "pmOS_root"]
+
+        # When we don't know the file system size before hand like
+        # with non-block devices, we need to explicitely set a number of
+        # inodes. See #1717 and #1845 for details
+        if not args.sdcard:
+            mkfs_ext4_args = mkfs_ext4_args + ["-N", "100000"]
+
+        pmb.chroot.root(args, mkfs_ext4_args + [device])
 
     # Mount
     mountpoint = "/mnt/install"
