@@ -129,7 +129,8 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
         rootfs_native = args.work + "/chroot_native"
         env = {"QEMU_MODULE_DIR": rootfs_native + "/usr/lib/qemu",
                "GBM_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri",
-               "LIBGL_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri"}
+               "LIBGL_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri",
+               "ALSA_PLUGIN_DIRS": rootfs_native + "/usr/lib/alsa-lib"}
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
@@ -141,7 +142,8 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
         command = [rootfs_native + "/lib/ld-musl-" +
                    args.arch_native + ".so.1"]
         command += ["--library-path=" + rootfs_native + "/lib:" +
-                    rootfs_native + "/usr/lib"]
+                    rootfs_native + "/usr/lib:" +
+                    rootfs_native + "/usr/lib/pulseaudio"]
         command += [rootfs_native + "/usr/bin/qemu-system-" + arch]
         command += ["-L", rootfs_native + "/usr/share/qemu/"]
 
@@ -215,6 +217,10 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
             command += ["-vga", "virtio"]
         command += ["-display", args.qemu_display]
 
+    # Audio support
+    command += ["-audiodev", "id=alsa,driver=alsa"]
+    command += ["-soundhw", "hda"]
+
     return (command, env)
 
 
@@ -267,7 +273,8 @@ def install_depends(args, arch):
     depends = ["qemu", "qemu-system-" + arch, "qemu-ui-sdl", "qemu-ui-gtk",
                "mesa-gl", "mesa-egl", "mesa-dri-ati", "mesa-dri-freedreno",
                "mesa-dri-intel", "mesa-dri-nouveau", "mesa-dri-swrast",
-               "mesa-dri-virtio", "mesa-dri-vmwgfx"]
+               "mesa-dri-virtio", "mesa-dri-vmwgfx", "qemu-audio-alsa",
+               "qemu-audio-sdl", "alsa-plugins-pulse"]
     if args.spice_port:
         depends += ["virt-viewer", "font-noto"]
     pmb.chroot.apk.install(args, depends)
