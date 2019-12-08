@@ -2,13 +2,16 @@
 # Copyright 2019 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-if [ "$argv" != "" ]
-	and [ "$argv" != "--gcc6" ]
-	echo "usage: source envkernel.fish"
-	echo "optional arguments:"
-	echo "    --gcc6        Use GCC6 cross compiler"
-	echo "    --help        Show this help message"
-	exit 1
+for arg in $argv
+	if not string match -q -- "--gcc6" $arg;
+		and not string match -q -- "--gcc4" $arg
+		echo "usage: source envkernel.fish"
+		echo "optional arguments:"
+		echo "    --gcc4        Use GCC4 cross compiler"
+		echo "    --gcc6        Use GCC6 cross compiler"
+		echo "    --help        Show this help message"
+		exit 1
+	end
 end
 
 # Fish compatibility code from envkernel.sh
