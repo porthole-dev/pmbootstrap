@@ -479,6 +479,9 @@ def arguments():
     install.add_argument("--recovery-no-kernel",
                          help="do not overwrite the existing kernel",
                          action="store_false", dest="recovery_flash_kernel")
+    install.add_argument("--no-base",
+                         help="do not install postmarketos-base (advanced)",
+                         action="store_false", dest="install_base")
 
     # Action: checksum / aportgen / build
     checksum = sub.add_parser("checksum", help="update aport checksums")

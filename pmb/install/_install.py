@@ -489,6 +489,8 @@ def install(args):
                         ["device-" + args.device] +
                         get_kernel_package(args, args.device) +
                         get_nonfree_packages(args, args.device))
+    if not args.install_base:
+        install_packages = [p for p in install_packages if p != "postmarketos-base"]
     if args.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + args.ui]
     suffix = "rootfs_" + args.device
