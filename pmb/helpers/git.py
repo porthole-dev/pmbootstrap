@@ -18,7 +18,6 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 import os
-import shutil
 
 import pmb.build
 import pmb.chroot.apk
@@ -26,55 +25,37 @@ import pmb.config
 import pmb.helpers.run
 
 
-def clone(args, name_repo, shallow=True, chown_to_user=False):
+def clone(args, name_repo, shallow=True):
+    """ Clone a git repository to $WORK/cache_git/$name_repo.
+
+        :param name_repo: short alias used for the repository name, from
+                          pmb.config.git_repos (e.g. "aports_upstream",
+                          "pmaports")
+        :param shallow: only clone the last revision of the repository, instead
+                        of the entire repository (faster, saves bandwith) """
     # Check for repo name in the config
     if name_repo not in pmb.config.git_repos:
         raise ValueError("No git repository configured for " + name_repo)
 
     # Skip if already checked out
-    if os.path.exists(args.work + "/cache_git/" + name_repo):
+    path = args.work + "/cache_git/" + name_repo
+    if os.path.exists(path):
         return
 
-    # Check out to temp folder
-    name_temp = name_repo + ".temp"
-    if not os.path.exists(args.work + "/cache_git/" + name_temp):
-        # Set up chroot and install git
-        pmb.chroot.apk.install(args, ["git"])
-        logging.info("(native) git clone " + pmb.config.git_repos[name_repo])
+    # Build git command
+    url = pmb.config.git_repos[name_repo]
+    command = ["git", "clone"]
+    if shallow:
+        command += ["--depth=1"]
+    command += [url, path]
 
-        # git options
-        options = []
-        if shallow:
-            options += ["--depth=1"]
-
-        # Run the command
-        pmb.chroot.user(args, ["git", "clone"] + options +
-                              [pmb.config.git_repos[name_repo], name_temp],
-                        working_dir="/home/pmos/git/", check=False,
-                        output="stdout")
-        if not os.path.exists(args.work + "/cache_git/" + name_temp):
-            logging.info("NOTE: cloning from git is known to fail when the"
-                         " host linux kernel is older than 3.17:"
-                         " <https://postmarketos.org/oldkernel>")
-            raise RuntimeError("git clone failed!")
-
-    # Chown to user's UID and GID
-    if chown_to_user:
-        uid_gid = "{}:{}".format(os.getuid(), os.getgid())
-        pmb.helpers.run.root(args, ["chown", "-R", uid_gid, args.work +
-                                    "/cache_git/" + name_temp])
-
-    # Rename the temp folder
-    pmb.helpers.run.root(args, ["mv", name_temp, name_repo],
-                         args.work + "/cache_git")
+    # Create parent dir and clone
+    logging.info("Clone git repository: " + url)
+    os.makedirs(args.work + "/cache_git", exist_ok=True)
+    pmb.helpers.run.user(args, command, output="stdout")
 
 
 def rev_parse(args, revision="HEAD"):
-    if shutil.which("git") is None:
-        logging.warning("WARNING: Cannot determine revision of git " +
-                        "repository at " + args.aports + ". Command 'git' " +
-                        "not found.")
-        return ""
     rev = pmb.helpers.run.user(args, ["git", "rev-parse", revision],
                                args.aports, output_return=True, check=False)
     if rev is None:

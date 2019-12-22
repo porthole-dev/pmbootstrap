@@ -21,6 +21,7 @@ import os
 import re
 import pmb.chroot
 import pmb.config
+import pmb.config.init
 import pmb.helpers.pmaports
 import pmb.helpers.run
 
@@ -153,6 +154,30 @@ def migrate_work_folder(args):
         # Update version file
         migrate_success(args, 3)
         current = 3
+
+    if current == 3:
+        # Ask for confirmation
+        path = args.work + "/cache_git"
+        logging.info("Changelog:")
+        logging.info("* pmbootstrap clones repositories with host system's")
+        logging.info("  'git' instead of using it from an Alpine chroot")
+        logging.info("Migration will do the following:")
+        logging.info("* Check if 'git' is installed")
+        logging.info("* Change ownership to your user: " + path)
+        if not pmb.helpers.cli.confirm(args):
+            raise RuntimeError("Aborted.")
+
+        # Require git, set cache_git ownership
+        pmb.config.init.require_programs()
+        if os.path.exists(path):
+            uid_gid = "{}:{}".format(os.getuid(), os.getgid())
+            pmb.helpers.run.root(args, ["chown", "-R", uid_gid, path])
+        else:
+            os.makedirs(path, 0o700, True)
+
+        # Update version file
+        migrate_success(args, 4)
+        current = 4
 
     # Can't migrate, user must delete it
     if current != required:

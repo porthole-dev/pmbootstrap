@@ -49,7 +49,7 @@ def clone(args):
                  " recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
-    pmb.helpers.git.clone(args, "pmaports", False, True)
+    pmb.helpers.git.clone(args, "pmaports", False)
 
 
 def symlink(args):

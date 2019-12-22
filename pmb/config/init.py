@@ -78,8 +78,9 @@ def ask_for_work_path(args):
                 with open(work + "/version", "w") as handle:
                     handle.write(str(pmb.config.work_version) + "\n")
 
-            # Make sure, that we can write into it
-            os.makedirs(work + "/cache_http", 0o700, True)
+            # Create cache_git dir, so it is owned by the host system's user
+            # (otherwise pmb.helpers.mount.bind would create it as root)
+            os.makedirs(work + "/cache_git", 0o700, True)
             return (work, exists)
         except OSError:
             logging.fatal("ERROR: Could not create this folder, or write"
