@@ -47,6 +47,11 @@ pmaports_min_version = "4"
 # see migrate_work_folder()).
 work_version = 3
 
+# Programs that pmbootstrap expects to be available from the host system. Keep
+# in sync with README.md, and try to keep the list as small as possible. The
+# idea is to run almost everything in Alpine chroots.
+required_programs = ["openssl", "ps"]
+
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = ["ccache_size", "device", "extra_packages", "hostname", "jobs",
                "kernel", "keymap", "nonfree_firmware", "nonfree_userland",

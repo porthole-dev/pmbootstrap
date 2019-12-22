@@ -19,6 +19,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import glob
 import os
+import shutil
 
 import pmb.config
 import pmb.config.pmaports
@@ -30,6 +31,17 @@ import pmb.helpers.ui
 import pmb.chroot.zap
 import pmb.parse.deviceinfo
 import pmb.parse._apkbuild
+
+
+def require_programs():
+    missing = []
+    for program in pmb.config.required_programs:
+        if not shutil.which(program):
+            missing.append(program)
+    if missing:
+        raise RuntimeError("Can't find all programs required to run"
+                           " pmbootstrap. Please install first: " +
+                           ", ".join(missing))
 
 
 def ask_for_work_path(args):
@@ -345,6 +357,8 @@ def ask_for_ssh_keys(args):
 
 
 def frontend(args):
+    require_programs()
+
     # Work folder (needs to be first, so we can create chroots early)
     cfg = pmb.config.load(args)
     work, work_exists = ask_for_work_path(args)
