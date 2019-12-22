@@ -26,6 +26,7 @@ import pmb.config.pmaports
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.logging
+import pmb.helpers.other
 import pmb.helpers.run
 import pmb.helpers.ui
 import pmb.chroot.zap
@@ -367,6 +368,9 @@ def frontend(args):
     # Update args and save config (so chroots and 'pmbootstrap log' work)
     pmb.helpers.args.update_work(args, work)
     pmb.config.save(args, cfg)
+
+    # Migrate work dir if necessary
+    pmb.helpers.other.migrate_work_folder(args)
 
     # Clone pmaports
     pmb.config.pmaports.init(args)
