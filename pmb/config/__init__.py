@@ -137,7 +137,6 @@ chroot_mount_bind = {
 chroot_home_symlinks = {
     "/mnt/pmbootstrap-abuild-config": "/home/pmos/.abuild",
     "/mnt/pmbootstrap-ccache": "/home/pmos/.ccache",
-    "/mnt/pmbootstrap-git": "/home/pmos/git",
     "/mnt/pmbootstrap-packages": "/home/pmos/packages/pmos",
 }
 
