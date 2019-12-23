@@ -55,7 +55,8 @@ def bootimg(args, path):
                          " boot.img file, you could force the analysis"
                          " with: 'pmbootstrap bootimg_analyze " + path +
                          " -f'")
-            if "linux kernel" in file_output.lower():
+            if ("linux kernel" in file_output.lower() or
+                    "ARM OpenFirmware FORTH Dictionary" in file_output):
                 raise RuntimeError("File is a Kernel image, you might need the"
                                    " 'heimdall-isorec' flash method. See also:"
                                    " <https://wiki.postmarketos.org/wiki/"
