@@ -55,13 +55,15 @@ def clone(args, name_repo, shallow=True):
     pmb.helpers.run.user(args, command, output="stdout")
 
 
-def rev_parse(args, path, revision="HEAD"):
+def rev_parse(args, path, revision="HEAD", extra_args: list = []):
     """ Run "git rev-parse" in a specific repository dir.
 
         :param path: to the git repository
+        :param extra_args: additional arguments for "git rev-parse". Pass
+                           "--abbrev-ref" to get the branch instead of the
+                           commit, if possible.
         :returns: commit string like "90cd0ad84d390897efdcf881c0315747a4f3a966"
-    """
-
-    rev = pmb.helpers.run.user(args, ["git", "rev-parse", revision], path,
-                               output_return=True)
+                  or (with --abbrev-ref): the branch name, e.g. "master" """
+    command = ["git", "rev-parse"] + extra_args + [revision]
+    rev = pmb.helpers.run.user(args, command, path, output_return=True)
     return rev.rstrip()
