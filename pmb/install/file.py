@@ -24,7 +24,7 @@ import pmb.helpers.git
 
 def write_os_release(args, suffix):
     logging.info("(" + suffix + ") write /etc/os-release")
-    revision = pmb.helpers.git.rev_parse(args)
+    revision = pmb.helpers.git.rev_parse(args, args.aports)
     filepath = args.work + "/chroot_" + suffix + "/tmp/os-release"
     os_release = ('PRETTY_NAME="postmarketOS {version}"\n'
                   'NAME="postmarketOS"\n'
