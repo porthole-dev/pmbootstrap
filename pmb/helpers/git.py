@@ -56,9 +56,11 @@ def clone(args, name_repo, shallow=True):
 
 
 def rev_parse(args, revision="HEAD"):
+    """ Run "git rev-parse" in the pmaports.git dir.
+
+        :returns: commit string like "90cd0ad84d390897efdcf881c0315747a4f3a966"
+    """
+
     rev = pmb.helpers.run.user(args, ["git", "rev-parse", revision],
-                               args.aports, output_return=True, check=False)
-    if rev is None:
-        logging.warning("WARNING: Failed to determine revision of git repository at " + args.aports)
-        return ""
+                               args.aports, output_return=True)
     return rev.rstrip()

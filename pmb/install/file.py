@@ -25,21 +25,18 @@ import pmb.helpers.git
 def write_os_release(args, suffix):
     logging.info("(" + suffix + ") write /etc/os-release")
     revision = pmb.helpers.git.rev_parse(args)
-    has_revision = revision != ""
     filepath = args.work + "/chroot_" + suffix + "/tmp/os-release"
     os_release = ('PRETTY_NAME="postmarketOS {version}"\n'
                   'NAME="postmarketOS"\n'
                   'VERSION_ID="{version}"\n'
-                  'VERSION="{version}{sep}{hash:.8}"\n'
+                  'VERSION="{version}-{hash:.8}"\n'
                   'ID="postmarketos"\n'
                   'ID_LIKE="alpine"\n'
                   'HOME_URL="https://www.postmarketos.org/"\n'
                   'SUPPORT_URL="https://gitlab.com/postmarketOS"\n'
                   'BUG_REPORT_URL="https://gitlab.com/postmarketOS/pmbootstrap/issues"\n'
-                  ).format(version=pmb.config.version,
-                           sep=("-" if has_revision else ""), hash=revision)
-    if has_revision:
-        os_release += ('PMOS_HASH="{hash}"\n').format(hash=revision)
+                  'PMOS_HASH="{hash}"\n'
+                  ).format(version=pmb.config.version, hash=revision)
     with open(filepath, "w") as handle:
         handle.write(os_release)
     pmb.chroot.root(args, ["mv", "/tmp/os-release", "/etc/os-release"], suffix)
