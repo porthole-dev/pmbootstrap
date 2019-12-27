@@ -25,8 +25,19 @@ import pmb.config
 import pmb.helpers.run
 
 
+def get_path(args, name_repo):
+    """ Get the path to the repository, which is either the default one in the
+        work dir, or a user-specified one in args.
+
+        :returns: full path to repository """
+    if name_repo == "pmaports":
+        return args.aports
+    return args.work + "/cache_git/" + name_repo
+
+
 def clone(args, name_repo, shallow=True):
-    """ Clone a git repository to $WORK/cache_git/$name_repo.
+    """ Clone a git repository to $WORK/cache_git/$name_repo (or to the
+        overridden path set in args, as with pmbootstrap --aports).
 
         :param name_repo: short alias used for the repository name, from
                           pmb.config.git_repos (e.g. "aports_upstream",
@@ -38,7 +49,7 @@ def clone(args, name_repo, shallow=True):
         raise ValueError("No git repository configured for " + name_repo)
 
     # Skip if already checked out
-    path = args.work + "/cache_git/" + name_repo
+    path = get_path(args, name_repo)
     if os.path.exists(path):
         return
 
