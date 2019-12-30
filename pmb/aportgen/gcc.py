@@ -62,6 +62,7 @@ def generate(args, pkgname):
 
     below_header = "CTARGET_ARCH=" + arch + """
         CTARGET="$(arch_to_hostspec ${CTARGET_ARCH})"
+        LANG_D=false
         LANG_OBJC=false
         LANG_JAVA=false
         LANG_GO=false
