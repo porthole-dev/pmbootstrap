@@ -375,7 +375,8 @@ def zap(args):
     pmb.chroot.zap(args, dry=args.dry, http=args.http,
                    distfiles=args.distfiles, pkgs_local=args.pkgs_local,
                    pkgs_local_mismatch=args.pkgs_local_mismatch,
-                   pkgs_online_mismatch=args.pkgs_online_mismatch)
+                   pkgs_online_mismatch=args.pkgs_online_mismatch,
+                   rust=args.rust)
 
     # Don't write the "Done" message
     pmb.helpers.logging.disable()

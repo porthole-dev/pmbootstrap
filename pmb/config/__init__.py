@@ -127,6 +127,7 @@ chroot_mount_bind = {
     "$WORK/cache_ccache_$ARCH": "/mnt/pmbootstrap-ccache",
     "$WORK/cache_distfiles": "/var/cache/distfiles",
     "$WORK/cache_git": "/mnt/pmbootstrap-git",
+    "$WORK/cache_rust": "/mnt/pmbootstrap-rust",
     "$WORK/config_abuild": "/mnt/pmbootstrap-abuild-config",
     "$WORK/config_apk_keys": "/etc/apk/keys",
     "$WORK/packages": "/mnt/pmbootstrap-packages",
@@ -134,10 +135,19 @@ chroot_mount_bind = {
 
 # Building chroots (all chroots, except for the rootfs_ chroot) get symlinks in
 # the "pmos" user's home folder pointing to mountfolders from above.
+# Rust packaging is new and still a bit weird in Alpine and postmarketOS. As of
+# writing, we only have one package (squeekboard), and use cargo to download
+# the source of all dependencies at build time and compile it. Usually, this is
+# a no-go, but at least until this is resolved properly, let's cache the
+# dependencies and downloads as suggested in "Caching the Cargo home in CI":
+# https://doc.rust-lang.org/cargo/guide/cargo-home.html
 chroot_home_symlinks = {
     "/mnt/pmbootstrap-abuild-config": "/home/pmos/.abuild",
     "/mnt/pmbootstrap-ccache": "/home/pmos/.ccache",
     "/mnt/pmbootstrap-packages": "/home/pmos/packages/pmos",
+    "/mnt/pmbootstrap-rust/registry/index": "/home/pmos/.cargo/registry/index",
+    "/mnt/pmbootstrap-rust/registry/cache": "/home/pmos/.cargo/registry/cache",
+    "/mnt/pmbootstrap-rust/git/db": "/home/pmos/.cargo/git/db",
 }
 
 # Device nodes to be created in each chroot. Syntax for each entry:

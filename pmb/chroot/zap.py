@@ -28,7 +28,8 @@ import pmb.parse.apkindex
 
 
 def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
-        pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False):
+        pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False,
+        rust=False):
     """
     Shutdown everything inside the chroots (e.g. distccd, adb), umount
     everything and then safely remove folders from the work-directory.
@@ -41,6 +42,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     :param pkgs_online_mismatch: Clean out outdated binary packages downloaded from
                      mirrors (e.g. from Alpine)
     :param distfiles: Clear the downloaded files cache
+    :param rust: Remove rust related caches
 
     NOTE: This function gets called in pmb/config/init.py, with only args.work
     and args.device set!
@@ -73,6 +75,8 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         patterns += ["cache_http"]
     if distfiles:
         patterns += ["cache_distfiles"]
+    if rust:
+        patterns += ["cache_rust"]
 
     # Delete everything matching the patterns
     for pattern in patterns:

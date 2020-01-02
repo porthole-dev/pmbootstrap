@@ -402,6 +402,8 @@ def arguments():
                      dest="pkgs_online_mismatch",
                      help="also delete outdated packages from online mirrors"
                      " (that have been downloaded to the apk cache)")
+    zap.add_argument("-r", "--rust", action="store_true",
+                     help="also delete rust related caches")
 
     # Action: stats
     stats = sub.add_parser("stats", help="show ccache stats")
