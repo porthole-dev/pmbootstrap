@@ -104,6 +104,8 @@ def init(args, suffix="native"):
             link_dir = os.path.dirname(link_name)
             if not os.path.exists(chroot + link_dir):
                 pmb.chroot.user(args, ["mkdir", "-p", link_dir], suffix)
+            if not os.path.exists(chroot + target):
+                pmb.chroot.root(args, ["mkdir", "-p", target], suffix)
             pmb.chroot.user(args, ["ln", "-s", target, link_name], suffix)
             pmb.chroot.root(args, ["chown", "pmos:pmos", target],
                             suffix)
