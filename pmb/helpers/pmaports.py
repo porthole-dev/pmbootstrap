@@ -143,6 +143,11 @@ def find(args, package, must_exist=True):
                 # "mkbootimg=0.0.1")
                 if not found:
                     for provides_i in apkbuild["provides"]:
+                        # Ignore provides without version, they shall never be
+                        # automatically selected
+                        if "=" not in provides_i:
+                            continue
+
                         if package == provides_i.split("=", 1)[0]:
                             found = True
                             break
