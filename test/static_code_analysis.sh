@@ -20,6 +20,24 @@ set -e
 DIR="$(cd "$(dirname "$0")" && pwd -P)"
 cd "$DIR/.."
 
+# Make sure that the work folder format is up to date, and that there are no
+# mounts from aborted test cases (#1595)
+./pmbootstrap.py work_migrate
+./pmbootstrap.py -q shutdown
+
+# Install needed packages
+echo "Initializing Alpine chroot (details: 'pmbootstrap log')"
+./pmbootstrap.py -q chroot -- apk -q add \
+	shellcheck \
+	python3 \
+	py3-flake8 || return 1
+
+rootfs_native="$(./pmbootstrap.py config work)/chroot_native"
+command="$rootfs_native/lib/ld-musl-$(uname -m).so.1"
+command="$command --library-path=$rootfs_native/lib:$rootfs_native/usr/lib"
+shellcheck_command="$command $rootfs_native/usr/bin/shellcheck"
+flake8_command="$command $rootfs_native/usr/bin/python3 $rootfs_native/usr/bin/flake8"
+
 # Shell: shellcheck
 sh_files="
 	./test/static_code_analysis.sh
@@ -33,7 +51,7 @@ sh_files="
 for file in ${sh_files}; do
 	echo "Test with shellcheck: $file"
 	cd "$DIR/../$(dirname "$file")"
-	shellcheck -e SC1008 -x "$(basename "$file")"
+	$shellcheck_command -e SC1008 -x "$(basename "$file")"
 done
 
 # Python: flake8
@@ -47,9 +65,9 @@ echo "Test with flake8: *.py"
 py_files="$(find . -not -path '*/venv/*' -name '*.py')"
 _ignores="E501,E402,E722,W504,W605"
 # shellcheck disable=SC2086
-flake8 --exclude=__init__.py --ignore "$_ignores" $py_files
+$flake8_command --exclude=__init__.py --ignore "$_ignores" $py_files
 # shellcheck disable=SC2086
-flake8 --filename=__init__.py --ignore "F401,$_ignores" $py_files
+$flake8_command --filename=__init__.py --ignore "F401,$_ignores" $py_files
 
 # Done
 echo "Success!"
