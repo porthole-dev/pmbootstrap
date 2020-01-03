@@ -65,6 +65,8 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
                 "$pkgdir/boot/dt.img\""""
 
     content = """\
+        # Contributor: Firstname Lastname <email> (CHANGEME!)
+        # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/vendorkernel>
         # Kernel config based on: arch/""" + carch + """/configs/(CHANGEME!)
 

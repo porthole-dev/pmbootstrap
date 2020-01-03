@@ -82,17 +82,37 @@ def generate(args, monkeypatch, answers):
     pmb.aportgen.generate(args, "linux-testsuite-testdevice")
     monkeypatch.undo()
 
-    # Parse the deviceinfo and apkbuilds
-    args.cache["apkbuild"] = {}
     apkbuild_path = (args.aports + "/device/device-testsuite-testdevice/"
                      "APKBUILD")
     apkbuild_path_linux = (args.aports + "/device/"
                            "linux-testsuite-testdevice/APKBUILD")
+
+    # The build fails if the email is not a valid email, so remove them just for tests
+    remove_contributor_maintainer_lines(args, apkbuild_path)
+    remove_contributor_maintainer_lines(args, apkbuild_path_linux)
+
+    # Parse the deviceinfo and apkbuilds
+    args.cache["apkbuild"] = {}
     apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
     apkbuild_linux = pmb.parse.apkbuild(args, apkbuild_path_linux,
                                         check_pkgver=False)
     deviceinfo = pmb.parse.deviceinfo(args, "testsuite-testdevice")
     return (deviceinfo, apkbuild, apkbuild_linux)
+
+
+def remove_contributor_maintainer_lines(args, path):
+    with open(path, "r+", encoding="utf-8") as handle:
+        lines_new = []
+        for line in handle.readlines():
+            # Skip maintainer/contributor
+            if line.startswith("# Maintainer") or line.startswith(
+                    "# Contributor"):
+                continue
+            lines_new.append(line)
+        # Write back
+        handle.seek(0)
+        handle.write("".join(lines_new))
+        handle.truncate()
 
 
 def test_aportgen_device_wizard(args, monkeypatch):
