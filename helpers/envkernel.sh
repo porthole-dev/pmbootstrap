@@ -29,7 +29,7 @@ clean_kernel_src_dir() {
 		# shellcheck disable=SC1001
 		\make mrproper
 
-		if [ ! -z "$tmp_dir" ]; then
+		if [ -n "$tmp_dir" ]; then
 			sudo mv "$tmp_dir/.output" ".output"
 			sudo rmdir "$tmp_dir"
 		fi;
@@ -168,7 +168,7 @@ set_alias_make() {
 	# shellcheck disable=SC2039
 	arch_substr="${host_arch:0:3}"
 	if [ "$arch" = "$host_arch" ] || \
-		([ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]); then
+		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; }; then
 		is_cc=0
 	fi
 
