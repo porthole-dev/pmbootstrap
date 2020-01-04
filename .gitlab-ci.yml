@@ -39,7 +39,8 @@ static-code-analysis:
   stage: checks
   <<: *only-default
   script:
-    - "./test/static_code_analysis.sh"
+    # Note: This script uses CI_PROJECT_DIR
+    - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh --static-code-analysis"
 
 # MR settings
 # (Checks for "Allow commits from members who can merge to the target branch")
@@ -55,7 +56,7 @@ test-pmbootstrap:
   <<: *only-default
   script:
     # Note: This script uses CI_PROJECT_DIR
-    - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh"
+    - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh --testcases-fast"
   after_script:
      # Move logs so it can be saved as artifacts
     - "[[ -f /home/pmos/.local/var/pmbootstrap/log.txt ]] && mv /home/pmos/.local/var/pmbootstrap/log.txt $CI_PROJECT_DIR/log.txt"

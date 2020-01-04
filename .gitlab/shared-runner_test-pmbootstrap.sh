@@ -29,5 +29,12 @@ set +o pipefail
 yes | ./pmbootstrap.py zap -m -p
 set -o pipefail
 
-# testcases_fast (qemu is omitted by not passing --all)
-./test/testcases_fast.sh
+case $1 in
+	--static-code-analysis )
+		./test/static_code_analysis.sh
+		;;
+	--testcases-fast )
+		# testcases_fast (qemu is omitted by not passing --all)
+		./test/testcases_fast.sh
+		;;
+esac
