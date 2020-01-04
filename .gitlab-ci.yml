@@ -12,7 +12,7 @@ before_script:
   # venv created in CI_PROJECT_DIR for caching
   - "[[ ! -d venv ]] && virtualenv venv -p $(which python3.6)"
   - "source venv/bin/activate"
-  - "pip3 install flake8 pytest-cov python-coveralls pytest"
+  - "pip3 install pytest-cov python-coveralls pytest"
   - "python3 --version"
   - "su pmos -c 'git config --global user.email postmarketos-ci@localhost'"
   - "su pmos -c 'git config --global user.name postmarketOS_CI'"
