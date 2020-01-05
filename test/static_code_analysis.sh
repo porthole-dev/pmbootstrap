@@ -39,16 +39,8 @@ shellcheck_command="$command $rootfs_native/usr/bin/shellcheck"
 flake8_command="$command $rootfs_native/usr/bin/python3 $rootfs_native/usr/bin/flake8"
 
 # Shell: shellcheck
-sh_files="
-	./test/static_code_analysis.sh
-	./test/testcases_fast.sh
-	./helpers/envsetup.sh
-	./helpers/envkernel.sh
-	./.gitlab/setup-pmos-environment.sh
-	./.gitlab/shared-runner_test-pmbootstrap.sh
-	$(find . -name '*.trigger')
-"
-for file in ${sh_files}; do
+find . -name '*.sh' |
+while read -r file; do
 	echo "Test with shellcheck: $file"
 	cd "$DIR/../$(dirname "$file")"
 	$shellcheck_command -e SC1008 -x "$(basename "$file")"
