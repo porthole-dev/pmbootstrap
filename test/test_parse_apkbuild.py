@@ -117,7 +117,7 @@ def test_parse_attributes():
     assert func("depends", 'depends=') == (True, "", 0)
 
     with pytest.raises(RuntimeError) as e:
-        func("depends", 'depends="\nmissing\nend\nquote\sign')
+        func("depends", 'depends="\nmissing\nend\nquote\nsign')
     assert str(e.value).startswith("Can't find closing")
 
     with pytest.raises(RuntimeError) as e:
