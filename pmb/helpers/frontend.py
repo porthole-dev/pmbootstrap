@@ -34,6 +34,7 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.export
 import pmb.flasher
+import pmb.helpers.git
 import pmb.helpers.logging
 import pmb.helpers.pkgrel_bump
 import pmb.helpers.pmaports
@@ -388,3 +389,29 @@ def bootimg_analyze(args):
     for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(args, bootimg).split("\n"):
         tmp_output += "\n" + line.lstrip()
     logging.info(tmp_output)
+
+
+def pull(args):
+    failed = []
+    for repo in pmb.config.git_repos.keys():
+        if pmb.helpers.git.pull(args, repo) < 0:
+            failed.append(repo)
+
+    if not failed:
+        return True
+
+    logging.info("---")
+    logging.info("WARNING: failed to update: " + ", ".join(failed))
+    logging.info("")
+    logging.info("'pmbootstrap pull' will only update the repositories, if:")
+    logging.info("* they are on an officially supported branch (e.g. master)")
+    logging.info("* the history is not conflicting (fast-forward is possible)")
+    logging.info("* the git workdirs are clean")
+    logging.info("You have changed mentioned repositories, so they don't meet")
+    logging.info("these conditions anymore.")
+    logging.info("")
+    logging.info("Fix and try again:")
+    for name_repo in failed:
+        logging.info("* " + pmb.helpers.git.get_path(args, name_repo))
+    logging.info("---")
+    return False

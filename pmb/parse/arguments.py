@@ -552,6 +552,10 @@ def arguments():
                                  help="force even if the file seems to be"
                                       " invalid")
 
+    # Action: pull
+    sub.add_parser("pull", help="update all git repositories that pmbootstrap"
+                   " cloned (pmaports, etc.)")
+
     if argcomplete:
         argcomplete.autocomplete(parser, always_complete_options="long")
 

@@ -75,8 +75,7 @@ def check_version_pmaports(args):
     # Outated error
     logging.info("NOTE: your pmaports folder has version " + real + ", but" +
                  " version " + min + " is required.")
-    raise RuntimeError("Please update your local pmaports repository. Usually"
-                       " with: 'git -C \"" + args.aports + "\" pull'")
+    raise RuntimeError("Run 'pmbootstrap pull' to update your pmaports.")
 
 
 def check_version_pmbootstrap(args):
