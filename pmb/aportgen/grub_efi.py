@@ -1,5 +1,5 @@
 """
-Copyright 2019 Nick Reitemeyer
+Copyright 2020 Nick Reitemeyer
 
 This file is part of pmbootstrap.
 

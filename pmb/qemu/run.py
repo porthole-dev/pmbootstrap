@@ -1,5 +1,5 @@
 """
-Copyright 2019 Pablo Castellano
+Copyright 2020 Pablo Castellano
 
 This file is part of pmbootstrap.
 

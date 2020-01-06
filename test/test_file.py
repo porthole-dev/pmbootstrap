@@ -1,5 +1,5 @@
 """
-Copyright 2019 Oliver Smith
+Copyright 2020 Oliver Smith
 
 This file is part of pmbootstrap.
 

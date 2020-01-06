@@ -1,5 +1,5 @@
 """
-Copyright 2019 Attila Szollosi
+Copyright 2020 Attila Szollosi
 
 This file is part of pmbootstrap.
 
