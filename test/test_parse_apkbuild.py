@@ -123,3 +123,10 @@ def test_parse_attributes():
     with pytest.raises(RuntimeError) as e:
         func("depends", 'depends="')
     assert str(e.value).startswith("Can't find closing")
+
+
+def test_variable_replacements(args):
+    path = pmb_src + "/test/testdata/apkbuild/APKBUILD.variable-replacements"
+    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    assert apkbuild["url"] == "replacements variable string-replacements"
+    assert apkbuild["subpackages"] == ["replacements", "test"]

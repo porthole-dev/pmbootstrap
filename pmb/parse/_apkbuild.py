@@ -16,10 +16,80 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import logging
+import os
+import re
+
 import pmb.config
 import pmb.parse.version
+
+# sh variable name regex: https://stackoverflow.com/a/2821201/3527128
+
+# ${foo}
+revar = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)}")
+
+# $foo
+revar2 = re.compile(r"\$([a-zA-Z_]+[a-zA-Z0-9_]*)")
+
+# ${var/foo/bar}, ${var/foo/}, ${var/foo} -- replace foo with bar
+revar3 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)/([^/]+)(?:/([^/]*?))?}")
+
+# ${foo#bar} -- cut off bar from foo from start of string
+revar4 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)#(.*)}")
+
+
+def replace_variable(apkbuild, value: str) -> str:
+    # ${foo}
+    for match in revar.finditer(value):
+        try:
+            logging.verbose("{}: replace '{}' with '{}'".format(
+                            apkbuild["pkgname"], match.group(0),
+                            apkbuild[match.group(1)]))
+            value = value.replace(match.group(0), apkbuild[match.group(1)], 1)
+        except KeyError:
+            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
+                          "".format(apkbuild["pkgname"], match.group(1),
+                                    match.group(0)))
+
+    # $foo
+    for match in revar2.finditer(value):
+        try:
+            newvalue = apkbuild[match.group(1)]
+            if type(newvalue) is list:
+                newvalue = " ".join(newvalue)
+            logging.verbose("{}: replace '{}' with '{}'".format(
+                            apkbuild["pkgname"], match.group(0),
+                            newvalue))
+            value = value.replace(match.group(0), newvalue, 1)
+        except KeyError:
+            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
+                          "".format(apkbuild["pkgname"], match.group(1),
+                                    match.group(0)))
+
+    # ${var/foo/bar}, ${var/foo/}, ${var/foo}
+    for match in revar3.finditer(value):
+        newvalue = apkbuild[match.group(1)]
+        search = match.group(2)
+        replacement = match.group(3)
+        if replacement is None:  # arg 3 is optional
+            replacement = ""
+        newvalue = newvalue.replace(search, replacement, 1)
+        logging.verbose("{}: replace '{}' with '{}'".format(
+                        apkbuild["pkgname"], match.group(0), newvalue))
+        value = value.replace(match.group(0), newvalue, 1)
+
+    # ${foo#bar}
+    rematch4 = revar4.finditer(value)
+    for match in rematch4:
+        newvalue = apkbuild[match.group(1)]
+        substr = match.group(2)
+        if newvalue.startswith(substr):
+            newvalue = newvalue.replace(substr, "", 1)
+        logging.verbose("{}: replace '{}' with '{}'".format(
+                        apkbuild["pkgname"], match.group(0), newvalue))
+        value = value.replace(match.group(0), newvalue, 1)
+
+    return value
 
 
 def replace_variables(apkbuild):
@@ -27,47 +97,20 @@ def replace_variables(apkbuild):
     Replace a hardcoded list of variables inside the APKBUILD.
     """
     ret = apkbuild
-    # _flavor: ${_device} (lineageos kernel packages)
-    ret["_flavor"] = ret["_flavor"].replace("${_device}",
-                                            ret["_device"])
 
-    # pkgname: $_flavor
-    ret["pkgname"] = ret["pkgname"].replace("${_flavor}", ret["_flavor"])
-
-    # subpackages, *depends*: $pkgname
-    for key in ["subpackages", "depends", "makedepends", "makedepends_host",
-                "makedepends_build"]:
-        replaced = []
-        for subpackage in ret[key]:
-            replaced.append(subpackage.replace("$pkgname", ret["pkgname"]))
-        ret[key] = replaced
-
-    # makedepends: $makedepends_host, $makedepends_build, $_llvmver
-    replaced = []
-    for makedepend in ret["makedepends"]:
-        if makedepend.startswith("$"):
-            key = makedepend[1:]
-            if key in ret:
-                replaced += ret[key]
-            else:
-                raise RuntimeError("Could not resolve variable " +
-                                   makedepend + " in APKBUILD of " +
-                                   apkbuild["pkgname"])
+    # Iterate through all apkbuild attributes which get parsed
+    for key in pmb.config.apkbuild_attributes:
+        if type(ret[key]) is list:
+            replaced = []
+            for value in ret[key]:
+                replaced_value = replace_variable(ret, value).split()
+                replaced.extend(replaced_value)
+            ret[key] = replaced
+        elif type(ret[key]) is str:
+            ret[key] = replace_variable(ret, ret[key])
         else:
-            # replace in the middle of the string
-            for var in ["_llvmver"]:
-                makedepend = makedepend.replace("$" + var, ret[var])
-            replaced += [makedepend]
+            raise RuntimeError("Value type " + type(ret[key]) + " not handled.")
 
-    # Python: ${pkgname#py-}
-    if ret["pkgname"].startswith("py-"):
-        replacement = ret["pkgname"][3:]
-        for var in ["depends", "makedepends", "subpackages"]:
-            for i in range(len(ret[var])):
-                ret[var][i] = ret[var][i].replace(
-                    "${pkgname#py-}", replacement)
-
-    ret["makedepends"] = replaced
     return ret
 
 
