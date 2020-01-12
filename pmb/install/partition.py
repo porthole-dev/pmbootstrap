@@ -74,9 +74,11 @@ def partition(args, size_boot):
     # sometimes "fails to inform the kernel". In case it really failed with
     # partitioning, the follow-up mounting/formatting will not work, so it
     # will stop there (see #463).
+    boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
+
     commands = [
         ["mktable", "msdos"],
-        ["mkpart", "primary", filesystem, "2048s", mb_boot],
+        ["mkpart", "primary", filesystem, boot_part_start + 's', mb_boot],
         ["mkpart", "primary", mb_boot, "100%"],
         ["set", "1", "boot", "on"]
     ]

@@ -340,7 +340,8 @@ def embed_firmware(args):
                                "{}".format("/usr/share/" + binary))
         # Insure that embedding the firmware will not overrun the
         # first partition
-        max_size = (2048 * 512) - (offset * step)
+        boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
+        max_size = (int(boot_part_start) * 512) - (offset * step)
         binary_size = os.path.getsize(binary_path)
         if binary_size > max_size:
             raise RuntimeError("The firmware is too big to embed in the "
