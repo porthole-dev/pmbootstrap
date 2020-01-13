@@ -147,6 +147,10 @@ def arguments_qemu(subparser):
                          help="QEMU's display parameter (default: sdl,gl=on)",
                          default="sdl,gl=on", nargs="?")
 
+    ret.add_argument("--audio", dest="qemu_audio", choices=["alsa", "pa", "sdl"],
+                     help="QEMU's audio backend (default: none)",
+                     default=None, nargs="?")
+
     ret.add_argument("--host-qemu", dest="host_qemu", action='store_true',
                      help="Use the host system's qemu")
 

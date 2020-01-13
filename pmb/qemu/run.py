@@ -129,8 +129,7 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
         rootfs_native = args.work + "/chroot_native"
         env = {"QEMU_MODULE_DIR": rootfs_native + "/usr/lib/qemu",
                "GBM_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri",
-               "LIBGL_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri",
-               "ALSA_PLUGIN_DIRS": rootfs_native + "/usr/lib/alsa-lib"}
+               "LIBGL_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri"}
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
@@ -218,8 +217,9 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
         command += ["-display", args.qemu_display]
 
     # Audio support
-    command += ["-audiodev", "id=alsa,driver=alsa"]
-    command += ["-soundhw", "hda"]
+    if args.qemu_audio:
+        command += ["-audiodev", args.qemu_audio + ",id=audio"]
+        command += ["-soundhw", "hda"]
 
     return (command, env)
 
@@ -274,7 +274,7 @@ def install_depends(args, arch):
                "mesa-gl", "mesa-egl", "mesa-dri-ati", "mesa-dri-freedreno",
                "mesa-dri-intel", "mesa-dri-nouveau", "mesa-dri-swrast",
                "mesa-dri-virtio", "mesa-dri-vmwgfx", "qemu-audio-alsa",
-               "qemu-audio-sdl", "alsa-plugins-pulse"]
+               "qemu-audio-pa", "qemu-audio-sdl"]
     if args.spice_port:
         depends += ["virt-viewer", "font-noto"]
     pmb.chroot.apk.install(args, depends)
