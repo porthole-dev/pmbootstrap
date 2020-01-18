@@ -295,6 +295,7 @@ deviceinfo_attributes = [
     "sd_embed_firmware",
     "sd_embed_firmware_step_size",
     "partition_blacklist",
+    "boot_part_start",
 
     # weston
     "weston_pixman_type",
