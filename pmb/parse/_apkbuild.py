@@ -363,7 +363,9 @@ def kernels(args, device):
         if not subpackage.startswith(subpackage_prefix):
             continue
         name = subpackage[len(subpackage_prefix):]
-        func = "kernel_" + name
+        # FIXME: We should use the specified function name here,
+        # but it's removed in cut_off_function_names()
+        func = "kernel_" + name.replace('-', '_')
         desc = pmb.parse._apkbuild.subpkgdesc(apkbuild_path, func)
         ret[name] = desc
 

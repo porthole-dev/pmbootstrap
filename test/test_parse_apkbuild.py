@@ -73,6 +73,13 @@ def test_kernels(args):
            "mainline": "Mainline description"}
     assert func(args, device) == ret
 
+    # Long kernel name (e.g. two different mainline kernels)
+    device = "wileyfox-crackling"
+    ret = {"mainline": "Mainline kernel (no modem)",
+           "mainline-modem": "Mainline kernel (with modem)",
+           "downstream": "Downstream kernel"}
+    assert func(args, device) == ret
+
 
 def test_depends_in_depends(args):
     path = pmb_src + "/test/testdata/apkbuild/APKBUILD.depends-in-depends"
