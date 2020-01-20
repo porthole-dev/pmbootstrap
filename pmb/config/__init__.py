@@ -319,14 +319,7 @@ default_ip = "172.16.42.1"
 # the installation to the device.
 # util-linux: losetup, fallocate
 install_native_packages = ["cryptsetup", "util-linux", "e2fsprogs", "parted", "dosfstools"]
-install_device_packages = [
-
-    # postmarketos
-    "postmarketos-base",
-
-    # other
-    "ttf-droid"
-]
+install_device_packages = ["postmarketos-base"]
 
 # Groups for the default user
 install_user_groups = ["wheel", "video", "audio", "input", "plugdev", "netdev"]
