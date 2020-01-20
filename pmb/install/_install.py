@@ -127,6 +127,12 @@ def copy_files_from_chroot(args):
     mountpoint = mount_device_rootfs(args)
     mountpoint_outside = args.work + "/chroot_native" + mountpoint
 
+    # Remove empty qemu-user binary stub (where the binary was bind-mounted)
+    arch_qemu = pmb.parse.arch.alpine_to_qemu(args.deviceinfo["arch"])
+    qemu_binary = mountpoint_outside + "/usr/bin/qemu-" + arch_qemu + "-static"
+    if os.path.exists(qemu_binary):
+        pmb.helpers.run.root(args, ["rm", qemu_binary])
+
     # Get all folders inside the device rootfs (except for home)
     folders = []
     for path in glob.glob(mountpoint_outside + "/*"):
