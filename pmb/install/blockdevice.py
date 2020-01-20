@@ -36,8 +36,8 @@ def previous_install(args):
         if not os.path.exists(blockdevice_outside):
             continue
         blockdevice_inside = "/dev/sdcardp1"
-        pmb.helpers.mount.bind_blockdevice(args, blockdevice_outside,
-                                           args.work + "/chroot_native" + blockdevice_inside)
+        pmb.helpers.mount.bind_file(args, blockdevice_outside,
+                                    args.work + "/chroot_native" + blockdevice_inside)
         label = pmb.chroot.root(args, ["blkid", "-s", "LABEL", "-o", "value",
                                        blockdevice_inside], output_return=True)
         pmb.helpers.run.root(args, ["umount", args.work + "/chroot_native" + blockdevice_inside])
@@ -57,8 +57,8 @@ def mount_sdcard(args):
             raise RuntimeError(path + " is mounted! We will not attempt"
                                " to format this!")
     logging.info("(native) mount /dev/install (host: " + args.sdcard + ")")
-    pmb.helpers.mount.bind_blockdevice(args, args.sdcard,
-                                       args.work + "/chroot_native/dev/install")
+    pmb.helpers.mount.bind_file(args, args.sdcard,
+                                args.work + "/chroot_native/dev/install")
     if previous_install(args):
         if not pmb.helpers.cli.confirm(args, "WARNING: This device has a"
                                        " previous installation of pmOS."
@@ -123,8 +123,8 @@ def create_and_mount_image(args, size_boot, size_root):
                      " (" + os.path.basename(img_path) + ")")
         pmb.install.losetup.mount(args, img_path)
         device = pmb.install.losetup.device_by_back_file(args, img_path)
-        pmb.helpers.mount.bind_blockdevice(args, device, args.work +
-                                           "/chroot_native" + mount_point)
+        pmb.helpers.mount.bind_file(args, device,
+                                    args.work + "/chroot_native" + mount_point)
 
 
 def create(args, size_boot, size_root):

@@ -66,10 +66,10 @@ def bind(args, source, destination, create_folders=True, umount=False):
         raise RuntimeError("Mount failed: " + source + " -> " + destination)
 
 
-def bind_blockdevice(args, source, destination):
+def bind_file(args, source, destination):
     """
-    Mount a blockdevice with the --bind option, and create the destination
-    file, if necessary.
+    Mount a file with the --bind option, and create the destination file,
+    if necessary.
     """
     # Skip existing mountpoint
     if ismount(destination):

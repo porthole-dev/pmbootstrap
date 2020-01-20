@@ -54,7 +54,7 @@ def partitions_mount(args):
     for i in [1, 2]:
         source = prefix + partition_prefix + str(i)
         target = args.work + "/chroot_native/dev/installp" + str(i)
-        pmb.helpers.mount.bind_blockdevice(args, source, target)
+        pmb.helpers.mount.bind_file(args, source, target)
 
 
 def partition(args, size_boot):
