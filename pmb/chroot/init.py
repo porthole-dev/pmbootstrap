@@ -45,26 +45,35 @@ def copy_resolv_conf(args, suffix="native"):
         pmb.helpers.run.root(args, ["touch", chroot])
 
 
+def setup_qemu_emulation(args, suffix):
+    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+    if not pmb.parse.arch.cpu_emulation_required(args, arch):
+        return
+
+    chroot = args.work + "/chroot_" + suffix
+    arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+
+    # mount --bind the qemu-user binary
+    pmb.chroot.binfmt.register(args, arch)
+    pmb.helpers.mount.bind_file(args, args.work + "/chroot_native/usr/bin/qemu-" + arch_qemu,
+                                chroot + "/usr/bin/qemu-" + arch_qemu + "-static",
+                                create_folders=True)
+
+
 def init(args, suffix="native"):
     # When already initialized: just prepare the chroot
     chroot = args.work + "/chroot_" + suffix
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
-    emulate = pmb.parse.arch.cpu_emulation_required(args, arch)
 
     pmb.chroot.mount(args, suffix)
+    setup_qemu_emulation(args, suffix)
     if os.path.islink(chroot + "/bin/sh"):
-        if emulate:
-            pmb.chroot.binfmt.register(args, arch)
         copy_resolv_conf(args, suffix)
         pmb.chroot.apk.update_repository_list(args, suffix)
         return
 
     # Require apk-tools-static
     pmb.chroot.apk_static.init(args)
-
-    # Non-native chroot: set up QEMU with binfmt_misc
-    if emulate:
-        pmb.chroot.binfmt.register(args, arch)
 
     logging.info("(" + suffix + ") install alpine-base")
 
@@ -79,14 +88,6 @@ def init(args, suffix="native"):
                                     "/config_apk_keys/"])
     copy_resolv_conf(args, suffix)
     pmb.chroot.apk.update_repository_list(args, suffix)
-
-    # Non-native chroot: install qemu-user-binary
-    if emulate:
-        arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
-        pmb.helpers.run.root(args, ["mkdir", "-p", chroot + "/usr/bin"])
-        pmb.helpers.run.root(args, ["cp", args.work +
-                                    "/chroot_native/usr/bin/qemu-" + arch_qemu,
-                                    chroot + "/usr/bin/qemu-" + arch_qemu + "-static"])
 
     # Install alpine-base
     pmb.helpers.repo.update(args, arch)
