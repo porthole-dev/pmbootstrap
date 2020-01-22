@@ -488,6 +488,13 @@ def arguments():
     install.add_argument("--no-base",
                          help="do not install postmarketos-base (advanced)",
                          action="store_false", dest="install_base")
+    group = install.add_mutually_exclusive_group()
+    group.add_argument("--sparse", help="generate sparse image file"
+                       " (even if unsupported by device)", default=None,
+                       action="store_true")
+    group.add_argument("--no-sparse", help="do not generate sparse image file"
+                       " (even if supported by device)", dest="sparse",
+                       action="store_false")
 
     # Action: checksum / aportgen / build
     checksum = sub.add_parser("checksum", help="update aport checksums")

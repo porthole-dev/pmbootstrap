@@ -416,7 +416,11 @@ def install_system_image(args):
     pmb.chroot.shutdown(args, True)
 
     # Convert rootfs to sparse using img2simg
-    if args.deviceinfo["flash_sparse"] == "true" and not args.split and not args.sdcard:
+    sparse = args.sparse
+    if sparse is None:
+        sparse = args.deviceinfo["flash_sparse"] == "true"
+
+    if sparse and not args.split and not args.sdcard:
         logging.info("(native) make sparse rootfs")
         pmb.chroot.apk.install(args, ["android-tools"])
         sys_image = args.device + ".img"
