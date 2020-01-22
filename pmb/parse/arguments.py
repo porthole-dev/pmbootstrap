@@ -50,6 +50,8 @@ def arguments_export(subparser):
                                     " (boot.img/kernel+initramfs only)",
                      action="store_true", dest="odin_flashable_tar")
     ret.add_argument("--flavor", default=None)
+    ret.add_argument("--no-install", dest="autoinstall", default=True,
+                     help="skip updating kernel/initfs", action="store_false")
     return ret
 
 
@@ -67,6 +69,8 @@ def arguments_flasher(subparser):
     flash_kernel = sub.add_parser("flash_kernel", help="flash a kernel")
     for action in [boot, flash_kernel]:
         action.add_argument("--flavor", default=None)
+        action.add_argument("--no-install", dest="autoinstall", default=True,
+                            help="skip updating kernel/initfs", action="store_false")
     flash_kernel.add_argument("--partition", default=None,
                               help="partition to flash the kernel to (defaults"
                                    " to deviceinfo_flash_*_partition_kernel)")

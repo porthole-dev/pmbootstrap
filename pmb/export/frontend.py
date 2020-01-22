@@ -22,8 +22,9 @@ def frontend(args):
                      " install' first (without the 'sdcard' parameter).")
 
     # Rebuild the initramfs, just to make sure (see #69)
-    flavor = pmb.helpers.frontend._parse_flavor(args)
-    pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
+    flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
+    if args.autoinstall:
+        pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
 
     # Do the export, print all files
     logging.info("Export symlinks to: " + target)

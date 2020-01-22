@@ -46,13 +46,14 @@ import pmb.parse
 import pmb.qemu
 
 
-def _parse_flavor(args):
+def _parse_flavor(args, autoinstall=True):
     """
     Verify the flavor argument if specified, or return a default value.
+    :param autoinstall: make sure that at least one kernel flavor is installed
     """
     # Install at least one kernel and get installed flavors
     suffix = "rootfs_" + args.device
-    flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix)
+    flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix, autoinstall)
 
     # Parse and verify the flavor argument
     flavor = args.flavor

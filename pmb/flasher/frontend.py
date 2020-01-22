@@ -31,8 +31,9 @@ import pmb.parse.kconfig
 
 def kernel(args):
     # Rebuild the initramfs, just to make sure (see #69)
-    flavor = pmb.helpers.frontend._parse_flavor(args)
-    pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
+    flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
+    if args.autoinstall:
+        pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
 
     # Check kernel config
     pmb.parse.kconfig.check(args, flavor)
