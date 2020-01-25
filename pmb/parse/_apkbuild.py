@@ -68,26 +68,36 @@ def replace_variable(apkbuild, value: str) -> str:
 
     # ${var/foo/bar}, ${var/foo/}, ${var/foo}
     for match in revar3.finditer(value):
-        newvalue = apkbuild[match.group(1)]
-        search = match.group(2)
-        replacement = match.group(3)
-        if replacement is None:  # arg 3 is optional
-            replacement = ""
-        newvalue = newvalue.replace(search, replacement, 1)
-        logging.verbose("{}: replace '{}' with '{}'".format(
-                        apkbuild["pkgname"], match.group(0), newvalue))
-        value = value.replace(match.group(0), newvalue, 1)
+        try:
+            newvalue = apkbuild[match.group(1)]
+            search = match.group(2)
+            replacement = match.group(3)
+            if replacement is None:  # arg 3 is optional
+                replacement = ""
+            newvalue = newvalue.replace(search, replacement, 1)
+            logging.verbose("{}: replace '{}' with '{}'".format(
+                            apkbuild["pkgname"], match.group(0), newvalue))
+            value = value.replace(match.group(0), newvalue, 1)
+        except KeyError:
+            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
+                          "".format(apkbuild["pkgname"], match.group(1),
+                                    match.group(0)))
 
     # ${foo#bar}
     rematch4 = revar4.finditer(value)
     for match in rematch4:
-        newvalue = apkbuild[match.group(1)]
-        substr = match.group(2)
-        if newvalue.startswith(substr):
-            newvalue = newvalue.replace(substr, "", 1)
-        logging.verbose("{}: replace '{}' with '{}'".format(
-                        apkbuild["pkgname"], match.group(0), newvalue))
-        value = value.replace(match.group(0), newvalue, 1)
+        try:
+            newvalue = apkbuild[match.group(1)]
+            substr = match.group(2)
+            if newvalue.startswith(substr):
+                newvalue = newvalue.replace(substr, "", 1)
+            logging.verbose("{}: replace '{}' with '{}'".format(
+                            apkbuild["pkgname"], match.group(0), newvalue))
+            value = value.replace(match.group(0), newvalue, 1)
+        except KeyError:
+            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
+                          "".format(apkbuild["pkgname"], match.group(1),
+                                    match.group(0)))
 
     return value
 
