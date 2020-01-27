@@ -222,32 +222,32 @@ apkbuild_attributes = {
     "makedepends": {"array": True},
     "checkdepends": {"array": True},
     "options": {"array": True},
-    "pkgname": {"array": False},
-    "pkgdesc": {"array": False},
-    "pkgrel": {"array": False},
-    "pkgver": {"array": False},
+    "pkgname": {},
+    "pkgdesc": {},
+    "pkgrel": {},
+    "pkgver": {},
     "provides": {"array": True},
     "subpackages": {"array": True},
-    "url": {"array": False},
+    "url": {},
 
     # cross-compilers
     "makedepends_build": {"array": True},
     "makedepends_host": {"array": True},
 
     # kernels
-    "_flavor": {"array": False},
-    "_device": {"array": False},
-    "_kernver": {"array": False},
+    "_flavor": {},
+    "_device": {},
+    "_kernver": {},
 
     # mesa
-    "_llvmver": {"array": False},
+    "_llvmver": {},
 
     # Overridden packages
-    "_pkgver": {"array": False},
-    "_pkgname": {"array": False},
+    "_pkgver": {},
+    "_pkgname": {},
 
     # git commit
-    "_commit": {"array": False},
+    "_commit": {},
     "source": {"array": True},
 }
 

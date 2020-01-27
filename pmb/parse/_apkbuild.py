@@ -243,7 +243,7 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
 
     # Split attributes
     for attribute, options in pmb.config.apkbuild_attributes.items():
-        if options["array"]:
+        if options.get("array", False):
             # Split up arrays, delete empty strings inside the list
             ret[attribute] = list(filter(None, ret[attribute].split(" ")))
 
