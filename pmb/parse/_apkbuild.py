@@ -55,8 +55,6 @@ def replace_variable(apkbuild, value: str) -> str:
     for match in revar2.finditer(value):
         try:
             newvalue = apkbuild[match.group(1)]
-            if type(newvalue) is list:
-                newvalue = " ".join(newvalue)
             logging.verbose("{}: replace '{}' with '{}'".format(
                             apkbuild["pkgname"], match.group(0),
                             newvalue))
@@ -100,28 +98,6 @@ def replace_variable(apkbuild, value: str) -> str:
                                     match.group(0)))
 
     return value
-
-
-def replace_variables(apkbuild):
-    """
-    Replace a hardcoded list of variables inside the APKBUILD.
-    """
-    ret = apkbuild
-
-    # Iterate through all apkbuild attributes which get parsed
-    for key in pmb.config.apkbuild_attributes:
-        if type(ret[key]) is list:
-            replaced = []
-            for value in ret[key]:
-                replaced_value = replace_variable(ret, value).split()
-                replaced.extend(replaced_value)
-            ret[key] = replaced
-        elif type(ret[key]) is str:
-            ret[key] = replace_variable(ret, ret[key])
-        else:
-            raise RuntimeError("Value type " + type(ret[key]) + " not handled.")
-
-    return ret
 
 
 def cut_off_function_names(apkbuild):
@@ -255,38 +231,22 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     # Read the file and check line endings
     lines = read_file(path)
 
-    # Add default attributes
-    ret = {}
-    for attribute, options in pmb.config.apkbuild_attributes.items():
-        if options["array"]:
-            ret[attribute] = []
-        else:
-            ret[attribute] = ""
-
     # Parse all attributes from the config
+    ret = {key: "" for key in pmb.config.apkbuild_attributes.keys()}
     for i in range(len(lines)):
         for attribute, options in pmb.config.apkbuild_attributes.items():
             found, value, i = parse_attribute(attribute, lines, i, path)
             if not found:
                 continue
 
-            # Support depends="$depends hello-world" (#1800)
-            if attribute == "depends" and ("${depends}" in value or
-                                           "$depends" in value):
-                previous = " ".join(ret["depends"]) if "depends" in ret else ""
-                value = value.replace("${depends}", previous)
-                value = value.replace("$depends", previous)
+            ret[attribute] = replace_variable(ret, value)
 
+    # Split attributes
+    for attribute, options in pmb.config.apkbuild_attributes.items():
+        if options["array"]:
             # Split up arrays, delete empty strings inside the list
-            if options["array"]:
-                if value:
-                    value = list(filter(None, value.split(" ")))
-                else:
-                    value = []
-            ret[attribute] = value
+            ret[attribute] = list(filter(None, ret[attribute].split(" ")))
 
-    # Properly format values
-    ret = replace_variables(ret)
     ret = cut_off_function_names(ret)
 
     # Sanity check: pkgname
