@@ -214,20 +214,24 @@ necessary_kconfig_options = {
 # PARSE
 #
 
+# Variables belonging to a package or subpackage in APKBUILD files
+apkbuild_package_attributes = {
+    "pkgdesc": {},
+    "depends": {"array": True},
+    "provides": {"array": True},
+}
+
 # Variables in APKBUILD files, that get parsed
 apkbuild_attributes = {
     "arch": {"array": True},
-    "depends": {"array": True},
     "depends_dev": {"array": True},
     "makedepends": {"array": True},
     "checkdepends": {"array": True},
     "options": {"array": True},
     "pkgname": {},
-    "pkgdesc": {},
     "pkgrel": {},
     "pkgver": {},
-    "provides": {"array": True},
-    "subpackages": {"array": True},
+    "subpackages": {},
     "url": {},
 
     # cross-compilers
@@ -250,6 +254,8 @@ apkbuild_attributes = {
     "_commit": {},
     "source": {"array": True},
 }
+# **apkbuild_package_attributes above would be nicer, but requires Python 3.5+
+apkbuild_attributes.update(apkbuild_package_attributes)
 
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
 deviceinfo_attributes = [

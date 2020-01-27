@@ -49,7 +49,7 @@ def test_helpers_package_get_pmaports_and_cache(args, monkeypatch):
                 "provides": ["testprovide"],
                 "options": [],
                 "checkdepends": [],
-                "subpackages": [],
+                "subpackages": {},
                 "makedepends": [],
                 "pkgver": "1.0",
                 "pkgrel": "1"}

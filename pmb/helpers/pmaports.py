@@ -134,10 +134,9 @@ def find(args, package, must_exist=True):
                 found = False
 
                 # Subpackages
-                for subpackage_i in apkbuild["subpackages"]:
-                    if package == subpackage_i.split(":", 1)[0]:
-                        found = True
-                        break
+                if package in apkbuild["subpackages"]:
+                    found = True
+                    break
 
                 # Provides (cut off before equals sign for entries like
                 # "mkbootimg=0.0.1")

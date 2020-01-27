@@ -205,7 +205,7 @@ def ask_for_device_nonfree(args, device):
 
     # Only run when there is a "nonfree" subpackage
     nonfree_found = False
-    for subpackage in apkbuild["subpackages"]:
+    for subpackage in apkbuild["subpackages"].keys():
         if subpackage.startswith("device-" + device + "-nonfree"):
             nonfree_found = True
     if not nonfree_found:
@@ -221,10 +221,11 @@ def ask_for_device_nonfree(args, device):
     # Ask for firmware and userland individually
     for type in ["firmware", "userland"]:
         subpkgname = "device-" + device + "-nonfree-" + type
-        if subpkgname in apkbuild["subpackages"]:
-            subpkgdesc = pmb.parse._apkbuild.subpkgdesc(apkbuild_path,
-                                                        "nonfree_" + type)
-            logging.info(subpkgname + ": " + subpkgdesc)
+        subpkg = apkbuild["subpackages"].get(subpkgname, {})
+        if subpkg is None:
+            raise RuntimeError("Cannot find subpackage function for " + subpkgname)
+        if subpkg:
+            logging.info(subpkgname + ": " + subpkg["pkgdesc"])
             ret[type] = pmb.helpers.cli.confirm(args, "Enable this package?",
                                                 default=ret[type])
     return ret

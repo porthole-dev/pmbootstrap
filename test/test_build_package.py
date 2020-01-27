@@ -136,7 +136,7 @@ def test_check_build_for_arch(monkeypatch, args):
 def test_get_depends(monkeypatch):
     func = pmb.build._package.get_depends
     apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["c", "b"],
-                "checkdepends": "e", "subpackages": ["d"], "options": []}
+                "checkdepends": "e", "subpackages": {"d": None}, "options": []}
 
     # Depends + makedepends
     args = args_patched(monkeypatch, ["pmbootstrap", "build", "test"])
@@ -163,7 +163,7 @@ def test_build_depends(args, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.build_depends
     apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"],
-                "checkdepends": [], "subpackages": ["d"], "options": []}
+                "checkdepends": [], "subpackages": {"d": None}, "options": []}
 
     # No depends built (first makedepends + depends, then only makedepends)
     monkeypatch.setattr(pmb.build._package, "package", return_none)
@@ -178,7 +178,7 @@ def test_build_depends_no_binary_error(args, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.build_depends
     apkbuild = {"pkgname": "test", "depends": ["some-invalid-package-here"],
-                "makedepends": [], "checkdepends": [], "subpackages": [],
+                "makedepends": [], "checkdepends": [], "subpackages": {},
                 "options": []}
 
     # pmbootstrap build --no-depends

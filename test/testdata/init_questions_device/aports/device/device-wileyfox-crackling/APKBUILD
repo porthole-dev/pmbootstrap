@@ -12,7 +12,7 @@ makedepends="devicepkg-dev"
 subpackages="
 	$pkgname-kernel-mainline:kernel_mainline
         $pkgname-kernel-mainline-modem:kernel_mainline_modem
-	$pkgname-kernel-downstream:kernel_downstream
+	$pkgname-kernel-downstream:downstream
 	$pkgname-nonfree-firmware:nonfree_firmware
         $pkgname-nonfree-firmware-modem:nonfree_firmware_modem
 "
@@ -39,7 +39,8 @@ kernel_mainline_modem() {
 	devicepkg_subpackage_kernel $startdir $pkgname $subpkgname
 }
 
-kernel_downstream() {
+# This is renamed to test the APKBUILD parser. In reality they should always use proper names.
+downstream() {
 	pkgdesc="Downstream kernel"
 	depends="linux-wileyfox-crackling mesa-dri-swrast mdss-fb-init-hack"
 	devicepkg_subpackage_kernel $startdir $pkgname $subpkgname

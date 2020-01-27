@@ -120,7 +120,7 @@ def get_depends(args, apkbuild):
     ret = sorted(set(ret))
 
     # Don't recurse forever when a package depends on itself (#948)
-    for pkgname in [apkbuild["pkgname"]] + list(apkbuild["subpackages"]):
+    for pkgname in [apkbuild["pkgname"]] + list(apkbuild["subpackages"].keys()):
         if pkgname in ret:
             logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on"
                             " itself: " + pkgname)

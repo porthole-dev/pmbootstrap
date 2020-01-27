@@ -19,6 +19,7 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import os
 import re
+from collections import OrderedDict
 
 import pmb.config
 import pmb.parse.version
@@ -98,18 +99,6 @@ def replace_variable(apkbuild, value: str) -> str:
                                     match.group(0)))
 
     return value
-
-
-def cut_off_function_names(apkbuild):
-    """
-    For subpackages: only keep the subpackage name, without the internal
-    function name, that tells how to build the subpackage.
-    """
-    sub = apkbuild["subpackages"]
-    for i in range(len(sub)):
-        sub[i] = sub[i].split(":", 1)[0]
-    apkbuild["subpackages"] = sub
-    return apkbuild
 
 
 def function_body(path, func):
@@ -209,6 +198,100 @@ def parse_attribute(attribute, lines, i, path):
                        " attribute '" + attribute + "' in: " + path)
 
 
+def _parse_attributes(path, lines, apkbuild_attributes, ret):
+    """
+    Parse attributes from a list of lines. Variables are replaced with values
+    from ret (if found) and split into the format configured in apkbuild_attributes.
+
+    :param lines: the lines to parse
+    :param apkbuild_attributes: the attributes to parse
+    :param ret: a dict to update with new parsed variable
+    """
+    for i in range(len(lines)):
+        for attribute, options in apkbuild_attributes.items():
+            found, value, i = parse_attribute(attribute, lines, i, path)
+            if not found:
+                continue
+
+            ret[attribute] = replace_variable(ret, value)
+
+    if "subpackages" in apkbuild_attributes:
+        subpackages = OrderedDict()
+        for subpkg in ret["subpackages"].split(" "):
+            if subpkg:
+                _parse_subpackage(path, lines, ret, subpackages, subpkg)
+        ret["subpackages"] = subpackages
+
+    # Split attributes
+    for attribute, options in apkbuild_attributes.items():
+        if options.get("array", False):
+            # Split up arrays, delete empty strings inside the list
+            ret[attribute] = list(filter(None, ret[attribute].split(" ")))
+
+
+def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
+    """
+    Attempt to parse attributes from a subpackage function.
+    This will attempt to locate the subpackage function in the APKBUILD and
+    update the given attributes with values set in the subpackage function.
+
+    :param path: path to APKBUILD
+    :param lines: the lines to parse
+    :param apkbuild: dict of attributes already parsed from APKBUILD
+    :param subpackages: the subpackages dict to update
+    :param subpkg: the subpackage to parse
+                   (may contain subpackage function name separated by :)
+    """
+    subpkgparts = subpkg.split(":")
+    subpkgname = subpkgparts[0]
+    subpkgsplit = subpkgname[subpkgname.rfind("-") + 1:]
+    if len(subpkgparts) > 1:
+        subpkgsplit = subpkgparts[1]
+
+    # Find start and end of package function
+    start = end = 0
+    prefix = subpkgsplit + "() {"
+    for i in range(len(lines)):
+        if lines[i].startswith(prefix):
+            start = i + 1
+        elif start and lines[i].startswith("}"):
+            end = i
+            break
+
+    if not start:
+        # Unable to find subpackage function in the APKBUILD.
+        # The subpackage function could be actually missing, or this is a problem
+        # in the parser. For now we also don't handle subpackages with default
+        # functions (e.g. -dev or -doc).
+        # In the future we may want to specifically handle these, and throw
+        # an exception here for all other missing subpackage functions.
+        subpackages[subpkgname] = None
+        logging.verbose("{}: subpackage function '{}' for subpackage '{}' not found, ignoring"
+                        "".format(apkbuild["pkgname"], subpkgsplit, subpkgname))
+        return
+
+    if not end:
+        raise RuntimeError("Could not find end of subpackage function, no line starts"
+                           " with '}' after '" + prefix + "' in " + path)
+
+    lines = lines[start:end]
+    # Strip tabs before lines in function
+    lines = [line.strip() + "\n" for line in lines]
+
+    # Copy variables
+    apkbuild = apkbuild.copy()
+    apkbuild["subpkgname"] = subpkgname
+
+    # Parse relevant attributes for the subpackage
+    _parse_attributes(path, lines, pmb.config.apkbuild_package_attributes, apkbuild)
+
+    # Return only properties interesting for subpackages
+    ret = {}
+    for key in pmb.config.apkbuild_package_attributes:
+        ret[key] = apkbuild[key]
+    subpackages[subpkgname] = ret
+
+
 def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     """
     Parse relevant information out of the APKBUILD file. This is not meant
@@ -233,21 +316,7 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
 
     # Parse all attributes from the config
     ret = {key: "" for key in pmb.config.apkbuild_attributes.keys()}
-    for i in range(len(lines)):
-        for attribute, options in pmb.config.apkbuild_attributes.items():
-            found, value, i = parse_attribute(attribute, lines, i, path)
-            if not found:
-                continue
-
-            ret[attribute] = replace_variable(ret, value)
-
-    # Split attributes
-    for attribute, options in pmb.config.apkbuild_attributes.items():
-        if options.get("array", False):
-            # Split up arrays, delete empty strings inside the list
-            ret[attribute] = list(filter(None, ret[attribute].split(" ")))
-
-    ret = cut_off_function_names(ret)
+    _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
 
     # Sanity check: pkgname
     suffix = "/" + ret["pkgname"] + "/APKBUILD"
@@ -275,39 +344,6 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     return ret
 
 
-def subpkgdesc(path, function):
-    """
-    Get the pkgdesc of a subpackage in an APKBUILD.
-
-    :param path: to the APKBUILD file
-    :param function: name of the subpackage (e.g. "nonfree_userland")
-    :returns: the subpackage's pkgdesc
-    """
-    # Read all lines
-    lines = read_file(path)
-
-    # Prefixes
-    prefix_function = function + "() {"
-    prefix_pkgdesc = "\tpkgdesc=\""
-
-    # Find the pkgdesc
-    in_function = False
-    for line in lines:
-        if in_function:
-            if line.startswith(prefix_pkgdesc):
-                return line[len(prefix_pkgdesc):-2]
-        elif line.startswith(prefix_function):
-            in_function = True
-
-    # Failure
-    if not in_function:
-        raise RuntimeError("Could not find subpackage function, no line starts"
-                           " with '" + prefix_function + "' in " + path)
-    raise RuntimeError("Could not find pkgdesc of subpackage function '" +
-                       function + "' (spaces used instead of tabs?) in " +
-                       path)
-
-
 def kernels(args, device):
     """
     Get the possible kernels from a device-* APKBUILD.
@@ -328,15 +364,13 @@ def kernels(args, device):
     # Read kernels from subpackages
     ret = {}
     subpackage_prefix = "device-" + device + "-kernel-"
-    for subpackage in subpackages:
-        if not subpackage.startswith(subpackage_prefix):
+    for subpkgname, subpkg in subpackages.items():
+        if not subpkgname.startswith(subpackage_prefix):
             continue
-        name = subpackage[len(subpackage_prefix):]
-        # FIXME: We should use the specified function name here,
-        # but it's removed in cut_off_function_names()
-        func = "kernel_" + name.replace('-', '_')
-        desc = pmb.parse._apkbuild.subpkgdesc(apkbuild_path, func)
-        ret[name] = desc
+        if subpkg is None:
+            raise RuntimeError("Cannot find subpackage function for: " + subpkgname)
+        name = subpkgname[len(subpackage_prefix):]
+        ret[name] = subpkg["pkgdesc"]
 
     # Return
     if ret:

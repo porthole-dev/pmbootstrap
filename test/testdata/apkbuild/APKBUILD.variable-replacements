@@ -4,5 +4,9 @@ pkgrel=0
 arch="armhf"
 pkgdesc="$pkgdesc$pkgname test"
 url="${pkgname/variable-} ${pkgname/-replacements/} ${pkgname/variable/string}"
-subpackages="${pkgdesc#variable-}"
-pkgdesc="this should not affect anything"
+subpackages="${pkgdesc#variable-}:test_subpkg_func"
+pkgdesc="this should not affect variable replacement"
+
+test_subpkg_func() {
+	mkdir "$subpkgdir"
+}

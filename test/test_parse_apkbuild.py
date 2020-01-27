@@ -38,26 +38,36 @@ def args(tmpdir, request):
     return args
 
 
-def test_subpkgdesc():
-    func = pmb.parse._apkbuild.subpkgdesc
+def test_subpackages(args):
     testdata = pmb_src + "/test/testdata"
+
+    path = testdata + "/apkbuild/APKBUILD.subpackages"
+    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+
+    subpkg = apkbuild["subpackages"]["simple"]
+    assert subpkg["pkgdesc"] == ""
+    # Inherited from parent package
+    assert subpkg["depends"] == ["postmarketos-base"]
+
+    subpkg = apkbuild["subpackages"]["custom"]
+    assert subpkg["pkgdesc"] == "This is one of the custom subpackages"
+    assert subpkg["depends"] == ["postmarketos-base", "glibc"]
 
     # Successful extraction
     path = (testdata + "/init_questions_device/aports/device/"
             "device-nonfree-firmware/APKBUILD")
-    pkgdesc = "firmware description"
-    assert func(path, "nonfree_firmware") == pkgdesc
-
-    # Can't find the function
-    with pytest.raises(RuntimeError) as e:
-        func(path, "invalid_function")
-    assert str(e.value).startswith("Could not find subpackage function")
+    apkbuild = pmb.parse.apkbuild(args, path)
+    subpkg = apkbuild["subpackages"]["device-nonfree-firmware-nonfree-firmware"]
+    assert subpkg["pkgdesc"] == "firmware description"
 
     # Can't find the pkgdesc in the function
     path = testdata + "/apkbuild/APKBUILD.missing-pkgdesc-in-subpackage"
-    with pytest.raises(RuntimeError) as e:
-        func(path, "subpackage")
-    assert str(e.value).startswith("Could not find pkgdesc of subpackage")
+    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    subpkg = apkbuild["subpackages"]["missing-pkgdesc-in-subpackage-subpackage"]
+    assert subpkg["pkgdesc"] == ""
+
+    # Can't find the function
+    assert apkbuild["subpackages"]["invalid-function"] is None
 
 
 def test_kernels(args):
@@ -135,5 +145,10 @@ def test_parse_attributes():
 def test_variable_replacements(args):
     path = pmb_src + "/test/testdata/apkbuild/APKBUILD.variable-replacements"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    assert apkbuild["pkgdesc"] == "this should not affect variable replacement"
     assert apkbuild["url"] == "replacements variable string-replacements"
-    assert apkbuild["subpackages"] == ["replacements", "test"]
+    assert list(apkbuild["subpackages"].keys()) == ["replacements", "test"]
+
+    assert apkbuild["subpackages"]["replacements"] is None
+    test_subpkg = apkbuild["subpackages"]["test"]
+    assert test_subpkg["pkgdesc"] == "this should not affect variable replacement"

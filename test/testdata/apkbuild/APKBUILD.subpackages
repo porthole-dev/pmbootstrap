@@ -1,0 +1,13 @@
+pkgname="subpackages"
+arch="noarch"
+subpackages="simple custom:custom_function"
+depends="postmarketos-base"
+
+simple() {
+	mkdir "$subpkgdir"
+}
+
+custom_function() {
+	pkgdesc="This is one of the custom $pkgname"
+	depends="$depends glibc"
+}
