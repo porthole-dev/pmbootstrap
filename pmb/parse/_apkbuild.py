@@ -255,8 +255,15 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     # Read the file and check line endings
     lines = read_file(path)
 
-    # Parse all attributes from the config
+    # Add default attributes
     ret = {}
+    for attribute, options in pmb.config.apkbuild_attributes.items():
+        if options["array"]:
+            ret[attribute] = []
+        else:
+            ret[attribute] = ""
+
+    # Parse all attributes from the config
     for i in range(len(lines)):
         for attribute, options in pmb.config.apkbuild_attributes.items():
             found, value, i = parse_attribute(attribute, lines, i, path)
@@ -277,14 +284,6 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
                 else:
                     value = []
             ret[attribute] = value
-
-    # Add missing keys
-    for attribute, options in pmb.config.apkbuild_attributes.items():
-        if attribute not in ret:
-            if options["array"]:
-                ret[attribute] = []
-            else:
-                ret[attribute] = ""
 
     # Properly format values
     ret = replace_variables(ret)
