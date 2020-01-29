@@ -271,9 +271,8 @@ def install_depends(args, arch):
     Install any necessary qemu dependencies in native chroot
     """
     depends = ["qemu", "qemu-system-" + arch, "qemu-ui-sdl", "qemu-ui-gtk",
-               "mesa-gl", "mesa-egl", "mesa-dri-ati", "mesa-dri-intel",
-               "mesa-dri-nouveau", "mesa-va-gallium", "qemu-audio-alsa",
-               "qemu-audio-pa", "qemu-audio-sdl"]
+               "mesa-gl", "mesa-egl", "mesa-dri-classic", "mesa-dri-gallium",
+               "qemu-audio-alsa", "qemu-audio-pa", "qemu-audio-sdl"]
     if args.spice_port:
         depends += ["virt-viewer", "font-noto"]
     pmb.chroot.apk.install(args, depends)
