@@ -89,12 +89,12 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         # Source
         _repository="(CHANGEME!)"
         _commit="ffffffffffffffffffffffffffffffffffffffff"
-        _config="config-${_flavor}.${arch}"
+        _config="config-$_flavor.$arch"
         source="
-            $pkgname-$_commit.tar.gz::https://github.com/LineageOS/${_repository}/archive/${_commit}.tar.gz
+            $pkgname-$_commit.tar.gz::https://github.com/LineageOS/$_repository/archive/$_commit.tar.gz
             $_config""" + ("\n" + " " * 12).join([""] + patches) + """
         "
-        builddir="$srcdir/${_repository}-${_commit}"
+        builddir="$srcdir/$_repository-$_commit"
 
         prepare() {
             default_prepare
