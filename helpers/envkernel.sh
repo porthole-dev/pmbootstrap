@@ -97,6 +97,26 @@ initialize_chroot() {
 		gcc_pkgname="gcc4"
 	fi
 
+	# Kernel architecture
+	# shellcheck disable=SC2154
+	case "$deviceinfo_arch" in
+		aarch64*) arch="arm64" ;;
+		arm*) arch="arm" ;;
+		x86_64) arch="x86_64" ;;
+		x86) arch="x86" ;;
+	esac
+
+	# Check if it's a cross compile
+	host_arch="$(uname -m)"
+	need_cross_compiler=1
+	# Match arm* architectures
+	# shellcheck disable=SC2039
+	arch_substr="${host_arch:0:3}"
+	if [ "$arch" = "$host_arch" ] || \
+		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; }; then
+		need_cross_compiler=0
+	fi
+
 	# Don't initialize twice
 	flag="$chroot/tmp/envkernel/${gcc_pkgname}_setup_done"
 	[ -e "$flag" ] && return
@@ -104,16 +124,23 @@ initialize_chroot() {
 	# Install needed packages
 	echo "Initializing Alpine chroot (details: 'pmbootstrap log')"
 
-	# shellcheck disable=SC2154
+	cross_binutils=""
+	cross_gcc=""
+	if [ "$need_cross_compiler" = 1 ]; then
+		cross_binutils="binutils-$deviceinfo_arch"
+		cross_gcc="$gcc_pkgname-$deviceinfo_arch"
+	fi
+
+	# shellcheck disable=SC2086,SC2154
 	"$pmbootstrap" -q chroot -- apk -q add \
 		abuild \
 		bc \
-		binutils-"$deviceinfo_arch" \
 		binutils \
 		bison \
+		$cross_binutils \
+		$cross_gcc \
 		findutils \
 		flex \
-		"$gcc_pkgname"-"$deviceinfo_arch" \
 		"$gcc_pkgname" \
 		linux-headers \
 		openssl-dev \
@@ -153,25 +180,6 @@ set_alias_make() {
 	prefix="$(. "$chroot/usr/share/abuild/functions.sh";
 		arch_to_hostspec "$deviceinfo_arch")"
 
-	# Kernel architecture
-	case "$deviceinfo_arch" in
-		aarch64*) arch="arm64" ;;
-		arm*) arch="arm" ;;
-		x86_64) arch="x86_64" ;;
-		x86) arch="x86" ;;
-	esac
-
-	# Check if it's a cross compile
-	host_arch="$(uname -m)"
-	is_cc=1
-	# Match arm* architectures
-	# shellcheck disable=SC2039
-	arch_substr="${host_arch:0:3}"
-	if [ "$arch" = "$host_arch" ] || \
-		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; }; then
-		is_cc=0
-	fi
-
 	if [ "$gcc6_arg" = "1" ]; then
 		cc="gcc6-${prefix}-gcc"
 		hostcc="gcc6-gcc"
@@ -190,7 +198,7 @@ set_alias_make() {
 	cmd="echo '*** pmbootstrap envkernel.sh active for $PWD! ***';"
 	cmd="$cmd pmbootstrap -q chroot --user --"
 	cmd="$cmd ARCH=$arch"
-	if [ "$is_cc" = 1 ]; then
+	if [ "$need_cross_compiler" = 1 ]; then
 		cmd="$cmd CROSS_COMPILE=$cross_compiler"
 	fi
 	cmd="$cmd make -C /mnt/linux O=/mnt/linux/.output"
@@ -234,9 +242,13 @@ set_alias_pmbroot_kernelroot() {
 
 
 cross_compiler_version() {
-	pmbootstrap chroot --user -- "${cross_compiler}gcc"  --version \
-		2> /dev/null | grep "^.*gcc " | \
-		awk -F'[()]' '{ print $1 "("$2")" }'
+	if [ "$need_cross_compiler" = 1 ]; then
+		pmbootstrap chroot --user -- "${cross_compiler}gcc"  --version \
+			2> /dev/null | grep "^.*gcc " | \
+			awk -F'[()]' '{ print $1 "("$2")" }'
+	else
+		echo "none"
+	fi
 }
 
 
