@@ -131,23 +131,35 @@ initialize_chroot() {
 		cross_gcc="$gcc_pkgname-$deviceinfo_arch"
 	fi
 
+	# FIXME: Ideally we would not "guess" the dependencies here.
+	# It might be better to take a kernel package name as parameter
+	#   (e.g. . envkernel.sh linux-postmarketos-mainline)
+	# and install its build dependencies.
+
 	# shellcheck disable=SC2086,SC2154
 	"$pmbootstrap" -q chroot -- apk -q add \
 		abuild \
+		bash \
 		bc \
 		binutils \
 		bison \
 		$cross_binutils \
 		$cross_gcc \
+		diffutils \
+		elfutils-dev \
 		findutils \
 		flex \
 		"$gcc_pkgname" \
+		gmp-dev \
 		linux-headers \
 		openssl-dev \
 		make \
+		mpc1-dev \
+		mpfr-dev \
 		musl-dev \
 		ncurses-dev \
 		perl \
+		sed \
 		xz || return 1
 
 	# Create /mnt/linux
