@@ -355,15 +355,14 @@ uuu specific: $UUU_SCRIPT
 flashers = {
     "fastboot": {
         "depends": ["android-tools"],
-        "actions":
-                {
-                    "list_devices": [["fastboot", "devices", "-l"]],
-                    "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
-                                      "$IMAGE"]],
-                    "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
-                                      "$BOOT/boot.img-$FLAVOR"]],
-                    "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
-                              "boot", "$BOOT/boot.img-$FLAVOR"]],
+        "actions": {
+            "list_devices": [["fastboot", "devices", "-l"]],
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
+                              "$IMAGE"]],
+            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
+                              "$BOOT/boot.img-$FLAVOR"]],
+            "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
+                      "boot", "$BOOT/boot.img-$FLAVOR"]],
         },
     },
     # Some Samsung devices need the initramfs to be baked into the kernel (e.g.
@@ -373,8 +372,7 @@ flashers = {
     # "isorec" (isolated recovery), a term coined by Lanchon.
     "heimdall-isorec": {
         "depends": ["heimdall"],
-        "actions":
-        {
+        "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
@@ -388,8 +386,7 @@ flashers = {
     # fastboot compatible devices. Example: s7562, n7100
     "heimdall-bootimg": {
         "depends": ["heimdall"],
-        "actions":
-        {
+        "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
@@ -400,20 +397,18 @@ flashers = {
         },
     },
     "adb": {
-            "depends": ["android-tools"],
-            "actions":
-            {
-                "list_devices": [["adb", "-P", "5038", "devices"]],
-                "sideload": [["echo", "< wait for any device >"],
-                             ["adb", "-P", "5038", "wait-for-usb-sideload"],
-                             ["adb", "-P", "5038", "sideload",
-                              "$RECOVERY_ZIP"]],
-            }
+        "depends": ["android-tools"],
+        "actions": {
+            "list_devices": [["adb", "-P", "5038", "devices"]],
+            "sideload": [["echo", "< wait for any device >"],
+                         ["adb", "-P", "5038", "wait-for-usb-sideload"],
+                         ["adb", "-P", "5038", "sideload",
+                          "$RECOVERY_ZIP"]],
+        }
     },
     "uuu": {
         "depends": ["uuu"],
-        "actions":
-        {
+        "actions": {
             "flash_rootfs": [
                 # There's a bug(?) in uuu where it clobbers the path in the cmd
                 # script if the script is not in pwd...
