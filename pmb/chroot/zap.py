@@ -6,6 +6,7 @@ import math
 import os
 
 import pmb.chroot
+import pmb.config.workdir
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
@@ -71,6 +72,9 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
                 logging.info("% rm -rf " + match)
                 if not dry:
                     pmb.helpers.run.root(args, ["rm", "-rf", match])
+
+    # Remove config init dates for deleted chroots
+    pmb.config.workdir.clean(args)
 
     # Chroots were zapped, so no repo lists exist anymore
     args.cache["apk_repository_list_updated"].clear()

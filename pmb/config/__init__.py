@@ -148,6 +148,10 @@ chroot_device_nodes = [
 # You can force-update them with 'pmbootstrap update'.
 apkindex_retention_time = 4
 
+
+# When chroot is considered outdated (in seconds)
+chroot_outdated = 3600 * 24 * 2
+
 #
 # BUILD
 #

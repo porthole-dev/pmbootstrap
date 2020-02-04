@@ -8,6 +8,7 @@ import filecmp
 import pmb.chroot
 import pmb.chroot.apk_static
 import pmb.config
+import pmb.config.workdir
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.arch
@@ -72,6 +73,8 @@ def init(args, suffix="native"):
                                     "/config_apk_keys/"])
     copy_resolv_conf(args, suffix)
     pmb.chroot.apk.update_repository_list(args, suffix)
+
+    pmb.config.workdir.chroot_save_date(args, suffix)
 
     # Install alpine-base
     pmb.helpers.repo.update(args, arch)
