@@ -344,7 +344,9 @@ Flasher abstraction. Allowed variables:
 
 $BOOT: Path to the /boot partition
 $FLAVOR: Kernel flavor
-$IMAGE: Path to the rootfs image
+$IMAGE: Path to the combined boot/rootfs image
+$IMAGE_SPLIT_BOOT: Path to the (split) boot image
+$IMAGE_SPLIT_ROOT: Path to the (split) rootfs image
 $PARTITION_KERNEL: Partition to flash the kernel/boot.img to
 $PARTITION_SYSTEM: Partition to flash the rootfs to
 
@@ -363,6 +365,23 @@ flashers = {
                               "$BOOT/boot.img-$FLAVOR"]],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
                       "boot", "$BOOT/boot.img-$FLAVOR"]],
+        },
+    },
+    # Some devices provide Fastboot but using Android boot images is not practical
+    # for them (e.g. because they support booting from FAT32 partitions directly
+    # and/or the Android boot partition is too small). This can be implemented
+    # using --split (separate image files for boot and rootfs).
+    # This flasher allows flashing the split image files using Fastboot.
+    "fastboot-bootpart": {
+        "split": True,
+        "depends": ["android-tools"],
+        "actions": {
+            "list_devices": [["fastboot", "devices", "-l"]],
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
+                              "$IMAGE_SPLIT_ROOT"]],
+            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
+                              "$IMAGE_SPLIT_BOOT"]],
+            # TODO: Add support for boot
         },
     },
     # Some Samsung devices need the initramfs to be baked into the kernel (e.g.

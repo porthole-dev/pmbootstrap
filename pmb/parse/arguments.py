@@ -472,7 +472,11 @@ def arguments():
     group.add_argument("--sdcard", help="path to the sdcard device,"
                        " eg. /dev/mmcblk0")
     group.add_argument("--split", help="install the boot and root partition"
-                       " in separated image files", action="store_true")
+                       " in separated image files (default: only if flash method"
+                       " requires it)", action="store_true", default=None)
+    group.add_argument("--no-split", help="create combined boot + root image"
+                       " even if flash method requires it",
+                       dest="split", action="store_false")
     group.add_argument("--android-recovery-zip",
                        help="generate TWRP flashable zip",
                        action="store_true", dest="android_recovery_zip")

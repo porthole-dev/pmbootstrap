@@ -23,7 +23,7 @@ def variables(args, flavor, method):
     if "cmdline" in args and args.cmdline:
         _cmdline = args.cmdline
 
-    if method == "fastboot":
+    if method.startswith("fastboot"):
         _partition_kernel = args.deviceinfo["flash_fastboot_partition_kernel"] or "boot"
         _partition_system = args.deviceinfo["flash_fastboot_partition_system"] or "system"
     else:
@@ -38,6 +38,8 @@ def variables(args, flavor, method):
     vars = {
         "$BOOT": "/mnt/rootfs_" + args.device + "/boot",
         "$FLAVOR": flavor if flavor is not None else "",
+        "$IMAGE_SPLIT_BOOT": "/home/pmos/rootfs/" + args.device + "-boot.img",
+        "$IMAGE_SPLIT_ROOT": "/home/pmos/rootfs/" + args.device + "-root.img",
         "$IMAGE": "/home/pmos/rootfs/" + args.device + ".img",
         "$KERNEL_CMDLINE": _cmdline,
         "$PARTITION_KERNEL": _partition_kernel,

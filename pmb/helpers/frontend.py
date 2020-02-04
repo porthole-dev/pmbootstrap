@@ -195,6 +195,12 @@ def install(args):
     if args.rsync and not args.sdcard:
         raise ValueError("Installation using rsync only works on sdcard.")
 
+    if not args.sdcard and args.split is None:
+        # Default to split if the flash method requires it
+        flasher = pmb.config.flashers.get(args.deviceinfo["flash_method"], {})
+        if flasher.get("split", False):
+            args.split = True
+
     pmb.install.install(args)
 
 

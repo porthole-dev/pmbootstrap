@@ -436,35 +436,47 @@ def install_system_image(args):
                  " target device:")
 
     # System flash information
-    if not args.sdcard and not args.split:
+    method = args.deviceinfo["flash_method"]
+    flasher = pmb.config.flashers.get(method, {})
+    flasher_actions = flasher.get("actions", {})
+    requires_split = flasher.get("split", False)
+
+    if "flash_rootfs" in flasher_actions and not args.sdcard and \
+            bool(args.split) == requires_split:
         logging.info("* pmbootstrap flasher flash_rootfs")
         logging.info("  Flashes the generated rootfs image to your device:")
-        logging.info("  " + args.work + "/chroot_native/home/pmos/rootfs/" +
-                     args.device + ".img")
-        logging.info("  (NOTE: This file has a partition table, which contains"
-                     " /boot and / subpartitions. That way we don't need to"
-                     " change the partition layout on your device.)")
+        if args.split:
+            logging.info("  " + args.work + "/chroot_native/home/pmos/rootfs/" +
+                         args.device + "-rootfs.img")
+        else:
+            logging.info("  " + args.work + "/chroot_native/home/pmos/rootfs/" +
+                         args.device + ".img")
+            logging.info("  (NOTE: This file has a partition table, which contains"
+                         " /boot and / subpartitions. That way we don't need to"
+                         " change the partition layout on your device.)")
 
-    logging.info("* pmbootstrap flasher flash_kernel")
-    logging.info("  Flashes the kernel + initramfs to your device:")
-    logging.info("  " + args.work + "/chroot_rootfs_" + args.device +
-                 "/boot")
-    method = args.deviceinfo["flash_method"]
-    if (method in pmb.config.flashers and "boot" in
-            pmb.config.flashers[method]["actions"]):
+    # Most flash methods operate independently of the boot partition.
+    # (e.g. an Android boot image is generated). In that case, "flash_kernel"
+    # works even when partitions are split or installing for sdcard.
+    # This is not possible if the flash method requires split partitions.
+    if "flash_kernel" in flasher_actions and (not requires_split or args.split):
+        logging.info("* pmbootstrap flasher flash_kernel")
+        logging.info("  Flashes the kernel + initramfs to your device:")
+        if requires_split:
+            logging.info("  " + args.work + "/chroot_native/home/pmos/rootfs/" +
+                         args.device + "-boot.img")
+        else:
+            logging.info("  " + args.work + "/chroot_rootfs_" + args.device + "/boot")
+
+    if "boot" in flasher_actions:
         logging.info("  (NOTE: " + method + " also supports booting"
                      " the kernel/initramfs directly without flashing."
                      " Use 'pmbootstrap flasher boot' to do that.)")
 
     # Export information
-    if args.split:
-        logging.info("* Boot and root image files have been generated, run"
-                     " 'pmbootstrap export' to create symlinks and flash"
-                     " outside of pmbootstrap.")
-    else:
-        logging.info("* If the above steps do not work, you can also create"
-                     " symlinks to the generated files with 'pmbootstrap export'"
-                     " and flash outside of pmbootstrap.")
+    logging.info("* If the above steps do not work, you can also create"
+                 " symlinks to the generated files with 'pmbootstrap export'"
+                 " and flash outside of pmbootstrap.")
 
 
 def install_recovery_zip(args):
