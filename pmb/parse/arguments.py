@@ -274,6 +274,14 @@ def arguments_lint(subparser):
     add_packages_arg(lint, nargs="*")
 
 
+def arguments_status(subparser):
+    ret = subparser.add_parser("status",
+                               help="quick health check for the work dir")
+    ret.add_argument("--details", action="store_true",
+                     help="list passing checks in detail, not as summary")
+    return ret
+
+
 def package_completer(prefix, action, parser, parsed_args):
     args = parsed_args
     pmb.config.merge_with_args(args)
@@ -387,6 +395,7 @@ def arguments():
     arguments_aportupgrade(sub)
     arguments_newapkbuild(sub)
     arguments_lint(sub)
+    arguments_status(sub)
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")

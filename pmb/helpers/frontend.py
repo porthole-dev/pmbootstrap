@@ -24,6 +24,7 @@ import pmb.helpers.repo
 import pmb.helpers.repo_missing
 import pmb.helpers.run
 import pmb.helpers.aportupgrade
+import pmb.helpers.status
 import pmb.install
 import pmb.parse
 import pmb.qemu
@@ -427,3 +428,8 @@ def lint(args):
 
     for package in packages:
         pmb.helpers.lint.check(args, package)
+
+
+def status(args):
+    if not pmb.helpers.status.print_status(args, args.details):
+        sys.exit(1)
