@@ -273,9 +273,7 @@ def arguments_repo_missing(subparser):
 def arguments_lint(subparser):
     lint = subparser.add_parser("lint", help="run quality checks on pmaports"
                                              " (required to pass CI)")
-    argument_packages = lint.add_argument("packages", nargs="*")
-    if argcomplete:
-        argument_packages.completer = package_completer
+    add_packages_arg(lint, nargs="*")
 
 
 def package_completer(prefix, action, parser, parsed_args):
@@ -291,6 +289,12 @@ def package_completer(prefix, action, parser, parsed_args):
 def kernel_completer(prefix, action, parser, parsed_args):
     packages = package_completer("linux-" + prefix, action, parser, parsed_args)
     return [package.replace("linux-", "", 1) for package in packages]
+
+
+def add_packages_arg(subparser, name="packages", *args, **kwargs):
+    arg = subparser.add_argument(name, *args, **kwargs)
+    if argcomplete:
+        arg.completer = package_completer
 
 
 def arguments():
@@ -506,15 +510,21 @@ def arguments():
                        " (even if supported by device)", dest="sparse",
                        action="store_false")
 
-    # Action: checksum / aportgen / build
+    # Action: checksum
     checksum = sub.add_parser("checksum", help="update aport checksums")
     checksum.add_argument("--verify", action="store_true", help="download"
                           " sources and verify that the checksums of the"
                           " APKBUILD match, instead of updating them")
+    add_packages_arg(checksum, nargs="+")
+
+    # Action: aportgen
     aportgen = sub.add_parser("aportgen", help="generate a postmarketOS"
                               " specific package build recipe (aport/APKBUILD)")
     aportgen.add_argument("--fork-alpine", help="fork the alpine upstream package",
                           action="store_true", dest="fork_alpine")
+    add_packages_arg(aportgen, nargs="+")
+
+    # Action: build
     build = sub.add_parser("build", help="create a package for a"
                            " specific architecture")
     build.add_argument("--arch", choices=arch_choices, default=None,
@@ -543,19 +553,16 @@ def arguments():
     build.add_argument("--envkernel", action="store_true",
                        help="Create an apk package from the build output of"
                        " a kernel compiled with envkernel.sh.")
-    for action in [checksum, build, aportgen]:
-        argument_packages = action.add_argument("packages", nargs="+")
-        if argcomplete:
-            argument_packages.completer = package_completer
+    add_packages_arg(build, nargs="+")
 
     # Action: apkbuild_parse
     apkbuild_parse = sub.add_parser("apkbuild_parse")
-    apkbuild_parse.add_argument("packages", nargs="*")
+    add_packages_arg(apkbuild_parse, nargs="*")
 
     # Action: apkindex_parse
     apkindex_parse = sub.add_parser("apkindex_parse")
     apkindex_parse.add_argument("apkindex_path")
-    apkindex_parse.add_argument("package", default=None, nargs="?")
+    add_packages_arg(apkindex_parse, "package", nargs="?")
 
     # Action: config
     config = sub.add_parser("config",
