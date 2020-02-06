@@ -35,6 +35,7 @@ import pmb.chroot.other
 import pmb.export
 import pmb.flasher
 import pmb.helpers.git
+import pmb.helpers.lint
 import pmb.helpers.logging
 import pmb.helpers.pkgrel_bump
 import pmb.helpers.pmaports
@@ -416,3 +417,12 @@ def pull(args):
         logging.info("* " + pmb.helpers.git.get_path(args, name_repo))
     logging.info("---")
     return False
+
+
+def lint(args):
+    packages = args.packages
+    if not packages:
+        packages = pmb.helpers.pmaports.get_list(args)
+
+    for package in packages:
+        pmb.helpers.lint.check(args, package)

@@ -270,6 +270,14 @@ def arguments_repo_missing(subparser):
     return ret
 
 
+def arguments_lint(subparser):
+    lint = subparser.add_parser("lint", help="run quality checks on pmaports"
+                                             " (required to pass CI)")
+    argument_packages = lint.add_argument("packages", nargs="*")
+    if argcomplete:
+        argument_packages.completer = package_completer
+
+
 def package_completer(prefix, action, parser, parsed_args):
     args = parsed_args
     pmb.config.merge_with_args(args)
@@ -375,6 +383,7 @@ def arguments():
     arguments_qemu(sub)
     arguments_pkgrel_bump(sub)
     arguments_newapkbuild(sub)
+    arguments_lint(sub)
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")
