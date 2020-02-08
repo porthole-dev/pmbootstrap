@@ -1,7 +1,7 @@
 ---
 # Author: Clayton Craft <clayton@craftyguy.net>
 
-image: python:3.6-slim-stretch
+image: python:3.7-slim-stretch
 
 cache:
   paths:
@@ -10,7 +10,7 @@ cache:
 before_script:
   - ./.gitlab/setup-pmos-environment.sh
   # venv created in CI_PROJECT_DIR for caching
-  - "[[ ! -d venv ]] && virtualenv venv -p $(which python3.6)"
+  - "[[ ! -d venv ]] && virtualenv venv -p $(which python3)"
   - "source venv/bin/activate"
   - "pip3 install pytest-cov python-coveralls pytest"
   - "python3 --version"
