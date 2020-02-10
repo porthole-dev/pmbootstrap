@@ -5,6 +5,23 @@ import logging
 import pmb.config.workdir
 
 
+def print_config(args):
+    """ Print an overview of what was set in "pmbootstrap init". """
+    logging.info("*** CONFIG ***")
+
+    info = args.deviceinfo
+    logging.info("Device: {} ({}, \"{}\")"
+                 .format(args.device, info["arch"], info["name"]))
+
+    if pmb.parse._apkbuild.kernels(args, args.device):
+        logging.info("Kernel: " + args.kernel)
+
+    if args.extra_packages != "none":
+        logging.info("Extra packages: {}".format(args.extra_packages))
+
+    logging.info("User Interface: {}".format(args.ui))
+
+
 def print_checks_chroots_outdated(args, details):
     """ Check if chroots were zapped recently.
         :param details: if True, print each passing check instead of a summary
@@ -43,6 +60,8 @@ def print_checks(args, details):
 def print_status(args, details=False):
     """ :param details: if True, print each passing check instead of a summary
         :returns: True if all checks passed, False otherwise """
+    print_config(args)
+    logging.info("")
     ret = print_checks(args, details)
 
     return ret
