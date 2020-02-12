@@ -1,10 +1,13 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb/helpers/status.py """
+import os
 import pytest
+import shutil
 import sys
 
-import pmb_test  # noqa
+import pmb_test
+import pmb_test.git
 import pmb.config
 import pmb.config.workdir
 
@@ -41,3 +44,42 @@ def test_pmbootstrap_status(args, tmpdir):
     ret = pmb.helpers.run.user(args, [pmbootstrap, "-w", work, "status"],
                                check=False)
     assert ret == 1
+
+
+def test_print_checks_git_repo(args, monkeypatch, tmpdir):
+    """ Test pmb.helpers.status.print_checks_git_repo """
+    path, run_git = pmb_test.git.prepare_tmpdir(args, monkeypatch, tmpdir)
+
+    # Not on official branch
+    func = pmb.helpers.status.print_checks_git_repo
+    name_repo = "test"
+    run_git(["checkout", "-b", "inofficial-branch"])
+    status, _ = func(args, name_repo)
+    assert status == -1
+
+    # Workdir is not clean
+    run_git(["checkout", "master"])
+    shutil.copy(__file__, path + "/test.py")
+    status, _ = func(args, name_repo)
+    assert status == -2
+    os.unlink(path + "/test.py")
+
+    # Tracking different remote
+    status, _ = func(args, name_repo)
+    assert status == -3
+
+    # Let master track origin/master
+    run_git(["checkout", "-b", "temp"])
+    run_git(["branch", "-D", "master"])
+    run_git(["checkout", "-b", "master", "--track", "origin/master"])
+
+    # Not up to date
+    run_git(["commit", "--allow-empty", "-m", "new"], "remote")
+    run_git(["fetch"])
+    status, _ = func(args, name_repo)
+    assert status == -4
+
+    # Up to date
+    run_git(["pull"])
+    status, _ = func(args, name_repo)
+    assert status == 0
