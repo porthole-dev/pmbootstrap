@@ -441,6 +441,9 @@ git_repos = {
     "pmaports": "https://gitlab.com/postmarketOS/pmaports.git",
 }
 
+# When a git repository is considered outdated (in seconds)
+# (Measuring timestamp of FETCH_HEAD: https://stackoverflow.com/a/9229377)
+git_repo_outdated = 3600 * 24 * 2
 
 #
 # APORTGEN

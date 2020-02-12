@@ -4,6 +4,7 @@ import os
 import sys
 import pytest
 import shutil
+import time
 
 import pmb_test  # noqa
 import pmb_test.git
@@ -146,3 +147,29 @@ def test_pull(args, monkeypatch, tmpdir):
     run_git(["reset", "--hard", "origin/master"])
     run_git(["commit", "--allow-empty", "-m", "new"], "remote")
     assert func(args, name_repo) == 0
+
+
+def test_is_outdated(args, tmpdir, monkeypatch):
+    func = pmb.helpers.git.is_outdated
+
+    # Override time.time(): now is "100"
+    def fake_time():
+        return 100.0
+    monkeypatch.setattr(time, "time", fake_time)
+
+    # Create .git/FETCH_HEAD
+    path = str(tmpdir)
+    os.mkdir(path + "/.git")
+    fetch_head = path + "/.git/FETCH_HEAD"
+    open(fetch_head, "w").close()
+
+    # Set mtime to 90
+    os.utime(fetch_head, times=(0, 90))
+
+    # Outdated (date_outdated: 90)
+    monkeypatch.setattr(pmb.config, "git_repo_outdated", 10)
+    assert func(args, path) is True
+
+    # Not outdated (date_outdated: 89)
+    monkeypatch.setattr(pmb.config, "git_repo_outdated", 11)
+    assert func(args, path) is False

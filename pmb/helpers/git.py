@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+import time
 
 import pmb.build
 import pmb.chroot.apk
@@ -32,22 +33,25 @@ def clone(args, name_repo, shallow=True):
     if name_repo not in pmb.config.git_repos:
         raise ValueError("No git repository configured for " + name_repo)
 
-    # Skip if already checked out
     path = get_path(args, name_repo)
-    if os.path.exists(path):
-        return
+    if not os.path.exists(path):
+        # Build git command
+        url = pmb.config.git_repos[name_repo]
+        command = ["git", "clone"]
+        if shallow:
+            command += ["--depth=1"]
+        command += [url, path]
 
-    # Build git command
-    url = pmb.config.git_repos[name_repo]
-    command = ["git", "clone"]
-    if shallow:
-        command += ["--depth=1"]
-    command += [url, path]
+        # Create parent dir and clone
+        logging.info("Clone git repository: " + url)
+        os.makedirs(args.work + "/cache_git", exist_ok=True)
+        pmb.helpers.run.user(args, command, output="stdout")
 
-    # Create parent dir and clone
-    logging.info("Clone git repository: " + url)
-    os.makedirs(args.work + "/cache_git", exist_ok=True)
-    pmb.helpers.run.user(args, command, output="stdout")
+    # FETCH_HEAD does not exist after initial clone. Create it, so
+    # is_outdated() can use it.
+    fetch_head = path + "/.git/FETCH_HEAD"
+    if not os.path.exists(fetch_head):
+        open(fetch_head, "w").close()
 
 
 def rev_parse(args, path, revision="HEAD", extra_args: list = []):
@@ -164,3 +168,22 @@ def pull(args, name_repo):
     command = ["git", "merge", "--ff-only", branch_upstream]
     pmb.helpers.run.user(args, command, path, "stdout")
     return 0
+
+
+def is_outdated(args, path):
+    # FETCH_HEAD always exists in repositories cloned by pmbootstrap.
+    # Usually it does not (before first git fetch/pull), but there is no good
+    # fallback. For exampe, getting the _creation_ date of .git/HEAD is non-
+    # trivial with python on linux (https://stackoverflow.com/a/39501288).
+    # Note that we have to assume here, that the user had fetched the "origin"
+    # repository. If the user fetched another repository, FETCH_HEAD would also
+    # get updated, even though "origin" may be outdated. For pmbootstrap status
+    # it is good enough, because it should help the users that are not doing
+    # much with pmaports.git to know when it is outdated. People who manually
+    # fetch other repos should usually know that and how to handle that
+    # situation.
+    path_head = path + "/.git/FETCH_HEAD"
+    date_head = os.path.getmtime(path_head)
+
+    date_outdated = time.time() - pmb.config.git_repo_outdated
+    return date_head <= date_outdated

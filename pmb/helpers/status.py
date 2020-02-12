@@ -91,6 +91,12 @@ def print_checks_git_repo(args, repo, details=True):
                            "update with 'pmbootstrap pull'")
     log_ok("up to date with remote branch")
 
+    # Outdated remote information
+    if pmb.helpers.git.is_outdated(args, path):
+        return log_nok_ret(-5, "outdated remote information",
+                           "update with 'pmbootstrap pull'")
+    log_ok("remote information updated recently (via git fetch/pull)")
+
     return (0, "")
 
 
