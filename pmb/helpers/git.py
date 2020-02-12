@@ -96,6 +96,14 @@ def get_upstream_remote(args, name_repo):
                        " repository: {}".format(name_repo, url, path))
 
 
+def get_branches_official(args, name_repo):
+    """ Get all branches that point to official release channels.
+        :returns: list of supported branches, e.g. ["master", "3.11"] """
+    # More sophisticated logic to figure out the branches will be added soon:
+    # https://gitlab.com/postmarketOS/postmarketos/issues/11
+    return ["master"]
+
+
 def pull(args, name_repo):
     """ Check if on official branch and essentially try 'git pull --ff-only'.
         Instead of really doing 'git pull --ff-only', do it in multiple steps
@@ -103,7 +111,7 @@ def pull(args, name_repo):
         on which part fails.
 
         :returns: integer, >= 0 on success, < 0 on error """
-    branches_official = ["master"]
+    branches_official = get_branches_official(args, name_repo)
 
     # Skip if repo wasn't cloned
     path = get_path(args, name_repo)
