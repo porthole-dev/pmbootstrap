@@ -206,8 +206,8 @@ def get_upstream_aport(args, pkgname):
 
     # APKBUILD < binary
     if compare == -1:
-        raise RuntimeError("You can update your local checkout with: 'git -C"
-                           "\"{}\" pull'".format(aports_upstream_path))
+        raise RuntimeError("You can update your local checkout with: "
+                           "'pmbootstrap pull'")
     # APKBUILD > binary
     raise RuntimeError("You can force an update of your binary package"
                        " APKINDEX files with: 'pmbootstrap update'")
