@@ -75,10 +75,13 @@ def ask_for_ui(args):
     ui_list = pmb.helpers.ui.list(args)
     logging.info("Available user interfaces (" +
                  str(len(ui_list) - 1) + "): ")
+    ui_completion_list = []
     for ui in ui_list:
         logging.info("* " + ui[0] + ": " + ui[1])
+        ui_completion_list.append(ui[0])
     while True:
-        ret = pmb.helpers.cli.ask(args, "User interface", None, args.ui, True)
+        ret = pmb.helpers.cli.ask(args, "User interface", None, args.ui, True,
+                                  complete=ui_completion_list)
         if ret in dict(ui_list).keys():
             return ret
         logging.fatal("ERROR: Invalid user interface specified, please type in"
@@ -96,7 +99,8 @@ def ask_for_keymaps(args, device):
         args.keymap = options[0]
 
     while True:
-        ret = pmb.helpers.cli.ask(args, "Keymap", None, args.keymap, True)
+        ret = pmb.helpers.cli.ask(args, "Keymap", None, args.keymap,
+                                  True, complete=options)
         if ret in options:
             return ret
         logging.fatal("ERROR: Invalid keymap specified, please type in"
@@ -161,7 +165,8 @@ def ask_for_device_kernel(args, device):
     for type in sorted(kernels.keys()):
         logging.info("* " + type + ": " + kernels[type])
     while True:
-        ret = pmb.helpers.cli.ask(args, "Kernel", None, default, True)
+        ret = pmb.helpers.cli.ask(args, "Kernel", None, default, True,
+                                  complete=kernels)
         if ret in kernels.keys():
             return ret
         logging.fatal("ERROR: Invalid kernel specified, please type in one"
@@ -230,9 +235,10 @@ def ask_for_device(args):
 
     while True:
         vendor = pmb.helpers.cli.ask(args, "Vendor", None, current_vendor,
-                                     False, r"[a-z0-9]+")
+                                     False, r"[a-z0-9]+", vendors)
 
         new_vendor = vendor not in vendors
+        codenames = []
         if new_vendor:
             logging.info("The specified vendor ({}) could not be found in"
                          " existing ports, do you want to start a new"
@@ -249,7 +255,8 @@ def ask_for_device(args):
         if current_vendor != vendor:
             current_codename = ''
         codename = pmb.helpers.cli.ask(args, "Device codename", None,
-                                       current_codename, False, r"[a-z0-9]+")
+                                       current_codename, False, r"[a-z0-9]+",
+                                       codenames)
 
         device = vendor + '-' + codename
         device_exists = os.path.exists(args.aports + "/device/device-" +
@@ -288,7 +295,8 @@ def ask_for_qemu_native_mesa_driver(args, device, arch_native):
                  " having graphical problems (such as glitches).")
     while True:
         ret = pmb.helpers.cli.ask(args, "Mesa driver", drivers,
-                                  args.qemu_native_mesa_driver)
+                                  args.qemu_native_mesa_driver, True,
+                                  complete=drivers)
         if ret in drivers:
             return ret
         logging.fatal("ERROR: Please specify a driver from the list. To change"
