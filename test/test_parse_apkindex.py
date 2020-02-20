@@ -26,9 +26,7 @@ import os
 import pytest
 import sys
 
-# Import from parent directory
-sys.path.insert(0, os.path.realpath(
-    os.path.join(os.path.dirname(__file__) + "/..")))
+import pmb_test  # noqa
 import pmb.parse.apkindex
 import pmb.helpers.logging
 import pmb.helpers.repo

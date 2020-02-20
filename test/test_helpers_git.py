@@ -22,9 +22,7 @@ import sys
 import pytest
 import shutil
 
-# Import from parent directory
-sys.path.insert(0, os.path.realpath(
-    os.path.join(os.path.dirname(__file__) + "/..")))
+import pmb_test  # noqa
 import pmb.helpers.git
 import pmb.helpers.logging
 import pmb.helpers.run

@@ -16,13 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import pytest
 import sys
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test
+import pmb_test.const
 import pmb.aportgen.device
 import pmb.config
 import pmb.config.init
@@ -42,7 +40,7 @@ def args(tmpdir, request):
 
 
 def test_get_nonfree_packages(args):
-    args.aports = pmb_src + "/test/testdata/init_questions_device/aports"
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     func = pmb.install._install.get_nonfree_packages
 
     # Device without any non-free subpackages

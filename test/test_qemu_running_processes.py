@@ -32,9 +32,7 @@ import shutil
 import shlex
 import time
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test  # noqa
 import pmb.chroot.apk_static
 import pmb.parse.apkindex
 import pmb.helpers.logging
@@ -63,7 +61,7 @@ def ssh_create_askpass_script(args):
 def pmbootstrap_run(args, config, parameters, output="log"):
     """Execute pmbootstrap.py with a test pmbootstrap.conf."""
     return pmb.helpers.run.user(args, ["./pmbootstrap.py", "-c", config] +
-                                parameters, working_dir=pmb_src,
+                                parameters, working_dir=pmb.config.pmb_src,
                                 output=output)
 
 
@@ -80,7 +78,7 @@ def pmbootstrap_yes(args, config, parameters):
     for parameter in parameters:
         command += " " + shlex.quote(parameter)
     return pmb.helpers.run.user(args, ["/bin/sh", "-c", command],
-                                working_dir=pmb_src)
+                                working_dir=pmb.config.pmb_src)
 
 
 class QEMU(object):

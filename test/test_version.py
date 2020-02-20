@@ -16,13 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import sys
 import pytest
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test
+import pmb_test.const
 import pmb.helpers.git
 import pmb.helpers.logging
 import pmb.parse.version
@@ -44,7 +42,7 @@ def test_version(args):
     keep_going = False
 
     # Iterate over the version tests from apk-tools
-    path = pmb_src + "/test/testdata/version/version.data"
+    path = pmb_test.const.testdata + "/version/version.data"
     mapping = {-1: "<", 0: "=", 1: ">"}
     count = 0
     errors = []

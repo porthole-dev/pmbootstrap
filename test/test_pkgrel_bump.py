@@ -27,9 +27,7 @@ import pytest
 import shutil
 import sys
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test  # noqa
 import pmb.helpers.pkgrel_bump
 import pmb.helpers.logging
 
@@ -67,7 +65,7 @@ def pmbootstrap(args, tmpdir, parameters, zero_exit=True):
         pmb.helpers.run.user(args, ["./pmbootstrap.py", "--work=" + tmpdir,
                                     "--mirror-pmOS=", "--aports=" + aports,
                                     "--config=" + config] + parameters,
-                             working_dir=pmb_src)
+                             working_dir=pmb.config.pmb_src)
 
     # Verify that it exits as desired
     except Exception as exc:
@@ -88,7 +86,7 @@ def setup_work(args, tmpdir):
     # Clean the chroots, and initialize the build chroot in the native chroot.
     # We do this before creating the fake work folder, because then all packages
     # are still present.
-    os.chdir(pmb_src)
+    os.chdir(pmb.config.pmb_src)
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "-y", "zap"])
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "build_init"])
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "shutdown"])

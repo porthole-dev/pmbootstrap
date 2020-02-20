@@ -22,10 +22,8 @@ import pytest
 import shutil
 import filecmp
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
-
+import pmb_test
+import pmb_test.const
 import pmb.aportgen
 import pmb.aportgen.core
 import pmb.config
@@ -50,7 +48,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
     args.aports = tmpdir
     os.mkdir(tmpdir + "/cross")
-    testdata = pmb_src + "/test/testdata/aportgen"
+    testdata = pmb_test.const.testdata + "/aportgen"
 
     # Override get_upstream_aport() to point to testdata
     def func(args, upstream_path):
@@ -73,7 +71,7 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
     args.aports = tmpdir
     os.mkdir(tmpdir + "/temp")
-    testdata = pmb_src + "/test/testdata/aportgen"
+    testdata = pmb_test.const.testdata + "/aportgen"
     args.fork_alpine = True
 
     # Override get_upstream_aport() to point to testdata

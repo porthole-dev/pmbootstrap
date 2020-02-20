@@ -16,13 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import sys
 import pytest
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test
+import pmb_test.const
 import pmb.chroot.apk_static
 import pmb.parse.apkindex
 import pmb.helpers.logging
@@ -47,7 +45,7 @@ def test_bootimg_invalid_path(args):
 
 
 def test_bootimg_kernel(args):
-    path = pmb_src + "/test/testdata/bootimg/kernel-boot.img"
+    path = pmb_test.const.testdata + "/bootimg/kernel-boot.img"
     with pytest.raises(RuntimeError) as e:
         pmb.parse.bootimg(args, path)
     assert "heimdall-isorec" in str(e.value)
@@ -60,7 +58,7 @@ def test_bootimg_invalid_file(args):
 
 
 def test_bootimg_normal(args):
-    path = pmb_src + "/test/testdata/bootimg/normal-boot.img"
+    path = pmb_test.const.testdata + "/bootimg/normal-boot.img"
     output = {"base": "0x80000000",
               "kernel_offset": "0x00008000",
               "ramdisk_offset": "0x04000000",
@@ -74,7 +72,7 @@ def test_bootimg_normal(args):
 
 
 def test_bootimg_qcdt(args):
-    path = pmb_src + "/test/testdata/bootimg/qcdt-boot.img"
+    path = pmb_test.const.testdata + "/bootimg/qcdt-boot.img"
     output = {"base": "0x80000000",
               "kernel_offset": "0x00008000",
               "ramdisk_offset": "0x04000000",
@@ -88,7 +86,7 @@ def test_bootimg_qcdt(args):
 
 
 def test_bootimg_dtb_second(args):
-    path = pmb_src + "/test/testdata/bootimg/dtb-second-boot.img"
+    path = pmb_test.const.testdata + "/bootimg/dtb-second-boot.img"
     output = {"base": "0x00000000",
               "kernel_offset": "0x00008000",
               "ramdisk_offset": "0x02000000",

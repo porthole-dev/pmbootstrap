@@ -21,9 +21,8 @@ import os
 import pytest
 import sys
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test
+import pmb_test.const
 import pmb.aportgen.device
 import pmb.config
 import pmb.config.init
@@ -104,7 +103,7 @@ def test_questions_bootimg(args, monkeypatch):
     fake_answers(monkeypatch, ["invalid_path", ""])
     assert func(args) is None
 
-    bootimg_path = pmb_src + "/test/testdata/bootimg/normal-boot.img"
+    bootimg_path = pmb_test.const.testdata + "/bootimg/normal-boot.img"
     fake_answers(monkeypatch, [bootimg_path])
     output = {"base": "0x80000000",
               "kernel_offset": "0x00008000",
@@ -120,7 +119,7 @@ def test_questions_bootimg(args, monkeypatch):
 
 def test_questions_device(args, monkeypatch):
     # Prepare args
-    args.aports = pmb_src + "/test/testdata/init_questions_device/aports"
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     args.device = "lg-mako"
     args.nonfree_firmware = True
     args.nonfree_userland = False
@@ -157,7 +156,7 @@ def test_questions_device(args, monkeypatch):
 
 def test_questions_device_kernel(args, monkeypatch):
     # Prepare args
-    args.aports = pmb_src + "/test/testdata/init_questions_device/aports"
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     args.kernel = "downstream"
 
     # Kernel hardcoded in depends
@@ -177,7 +176,7 @@ def test_questions_device_kernel(args, monkeypatch):
 
 def test_questions_device_nonfree(args, monkeypatch):
     # Prepare args
-    args.aports = pmb_src + "/test/testdata/init_questions_device/aports"
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     args.nonfree_firmware = False
     args.nonfree_userland = False
 

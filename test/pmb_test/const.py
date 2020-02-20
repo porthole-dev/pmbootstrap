@@ -16,20 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
-import pytest
 
-import pmb_test  # noqa
 import pmb.config
-import pmb.parse
-import pmb.helpers.frontend
-import pmb.helpers.logging
 
 
-def test_build_src_invalid_path():
-    sys.argv = ["pmbootstrap.py", "build", "--src=/invalidpath", "hello-world"]
-    args = pmb.parse.arguments()
-
-    with pytest.raises(RuntimeError) as e:
-        pmb.helpers.frontend.build(args)
-    assert str(e.value).startswith("Invalid path specified for --src:")
+testdata = pmb.config.pmb_src + "/test/testdata"

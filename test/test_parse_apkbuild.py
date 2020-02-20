@@ -17,13 +17,11 @@ You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
 import pytest
 import sys
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test
+import pmb_test.const
 import pmb.parse._apkbuild
 
 
@@ -39,8 +37,7 @@ def args(tmpdir, request):
 
 
 def test_subpackages(args):
-    testdata = pmb_src + "/test/testdata"
-
+    testdata = pmb_test.const.testdata
     path = testdata + "/apkbuild/APKBUILD.subpackages"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
 
@@ -72,7 +69,7 @@ def test_subpackages(args):
 
 def test_kernels(args):
     # Kernel hardcoded in depends
-    args.aports = pmb_src + "/test/testdata/init_questions_device/aports"
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     func = pmb.parse._apkbuild.kernels
     device = "lg-mako"
     assert func(args, device) is None
@@ -92,7 +89,7 @@ def test_kernels(args):
 
 
 def test_depends_in_depends(args):
-    path = pmb_src + "/test/testdata/apkbuild/APKBUILD.depends-in-depends"
+    path = pmb_test.const.testdata + "/apkbuild/APKBUILD.depends-in-depends"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
     assert apkbuild["depends"] == ["first", "second", "third"]
 
@@ -143,7 +140,7 @@ def test_parse_attributes():
 
 
 def test_variable_replacements(args):
-    path = pmb_src + "/test/testdata/apkbuild/APKBUILD.variable-replacements"
+    path = pmb_test.const.testdata + "/apkbuild/APKBUILD.variable-replacements"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
     assert apkbuild["pkgdesc"] == "this should not affect variable replacement"
     assert apkbuild["url"] == "replacements variable string-replacements"

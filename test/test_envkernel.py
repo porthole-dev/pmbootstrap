@@ -16,14 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import sys
 import pytest
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
-
+import pmb_test
+import pmb_test.const
 import pmb.aportgen
 import pmb.aportgen.core
 import pmb.build
@@ -54,8 +51,7 @@ def test_package_kernel_args(args):
 def test_find_kbuild_output_dir(args):
     # Test parsing an APKBUILD
     pkgname = "linux-envkernel-test"
-    testdata = pmb_src + "/test/testdata"
-    path = testdata + "/apkbuild/APKBUILD." + pkgname
+    path = pmb_test.const.testdata + "/apkbuild/APKBUILD." + pkgname
     function_body = pmb.parse.function_body(path, "package")
     kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
                                                             function_body)

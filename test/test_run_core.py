@@ -21,14 +21,11 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 This file tests functions from pmb.helpers.run_core
 """
 
-import os
 import sys
 import subprocess
 import pytest
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test  # noqa
 import pmb.helpers.run_core
 
 

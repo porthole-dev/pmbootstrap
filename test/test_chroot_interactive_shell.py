@@ -18,14 +18,15 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 import subprocess
 import os
+import pmb_test  # noqa
+import pmb.config
 
 
 def test_chroot_interactive_shell():
     """
     Open a shell with 'pmbootstrap chroot' and pass 'echo hello_world\n' as stdin.
     """
-    pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-    os.chdir(pmb_src)
+    os.chdir(pmb.config.pmb_src)
     ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot", "sh"],
                                   timeout=300, input="echo hello_world\n",
                                   universal_newlines=True,
@@ -37,8 +38,7 @@ def test_chroot_interactive_shell_user():
     """
     Open a shell with 'pmbootstrap chroot' as user, and test the resulting ID.
     """
-    pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-    os.chdir(pmb_src)
+    os.chdir(pmb.config.pmb_src)
     ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot",
                                    "--user", "sh"], timeout=300, input="id -un",
                                   universal_newlines=True,
@@ -51,8 +51,7 @@ def test_chroot_arguments():
     Open a shell with 'pmbootstrap chroot' for every architecture, pass 'uname -m\n'
     as stdin and check the output
     """
-    pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-    os.chdir(pmb_src)
+    os.chdir(pmb.config.pmb_src)
 
     for arch in ["armhf", "aarch64", "x86_64"]:
         ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot", "-b", arch,

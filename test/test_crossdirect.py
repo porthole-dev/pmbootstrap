@@ -17,13 +17,10 @@ You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
 import pytest
 import sys
 
-# Import from parent directory
-pmb_src = os.path.realpath(os.path.join(os.path.dirname(__file__) + "/.."))
-sys.path.insert(0, pmb_src)
+import pmb_test  # noqa
 import pmb.chroot.apk_static
 import pmb.parse.apkindex
 import pmb.helpers.logging
@@ -45,7 +42,8 @@ def args(request):
 def pmbootstrap_run(args, parameters, check=True):
     """Execute pmbootstrap.py with a test pmbootstrap.conf."""
     return pmb.helpers.run.user(args, ["./pmbootstrap.py"] + parameters,
-                                working_dir=pmb_src, check=check)
+                                working_dir=pmb.config.pmb_src,
+                                check=check)
 
 
 def test_crossdirect_rust(args):

@@ -22,13 +22,10 @@ This file tests all functions from pmb.parse.depends.
 """
 
 import collections
-import os
 import pytest
 import sys
 
-# Import from parent directory
-sys.path.insert(0, os.path.realpath(
-    os.path.join(os.path.dirname(__file__) + "/..")))
+import pmb_test  # noqa
 import pmb.config
 import pmb.config.init
 import pmb.helpers.logging

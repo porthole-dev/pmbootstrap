@@ -16,13 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
 import pytest
-import sys
 
-# Import from parent directory
-sys.path.insert(0, os.path.realpath(
-    os.path.join(os.path.dirname(__file__) + "/..")))
+import pmb_test  # noqa
 import pmb.config.init
 
 
