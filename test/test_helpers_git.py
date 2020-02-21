@@ -6,6 +6,7 @@ import pytest
 import shutil
 
 import pmb_test  # noqa
+import pmb_test.git
 import pmb.helpers.git
 import pmb.helpers.logging
 import pmb.helpers.run
@@ -112,46 +113,8 @@ def test_pull_non_existing(args):
 
 def test_pull(args, monkeypatch, tmpdir):
     """ Test pmb.helpers.git.pull """
-    # --- PREPARATION: git repos ---
-    # Prepare three git repos:
-    # * local: like local clone of pmaports.git
-    # * remote: emulate a remote repository, that we can add to "local", so we
-    #           can pass the tracking-remote tests in pmb.helpers.git.pull
-    # * remote2: unexpected remote, that pmbootstrap can complain about
-    path_local = str(tmpdir) + "/local"
-    path_remote = str(tmpdir) + "/remote"
-    path_remote2 = str(tmpdir) + "/remote2"
-    os.makedirs(path_local)
-    os.makedirs(path_remote)
-    os.makedirs(path_remote2)
+    path, run_git = pmb_test.git.prepare_tmpdir(args, monkeypatch, tmpdir)
 
-    def run_git(git_args, path=path_local):
-        pmb.helpers.run.user(args, ["git"] + git_args, path, "stdout")
-
-    # Remote repos
-    run_git(["init", "."], path_remote)
-    run_git(["commit", "--allow-empty", "-m", "commit: remote"], path_remote)
-    run_git(["init", "."], path_remote2)
-    run_git(["commit", "--allow-empty", "-m", "commit: remote2"], path_remote2)
-
-    # Local repo (with master -> origin2/master)
-    run_git(["init", "."])
-    run_git(["remote", "add", "-f", "origin", path_remote])
-    run_git(["remote", "add", "-f", "origin2", path_remote2])
-    run_git(["checkout", "-b", "master", "--track", "origin2/master"])
-
-    # --- PREPARATION: function overrides ---
-    # get_path()
-    def get_path(args, name_repo):
-        return path_local
-    monkeypatch.setattr(pmb.helpers.git, "get_path", get_path)
-
-    # get_upstream_remote()
-    def get_u_r(args, name_repo):
-        return "origin"
-    monkeypatch.setattr(pmb.helpers.git, "get_upstream_remote", get_u_r)
-
-    # --- TEST RETURN VALUES ---
     # Not on official branch
     func = pmb.helpers.git.pull
     name_repo = "test"
@@ -160,9 +123,9 @@ def test_pull(args, monkeypatch, tmpdir):
 
     # Workdir is not clean
     run_git(["checkout", "master"])
-    shutil.copy(__file__, path_local + "/test.py")
+    shutil.copy(__file__, path + "/test.py")
     assert func(args, name_repo) == -2
-    os.unlink(path_local + "/test.py")
+    os.unlink(path + "/test.py")
 
     # Tracking different remote
     assert func(args, name_repo) == -3
@@ -181,5 +144,5 @@ def test_pull(args, monkeypatch, tmpdir):
 
     # Fast-forward successfully
     run_git(["reset", "--hard", "origin/master"])
-    run_git(["commit", "--allow-empty", "-m", "new"], path_remote)
+    run_git(["commit", "--allow-empty", "-m", "new"], "remote")
     assert func(args, name_repo) == 0
