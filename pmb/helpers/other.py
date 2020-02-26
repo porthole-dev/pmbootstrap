@@ -1,5 +1,6 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import glob
 import logging
 import os
 import re
@@ -171,6 +172,22 @@ def migrate_work_folder(args):
                            args.work + "') and start over with 'pmbootstrap"
                            " init'. All your binary packages and caches will"
                            " be lost.")
+
+
+def check_old_devices(args):
+    """
+    Check if there are any device ports in device/*/APKBUILD,
+    rather than device/*/*/APKBUILD (e.g. device/testing/...).
+    """
+
+    g = glob.glob(args.aports + "/device/*/APKBUILD")
+    if not g:
+        return
+
+    raise RuntimeError("Found device ports outside device/testing/... "
+                       "Please run 'pmbootstrap pull' and/or move the "
+                       "following device ports to device/testing:\n - " +
+                       '\n - '.join(g))
 
 
 def validate_hostname(hostname):

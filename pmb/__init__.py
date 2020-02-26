@@ -38,6 +38,8 @@ def main():
             raise RuntimeError("Work path not found, please run 'pmbootstrap"
                                " init' to create it.")
 
+        other.check_old_devices(args)
+
         # Migrate work folder if necessary
         if args.action not in ["shutdown", "zap", "log"]:
             other.migrate_work_folder(args)
