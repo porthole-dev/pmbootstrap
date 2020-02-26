@@ -25,6 +25,8 @@ def test_guess_main(args, tmpdir):
     args.aports = tmpdir
     for aport in ["temp/qemu", "main/some-pkg"]:
         os.makedirs(tmpdir + "/" + aport)
+        with open(tmpdir + "/" + aport + "/APKBUILD", 'w'):
+            pass
 
     func = pmb.helpers.pmaports.guess_main
     assert func(args, "qemu-x86_64") == tmpdir + "/temp/qemu"
@@ -38,6 +40,8 @@ def test_guess_main_dev(args, tmpdir):
     tmpdir = str(tmpdir)
     args.aports = tmpdir
     os.makedirs(tmpdir + "/temp/plasma")
+    with open(tmpdir + "/temp/plasma/APKBUILD", 'w'):
+        pass
 
     func = pmb.helpers.pmaports.guess_main_dev
     assert func(args, "plasma-framework-dev") is None
