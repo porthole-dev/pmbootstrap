@@ -32,9 +32,9 @@ def args(tmpdir, request):
     pmb.helpers.run.user(args, ["cp", "-r", path_dev, tmpdir + "/main"])
 
     # Copy the linux-lg-mako aport (we currently copy patches from there)
-    pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/device"])
-    path_mako = args._aports_real + "/device/linux-lg-mako"
-    pmb.helpers.run.user(args, ["cp", "-r", path_mako, tmpdir + "/device"])
+    pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/device/testing"])
+    path_mako = args._aports_real + "/device/testing/linux-lg-mako"
+    pmb.helpers.run.user(args, ["cp", "-r", path_mako, tmpdir + "/device/testing"])
     return args
 
 
@@ -63,9 +63,9 @@ def generate(args, monkeypatch, answers):
     pmb.aportgen.generate(args, "linux-testsuite-testdevice")
     monkeypatch.undo()
 
-    apkbuild_path = (args.aports + "/device/device-testsuite-testdevice/"
+    apkbuild_path = (args.aports + "/device/testing/device-testsuite-testdevice/"
                      "APKBUILD")
-    apkbuild_path_linux = (args.aports + "/device/"
+    apkbuild_path_linux = (args.aports + "/device/testing/"
                            "linux-testsuite-testdevice/APKBUILD")
 
     # The build fails if the email is not a valid email, so remove them just for tests

@@ -11,6 +11,7 @@ import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
+import pmb.helpers.devices
 import pmb.helpers.run
 import pmb.install.blockdevice
 import pmb.install.file
@@ -62,8 +63,7 @@ def get_nonfree_packages(args, device):
               ["device-nokia-n900-nonfree-firmware"]
     """
     # Read subpackages
-    apkbuild_path = args.aports + "/device/device-" + device + "/APKBUILD"
-    apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
+    apkbuild = pmb.parse.apkbuild(args, pmb.helpers.devices.find_path(args, device, 'APKBUILD'))
     subpackages = apkbuild["subpackages"]
 
     # Check for firmware and userland

@@ -34,7 +34,7 @@ def test_subpackages(args):
     assert subpkg["depends"] == ["postmarketos-base", "glibc"]
 
     # Successful extraction
-    path = (testdata + "/init_questions_device/aports/device/"
+    path = (testdata + "/init_questions_device/aports/device/testing/"
             "device-nonfree-firmware/APKBUILD")
     apkbuild = pmb.parse.apkbuild(args, path)
     subpkg = apkbuild["subpackages"]["device-nonfree-firmware-nonfree-firmware"]

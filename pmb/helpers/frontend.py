@@ -1,6 +1,5 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import glob
 import json
 import logging
 import os
@@ -249,8 +248,8 @@ def kconfig(args):
         # Default to all kernel packages
         packages = []
         if args.package == "" or args.package is None:
-            for aport in glob.glob(args.aports + "/*/linux-*"):
-                packages.append(os.path.basename(aport).split("linux-")[1])
+            for aport in pmb.helpers.pmaports.get_list(args, "linux-*"):
+                packages.append(aport.split("linux-")[1])
         else:
             packages = [args.package]
 

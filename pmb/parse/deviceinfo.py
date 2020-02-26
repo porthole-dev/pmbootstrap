@@ -3,6 +3,7 @@
 import logging
 import os
 import pmb.config
+import pmb.helpers.devices
 
 
 def sanity_check(info, path):
@@ -62,15 +63,14 @@ def deviceinfo(args, device=None):
         logging.fatal("Please provide a path to the aports directory using the -p flag")
         raise RuntimeError("Aports directory missing")
 
-    aport = args.aports + "/device/device-" + device
-    if not os.path.exists(aport) or not os.path.exists(aport + "/deviceinfo"):
+    path = pmb.helpers.devices.find_path(args, device, 'deviceinfo')
+    if not path:
         raise RuntimeError(
             "Device '" + device + "' not found. Run 'pmbootstrap init' to"
             " start a new device port or to choose another device. It may have"
             " been renamed, see <https://postmarketos.org/renamed>")
 
     ret = {}
-    path = aport + "/deviceinfo"
     with open(path) as handle:
         for line in handle:
             if not line.startswith("deviceinfo_"):

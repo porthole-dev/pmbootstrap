@@ -6,6 +6,7 @@ import re
 from collections import OrderedDict
 
 import pmb.config
+import pmb.helpers.devices
 import pmb.parse.version
 
 # sh variable name regex: https://stackoverflow.com/a/2821201/3527128
@@ -340,8 +341,8 @@ def kernels(args, device):
                         "downstream": "Downstream description"}
     """
     # Read the APKBUILD
-    apkbuild_path = args.aports + "/device/device-" + device + "/APKBUILD"
-    if not os.path.exists(apkbuild_path):
+    apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
+    if apkbuild_path is None:
         return None
     subpackages = apkbuild(args, apkbuild_path)["subpackages"]
 

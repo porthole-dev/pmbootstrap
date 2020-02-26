@@ -5,6 +5,7 @@ import glob
 import os
 import shutil
 
+import pmb.aportgen
 import pmb.config
 import pmb.config.pmaports
 import pmb.helpers.cli
@@ -185,10 +186,10 @@ def ask_for_device_nonfree(args, device):
     :returns: answers as dict, e.g. {"firmware": True, "userland": False}
     """
     # Parse existing APKBUILD or return defaults (when called from test case)
-    apkbuild_path = args.aports + "/device/device-" + device + "/APKBUILD"
+    apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
     ret = {"firmware": args.nonfree_firmware,
            "userland": args.nonfree_userland}
-    if not os.path.exists(apkbuild_path):
+    if not apkbuild_path:
         return ret
     apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
 
@@ -259,8 +260,7 @@ def ask_for_device(args):
                                        codenames)
 
         device = vendor + '-' + codename
-        device_exists = os.path.exists(args.aports + "/device/device-" +
-                                       device + "/deviceinfo")
+        device_exists = pmb.helpers.devices.find_path(args, device, 'deviceinfo') is not None
         if not device_exists:
             if device == args.device:
                 raise RuntimeError(

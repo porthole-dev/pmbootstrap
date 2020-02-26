@@ -352,9 +352,9 @@ def test_build_local_source_high_level(args, tmpdir):
     # aports: Add deviceinfo (required by pmbootstrap to start)
     tmpdir = str(tmpdir)
     aports = tmpdir + "/aports"
-    aport = aports + "/device/device-" + args.device
+    aport = aports + "/device/testing/device-" + args.device
     os.makedirs(aport)
-    shutil.copy(args.aports + "/device/device-" + args.device + "/deviceinfo",
+    shutil.copy(args.aports + "/device/testing/device-" + args.device + "/deviceinfo",
                 aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)

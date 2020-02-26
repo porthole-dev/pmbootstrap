@@ -12,10 +12,14 @@ import os
 import pmb.parse
 
 
-def get_list(args):
+def _glob_apkbuilds(args, pkgname='*'):
+    return glob.glob(args.aports + "/**/" + pkgname + "/APKBUILD", recursive=True)
+
+
+def get_list(args, pkgname='*'):
     """ :returns: list of all pmaport pkgnames (["hello-world", ...]) """
     ret = []
-    for apkbuild in glob.glob(args.aports + "/*/*/APKBUILD"):
+    for apkbuild in _glob_apkbuilds(args, pkgname):
         ret.append(os.path.basename(os.path.dirname(apkbuild)))
     ret.sort()
     return ret
@@ -31,11 +35,11 @@ def guess_main_dev(args, subpkgname):
     :returns: full path to the pmaport or None
     """
     pkgname = subpkgname[:-4]
-    paths = glob.glob(args.aports + "/*/" + pkgname)
+    paths = _glob_apkbuilds(args, pkgname)
     if paths:
         logging.debug(subpkgname + ": guessed to be a subpackage of " +
                       pkgname + " (just removed '-dev')")
-        return paths[0]
+        return os.path.dirname(paths[0])
 
     logging.debug(subpkgname + ": guessed to be a subpackage of " + pkgname +
                   ", which we can't find in pmaports, so it's probably in"
@@ -73,11 +77,11 @@ def guess_main(args, subpkgname):
         pkgname = "-".join(words)
 
         # Look in pmaports
-        paths = glob.glob(args.aports + "/*/" + pkgname)
+        paths = _glob_apkbuilds(args, pkgname)
         if paths:
             logging.debug(subpkgname + ": guessed to be a subpackage of " +
                           pkgname)
-            return paths[0]
+            return os.path.dirname(paths[0])
 
 
 def find(args, package, must_exist=True):
@@ -99,17 +103,17 @@ def find(args, package, must_exist=True):
             raise RuntimeError("Invalid pkgname: " + package)
 
         # Search in packages
-        paths = glob.glob(args.aports + "/*/" + package)
+        paths = _glob_apkbuilds(args, package)
         if len(paths) > 1:
             raise RuntimeError("Package " + package + " found in multiple"
                                " aports subfolders. Please put it only in one"
                                " folder.")
         elif len(paths) == 1:
-            ret = paths[0]
+            ret = os.path.dirname(paths[0])
 
         # Search in subpackages and provides
         if not ret:
-            for path_current in glob.glob(args.aports + "/*/*/APKBUILD"):
+            for path_current in _glob_apkbuilds(args):
                 apkbuild = pmb.parse.apkbuild(args, path_current)
                 found = False
 
