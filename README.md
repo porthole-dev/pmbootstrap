@@ -33,6 +33,11 @@ Run this in a second window to see all shell commands that get executed:
 $ pmbootstrap log
 ```
 
+Quick health check and config overview:
+```
+$ pmbootstrap status
+```
+
 ### Packages
 Build `aports/main/hello-world`:
 ```
