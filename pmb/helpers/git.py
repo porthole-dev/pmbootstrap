@@ -1,5 +1,6 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import configparser
 import logging
 import os
 import time
@@ -100,12 +101,71 @@ def get_upstream_remote(args, name_repo):
                        " repository: {}".format(name_repo, url, path))
 
 
+def parse_channels_cfg(args):
+    """ Parse channels.cfg from pmaports.git, origin/master branch.
+        Reference: https://postmarketos.org/channels.cfg
+        :returns: dict like: {"meta": {"recommended": "edge"},
+                              "channels": {"edge": {"description": ...,
+                                                    "branch_pmaports": ...,
+                                                    "branch_aports": ...,
+                                                    "mirrordir_alpine": ...},
+                                           ...}} """
+    # Cache during one pmbootstrap run
+    cache_key = "pmb.helpers.git.parse_channels_cfg"
+    if args.cache[cache_key]:
+        return args.cache[cache_key]
+
+    # Read with configparser
+    cfg = configparser.ConfigParser()
+    if args.config_channels:
+        cfg.read([args.config_channels])
+    else:
+        remote = get_upstream_remote(args, "pmaports")
+        command = ["git", "show", f"{remote}/master:channels.cfg"]
+        stdout = pmb.helpers.run.user(args, command, args.aports,
+                                      output_return=True, check=False)
+        try:
+            cfg.read_string(stdout)
+        except configparser.MissingSectionHeaderError:
+            logging.info("NOTE: fix this by fetching your pmaports.git, e.g."
+                         " with 'pmbootstrap pull'")
+            raise RuntimeError("Failed to read channels.cfg from"
+                               f" '{remote}/master' branch of your local"
+                               " pmaports clone")
+
+    # Meta section
+    ret = {"channels": {}}
+    ret["meta"] = {"recommended": cfg.get("channels.cfg", "recommended")}
+
+    # Channels
+    for channel in cfg.sections():
+        if channel == "channels.cfg":
+            continue  # meta section
+
+        ret["channels"][channel] = {}
+        for key in ["description", "branch_pmaports", "branch_aports",
+                    "mirrordir_alpine"]:
+            value = cfg.get(channel, key)
+            ret["channels"][channel][key] = value
+
+    args.cache[cache_key] = ret
+    return ret
+
+
 def get_branches_official(args, name_repo):
     """ Get all branches that point to official release channels.
         :returns: list of supported branches, e.g. ["master", "3.11"] """
-    # More sophisticated logic to figure out the branches will be added soon:
-    # https://gitlab.com/postmarketOS/postmarketos/issues/11
-    return ["master"]
+    # This functions gets called with pmaports and aports_upstream, because
+    # both are displayed in "pmbootstrap status". But it only makes sense
+    # to display pmaports there, related code will be refactored soon (#1903).
+    if name_repo != "pmaports":
+        return ["master"]
+
+    channels_cfg = parse_channels_cfg(args)
+    ret = []
+    for channel, channel_data in channels_cfg["channels"].items():
+        ret.append(channel_data["branch_pmaports"])
+    return ret
 
 
 def pull(args, name_repo):

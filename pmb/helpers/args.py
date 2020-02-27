@@ -3,6 +3,7 @@
 import copy
 import os
 import pmb.config
+import pmb.helpers.git
 
 """ This file constructs the args variable, which is passed to almost all
     functions in the pmbootstrap code base. Here's a listing of the kind of
@@ -131,7 +132,8 @@ def add_cache(args):
                             "find_aport": {},
                             "pmb.helpers.package.depends_recurse": {},
                             "pmb.helpers.package.get": {},
-                            "pmb.helpers.repo.update": repo_update})
+                            "pmb.helpers.repo.update": repo_update,
+                            "pmb.helpers.git.parse_channels_cfg": {}})
 
 
 def add_deviceinfo(args):
@@ -162,6 +164,8 @@ def init(args):
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config_into_args(args)
         add_deviceinfo(args)
+        pmb.helpers.git.parse_channels_cfg(args)
+
     return args
 
 

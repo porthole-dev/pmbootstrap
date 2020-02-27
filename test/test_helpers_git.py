@@ -7,6 +7,7 @@ import shutil
 import time
 
 import pmb_test  # noqa
+import pmb_test.const
 import pmb_test.git
 import pmb.helpers.git
 import pmb.helpers.logging
@@ -16,7 +17,8 @@ import pmb.helpers.run
 @pytest.fixture
 def args(request):
     import pmb.parse
-    sys.argv = ["pmbootstrap", "init"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "init"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
@@ -106,6 +108,19 @@ def test_get_upstream_remote(args, monkeypatch, tmpdir):
 
     run_git(["remote", "add", "hello", url])
     assert func(args, name_repo) == "hello"
+
+
+def test_parse_channels_cfg(args):
+    exp = {"meta": {"recommended": "edge"},
+           "channels": {"edge": {"description": "Rolling release channel",
+                                 "branch_pmaports": "master",
+                                 "branch_aports": "master",
+                                 "mirrordir_alpine": "edge"},
+                        "stable": {"description": "For workgroups",
+                                   "branch_pmaports": "v20.05",
+                                   "branch_aports": "3.11-stable",
+                                   "mirrordir_alpine": "v3.11"}}}
+    assert pmb.helpers.git.parse_channels_cfg(args) == exp
 
 
 def test_pull_non_existing(args):
