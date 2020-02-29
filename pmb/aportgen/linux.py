@@ -15,22 +15,13 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     package = """
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor\""""
 
-    build = """
-            unset LDFLAGS
-            make ARCH="$_carch" CC="${CC:-gcc}" \\
-                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS\""""
-
     if deviceinfo["bootimg_qcdt"] == "true":
         makedepends += " dtbtool"
 
-        build += """\n
-            # Generate master DTB (deviceinfo_bootimg_qcdt)
-            dtbTool -s 2048 -p "scripts/dtc/" -o "arch/""" + carch + "/boot/dt.img\" \"arch/" + carch + "/boot/\""
-
         package += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)
-            install -Dm644 "$builddir/arch/""" + carch + """/boot/dt.img" \\
-                "$pkgdir/boot/dt.img\""""
+            dtbTool -p scripts/dtc/ -o "arch/$_carch/boot"/dt.img "arch/$_carch/boot/"
+            install -Dm644 "arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
 
     content = """\
         # Contributor: Firstname Lastname <email> (CHANGEME!)
@@ -65,7 +56,10 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             downstreamkernel_prepare "$srcdir" "$builddir" "$_config" "$_carch" "$HOSTCC"
         }
 
-        build() {""" + build + """
+        build() {
+            unset LDFLAGS
+            make ARCH="$_carch" CC="${CC:-gcc}" \\
+                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
         }
 
         package() {""" + package + """
