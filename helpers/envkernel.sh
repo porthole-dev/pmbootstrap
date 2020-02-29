@@ -166,8 +166,8 @@ initialize_chroot() {
 	sudo mkdir -p "$chroot/mnt/linux"
 
 	# Mark as initialized
-	mkdir -p "$chroot/tmp/envkernel"
-	touch "$flag"
+	"$pmbootstrap" -q chroot -- su pmos -c \
+		"mkdir /tmp/envkernel; touch /tmp/envkernel/$(basename "$flag")"
 }
 
 
@@ -232,7 +232,7 @@ set_alias_make() {
 	cmd="$cmd if [ -e \"\$_script\" ]; then"
 	cmd="$cmd 	echo \"Running \$_script in the chroot native /mnt/linux/\";"
 	cmd="$cmd 	pmbootstrap -q chroot --user -- sh -c \"cd /mnt/linux;"
-	cmd="$cmd 	srcdir=/mnt/linux/ builddir=/mnt/linux/.output"
+	cmd="$cmd 	srcdir=/mnt/linux builddir=/mnt/linux/.output tmpdir=/tmp/envkernel"
 	cmd="$cmd 	./\"\$_script\"\";"
 	cmd="$cmd else"
 	cmd="$cmd 	echo \"Error: \$_script not found.\";"
@@ -261,6 +261,36 @@ cross_compiler_version() {
 	else
 		echo "none"
 	fi
+}
+
+
+update_prompt() {
+	if [ -n "$ZSH_VERSION" ]; then
+		# assume Zsh
+		export _OLD_PROMPT="$PROMPT"
+		export PROMPT="[envkernel] $PROMPT"
+	elif [ -n "$BASH_VERSION" ]; then
+		export _OLD_PS1="$PS1"
+		export PS1="[envkernel] $PS1"
+	fi
+}
+
+
+set_deactivate() {
+	cmd="_deactivate() {"
+	cmd="$cmd unalias make kernelroot pmbootstrap pmbroot run-script deactivate;"
+	cmd="$cmd if [ -n \"\$_OLD_PS1\" ]; then"
+	cmd="$cmd   export PS1=\"\$_OLD_PS1\";"
+	cmd="$cmd   unset _OLD_PS1;"
+	cmd="$cmd elif [ -n \"\$_OLD_PROMPT\" ]; then"
+	cmd="$cmd   export PROMPT=\"\$_OLD_PROMPT\";"
+	cmd="$cmd   unset _OLD_PROMPT;"
+	cmd="$cmd fi"
+	cmd="$cmd };"
+	cmd="$cmd _deactivate \"\$@\""
+	# shellcheck disable=SC2139
+	alias deactivate="$cmd"
+	unset cmd
 }
 
 
@@ -328,7 +358,9 @@ main() {
 		&& mount_kernel_source \
 		&& create_output_folder \
 		&& set_alias_make \
-		&& set_alias_pmbroot_kernelroot; then
+		&& set_alias_pmbroot_kernelroot \
+		&& update_prompt \
+		&& set_deactivate; then
 
 		# Success
 		echo "pmbootstrap envkernel.sh activated successfully."
@@ -338,6 +370,7 @@ main() {
 		echo " * cross compile:  $(cross_compiler_version)"
 		echo " * aliases: make, kernelroot, pmbootstrap, pmbroot," \
 			"run-script (see 'type make' etc.)"
+		echo " * run 'deactivate' to revert all env changes"
 	else
 		# Failure
 		echo "See also: <https://postmarketos.org/troubleshooting>"
