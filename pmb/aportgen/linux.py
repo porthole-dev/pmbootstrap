@@ -50,10 +50,6 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         options="!strip !check !tracedeps"
         makedepends=\"""" + makedepends + """\"
 
-        # Compiler: latest GCC from Alpine
-        HOSTCC="${CC:-gcc}"
-        HOSTCC="${HOSTCC#${CROSS_COMPILE}}"
-
         # Source
         _repository="(CHANGEME!)"
         _commit="ffffffffffffffffffffffffffffffffffffffff"
