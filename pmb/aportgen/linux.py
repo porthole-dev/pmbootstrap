@@ -10,7 +10,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
     carch = pmb.parse.arch.alpine_to_kernel(deviceinfo["arch"])
 
-    makedepends = "perl sed installkernel bash gmp-dev bc linux-headers elfutils-dev devicepkg-dev"
+    makedepends = "bash bc bison devicepkg-dev flex openssl-dev perl"
 
     package = """
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor\""""
