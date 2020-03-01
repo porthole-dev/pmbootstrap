@@ -48,6 +48,7 @@ def get_subpartitions_size(args):
     # Add some free space, see also: #336, #1671
     full *= 1.20
     full += 50 * 1024 * 1024
+    boot *= 2
     boot += 25 * 1024 * 1024
     return (boot, full - boot)
 
