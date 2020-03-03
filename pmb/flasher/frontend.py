@@ -70,6 +70,11 @@ def rootfs(args):
     pmb.flasher.run(args, "flash_rootfs")
 
 
+def flash_vbmeta(args):
+    logging.info("(native) flash vbmeta.img with verity disabled flag")
+    pmb.flasher.run(args, "flash_vbmeta")
+
+
 def list_devices(args):
     pmb.flasher.run(args, "list_devices")
 
@@ -115,6 +120,8 @@ def frontend(args):
         kernel(args)
     if action == "flash_rootfs":
         rootfs(args)
+    if action == "flash_vbmeta":
+        flash_vbmeta(args)
     if action == "list_flavors":
         list_flavors(args)
     if action == "list_devices":

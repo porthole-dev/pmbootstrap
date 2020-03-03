@@ -70,6 +70,15 @@ def arguments_flasher(subparser):
                                    " 'userdata' on Android may have more"
                                    " space)")
 
+    # Flash vbmeta
+    flash_vbmeta = sub.add_parser("flash_vbmeta",
+                                  help="generate and flash AVB 2.0 image with disable"
+                                       " verification flag set to a partition on the"
+                                       " device (typically called vbmeta)")
+    flash_vbmeta.add_argument("--partition", default=None,
+                              help="partition to flash the vbmeta to (defaults"
+                                   " to deviceinfo_flash_*_partition_vbmeta")
+
     # Actions without extra arguments
     sub.add_parser("sideload", help="sideload recovery zip")
     sub.add_parser("list_flavors", help="list installed kernel flavors" +

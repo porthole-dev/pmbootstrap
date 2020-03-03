@@ -273,6 +273,7 @@ deviceinfo_attributes = [
     "flash_heimdall_partition_system",
     "flash_fastboot_partition_kernel",
     "flash_fastboot_partition_system",
+    "flash_fastboot_partition_vbmeta",
     "generate_legacy_uboot_initfs",
     "kernel_cmdline",
     "generate_bootimg",
@@ -351,13 +352,21 @@ uuu specific: $UUU_SCRIPT
 """
 flashers = {
     "fastboot": {
-        "depends": ["android-tools"],
+        "depends": ["android-tools", "avbtool"],
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
             "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
                               "$IMAGE"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
                               "$BOOT/boot.img-$FLAVOR"]],
+            "flash_vbmeta": [
+                # Generate vbmeta image with "disable verification" flag
+                ["avbtool", "make_vbmeta_image", "--flags", "2",
+                    "--padding_size", "$FLASH_PAGESIZE",
+                    "--output", "/vbmeta.img"],
+                ["fastboot", "flash", "$PARTITION_VBMETA", "/vbmeta.img"],
+                ["rm", "-f", "/vbmeta.img"]
+            ],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
                       "boot", "$BOOT/boot.img-$FLAVOR"]],
         },

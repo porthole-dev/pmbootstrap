@@ -32,6 +32,15 @@ def run(args, action, flavor=None):
     # Variable setup
     vars = pmb.flasher.variables(args, flavor, method)
 
+    # vbmeta flasher requires vbmeta partition to be explicitly specified
+    if action == "flash_vbmeta" and not vars["$PARTITION_VBMETA"]:
+        raise RuntimeError("Your device does not have 'vbmeta' partition"
+                           " specified; set"
+                           " 'deviceinfo_flash_fastboot_partition_vbmeta'"
+                           " in deviceinfo file. See also:"
+                           " <https://wiki.postmarketos.org/wiki/"
+                           "Deviceinfo_reference>")
+
     # Run the commands of each action
     for command in cfg["actions"][action]:
         # Variable replacement
