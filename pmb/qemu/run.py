@@ -49,19 +49,6 @@ def which_qemu(args, arch):
                            " run qemu.")
 
 
-def command_spice(args):
-    """
-    Generate the full SPICE command with arguments connect to the virtual
-    machine
-    :returns: None or list with the spice command, e.g.:
-              ["spicy", "-h", "127.0.0.1", "-p", "8077"]
-    """
-    if not args.spice_port:
-        return None
-
-    return ["remote-viewer", "spice://127.0.0.1?port=" + args.spice_port]
-
-
 def create_gdk_loader_cache(args):
     """
     Create a gdk loader cache that can be used for running GTK UIs outside of
@@ -85,7 +72,7 @@ def create_gdk_loader_cache(args):
     return rootfs_native + custom_cache_path
 
 
-def command_qemu(args, arch, device, img_path, spice_enabled):
+def command_qemu(args, arch, device, img_path):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
@@ -189,16 +176,10 @@ def command_qemu(args, arch, device, img_path, spice_enabled):
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
-    # 2D acceleration support via QXL/SPICE or virtio
-    if spice_enabled:
-        command += ["-vga", "qxl"]
-        command += ["-spice",
-                    "port=" + args.spice_port + ",addr=127.0.0.1" +
-                    ",disable-ticketing"]
-    else:
-        if native and args.qemu_native_mesa_driver == "dri-virtio":
-            command += ["-vga", "virtio"]
-        command += ["-display", args.qemu_display]
+    # 2D acceleration support via virtio
+    if native and args.qemu_native_mesa_driver == "dri-virtio":
+        command += ["-vga", "virtio"]
+    command += ["-display", args.qemu_display]
 
     # Audio support
     if args.qemu_audio:
@@ -257,8 +238,6 @@ def install_depends(args, arch):
     depends = ["qemu", "qemu-system-" + arch, "qemu-ui-sdl", "qemu-ui-gtk",
                "mesa-gl", "mesa-egl", "mesa-dri-classic", "mesa-dri-gallium",
                "qemu-audio-alsa", "qemu-audio-pa", "qemu-audio-sdl"]
-    if args.spice_port:
-        depends += ["virt-viewer", "font-noto"]
     pmb.chroot.apk.install(args, depends)
 
 
@@ -276,10 +255,7 @@ def run(args):
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
 
-    # Get the QEMU and spice commands
-    spice = command_spice(args)
-    spice_enabled = True if spice else False
-    qemu, env = command_qemu(args, arch, device, img_path, spice_enabled)
+    qemu, env = command_qemu(args, arch, device, img_path)
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root
@@ -299,17 +275,11 @@ def run(args):
     logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
     logging.info("* (telnet) telnet localhost " + str(args.port + 1))
 
-    # Run QEMU (or QEMU + SPICE) and kill it together with pmbootstrap
+    # Run QEMU and kill it together with pmbootstrap
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)
-        output = "background" if spice_enabled else "interactive"
-        process = pmb.helpers.run.user(args, qemu, output=output, env=env)
-        if spice:
-            pmb.chroot.other.copy_xauthority(args)
-            pmb.chroot.user(args, spice, "native", output="tui",
-                            env={"DISPLAY": os.environ.get("DISPLAY"),
-                                 "XAUTHORITY": "/home/pmos/.Xauthority"})
+        process = pmb.helpers.run.user(args, qemu, output="interactive", env=env)
     except KeyboardInterrupt:
         # Don't show a trace when pressing ^C
         pass

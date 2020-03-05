@@ -126,14 +126,9 @@ def arguments_qemu(subparser):
     ret.add_argument("--flavor", help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
                      " to get a list of all installed flavors")
 
-    display = ret.add_mutually_exclusive_group()
-    display.add_argument("--spice", dest="spice_port", const="8077",
-                         action="store", nargs="?", default=None,
-                         help="use SPICE for 2D acceleration (default port:"
-                         " 8077)")
-    display.add_argument("--display", dest="qemu_display", const="sdl,gl=on",
-                         help="QEMU's display parameter (default: sdl,gl=on)",
-                         default="sdl,gl=on", nargs="?")
+    ret.add_argument("--display", dest="qemu_display", const="sdl,gl=on",
+                     help="QEMU's display parameter (default: sdl,gl=on)",
+                     default="sdl,gl=on", nargs="?")
 
     ret.add_argument("--audio", dest="qemu_audio", choices=["alsa", "pa", "sdl"],
                      help="QEMU's audio backend (default: none)",
