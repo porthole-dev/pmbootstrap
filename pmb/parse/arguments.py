@@ -123,6 +123,13 @@ def arguments_qemu(subparser):
     ret.add_argument("--flavor", help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
                      " to get a list of all installed flavors")
 
+    ret.add_argument("--tablet", dest="qemu_tablet", action='store_true',
+                     default=False, help="Use 'tablet' instead of 'mouse' input "
+                     "for QEMU. The tablet input device automatically grabs/releases "
+                     "the mouse when moving in/out of the QEMU window. "
+                     "(Note: For some reason the mouse position is not reported "
+                     "correctly with this in some cases...)")
+
     ret.add_argument("--display", dest="qemu_display", choices=["sdl", "gtk", "none"],
                      help="QEMU's display parameter (default: sdl,gl=on)",
                      default="sdl", nargs="?")

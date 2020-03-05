@@ -119,7 +119,10 @@ def command_qemu(args, arch, img_path):
 
     command += ["-serial", "stdio"]
     command += ["-drive", "file=" + img_path + ",format=raw,if=virtio"]
-    command += ["-device", "virtio-mouse-pci"]
+    if args.qemu_tablet:
+        command += ["-device", "virtio-tablet-pci"]
+    else:
+        command += ["-device", "virtio-mouse-pci"]
     command += ["-device", "virtio-keyboard-pci"]
     command += ["-nic",
                 "user,model=virtio-net-pci,"
