@@ -109,36 +109,29 @@ def command_qemu(args, arch, img_path):
         command += [rootfs_native + "/usr/bin/qemu-system-" + arch]
         command += ["-L", rootfs_native + "/usr/share/qemu/"]
 
+    command += ["-nodefaults"]
     command += ["-kernel", rootfs + "/boot/vmlinuz-" + flavor]
     command += ["-initrd", rootfs + "/boot/initramfs-" + flavor]
     command += ["-append", shlex.quote(cmdline)]
 
     command += ["-smp", str(os.cpu_count())]
     command += ["-m", str(args.memory)]
-    command += ["-netdev",
-                "user,id=net0,"
+
+    command += ["-serial", "stdio"]
+    command += ["-drive", "file=" + img_path + ",format=raw,if=virtio"]
+    command += ["-device", "virtio-mouse-pci"]
+    command += ["-device", "virtio-keyboard-pci"]
+    command += ["-nic",
+                "user,model=virtio-net-pci,"
                 "hostfwd=tcp::" + port_ssh + "-:22,"
                 ]
-    command += ["-show-cursor"]
 
     if arch == "x86_64":
         command += ["-vga", "virtio"]
-        command += ["-serial", "stdio"]
-        command += ["-drive", "file=" + img_path + ",format=raw"]
-        command += ["-device", "e1000,netdev=net0"]
-
     elif arch == "aarch64":
         command += ["-M", "virt"]
         command += ["-cpu", "cortex-a57"]
         command += ["-device", "virtio-gpu-pci"]
-        command += ["-device", "virtio-net-device,netdev=net0"]
-        command += ["-usb", "-device", "usb-ehci",
-                    "-device", "usb-kbd", "-device", "usb-mouse"]
-
-        # Add storage
-        command += ["-device", "virtio-blk-device,drive=system"]
-        command += ["-drive", "if=none,id=system,file={},id=hd0".format(img_path)]
-
     else:
         raise RuntimeError("Architecture {} not supported by this command yet.".format(arch))
 
@@ -154,6 +147,7 @@ def command_qemu(args, arch, img_path):
         display += ",gl=" + ("on" if args.qemu_gl else "off")
 
     command += ["-display", display]
+    command += ["-show-cursor"]
 
     # Audio support
     if args.qemu_audio:
