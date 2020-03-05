@@ -136,6 +136,9 @@ def arguments_qemu(subparser):
     ret.add_argument("--no-gl", dest="qemu_gl", default=True, action='store_false',
                      help="Avoid using GL for accelerating graphics in QEMU "
                      "(use software rasterizer, slow!)")
+    ret.add_argument("--video", dest="qemu_video", default="1024x768@60",
+                     help="Video resolution for QEMU (WidthxHeight@RefreshRate). "
+                     "Default is 1024x768@60.")
 
     ret.add_argument("--audio", dest="qemu_audio", choices=["alsa", "pa", "sdl"],
                      help="QEMU's audio backend (default: none)",

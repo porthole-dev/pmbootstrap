@@ -73,6 +73,10 @@ def command_qemu(args, arch, img_path):
     cmdline = args.deviceinfo["kernel_cmdline"]
     if args.cmdline:
         cmdline = args.cmdline
+
+    if "video=" not in cmdline:
+        cmdline += " video=" + args.qemu_video
+
     logging.debug("Kernel cmdline: " + cmdline)
 
     port_ssh = str(args.port)
