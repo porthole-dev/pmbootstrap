@@ -113,6 +113,8 @@ def command_qemu(args, arch, img_path):
     command += ["-kernel", rootfs + "/boot/vmlinuz-" + flavor]
     command += ["-initrd", rootfs + "/boot/initramfs-" + flavor]
     command += ["-append", shlex.quote(cmdline)]
+
+    command += ["-smp", str(os.cpu_count())]
     command += ["-m", str(args.memory)]
     command += ["-netdev",
                 "user,id=net0,"
@@ -122,25 +124,11 @@ def command_qemu(args, arch, img_path):
                 ]
     command += ["-show-cursor"]
 
-    if args.deviceinfo["dtb"] != "":
-        dtb_image = rootfs + "/usr/share/dtb/" + args.deviceinfo["dtb"] + ".dtb"
-        if not os.path.exists(dtb_image):
-            raise RuntimeError("DTB file not found: " + dtb_image)
-        command += ["-dtb", dtb_image]
-
-    smp = os.cpu_count()
-
     if arch == "x86_64":
         command += ["-vga", "virtio"]
         command += ["-serial", "stdio"]
         command += ["-drive", "file=" + img_path + ",format=raw"]
         command += ["-device", "e1000,netdev=net0"]
-
-    elif arch == "arm":
-        command += ["-M", "vexpress-a9"]
-        command += ["-sd", img_path]
-        command += ["-device", "virtio-net-device,netdev=net0"]
-        smp = min(smp, 4)
 
     elif arch == "aarch64":
         command += ["-M", "virt"]
@@ -156,8 +144,6 @@ def command_qemu(args, arch, img_path):
 
     else:
         raise RuntimeError("Architecture {} not supported by this command yet.".format(arch))
-
-    command += ["-smp", str(smp)]
 
     # Kernel Virtual Machine (KVM) support
     native = args.arch_native == args.deviceinfo["arch"]
