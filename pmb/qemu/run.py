@@ -120,7 +120,6 @@ def command_qemu(args, arch, img_path):
                 "user,id=net0,"
                 "hostfwd=tcp::" + port_ssh + "-:22,"
                 "hostfwd=tcp::" + port_telnet + "-:23"
-                ",net=172.16.42.0/24,dhcpstart=" + pmb.config.default_ip
                 ]
     command += ["-show-cursor"]
 
