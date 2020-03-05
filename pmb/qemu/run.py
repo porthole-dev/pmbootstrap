@@ -138,6 +138,7 @@ def command_qemu(args, arch, device, img_path):
     smp = os.cpu_count()
 
     if arch == "x86_64":
+        command += ["-vga", "virtio"]
         command += ["-serial", "stdio"]
         command += ["-drive", "file=" + img_path + ",format=raw"]
         command += ["-device", "e1000,netdev=net0"]
@@ -176,9 +177,6 @@ def command_qemu(args, arch, device, img_path):
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
-    # 2D acceleration support via virtio
-    if native:
-        command += ["-vga", "virtio"]
     command += ["-display", args.qemu_display]
 
     # Audio support
