@@ -13,26 +13,20 @@ import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
-import pmb.helpers.devices
 import pmb.helpers.run
 import pmb.parse.arch
 
 
-def system_image(args, device):
+def system_image(args):
     """
     Returns path to rootfs for specified device. In case that it doesn't
     exist, raise and exception explaining how to generate it.
     """
-    path = args.work + "/chroot_native/home/pmos/rootfs/" + device + ".img"
+    path = args.work + "/chroot_native/home/pmos/rootfs/" + args.device + ".img"
     if not os.path.exists(path):
         logging.debug("Could not find rootfs: " + path)
-        img_command = "pmbootstrap install"
-        if device != args.device:
-            img_command = ("pmbootstrap config device " + device +
-                           "' and '" + img_command)
-        message = "The rootfs '{0}' has not been generated yet, please" \
-                  " run '{1}' first.".format(device, img_command)
-        raise RuntimeError(message)
+        raise RuntimeError("The rootfs has not been generated yet, please "
+                           "run 'pmbootstrap install' first.")
     return path
 
 
@@ -72,12 +66,11 @@ def create_gdk_loader_cache(args):
     return rootfs_native + custom_cache_path
 
 
-def command_qemu(args, arch, device, img_path):
+def command_qemu(args, arch, img_path):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
-    deviceinfo = pmb.parse.deviceinfo(args, device=device)
-    cmdline = deviceinfo["kernel_cmdline"]
+    cmdline = args.deviceinfo["kernel_cmdline"]
     if args.cmdline:
         cmdline = args.cmdline
     logging.debug("Kernel cmdline: " + cmdline)
@@ -85,7 +78,7 @@ def command_qemu(args, arch, device, img_path):
     port_ssh = str(args.port)
     port_telnet = str(args.port + 1)
 
-    suffix = "rootfs_" + device
+    suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
     if args.flavor:
         flavor = args.flavor
@@ -129,8 +122,8 @@ def command_qemu(args, arch, device, img_path):
                 ]
     command += ["-show-cursor"]
 
-    if deviceinfo["dtb"] != "":
-        dtb_image = rootfs + "/usr/share/dtb/" + deviceinfo["dtb"] + ".dtb"
+    if args.deviceinfo["dtb"] != "":
+        dtb_image = rootfs + "/usr/share/dtb/" + args.deviceinfo["dtb"] + ".dtb"
         if not os.path.exists(dtb_image):
             raise RuntimeError("DTB file not found: " + dtb_image)
         command += ["-dtb", dtb_image]
@@ -167,11 +160,7 @@ def command_qemu(args, arch, device, img_path):
     command += ["-smp", str(smp)]
 
     # Kernel Virtual Machine (KVM) support
-    native = True
-    if args.arch:
-        arch1 = pmb.parse.arch.uname_to_qemu(args.arch_native)
-        arch2 = pmb.parse.arch.uname_to_qemu(args.arch)
-        native = (arch1 == arch2)
+    native = args.arch_native == args.deviceinfo["arch"]
     if native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
     else:
@@ -247,17 +236,18 @@ def run(args):
     """
     Run a postmarketOS image in qemu
     """
-    # Get arch, device, img_path
-    arch = pmb.parse.arch.uname_to_qemu(args.arch_native)
-    if args.arch:
-        arch = pmb.parse.arch.uname_to_qemu(args.arch)
-    device = pmb.parse.arch.qemu_to_pmos_device(arch)
-    img_path = system_image(args, device)
+    if not args.device.startswith("qemu-"):
+        raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
+                           "the QEMU device packages. Run 'pmbootstrap init' "
+                           "and select the 'qemu' vendor.")
+    arch = pmb.parse.arch.alpine_to_qemu(args.deviceinfo["arch"])
+
+    img_path = system_image(args)
     if not args.host_qemu:
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
 
-    qemu, env = command_qemu(args, arch, device, img_path)
+    qemu, env = command_qemu(args, arch, img_path)
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root

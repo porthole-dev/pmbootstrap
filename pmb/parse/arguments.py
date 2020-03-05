@@ -114,11 +114,8 @@ def arguments_initfs(subparser):
 
 def arguments_qemu(subparser):
     ret = subparser.add_parser("qemu")
-    ret.add_argument("--arch", choices=["aarch64", "arm", "x86_64"],
-                     help="emulate a different architecture")
     ret.add_argument("--cmdline", help="override kernel commandline")
-    ret.add_argument(
-        "--image-size", help="set rootfs size (e.g. 2048M or 2G)")
+    ret.add_argument("--image-size", help="set rootfs size (e.g. 2048M or 2G)")
     ret.add_argument("-m", "--memory", type=int, default=1024,
                      help="guest RAM (default: 1024)")
     ret.add_argument("-p", "--port", type=int, default=2222,
