@@ -213,13 +213,6 @@ def test_questions_keymaps(args, monkeypatch):
     assert func(args, "lg-mako") == ""
 
 
-def test_questions_qemu_native_mesa(args, monkeypatch):
-    func = pmb.config.init.ask_for_qemu_native_mesa_driver
-    fake_answers(monkeypatch, ["invalid_driver", "dri-swrast"])
-    assert func(args, "qemu-amd64", "x86_64") == "dri-swrast"
-    assert func(args, "qemu-aarch64", "x86_64") is None
-
-
 def test_questions_ui(args, monkeypatch):
     fake_answers(monkeypatch, ["invalid_UI", "weston"])
     assert pmb.config.init.ask_for_ui(args) == "weston"

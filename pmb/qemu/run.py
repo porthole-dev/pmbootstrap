@@ -177,7 +177,7 @@ def command_qemu(args, arch, device, img_path):
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
     # 2D acceleration support via virtio
-    if native and args.qemu_native_mesa_driver == "dri-virtio":
+    if native:
         command += ["-vga", "virtio"]
     command += ["-display", args.qemu_display]
 

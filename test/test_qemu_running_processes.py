@@ -84,7 +84,6 @@ class QEMU(object):
         pmbootstrap_run(args, config, ["config", "extra_packages", "none"])
         pmbootstrap_run(args, config, ["config", "user", "testuser"])
         pmbootstrap_run(args, config, ["config", "ui", ui])
-        pmbootstrap_run(args, config, ["config", "qemu_native_mesa_driver", "dri-swrast"])
 
         # Prepare native chroot
         pmbootstrap_run(args, config, ["-y", "zap"])

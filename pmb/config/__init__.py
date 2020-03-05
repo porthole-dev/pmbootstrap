@@ -39,8 +39,7 @@ required_programs = ["git", "openssl", "ps"]
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = ["ccache_size", "device", "extra_packages", "hostname", "jobs",
                "kernel", "keymap", "nonfree_firmware", "nonfree_userland",
-               "qemu_native_mesa_driver", "ssh_keys", "timezone", "ui", "user",
-               "work", "aports"]
+               "ssh_keys", "timezone", "ui", "user", "work", "aports"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
@@ -70,7 +69,6 @@ defaults = {
     "nonfree_firmware": True,
     "nonfree_userland": False,
     "port_distccd": "33632",
-    "qemu_native_mesa_driver": "dri-virtio",
     "ssh_keys": False,
     "timezone": "GMT",
     "ui": "weston",
@@ -457,11 +455,6 @@ aportgen = {
         "confirm_overwrite": True,
     }
 }
-
-#
-# QEMU
-#
-qemu_native_mesa_drivers = ["dri-swrast", "dri-virtio"]
 
 #
 # NEWAPKBUILD
