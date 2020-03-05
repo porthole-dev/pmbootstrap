@@ -177,7 +177,11 @@ def command_qemu(args, arch, device, img_path):
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
-    command += ["-display", args.qemu_display]
+    display = args.qemu_display
+    if display != "none":
+        display += ",gl=" + ("on" if args.qemu_gl else "off")
+
+    command += ["-display", display]
 
     # Audio support
     if args.qemu_audio:

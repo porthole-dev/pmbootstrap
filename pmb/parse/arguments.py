@@ -126,9 +126,12 @@ def arguments_qemu(subparser):
     ret.add_argument("--flavor", help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
                      " to get a list of all installed flavors")
 
-    ret.add_argument("--display", dest="qemu_display", const="sdl,gl=on",
+    ret.add_argument("--display", dest="qemu_display", choices=["sdl", "gtk", "none"],
                      help="QEMU's display parameter (default: sdl,gl=on)",
-                     default="sdl,gl=on", nargs="?")
+                     default="sdl", nargs="?")
+    ret.add_argument("--no-gl", dest="qemu_gl", default=True, action='store_false',
+                     help="Avoid using GL for accelerating graphics in QEMU "
+                     "(use software rasterizer, slow!)")
 
     ret.add_argument("--audio", dest="qemu_audio", choices=["alsa", "pa", "sdl"],
                      help="QEMU's audio backend (default: none)",
