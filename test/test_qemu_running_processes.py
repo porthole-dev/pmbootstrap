@@ -81,6 +81,7 @@ class QEMU(object):
         shutil.copyfile(os.path.expanduser("~") + "/.config/pmbootstrap.cfg",
                         config)
         pmbootstrap_run(args, config, ["config", "device", "qemu-amd64"])
+        pmbootstrap_run(args, config, ["config", "kernel", "virt"])
         pmbootstrap_run(args, config, ["config", "extra_packages", "none"])
         pmbootstrap_run(args, config, ["config", "user", "testuser"])
         pmbootstrap_run(args, config, ["config", "ui", ui])
