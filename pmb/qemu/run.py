@@ -76,7 +76,6 @@ def command_qemu(args, arch, img_path):
     logging.debug("Kernel cmdline: " + cmdline)
 
     port_ssh = str(args.port)
-    port_telnet = str(args.port + 1)
 
     suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
@@ -119,7 +118,6 @@ def command_qemu(args, arch, img_path):
     command += ["-netdev",
                 "user,id=net0,"
                 "hostfwd=tcp::" + port_ssh + "-:22,"
-                "hostfwd=tcp::" + port_telnet + "-:23"
                 ]
     command += ["-show-cursor"]
 
@@ -246,11 +244,10 @@ def run(args):
         logging.info("NOTE: Run 'pmbootstrap qemu --image-size 2G' to set"
                      " the rootfs size when you run out of space!")
 
-    # SSH/telnet hints
-    logging.info("Connect to the VM (telnet requires 'pmbootstrap initfs"
-                 " hook_add debug-shell'):")
+    # SSH/serial hints
+    logging.info("Connect to the VM:")
     logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
-    logging.info("* (telnet) telnet localhost " + str(args.port + 1))
+    logging.info("* (serial) in this console (stdout/stdin)")
 
     # Run QEMU and kill it together with pmbootstrap
     process = None
