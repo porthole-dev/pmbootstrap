@@ -109,6 +109,7 @@ def ssh_run(args, command):
     :returns: the result from the SSH server
     """
     ret = pmb.chroot.user(args, ["SSH_ASKPASS=/tmp/y.sh", "DISPLAY=", "ssh",
+                                 "-o", "ConnectTimeout=10",
                                  "-o", "UserKnownHostsFile=/dev/null",
                                  "-o", "StrictHostKeyChecking=no",
                                  "-p", "2222", "testuser@localhost", "--",
@@ -116,24 +117,30 @@ def ssh_run(args, command):
     return ret
 
 
-def is_running(args, programs, tries=300, sleep_before_retry=1):
+def is_running(args, programs, timeout=300, sleep_before_retry=1):
     """
     Simple check that looks for program names in the output of "ps ax".
     This is error-prone, only use it with programs that have a unique name.
-    With defaults retries and sleep_before_retry values, it will try each
-    second for 5 minutes.
+    With defaults timeout and sleep_before_retry values, it will try keep trying
+    for 5 minutes, but not more than once per second.
 
     :param programs: list of programs to check for, e.g. ["xfce4-desktop"]
-    :param tries: amount of tries with the wrong result before giving up
+    :param timeout: approximate time in seconds until timeout
     :param sleep_before_retry: time in seconds to sleep before trying again
     """
-    print("Looking for programs to appear in the VM (tries: " + str(tries) +
+    print("Looking for programs to appear in the VM (timeout: " + str(timeout) +
           "): " + ", ".join(programs))
     ssh_works = False
-    for i in range(0, tries):
-        # Sleep
-        if i > 0:
-            time.sleep(sleep_before_retry)
+
+    end = time.monotonic() + timeout
+    last_try = 0
+
+    while last_try < end:
+        # Sleep only when last try exited immediately
+        sleep = last_try - time.monotonic() + sleep_before_retry
+        if sleep > 0:
+            time.sleep(sleep)
+        last_try = time.monotonic()
 
         # Get running programs via SSH
         all = ssh_run(args, "ps ax")
