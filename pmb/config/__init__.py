@@ -209,6 +209,8 @@ apkbuild_package_attributes = {
 
 # Variables in APKBUILD files, that get parsed
 apkbuild_attributes = {
+    **apkbuild_package_attributes,
+
     "arch": {"array": True},
     "depends_dev": {"array": True},
     "makedepends": {"array": True},
@@ -240,8 +242,6 @@ apkbuild_attributes = {
     "_commit": {},
     "source": {"array": True},
 }
-# **apkbuild_package_attributes above would be nicer, but requires Python 3.5+
-apkbuild_attributes.update(apkbuild_package_attributes)
 
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
 deviceinfo_attributes = [

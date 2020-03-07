@@ -12,7 +12,7 @@ Package build scripts live in the [`pmaports`](https://gitlab.com/postmarketOS/p
   * Kernels based on the grsec patchset [do **not** work](https://github.com/postmarketOS/pmbootstrap/issues/107) *(Alpine: use linux-vanilla instead of linux-hardened, Arch: linux-hardened [is not based on grsec](https://www.reddit.com/r/archlinux/comments/68b2jn/linuxhardened_in_community_repo_a_grsecurity/))*
   * On Alpine Linux only: `apk add coreutils procps`
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
-* Python 3.4+
+* Python 3.6+
 * OpenSSL
 * git
 
