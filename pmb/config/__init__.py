@@ -256,7 +256,6 @@ deviceinfo_attributes = [
     "dtb",
     "modules_initfs",
     "arch",
-    "nonfree",
 
     # device
     "keyboard",

@@ -31,6 +31,9 @@ def sanity_check(info, path):
                            path + " (if you are sure that you need this, then"
                            " we can probably bring it back to fastboot, just"
                            " let us know in the postmarketOS issues!)")
+    if "nonfree" in info:
+        raise RuntimeError("deviceinfo_nonfree is unused. "
+                           "Please delete it in: " + path)
 
     # "codename" is required
     codename = os.path.basename(os.path.dirname(path))
