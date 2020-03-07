@@ -133,9 +133,6 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, arch, has_keyboard,
         deviceinfo_external_storage=\"""" + ("true" if has_external_storage else "false") + """\"
         deviceinfo_screen_width="800"
         deviceinfo_screen_height="600"
-        deviceinfo_dev_touchscreen=""
-        deviceinfo_dev_touchscreen_calibration=""
-        deviceinfo_dev_keyboard=""
 
         # Bootloader related
         deviceinfo_flash_method=\"""" + flash_method + """\"
