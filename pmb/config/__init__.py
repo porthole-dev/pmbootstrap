@@ -252,7 +252,7 @@ deviceinfo_attributes = [
     "name",
     "manufacturer",
     "codename",
-    "date",
+    "year",
     "dtb",
     "modules_initfs",
     "arch",

@@ -37,6 +37,9 @@ def sanity_check(info, path):
     if "dev_keyboard" in info:
         raise RuntimeError("deviceinfo_dev_keyboard is unused. "
                            "Please delete it in: " + path)
+    if "date" in info:
+        raise RuntimeError("deviceinfo_date was replaced by deviceinfo_year. "
+                           "Set it to the release year in: " + path)
 
     # "codename" is required
     codename = os.path.basename(os.path.dirname(path))

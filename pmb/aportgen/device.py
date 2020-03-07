@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.aportgen.core
 import pmb.parse.apkindex
@@ -34,6 +35,13 @@ def ask_for_name(args, manufacturer):
             not ret.startswith("Google"):
         ret = manufacturer + " " + ret
     return ret
+
+
+def ask_for_year(args):
+    # Regex from https://stackoverflow.com/a/12240826
+    logging.info("In what year was the device released (e.g. 2012)?")
+    return pmb.helpers.cli.ask(args, "Year", None, None, False,
+                               validation_regex=r'^[1-9]\d{3,}$')
 
 
 def ask_for_keyboard(args):
@@ -111,8 +119,9 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
         """
 
 
-def generate_deviceinfo(args, pkgname, name, manufacturer, arch, has_keyboard,
-                        has_external_storage, flash_method, bootimg=None):
+def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
+                        has_keyboard, has_external_storage,
+                        flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
     # Note: New variables must be added to pmb/config/__init__.py as well
     content = """\
@@ -123,7 +132,7 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, arch, has_keyboard,
         deviceinfo_name=\"""" + name + """\"
         deviceinfo_manufacturer=\"""" + manufacturer + """\"
         deviceinfo_codename=\"""" + codename + """\"
-        deviceinfo_date=""
+        deviceinfo_year=\"""" + year + """\"
         deviceinfo_dtb=""
         deviceinfo_modules_initfs=""
         deviceinfo_arch=\"""" + arch + """\"
@@ -224,6 +233,7 @@ def generate(args, pkgname):
     arch = ask_for_architecture(args)
     manufacturer = ask_for_manufacturer(args)
     name = ask_for_name(args, manufacturer)
+    year = ask_for_year(args)
     has_keyboard = ask_for_keyboard(args)
     has_external_storage = ask_for_external_storage(args)
     flash_method = ask_for_flash_method(args)
@@ -231,6 +241,7 @@ def generate(args, pkgname):
     if flash_method in ["fastboot", "heimdall-bootimg"]:
         bootimg = ask_for_bootimg(args)
 
-    generate_deviceinfo(args, pkgname, name, manufacturer, arch, has_keyboard,
-                        has_external_storage, flash_method, bootimg)
+    generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
+                        has_keyboard, has_external_storage,
+                        flash_method, bootimg)
     generate_apkbuild(args, pkgname, name, arch, flash_method)

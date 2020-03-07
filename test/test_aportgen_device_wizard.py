@@ -110,6 +110,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
         "Flash method": "heimdall",
         "Manufacturer": "Testsuite",
         "Name": "Testsuite Testdevice",
+        "Year": "1337",
         "Type": "isorec",
     }
 
@@ -129,6 +130,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
     assert deviceinfo["name"] == "Testsuite Testdevice"
     assert deviceinfo["manufacturer"] == answers["Manufacturer"]
     assert deviceinfo["arch"] == "armhf"
+    assert deviceinfo["year"] == "1337"
     assert deviceinfo["keyboard"] == "false"
     assert deviceinfo["external_storage"] == "true"
     assert deviceinfo["flash_method"] == "heimdall-isorec"
