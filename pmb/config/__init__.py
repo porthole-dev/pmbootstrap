@@ -264,7 +264,6 @@ deviceinfo_attributes = [
     "screen_height",
     "dev_touchscreen",
     "dev_touchscreen_calibration",
-    "dev_keyboard",
 
     # bootloader
     "flash_method",

@@ -34,6 +34,9 @@ def sanity_check(info, path):
     if "nonfree" in info:
         raise RuntimeError("deviceinfo_nonfree is unused. "
                            "Please delete it in: " + path)
+    if "dev_keyboard" in info:
+        raise RuntimeError("deviceinfo_dev_keyboard is unused. "
+                           "Please delete it in: " + path)
 
     # "codename" is required
     codename = os.path.basename(os.path.dirname(path))
