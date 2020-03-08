@@ -221,7 +221,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
             cross_pkgs += ["clang"]
         if cross == "crossdirect":
             cross_pkgs += ["crossdirect"]
-            if "rust" or "cargo" in depends:
+            if "rust" in depends or "cargo" in depends:
                 cross_pkgs += ["rust"]
         pmb.chroot.apk.install(args, cross_pkgs)
     if cross == "distcc":
