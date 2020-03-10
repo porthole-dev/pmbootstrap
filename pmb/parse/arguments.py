@@ -126,6 +126,12 @@ def arguments_qemu(subparser):
     ret.add_argument("--no-kvm", dest="qemu_kvm", default=True, action='store_false',
                      help="Avoid using hardware-assisted virtualization with KVM "
                      "even when available (SLOW!)")
+    ret.add_argument("--cpu", dest="qemu_cpu",
+                     help="Override emulated QEMU CPU. By default, the host CPU "
+                     "will be emulated when using KVM and the QEMU default otherwise "
+                     "(usually a CPU with minimal features). "
+                     "A useful value is 'max' (emulate all features that are available), "
+                     "use --cpu help to get a list of possible values from QEMU.")
 
     ret.add_argument("--tablet", dest="qemu_tablet", action='store_true',
                      default=False, help="Use 'tablet' instead of 'mouse' input "

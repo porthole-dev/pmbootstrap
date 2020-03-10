@@ -146,8 +146,12 @@ def command_qemu(args, arch, img_path):
     native = args.arch_native == args.deviceinfo["arch"]
     if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
+        command += ["-cpu", "host"]
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
+
+    if args.qemu_cpu:
+        command += ["-cpu", args.qemu_cpu]
 
     display = args.qemu_display
     if display != "none":
