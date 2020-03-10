@@ -123,6 +123,10 @@ def arguments_qemu(subparser):
     ret.add_argument("--flavor", help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
                      " to get a list of all installed flavors")
 
+    ret.add_argument("--no-kvm", dest="qemu_kvm", default=True, action='store_false',
+                     help="Avoid using hardware-assisted virtualization with KVM "
+                     "even when available (SLOW!)")
+
     ret.add_argument("--tablet", dest="qemu_tablet", action='store_true',
                      default=False, help="Use 'tablet' instead of 'mouse' input "
                      "for QEMU. The tablet input device automatically grabs/releases "

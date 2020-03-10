@@ -144,7 +144,7 @@ def command_qemu(args, arch, img_path):
 
     # Kernel Virtual Machine (KVM) support
     native = args.arch_native == args.deviceinfo["arch"]
-    if native and os.path.exists("/dev/kvm"):
+    if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
