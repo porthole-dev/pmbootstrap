@@ -83,10 +83,7 @@ def command_qemu(args, arch, img_path):
 
     suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
-    if args.flavor:
-        flavor = args.flavor
-    else:
-        flavor = pmb.chroot.other.kernel_flavors_installed(args, suffix)[0]
+    flavor = pmb.chroot.other.kernel_flavors_installed(args, suffix)[0]
 
     if args.host_qemu:
         qemu_bin = which_qemu(args, arch)

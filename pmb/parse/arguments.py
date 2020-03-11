@@ -121,8 +121,6 @@ def arguments_qemu(subparser):
                      help="guest RAM (default: 1024)")
     ret.add_argument("-p", "--port", type=int, default=2222,
                      help="SSH port (default: 2222)")
-    ret.add_argument("--flavor", help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
-                     " to get a list of all installed flavors")
 
     ret.add_argument("--no-kvm", dest="qemu_kvm", default=True, action='store_false',
                      help="Avoid using hardware-assisted virtualization with KVM "
