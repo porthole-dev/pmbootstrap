@@ -255,7 +255,7 @@ def run(args):
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)
-        process = pmb.helpers.run.user(args, qemu, output="interactive", env=env)
+        process = pmb.helpers.run.user(args, qemu, output="tui", env=env)
     except KeyboardInterrupt:
         # Don't show a trace when pressing ^C
         pass
