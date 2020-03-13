@@ -30,26 +30,26 @@ def pmbootstrap_run(args, parameters, check=True):
 
 
 def test_crossdirect_rust(args):
-    """ Set up buildroot_armhf chroot for building, but remove /usr/bin/rustc.
-        Build hello-world-rust for armhf, to verify that it uses
+    """ Set up buildroot_armv7 chroot for building, but remove /usr/bin/rustc.
+        Build hello-world-rust for armv7, to verify that it uses
         /native/usr/bin/rustc instead of /usr/bin/rustc. The package has a
         check() function, which makes sure that the built program is actually
         working. """
     pmbootstrap_run(args, ["-y", "zap"])
-    pmbootstrap_run(args, ["build_init", "-barmhf"])
-    pmbootstrap_run(args, ["chroot", "--add=rust", "-barmhf", "--",
+    pmbootstrap_run(args, ["build_init", "-barmv7"])
+    pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",
                            "mv", "/usr/bin/rustc", "/usr/bin/rustc_"])
-    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armhf",
+    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
                            "--force"])
     # Make /native/usr/bin/rustc unusuable too, to make the build fail
     pmbootstrap_run(args, ["chroot", "--", "rm", "/usr/bin/rustc"])
-    assert pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armhf",
+    assert pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
                                   "--force"], check=False) == 1
 
     # Make /usr/bin/rustc usable again, to test fallback with qemu
-    pmbootstrap_run(args, ["chroot", "-barmhf", "--",
+    pmbootstrap_run(args, ["chroot", "-barmv7", "--",
                            "mv", "/usr/bin/rustc_", "/usr/bin/rustc"])
-    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armhf",
+    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
                            "--force"])
 
     # Clean up
