@@ -259,7 +259,8 @@ def kconfig(args):
         packages.sort()
         for package in packages:
             if not args.force:
-                aport = pmb.helpers.pmaports.find(args, "linux-" + package)
+                pkgname = package if package.startswith("linux-") else "linux-" + package
+                aport = pmb.helpers.pmaports.find(args, pkgname)
                 apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
