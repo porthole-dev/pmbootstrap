@@ -440,6 +440,11 @@ def install_system_image(args):
                          " /boot and / subpartitions. That way we don't need to"
                          " change the partition layout on your device.)")
 
+    # if current flasher supports vbmeta and partition is explicitly spcified in deviceinfo
+    if "flash_vbmeta" in flasher_actions and args.deviceinfo["flash_fastboot_partition_vbmeta"]:
+        logging.info("* pmbootstrap flasher flash_vbmeta")
+        logging.info("  Flashes vbmeta image with verification disabled flag.")
+
     # Most flash methods operate independently of the boot partition.
     # (e.g. an Android boot image is generated). In that case, "flash_kernel"
     # works even when partitions are split or installing for sdcard.
