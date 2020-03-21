@@ -40,7 +40,7 @@ def get_arch(args, apkbuild):
                        apkbuild["arch"][0] + "' architecture.")
 
 
-def get_outputdir(args, pkgname):
+def get_outputdir(args, pkgname, apkbuild):
     """
     Get the folder for the kernel compilation output.
     For most APKBUILDs, this is $builddir. But some older ones still use
@@ -68,6 +68,10 @@ def get_outputdir(args, pkgname):
     # Some Mediatek kernels use a 'kernel' subdirectory
     if os.path.exists(chroot + ret + "/kernel/.config"):
         return os.path.join(ret, "kernel")
+
+    # Out-of-tree builds ($_outdir)
+    if os.path.exists(chroot + ret + "/" + apkbuild["_outdir"] + "/.config"):
+        return os.path.join(ret, apkbuild["_outdir"])
 
     # Not found
     raise RuntimeError("Could not find the kernel config. Consider making a"
@@ -121,7 +125,7 @@ def menuconfig(args, pkgname):
                     env={"CARCH": arch})
 
     # Run make menuconfig
-    outputdir = get_outputdir(args, pkgname)
+    outputdir = get_outputdir(args, pkgname, apkbuild)
     logging.info("(native) make " + kopt)
     pmb.chroot.user(args, ["make", kopt], "native",
                     outputdir, output="tui",
