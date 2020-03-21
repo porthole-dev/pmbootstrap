@@ -230,6 +230,7 @@ apkbuild_attributes = {
     "_flavor": {},
     "_device": {},
     "_kernver": {},
+    "_outdir": {},
 
     # mesa
     "_llvmver": {},
