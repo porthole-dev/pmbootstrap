@@ -362,6 +362,8 @@ def embed_firmware(args):
 
 def sanity_check_sdcard(device):
     device_name = os.path.basename(device)
+    if not os.path.exists(device):
+        raise RuntimeError("{} doesn't exist, is the sdcard plugged?".format(device))
     if os.path.isdir('/sys/class/block/{}'.format(device_name)):
         with open('/sys/class/block/{}/ro'.format(device_name), 'r') as handle:
             ro = handle.read()
