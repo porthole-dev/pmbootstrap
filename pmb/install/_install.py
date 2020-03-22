@@ -366,7 +366,7 @@ def sanity_check_sdcard(device):
         with open('/sys/class/block/{}/ro'.format(device_name), 'r') as handle:
             ro = handle.read()
         if ro == '1\n':
-            raise RuntimeError("{} is read-only, Is the sdcard locked?".format(device))
+            raise RuntimeError("{} is read-only, is the sdcard locked?".format(device))
 
 
 def install_system_image(args):
