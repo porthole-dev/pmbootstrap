@@ -131,6 +131,7 @@ def add_cache(args):
                             "find_aport": {},
                             "pmb.helpers.package.depends_recurse": {},
                             "pmb.helpers.package.get": {},
+                            "pmb.helpers.pmaports._glob_apkbuilds": {},
                             "pmb.helpers.repo.update": repo_update})
 
 

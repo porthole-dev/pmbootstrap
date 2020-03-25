@@ -13,7 +13,16 @@ import pmb.parse
 
 
 def _glob_apkbuilds(args, pkgname='*'):
-    return glob.glob(args.aports + "/**/" + pkgname + "/APKBUILD", recursive=True)
+    # Try to get a cached result first (we assume, that the aports don't change
+    # in one pmbootstrap call)
+    if pkgname in args.cache["pmb.helpers.pmaports._glob_apkbuilds"]:
+        return args.cache["pmb.helpers.pmaports._glob_apkbuilds"][pkgname]
+
+    ret = glob.glob(args.aports + "/**/" + pkgname + "/APKBUILD", recursive=True)
+
+    # Save result in cache
+    args.cache["pmb.helpers.pmaports._glob_apkbuilds"][pkgname] = ret
+    return ret
 
 
 def get_list(args, pkgname='*'):
