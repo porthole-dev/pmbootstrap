@@ -13,14 +13,14 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     makedepends = "bash bc bison devicepkg-dev flex openssl-dev perl"
 
     package = """
-            downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor\""""
+            downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor" "$_outdir\""""
 
     if deviceinfo["bootimg_qcdt"] == "true":
         makedepends += " dtbtool"
 
         package += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)
-            dtbTool -p scripts/dtc/ -o "arch/$_carch/boot"/dt.img "arch/$_carch/boot/"
+            dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img "$_outdir/arch/$_carch/boot/"
             install -Dm644 "arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
 
     content = """\
@@ -50,10 +50,11 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             $_config""" + ("\n" + " " * 12).join([""] + patches) + """
         "
         builddir="$srcdir/$_repository-$_commit"
+        _outdir="out"
 
         prepare() {
             default_prepare
-            downstreamkernel_prepare "$srcdir" "$builddir" "$_config" "$_carch" "$HOSTCC"
+            . downstreamkernel_prepare
         }
 
         build() {
