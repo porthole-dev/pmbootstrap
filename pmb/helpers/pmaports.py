@@ -27,10 +27,18 @@ def _glob_apkbuilds(args, pkgname='*'):
 
 def get_list(args, pkgname='*'):
     """ :returns: list of all pmaport pkgnames (["hello-world", ...]) """
+    # Try to get a cached result first (we assume, that the aports don't change
+    # in one pmbootstrap call)
+    if pkgname in args.cache["pmb.helpers.pmaports.get_list"]:
+        return args.cache["pmb.helpers.pmaports.get_list"][pkgname]
+
     ret = []
     for apkbuild in _glob_apkbuilds(args, pkgname):
         ret.append(os.path.basename(os.path.dirname(apkbuild)))
     ret.sort()
+
+    # Save result in cache
+    args.cache["pmb.helpers.pmaports.get_list"][pkgname] = ret
     return ret
 
 
