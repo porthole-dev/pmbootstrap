@@ -33,9 +33,9 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild[match.group(1)]))
             value = value.replace(match.group(0), apkbuild[match.group(1)], 1)
         except KeyError:
-            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
-                          "".format(apkbuild["pkgname"], match.group(1),
-                                    match.group(0)))
+            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
+                            "".format(apkbuild["pkgname"], match.group(1),
+                                      match.group(0)))
 
     # $foo
     for match in revar2.finditer(value):
@@ -46,9 +46,9 @@ def replace_variable(apkbuild, value: str) -> str:
                             newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
-                          "".format(apkbuild["pkgname"], match.group(1),
-                                    match.group(0)))
+            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
+                            "".format(apkbuild["pkgname"], match.group(1),
+                                      match.group(0)))
 
     # ${var/foo/bar}, ${var/foo/}, ${var/foo}
     for match in revar3.finditer(value):
@@ -63,9 +63,9 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild["pkgname"], match.group(0), newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
-                          "".format(apkbuild["pkgname"], match.group(1),
-                                    match.group(0)))
+            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
+                            "".format(apkbuild["pkgname"], match.group(1),
+                                      match.group(0)))
 
     # ${foo#bar}
     rematch4 = revar4.finditer(value)
@@ -79,9 +79,9 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild["pkgname"], match.group(0), newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.debug("{}: key '{}' for replacing '{}' not found, ignoring"
-                          "".format(apkbuild["pkgname"], match.group(1),
-                                    match.group(0)))
+            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
+                            "".format(apkbuild["pkgname"], match.group(1),
+                                      match.group(0)))
 
     return value
 
