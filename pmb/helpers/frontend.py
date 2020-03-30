@@ -247,11 +247,12 @@ def kconfig(args):
 
         # Default to all kernel packages
         packages = []
-        if args.package == "" or args.package is None:
-            for aport in pmb.helpers.pmaports.get_list(args, "linux-*"):
-                packages.append(aport.split("linux-")[1])
-        else:
+        if args.package:
             packages = [args.package]
+        else:
+            for aport in pmb.helpers.pmaports.get_list(args):
+                if aport.startswith("linux-"):
+                    packages.append(aport.split("linux-")[1])
 
         # Iterate over all kernels
         error = False
