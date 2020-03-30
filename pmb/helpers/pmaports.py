@@ -52,13 +52,13 @@ def guess_main_dev(args, subpkgname):
     pkgname = subpkgname[:-4]
     path = _find_apkbuilds(args).get(pkgname)
     if path:
-        logging.debug(subpkgname + ": guessed to be a subpackage of " +
-                      pkgname + " (just removed '-dev')")
+        logging.verbose(subpkgname + ": guessed to be a subpackage of " +
+                        pkgname + " (just removed '-dev')")
         return os.path.dirname(path)
 
-    logging.debug(subpkgname + ": guessed to be a subpackage of " + pkgname +
-                  ", which we can't find in pmaports, so it's probably in"
-                  " Alpine")
+    logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname +
+                    ", which we can't find in pmaports, so it's probably in"
+                    " Alpine")
     return None
 
 
@@ -94,8 +94,8 @@ def guess_main(args, subpkgname):
         # Look in pmaports
         path = _find_apkbuilds(args).get(pkgname)
         if path:
-            logging.debug(subpkgname + ": guessed to be a subpackage of " +
-                          pkgname)
+            logging.verbose(subpkgname + ": guessed to be a subpackage of " +
+                            pkgname)
             return os.path.dirname(path)
 
 
