@@ -129,11 +129,19 @@ def build_depends(args, apkbuild, arch, strict):
     if "no_depends" in args and args.no_depends:
         pmb.helpers.repo.update(args, arch)
         for depend in depends:
+            # Check if binary package is missing
             if not pmb.parse.apkindex.package(args, depend, arch, False):
                 raise RuntimeError("Missing binary package for dependency '" +
                                    depend + "' of '" + pkgname + "', but"
                                    " pmbootstrap won't build any depends since"
                                    " it was started with --no-depends.")
+            # Check if binary package is outdated
+            apkbuild_dep = get_apkbuild(args, depend, arch)
+            if apkbuild_dep and pmb.build.is_necessary(args, arch, apkbuild_dep):
+                raise RuntimeError(f"Binary package for dependency '{depend}'"
+                                   f" of '{pkgname}' is outdated, but"
+                                   f" pmbootstrap won't build any depends"
+                                   f" since it was started with --no-depends.")
     else:
         # Build the dependencies
         for depend in depends:
