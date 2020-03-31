@@ -76,7 +76,7 @@ set_alias_pmbootstrap() {
 export_chroot_device_deviceinfo() {
 	chroot="$("$pmbootstrap" config work)/chroot_native"
 	device="$("$pmbootstrap" config device)"
-	deviceinfo="$pmbootstrap_dir/aports/device/testing/device-$device/deviceinfo"
+	deviceinfo="$(echo "$pmbootstrap_dir"/aports/device/*/device-"$device"/deviceinfo)"
 	export chroot device deviceinfo
 }
 
