@@ -52,7 +52,7 @@ defaults = {
     # kernel configs
     "cipher": "aes-cbc-plain64",
     "config": os.path.expanduser("~") + "/.config/pmbootstrap.cfg",
-    "device": "samsung-i9100",
+    "device": "qemu-amd64",
     "extra_packages": "none",
     "fork_alpine": False,
     "hostname": "",
