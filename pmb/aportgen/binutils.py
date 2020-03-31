@@ -22,7 +22,7 @@ def generate(args, pkgname):
         "arch": " ".join(arches),
         "makedepends_build": "",
         "makedepends_host": "",
-        "makedepends": "gettext libtool autoconf automake bison",
+        "makedepends": "gettext libtool autoconf automake bison texinfo",
         "subpackages": "",
     }
 
