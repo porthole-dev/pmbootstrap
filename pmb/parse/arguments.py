@@ -339,7 +339,9 @@ def arguments():
     parser.add_argument("-a", "--alpine-version", dest="alpine_version",
                         help="examples: edge, latest-stable, v3.5")
     parser.add_argument("-c", "--config", dest="config",
-                        default=pmb.config.defaults["config"])
+                        default=pmb.config.defaults["config"],
+                        help="path to pmbootstrap.cfg file (default in"
+                             " ~/.config/)")
     parser.add_argument("-d", "--port-distccd", dest="port_distccd")
     parser.add_argument("-mp", "--mirror-pmOS", dest="mirrors_postmarketos",
                         help="postmarketOS mirror, disable with: -mp='',"
