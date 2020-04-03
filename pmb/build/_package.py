@@ -478,7 +478,7 @@ def package(args, pkgname, arch=None, force=False, strict=False,
 
     :param pkgname: package name to be built, as specified in the APKBUILD
     :param arch: architecture we're building for (default: native)
-    :param force: even build, if not necessary
+    :param force: allways build, even if not necessary
     :param strict: avoid building with irrelevant dependencies installed by
                    letting abuild install and uninstall all dependencies.
     :param skip_init_buildenv: can be set to False to avoid initializing the

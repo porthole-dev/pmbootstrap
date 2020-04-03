@@ -616,3 +616,8 @@ newapkbuild_arguments_switches_other = [
 #
 # Patterns of package names to ignore for automatic pmaport upgrading ("pmbootstrap aportupgrade --all")
 upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*", "*-aarch64", "*-armhf", "*-armv7"]
+
+#
+# SIDELOAD
+#
+sideload_sudo_prompt = "[sudo] password for %u@%h: "

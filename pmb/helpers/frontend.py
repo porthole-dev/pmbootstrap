@@ -9,6 +9,7 @@ import sys
 import pmb.aportgen
 import pmb.build
 import pmb.build.autodetect
+import pmb.sideload
 import pmb.chroot
 import pmb.chroot.initfs
 import pmb.chroot.other
@@ -111,6 +112,15 @@ def checksum(args):
             pmb.build.checksum.verify(args, package)
         else:
             pmb.build.checksum.update(args, package)
+
+
+def sideload(args):
+    arch = args.deviceinfo["arch"]
+    if args.arch:
+        arch = args.arch
+    user = args.user
+    host = args.host
+    pmb.sideload.sideload(args, user, host, arch, args.install_key, args.packages)
 
 
 def chroot(args):

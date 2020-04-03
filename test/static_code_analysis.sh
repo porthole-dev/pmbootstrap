@@ -95,6 +95,7 @@ py_files="
 	pmb/parse/cpuinfo.py
 	pmb/parse/version.py
 	pmb/qemu/__init__.py
+	pmb/sideload/__init__.py
 	pmbootstrap.py
 	test/pmb_test/__init__.py
 	test/pmb_test/const.py

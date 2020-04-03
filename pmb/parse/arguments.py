@@ -135,6 +135,23 @@ def arguments_export(subparser):
     return ret
 
 
+def arguments_sideload(subparser):
+    ret = subparser.add_parser("sideload", help="Push packages to a running"
+                               " phone connected over usb or wifi")
+    add_packages_arg(ret, nargs="+")
+    ret.add_argument("--host", help="ip of the device over wifi"
+                                    " (defaults to 172.16.42.1)",
+                     default="172.16.42.1")
+    ret.add_argument("--user", help="use a different username than the"
+                     " one set in init")
+    ret.add_argument("--arch", help="use a different architecture than the one"
+                                    " set in init")
+    ret.add_argument("--install-key", help="install the apk key from this"
+                     " machine if needed",
+                     action="store_true", dest="install_key")
+    return ret
+
+
 def arguments_flasher(subparser):
     ret = subparser.add_parser("flasher", help="flash something to the"
                                " target device")
@@ -533,6 +550,7 @@ def arguments():
     arguments_repo_missing(sub)
     arguments_kconfig(sub)
     arguments_export(sub)
+    arguments_sideload(sub)
     arguments_flasher(sub)
     arguments_initfs(sub)
     arguments_qemu(sub)
