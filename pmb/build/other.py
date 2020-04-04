@@ -55,6 +55,13 @@ def is_necessary(args, arch, apkbuild, indexes=None):
         logging.debug(msg + "No binary package available")
         return True
 
+    # Can't build pmaport for arch: use Alpine's package (#1897)
+    if arch and not pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
+        logging.verbose(f"{package}: build is not necessary, because pmaport"
+                        " can't be built for {arch}. Using Alpine's binary"
+                        " package.")
+        return False
+
     # a) Binary repo has a newer version
     version_old = index_data["version"]
     if pmb.parse.version.compare(version_old, version_new) == 1:

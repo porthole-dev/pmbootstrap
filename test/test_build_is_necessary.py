@@ -73,3 +73,15 @@ def test_build_is_necessary_no_binary_available(args):
     aport = pmb.helpers.pmaports.find(args, "hello-world")
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is True
+
+
+def test_build_is_necessary_cant_build_pmaport_for_arch(args):
+    """ pmaport version is higher than Alpine's binary package, but pmaport
+        can't be built for given arch. (#1897) """
+
+    apkbuild = {"pkgname": "alpine-base",
+                "arch": "armhf",  # can't build for x86_64!
+                "pkgver": "9999",
+                "pkgrel": "0"}
+    assert pmb.build.is_necessary(args, "x86_64", apkbuild) is False
+    assert pmb.build.is_necessary(args, "armhf", apkbuild) is True
