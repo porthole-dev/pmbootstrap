@@ -508,6 +508,8 @@ def install(args):
         install_packages = [p for p in install_packages if p != "postmarketos-base"]
     if args.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + args.ui]
+        if args.ui_extras:
+            install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
     suffix = "rootfs_" + args.device
     pmb.chroot.apk.upgrade(args, suffix)
 

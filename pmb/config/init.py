@@ -89,6 +89,21 @@ def ask_for_ui(args):
                       " one from the list above.")
 
 
+def ask_for_ui_extras(args, ui):
+    apkbuild = pmb.helpers.pmaports.get(args, "postmarketos-ui-" + ui)
+    if not apkbuild:
+        return False
+
+    extra = apkbuild["subpackages"].get("postmarketos-ui-" + ui + "-extras")
+    if extra is None:
+        return False
+
+    logging.info("This user interface has an extra package: " + extra["pkgdesc"])
+
+    return pmb.helpers.cli.confirm(args, "Enable this package?",
+                                   default=args.ui_extras)
+
+
 def ask_for_keymaps(args, device):
     info = pmb.parse.deviceinfo(args, device)
     if "keymaps" not in info or info["keymaps"].strip() == "":
@@ -365,7 +380,9 @@ def frontend(args):
                                                      args.user, False,
                                                      "[a-z_][a-z0-9_-]*")
     # UI and various build options
-    cfg["pmbootstrap"]["ui"] = ask_for_ui(args)
+    ui = ask_for_ui(args)
+    cfg["pmbootstrap"]["ui"] = ui
+    cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
     ask_for_build_options(args, cfg)
 
     # Extra packages to be installed to rootfs

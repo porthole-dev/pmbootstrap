@@ -39,7 +39,8 @@ required_programs = ["git", "openssl", "ps"]
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = ["ccache_size", "device", "extra_packages", "hostname", "jobs",
                "kernel", "keymap", "nonfree_firmware", "nonfree_userland",
-               "ssh_keys", "timezone", "ui", "user", "work", "aports"]
+               "ssh_keys", "timezone", "ui", "ui_extras", "user", "work",
+               "aports"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
@@ -72,6 +73,7 @@ defaults = {
     "ssh_keys": False,
     "timezone": "GMT",
     "ui": "weston",
+    "ui_extras": False,
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
 }
