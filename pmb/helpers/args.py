@@ -159,7 +159,7 @@ def init(args):
     # Initialization code which may raise errors
     check_pmaports_path(args)
     if args.action not in ["init", "config", "bootimg_analyze", "log",
-                           "shutdown", "zap"]:
+                           "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config_into_args(args)
         add_deviceinfo(args)
     return args
