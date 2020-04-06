@@ -59,7 +59,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
 
         build() {
             unset LDFLAGS
-            make ARCH="$_carch" CC="${CC:-gcc}" \\
+            make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" \\
                 KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
         }
 
