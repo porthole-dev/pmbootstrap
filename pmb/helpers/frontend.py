@@ -140,7 +140,7 @@ def config(args):
         raise RuntimeError("Invalid config key: " + args.name)
 
     cfg = pmb.config.load(args)
-    if args.value:
+    if args.value is not None:
         cfg["pmbootstrap"][args.name] = args.value
         logging.info("Config changed: " + args.name + "='" + args.value + "'")
         pmb.config.save(args, cfg)
