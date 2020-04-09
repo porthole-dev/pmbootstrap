@@ -124,3 +124,38 @@ def init(args):
         clone(args)
     symlink(args)
     read_config(args)
+
+
+def switch_to_channel_branch(args, channel_new):
+    """ Checkout the channel's branch in pmaports.git.
+        :channel_new: channel name (e.g. "edge", "stable")
+        :returns: True if another branch was checked out, False otherwise """
+    # Check current pmaports branch channel
+    channel_current = read_config(args)["channel"]
+    if channel_current == channel_new:
+        return False
+
+    # List current and new branches/channels
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
+    branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
+    branch_current = pmb.helpers.git.rev_parse(args, args.aports,
+                                               extra_args=["--abbrev-ref"])
+    logging.info(f"Currently checked out branch '{branch_current}' of"
+                 f" pmaports.git is on channel '{channel_current}'.")
+    logging.info(f"Switching to branch '{branch_new}' on channel"
+                 f" '{channel_new}'...")
+
+    # Attempt to switch branch (git gives a nice error message, mentioning
+    # which files need to be committed/stashed, so just pass it through)
+    if pmb.helpers.run.user(args, ["git", "checkout", branch_new],
+                            args.aports, "interactive", check=False):
+        raise RuntimeError("Failed to switch branch. Go to your pmaports and"
+                           " fix what git complained about, then try again: "
+                           f"{args.aports}")
+
+    # Invalidate all caches
+    pmb.helpers.args.add_cache(args)
+
+    # Verify pmaports.cfg on new branch
+    read_config(args)
+    return True

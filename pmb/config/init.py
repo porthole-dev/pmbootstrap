@@ -72,6 +72,39 @@ def ask_for_work_path(args):
                           " inside it! Please try again.")
 
 
+def ask_for_channel(args):
+    """ Ask for the postmarketOS release channel. The channel dictates, which
+        pmaports branch pmbootstrap will check out, and which repository URLs
+        will be used when initializing chroots.
+        :returns: channel name (e.g. "edge", "stable") """
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
+    count = len(channels_cfg["channels"])
+
+    # List channels
+    logging.info("Choose the postmarketOS release channel.")
+    logging.info(f"Available ({count}):")
+    for channel, channel_data in channels_cfg["channels"].items():
+        logging.info(f"* {channel}: {channel_data['description']}")
+
+    # Default for first run: "recommended" from channels.cfg
+    # Otherwise, if valid: channel from pmaports.cfg of current branch
+    # The actual channel name is not saved in pmbootstrap.cfg, because then we
+    # would need to sync it with what is checked out in pmaports.git.
+    default = pmb.config.pmaports.read_config(args)["channel"]
+    choices = channels_cfg["channels"].keys()
+    if args.is_default_channel or default not in choices:
+        default = channels_cfg["meta"]["recommended"]
+
+    # Ask until user gives valid channel
+    while True:
+        ret = pmb.helpers.cli.ask(args, "Channel", None, default,
+                                  complete=choices)
+        if ret in choices:
+            return ret
+        logging.fatal("ERROR: Invalid channel specified, please type in one"
+                      " from the list above.")
+
+
 def ask_for_ui(args):
     ui_list = pmb.helpers.ui.list(args)
     logging.info("Available user interfaces (" +
@@ -364,6 +397,11 @@ def frontend(args):
 
     # Clone pmaports
     pmb.config.pmaports.init(args)
+
+    # Choose release channel, possibly switch pmaports branch
+    channel = ask_for_channel(args)
+    pmb.config.pmaports.switch_to_channel_branch(args, channel)
+    cfg["pmbootstrap"]["is_default_channel"] = "False"
 
     # Device
     device, device_exists, kernel, nonfree = ask_for_device(args)

@@ -42,6 +42,7 @@ config_keys = ["aports",
                "device",
                "extra_packages",
                "hostname",
+               "is_default_channel",
                "jobs",
                "kernel",
                "keymap",
@@ -61,6 +62,7 @@ defaults = {
     "alpine_version": "edge",  # alternatively: latest-stable
     "aports": "$WORK/cache_git/pmaports",
     "ccache_size": "5G",
+    "is_default_channel": True,
     # aes-xts-plain64 would be better, but this is not supported on LineageOS
     # kernel configs
     "cipher": "aes-cbc-plain64",

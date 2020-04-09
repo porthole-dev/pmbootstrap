@@ -16,7 +16,8 @@ import pmb.helpers.logging
 @pytest.fixture
 def args(tmpdir, request):
     import pmb.parse
-    sys.argv = ["pmbootstrap.py", "init"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "init"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
@@ -287,3 +288,8 @@ def test_questions_hostname(args, monkeypatch):
     # Device name: empty string
     fake_answers(monkeypatch, [device])
     assert func(args, device) == ""
+
+
+def test_questions_channel(args, monkeypatch):
+    fake_answers(monkeypatch, ["invalid-channel", "stable"])
+    assert pmb.config.init.ask_for_channel(args) == "stable"
