@@ -24,7 +24,7 @@ apk_keys_path = pmb_src + "/pmb/data/keys"
 apk_tools_static_min_version = "2.10.5-r0"
 
 # postmarketOS aports compatibility (checked against "version" in pmaports.cfg)
-pmaports_min_version = "6"
+pmaports_min_version = "7"
 
 # Version of the work folder (as asked during 'pmbootstrap init'). Increase
 # this number, whenever migration is required and provide the migration code,
