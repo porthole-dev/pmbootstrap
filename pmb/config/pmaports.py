@@ -49,9 +49,8 @@ def symlink(args):
         logging.info("NOTE: pmaports path: " + args.aports)
 
 
-def check_version_pmaports(args):
+def check_version_pmaports(real):
     # Compare versions
-    real = args.pmaports["version"]
     min = pmb.config.pmaports_min_version
     if pmb.parse.version.compare(real, min) >= 0:
         return
@@ -62,10 +61,9 @@ def check_version_pmaports(args):
     raise RuntimeError("Run 'pmbootstrap pull' to update your pmaports.")
 
 
-def check_version_pmbootstrap(args):
+def check_version_pmbootstrap(min):
     # Compare versions
     real = pmb.config.version
-    min = args.pmaports["pmbootstrap_min_version"]
     if pmb.parse.version.compare(real, min) >= 0:
         return
 
@@ -87,8 +85,13 @@ def check_version_pmbootstrap(args):
                        " of pmbootstrap from git.")
 
 
-def read_config_into_args(args):
-    """ Read and verify pmaports.cfg, add the contents to args.pmaports_cfg """
+def read_config(args):
+    """ Read and verify pmaports.cfg. """
+    # Try cache first
+    cache_key = "pmb.config.pmaports.read_config"
+    if args.cache[cache_key]:
+        return args.cache[cache_key]
+
     # Migration message
     if not os.path.exists(args.aports):
         raise RuntimeError("We have split the aports repository from the"
@@ -101,14 +104,18 @@ def read_config_into_args(args):
         raise RuntimeError("Invalid pmaports repository, could not find the"
                            " config: " + path_cfg)
 
-    # Load the config into args.pmaports
+    # Load the config
     cfg = configparser.ConfigParser()
     cfg.read(path_cfg)
-    setattr(args, "pmaports", cfg["pmaports"])
+    ret = cfg["pmaports"]
 
     # Version checks
-    check_version_pmaports(args)
-    check_version_pmbootstrap(args)
+    check_version_pmaports(ret["version"])
+    check_version_pmbootstrap(ret["pmbootstrap_min_version"])
+
+    # Cache and return
+    args.cache[cache_key] = ret
+    return ret
 
 
 def init(args):
@@ -116,4 +123,4 @@ def init(args):
     if not os.path.exists(args.aports):
         clone(args)
     symlink(args)
-    read_config_into_args(args)
+    read_config(args)

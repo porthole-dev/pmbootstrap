@@ -63,7 +63,6 @@ import pmb.helpers.git
 
        Examples:
        args.deviceinfo (e.g. {"name": "Mydevice", "arch": "armhf", ...})
-       args.pmaports (e.g. {"version": "1", "branch_alpine": "edge", ...})
 """
 
 
@@ -133,7 +132,8 @@ def add_cache(args):
                             "pmb.helpers.package.depends_recurse": {},
                             "pmb.helpers.package.get": {},
                             "pmb.helpers.repo.update": repo_update,
-                            "pmb.helpers.git.parse_channels_cfg": {}})
+                            "pmb.helpers.git.parse_channels_cfg": {},
+                            "pmb.config.pmaports.read_config": None})
 
 
 def add_deviceinfo(args):
@@ -162,7 +162,7 @@ def init(args):
     check_pmaports_path(args)
     if args.action not in ["init", "config", "bootimg_analyze", "log",
                            "pull", "shutdown", "zap"]:
-        pmb.config.pmaports.read_config_into_args(args)
+        pmb.config.pmaports.read_config(args)
         add_deviceinfo(args)
         pmb.helpers.git.parse_channels_cfg(args)
 
