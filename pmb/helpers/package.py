@@ -6,12 +6,13 @@ Functions that work on both pmaports and (binary package) repos. See also:
 - pmb/helpers/repo.py (work on binary package repos)
 """
 import copy
+import logging
 
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 
 
-def get(args, pkgname, arch, replace_subpkgnames=False):
+def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
     """ Find a package in pmaports, and as fallback in the APKINDEXes of the
         binary packages.
         :param pkgname: package name (e.g. "hello-world")
@@ -22,12 +23,14 @@ def get(args, pkgname, arch, replace_subpkgnames=False):
                      with check_arch(). Example: "armhf"
         :param replace_subpkgnames: replace all subpkgnames with their main
                                     pkgnames in the depends (see #1733)
-        :returns: data from the parsed APKBUILD or APKINDEX in the following
-                  format: {"arch": ["noarch"],
-                           "depends": ["busybox-extras", "lddtree", ...],
-                           "pkgname": "postmarketos-mkinitfs",
-                           "provides": ["mkinitfs=0..1"],
-                           "version": "0.0.4-r10"} """
+        :param must_exist: raise an exception, if not found
+        :returns: * data from the parsed APKBUILD or APKINDEX in the following
+                    format: {"arch": ["noarch"],
+                             "depends": ["busybox-extras", "lddtree", ...],
+                             "pkgname": "postmarketos-mkinitfs",
+                             "provides": ["mkinitfs=0..1"],
+                             "version": "0.0.4-r10"}
+                  * None if the package was not found """
     # Cached result
     cache_key = "pmb.helpers.package.get"
     if (arch in args.cache[cache_key] and
@@ -78,9 +81,17 @@ def get(args, pkgname, arch, replace_subpkgnames=False):
     if replace_subpkgnames:
         depends_new = []
         for depend in ret["depends"]:
-            depend = get(args, depend, arch)["pkgname"]
-            if depend not in depends_new:
-                depends_new += [depend]
+            depend_data = get(args, depend, arch, must_exist=False)
+            if not depend_data:
+                logging.warning(f"WARNING: {pkgname}: failed to resolve"
+                                f" dependency '{depend}'")
+                # Can't replace potential subpkgname
+                if depend not in depends_new:
+                    depends_new += [depend]
+                continue
+            depend_pkgname = depend_data["pkgname"]
+            if depend_pkgname not in depends_new:
+                depends_new += [depend_pkgname]
         ret["depends"] = depends_new
 
     # Save to cache and return
@@ -93,6 +104,8 @@ def get(args, pkgname, arch, replace_subpkgnames=False):
         return ret
 
     # Could not find the package
+    if not must_exist:
+        return None
     raise RuntimeError("Package '" + pkgname + "': Could not find aport, and"
                        " could not find this package in any APKINDEX!")
 
