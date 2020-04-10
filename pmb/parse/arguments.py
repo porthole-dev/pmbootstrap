@@ -336,8 +336,6 @@ def arguments():
     # Other
     parser.add_argument("-V", "--version", action="version",
                         version=pmb.config.version)
-    parser.add_argument("-a", "--alpine-version", dest="alpine_version",
-                        help="examples: edge, latest-stable, v3.5")
     parser.add_argument("-c", "--config", dest="config",
                         default=pmb.config.defaults["config"],
                         help="path to pmbootstrap.cfg file (default in"

@@ -5,13 +5,15 @@ import pytest
 import sys
 
 import pmb_test  # noqa
+import pmb_test.const
 import pmb.helpers.repo
 
 
 @pytest.fixture
 def args(tmpdir, request):
     import pmb.parse
-    sys.argv = ["pmbootstrap.py", "chroot"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "chroot"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
@@ -30,3 +32,42 @@ def test_alpine_apkindex_path(args):
     args.mirror_alpine = "http://dl-cdn.alpinelinux.org/alpine/"
     ret = args.work + "/cache_apk_armhf/APKINDEX.30e6f5af.tar.gz"
     assert func(args, "testing", "armhf") == ret
+
+
+def test_urls(args, monkeypatch):
+    func = pmb.helpers.repo.urls
+    channel = "stable"
+    args.mirror_alpine = "http://localhost/alpine/"
+
+    # Second mirror with /master at the end is legacy, gets fixed by func.
+    # Note that bpo uses multiple postmarketOS mirrors at the same time, so it
+    # can use its WIP repository together with the final repository.
+    args.mirrors_postmarketos = ["http://localhost/pmos1/",
+                                 "http://localhost/pmos2/master"]
+
+    # Pretend to have a certain channel in pmaports.cfg
+    def read_config(args):
+        return {"channel": channel}
+    monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
+
+    # Channel: stable
+    assert func(args) == ["/mnt/pmbootstrap-packages",
+                          "http://localhost/pmos1/v20.05",
+                          "http://localhost/pmos2/v20.05",
+                          "http://localhost/alpine/v3.11/main",
+                          "http://localhost/alpine/v3.11/community"]
+
+    # Channel: edge (has Alpine's testing)
+    channel = "edge"
+    assert func(args) == ["/mnt/pmbootstrap-packages",
+                          "http://localhost/pmos1/master",
+                          "http://localhost/pmos2/master",
+                          "http://localhost/alpine/edge/main",
+                          "http://localhost/alpine/edge/community",
+                          "http://localhost/alpine/edge/testing"]
+
+    # Only Alpine's URLs
+    exp = ["http://localhost/alpine/edge/main",
+           "http://localhost/alpine/edge/community",
+           "http://localhost/alpine/edge/testing"]
+    assert func(args, False, False) == exp

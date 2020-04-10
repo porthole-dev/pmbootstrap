@@ -59,7 +59,6 @@ config_keys = ["aports",
 # $WORK gets replaced with the actual value for args.work (which may be
 # overridden on the commandline)
 defaults = {
-    "alpine_version": "edge",  # alternatively: latest-stable
     "aports": "$WORK/cache_git/pmaports",
     "ccache_size": "5G",
     "is_default_channel": True,
@@ -80,7 +79,7 @@ defaults = {
     "keymap": "",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
-    "mirrors_postmarketos": ["http://postmarketos1.brixit.nl/postmarketos/master"],
+    "mirrors_postmarketos": ["http://postmarketos1.brixit.nl/postmarketos/"],
     "nonfree_firmware": True,
     "nonfree_userland": False,
     "port_distccd": "33632",

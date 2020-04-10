@@ -8,6 +8,7 @@ Functions that work with binary package repos. See also:
 import os
 import hashlib
 import logging
+import pmb.config.pmaports
 import pmb.helpers.http
 import pmb.helpers.run
 
@@ -44,6 +45,13 @@ def urls(args, user_repository=True, postmarketos_mirror=True):
     Get a list of repository URLs, as they are in /etc/apk/repositories.
     """
     ret = []
+
+    # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
+    # the pmaports branch of the channel, no need to make it more complicated)
+    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    mirrordir_pmos = channel_cfg["branch_pmaports"]
+    mirrordir_alpine = channel_cfg["mirrordir_alpine"]
+
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
         ret.append("/mnt/pmbootstrap-packages")
@@ -51,14 +59,22 @@ def urls(args, user_repository=True, postmarketos_mirror=True):
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:
         for mirror in args.mirrors_postmarketos:
-            ret.append(mirror)
+            # Remove "master" mirrordir to avoid breakage until bpo is adjusted
+            # (build.postmarketos.org#63) and to give potential other users of
+            # this flag a heads up.
+            if mirror.endswith("/master"):
+                logging.warning("WARNING: 'master' at the end of"
+                                " --mirror-pmOS is deprecated, the branch gets"
+                                " added automatically now!")
+                mirror = mirror[:-1 * len("master")]
+            ret.append(f"{mirror}{mirrordir_pmos}")
 
     # Upstream Alpine Linux repositories
     directories = ["main", "community"]
-    if args.alpine_version == "edge":
+    if mirrordir_alpine == "edge":
         directories.append("testing")
     for dir in directories:
-        ret.append(args.mirror_alpine + args.alpine_version + "/" + dir)
+        ret.append(f"{args.mirror_alpine}{mirrordir_alpine}/{dir}")
     return ret
 
 
@@ -181,6 +197,7 @@ def alpine_apkindex_path(args, repo="main", arch=None):
     update(args, arch)
 
     # Find it on disk
-    repo_link = args.mirror_alpine + args.alpine_version + "/" + repo
+    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    repo_link = f"{args.mirror_alpine}{channel_cfg['mirrordir_alpine']}/{repo}"
     cache_folder = args.work + "/cache_apk_" + arch
     return cache_folder + "/APKINDEX." + hash(repo_link) + ".tar.gz"

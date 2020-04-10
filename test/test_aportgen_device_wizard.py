@@ -6,6 +6,7 @@ import sys
 import shutil
 
 import pmb_test  # noqa
+import pmb_test.const
 import pmb.aportgen
 import pmb.config
 import pmb.helpers.logging
@@ -14,7 +15,9 @@ import pmb.parse
 
 @pytest.fixture
 def args(tmpdir, request):
-    sys.argv = ["pmbootstrap.py", "build", "-i", "device-testsuite-testdevice"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "build", "-i",
+                "device-testsuite-testdevice"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
@@ -35,6 +38,9 @@ def args(tmpdir, request):
     pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/device/testing"])
     path_mako = args._aports_real + "/device/testing/linux-lg-mako"
     pmb.helpers.run.user(args, ["cp", "-r", path_mako, tmpdir + "/device/testing"])
+
+    # Copy pmaports.cfg
+    shutil.copy(f"{pmb_test.const.testdata}/pmaports.cfg", args.aports)
     return args
 
 

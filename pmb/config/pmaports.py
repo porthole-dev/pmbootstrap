@@ -118,6 +118,37 @@ def read_config(args):
     return ret
 
 
+def read_config_channel(args):
+    """ Get the properties of the currently active channel in pmaports.git,
+        as specified in channels.cfg (https://postmarketos.org/channels.cfg).
+        :returns: {"description: ...,
+                   "branch_pmaports": ...,
+                   "branch_aports": ...,
+                   "mirrordir_alpine": ...} """
+    channel = read_config(args)["channel"]
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
+
+    if channel in channels_cfg["channels"]:
+        return channels_cfg["channels"][channel]
+
+    # Channel not in channels.cfg, try to be helpful
+    branch = pmb.helpers.git.rev_parse(args, args.aports,
+                                       extra_args=["--abbrev-ref"])
+    branches_official = pmb.helpers.git.get_branches_official(args, "pmaports")
+    branches_official = ", ".join(branches_official)
+    remote = pmb.helpers.git.get_upstream_remote(args, "pmaports")
+    logging.info("NOTE: fix the error by rebasing or cherry picking relevant"
+                 " commits from this branch onto a branch that is on a"
+                 f" supported channel: {branches_official}")
+    logging.info("NOTE: as workaround, you may pass --config-channels with a"
+                 " custom channels.cfg. Reference:"
+                 " https://postmarketos.org/channels.cfg")
+    raise RuntimeError(f"Current branch '{branch}' of pmaports.git is on"
+                       f" channel '{channel}', but this channel was not"
+                       f" found in channels.cfg (of {remote}/master"
+                       " branch). Looks like a very old branch.")
+
+
 def init(args):
     check_legacy_folder()
     if not os.path.exists(args.aports):

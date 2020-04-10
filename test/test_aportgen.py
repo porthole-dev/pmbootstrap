@@ -17,7 +17,8 @@ import pmb.helpers.logging
 @pytest.fixture
 def args(tmpdir, request):
     import pmb.parse
-    sys.argv = ["pmbootstrap.py", "chroot"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "chroot"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     args.fork_alpine = False
@@ -74,9 +75,11 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
 
 def test_aportgen(args, tmpdir):
     # Fake aports folder in tmpdir
+    testdata = pmb_test.const.testdata
     tmpdir = str(tmpdir)
     shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
     args.aports = tmpdir
+    shutil.copy(f"{testdata}/pmaports.cfg", args.aports)
     os.mkdir(tmpdir + "/cross")
 
     # Create aportgen folder -> code path where it still exists

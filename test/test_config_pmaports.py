@@ -48,3 +48,26 @@ def test_switch_to_channel_branch(args, monkeypatch, tmpdir):
     assert func(args, "stable") is True
     branch = pmb.helpers.git.rev_parse(args, path, extra_args=["--abbrev-ref"])
     assert branch == "v20.05"
+
+
+def test_read_config_channel(args, monkeypatch):
+    channel = "edge"
+
+    # Pretend to have a certain channel in pmaports.cfg
+    def read_config(args):
+        return {"channel": channel}
+    monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
+
+    # Channel found
+    func = pmb.config.pmaports.read_config_channel
+    exp = {"description": "Rolling release channel",
+           "branch_pmaports": "master",
+           "branch_aports": "master",
+           "mirrordir_alpine": "edge"}
+    assert func(args) == exp
+
+    # Channel not found
+    channel = "non-existing"
+    with pytest.raises(RuntimeError) as e:
+        func(args)
+    assert "channel was not found in channels.cfg" in str(e.value)
