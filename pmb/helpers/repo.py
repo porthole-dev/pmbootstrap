@@ -1,9 +1,9 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Functions that work on both (binary package) repos. See also:
-- pmb/helpers/pmaports.py (work on pmaports)
-- pmb/helpers/package.py (work on both)
+Functions that work with binary package repos. See also:
+- pmb/helpers/pmaports.py (work with pmaports)
+- pmb/helpers/package.py (work with both)
 """
 import os
 import hashlib

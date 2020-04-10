@@ -1,9 +1,9 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Functions that work only on pmaports. See also:
-- pmb/helpers/repo.py (only work on binary package repos)
-- pmb/helpers/package.py (work on both)
+Functions that work with pmaports. See also:
+- pmb/helpers/repo.py (work with binary package repos)
+- pmb/helpers/package.py (work with both)
 """
 import glob
 import logging
