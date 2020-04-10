@@ -453,15 +453,16 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
     Various finishing tasks that need to be done after a build.
     """
     # Verify output file
-    path = args.work + "/packages/" + output
+    channel = pmb.config.pmaports.read_config(args)["channel"]
+    path = f"{args.work}/packages/{channel}/{output}"
     if not os.path.exists(path):
         raise RuntimeError("Package not found after build: " + path)
 
     # Clear APKINDEX cache (we only parse APKINDEX files once per session and
     # cache the result for faster dependency resolving, but after we built a
     # package we need to parse it again)
-    pmb.parse.apkindex.clear_cache(args, args.work + "/packages/" +
-                                   arch + "/APKINDEX.tar.gz")
+    pmb.parse.apkindex.clear_cache(args, f"{args.work}/packages/{channel}"
+                                         f"/{arch}/APKINDEX.tar.gz")
 
     # Uninstall build dependencies (strict mode)
     if strict or "pmb:strict" in apkbuild["options"]:

@@ -164,6 +164,39 @@ def migrate_work_folder(args):
         migrate_success(args, 4)
         current = 4
 
+    if current == 4:
+        # Ask for confirmation
+        logging.info("Changelog:")
+        logging.info("* packages built by pmbootstrap are in a channel subdir")
+        logging.info("Migration will do the following:")
+        logging.info("* Move existing packages to edge subdir (if any)")
+        logging.info("* Zap your chroots")
+        if not pmb.helpers.cli.confirm(args):
+            raise RuntimeError("Aborted.")
+
+        # Zap chroots
+        pmb.chroot.zap(args, False)
+
+        # Move packages to edge subdir
+        edge_path = f"{args.work}/packages/edge"
+        pmb.helpers.run.root(args, ["mkdir", "-p", edge_path])
+        for arch in pmb.config.build_device_architectures:
+            old_path = f"{args.work}/packages/{arch}"
+            new_path = f"{edge_path}/{arch}"
+            if os.path.exists(old_path):
+                if os.path.exists(new_path):
+                    raise RuntimeError(f"Won't move '{old_path}' to"
+                                       f" '{new_path}', destination already"
+                                       " exists! Consider 'pmbootstrap zap -p'"
+                                       f" to delete '{args.work}/packages'.")
+                pmb.helpers.run.root(args, ["mv", old_path, new_path])
+        pmb.helpers.run.root(args, ["chown", pmb.config.chroot_uid_user,
+                                    edge_path])
+
+        # Update version file
+        migrate_success(args, 5)
+        current = 5
+
     # Can't migrate, user must delete it
     if current != required:
         raise RuntimeError("Sorry, we can't migrate that automatically. Please"

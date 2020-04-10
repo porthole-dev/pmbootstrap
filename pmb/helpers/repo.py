@@ -101,7 +101,8 @@ def apkindex_files(args, arch=None, user_repository=True, pmos=True,
     ret = []
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        ret = [args.work + "/packages/" + arch + "/APKINDEX.tar.gz"]
+        channel = pmb.config.pmaports.read_config(args)["channel"]
+        ret = [f"{args.work}/packages/{channel}/{arch}/APKINDEX.tar.gz"]
 
     # Resolve the APKINDEX.$HASH.tar.gz files
     for url in urls(args, False, pmos, alpine):

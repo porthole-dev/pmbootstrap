@@ -351,8 +351,9 @@ def test_build_depends_high_level(args, monkeypatch):
                         fake_build_is_necessary)
 
     # Build hello-world to get its full output path
+    channel = pmb.config.pmaports.read_config(args)["channel"]
     output_hello = pmb.build.package(args, "hello-world")
-    output_hello_outside = args.work + "/packages/" + output_hello
+    output_hello_outside = f"{args.work}/packages/{channel}/{output_hello}"
     assert os.path.exists(output_hello_outside)
 
     # Make sure the wrapper exists
@@ -411,9 +412,10 @@ def test_build_local_source_high_level(args, tmpdir):
     pmb.helpers.run.root(args, ["chmod", "500", unreadable])
 
     # Test native arch and foreign arch chroot
+    channel = pmb.config.pmaports.read_config(args)["channel"]
     for arch in [args.arch_native, "armhf"]:
         # Delete all hello-world --src packages
-        pattern = args.work + "/packages/" + arch + "/hello-world-*_p*.apk"
+        pattern = f"{args.work}/packages/{channel}/{arch}/hello-world-*_p*.apk"
         for path in glob.glob(pattern):
             pmb.helpers.run.root(args, ["rm", path])
         assert len(glob.glob(pattern)) == 0

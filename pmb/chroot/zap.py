@@ -6,6 +6,7 @@ import math
 import os
 
 import pmb.chroot
+import pmb.config.pmaports
 import pmb.config.workdir
 import pmb.helpers.pmaports
 import pmb.helpers.run
@@ -89,14 +90,18 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
 
 
 def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
-    if not os.path.exists(args.work + "/packages/"):
+    channel = pmb.config.pmaports.read_config(args)["channel"]
+    if not os.path.exists(f"{args.work}/packages/{channel}"):
         return
-    if confirm and not pmb.helpers.cli.confirm(args, "Remove packages that are newer than"
-                                               " the corresponding package in aports?"):
+
+    question = "Remove binary packages that are newer than the corresponding" \
+               f" pmaports (channel '{channel}')?"
+    if confirm and not pmb.helpers.cli.confirm(args, question):
         return
 
     reindex = False
-    for apkindex_path in glob.glob(args.work + "/packages/*/APKINDEX.tar.gz"):
+    pattern = f"{args.work}/packages/{channel}/*/APKINDEX.tar.gz"
+    for apkindex_path in glob.glob(pattern):
         # Delete packages without same version in aports
         blocks = pmb.parse.apkindex.parse_blocks(args, apkindex_path)
         for block in blocks:
@@ -107,7 +112,7 @@ def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
 
             # Apk path
             apk_path_short = arch + "/" + pkgname + "-" + version + ".apk"
-            apk_path = args.work + "/packages/" + apk_path_short
+            apk_path = f"{args.work}/packages/{channel}/{apk_path_short}"
             if not os.path.exists(apk_path):
                 logging.info("WARNING: Package mentioned in index not"
                              " found: " + apk_path_short)

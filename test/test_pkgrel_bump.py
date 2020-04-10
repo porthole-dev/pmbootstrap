@@ -93,8 +93,10 @@ def setup_work(args, tmpdir):
                                 "/_aports"])
 
     # Empty packages folder
-    pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/packages"])
-    pmb.helpers.run.user(args, ["chmod", "777", tmpdir + "/packages"])
+    channel = pmb.config.pmaports.read_config(args)["channel"]
+    packages_path = f"{tmpdir}/packages/{channel}"
+    pmb.helpers.run.user(args, ["mkdir", "-p", packages_path])
+    pmb.helpers.run.user(args, ["chmod", "777", packages_path])
 
     # Copy over the pmbootstrap config
     pmb.helpers.run.user(args, ["cp", args.config, tmpdir +
@@ -138,8 +140,10 @@ def test_pkgrel_bump_high_level(args, tmpdir):
     verify_pkgrels(args, tmpdir, 1, 0, 0)
 
     # Delete package with previous soname (--auto-dry exits with >0 now)
-    pmb.helpers.run.root(args, ["rm", tmpdir + "/packages/" +
-                                args.arch_native + "/testlib-1.0-r0.apk"])
+    channel = pmb.config.pmaports.read_config(args)["channel"]
+    arch = args.arch_native
+    apk_path = f"{tmpdir}/packages/{channel}/{arch}/testlib-1.0-r0.apk"
+    pmb.helpers.run.root(args, ["rm", apk_path])
     pmbootstrap(args, tmpdir, ["index"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"], False)
     verify_pkgrels(args, tmpdir, 1, 0, 0)

@@ -93,10 +93,11 @@ def index_repo(args, arch=None):
     """
     pmb.build.init(args)
 
+    channel = pmb.config.pmaports.read_config(args)["channel"]
     if arch:
-        paths = [args.work + "/packages/" + arch]
+        paths = [f"{args.work}/packages/{channel}/{arch}"]
     else:
-        paths = glob.glob(args.work + "/packages/*")
+        paths = glob.glob(f"{args.work}/packages/{channel}/*")
 
     for path in paths:
         if os.path.isdir(path):

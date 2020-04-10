@@ -79,10 +79,12 @@ def mount(args, suffix="native"):
 
     # Get all mountpoints
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+    channel = pmb.config.pmaports.read_config(args)["channel"]
     mountpoints = {}
     for source, target in pmb.config.chroot_mount_bind.items():
         source = source.replace("$WORK", args.work)
         source = source.replace("$ARCH", arch)
+        source = source.replace("$CHANNEL", channel)
         mountpoints[source] = target
 
     # Mount if necessary

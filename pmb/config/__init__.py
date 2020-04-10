@@ -29,7 +29,7 @@ pmaports_min_version = "7"
 # Version of the work folder (as asked during 'pmbootstrap init'). Increase
 # this number, whenever migration is required and provide the migration code,
 # see migrate_work_folder()).
-work_version = 4
+work_version = 5
 
 # Programs that pmbootstrap expects to be available from the host system. Keep
 # in sync with README.md, and try to keep the list as small as possible. The
@@ -118,6 +118,7 @@ chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 # Folders, that get mounted inside the chroot
 # $WORK gets replaced with args.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
+# $CHANNEL gets replaced with the release channel (e.g. edge, stable)
 chroot_mount_bind = {
     "/proc": "/proc",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",
@@ -127,7 +128,7 @@ chroot_mount_bind = {
     "$WORK/cache_rust": "/mnt/pmbootstrap-rust",
     "$WORK/config_abuild": "/mnt/pmbootstrap-abuild-config",
     "$WORK/config_apk_keys": "/etc/apk/keys",
-    "$WORK/packages": "/mnt/pmbootstrap-packages",
+    "$WORK/packages/$CHANNEL": "/mnt/pmbootstrap-packages",
 }
 
 # Building chroots (all chroots, except for the rootfs_ chroot) get symlinks in

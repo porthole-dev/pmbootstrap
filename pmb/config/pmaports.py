@@ -176,6 +176,9 @@ def switch_to_channel_branch(args, channel_new):
     logging.info(f"Switching to branch '{branch_new}' on channel"
                  f" '{channel_new}'...")
 
+    # Make sure we don't have mounts related to the old channel
+    pmb.chroot.shutdown(args)
+
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
     if pmb.helpers.run.user(args, ["git", "checkout", branch_new],
