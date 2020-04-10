@@ -37,10 +37,22 @@ work_version = 4
 required_programs = ["git", "openssl", "ps"]
 
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
-config_keys = ["ccache_size", "device", "extra_packages", "hostname", "jobs",
-               "kernel", "keymap", "nonfree_firmware", "nonfree_userland",
-               "ssh_keys", "timezone", "ui", "ui_extras", "user", "work",
-               "aports"]
+config_keys = ["aports",
+               "ccache_size",
+               "device",
+               "extra_packages",
+               "hostname",
+               "jobs",
+               "kernel",
+               "keymap",
+               "nonfree_firmware",
+               "nonfree_userland",
+               "ssh_keys",
+               "timezone",
+               "ui",
+               "ui_extras",
+               "user",
+               "work"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
