@@ -53,6 +53,7 @@ def init(args, suffix="native"):
     pmb.chroot.mount(args, suffix)
     setup_qemu_emulation(args, suffix)
     if os.path.islink(chroot + "/bin/sh"):
+        pmb.config.workdir.chroot_check_channel(args, suffix)
         copy_resolv_conf(args, suffix)
         pmb.chroot.apk.update_repository_list(args, suffix)
         return
@@ -74,7 +75,7 @@ def init(args, suffix="native"):
     copy_resolv_conf(args, suffix)
     pmb.chroot.apk.update_repository_list(args, suffix)
 
-    pmb.config.workdir.chroot_save_date(args, suffix)
+    pmb.config.workdir.chroot_save_init(args, suffix)
 
     # Install alpine-base
     pmb.helpers.repo.update(args, arch)

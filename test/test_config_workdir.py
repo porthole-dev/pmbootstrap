@@ -8,6 +8,7 @@ import time
 
 import pmb_test  # noqa
 import pmb.config
+import pmb.config.pmaports
 import pmb.config.workdir
 
 
@@ -22,24 +23,36 @@ def args(request):
     return args
 
 
-def test_chroot_save_date(args, tmpdir, monkeypatch):
+def test_chroot_save_init(args, tmpdir, monkeypatch):
     # Override time.time()
     def fake_time():
         return 1234567890.1234
     monkeypatch.setattr(time, "time", fake_time)
 
+    # Pretend channel=stable in pmaports.cfg
+    def read_config(args):
+        return {"channel": "stable"}
+    monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
+
     args.work = str(tmpdir)
-    func = pmb.config.workdir.chroot_save_date
+    func = pmb.config.workdir.chroot_save_init
     func(args, "native")
 
-    expected = "[chroot-init-dates]\nnative = 1234567890\n\n"
+    expected = ("[chroot-init-dates]\n"
+                "native = 1234567890\n\n"
+                "[chroot-channels]\n"
+                "native = stable\n\n")
     with open(args.work + "/workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
     # Write again (different code path)
     func(args, "buildroot_armhf")
-    expected = ("[chroot-init-dates]\nnative = 1234567890\n"
-                "buildroot_armhf = 1234567890\n\n")
+    expected = ("[chroot-init-dates]\n"
+                "native = 1234567890\n"
+                "buildroot_armhf = 1234567890\n\n"
+                "[chroot-channels]\n"
+                "native = stable\n"
+                "buildroot_armhf = stable\n\n")
     with open(args.work + "/workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
@@ -72,6 +85,41 @@ def test_chroots_outdated(args, tmpdir, monkeypatch):
     # Not outdated (date_outdated: 89)
     monkeypatch.setattr(pmb.config, "chroot_outdated", 11)
     assert func(args) is False
+
+
+def test_chroot_check_channel(args, tmpdir, monkeypatch):
+    func = pmb.config.workdir.chroot_check_channel
+    args.work = str(tmpdir)
+    channel = "edge"
+
+    # Pretend to have a certain channel in pmaports.cfg
+    def read_config(args):
+        return {"channel": channel}
+    monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
+
+    # workdir.cfg does not exist
+    with pytest.raises(RuntimeError) as e:
+        func(args, "native")
+    assert "Could not figure out on which release channel" in str(e.value)
+
+    # Write workdir.cfg
+    with open(f"{args.work}/workdir.cfg", "w") as handle:
+        handle.write("[chroot-channels]\nnative = stable\n\n")
+
+    # workdir.cfg: no entry for buildroot_armhf chroot
+    with pytest.raises(RuntimeError) as e:
+        func(args, "buildroot_armhf")
+    assert "Could not figure out on which release channel" in str(e.value)
+
+    # Chroot was created for wrong channel
+    with pytest.raises(RuntimeError) as e:
+        func(args, "native")
+    exp = "created for the 'stable' channel, but you are on the 'edge'"
+    assert exp in str(e.value)
+
+    # Check runs through without raising an exception
+    channel = "stable"
+    func(args, "native")
 
 
 def test_clean(args, tmpdir):

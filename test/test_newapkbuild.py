@@ -3,9 +3,11 @@
 import glob
 import os
 import pytest
+import shutil
 import sys
 
 import pmb_test  # noqa
+import pmb_test.const
 import pmb.build.newapkbuild
 import pmb.config
 import pmb.config.init
@@ -15,7 +17,8 @@ import pmb.helpers.logging
 @pytest.fixture
 def args(tmpdir, request):
     import pmb.parse
-    sys.argv = ["pmbootstrap.py", "init"]
+    cfg = f"{pmb_test.const.testdata}/channels.cfg"
+    sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "init"]
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
@@ -24,6 +27,8 @@ def args(tmpdir, request):
 
 
 def test_newapkbuild(args, monkeypatch, tmpdir):
+    testdata = pmb_test.const.testdata
+
     # Fake functions
     def confirm_true(*nargs):
         return True
@@ -35,11 +40,12 @@ def test_newapkbuild(args, monkeypatch, tmpdir):
     monkeypatch.setattr(pmb.helpers.cli, "confirm", confirm_false)
     pmb.build.init(args)
     args.aports = tmpdir = str(tmpdir)
+    shutil.copy(f"{testdata}/pmaports.cfg", args.aports)
     func = pmb.build.newapkbuild
 
     # Show the help
     func(args, "main", ["-h"])
-    assert glob.glob(tmpdir + "/*") == []
+    assert glob.glob(f"{tmpdir}/*") == [f"{tmpdir}/pmaports.cfg"]
 
     # Test package
     pkgname = "testpackage"
