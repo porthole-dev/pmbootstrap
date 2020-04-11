@@ -223,6 +223,17 @@ def test_questions_ui(args, monkeypatch):
     assert pmb.config.init.ask_for_ui(args) == "weston"
 
 
+def test_questions_ui_extras(args, monkeypatch):
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
+    assert not pmb.config.init.ask_for_ui_extras(args, "none")
+
+    fake_answers(monkeypatch, ["n"])
+    assert not pmb.config.init.ask_for_ui_extras(args, "weston")
+
+    fake_answers(monkeypatch, ["y"])
+    assert pmb.config.init.ask_for_ui_extras(args, "weston")
+
+
 def test_questions_work_path(args, monkeypatch, tmpdir):
     # Existing paths (triggering various errors)
     func = pmb.config.init.ask_for_work_path
