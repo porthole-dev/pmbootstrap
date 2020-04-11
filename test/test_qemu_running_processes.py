@@ -166,13 +166,20 @@ def is_running(args, programs, timeout=300, sleep_before_retry=1):
     return False
 
 
+def test_none(args, tmpdir, qemu):
+    qemu.run(args, tmpdir)
+
+    # Check that at least SSH works (no special process running)
+    assert is_running(args, [])
+
+    # self-test of is_running() - invalid-process should not be detected as running
+    assert is_running(args, ["invalid-process"], 1) is False
+
+
 def test_xfce4(args, tmpdir, qemu):
     qemu.run(args, tmpdir, "xfce4")
     assert is_running(args, ["xfce4-session", "xfdesktop", "xfce4-panel",
                              "Thunar", "dbus-daemon", "xfwm4"])
-
-    # self-test of is_running()
-    assert is_running(args, ["invalid-process"], 1) is False
 
 
 def test_plasma_mobile(args, tmpdir, qemu):
