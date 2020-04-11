@@ -385,8 +385,8 @@ def test_build_local_source_high_level(args, tmpdir):
     aports = tmpdir + "/aports"
     aport = aports + "/device/testing/device-" + args.device
     os.makedirs(aport)
-    shutil.copy(args.aports + "/device/testing/device-" + args.device + "/deviceinfo",
-                aport)
+    path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
+    shutil.copy(f"{path_original}/deviceinfo", aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)
     aport = aports + "/main/hello-world"
