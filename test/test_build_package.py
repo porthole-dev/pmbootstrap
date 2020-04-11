@@ -182,10 +182,10 @@ def test_build_depends_binary_outdated(args, monkeypatch):
     def func_patch(args, package, *args2, **kwargs):
         print(f"func_patch: called for package: {package}")
         if package == "hello-world":
-            print(f"pretending that it does not exist")
+            print("pretending that it does not exist")
             return None
         if package == "binutils-aarch64":
-            print(f"pretending that it is outdated")
+            print("pretending that it is outdated")
             ret = func_orig(args, package, *args2, **kwargs)
             ret["version"] = "0-r0"
             return ret
