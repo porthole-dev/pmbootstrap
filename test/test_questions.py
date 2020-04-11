@@ -214,6 +214,8 @@ def test_questions_keymaps(args, monkeypatch):
 
 
 def test_questions_ui(args, monkeypatch):
+    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
+
     fake_answers(monkeypatch, ["invalid_UI", "weston"])
     assert pmb.config.init.ask_for_ui(args) == "weston"
 
