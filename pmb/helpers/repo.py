@@ -74,15 +74,8 @@ def apkindex_files(args, arch=None):
     # Local user repository (for packages compiled with pmbootstrap)
     ret = [args.work + "/packages/" + arch + "/APKINDEX.tar.gz"]
 
-    # Upstream postmarketOS binary repository
-    urls_todo = []
-    for mirror in args.mirrors_postmarketos:
-        if mirror:
-            urls_todo.append(mirror)
-
     # Resolve the APKINDEX.$HASH.tar.gz files
-    urls_todo += urls(args, False, False)
-    for url in urls_todo:
+    for url in urls(args, False):
         ret.append(args.work + "/cache_apk_" + arch + "/APKINDEX." +
                    hash(url) + ".tar.gz")
 
