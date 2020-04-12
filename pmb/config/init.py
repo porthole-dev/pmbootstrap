@@ -90,7 +90,8 @@ def ask_for_ui(args):
 
 
 def ask_for_ui_extras(args, ui):
-    apkbuild = pmb.helpers.pmaports.get(args, "postmarketos-ui-" + ui, must_exist=False)
+    apkbuild = pmb.helpers.pmaports.get(args, "postmarketos-ui-" + ui,
+                                        subpackages=False, must_exist=False)
     if not apkbuild:
         return False
 

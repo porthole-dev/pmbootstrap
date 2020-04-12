@@ -163,13 +163,15 @@ def find(args, package, must_exist=True):
     return ret
 
 
-def get(args, pkgname, must_exist=True):
+def get(args, pkgname, must_exist=True, subpackages=True):
     """ Find and parse an APKBUILD file.
         Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
         Relevant variables are defined in pmb.config.apkbuild_attributes.
 
         :param pkgname: the package name to find
         :param must_exist: raise an exception when it can't be found
+        :param subpackages: also search for subpackages with the specified names
+                            (slow! might need to parse all APKBUILDs to find it)
         :returns: relevant variables from the APKBUILD as dictionary, e.g.:
                   { "pkgname": "hello-world",
                     "arch": ["all"],
@@ -178,9 +180,17 @@ def get(args, pkgname, must_exist=True):
                     "options": [],
                     ... }
     """
-    aport = find(args, pkgname, must_exist)
-    if aport:
-        return pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    if subpackages:
+        aport = find(args, pkgname, must_exist)
+        if aport:
+            return pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    else:
+        path = _find_apkbuilds(args).get(pkgname)
+        if path:
+            return pmb.parse.apkbuild(args, path)
+        if must_exist:
+            raise RuntimeError(f"Could not find APKBUILD for package: {pkgname}")
+
     return None
 
 
