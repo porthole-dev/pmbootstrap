@@ -1,7 +1,6 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
 
 import pmb.helpers.file
 import pmb.helpers.pmaports
@@ -42,29 +41,6 @@ def package(args, pkgname, reason="", dry=False):
                            "'. Make sure that there's a line with exactly the"
                            " string '" + old + "' and nothing else in: " +
                            path)
-
-
-def auto_apkindex_files(args):
-    """
-    Get the paths to the APKINDEX files, that need to be analyzed, sorted by
-    arch. Relevant are the local pmbootstrap generated APKINDEX as well as the
-    APKINDEX from the pmOS binary repo.
-
-    :returns: {"armhf": "...../APKINDEX.tar.gz", ...}
-    """
-    pmb.helpers.repo.update(args)
-    ret = {}
-    for arch in pmb.config.build_device_architectures:
-        ret[arch] = []
-        local = args.work + "/packages/" + arch + "/APKINDEX.tar.gz"
-        if os.path.exists(local):
-            ret[arch].append(local)
-
-        for mirror in args.mirrors_postmarketos:
-            path = (args.work + "/cache_apk_" + arch + "/APKINDEX." +
-                    pmb.helpers.repo.hash(mirror) + ".tar.gz")
-            ret[arch].append(path)
-    return ret
 
 
 def auto_apkindex_package(args, arch, aport, apk, dry=False):
@@ -127,7 +103,8 @@ def auto(args, dry=False):
     :returns: list of aport names, where the pkgrel needed to be changed
     """
     ret = []
-    for arch, paths in auto_apkindex_files(args).items():
+    for arch in pmb.config.build_device_architectures:
+        paths = pmb.helpers.repo.apkindex_files(args, arch, alpine=False)
         for path in paths:
             logging.info("scan " + path)
             index = pmb.parse.apkindex.parse(args, path, False)

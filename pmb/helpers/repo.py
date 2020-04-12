@@ -40,9 +40,14 @@ def hash(url, length=8):
     return ret
 
 
-def urls(args, user_repository=True, postmarketos_mirror=True):
+def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
     """
     Get a list of repository URLs, as they are in /etc/apk/repositories.
+    :param user_repository: add /mnt/pmbootstrap-packages
+    :param postmarketos_mirror: add postmarketos mirror URLs
+    :param alpine: add alpine mirror URLs
+    :returns: list of mirror strings, like ["/mnt/pmbootstrap-packages",
+                                            "http://...", ...]
     """
     ret = []
 
@@ -70,28 +75,36 @@ def urls(args, user_repository=True, postmarketos_mirror=True):
             ret.append(f"{mirror}{mirrordir_pmos}")
 
     # Upstream Alpine Linux repositories
-    directories = ["main", "community"]
-    if mirrordir_alpine == "edge":
-        directories.append("testing")
-    for dir in directories:
-        ret.append(f"{args.mirror_alpine}{mirrordir_alpine}/{dir}")
+    if alpine:
+        directories = ["main", "community"]
+        if mirrordir_alpine == "edge":
+            directories.append("testing")
+        for dir in directories:
+            ret.append(f"{args.mirror_alpine}{mirrordir_alpine}/{dir}")
     return ret
 
 
-def apkindex_files(args, arch=None):
+def apkindex_files(args, arch=None, user_repository=True, pmos=True,
+                   alpine=True):
     """
     Get a list of outside paths to all resolved APKINDEX.tar.gz files for a
     specific arch.
     :param arch: defaults to native
+    :param user_repository: add path to index of locally built packages
+    :param pmos: add paths to indexes of postmarketos mirrors
+    :param alpine: add paths to indexes of alpine mirrors
+    :returns: list of absolute APKINDEX.tar.gz file paths
     """
     if not arch:
         arch = args.arch_native
 
+    ret = []
     # Local user repository (for packages compiled with pmbootstrap)
-    ret = [args.work + "/packages/" + arch + "/APKINDEX.tar.gz"]
+    if user_repository:
+        ret = [args.work + "/packages/" + arch + "/APKINDEX.tar.gz"]
 
     # Resolve the APKINDEX.$HASH.tar.gz files
-    for url in urls(args, False):
+    for url in urls(args, False, pmos, alpine):
         ret.append(args.work + "/cache_apk_" + arch + "/APKINDEX." +
                    hash(url) + ".tar.gz")
 
