@@ -512,6 +512,8 @@ def arguments():
     group.add_argument("--android-recovery-zip",
                        help="generate TWRP flashable zip",
                        action="store_true", dest="android_recovery_zip")
+    group.add_argument("--no-image", help="do not generate the image",
+                       action="store_true", dest="no_image")
     install.add_argument("--rsync", help="update the sdcard using rsync,"
                          " does not work with --fde", action="store_true")
     install.add_argument("--cipher", help="cryptsetup cipher used to"

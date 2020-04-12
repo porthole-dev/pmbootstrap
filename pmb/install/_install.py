@@ -489,7 +489,12 @@ def install(args):
         sanity_check_sdcard(args.sdcard)
 
     # Number of steps for the different installation methods.
-    steps = 4 if args.android_recovery_zip else 5
+    if args.no_image:
+        steps = 2
+    elif args.android_recovery_zip:
+        steps = 4
+    else:
+        steps = 5
 
     # Install required programs in native chroot
     logging.info("*** (1/{}) PREPARE NATIVE CHROOT ***".format(steps))
@@ -547,5 +552,5 @@ def install(args):
 
     if args.android_recovery_zip:
         install_recovery_zip(args)
-    else:
+    elif not args.no_image:
         install_system_image(args)
