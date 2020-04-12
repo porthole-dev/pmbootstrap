@@ -38,20 +38,20 @@ def get_subpartitions_size(args):
     """
     # Calculate required sizes first
     chroot = args.work + "/chroot_rootfs_" + args.device
-    root = pmb.helpers.other.folder_size(args, chroot)
+    full = pmb.helpers.other.folder_size(args, chroot)
     boot = pmb.helpers.other.folder_size(args, chroot + "/boot")
     home = pmb.helpers.other.folder_size(args, chroot + "/home")
 
     # The home folder gets omitted when copying the rootfs to
     # /dev/installp2
-    full = root - home
+    root = full - boot - home
 
     # Add some free space, see also: #336, #1671
-    full *= 1.20
-    full += 50 * 1024 * 1024
+    root *= 1.20
+    root += 50 * 1024 * 1024
     boot *= 2
     boot += 25 * 1024 * 1024
-    return (boot, full - boot)
+    return (boot, root)
 
 
 def get_nonfree_packages(args, device):
