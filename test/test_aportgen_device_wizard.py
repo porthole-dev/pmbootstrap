@@ -120,7 +120,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
     assert apkbuild["pkgdesc"] == "Testsuite Testdevice"
     assert apkbuild["depends"] == ["postmarketos-base",
                                    "linux-testsuite-testdevice",
-                                   "mesa-dri-swrast"]
+                                   "mesa-dri-gallium"]
 
     assert apkbuild_linux["pkgname"] == "linux-testsuite-testdevice"
     assert apkbuild_linux["pkgdesc"] == "Testsuite Testdevice kernel fork"
@@ -156,7 +156,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
     deviceinfo, apkbuild, apkbuild_linux = generate(args, monkeypatch, answers)
     assert apkbuild["depends"] == ["postmarketos-base",
                                    "linux-testsuite-testdevice", "mkbootimg",
-                                   "mesa-dri-swrast"]
+                                   "mesa-dri-gallium"]
     assert deviceinfo["flash_method"] == answers["Flash method"]
     assert deviceinfo["generate_bootimg"] == "true"
 
@@ -165,5 +165,5 @@ def test_aportgen_device_wizard(args, monkeypatch):
     deviceinfo, apkbuild, apkbuild_linux = generate(args, monkeypatch, answers)
     assert apkbuild["depends"] == ["postmarketos-base",
                                    "linux-testsuite-testdevice", "uboot-tools",
-                                   "mesa-dri-swrast"]
+                                   "mesa-dri-gallium"]
     assert deviceinfo["generate_legacy_uboot_initfs"] == "true"
