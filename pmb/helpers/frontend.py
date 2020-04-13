@@ -247,7 +247,9 @@ def kconfig(args):
     if args.action_kconfig == "check":
         # Handle passing a file directly
         if args.file:
-            if pmb.parse.kconfig.check_file(args, args.package, details=True):
+            if pmb.parse.kconfig.check_file(args, args.package,
+                                            force_anbox_check=args.anbox,
+                                            details=True):
                 logging.info("kconfig check succeeded!")
                 return
             raise RuntimeError("kconfig check failed!")
@@ -273,7 +275,9 @@ def kconfig(args):
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(args, package, details=True):
+            if not pmb.parse.kconfig.check(args, package,
+                                           force_anbox_check=args.anbox,
+                                           details=True):
                 error = True
 
         # At least one failure

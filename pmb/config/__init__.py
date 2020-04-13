@@ -208,6 +208,32 @@ necessary_kconfig_options = {
     }
 }
 
+# Necessary anbox kernel config options
+necessary_kconfig_options_anbox = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "SQUASHFS": True,
+            "SQUASHFS_XZ": True,
+            "SQUASHFS_XATTR": True,
+            "TMPFS_XATTR": True,
+            "ASHMEM": True,
+            "ANDROID_BINDER_IPC": True,
+            "ANDROID_BINDERFS": False,
+            "ANDROID_BINDER_DEVICES": ["binder", "hwbinder"],
+            "NETFILTER_XTABLES": True,
+            "NETFILTER_XT_MATCH_COMMENT": True,
+            "IP_NF_MANGLE": True,
+            "FUSE_FS": True,
+            "BLK_DEV_LOOP": True,
+            "TUN": True,
+            "VETH": True,
+            "VLAN_8021Q": True,  # prerequisite for bridge
+            "BRIDGE": True,
+            "BRIDGE_VLAN_FILTERING": True,
+        }
+    },
+}
+
 #
 # PARSE
 #
@@ -260,6 +286,7 @@ apkbuild_attributes = {
 apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
     "!pmb:kconfig-check",
+    "pmb:kconfigcheck-anbox",
     "pmb:cross-native",
     "pmb:strict",
 ]

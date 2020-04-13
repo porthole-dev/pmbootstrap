@@ -146,4 +146,5 @@ def menuconfig(args, pkgname):
     pmb.build.checksum.update(args, pkgname)
 
     # Check config
-    pmb.parse.kconfig.check(args, apkbuild["_flavor"], details=True)
+    pmb.parse.kconfig.check(args, apkbuild["_flavor"], force_anbox_check=False,
+                            details=True)
