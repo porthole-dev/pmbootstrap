@@ -16,7 +16,7 @@ def is_set(config, option):
     Check, whether a boolean or tristate option is enabled
     either as builtin or module.
     """
-    return re.search("^CONFIG_" + option + "=[ym]", config, re.M) is not None
+    return re.search("^CONFIG_" + option + "=[ym]$", config, re.M) is not None
 
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver, details=False):
