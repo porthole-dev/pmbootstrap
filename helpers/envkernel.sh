@@ -38,6 +38,10 @@ clean_kernel_src_dir() {
 
 
 export_pmbootstrap_dir() {
+	if [ -n "$pmbootstrap_dir" ]; then
+		return 0;
+	fi
+
 	# Get pmbootstrap dir based on this script's location
 	# See also: <https://stackoverflow.com/a/29835459>
 	# shellcheck disable=SC2039
@@ -278,7 +282,9 @@ update_prompt() {
 
 set_deactivate() {
 	cmd="_deactivate() {"
-	cmd="$cmd unalias make kernelroot pmbootstrap pmbroot run-script deactivate;"
+	cmd="$cmd unset POSTMARKETOS_ENVKERNEL_ENABLED;"
+	cmd="$cmd unalias make kernelroot pmbootstrap pmbroot run-script;"
+	cmd="$cmd unalias deactivate reactivate;"
 	cmd="$cmd if [ -n \"\$_OLD_PS1\" ]; then"
 	cmd="$cmd   export PS1=\"\$_OLD_PS1\";"
 	cmd="$cmd   unset _OLD_PS1;"
@@ -291,6 +297,18 @@ set_deactivate() {
 	# shellcheck disable=SC2139
 	alias deactivate="$cmd"
 	unset cmd
+}
+
+set_reactivate() {
+	# shellcheck disable=SC2139
+	alias reactivate="deactivate; pushd '$PWD'; . '$pmbootstrap_dir'/helpers/envkernel.sh; popd"
+}
+
+check_and_deactivate() {
+	if [ "$POSTMARKETOS_ENVKERNEL_ENABLED" -eq 1 ]; then
+		# we already are runnning in envkernel
+		deactivate
+	fi
 }
 
 
@@ -347,7 +365,8 @@ parse_args() {
 main() {
 	# Stop executing once a function fails
 	# shellcheck disable=SC1090
-	if check_kernel_folder \
+	if check_and_deactivate \
+		&& check_kernel_folder \
 		&& clean_kernel_src_dir \
 		&& export_pmbootstrap_dir "$1" \
 		&& set_alias_pmbootstrap \
@@ -360,7 +379,10 @@ main() {
 		&& set_alias_make \
 		&& set_alias_pmbroot_kernelroot \
 		&& update_prompt \
-		&& set_deactivate; then
+		&& set_deactivate \
+		&& set_reactivate; then
+
+		POSTMARKETOS_ENVKERNEL_ENABLED=1
 
 		# Success
 		echo "pmbootstrap envkernel.sh activated successfully."
