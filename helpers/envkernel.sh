@@ -189,7 +189,7 @@ create_output_folder() {
 set_alias_make() {
 	# Cross compiler prefix
 	# shellcheck disable=SC1090
-	prefix="$(. "$chroot/usr/share/abuild/functions.sh";
+	prefix="$(CBUILD="$deviceinfo_arch" . "$chroot/usr/share/abuild/functions.sh";
 		arch_to_hostspec "$deviceinfo_arch")"
 
 	if [ "$gcc6_arg" = "1" ]; then
