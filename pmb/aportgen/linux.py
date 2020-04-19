@@ -38,7 +38,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         _flavor=\"""" + device + """\"
         url="https://kernel.org"
         license="GPL-2.0-only"
-        options="!strip !check !tracedeps"
+        options="!strip !check !tracedeps pmb:cross-native"
         makedepends=\"""" + makedepends + """\"
 
         # Source
