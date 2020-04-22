@@ -199,7 +199,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         # Contributor: Firstname Lastname <email> (CHANGEME!)
         # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/devicepkg>
-        pkgname="{pkgname}"
+        pkgname={pkgname}
         pkgdesc="{name}"
         pkgver=0.1
         pkgrel=0

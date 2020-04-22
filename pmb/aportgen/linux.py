@@ -30,7 +30,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         # Reference: <https://postmarketos.org/vendorkernel>
         # Kernel config based on: arch/{carch}/configs/(CHANGEME!)
 
-        pkgname="{pkgname}"
+        pkgname={pkgname}
         pkgver=3.x.x
         pkgrel=0
         pkgdesc="{deviceinfo["name"]} kernel fork"
