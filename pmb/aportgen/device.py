@@ -105,17 +105,17 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
                    "second_offset": "",
                    "tags_offset": "",
                    "pagesize": "2048"}
-    return """\
-        deviceinfo_kernel_cmdline=\"""" + bootimg["cmdline"] + """\"
+    return f"""\
+        deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"
         deviceinfo_generate_bootimg="true"
-        deviceinfo_bootimg_qcdt=\"""" + bootimg["qcdt"] + """\"
-        deviceinfo_bootimg_dtb_second=\"""" + bootimg["dtb_second"] + """\"
-        deviceinfo_flash_offset_base=\"""" + bootimg["base"] + """\"
-        deviceinfo_flash_offset_kernel=\"""" + bootimg["kernel_offset"] + """\"
-        deviceinfo_flash_offset_ramdisk=\"""" + bootimg["ramdisk_offset"] + """\"
-        deviceinfo_flash_offset_second=\"""" + bootimg["second_offset"] + """\"
-        deviceinfo_flash_offset_tags=\"""" + bootimg["tags_offset"] + """\"
-        deviceinfo_flash_pagesize=\"""" + bootimg["pagesize"] + """\"
+        deviceinfo_bootimg_qcdt="{bootimg["qcdt"]}"
+        deviceinfo_bootimg_dtb_second="{bootimg["dtb_second"]}"
+        deviceinfo_flash_offset_base="{bootimg["base"]}"
+        deviceinfo_flash_offset_kernel="{bootimg["kernel_offset"]}"
+        deviceinfo_flash_offset_ramdisk="{bootimg["ramdisk_offset"]}"
+        deviceinfo_flash_offset_second="{bootimg["second_offset"]}"
+        deviceinfo_flash_offset_tags="{bootimg["tags_offset"]}"
+        deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
         """
 
 
@@ -124,27 +124,27 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
                         flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
     # Note: New variables must be added to pmb/config/__init__.py as well
-    content = """\
+    content = f"""\
         # Reference: <https://postmarketos.org/deviceinfo>
         # Please use double quotes only. You can source this file in shell scripts.
 
         deviceinfo_format_version="0"
-        deviceinfo_name=\"""" + name + """\"
-        deviceinfo_manufacturer=\"""" + manufacturer + """\"
-        deviceinfo_codename=\"""" + codename + """\"
-        deviceinfo_year=\"""" + year + """\"
+        deviceinfo_name="{name}"
+        deviceinfo_manufacturer="{manufacturer}"
+        deviceinfo_codename="{codename}"
+        deviceinfo_year="{year}"
         deviceinfo_dtb=""
         deviceinfo_modules_initfs=""
-        deviceinfo_arch=\"""" + arch + """\"
+        deviceinfo_arch="{arch}"
 
         # Device related
-        deviceinfo_keyboard=\"""" + ("true" if has_keyboard else "false") + """\"
-        deviceinfo_external_storage=\"""" + ("true" if has_external_storage else "false") + """\"
+        deviceinfo_keyboard="{"true" if has_keyboard else "false"}"
+        deviceinfo_external_storage="{"true" if has_external_storage else "false"}"
         deviceinfo_screen_width="800"
         deviceinfo_screen_height="600"
 
         # Bootloader related
-        deviceinfo_flash_method=\"""" + flash_method + """\"
+        deviceinfo_flash_method="{flash_method}"
         """
 
     content_heimdall_bootimg = """\
@@ -195,31 +195,31 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
     depends += " mesa-dri-swrast"
 
     # Whole APKBUILD
-    content = """\
+    content = f"""\
         # Contributor: Firstname Lastname <email> (CHANGEME!)
         # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/devicepkg>
-        pkgname=\"""" + pkgname + """\"
-        pkgdesc=\"""" + name + """\"
+        pkgname="{pkgname}"
+        pkgdesc="{name}"
         pkgver=0.1
         pkgrel=0
         url="https://postmarketos.org"
         license="MIT"
-        arch=\"""" + arch + """\"
+        arch="{arch}"
         options="!check !archcheck"
-        depends=\"""" + depends + """\"
+        depends="{depends}"
         makedepends="devicepkg-dev"
         source="deviceinfo"
 
-        build() {
+        build() {{
             devicepkg_build $startdir $pkgname
-        }
+        }}
 
-        package() {
+        package() {{
             devicepkg_package $startdir $pkgname
-        }
+        }}
 
-        sha512sums="(run 'pmbootstrap checksum """ + pkgname + """' to fill)"
+        sha512sums="(run 'pmbootstrap checksum {pkgname}' to fill)"
         """
 
     # Write the file

@@ -23,23 +23,24 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img "$_outdir/arch/$_carch/boot/"
             install -Dm644 "arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
 
-    content = """\
+    patches = ("\n" + " " * 12).join(patches)
+    content = f"""\
         # Contributor: Firstname Lastname <email> (CHANGEME!)
         # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/vendorkernel>
-        # Kernel config based on: arch/""" + carch + """/configs/(CHANGEME!)
+        # Kernel config based on: arch/{carch}/configs/(CHANGEME!)
 
-        pkgname=\"""" + pkgname + """\"
+        pkgname="{pkgname}"
         pkgver=3.x.x
         pkgrel=0
-        pkgdesc=\"""" + deviceinfo["name"] + """ kernel fork\"
-        arch=\"""" + deviceinfo["arch"] + """\"
-        _carch=\"""" + carch + """\"
-        _flavor=\"""" + device + """\"
+        pkgdesc="{deviceinfo["name"]} kernel fork"
+        arch="{deviceinfo["arch"]}"
+        _carch="{carch}"
+        _flavor="{device}"
         url="https://kernel.org"
         license="GPL-2.0-only"
         options="!strip !check !tracedeps pmb:cross-native"
-        makedepends=\"""" + makedepends + """\"
+        makedepends="{makedepends}"
 
         # Source
         _repository="(CHANGEME!)"
@@ -47,26 +48,27 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         _config="config-$_flavor.$arch"
         source="
             $pkgname-$_commit.tar.gz::https://github.com/LineageOS/$_repository/archive/$_commit.tar.gz
-            $_config""" + ("\n" + " " * 12).join([""] + patches) + """
+            $_config
+            {patches}
         "
         builddir="$srcdir/$_repository-$_commit"
         _outdir="out"
 
-        prepare() {
+        prepare() {{
             default_prepare
             . downstreamkernel_prepare
-        }
+        }}
 
-        build() {
+        build() {{
             unset LDFLAGS
-            make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" \\
+            make O="$_outdir" ARCH="$_carch" CC="${{CC:-gcc}}" \\
                 KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
-        }
+        }}
 
-        package() {""" + package + """
-        }
+        package() {{{package}
+        }}
 
-        sha512sums="(run 'pmbootstrap checksum """ + pkgname + """' to fill)\""""
+        sha512sums="(run 'pmbootstrap checksum {pkgname}' to fill)\""""
 
     # Write the file
     with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
