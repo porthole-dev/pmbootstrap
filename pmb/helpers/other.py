@@ -48,17 +48,19 @@ def check_binfmt_misc(args):
     """
     Check if the 'binfmt_misc' module is loaded by checking, if
     /proc/sys/fs/binfmt_misc/ exists. If it exists, then do nothing.
-    Otherwise, raise an exception pointing to user to the Wiki.
+    Otherwise, load the module and mount binfmt_misc.
+    If that fails as well, raise an exception pointing the user to the wiki.
     """
     path = "/proc/sys/fs/binfmt_misc/status"
     if os.path.exists(path):
         return
 
-    link = "https://postmarketos.org/binfmt_misc"
-    raise RuntimeError("It appears that your system has not loaded the"
-                       " module 'binfmt_misc'. This is required to run"
-                       " foreign architecture programs with QEMU (eg."
-                       " armhf on x86_64):\n See: <" + link + ">")
+    pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"])
+    pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
+
+    if not os.path.exists(path):
+        link = "https://postmarketos.org/binfmt_misc"
+        raise RuntimeError(f"Failed to set up binfmt_misc, see: {link}")
 
 
 def migrate_success(args, version):
