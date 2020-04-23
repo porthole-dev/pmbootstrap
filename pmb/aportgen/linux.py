@@ -68,11 +68,12 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         package() {{{package}
         }}
 
-        sha512sums="(run 'pmbootstrap checksum {pkgname}' to fill)\""""
+        sha512sums="(run 'pmbootstrap checksum {pkgname}' to fill)"
+        """
 
     # Write the file
     with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
-        for line in content.split("\n"):
+        for line in content.rstrip().split("\n"):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 

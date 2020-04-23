@@ -181,7 +181,7 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
     # Write to file
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
     with open(args.work + "/aportgen/deviceinfo", "w", encoding="utf-8") as handle:
-        for line in content.split("\n"):
+        for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
 
 
@@ -225,7 +225,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
     # Write the file
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
     with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
-        for line in content.split("\n"):
+        for line in content.rstrip().split("\n"):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
