@@ -196,7 +196,7 @@ def foreground_tui(cmd, working_dir=None):
 
 
 def core(args, log_message, cmd, working_dir=None, output="log",
-         output_return=False, check=None, kill_as_root=False):
+         output_return=False, check=None, kill_as_root=False, disable_timeout=False):
     """
     Run a command and create a log entry.
 
@@ -270,7 +270,7 @@ def core(args, log_message, cmd, working_dir=None, output="log",
         if not args.details_to_stdout and output in ["stdout", "interactive"]:
             output_to_stdout = True
 
-        output_timeout = output in ["log", "stdout"]
+        output_timeout = output in ["log", "stdout"] and not disable_timeout
         (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,
