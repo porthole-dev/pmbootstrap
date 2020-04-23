@@ -371,7 +371,7 @@ def arguments():
                         " the package index files", action="store_true")
 
     # Compiler
-    parser.add_argument("--ccache-disable", action="store_false",
+    parser.add_argument("--no-ccache", action="store_false",
                         dest="ccache", help="do not cache the compiled output")
     parser.add_argument("--no-crossdirect", action="store_true",
                         help="Don't use the new, faster 'crossdirect' method,"
