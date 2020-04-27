@@ -38,6 +38,10 @@ def download(args, url, prefix, cache=True, loglevel=logging.INFO,
             return path
         pmb.helpers.run.user(args, ["rm", path])
 
+    # Offline and not cached
+    if args.offline:
+        raise RuntimeError(f"File not found in cache and offline flag is enabled: {url}")
+
     # Download the file
     logging.log(loglevel, "Download " + url)
     try:
