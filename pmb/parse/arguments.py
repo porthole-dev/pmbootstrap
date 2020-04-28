@@ -356,6 +356,10 @@ def arguments():
                              pmb.config.defaults["mirror_alpine"],
                         metavar="URL")
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
+    parser.add_argument("-B", "--boot-size",
+                        help="specify an integer with your preferred boot"
+                             "partition size on target machine in MB (default"
+                             " 128)")
     parser.add_argument("-p", "--aports",
                         help="postmarketos aports (pmaports) path")
     parser.add_argument("-t", "--timeout", help="seconds after which processes"

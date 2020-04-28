@@ -53,7 +53,8 @@ config_keys = ["aports",
                "ui",
                "ui_extras",
                "user",
-               "work"]
+               "work",
+               "boot_size"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
@@ -89,6 +90,7 @@ defaults = {
     "ui_extras": False,
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
+    "boot_size": "128",
 }
 
 #

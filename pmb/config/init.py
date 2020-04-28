@@ -336,12 +336,20 @@ def ask_for_device(args):
 
 def ask_for_additional_options(args, cfg):
     # Allow to skip additional options
-    logging.info("Additional options: Parallel jobs: " + args.jobs +
-                 ", ccache per arch: " + args.ccache_size)
+    logging.info("Additional options:"
+                 f" boot partition size: {args.boot_size} MB,"
+                 f" parallel jobs: {args.jobs},"
+                 f" ccache per arch: {args.ccache_size}")
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
                                    default=False):
         return
+
+    # Boot size
+    logging.info("What should be the boot partition size (in MB)?")
+    answer = pmb.helpers.cli.ask(args, "Boot size", None, args.boot_size,
+                                 validation_regex="[1-9][0-9]*")
+    cfg["pmbootstrap"]["boot_size"] = answer
 
     # Parallel job count
     logging.info("How many jobs should run parallel on this machine, when"
