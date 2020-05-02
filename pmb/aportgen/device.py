@@ -196,7 +196,6 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
 
     # Whole APKBUILD
     content = f"""\
-        # Contributor: Firstname Lastname <email> (CHANGEME!)
         # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/devicepkg>
         pkgname={pkgname}
