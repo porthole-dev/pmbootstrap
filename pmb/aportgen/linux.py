@@ -25,7 +25,6 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
 
     patches = ("\n" + " " * 12).join(patches)
     content = f"""\
-        # Maintainer: Firstname Lastname <email> (CHANGEME!)
         # Reference: <https://postmarketos.org/vendorkernel>
         # Kernel config based on: arch/{carch}/configs/(CHANGEME!)
 
