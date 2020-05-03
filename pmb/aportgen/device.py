@@ -44,6 +44,15 @@ def ask_for_year(args):
                                validation_regex=r'^[1-9]\d{3,}$')
 
 
+def ask_for_chassis(args):
+    types = pmb.config.deviceinfo_chassis_types
+
+    logging.info("What type of device is it?")
+    logging.info("Valid types are: " + ", ".join(types))
+    return pmb.helpers.cli.ask(args, "Chassis", None, None, True,
+                               validation_regex='|'.join(types), complete=types)
+
+
 def ask_for_keyboard(args):
     return pmb.helpers.cli.confirm(args, "Does the device have a hardware keyboard?")
 
@@ -120,7 +129,7 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
 
 
 def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
-                        has_keyboard, has_external_storage,
+                        chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
     # Note: New variables must be added to pmb/config/__init__.py as well
@@ -138,6 +147,7 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
         deviceinfo_arch="{arch}"
 
         # Device related
+        deviceinfo_chassis="{chassis}"
         deviceinfo_keyboard="{"true" if has_keyboard else "false"}"
         deviceinfo_external_storage="{"true" if has_external_storage else "false"}"
         deviceinfo_screen_width="800"
@@ -232,6 +242,7 @@ def generate(args, pkgname):
     manufacturer = ask_for_manufacturer(args)
     name = ask_for_name(args, manufacturer)
     year = ask_for_year(args)
+    chassis = ask_for_chassis(args)
     has_keyboard = ask_for_keyboard(args)
     has_external_storage = ask_for_external_storage(args)
     flash_method = ask_for_flash_method(args)
@@ -240,6 +251,6 @@ def generate(args, pkgname):
         bootimg = ask_for_bootimg(args)
 
     generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
-                        has_keyboard, has_external_storage,
+                        chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg)
     generate_apkbuild(args, pkgname, name, arch, flash_method)
