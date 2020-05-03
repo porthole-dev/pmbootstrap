@@ -246,6 +246,14 @@ apkbuild_attributes = {
     "source": {"array": True},
 }
 
+# Reference: https://postmarketos.org/apkbuild-options
+apkbuild_custom_valid_options = [
+    "!pmb:crossdirect",
+    "!pmb:kconfig-check",
+    "pmb:cross-native",
+    "pmb:strict",
+]
+
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
 deviceinfo_attributes = [
     # general

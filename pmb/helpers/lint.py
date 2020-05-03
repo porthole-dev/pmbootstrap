@@ -16,8 +16,9 @@ def check(args, pkgname):
     pmb.build.init(args)
     pmb.build.copy_to_buildpath(args, pkgname)
     logging.info("(native) linting " + pkgname + " with apkbuild-lint")
-    pmb.chroot.user(args, ["apkbuild-lint", "APKBUILD"],
-                    check=False, output="stdout",
-                    working_dir="/home/pmos/build",
-                    # Workaround, until we have CUSTOM_VALID_OPTIONS (#553)
-                    env={"SKIP_INVALID_OPTION": "1"})
+    options = pmb.config.apkbuild_custom_valid_options
+    return pmb.chroot.user(args, ["apkbuild-lint", "APKBUILD"],
+                           check=False, output="stdout",
+                           output_return=True,
+                           working_dir="/home/pmos/build",
+                           env={"CUSTOM_VALID_OPTIONS": " ".join(options)})
