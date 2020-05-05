@@ -21,7 +21,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         package += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)
             dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img "$_outdir/arch/$_carch/boot/"
-            install -Dm644 "arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
+            install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
 
     patches = ("\n" + " " * 12).join(patches)
     content = f"""\
