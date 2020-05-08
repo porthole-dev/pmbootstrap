@@ -65,7 +65,7 @@ def shutdown(args, only_install_related=False):
         pattern = chroot + "/home/pmos/rootfs/*.img"
         for path_outside in glob.glob(pattern):
             path = path_outside[len(chroot):]
-            pmb.install.losetup.umount(args, path)
+            pmb.install.losetup.umount(args, path, auto_init=False)
 
     # Umount device rootfs chroot
     chroot_rootfs = args.work + "/chroot_rootfs_" + args.device
