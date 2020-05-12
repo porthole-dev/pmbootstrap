@@ -32,7 +32,6 @@ fi
 
 build() {
 	_target="$(arch_to_hostspec armhf)"
-	cd "$builddir"
 	"$builddir"/configure \
 		--build="$CBUILD" \
 		--target=$_target \
@@ -50,7 +49,6 @@ build() {
 }
 
 package() {
-	cd "$builddir"
 	make install DESTDIR="$pkgdir"
 
 	# remove man, info folders

@@ -29,7 +29,6 @@ def generate(args, pkgname):
     replace_functions = {
         "build": """
             _target="$(arch_to_hostspec """ + arch + """)"
-            cd "$builddir"
             "$builddir"/configure \\
                 --build="$CBUILD" \\
                 --target=$_target \\
@@ -46,7 +45,6 @@ def generate(args, pkgname):
             make
         """,
         "package": """
-            cd "$builddir"
             make install DESTDIR="$pkgdir"
 
             # remove man, info folders
