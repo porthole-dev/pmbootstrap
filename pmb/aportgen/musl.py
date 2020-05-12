@@ -47,6 +47,8 @@ def generate(args, pkgname):
                              "/var/cache/distfiles", output_return=True)
 
     # Write the APKBUILD
+    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    mirrordir = channel_cfg["mirrordir_alpine"]
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
     with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
         # Variables
@@ -76,8 +78,8 @@ def generate(args, pkgname):
             _target="$(arch_to_hostspec $_arch)"
 
             source="
-                musl-$pkgver-r$pkgrel-$_arch.apk::$_mirror/edge/main/$_arch/musl-$pkgver-r$pkgrel.apk
-                musl-dev-$pkgver-r$pkgrel-$_arch.apk::$_mirror/edge/main/$_arch/musl-dev-$pkgver-r$pkgrel.apk
+                musl-$pkgver-r$pkgrel-$_arch.apk::$_mirror/{mirrordir}/main/$_arch/musl-$pkgver-r$pkgrel.apk
+                musl-dev-$pkgver-r$pkgrel-$_arch.apk::$_mirror/{mirrordir}/main/$_arch/musl-dev-$pkgver-r$pkgrel.apk
             "
 
             package() {{
