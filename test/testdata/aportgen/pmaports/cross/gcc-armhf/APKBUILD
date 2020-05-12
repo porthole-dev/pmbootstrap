@@ -23,13 +23,13 @@ CBUILDROOT="/"
 
 _cross_configure="--disable-bootstrap --with-sysroot=/usr/$CTARGET"
 
-pkgname="gcc-armhf"
+pkgname=gcc-armhf
 pkgver=8.2.0
 [ "$BOOTSTRAP" = "nolibc" ] && pkgname="gcc-pass2"
 [ "$CBUILD" != "$CHOST" ] && _cross="-$CARCH" || _cross=""
 [ "$CHOST" != "$CTARGET" ] && _target="-$CTARGET_ARCH" || _target=""
 
-pkgname="gcc-armhf"
+pkgname=gcc-armhf
 pkgrel=1
 pkgdesc="Stage2 cross-compiler for armhf"
 url="http://gcc.gnu.org"

@@ -119,7 +119,11 @@ def rewrite(args, pkgname, path_original="", fields={}, replace_pkgname=None,
             for key, value in fields.items():
                 if line.startswith(key + "="):
                     if value:
-                        line = key + "=\"" + value + "\"\n"
+                        if key in ["pkgname", "pkgver", "pkgrel"]:
+                            # No quotes to avoid lint error
+                            line = f"{key}={value}\n"
+                        else:
+                            line = f'{key}="{value}"\n'
                     else:
                         # Remove line without value to avoid lint error
                         line = ""

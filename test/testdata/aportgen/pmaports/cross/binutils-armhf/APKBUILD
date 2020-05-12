@@ -2,7 +2,7 @@
 # Generator: pmbootstrap aportgen binutils-armhf
 # Based on: main/binutils
 
-pkgname="binutils-armhf"
+pkgname=binutils-armhf
 pkgver=2.31.1
 pkgrel=1
 pkgdesc="Tools necessary to build programs for armhf targets"
