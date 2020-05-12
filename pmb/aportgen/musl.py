@@ -50,20 +50,19 @@ def generate(args, pkgname):
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
     with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
         # Variables
-        handle.write("# Automatically generated aport, do not edit!\n"
-                     "# Generator: pmbootstrap aportgen " + pkgname + "\n"
-                     "\n"
-                     "pkgname=\"" + pkgname + "\"\n"
-                     "pkgver=\"" + pkgver + "\"\n"
-                     "pkgrel=" + pkgrel + "\n"
-                     "arch=\"" + " ".join(arches) + "\"\n"
-                     "subpackages=\"musl-dev-" + arch + ":package_dev\"\n"
-                     "\n"
-                     "_arch=\"" + arch + "\"\n"
-                     "_mirror=\"" + args.mirror_alpine + "\"\n"
-                     )
-        # Static part
-        static = """
+        apkbuild = f"""\
+            # Automatically generated aport, do not edit!
+            # Generator: pmbootstrap aportgen {pkgname}
+
+            pkgname="{pkgname}"
+            pkgver="{pkgver}"
+            pkgrel={pkgrel}
+            arch="{" ".join(arches)}"
+            subpackages="musl-dev-{arch}:package_dev"
+
+            _arch="{arch}"
+            _mirror="{args.mirror_alpine}"
+
             url="https://musl-libc.org"
             license="MIT"
             options="!check !strip"
@@ -76,15 +75,15 @@ def generate(args, pkgname):
                 musl-dev-$pkgver-r$pkgrel-$_arch.apk::$_mirror/edge/main/$_arch/musl-dev-$pkgver-r$pkgrel.apk
             "
 
-            package() {
+            package() {{
                 mkdir -p "$pkgdir/usr/$_target"
                 cd "$pkgdir/usr/$_target"
                 # Use 'busybox tar' to avoid 'tar: Child returned status 141'
                 # on some machines (builds.sr.ht, gitlab-ci). See pmaports#26.
                 busybox tar -xf $srcdir/musl-$pkgver-r$pkgrel-$_arch.apk
                 rm .PKGINFO .SIGN.*
-            }
-            package_dev() {
+            }}
+            package_dev() {{
                 mkdir -p "$subpkgdir/usr/$_target"
                 cd "$subpkgdir/usr/$_target"
                 # Use 'busybox tar' to avoid 'tar: Child returned status 141'
@@ -102,9 +101,9 @@ def generate(args, pkgname):
                         ln -s /usr/$_target/usr/$_dir/$i $i
                     done
                 done
-            }
+            }}
         """
-        for line in static.split("\n"):
+        for line in apkbuild.split("\n"):
             handle.write(line[12:] + "\n")
 
         # Hashes
