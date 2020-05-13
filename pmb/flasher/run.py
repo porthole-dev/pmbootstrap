@@ -37,6 +37,7 @@ def run(args, action, flavor=None):
         raise RuntimeError("Your device does not have 'vbmeta' partition"
                            " specified; set"
                            " 'deviceinfo_flash_fastboot_partition_vbmeta'"
+                           " or 'deviceinfo_flash_heimdall_partition_vbmeta'"
                            " in deviceinfo file. See also:"
                            " <https://wiki.postmarketos.org/wiki/"
                            "Deviceinfo_reference>")

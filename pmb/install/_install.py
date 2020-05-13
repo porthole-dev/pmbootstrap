@@ -438,7 +438,9 @@ def install_system_image(args):
                          " change the partition layout on your device.)")
 
     # if current flasher supports vbmeta and partition is explicitly spcified in deviceinfo
-    if "flash_vbmeta" in flasher_actions and args.deviceinfo["flash_fastboot_partition_vbmeta"]:
+    if "flash_vbmeta" in flasher_actions and \
+            (args.deviceinfo["flash_fastboot_partition_vbmeta"] or
+             args.deviceinfo["flash_heimdall_partition_vbmeta"]):
         logging.info("* pmbootstrap flasher flash_vbmeta")
         logging.info("  Flashes vbmeta image with verification disabled flag.")
 

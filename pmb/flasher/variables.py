@@ -16,7 +16,7 @@ def variables(args, flavor, method):
     else:
         _partition_kernel = args.deviceinfo["flash_heimdall_partition_kernel"] or "KERNEL"
         _partition_system = args.deviceinfo["flash_heimdall_partition_system"] or "SYSTEM"
-        _partition_vbmeta = None
+        _partition_vbmeta = args.deviceinfo["flash_heimdall_partition_vbmeta"] or None
 
     if "partition" in args and args.partition:
         # Only one of operations is done at same time so it doesn't matter sharing the arg

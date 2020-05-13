@@ -322,6 +322,7 @@ deviceinfo_attributes = [
     "flash_heimdall_partition_kernel",
     "flash_heimdall_partition_initfs",
     "flash_heimdall_partition_system",
+    "flash_heimdall_partition_vbmeta",
     "flash_fastboot_partition_kernel",
     "flash_fastboot_partition_system",
     "flash_fastboot_partition_vbmeta",
@@ -473,7 +474,7 @@ flashers = {
     # Some Samsung devices need a 'boot.img' file, just like the one generated
     # fastboot compatible devices. Example: s7562, n7100
     "heimdall-bootimg": {
-        "depends": ["heimdall"],
+        "depends": ["heimdall", "avbtool"],
         "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
@@ -482,6 +483,12 @@ flashers = {
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
                 ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/boot.img-$FLAVOR"]],
+            "flash_vbmeta": [
+                ["avbtool", "make_vbmeta_image", "--flags", "2",
+                    "--padding_size", "$FLASH_PAGESIZE",
+                    "--output", "/vbmeta.img"],
+                ["heimdall", "flash", "--$PARTITION_VBMETA", "/vbmeta.img"],
+                ["rm", "-f", "/vbmeta.img"]]
         },
     },
     "adb": {
