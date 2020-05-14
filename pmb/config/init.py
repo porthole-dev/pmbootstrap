@@ -105,8 +105,9 @@ def ask_for_channel(args):
                       " from the list above.")
 
 
-def ask_for_ui(args):
-    ui_list = pmb.helpers.ui.list(args)
+def ask_for_ui(args, device):
+    info = pmb.parse.deviceinfo(args, device)
+    ui_list = pmb.helpers.ui.list(args, info["arch"])
     logging.info("Available user interfaces (" +
                  str(len(ui_list) - 1) + "): ")
     ui_completion_list = []
@@ -419,7 +420,7 @@ def frontend(args):
                                                      args.user, False,
                                                      "[a-z_][a-z0-9_-]*")
     # UI and various build options
-    ui = ask_for_ui(args)
+    ui = ask_for_ui(args, device)
     cfg["pmbootstrap"]["ui"] = ui
     cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
     ask_for_build_options(args, cfg)

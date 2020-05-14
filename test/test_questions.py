@@ -216,12 +216,13 @@ def test_questions_keymaps(args, monkeypatch):
 
 def test_questions_ui(args, monkeypatch):
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
+    device = "lg-mako"
 
     fake_answers(monkeypatch, ["none"])
-    assert pmb.config.init.ask_for_ui(args) == "none"
+    assert pmb.config.init.ask_for_ui(args, device) == "none"
 
     fake_answers(monkeypatch, ["invalid_UI", "weston"])
-    assert pmb.config.init.ask_for_ui(args) == "weston"
+    assert pmb.config.init.ask_for_ui(args, device) == "weston"
 
 
 def test_questions_ui_extras(args, monkeypatch):
