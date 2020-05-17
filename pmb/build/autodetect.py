@@ -1,6 +1,5 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import fnmatch
 import logging
 import os
 
@@ -67,18 +66,6 @@ def suffix(args, apkbuild, arch):
 
     if "pmb:cross-native" in apkbuild["options"]:
         return "native"
-
-    pkgname = apkbuild["pkgname"]
-    if args.cross:
-        for pattern in pmb.config.build_cross_native:
-            if fnmatch.fnmatch(pkgname, pattern):
-                logging.info(f"NOTE: '{pkgname}' would implicitly get cross"
-                             f" compiled with the 'native' method, because"
-                             f" it matches pattern '{pattern}'.")
-                logging.info("NOTE: this pattern matching will be removed in"
-                             " the future, add 'pmb:cross-native' to the"
-                             " APKBUILD's options to make it explicit.")
-                return "native"
 
     return "buildroot_" + arch
 

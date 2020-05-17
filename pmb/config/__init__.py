@@ -179,10 +179,6 @@ build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]
 # for the first time
 build_packages = ["abuild", "build-base", "ccache", "git"]
 
-# fnmatch for supported pkgnames, that can be directly compiled inside
-# the native chroot and a cross-compiler, without using distcc
-build_cross_native = ["linux-*", "arch-bin-masquerade"]
-
 # Necessary kernel config options
 necessary_kconfig_options = {
     ">=0.0.0": {  # all versions
