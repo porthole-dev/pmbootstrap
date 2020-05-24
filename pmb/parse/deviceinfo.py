@@ -50,6 +50,20 @@ def sanity_check(info, path):
         raise RuntimeError("Please add 'deviceinfo_codename=\"" + codename +
                            "\"' to: " + path)
 
+    # "chassis" is required
+    chassis_types = pmb.config.deviceinfo_chassis_types
+    if "chassis" not in info or not info["chassis"]:
+        logging.info("NOTE: the most commonly used chassis types in"
+                     " postmarketOS are 'handset' (for phones) and 'tablet'.")
+        raise RuntimeError(f"Please add 'deviceinfo_chassis' to: {path}")
+
+    # "chassis" validation
+    chassis_type = info["chassis"]
+    if chassis_type not in chassis_types:
+        raise RuntimeError(f"Unknown chassis type '{chassis_type}', should"
+                           f" be one of {', '.join(chassis_types)}. Fix this"
+                           f" and try again: {path}")
+
 
 def deviceinfo(args, device=None):
     """
