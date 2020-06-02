@@ -493,6 +493,10 @@ def arguments():
                         default="tui")
     chroot.add_argument("command", default=["sh", "-i"], help="command"
                         " to execute inside the chroot. default: sh", nargs='*')
+    chroot.add_argument("-x", "--xauth", action="store_true",
+                        help="Copy .Xauthority and set environment variables,"
+                             " so X11 applications can be started (native"
+                             " chroot only)")
     for action in [build_init, chroot]:
         suffix = action.add_mutually_exclusive_group()
         if action == chroot:

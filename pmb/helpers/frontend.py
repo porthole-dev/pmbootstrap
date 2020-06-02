@@ -117,20 +117,31 @@ def chroot(args):
             not suffix.startswith("buildroot_")):
         raise RuntimeError("--user is only supported for native or"
                            " buildroot_* chroots.")
+    if args.xauth and suffix != "native":
+        raise RuntimeError("--xauth is only supported for native chroot.")
 
     # apk: check minimum version, install packages
     pmb.chroot.apk.check_min_version(args, suffix)
     if args.add:
         pmb.chroot.apk.install(args, args.add.split(","), suffix)
 
+    # Xauthority
+    env = {}
+    if args.xauth:
+        pmb.chroot.other.copy_xauthority(args)
+        env["DISPLAY"] = os.environ.get("DISPLAY")
+        env["XAUTHORITY"] = "/home/pmos/.Xauthority"
+
     # Run the command as user/root
     if args.user:
         logging.info("(" + suffix + ") % su pmos -c '" +
                      " ".join(args.command) + "'")
-        pmb.chroot.user(args, args.command, suffix, output=args.output)
+        pmb.chroot.user(args, args.command, suffix, output=args.output,
+                        env=env)
     else:
         logging.info("(" + suffix + ") % " + " ".join(args.command))
-        pmb.chroot.root(args, args.command, suffix, output=args.output)
+        pmb.chroot.root(args, args.command, suffix, output=args.output,
+                        env=env)
 
 
 def config(args):
