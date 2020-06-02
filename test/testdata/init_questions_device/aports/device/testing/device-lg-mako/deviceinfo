@@ -4,7 +4,8 @@
 deviceinfo_format_version="0"
 deviceinfo_name="Google Nexus 4"
 deviceinfo_manufacturer="LG"
-deviceinfo_year="1337"
+deviceinfo_codename="lg-mako"
+deviceinfo_year="2012"
 deviceinfo_dtb=""
 deviceinfo_modules_initfs=""
 deviceinfo_external_storage="false"
@@ -25,6 +26,3 @@ deviceinfo_flash_offset_ramdisk="0x81800000"
 deviceinfo_flash_offset_second="0x81100000"
 deviceinfo_flash_offset_tags="0x80200100"
 deviceinfo_flash_pagesize="2048"
-
-# Weston red screen workaround (see issue #54)
-deviceinfo_weston_pixman_type="2"
