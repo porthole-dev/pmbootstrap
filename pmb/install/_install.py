@@ -36,20 +36,15 @@ def get_subpartitions_size(args):
     :returns: (boot, root) the size of the boot and root
               partition as integer in bytes
     """
-    # Calculate required sizes first
+    boot = int(args.boot_size) * 1024 * 1024
+
+    # Estimate root partition size, then add some free space. The size
+    # calculation is not as trivial as one may think, and depending on the
+    # file system etc it seems to be just impossible to get it right.
     chroot = args.work + "/chroot_rootfs_" + args.device
-    full = pmb.helpers.other.folder_size(args, chroot)
-    boot = pmb.helpers.other.folder_size(args, chroot + "/boot")
-    home = pmb.helpers.other.folder_size(args, chroot + "/home")
-
-    # The home folder gets omitted when copying the rootfs to
-    # /dev/installp2
-    root = full - boot - home
-
-    # Add some free space, see also: #336, #1671
+    root = pmb.helpers.other.folder_size(args, chroot)
     root *= 1.20
     root += 50 * 1024 * 1024
-    boot = int(args.boot_size) * 1024 * 1024
     return (boot, root)
 
 
