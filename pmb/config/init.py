@@ -334,9 +334,9 @@ def ask_for_device(args):
     return (device, device_exists, kernel, nonfree)
 
 
-def ask_for_build_options(args, cfg):
-    # Allow to skip build options
-    logging.info("Build options: Parallel jobs: " + args.jobs +
+def ask_for_additional_options(args, cfg):
+    # Allow to skip additional options
+    logging.info("Additional options: Parallel jobs: " + args.jobs +
                  ", ccache per arch: " + args.ccache_size)
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
@@ -423,7 +423,7 @@ def frontend(args):
     ui = ask_for_ui(args, device)
     cfg["pmbootstrap"]["ui"] = ui
     cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
-    ask_for_build_options(args, cfg)
+    ask_for_additional_options(args, cfg)
 
     # Extra packages to be installed to rootfs
     logging.info("Additional packages that will be installed to rootfs."

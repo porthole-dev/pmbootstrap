@@ -250,8 +250,8 @@ def test_questions_work_path(args, monkeypatch, tmpdir):
     assert func(args) == (work, False)
 
 
-def test_questions_build_options(args, monkeypatch):
-    func = pmb.config.init.ask_for_build_options
+def test_questions_additional_options(args, monkeypatch):
+    func = pmb.config.init.ask_for_additional_options
     cfg = {"pmbootstrap": {}}
 
     # Skip changing anything
