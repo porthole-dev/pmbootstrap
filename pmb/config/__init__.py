@@ -203,6 +203,7 @@ necessary_kconfig_options = {
     ">=4.0.0": {
         "all": {
             "UEVENT_HELPER": True,
+            "USER_NS": True,
         },
     },
     "<5.2.0": {

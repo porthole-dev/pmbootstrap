@@ -46,3 +46,5 @@ CONFIG_KERNEL_GZIP=y
 # CONFIG_KERNEL_LZMA is not set
 CONFIG_DEFAULT_HOSTNAME="(none)"
 CONFIG_SWAP=y
+# needed for bubblewrap
+CONFIG_USER_NS=y
