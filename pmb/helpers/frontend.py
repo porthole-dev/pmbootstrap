@@ -137,8 +137,9 @@ def chroot(args):
     if args.install_blockdev:
         size_boot = 128  # 128 MiB
         size_root = 4096  # 4 GiB
+        size_reserve = 2048  # 2 GiB
         pmb.install.blockdevice.create_and_mount_image(args, size_boot,
-                                                       size_root)
+                                                       size_root, size_reserve)
 
     # Run the command as user/root
     if args.user:
