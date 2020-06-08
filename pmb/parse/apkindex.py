@@ -42,6 +42,7 @@ def parse_next_block(args, path, lines, start):
         "o": "origin",
         "P": "pkgname",
         "p": "provides",
+        "k": "provider_priority",
         "t": "timestamp",
         "V": "version",
     }
@@ -319,6 +320,32 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
         raise RuntimeError("Could not find package '" + package + "'!")
 
     return ret
+
+
+def provider_highest_priority(providers, pkgname):
+    """
+    Get the provider(s) with the highest provider_priority and log a message.
+
+    :param providers: returned dict from providers(), must not be empty
+    :param pkgname: the package name we are interested in (for the log message)
+    """
+    max_priority = 0
+    priority_providers = collections.OrderedDict()
+    for provider_name, provider in providers.items():
+        priority = int(provider.get("provider_priority", -1))
+        if priority > max_priority:
+            priority_providers.clear()
+            max_priority = priority
+        if priority == max_priority:
+            priority_providers[provider_name] = provider
+
+    if priority_providers:
+        logging.debug(f"{pkgname}: picked provider(s) with higest priority {max_priority}: " +
+                      ", ".join(priority_providers.keys()))
+        return priority_providers
+
+    # None of the providers seems to have a provider_priority defined
+    return providers
 
 
 def provider_shortest(providers, pkgname):

@@ -300,6 +300,43 @@ def test_providers_highest_version(args, monkeypatch):
     assert providers["test"]["version"] == "3"
 
 
+def test_provider_highest_priority(args, monkeypatch):
+    # Verify that it picks the provider with highest priority
+    func = pmb.parse.apkindex.provider_highest_priority
+
+    provider_none_a = {"pkgname": "a", "provides": ["test"]}
+    provider_none_b = {"pkgname": "b", "provides": ["test"]}
+    provider_low_c = {"pkgname": "c", "provides": ["test"],
+                      "provider_priority": 42}
+    provider_low_d = {"pkgname": "d", "provides": ["test"],
+                      "provider_priority": 42}
+    provider_high = {"pkgname": "e", "provides": ["test"],
+                     "provider_priority": 1337}
+
+    # No provider has a priority
+    providers = {"a": provider_none_a}
+    assert func(providers, "test") == providers
+    providers = {"a": provider_none_a, "b": provider_none_b}
+    assert func(providers, "test") == providers
+
+    # One provider has a priority, another one does not
+    providers = {"a": provider_none_a, "e": provider_high}
+    assert func(providers, "test") == {"e": provider_high}
+
+    # One provider has a priority, another one has a higher priority
+    providers = {"c": provider_low_c, "e": provider_high}
+    assert func(providers, "test") == {"e": provider_high}
+
+    # One provider has a priority, another one has the same priority
+    providers = {"c": provider_low_c, "d": provider_low_d}
+    assert func(providers, "test") == providers
+
+    # + some package without priority at all should be filtered out
+    providers2 = providers.copy()
+    providers2["a"] = provider_none_a
+    assert func(providers2, "test") == providers
+
+
 def test_package(args, monkeypatch):
     # Override pmb.parse.apkindex.providers()
     providers = collections.OrderedDict()

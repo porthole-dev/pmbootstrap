@@ -73,7 +73,12 @@ def package_provider(args, pkgname, pkgnames_install, suffix="native"):
                             " the '" + suffix + "' chroot already")
             return provider
 
-    # 5. Pick the provider
+    # 5. Pick the provider(s) with the highest priority
+    providers = pmb.parse.apkindex.provider_highest_priority(providers, pkgname)
+    if len(providers) == 1:
+        return list(providers.values())[0]
+
+    # 6. Pick the shortest provider. (Note: Normally apk would fail here!)
     return pmb.parse.apkindex.provider_shortest(providers, pkgname)
 
 
