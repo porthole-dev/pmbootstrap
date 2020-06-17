@@ -13,7 +13,7 @@ mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 
 # install dependencies (procps: /bin/kill)
 apt update
-apt install -q -y git sudo procps
+apt install -q -y git sudo procps python3-pip
 pip3 install virtualenv
 
 # create pmos user
