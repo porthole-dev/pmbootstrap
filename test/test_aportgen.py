@@ -86,8 +86,8 @@ def test_aportgen(args, tmpdir):
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
 
     # Generate all valid packages (gcc twice -> different code path)
-    pkgnames = ["binutils-armhf", "musl-armhf", "busybox-static-armhf",
-                "gcc-armhf", "gcc-armhf"]
+    pkgnames = ["binutils-armv7", "musl-armv7", "busybox-static-armv7",
+                "gcc-armv7", "gcc-armv7"]
     for pkgname in pkgnames:
         pmb.aportgen.generate(args, pkgname)
 
