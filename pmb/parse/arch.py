@@ -105,6 +105,7 @@ def cpu_emulation_required(args, arch):
     # Other cases: host arch on the left, target archs on the right
     not_required = {
         "x86_64": ["x86"],
+        "armv7": ["armel", "armhf"],
         "aarch64": ["armel", "armhf", "armv7"],
     }
     if args.arch_native in not_required:
