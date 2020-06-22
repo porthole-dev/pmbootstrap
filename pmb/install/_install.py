@@ -616,8 +616,9 @@ def install(args):
         install_packages += args.extra_packages.split(",")
     if args.add:
         install_packages += args.add.split(",")
-    for pkgname in install_packages:
-        pmb.build.package(args, pkgname, args.deviceinfo["arch"])
+    if args.build_pkgs_on_install:
+        for pkgname in install_packages:
+            pmb.build.package(args, pkgname, args.deviceinfo["arch"])
 
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
