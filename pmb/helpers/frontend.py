@@ -1,5 +1,6 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import glob
 import json
 import logging
 import os
@@ -251,6 +252,18 @@ def install(args):
         logging.info("If you know what you are doing, consider setting a"
                      " different cipher with 'pmbootstrap install --cipher=..."
                      " --fde --android-recovery-zip'.")
+
+    # Don't install locally compiled packages and package signing keys
+    if not args.install_local_pkgs:
+        # Implies that we don't build outdated packages (overriding the answer
+        # in 'pmbootstrap init')
+        args.build_pkgs_on_install = False
+
+        # Safest way to avoid installing local packages is having none
+        if glob.glob(f"{args.work}/packages/*"):
+            raise ValueError("--no-local-pkgs specified, but locally built"
+                             " packages found. Consider 'pmbootstrap zap -p'"
+                             " to delete them.")
 
     pmb.install.install(args)
 
