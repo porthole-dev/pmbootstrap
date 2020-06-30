@@ -190,18 +190,19 @@ def setup_login(args):
     Loop until the password for user has been set successfully, and disable root
     login.
     """
-    # User password
-    logging.info(" *** SET LOGIN PASSWORD FOR: '" + args.user + "' ***")
     suffix = "rootfs_" + args.device
-    while True:
-        try:
-            pmb.chroot.root(args, ["passwd", args.user], suffix,
-                            output="interactive")
-            break
-        except RuntimeError:
-            logging.info("WARNING: Failed to set the password. Try it"
-                         " one more time.")
-            pass
+    if not args.on_device_installer:
+        # User password
+        logging.info(" *** SET LOGIN PASSWORD FOR: '" + args.user + "' ***")
+        while True:
+            try:
+                pmb.chroot.root(args, ["passwd", args.user], suffix,
+                                output="interactive")
+                break
+            except RuntimeError:
+                logging.info("WARNING: Failed to set the password. Try it"
+                             " one more time.")
+                pass
 
     # Disable root login
     pmb.chroot.root(args, ["passwd", "-l", "root"], suffix)
