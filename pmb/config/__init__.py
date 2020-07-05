@@ -342,6 +342,7 @@ deviceinfo_attributes = [
     "kernel_cmdline",
     "generate_bootimg",
     "bootimg_qcdt",
+    "bootimg_mtk_mkimage",
     "bootimg_dtb_second",
     "flash_offset_base",
     "flash_offset_kernel",

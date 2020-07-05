@@ -13,6 +13,25 @@ def is_dtb(path):
         return f.read(4) == b'\xd0\x0d\xfe\xed'
 
 
+def has_mtk_header(path, supported_label):
+    with open(path, 'rb') as f:
+        # Check Mediatek header (0x88168858)
+        if not f.read(4) == b'\x88\x16\x88\x58':
+            return False
+        f.seek(8)
+        label = f.read(32).decode("utf-8").rstrip('\0')
+        # We only support hardcoded labels for now as the known devices only
+        # use KERNEL & ROOTFS for kernel and ramdisk respectively. To change
+        # this, deviceinfo would need to store the label and
+        # postmarketos-mkinitfs would need to use that label.
+        if label != supported_label:
+            raise RuntimeError(f"Only '{supported_label}' is supported as label,"
+                               f" but your device has '{label}'. Please create"
+                               f" an issue and attach your boot.img:"
+                               f" https://postmarketos.org/issues")
+        return True
+
+
 def bootimg(args, path):
     if not os.path.exists(path):
         raise RuntimeError("Could not find file '" + path + "'")
@@ -70,7 +89,12 @@ def bootimg(args, path):
         output["cmdline"] = f.read().replace('\n', '')
     output["qcdt"] = ("true" if os.path.isfile(bootimg_path + "-dt") and
                       os.path.getsize(bootimg_path + "-dt") > 0 else "false")
+    output["mtk_mkimage"] = ("true" if has_mtk_header(bootimg_path + "-zImage", "KERNEL") else "false")
     output["dtb_second"] = ("true" if is_dtb(bootimg_path + "-second") else "false")
+
+    # Mediatek: Check that the ramdisk also has a known-good label
+    # We don't care about the return value, just whether it throws an exception or not.
+    has_mtk_header(bootimg_path + "-ramdisk.gz", "ROOTFS")
 
     # Cleanup
     pmb.chroot.root(args, ["rm", "-r", temp_path])

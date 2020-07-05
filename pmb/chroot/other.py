@@ -28,7 +28,7 @@ def kernel_flavors_installed(args, suffix, autoinstall=True):
     ret = []
     for file in glob.glob(pattern):
         flavor = os.path.basename(file)[prefix_len:]
-        if flavor[-4:] == "-dtb":
+        if flavor[-4:] == "-dtb" or flavor[-4:] == "-mtk":
             flavor = flavor[:-4]
         ret.append(flavor)
 

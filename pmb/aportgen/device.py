@@ -107,6 +107,7 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
     if bootimg is None:
         bootimg = {"cmdline": "",
                    "qcdt": "false",
+                   "mtk_mkimage": "false",
                    "dtb_second": "false",
                    "base": "",
                    "kernel_offset": "",
@@ -118,6 +119,7 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
         deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"
         deviceinfo_generate_bootimg="true"
         deviceinfo_bootimg_qcdt="{bootimg["qcdt"]}"
+        deviceinfo_bootimg_mtk_mkimage="{bootimg["mtk_mkimage"]}"
         deviceinfo_bootimg_dtb_second="{bootimg["dtb_second"]}"
         deviceinfo_flash_offset_base="{bootimg["base"]}"
         deviceinfo_flash_offset_kernel="{bootimg["kernel_offset"]}"
