@@ -86,13 +86,15 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
                       validation_regex + "). Please try again.")
 
 
-def confirm(args, question="Continue?", default=False):
+def confirm(args, question="Continue?", default=False, no_assumptions=False):
     """
     Convenience wrapper around ask for simple yes-no questions with validation.
+
+    :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
     :returns: True for "y", False for "n"
     """
     default_str = "y" if default else "n"
-    if (args.assume_yes):
+    if args.assume_yes and not no_assumptions:
         logging.info(question + " (y/n) [" + default_str + "]: y")
         return True
     answer = ask(args, question, ["y", "n"], default_str, True, "(y|n)")

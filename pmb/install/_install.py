@@ -405,7 +405,8 @@ def embed_firmware(args):
                                "bs=" + str(step), "seek=" + str(offset)])
 
 
-def sanity_check_sdcard(device):
+def sanity_check_sdcard(args):
+    device = args.sdcard
     device_name = os.path.basename(device)
     if not os.path.exists(device):
         raise RuntimeError("{} doesn't exist, is the sdcard plugged?".format(device))
@@ -414,6 +415,30 @@ def sanity_check_sdcard(device):
             ro = handle.read()
         if ro == '1\n':
             raise RuntimeError("{} is read-only, is the sdcard locked?".format(device))
+
+
+def sanity_check_sdcard_size(args):
+    device = args.sdcard
+    devpath = os.path.realpath(device)
+    sysfs = '/sys/class/block/{}/size'.format(devpath.replace('/dev/', ''))
+    if not os.path.isfile(sysfs):
+        # This is a best-effort sanity check, continue if it's not checkable
+        return
+
+    with open(sysfs) as handle:
+        raw = handle.read()
+
+    # Size is in 512-byte blocks
+    size = int(raw.strip())
+    human = "{:.2f} GiB".format(size / 2 / 1024 / 1024)
+
+    # Warn if the size is larger than 100GiB
+    if size > (100 * 2 * 1024 * 1024):
+        if not pmb.helpers.cli.confirm(args, f"WARNING: The target disk ({devpath}) is"
+                                             " larger than a usual SD card (>100GiB)."
+                                             " Are you sure you want to overwrite"
+                                             f" this {human} disk?", no_assumptions=True):
+            raise RuntimeError("Aborted.")
 
 
 def sanity_check_ondev_version(args):
@@ -612,7 +637,8 @@ def install_on_device_installer(args, step, steps):
 def install(args):
     # Sanity checks
     if not args.android_recovery_zip and args.sdcard:
-        sanity_check_sdcard(args.sdcard)
+        sanity_check_sdcard(args)
+        sanity_check_sdcard_size(args)
     if args.on_device_installer:
         sanity_check_ondev_version(args)
 
