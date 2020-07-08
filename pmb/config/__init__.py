@@ -197,8 +197,8 @@ necessary_kconfig_options = {
             "KINETO_GAN": False,
             "PFT": False,
             "SYSVIPC": True,
-            "VT": True,
             "USE_VFB": False,
+            "VT": True,
         }
     },
     ">=4.0.0": {
