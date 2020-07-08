@@ -241,6 +241,17 @@ def install(args):
         if flasher.get("split", False):
             args.split = True
 
+    # Warning for android recovery zip with FDE
+    if args.android_recovery_zip and args.full_disk_encryption:
+        logging.info("WARNING: --fde is rarely used in combination with"
+                     " --android-recovery-zip. If this does not work, consider"
+                     " using another method (e.g. installing via netcat)")
+        logging.info("WARNING: the kernel of the recovery system (e.g. TWRP)"
+                     f" must support the cryptsetup cipher '{args.cipher}'.")
+        logging.info("If you know what you are doing, consider setting a"
+                     " different cipher with 'pmbootstrap install --cipher=..."
+                     " --fde --android-recovery-zip'.")
+
     pmb.install.install(args)
 
 
