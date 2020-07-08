@@ -66,9 +66,7 @@ defaults = {
     "aports": "$WORK/cache_git/pmaports",
     "ccache_size": "5G",
     "is_default_channel": True,
-    # aes-xts-plain64 would be better, but this is not supported on LineageOS
-    # kernel configs
-    "cipher": "aes-cbc-plain64",
+    "cipher": "aes-xts-plain64",
     "config": os.path.expanduser("~") + "/.config/pmbootstrap.cfg",
     "device": "qemu-amd64",
     "extra_packages": "none",
@@ -191,6 +189,7 @@ necessary_kconfig_options = {
             "ANDROID_PARANOID_NETWORK": False,
             "BLK_DEV_INITRD": True,
             "CGROUPS": True,
+            "CRYPTO_XTS": True,
             "DEVTMPFS": True,
             "DM_CRYPT": True,
             "EXT4_FS": True,

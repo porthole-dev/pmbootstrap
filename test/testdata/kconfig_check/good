@@ -29,6 +29,7 @@ CONFIG_SYSVIPC=y
 CONFIG_VT=y
 CONFIG_UEVENT_HELPER=y
 CONFIG_LBDAF=y
+CONFIG_CRYPTO_XTS=y
 ### here's one explicitely disabled:
 # ANDROID_PARANOID_NETWORK is not set
 ### here's one set to module:
