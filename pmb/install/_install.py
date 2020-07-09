@@ -551,6 +551,7 @@ def install_on_device_installer(args, step, steps):
            "ONDEV_CHANNEL_BRANCH_PMAPORTS": channel_cfg["branch_pmaports"],
            "ONDEV_CHANNEL_DESCRIPTION": channel_cfg["description"],
            "ONDEV_CHANNEL_MIRRORDIR_ALPINE": channel_cfg["mirrordir_alpine"],
+           "ONDEV_CIPHER": args.cipher,
            "ONDEV_PMBOOTSTRAP_VERSION": pmb.config.version,
            "ONDEV_UI": args.ui}
     pmb.chroot.root(args, ["ondev-prepare"], suffix_installer, env=env)
