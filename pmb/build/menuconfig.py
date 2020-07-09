@@ -28,9 +28,10 @@ def get_arch(args, apkbuild):
     # Multiple architectures (requires --arch)
     if len(apkbuild["arch"]) > 1:
         if args.arch is None:
-            raise RuntimeError("Package '" + pkgname + "' supports multiple"
-                               " architectures, please use '--arch' to specify"
-                               " the desired architecture.")
+            raise RuntimeError(f"'{pkgname}' supports multiple architectures"
+                               f" ({', '.join(apkbuild['arch'])}). Please use"
+                               " '--arch' to specify the desired"
+                               " architecture.")
         return args.arch
 
     # Single architecture (--arch must be unset or match)
