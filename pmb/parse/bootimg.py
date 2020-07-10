@@ -56,13 +56,13 @@ def bootimg(args, path):
     # Get base, offsets, pagesize, cmdline and qcdt info
     with open(bootimg_path + "-base", 'r') as f:
         output["base"] = ("0x%08x" % int(f.read().replace('\n', ''), 16))
-    with open(bootimg_path + "-kerneloff", 'r') as f:
+    with open(bootimg_path + "-kernel_offset", 'r') as f:
         output["kernel_offset"] = ("0x%08x" % int(f.read().replace('\n', ''), 16))
-    with open(bootimg_path + "-ramdiskoff", 'r') as f:
+    with open(bootimg_path + "-ramdisk_offset", 'r') as f:
         output["ramdisk_offset"] = ("0x%08x" % int(f.read().replace('\n', ''), 16))
-    with open(bootimg_path + "-secondoff", 'r') as f:
+    with open(bootimg_path + "-second_offset", 'r') as f:
         output["second_offset"] = ("0x%08x" % int(f.read().replace('\n', ''), 16))
-    with open(bootimg_path + "-tagsoff", 'r') as f:
+    with open(bootimg_path + "-tags_offset", 'r') as f:
         output["tags_offset"] = ("0x%08x" % int(f.read().replace('\n', ''), 16))
     with open(bootimg_path + "-pagesize", 'r') as f:
         output["pagesize"] = f.read().replace('\n', '')
