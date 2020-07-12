@@ -54,6 +54,10 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
 
         if complete:
             readline.parse_and_bind('tab: complete')
+            delims = readline.get_completer_delims()
+            if '-' in delims:
+                delims = delims.replace('-', '')
+                readline.set_completer_delims(delims)
             readline.set_completer(ReadlineTabCompleter(complete).completer_func)
 
         ret = input(question_full + ": ")
