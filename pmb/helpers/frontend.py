@@ -310,7 +310,7 @@ def kconfig(args):
         # Handle passing a file directly
         if args.file:
             if pmb.parse.kconfig.check_file(args, args.package,
-                                            force_anbox_check=args.anbox,
+                                            anbox=args.anbox,
                                             details=True):
                 logging.info("kconfig check succeeded!")
                 return
