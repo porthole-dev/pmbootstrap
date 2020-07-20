@@ -44,3 +44,38 @@ def test_get_nonfree_packages(args):
     # Device with non-free userland (but user disabled it init)
     args.nonfree_userland = False
     assert func(args, device) == []
+
+
+def test_get_recommends_packages(args):
+    args.aports = pmb_test.const.testdata + "/pmb_recommends"
+    func = pmb.install._install.get_recommends_packages
+
+    # UI: none
+    args.install_recommends = True
+    args.ui = "none"
+    assert func(args) == []
+
+    # UI: test, --no-recommends
+    args.install_recommends = False
+    args.ui = "test"
+    assert func(args) == []
+
+    # UI: test, without -extras
+    args.install_recommends = True
+    args.ui = "test"
+    args.ui_extras = False
+    assert func(args) == ["plasma-camera", "plasma-angelfish"]
+
+    # UI: test, with -extras
+    args.install_recommends = True
+    args.ui = "test"
+    args.ui_extras = True
+    assert func(args) == ["plasma-camera", "plasma-angelfish", "buho",
+                          "kaidan"]
+
+    # UI: invalid
+    args.install_recommends = True
+    args.ui = "invalid"
+    with pytest.raises(RuntimeError) as e:
+        func(args)
+    assert str(e.value).startswith("Could not find aport for package")

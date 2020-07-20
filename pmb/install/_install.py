@@ -101,6 +101,36 @@ def get_kernel_package(args, device):
     return ["device-" + device + "-kernel-" + args.kernel]
 
 
+def get_recommends_packages(args):
+    """ Get all packages listed in _pmb_recommends of the UI and UI-extras
+        package, unless running with pmbootstrap install --no-recommends.
+
+        :returns: list of pkgnames, e.g. ["chatty", "gnome-contacts"] """
+    ret = []
+    if not args.install_recommends or args.ui == "none":
+        return ret
+
+    # UI package
+    meta = f"postmarketos-ui-{args.ui}"
+    apkbuild = pmb.helpers.pmaports.get(args, meta)
+    recommends = apkbuild["_pmb_recommends"]
+    if recommends:
+        logging.debug(f"{meta}: install _pmb_recommends:"
+                      f" {', '.join(recommends)}")
+        ret += recommends
+
+    # UI-extras subpackage
+    meta_extras = f"{meta}-extras"
+    if args.ui_extras and meta_extras in apkbuild["subpackages"]:
+        recommends = apkbuild["subpackages"][meta_extras]["_pmb_recommends"]
+        if recommends:
+            logging.debug(f"{meta_extras}: install _pmb_recommends:"
+                          f" {', '.join(recommends)}")
+            ret += recommends
+
+    return ret
+
+
 def copy_files_from_chroot(args, suffix):
     """
     Copy all files from the rootfs chroot to /mnt/install, except
@@ -605,7 +635,8 @@ def install(args):
     install_packages = (pmb.config.install_device_packages +
                         ["device-" + args.device] +
                         get_kernel_package(args, args.device) +
-                        get_nonfree_packages(args, args.device))
+                        get_nonfree_packages(args, args.device) +
+                        get_recommends_packages(args))
     if not args.install_base:
         install_packages = [p for p in install_packages if p != "postmarketos-base"]
     if args.ui.lower() != "none":

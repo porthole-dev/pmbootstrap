@@ -565,6 +565,10 @@ def arguments():
     install.add_argument("--no-local-pkgs", dest="install_local_pkgs",
                          help="do not install locally compiled packages and"
                               " package signing keys", action="store_false")
+    install.add_argument("--no-recommends", dest="install_recommends",
+                         help="do not install packages listed in"
+                              " _pmb_recommends of the UI pmaports",
+                         action="store_false")
     group = install.add_mutually_exclusive_group()
     group.add_argument("--sparse", help="generate sparse image file"
                        " (even if unsupported by device)", default=None,

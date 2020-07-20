@@ -250,6 +250,13 @@ apkbuild_package_attributes = {
     "pkgdesc": {},
     "depends": {"array": True},
     "provides": {"array": True},
+
+    # UI meta-packages can specify apps in "_pmb_recommends" to be explicitly
+    # installed by default, and not implicitly as dependency of the UI meta-
+    # package ("depends"). This makes these apps uninstallable, without
+    # removing the meta-package. (#1933). To disable this feature, use:
+    # "pmbootstrap install --no-recommends".
+    "_pmb_recommends": {"array": True},
 }
 
 # Variables in APKBUILD files, that get parsed
