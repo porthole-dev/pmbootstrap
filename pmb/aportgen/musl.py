@@ -47,7 +47,7 @@ def generate(args, pkgname):
             subpackages="musl-dev-{arch}:package_dev"
 
             _arch="{arch}"
-            _mirror="{args.mirror_alpine}"
+            _mirror="{pmb.config.aportgen_mirror_alpine}"
 
             url="https://musl-libc.org"
             license="MIT"

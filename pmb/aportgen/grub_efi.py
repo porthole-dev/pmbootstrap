@@ -37,7 +37,7 @@ def generate(args, pkgname):
             pkgrel={pkgrel}
 
             _arch="{arch}"
-            _mirror="{args.mirror_alpine}"
+            _mirror="{pmb.config.aportgen_mirror_alpine}"
 
             pkgdesc="GRUB $_arch EFI files for every architecture"
             url="https://www.gnu.org/software/grub/"

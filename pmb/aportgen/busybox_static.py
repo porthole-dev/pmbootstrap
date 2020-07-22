@@ -42,7 +42,7 @@ def generate(args, pkgname):
             pkgrel={pkgrel}
 
             _arch="{arch}"
-            _mirror="{args.mirror_alpine}"
+            _mirror="{pmb.config.aportgen_mirror_alpine}"
 
             url="http://busybox.net"
             license="GPL2"
