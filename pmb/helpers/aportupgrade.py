@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import urllib
+from typing import Optional
 
 import pmb.helpers.file
 import pmb.helpers.http
@@ -41,33 +42,18 @@ def init_req_headers() -> None:
         logging.info("NOTE: Consider using a GITHUB_TOKEN environment variable to increase your rate limit")
 
 
-def get_github_branch_arg(repo: str) -> str:
-    """
-    Get the branch to query for the latest commit
-    :param repo: the repository name
-    :returns: e.g. "?sha=bionic" or ""
-    """
-    if "ubports" not in repo:
-        return ""
-    # Get a list of branches to see if a 'bionic' branch exists
-    branches = pmb.helpers.http.retrieve_json(GITHUB_API_BASE + "/repos/" + repo + "/branches",
-                                              headers=req_headers_github)
-    for branch_o in branches:
-        if branch_o["name"] == "bionic":
-            return "?sha=bionic"
-    # Return no branch if 'bionic' does not exist
-    return ""
-
-
-def get_package_version_info_github(repo_name: str):
+def get_package_version_info_github(repo_name: str, ref: Optional[str]):
     logging.debug("Trying GitHub repository: {}".format(repo_name))
 
-    # Special case for ubports Unity 8 repos, we want to use the 'bionic' branch (where available)
-    branch = get_github_branch_arg(repo_name)
+    # Get the URL argument to request a special ref, if needed
+    ref_arg = ""
+    if ref is not None:
+        ref_arg = "?sha=" + ref
 
     # Get the commits for the repository
-    commits = pmb.helpers.http.retrieve_json(GITHUB_API_BASE + "/repos/" + repo_name + "/commits" + branch,
-                                             headers=req_headers_github)
+    commits = pmb.helpers.http.retrieve_json(
+        GITHUB_API_BASE + "/repos/" + repo_name + "/commits" + ref_arg,
+        headers=req_headers_github)
     latest_commit = commits[0]
     commit_date = latest_commit["commit"]["committer"]["date"]
     # Extract the time from the field
@@ -78,12 +64,20 @@ def get_package_version_info_github(repo_name: str):
     }
 
 
-def get_package_version_info_gitlab(gitlab_host: str, repo_name: str):
+def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
+                                    ref: Optional[str]):
     logging.debug("Trying GitLab repository: {}".format(repo_name))
+
+    repo_name_safe = urllib.parse.quote(repo_name, safe='')
+
+    # Get the URL argument to request a special ref, if needed
+    ref_arg = ""
+    if ref is not None:
+        ref_arg = "?ref_name=" + ref
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        gitlab_host + "/api/v4/projects/" + urllib.parse.quote(repo_name, safe='') + "/repository/commits",
+        gitlab_host + "/api/v4/projects/" + repo_name_safe + "/repository/commits" + ref_arg,
         headers=req_headers)
     latest_commit = commits[0]
     commit_date = latest_commit["committed_date"]
@@ -116,9 +110,9 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     github_match = re.match(r"https://github\.com/(.+)/(?:archive|releases)", source)
     gitlab_match = re.match(r"(" + '|'.join(GITLAB_HOSTS) + ")/(.+)/-/archive/", source)
     if github_match:
-        verinfo = get_package_version_info_github(github_match.group(1))
+        verinfo = get_package_version_info_github(github_match.group(1), args.ref)
     elif gitlab_match:
-        verinfo = get_package_version_info_gitlab(gitlab_match.group(1), gitlab_match.group(2))
+        verinfo = get_package_version_info_gitlab(gitlab_match.group(1), gitlab_match.group(2), args.ref)
 
     if verinfo is None:
         # ignore for now

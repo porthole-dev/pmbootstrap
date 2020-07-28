@@ -189,6 +189,7 @@ def arguments_aportupgrade(subparser):
     ret = subparser.add_parser("aportupgrade")
     ret.add_argument("--dry", action="store_true", help="instead of modifying APKBUILDs,"
                      " print the changes that would be made")
+    ret.add_argument("--ref", help="git ref (tag, commit, etc) to use")
 
     # Mutually exclusive: "--all" or package names
     mode = ret.add_mutually_exclusive_group(required=True)
