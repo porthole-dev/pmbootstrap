@@ -46,7 +46,7 @@ def generate(args, pkgname):
 
             url="http://busybox.net"
             license="GPL2"
-            arch="all"
+            arch="{args.arch_native}"
             options="!check !strip"
             pkgdesc="Statically linked Busybox for $_arch"
             _target="$(arch_to_hostspec $_arch)"

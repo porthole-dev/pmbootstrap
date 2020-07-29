@@ -23,12 +23,12 @@ def generate(args, pkgname):
                          " gcc6.")
     pmb.helpers.run.user(args, ["cp", "-r", upstream, args.work + "/aportgen"])
 
-    # Rewrite APKBUILD (only building for x86_64 covers most use cases and
+    # Rewrite APKBUILD (only building for native covers most use cases and
     # saves a lot of build time, can be changed on demand)
     fields = {
         "pkgname": pkgname,
         "pkgdesc": "Stage2 cross-compiler for " + arch,
-        "arch": "x86_64",
+        "arch": args.arch_native,
         "depends": "isl binutils-" + arch + " mpc1",
         "makedepends_build": "gcc g++ paxmark bison flex texinfo gawk zip gmp-dev mpfr-dev mpc1-dev zlib-dev",
         "makedepends_host": "linux-headers gmp-dev mpfr-dev mpc1-dev isl-dev zlib-dev musl-dev-" + arch + " binutils-" + arch,

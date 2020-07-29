@@ -9,16 +9,13 @@ import pmb.parse.apkindex
 
 
 def generate(args, pkgname):
+    arch = pkgname.split("-")[1]
+
     # Parse musl version from APKINDEX
     package_data = pmb.parse.apkindex.package(args, "musl")
     version = package_data["version"]
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
-
-    # Architectures to build this package for
-    arch = pkgname.split("-")[1]
-    arches = list(pmb.config.build_device_architectures)
-    arches.remove(arch)
 
     # Prepare aportgen tempdir inside and outside of chroot
     tempdir = "/tmp/aportgen"
@@ -43,7 +40,7 @@ def generate(args, pkgname):
             pkgname={pkgname}
             pkgver={pkgver}
             pkgrel={pkgrel}
-            arch="{" ".join(arches)}"
+            arch="{args.arch_native}"
             subpackages="musl-dev-{arch}:package_dev"
 
             _arch="{arch}"
