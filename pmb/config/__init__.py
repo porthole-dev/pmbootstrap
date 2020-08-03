@@ -82,7 +82,7 @@ defaults = {
     "kernel": "stable",
     "keymap": "",
     "log": "$WORK/log.txt",
-    "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
+    "mirror_alpine": "http://dl-2.alpinelinux.org/alpine/",
     "mirrors_postmarketos": ["http://postmarketos1.brixit.nl/postmarketos/"],
     "nonfree_firmware": True,
     "nonfree_userland": False,
