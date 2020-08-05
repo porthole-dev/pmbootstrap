@@ -36,21 +36,30 @@ def test_crossdirect_rust(args):
         check() function, which makes sure that the built program is actually
         working. """
     pmbootstrap_run(args, ["-y", "zap"])
-    pmbootstrap_run(args, ["build_init", "-barmv7"])
-    pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",
-                           "mv", "/usr/bin/rustc", "/usr/bin/rustc_"])
-    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
-                           "--force"])
-    # Make /native/usr/bin/rustc unusuable too, to make the build fail
-    pmbootstrap_run(args, ["chroot", "--", "rm", "/usr/bin/rustc"])
-    assert pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
-                                  "--force"], check=False) == 1
+    try:
+        # Switch to "stable" channel, as the stable release of alpine is more
+        # likely to have the same rustc version across various architectures.
+        # If armv7/x86_64 have a different rustc version, this test will fail:
+        # 'found crate `std` compiled by an incompatible version of rustc'
+        pmb.config.pmaports.switch_to_channel_branch(args, "stable")
 
-    # Make /usr/bin/rustc usable again, to test fallback with qemu
-    pmbootstrap_run(args, ["chroot", "-barmv7", "--",
-                           "mv", "/usr/bin/rustc_", "/usr/bin/rustc"])
-    pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
-                           "--force"])
+        pmbootstrap_run(args, ["build_init", "-barmv7"])
+        pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",
+                               "mv", "/usr/bin/rustc", "/usr/bin/rustc_"])
+        pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
+                               "--force"])
+        # Make /native/usr/bin/rustc unusuable too, to make the build fail
+        pmbootstrap_run(args, ["chroot", "--", "rm", "/usr/bin/rustc"])
+        assert pmbootstrap_run(args, ["build", "hello-world-rust",
+                                      "--arch=armv7", "--force"],
+                               check=False) == 1
 
-    # Clean up
-    pmbootstrap_run(args, ["-y", "zap"])
+        # Make /usr/bin/rustc usable again, to test fallback with qemu
+        pmbootstrap_run(args, ["chroot", "-barmv7", "--",
+                               "mv", "/usr/bin/rustc_", "/usr/bin/rustc"])
+        pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
+                               "--force"])
+    finally:
+        # Clean up
+        pmb.config.pmaports.switch_to_channel_branch(args, "edge")
+        pmbootstrap_run(args, ["-y", "zap"])
