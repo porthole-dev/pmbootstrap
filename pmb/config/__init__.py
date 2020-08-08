@@ -83,7 +83,7 @@ defaults = {
     "keymap": "",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-2.alpinelinux.org/alpine/",
-    "mirrors_postmarketos": ["http://postmarketos1.brixit.nl/postmarketos/"],
+    "mirrors_postmarketos": ["http://mirror.postmarketos.org/postmarketos/"],
     "nonfree_firmware": True,
     "nonfree_userland": False,
     "port_distccd": "33632",
