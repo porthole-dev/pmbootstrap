@@ -294,8 +294,11 @@ def setup_keymap(args):
                         output="interactive")
 
         # Check xorg config
-        config = pmb.chroot.root(args, ["grep", "-rl", "XkbLayout", "/etc/X11/xorg.conf.d/"],
-                                 suffix, check=False, output_return=True)
+        config = None
+        if os.path.exists(f"{args.work}/chroot_{suffix}/etc/X11/xorg.conf.d"):
+            config = pmb.chroot.root(args, ["grep", "-rl", "XkbLayout",
+                                            "/etc/X11/xorg.conf.d/"],
+                                     suffix, check=False, output_return=True)
         if config:
             # Multiple files can contain the keyboard layout, take last
             config = config.splitlines()[-1]
