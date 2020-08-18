@@ -403,6 +403,7 @@ def kconfig(args):
             if not pmb.parse.kconfig.check(
                     args, package,
                     force_anbox_check=args.anbox,
+                    force_apparmor_check=args.apparmor,
                     force_nftables_check=args.nftables,
                     force_containers_check=args.containers,
                     force_zram_check=args.zram,

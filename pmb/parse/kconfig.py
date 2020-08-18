@@ -86,6 +86,7 @@ def check_option(component, details, config, config_path_pretty, option,
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  anbox=False,
+                 apparmor=False,
                  nftables=False,
                  containers=False,
                  zram=False,
@@ -97,6 +98,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     components = {"postmarketOS": pmb.config.necessary_kconfig_options}
     if anbox:
         components["anbox"] = pmb.config.necessary_kconfig_options_anbox
+    if apparmor:
+        components["apparmor"] = pmb.config.necessary_kconfig_options_apparmor
     if nftables:
         components["nftables"] = pmb.config.necessary_kconfig_options_nftables
     if containers:
@@ -148,6 +151,7 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
 
 def check(args, pkgname,
           force_anbox_check=False,
+          force_apparmor_check=False,
           force_nftables_check=False,
           force_containers_check=False,
           force_zram_check=False,
@@ -172,6 +176,8 @@ def check(args, pkgname,
     pkgver = apkbuild["pkgver"]
     check_anbox = force_anbox_check or (
         "pmb:kconfigcheck-anbox" in apkbuild["options"])
+    check_apparmor = force_apparmor_check or (
+        "pmb:kconfigcheck-apparmor" in apkbuild["options"])
     check_nftables = force_nftables_check or (
         "pmb:kconfigcheck-nftables" in apkbuild["options"])
     check_containers = force_containers_check or (
@@ -186,6 +192,7 @@ def check(args, pkgname,
         ret &= check_config(config_path, config_path_pretty, config_arch,
                             pkgver,
                             anbox=check_anbox,
+                            apparmor=check_apparmor,
                             nftables=check_nftables,
                             containers=check_containers,
                             zram=check_zram,

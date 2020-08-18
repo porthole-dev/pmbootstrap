@@ -332,6 +332,26 @@ necessary_kconfig_options_anbox = {
     }
 }
 
+# Necessary apparmor kernel config options (mandatory access control)
+# LSM: the value that "config LSM" sets in security/Kconfig, if
+# DEFAULT_SECURITY_APPARMOR is set (and other DEFAULT_SECURITY_* are unset).
+necessary_kconfig_options_apparmor = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "AUDIT": True,
+            "DEFAULT_SECURITY_APPARMOR": True,
+            "LSM": "landlock,lockdown,yama,loadpin,safesetid,integrity,"
+                   "apparmor,selinux,smack,tomoyo,bpf",
+            "SECURITY_APPARMOR": True,
+        },
+    },
+    "<5.1": {
+        "all": {
+            "SECURITY_APPARMOR_BOOTPARAM_VALUE": True,
+        },
+    },
+}
+
 # Necessary nftables kernel config options
 necessary_kconfig_options_nftables = {
     ">=3.13.0": {  # nftables support introduced here
