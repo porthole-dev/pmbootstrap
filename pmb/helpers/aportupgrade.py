@@ -37,7 +37,7 @@ def init_req_headers() -> None:
     # Request headers specific to GitHub
     req_headers_github = dict(req_headers)
     if os.getenv("GITHUB_TOKEN") is not None:
-        req_headers_github['Authorization'] = 'token ' + os.getenv("GITHUB_TOKEN")
+        req_headers_github['Authorization'] = f'token {os.getenv("GITHUB_TOKEN")}'
     else:
         logging.info("NOTE: Consider using a GITHUB_TOKEN environment variable to increase your rate limit")
 
@@ -48,11 +48,11 @@ def get_package_version_info_github(repo_name: str, ref: Optional[str]):
     # Get the URL argument to request a special ref, if needed
     ref_arg = ""
     if ref is not None:
-        ref_arg = "?sha=" + ref
+        ref_arg = f"?sha={ref}"
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        GITHUB_API_BASE + "/repos/" + repo_name + "/commits" + ref_arg,
+        f"{GITHUB_API_BASE}/repos/{repo_name}/commits{ref_arg}",
         headers=req_headers_github)
     latest_commit = commits[0]
     commit_date = latest_commit["commit"]["committer"]["date"]
@@ -73,11 +73,11 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
     # Get the URL argument to request a special ref, if needed
     ref_arg = ""
     if ref is not None:
-        ref_arg = "?ref_name=" + ref
+        ref_arg = f"?ref_name={ref}"
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        gitlab_host + "/api/v4/projects/" + repo_name_safe + "/repository/commits" + ref_arg,
+        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository/commits{ref_arg}",
         headers=req_headers)
     latest_commit = commits[0]
     commit_date = latest_commit["committed_date"]
@@ -108,7 +108,7 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     verinfo = None
 
     github_match = re.match(r"https://github\.com/(.+)/(?:archive|releases)", source)
-    gitlab_match = re.match(r"(" + '|'.join(GITLAB_HOSTS) + ")/(.+)/-/archive/", source)
+    gitlab_match = re.match(fr"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
     if github_match:
         verinfo = get_package_version_info_github(github_match.group(1), args.ref)
     elif gitlab_match:
@@ -127,7 +127,7 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     pkgver = package["pkgver"]
     pkgver_match = re.match(r"([\d.]+)_git", pkgver)
     date_pkgver = verinfo["date"].strftime("%Y%m%d")
-    pkgver_new = pkgver_match.group(1) + "_git" + date_pkgver
+    pkgver_new = f"{pkgver_match.group(1)}_git{date_pkgver}"
 
     # pkgrel will be zero
     pkgrel = int(package["pkgrel"])
@@ -158,18 +158,18 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     :param package: a dict containing package information
     :returns: if something (would have) been changed
     """
-    projects = pmb.helpers.http.retrieve_json(ANITYA_API_BASE + "/projects/?name=" + pkgname, headers=req_headers)
+    projects = pmb.helpers.http.retrieve_json(f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
     if projects["total_items"] < 1:
         # There is no Anitya project with the package name.
         # Looking up if there's a custom mapping from postmarketOS package name to Anitya project name.
         mappings = pmb.helpers.http.retrieve_json(
-            ANITYA_API_BASE + "/packages/?distribution=postmarketOS&name=" + pkgname, headers=req_headers)
+            f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS&name={pkgname}", headers=req_headers)
         if mappings["total_items"] < 1:
             logging.warning("{}: failed to get Anitya project".format(pkgname))
             return False
         project_name = mappings["items"][0]["project"]
         projects = pmb.helpers.http.retrieve_json(
-            ANITYA_API_BASE + "/projects/?name=" + project_name, headers=req_headers)
+            f"{ANITYA_API_BASE}/projects/?name={project_name}", headers=req_headers)
 
     # Get the first, best-matching item
     project = projects["items"][0]
