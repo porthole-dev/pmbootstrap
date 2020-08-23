@@ -68,7 +68,7 @@ set_alias_pmbootstrap() {
 	pmbootstrap="$pmbootstrap_dir"/pmbootstrap.py
 	# shellcheck disable=SC2139
 	alias pmbootstrap="\"$pmbootstrap\""
-	if [ -e ~/.config/pmbootstrap.cfg ]; then
+	if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}"/pmbootstrap.cfg ]; then
 		"$pmbootstrap" work_migrate
 	else
 		echo "NOTE: First run of pmbootstrap, running 'pmbootstrap init'"

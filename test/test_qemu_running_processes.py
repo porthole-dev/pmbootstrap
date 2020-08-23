@@ -7,7 +7,6 @@ via SSH if expected processes are running.
 We use an extra config file (based on ~/.config/pmbootstrap.cfg), because we
 need to change it a lot (e.g. UI, username, ...).
 """
-import os
 import pytest
 import sys
 import shutil
@@ -78,8 +77,7 @@ class QEMU(object):
     def run(self, args, tmpdir, ui="none"):
         # Copy and adjust user's pmbootstrap.cfg
         config = str(tmpdir) + "/pmbootstrap.cfg"
-        shutil.copyfile(os.path.expanduser("~") + "/.config/pmbootstrap.cfg",
-                        config)
+        shutil.copyfile(args.config, config)
         pmbootstrap_run(args, config, ["config", "device", "qemu-amd64"])
         pmbootstrap_run(args, config, ["config", "kernel", "virt"])
         pmbootstrap_run(args, config, ["config", "extra_packages", "none"])
