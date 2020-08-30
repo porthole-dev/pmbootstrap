@@ -15,7 +15,6 @@ import pmb.config.pmaports
 import pmb.helpers.devices
 import pmb.helpers.run
 import pmb.install.blockdevice
-import pmb.install.file
 import pmb.install.recovery
 import pmb.install
 
@@ -716,7 +715,6 @@ def create_device_rootfs(args, step, steps):
     # installed a hook without pmbootstrap - see #69 for more info)
     suffix = "rootfs_" + args.device
     pmb.chroot.apk.install(args, install_packages, suffix)
-    pmb.install.file.write_os_release(args, suffix)
     for flavor in pmb.chroot.other.kernel_flavors_installed(args, suffix):
         pmb.chroot.initfs.build(args, flavor, suffix)
 
