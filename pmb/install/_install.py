@@ -300,6 +300,15 @@ def setup_keymap(args):
                                             "/etc/X11/xorg.conf.d/"],
                                      suffix, check=False, output_return=True)
         if config:
+            # Nokia n900 (RX-51) randomly merges some keymaps so we
+            # have to specify a composite keymap for a few countries. See:
+            # https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config/-/blob/master/symbols/nokia_vndr/rx-51
+            if variant == "rx51_fi" or variant == "rx51_se":
+                layout = "fise"
+            if variant == "rx51_da" or variant == "rx51_no":
+                layout = "dano"
+            if variant == "rx51_pt" or variant == "rx51_es":
+                layout = "ptes"
             # Multiple files can contain the keyboard layout, take last
             config = config.splitlines()[-1]
             old_text = "Option *\\\"XkbLayout\\\" *\\\".*\\\""
