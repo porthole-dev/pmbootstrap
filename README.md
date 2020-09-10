@@ -197,8 +197,38 @@ $ pmbootstrap log_distccd
 ```
 
 ## Development
-### Testing
-Install `pytest` (via your package manager or pip) and run it inside the pmbootstrap folder.
+### Requirements for running tests
+* [Shellcheck](https://shellcheck.net/)
+
+You also need to install the following python packages (pip can be useful if you distribution hasn't got them packaged):
+* `pytest`
+* `pytest-cov` (only needed for `test/testcases_fast.sh`, which is what CI runs)
+* `flake8`
+
+On Alpine Linux it can be done with:
+```shell
+$ sudo apk add grep shellcheck py3-pytest py3-pytest-cov py3-flake8
+```
+
+### Running linters
+The easiest way is to run the same script CI runs:
+```shell
+$ ./test/static_code_analysis.sh
+```
+
+### Running tests
+You can now run `pytest -vv` inside the pmbootstrap folder to run all available tests.
+
+CI runs slightly reduces set of tests (it skips tests that require running qemu) by this:
+```shell
+$ ./test/testcases_fast.sh
+```
+This is the easiest way to do the same as CI.
+
+Alternatively you can run a single test if you wish:
+```shell
+$ pytest -vv ./test/test_keys.py
+```
 
 ## License
 [GPLv3](LICENSE)
