@@ -20,8 +20,8 @@ cd "$(dirname "$0")/.."
 
 # Make sure we have a valid device (#1128)
 device="$(./pmbootstrap.py config device)"
-work="$(./pmbootstrap.py config work)"
-deviceinfo="$work/cache_git/pmaports/device/*/device-$device/deviceinfo"
+pmaports="$(./pmbootstrap.py config aports)"
+deviceinfo="$pmaports/device/*/device-$device/deviceinfo"
 # shellcheck disable=SC2086
 if ! [ -e $deviceinfo ]; then
 	echo "ERROR: Could not find deviceinfo file for selected device '$device'."
