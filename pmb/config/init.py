@@ -60,6 +60,10 @@ def ask_for_work_path(args):
             # Create the folder with a version file
             if not exists:
                 os.makedirs(work, 0o700, True)
+
+            if not os.listdir(work):
+                # Directory is empty, either because we just created it or
+                # because user created it before running pmbootstrap init
                 with open(work + "/version", "w") as handle:
                     handle.write(str(pmb.config.work_version) + "\n")
 
