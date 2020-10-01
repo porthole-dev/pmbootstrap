@@ -15,6 +15,7 @@ import pmb.chroot.initfs
 import pmb.config
 import pmb.helpers.run
 import pmb.parse.arch
+import pmb.parse.cpuinfo
 
 
 def system_image(args):
@@ -84,6 +85,7 @@ def command_qemu(args, arch, img_path):
     suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
     flavor = pmb.chroot.other.kernel_flavors_installed(args, suffix)[0]
+    ncpus = os.cpu_count()
 
     if args.host_qemu:
         qemu_bin = which_qemu(args, arch)
@@ -102,8 +104,23 @@ def command_qemu(args, arch, img_path):
                         "XDG_DATA_DIRS": rootfs_native + "/usr/local/share:" +
                         rootfs_native + "/usr/share"})
 
-        command = [rootfs_native + "/lib/ld-musl-" +
-                   args.arch_native + ".so.1"]
+        command = []
+        if args.arch_native in ["aarch64", "armv7"]:
+            # Workaround for QEMU failing on aarch64 asymetric multiprocessor arch
+            # (big/little architecture https://en.wikipedia.org/wiki/ARM_big.LITTLE)
+            # see https://bugs.linaro.org/show_bug.cgi?id=1443
+            ncpus_bl = pmb.parse.cpuinfo.arm_big_little_first_group_ncpus()
+            if ncpus_bl:
+                ncpus = ncpus_bl
+                logging.info("QEMU will run on big/little architecture on the"
+                             f" first {ncpus} cores (from /proc/cpuinfo)")
+                command += [rootfs_native + "/lib/ld-musl-" +
+                            args.arch_native + ".so.1"]
+                command += [rootfs_native + "/usr/bin/taskset"]
+                command += ["-c", "0-" + str(ncpus - 1)]
+
+        command += [rootfs_native + "/lib/ld-musl-" +
+                    args.arch_native + ".so.1"]
         command += ["--library-path=" + rootfs_native + "/lib:" +
                     rootfs_native + "/usr/lib:" +
                     rootfs_native + "/usr/lib/pulseaudio"]
@@ -115,7 +132,8 @@ def command_qemu(args, arch, img_path):
     command += ["-initrd", rootfs + "/boot/initramfs-" + flavor]
     command += ["-append", shlex.quote(cmdline)]
 
-    command += ["-smp", str(os.cpu_count())]
+    command += ["-smp", str(ncpus)]
+
     command += ["-m", str(args.memory)]
 
     command += ["-serial", "stdio"]

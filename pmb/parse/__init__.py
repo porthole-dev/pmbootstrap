@@ -7,4 +7,5 @@ from pmb.parse.binfmt_info import binfmt_info
 from pmb.parse.deviceinfo import deviceinfo
 from pmb.parse.kconfig import check
 from pmb.parse.bootimg import bootimg
+from pmb.parse.cpuinfo import arm_big_little_first_group_ncpus
 import pmb.parse.arch
