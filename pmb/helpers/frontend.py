@@ -70,6 +70,24 @@ def _parse_suffix(args):
         return "native"
 
 
+def _install_ondev_verify_no_rootfs(args):
+    chroot_dest = "/var/lib/rootfs.img"
+    dest = f"{args.work}/chroot_installer_{args.device}{chroot_dest}"
+    if os.path.exists(dest):
+        return
+
+    if args.ondev_cp:
+        for _, chroot_dest_cp in args.ondev_cp:
+            if chroot_dest_cp == chroot_dest:
+                return
+
+    raise ValueError(f"--no-rootfs set, but rootfs.img not found in install"
+                     " chroot. Either run 'pmbootstrap install' without"
+                     " --no-rootfs first to let it generate the postmarketOS"
+                     " rootfs once, or supply a rootfs file with:"
+                     f" --cp os.img:{chroot_dest}")
+
+
 def aportgen(args):
     for package in args.packages:
         logging.info("Generate aport: " + package)
@@ -236,6 +254,11 @@ def install(args):
     else:
         if args.ondev_cp:
             raise ValueError("--cp can only be combined with --ondev")
+        if args.ondev_no_rootfs:
+            raise ValueError("--no-rootfs can only be combined with --ondev."
+                             " Do you mean --no-image?")
+    if args.ondev_no_rootfs:
+        _install_ondev_verify_no_rootfs(args)
 
     # On-device installer overrides
     if args.on_device_installer:
