@@ -672,8 +672,7 @@ def install(args):
     # pmaports can figure out the username (legacy reasons: pmaports#820)
     set_user(args)
 
-    # List all packages to be installed (including the ones specified by --add)
-    # and upgrade the installed packages/apkindexes
+    # Fill install_packages
     install_packages = (pmb.config.install_device_packages +
                         ["device-" + args.device] +
                         get_kernel_package(args, args.device) +
@@ -685,15 +684,15 @@ def install(args):
         install_packages += ["postmarketos-ui-" + args.ui]
         if args.ui_extras:
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
+    if args.extra_packages.lower() != "none":
+        install_packages += args.extra_packages.split(",")
+    if args.add:
+        install_packages += args.add.split(",")
 
     pmb.helpers.repo.update(args, args.deviceinfo["arch"])
 
     # Explicitly call build on the install packages, to re-build them or any
     # dependency, in case the version increased
-    if args.extra_packages.lower() != "none":
-        install_packages += args.extra_packages.split(",")
-    if args.add:
-        install_packages += args.add.split(",")
     if args.build_pkgs_on_install:
         for pkgname in install_packages:
             pmb.build.package(args, pkgname, args.deviceinfo["arch"])
