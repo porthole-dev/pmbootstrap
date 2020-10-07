@@ -451,7 +451,7 @@ def work_migrate(args):
 def log(args):
     if args.clear_log:
         pmb.helpers.run.user(args, ["truncate", "-s", "0", args.log])
-    pmb.helpers.run.user(args, ["tail", "-f", args.log, "-n", args.lines],
+    pmb.helpers.run.user(args, ["tail", "-F", args.log, "-n", args.lines],
                          output="tui")
 
 
