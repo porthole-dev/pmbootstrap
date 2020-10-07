@@ -666,10 +666,14 @@ def install(args):
     pmb.chroot.apk.install(args, pmb.config.install_native_packages,
                            build=False)
 
+    logging.info(f'*** (2/{steps} CREATE DEVICE ROOTFS("{args.device}") ***')
+
+    # Create user before installing packages, so post-install scripts of
+    # pmaports can figure out the username (legacy reasons: pmaports#820)
+    set_user(args)
+
     # List all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
-    logging.info('*** (2/{0}) CREATE DEVICE ROOTFS ("{1}") ***'.format(steps,
-                                                                       args.device))
     install_packages = (pmb.config.install_device_packages +
                         ["device-" + args.device] +
                         get_kernel_package(args, args.device) +
@@ -683,9 +687,6 @@ def install(args):
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
 
     pmb.helpers.repo.update(args, args.deviceinfo["arch"])
-
-    # Create final user and remove 'build' user
-    set_user(args)
 
     # Explicitly call build on the install packages, to re-build them or any
     # dependency, in case the version increased
