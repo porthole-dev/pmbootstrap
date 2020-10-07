@@ -237,19 +237,6 @@ def install(args, packages, suffix="native", build=True):
         pmb.chroot.root(args, ["apk", "--no-progress"] + command, suffix=suffix, disable_timeout=True)
 
 
-def upgrade(args, suffix="native"):
-    """
-    Upgrade all packages installed in a chroot
-    """
-    # Update APKINDEX files
-    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
-    pmb.helpers.repo.update(args, arch)
-
-    # Rebuild and upgrade out-of-date packages
-    packages = list(installed(args, suffix).keys())
-    install(args, packages, suffix)
-
-
 def installed(args, suffix="native"):
     """
     Read the list of installed packages (which has almost the same format, as

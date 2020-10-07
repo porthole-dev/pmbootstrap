@@ -681,8 +681,8 @@ def install(args):
         install_packages += ["postmarketos-ui-" + args.ui]
         if args.ui_extras:
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
-    suffix = "rootfs_" + args.device
-    pmb.chroot.apk.upgrade(args, suffix)
+
+    pmb.helpers.repo.update(args, args.deviceinfo["arch"])
 
     # Create final user and remove 'build' user
     set_user(args)
@@ -700,6 +700,7 @@ def install(args):
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
     # installed a hook without pmbootstrap - see #69 for more info)
+    suffix = "rootfs_" + args.device
     pmb.chroot.apk.install(args, install_packages, suffix)
     pmb.install.file.write_os_release(args, suffix)
     for flavor in pmb.chroot.other.kernel_flavors_installed(args, suffix):
