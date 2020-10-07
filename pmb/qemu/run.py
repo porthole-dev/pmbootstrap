@@ -169,7 +169,11 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
     command += ["-m", str(args.memory)]
 
-    command += ["-serial", "stdio"]
+    command += ["-serial"]
+    if args.qemu_redir_stdio:
+        command += ["mon:stdio"]
+    else:
+        command += ["stdio"]
 
     command += ["-drive", "file=" + img_path + ",format=raw,if=virtio"]
     if img_path_2nd:
@@ -339,14 +343,24 @@ def run(args):
     logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
     logging.info("* (serial) in this console (stdout/stdin)")
 
+    if args.qemu_redir_stdio:
+        logging.info("NOTE: Ctrl+C is redirected to the VM! To disable this, "
+                     "run: pmbootstrap config qemu_redir_stdio False")
+        logging.info("NOTE: To quit QEMU with this option you can use "
+                     "Ctrl-A, X.")
+
     # Run QEMU and kill it together with pmbootstrap
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)
         process = pmb.helpers.run.user(args, qemu, output="tui", env=env)
     except KeyboardInterrupt:
-        # Don't show a trace when pressing ^C
-        pass
+        # In addition to not showing a trace when pressing ^C, let user know
+        # they can override this behavior:
+        logging.info("Quitting because Ctrl+C detected.")
+        logging.info("To override this behavior and have pmbootstrap "
+                     "send Ctrl+C to the VM, run:")
+        logging.info("$ pmbootstrap config qemu_redir_stdio True")
     finally:
         if process:
             process.terminate()
