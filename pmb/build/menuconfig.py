@@ -16,8 +16,8 @@ import pmb.parse
 
 def get_arch(args, apkbuild):
     """
-    Get the architecture, that the user wants to run menuconfig on, depending on
-    the APKBUILD and on the --arch parameter.
+    Take the architecture from the APKBUILD or complain if it's ambiguous. This
+    function only gets called if --arch is not set.
 
     :param apkbuild: looks like: {"pkgname": "linux-...",
                                   "arch": ["x86_64", "armhf", "aarch64"]}
@@ -25,14 +25,11 @@ def get_arch(args, apkbuild):
     """
     pkgname = apkbuild["pkgname"]
 
-    # Multiple architectures (requires --arch)
+    # Multiple architectures
     if len(apkbuild["arch"]) > 1:
-        if args.arch is None:
-            raise RuntimeError(f"'{pkgname}' supports multiple architectures"
-                               f" ({', '.join(apkbuild['arch'])}). Please use"
-                               " '--arch' to specify the desired"
-                               " architecture.")
-        return args.arch
+        raise RuntimeError(f"'{pkgname}' supports multiple architectures"
+                           f" ({', '.join(apkbuild['arch'])}). Please use"
+                           " '--arch' to specify the desired architecture.")
 
     return apkbuild["arch"][0]
 
@@ -88,7 +85,7 @@ def menuconfig(args, pkgname):
     # Read apkbuild
     aport = pmb.helpers.pmaports.find(args, pkgname)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
-    arch = get_arch(args, apkbuild)
+    arch = args.arch or get_arch(args, apkbuild)
     kopt = "menuconfig"
 
     # Set up build tools and makedepends
