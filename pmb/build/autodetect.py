@@ -57,7 +57,10 @@ def arch(args, pkgname):
     if arch_device in arches:
         return arch_device
 
-    return apkbuild["arch"][0]
+    try:
+        return apkbuild["arch"][0]
+    except IndexError:
+        return None
 
 
 def suffix(args, apkbuild, arch):

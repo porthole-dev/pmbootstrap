@@ -312,10 +312,6 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
             raise RuntimeError("The pkgname must be equal to the name of"
                                " the folder, that contains the APKBUILD!")
 
-    # Sanity check: arch
-    if not len(ret["arch"]):
-        raise RuntimeError("Arch must not be empty: " + path)
-
     # Sanity check: pkgver
     if check_pkgver:
         if "-r" in ret["pkgver"] or not pmb.parse.version.validate(ret["pkgver"]):

@@ -25,6 +25,11 @@ def get_arch(args, apkbuild):
     """
     pkgname = apkbuild["pkgname"]
 
+    # Disabled package (arch="")
+    if not apkbuild["arch"]:
+        raise RuntimeError(f"'{pkgname}' is disabled (arch=\"\"). Please use"
+                           " '--arch' to specify the desired architecture.")
+
     # Multiple architectures
     if len(apkbuild["arch"]) > 1:
         raise RuntimeError(f"'{pkgname}' supports multiple architectures"
