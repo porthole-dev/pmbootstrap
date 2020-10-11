@@ -33,6 +33,9 @@ def format_luks_root(args, device):
                  f" {mountpoint}")
     logging.info(" *** TYPE IN THE FULL DISK ENCRYPTION PASSWORD (TWICE!) ***")
 
+    # Avoid cryptsetup warning about missing locking directory
+    pmb.chroot.root(args, ["mkdir", "-p", "/run/cryptsetup"])
+
     pmb.chroot.root(args, ["cryptsetup", "luksFormat",
                            "-q",
                            "--cipher", args.cipher,
