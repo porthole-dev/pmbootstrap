@@ -34,11 +34,7 @@ def get_arch(args, apkbuild):
                                " architecture.")
         return args.arch
 
-    # Single architecture (--arch must be unset or match)
-    if args.arch is None or args.arch == apkbuild["arch"][0]:
-        return apkbuild["arch"][0]
-    raise RuntimeError("Package '" + pkgname + "' only supports the '" +
-                       apkbuild["arch"][0] + "' architecture.")
+    return apkbuild["arch"][0]
 
 
 def get_outputdir(args, pkgname, apkbuild):
