@@ -24,8 +24,13 @@ def variables(args, flavor, method):
         _partition_system = args.partition
         _partition_vbmeta = args.partition
 
+    _dtb = ""
+    if args.deviceinfo["append_dtb"] == "true":
+        _dtb = "-dtb"
+
     vars = {
         "$BOOT": "/mnt/rootfs_" + args.device + "/boot",
+        "$DTB": _dtb,
         "$FLAVOR": flavor if flavor is not None else "",
         "$IMAGE_SPLIT_BOOT": "/home/pmos/rootfs/" + args.device + "-boot.img",
         "$IMAGE_SPLIT_ROOT": "/home/pmos/rootfs/" + args.device + "-root.img",

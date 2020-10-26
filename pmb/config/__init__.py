@@ -325,6 +325,7 @@ deviceinfo_attributes = [
     "screen_height",
     "dev_touchscreen",
     "dev_touchscreen_calibration",
+    "append_dtb",
 
     # bootloader
     "flash_method",
@@ -418,6 +419,7 @@ flash_mount_bind = [
 Flasher abstraction. Allowed variables:
 
 $BOOT: Path to the /boot partition
+$DTB: Set to "-dtb" if deviceinfo_append_dtb is set, otherwise ""
 $FLAVOR: Kernel flavor
 $IMAGE: Path to the combined boot/rootfs image
 $IMAGE_SPLIT_BOOT: Path to the (split) boot image
@@ -481,7 +483,8 @@ flashers = {
                 ["heimdall", "flash", "--$PARTITION_SYSTEM", "$IMAGE"]],
             "flash_kernel": [["heimdall_flash_kernel.sh",
                               "$BOOT/initramfs-$FLAVOR", "$PARTITION_INITFS",
-                              "$BOOT/vmlinuz-$FLAVOR", "$PARTITION_KERNEL"]]
+                              "$BOOT/vmlinuz-$FLAVOR$DTB",
+                              "$PARTITION_KERNEL"]]
         },
     },
     # Some Samsung devices need a 'boot.img' file, just like the one generated
