@@ -3,7 +3,7 @@
 
 
 def variables(args, flavor, method):
-    _cmdline = args.deviceinfo["kernel_cmdline"]
+    _cmdline = args.deviceinfo["kernel_cmdline"] or ""
     if "cmdline" in args and args.cmdline:
         _cmdline = args.cmdline
 
