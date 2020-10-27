@@ -1,5 +1,6 @@
 # Copyright 2020 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import copy
 import logging
 import os
 import pmb.config
@@ -65,12 +66,56 @@ def sanity_check(info, path):
                            f" and try again: {path}")
 
 
-def deviceinfo(args, device=None):
+def parse_kernel_suffix(args, info, device, kernel):
+    """
+    Remove the kernel suffix (as selected in 'pmbootstrap init') from
+    deviceinfo variables. Related:
+    https://wiki.postmarketos.org/wiki/Device_specific_package#Multiple_kernels
+
+    :param info: deviceinfo dict, e.g.:
+                 {"a": "first",
+                  "b_mainline": "second",
+                  "b_downstream": "third"}
+    :param device: which device info belongs to
+    :param kernel: which kernel suffix to remove (e.g. "mainline")
+    :returns: info, but with the configured kernel suffix removed, e.g:
+              {"a": "first",
+               "b": "second",
+               "b_downstream": "third"}
+    """
+    # Do nothing if the configured kernel isn't available in the kernel (e.g.
+    # after switching from device with multiple kernels to device with only one
+    # kernel)
+    kernels = pmb.parse._apkbuild.kernels(args, device)
+    if not kernels or kernel not in kernels:
+        logging.verbose(f"parse_kernel_suffix: {kernel} not in {kernels}")
+        return info
+
+    ret = copy.copy(info)
+
+    suffix_kernel = kernel.replace("-", "_")
+    for key in pmb.config.deviceinfo_attributes:
+        key_kernel = f"{key}_{suffix_kernel}"
+        if key_kernel not in ret:
+            continue
+
+        # Move ret[key_kernel] to ret[key]
+        logging.verbose(f"parse_kernel_suffix: {key_kernel} => {key}")
+        ret[key] = ret[key_kernel]
+        del(ret[key_kernel])
+
+    return ret
+
+
+def deviceinfo(args, device=None, kernel=None):
     """
     :param device: defaults to args.device
+    :param kernel: defaults to args.kernel
     """
     if not device:
         device = args.device
+    if not kernel:
+        kernel = args.kernel
 
     if not os.path.exists(args.aports):
         logging.fatal("Aports directory is missing, expected: " + args.aports)
@@ -101,5 +146,6 @@ def deviceinfo(args, device=None):
         if key not in ret:
             ret[key] = ""
 
+    ret = parse_kernel_suffix(args, ret, device, kernel)
     sanity_check(ret, path)
     return ret
