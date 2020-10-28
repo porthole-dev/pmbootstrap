@@ -623,6 +623,15 @@ def arguments():
                        " a kernel compiled with envkernel.sh.")
     add_packages_arg(build, nargs="+")
 
+    # Action: deviceinfo_parse
+    deviceinfo_parse = sub.add_parser("deviceinfo_parse")
+    deviceinfo_parse.add_argument("devices", nargs="*")
+    deviceinfo_parse.add_argument("--kernel", help="the kernel to select (for"
+                                  " device packages with multiple kernels),"
+                                  " e.g. 'downstream', 'mainline'",
+                                  dest="deviceinfo_parse_kernel",
+                                  metavar="KERNEL")
+
     # Action: apkbuild_parse
     apkbuild_parse = sub.add_parser("apkbuild_parse")
     add_packages_arg(apkbuild_parse, nargs="*")

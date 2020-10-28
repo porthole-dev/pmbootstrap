@@ -171,6 +171,11 @@ Use `-v` on any action to get verbose logging:
 $ pmbootstrap -v build hello-world
 ```
 
+Parse a single deviceinfo and return it as JSON:
+```
+$ pmbootstrap deviceinfo_parse pine64-pinephone
+```
+
 Parse a single APKBUILD and return it as JSON:
 ```
 $ pmbootstrap apkbuild_parse hello-world

@@ -15,6 +15,7 @@ import pmb.chroot.other
 import pmb.config
 import pmb.export
 import pmb.flasher
+import pmb.helpers.devices
 import pmb.helpers.git
 import pmb.helpers.lint
 import pmb.helpers.logging
@@ -365,6 +366,20 @@ def kconfig(args):
             logging.info("kconfig check succeeded!")
     elif args.action_kconfig == "edit":
         pmb.build.menuconfig(args, args.package)
+
+
+def deviceinfo_parse(args):
+    # Default to all devices
+    devices = args.devices
+    if not devices:
+        devices = pmb.helpers.devices.list_codenames(args)
+
+    # Iterate over all devices
+    kernel = args.deviceinfo_parse_kernel
+    for device in devices:
+        print(f"{device}, with kernel={kernel}:")
+        print(json.dumps(pmb.parse.deviceinfo(args, device, kernel), indent=4,
+                         sort_keys=True))
 
 
 def apkbuild_parse(args):
