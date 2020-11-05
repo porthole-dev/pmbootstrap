@@ -84,6 +84,7 @@ def generate(args, pkgname):
     patches = [
         "gcc7-give-up-on-ilog2-const-optimizations.patch",
         "gcc8-fix-put-user.patch",
+        "gcc10-extern_YYLOC_global_declaration.patch",
         "kernel-use-the-gnu89-standard-explicitly.patch",
     ]
     for patch in patches:
