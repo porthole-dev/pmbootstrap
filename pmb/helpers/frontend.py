@@ -451,7 +451,7 @@ def work_migrate(args):
 def log(args):
     if args.clear_log:
         pmb.helpers.run.user(args, ["truncate", "-s", "0", args.log])
-    pmb.helpers.run.user(args, ["tail", "-F", args.log, "-n", args.lines],
+    pmb.helpers.run.user(args, ["tail", "-n", args.lines, "-F", args.log],
                          output="tui")
 
 
@@ -459,7 +459,7 @@ def log_distccd(args):
     logpath = "/home/pmos/distccd.log"
     if args.clear_log:
         pmb.chroot.user(args, ["truncate", "-s", "0", logpath])
-    pmb.chroot.user(args, ["tail", "-f", logpath, "-n", args.lines],
+    pmb.chroot.user(args, ["tail", "-n", args.lines, "-f", logpath],
                     output="tui")
 
 
