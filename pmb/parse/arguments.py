@@ -357,6 +357,10 @@ def arguments():
                              pmb.config.defaults["mirror_alpine"],
                         metavar="URL")
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
+    parser.add_argument("-E", "--extra-space",
+                        help="specify an integer with the amount of additional"
+                             "space to allocate to the image in MB (default"
+                             " 0)")
     parser.add_argument("-B", "--boot-size",
                         help="specify an integer with your preferred boot"
                              "partition size on target machine in MB (default"

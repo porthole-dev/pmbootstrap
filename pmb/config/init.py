@@ -341,6 +341,7 @@ def ask_for_device(args):
 def ask_for_additional_options(args, cfg):
     # Allow to skip additional options
     logging.info("Additional options:"
+                 f" extra free space: {args.extra_space} MB,"
                  f" boot partition size: {args.boot_size} MB,"
                  f" parallel jobs: {args.jobs},"
                  f" ccache per arch: {args.ccache_size}")
@@ -348,6 +349,18 @@ def ask_for_additional_options(args, cfg):
     if not pmb.helpers.cli.confirm(args, "Change them?",
                                    default=False):
         return
+
+    # Extra space
+    logging.info("Set extra free space to 0, unless you ran into a 'No space"
+                 " left on device' error. In that case, the size of the"
+                 " rootfs could not be calculated properly on your machine,"
+                 " and we need to add extra free space to make the image big"
+                 " enough to fit the rootfs (pmaports#1904)."
+                 " How much extra free space do you want to add to the image"
+                 " (in MB)?")
+    answer = pmb.helpers.cli.ask(args, "Extra space size", None,
+                                 args.extra_space, validation_regex="[0-9]+")
+    cfg["pmbootstrap"]["extra_space"] = answer
 
     # Boot size
     logging.info("What should be the boot partition size (in MB)?")

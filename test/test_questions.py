@@ -261,9 +261,10 @@ def test_questions_additional_options(args, monkeypatch):
     assert cfg == {"pmbootstrap": {}}
 
     # Answer everything
-    fake_answers(monkeypatch, ["y", "64", "5", "2G", "n"])
+    fake_answers(monkeypatch, ["y", "128", "64", "5", "2G", "n"])
     func(args, cfg)
-    assert cfg == {"pmbootstrap": {"boot_size": "64",
+    assert cfg == {"pmbootstrap": {"extra_space": "128",
+                                   "boot_size": "64",
                                    "jobs": "5",
                                    "ccache_size": "2G"}}
 
