@@ -233,6 +233,9 @@ def install(args):
         if args.rsync:
             raise ValueError("--on-device-installer cannot be combined with"
                              " --rsync")
+    else:
+        if args.ondev_cp:
+            raise ValueError("--cp can only be combined with --ondev")
 
     # On-device installer overrides
     if args.on_device_installer:
