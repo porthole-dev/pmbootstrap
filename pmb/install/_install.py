@@ -462,15 +462,15 @@ def sanity_check_ondev_version(args):
                            f" / in the binary packages has version {ver_pkg}.")
 
 
-def install_system_image(args, size_reserve, suffix, root_label="pmOS_root",
-                         step=3, steps=5, split=False, sdcard=None):
+def install_system_image(args, size_reserve, suffix, step, steps,
+                         root_label="pmOS_root", split=False, sdcard=None):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param suffix: the chroot suffix, where the rootfs that will be installed
                    on the device has been created (e.g. "rootfs_qemu-amd64")
-    :param root_label: label of the root partition (e.g. "pmOS_root")
     :param step: next installation step
     :param steps: total installation steps
+    :param root_label: label of the root partition (e.g. "pmOS_root")
     :param split: create separate images for boot and root partitions
     :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
     """
@@ -639,8 +639,8 @@ def install_on_device_installer(args, step, steps):
 
     # Generate installer image
     size_reserve = round(os.path.getsize(img_path_dest) / 1024 / 1024) + 200
-    install_system_image(args, size_reserve, suffix_installer, "pmOS_install",
-                         step, steps, args.split, args.sdcard)
+    install_system_image(args, size_reserve, suffix_installer, step, steps,
+                         "pmOS_install", args.split, args.sdcard)
 
 
 def install(args):
@@ -727,6 +727,6 @@ def install(args):
         # Runs install_system_image twice
         install_on_device_installer(args, 3, steps)
     else:
-        install_system_image(args, 0, f"rootfs_{args.device}",
+        install_system_image(args, 0, f"rootfs_{args.device}", 3, steps,
                              split=args.split, sdcard=args.sdcard)
     print_flash_info(args, steps, steps)
