@@ -518,14 +518,22 @@ def print_flash_info(args):
     """ Print flashing information, based on the deviceinfo data and the
         pmbootstrap arguments. """
     logging.info("*** FLASHING INFORMATION ***")
-    logging.info("Run the following to flash your installation to the"
-                 " target device:")
 
     # System flash information
     method = args.deviceinfo["flash_method"]
     flasher = pmb.config.flashers.get(method, {})
     flasher_actions = flasher.get("actions", {})
     requires_split = flasher.get("split", False)
+
+    if method == "none":
+        logging.info("Refer to the installation instructions of your device,"
+                     " or the generic install instructions in the wiki.")
+        logging.info("https://wiki.postmarketos.org/wiki/Installation_guide"
+                     "#pmbootstrap_flash")
+        return
+
+    logging.info("Run the following to flash your installation to the"
+                 " target device:")
 
     if "flash_rootfs" in flasher_actions and not args.sdcard and \
             bool(args.split) == requires_split:
@@ -584,7 +592,7 @@ def install_recovery_zip(args, steps):
     # Flash information
     logging.info("*** FLASHING INFORMATION ***")
     logging.info("Flashing with the recovery zip is explained here:")
-    logging.info("<https://postmarketos.org/recoveryzip>")
+    logging.info("https://postmarketos.org/recoveryzip")
 
 
 def install_on_device_installer(args, step, steps):
