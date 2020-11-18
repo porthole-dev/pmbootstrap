@@ -577,14 +577,14 @@ def print_flash_info(args, step=5, steps=5):
                  " and flash outside of pmbootstrap.")
 
 
-def install_recovery_zip(args):
-    logging.info("*** (3/4) CREATING RECOVERY-FLASHABLE ZIP ***")
+def install_recovery_zip(args, step, steps):
+    logging.info(f"*** ({step}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     suffix = "buildroot_" + args.deviceinfo["arch"]
     mount_device_rootfs(args, f"rootfs_{args.device}", suffix)
     pmb.install.recovery.create_zip(args, suffix)
 
     # Flash information
-    logging.info("*** (4/4) FLASHING TO DEVICE ***")
+    logging.info(f"*** ({step + 1}/{steps}) FLASHING INFORMATION ***")
     logging.info("Flashing with the recovery zip is explained here:")
     logging.info("<https://postmarketos.org/recoveryzip>")
 
@@ -721,7 +721,7 @@ def install(args):
     if args.no_image:
         return
     elif args.android_recovery_zip:
-        return install_recovery_zip(args)
+        return install_recovery_zip(args, steps - 1, steps)
 
     if args.on_device_installer:
         # Runs install_system_image twice
