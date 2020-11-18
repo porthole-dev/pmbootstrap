@@ -514,12 +514,10 @@ def install_system_image(args, size_reserve, suffix, step, steps,
                         working_dir="/home/pmos/rootfs/")
 
 
-def print_flash_info(args, step=5, steps=5):
+def print_flash_info(args):
     """ Print flashing information, based on the deviceinfo data and the
-        pmbootstrap arguments.
-
-        :param step: installation step number """
-    logging.info(f"*** ({step}/{steps}) FLASHING TO DEVICE ***")
+        pmbootstrap arguments. """
+    logging.info("*** FLASHING INFORMATION ***")
     logging.info("Run the following to flash your installation to the"
                  " target device:")
 
@@ -577,14 +575,14 @@ def print_flash_info(args, step=5, steps=5):
                  " and flash outside of pmbootstrap.")
 
 
-def install_recovery_zip(args, step, steps):
-    logging.info(f"*** ({step}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
+def install_recovery_zip(args, steps):
+    logging.info(f"*** ({steps}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     suffix = "buildroot_" + args.deviceinfo["arch"]
     mount_device_rootfs(args, f"rootfs_{args.device}", suffix)
     pmb.install.recovery.create_zip(args, suffix)
 
     # Flash information
-    logging.info(f"*** ({step + 1}/{steps}) FLASHING INFORMATION ***")
+    logging.info("*** FLASHING INFORMATION ***")
     logging.info("Flashing with the recovery zip is explained here:")
     logging.info("<https://postmarketos.org/recoveryzip>")
 
@@ -655,11 +653,11 @@ def install(args):
     if args.no_image:
         steps = 2
     elif args.android_recovery_zip:
-        steps = 4
+        steps = 3
     elif args.on_device_installer:
-        steps = 8
+        steps = 7
     else:
-        steps = 5
+        steps = 4
 
     # Install required programs in native chroot
     logging.info("*** (1/{}) PREPARE NATIVE CHROOT ***".format(steps))
@@ -721,7 +719,7 @@ def install(args):
     if args.no_image:
         return
     elif args.android_recovery_zip:
-        return install_recovery_zip(args, steps - 1, steps)
+        return install_recovery_zip(args, steps)
 
     if args.on_device_installer:
         # Runs install_system_image twice
@@ -729,4 +727,4 @@ def install(args):
     else:
         install_system_image(args, 0, f"rootfs_{args.device}", 3, steps,
                              split=args.split, sdcard=args.sdcard)
-    print_flash_info(args, steps, steps)
+    print_flash_info(args)
