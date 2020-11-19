@@ -12,16 +12,40 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
 
     makedepends = "bash bc bison devicepkg-dev flex openssl-dev perl"
 
+    build = """
+            unset LDFLAGS
+            make O="$_outdir" ARCH="$_carch" CC="${{CC:-gcc}}" \\
+                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS\""""
+
     package = """
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor" "$_outdir\""""
 
     if deviceinfo["bootimg_qcdt"] == "true":
-        makedepends += " dtbtool"
-
-        package += """\n
-            # Master DTB (deviceinfo_bootimg_qcdt)
-            dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img "$_outdir/arch/$_carch/boot/"
-            install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img "$pkgdir"/boot/dt.img"""
+        build += """\n
+            # Master DTB (deviceinfo_bootimg_qcdt)"""
+        vendors = ["spreadtrum", "exynos", "other"]
+        soc_vendor = pmb.helpers.cli.ask(args, "SoC vendor", vendors,
+                                         vendors[-1], complete=vendors)
+        if soc_vendor == "spreadtrum":
+            makedepends += " dtbtool-sprd"
+            build += """
+            dtbTool-sprd -p scripts/dtc/ \\
+                -o "$_outdir/arch/$_carch/boot"/dt.img \\
+                "$_outdir/arch/$_carch/boot/dts/\""""
+        elif soc_vendor == "exynos":
+            codename = "-".join(pkgname.split("-")[2:])
+            makedepends += " dtbtool-exynos"
+            build += f"""
+            dtbTool-exynos -o "$_outdir/arch/$_carch/boot"/dt.img \\
+                $(find "$_outdir/arch/$_carch/boot/dts/" -name *{codename}*.dtb)"""
+        else:
+            makedepends += " dtbtool"
+            build += """
+            dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img \\
+                "$_outdir/arch/$_carch/boot/\""""
+        package += """
+            install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img \\
+                "$pkgdir"/boot/dt.img"""
 
     patches = ("\n" + " " * 12).join(patches)
     content = f"""\
@@ -57,10 +81,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             . downstreamkernel_prepare
         }}
 
-        build() {{
-            unset LDFLAGS
-            make O="$_outdir" ARCH="$_carch" CC="${{CC:-gcc}}" \\
-                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
+        build() {{{build}
         }}
 
         package() {{{package}
