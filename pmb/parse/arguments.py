@@ -54,7 +54,8 @@ def arguments_flasher(subparser):
     for action in [boot, flash_kernel]:
         action.add_argument("--flavor", default=None)
         action.add_argument("--no-install", dest="autoinstall", default=True,
-                            help="skip updating kernel/initfs", action="store_false")
+                            help="skip updating kernel/initfs",
+                            action="store_false")
     flash_kernel.add_argument("--partition", default=None,
                               help="partition to flash the kernel to (defaults"
                                    " to deviceinfo_flash_*_partition_kernel)")
@@ -72,9 +73,10 @@ def arguments_flasher(subparser):
 
     # Flash vbmeta
     flash_vbmeta = sub.add_parser("flash_vbmeta",
-                                  help="generate and flash AVB 2.0 image with disable"
-                                       " verification flag set to a partition on the"
-                                       " device (typically called vbmeta)")
+                                  help="generate and flash AVB 2.0 image with"
+                                  " disable verification flag set to a"
+                                  " partition on the device (typically called"
+                                  " vbmeta)")
     flash_vbmeta.add_argument("--partition", default=None,
                               help="partition to flash the vbmeta to (defaults"
                                    " to deviceinfo_flash_*_partition_vbmeta")
@@ -102,8 +104,9 @@ def arguments_initfs(subparser):
     hook_add = sub.add_parser("hook_add", help="add a hook package")
     hook_del = sub.add_parser("hook_del", help="uninstall a hook package")
     for action in [hook_add, hook_del]:
-        action.add_argument("hook", help="name of the hook aport, without the"
-                            " '" + pmb.config.initfs_hook_prefix + "' prefix, for example: 'debug-shell'")
+        action.add_argument("hook", help="name of the hook aport, without"
+                            f" the '{pmb.config.initfs_hook_prefix}' prefix,"
+                            " for example: 'debug-shell'")
 
     # ls, build, extract
     ls = sub.add_parser("ls", help="list initramfs contents")
@@ -115,8 +118,8 @@ def arguments_initfs(subparser):
         action.add_argument(
             "--flavor",
             default=None,
-            help="name of the kernel flavor (run 'pmbootstrap flasher list_flavors'"
-            " to get a list of all installed flavors")
+            help="name of the kernel flavor (run 'pmbootstrap flasher"
+            " list_flavors' to get a list of all installed flavors")
 
     return ret
 
@@ -131,34 +134,38 @@ def arguments_qemu(subparser):
     ret.add_argument("-p", "--port", type=int, default=2222,
                      help="SSH port (default: 2222)")
 
-    ret.add_argument("--no-kvm", dest="qemu_kvm", default=True, action='store_false',
-                     help="Avoid using hardware-assisted virtualization with KVM "
-                     "even when available (SLOW!)")
+    ret.add_argument("--no-kvm", dest="qemu_kvm", default=True,
+                     action='store_false', help="Avoid using hardware-assisted"
+                     " virtualization with KVM even when available (SLOW!)")
     ret.add_argument("--cpu", dest="qemu_cpu",
-                     help="Override emulated QEMU CPU. By default, the host CPU "
-                     "will be emulated when using KVM and the QEMU default otherwise "
-                     "(usually a CPU with minimal features). "
-                     "A useful value is 'max' (emulate all features that are available), "
-                     "use --cpu help to get a list of possible values from QEMU.")
+                     help="Override emulated QEMU CPU. By default, the host"
+                     " CPU will be emulated when using KVM and the QEMU"
+                     " default otherwise (usually a CPU with minimal"
+                     " features). A useful value is 'max' (emulate all"
+                     " features that are available), use --cpu help to get a"
+                     " list of possible values from QEMU.")
 
     ret.add_argument("--tablet", dest="qemu_tablet", action='store_true',
-                     default=False, help="Use 'tablet' instead of 'mouse' input "
-                     "for QEMU. The tablet input device automatically grabs/releases "
-                     "the mouse when moving in/out of the QEMU window. "
-                     "(Note: For some reason the mouse position is not reported "
-                     "correctly with this in some cases...)")
+                     default=False, help="Use 'tablet' instead of 'mouse'"
+                     " input for QEMU. The tablet input device automatically"
+                     " grabs/releases the mouse when moving in/out of the QEMU"
+                     " window. (Note: For some reason the mouse position is"
+                     " not reported correctly with this in some cases...)")
 
-    ret.add_argument("--display", dest="qemu_display", choices=["sdl", "gtk", "none"],
+    ret.add_argument("--display", dest="qemu_display",
+                     choices=["sdl", "gtk", "none"],
                      help="QEMU's display parameter (default: sdl,gl=on)",
                      default="sdl", nargs="?")
-    ret.add_argument("--no-gl", dest="qemu_gl", default=True, action='store_false',
-                     help="Avoid using GL for accelerating graphics in QEMU "
-                     "(use software rasterizer, slow!)")
+    ret.add_argument("--no-gl", dest="qemu_gl", default=True,
+                     action='store_false', help="Avoid using GL for"
+                     " accelerating graphics in QEMU  (use software"
+                     " rasterizer, slow!)")
     ret.add_argument("--video", dest="qemu_video", default="1024x768@60",
-                     help="Video resolution for QEMU (WidthxHeight@RefreshRate). "
-                     "Default is 1024x768@60.")
+                     help="Video resolution for QEMU"
+                     " (WidthxHeight@RefreshRate). Default is 1024x768@60.")
 
-    ret.add_argument("--audio", dest="qemu_audio", choices=["alsa", "pa", "sdl"],
+    ret.add_argument("--audio", dest="qemu_audio",
+                     choices=["alsa", "pa", "sdl"],
                      help="QEMU's audio backend (default: none)",
                      default=None, nargs="?")
 
@@ -187,15 +194,18 @@ def arguments_pkgrel_bump(subparser):
 
 def arguments_aportupgrade(subparser):
     ret = subparser.add_parser("aportupgrade")
-    ret.add_argument("--dry", action="store_true", help="instead of modifying APKBUILDs,"
-                     " print the changes that would be made")
+    ret.add_argument("--dry", action="store_true", help="instead of modifying"
+                     " APKBUILDs, print the changes that would be made")
     ret.add_argument("--ref", help="git ref (tag, commit, etc) to use")
 
     # Mutually exclusive: "--all" or package names
     mode = ret.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--all", action="store_true", help="iterate through all packages")
-    mode.add_argument("--all-stable", action="store_true", help="iterate through all non-git packages")
-    mode.add_argument("--all-git", action="store_true", help="iterate through all git packages")
+    mode.add_argument("--all", action="store_true", help="iterate through all"
+                      " packages")
+    mode.add_argument("--all-stable", action="store_true", help="iterate"
+                      " through all non-git packages")
+    mode.add_argument("--all-git", action="store_true", help="iterate through"
+                      " all git packages")
     mode.add_argument("packages", nargs="*", default=[])
     return ret
 
@@ -320,7 +330,8 @@ def package_completer(prefix, action, parser, parsed_args):
 
 
 def kernel_completer(prefix, action, parser, parsed_args):
-    packages = package_completer("linux-" + prefix, action, parser, parsed_args)
+    packages = package_completer("linux-" + prefix, action, parser,
+                                 parsed_args)
     return [package.replace("linux-", "", 1) for package in packages]
 
 
@@ -411,8 +422,8 @@ def arguments():
     parser.add_argument("-v", "--verbose", dest="verbose",
                         action="store_true", help="write even more to the"
                         " logfiles (this may reduce performance)")
-    parser.add_argument("-q", "--quiet", dest="quiet",
-                        action="store_true", help="do not output any log messages")
+    parser.add_argument("-q", "--quiet", dest="quiet", action="store_true",
+                        help="do not output any log messages")
 
     # Actions
     sub = parser.add_subparsers(title="action", dest="action")
@@ -451,10 +462,10 @@ def arguments():
     zap.add_argument("--dry", action="store_true", help="instead of actually"
                      " deleting anything, print out what would have been"
                      " deleted")
-    zap.add_argument("-hc", "--http", action="store_true", help="also delete http"
-                     " cache")
-    zap.add_argument("-d", "--distfiles", action="store_true", help="also delete"
-                     " downloaded source tarballs")
+    zap.add_argument("-hc", "--http", action="store_true", help="also delete"
+                     " http cache")
+    zap.add_argument("-d", "--distfiles", action="store_true", help="also"
+                     " delete downloaded source tarballs")
     zap.add_argument("-p", "--pkgs-local", action="store_true",
                      dest="pkgs_local",
                      help="also delete *all* locally compiled packages")
@@ -484,7 +495,8 @@ def arguments():
 
     # Action: build_init / chroot
     build_init = sub.add_parser("build_init", help="initialize build"
-                                " environment (usually you do not need to call this)")
+                                " environment (usually you do not need to call"
+                                " this)")
     chroot = sub.add_parser("chroot", help="start shell in chroot")
     chroot.add_argument("--add", help="build/install comma separated list of"
                         " packages in the chroot before entering it")
@@ -497,7 +509,8 @@ def arguments():
                         " 'background'. Details: pmb/helpers/run_core.py",
                         default="tui")
     chroot.add_argument("command", default=["sh", "-i"], help="command"
-                        " to execute inside the chroot. default: sh", nargs='*')
+                        " to execute inside the chroot. default: sh",
+                        nargs='*')
     chroot.add_argument("-x", "--xauth", action="store_true",
                         help="Copy .Xauthority and set environment variables,"
                              " so X11 applications can be started (native"
@@ -513,8 +526,8 @@ def arguments():
                                 help="Chroot for the device root file system")
         suffix.add_argument("-b", "--buildroot", nargs="?", const="device",
                             choices={"device"} | arch_choices,
-                            help="Chroot for building packages, defaults to device "
-                                 "architecture")
+                            help="Chroot for building packages, defaults to"
+                            " device architecture")
         suffix.add_argument("-s", "--suffix", default=None,
                             help="Specify any chroot suffix, defaults to"
                                  " 'native'")
@@ -526,8 +539,9 @@ def arguments():
     group.add_argument("--sdcard", help="path to the sdcard device,"
                        " eg. /dev/mmcblk0")
     group.add_argument("--split", help="install the boot and root partition"
-                       " in separated image files (default: only if flash method"
-                       " requires it)", action="store_true", default=None)
+                       " in separated image files (default: only if flash"
+                       " method requires it)", action="store_true",
+                       default=None)
     group.add_argument("--no-split", help="create combined boot + root image"
                        " even if flash method requires it",
                        dest="split", action="store_false")
@@ -591,9 +605,11 @@ def arguments():
 
     # Action: aportgen
     aportgen = sub.add_parser("aportgen", help="generate a postmarketOS"
-                              " specific package build recipe (aport/APKBUILD)")
-    aportgen.add_argument("--fork-alpine", help="fork the alpine upstream package",
-                          action="store_true", dest="fork_alpine")
+                              " specific package build recipe"
+                              " (aport/APKBUILD)")
+    aportgen.add_argument("--fork-alpine", help="fork the alpine upstream"
+                          " package", action="store_true",
+                          dest="fork_alpine")
     add_packages_arg(aportgen, nargs="+")
 
     # Action: build
@@ -605,8 +621,9 @@ def arguments():
                        " APKBUILD)")
     build.add_argument("--force", action="store_true", help="even build if not"
                        " necessary")
-    build.add_argument("--strict", action="store_true", help="(slower) zap and install only"
-                       " required depends when building, to detect dependency errors")
+    build.add_argument("--strict", action="store_true", help="(slower) zap and"
+                       " install only required depends when building, to"
+                       " detect dependency errors")
     build.add_argument("--src", help="override source used to build the"
                        " package with a local folder (the APKBUILD must"
                        " expect the source to be in $builddir, so you might"
@@ -616,8 +633,9 @@ def arguments():
                        help="only build and install makedepends from an"
                        " APKBUILD, ignore the depends (old behavior). This is"
                        " faster for device packages for example, because then"
-                       " you don't need to build and install the kernel. But it"
-                       " is incompatible with how Alpine's abuild handles it.",
+                       " you don't need to build and install the kernel. But"
+                       " it is incompatible with how Alpine's abuild handles"
+                       " it.",
                        dest="ignore_depends")
     build.add_argument("-n", "--no-depends", action="store_true",
                        help="never build dependencies, abort instead",
@@ -649,7 +667,8 @@ def arguments():
     config = sub.add_parser("config",
                             help="get and set pmbootstrap options")
     config.add_argument("-r", "--reset", action="store_true",
-                        help="Reset config options with the given name to it's default.")
+                        help="Reset config options with the given name to it's"
+                        " default.")
     config.add_argument("name", nargs="?", help="variable name, one of: " +
                         ", ".join(sorted(pmb.config.config_keys)),
                         choices=pmb.config.config_keys, metavar="name")
