@@ -17,8 +17,9 @@ def ask_for_architecture(args):
         if ret in architectures:
             return ret
         logging.fatal("ERROR: Invalid architecture specified. If you want to"
-                      " add a new architecture, edit build_device_architectures"
-                      " in pmb/config/__init__.py.")
+                      " add a new architecture, edit"
+                      " build_device_architectures in"
+                      " pmb/config/__init__.py.")
 
 
 def ask_for_manufacturer(args):
@@ -50,31 +51,38 @@ def ask_for_chassis(args):
     logging.info("What type of device is it?")
     logging.info("Valid types are: " + ", ".join(types))
     return pmb.helpers.cli.ask(args, "Chassis", None, None, True,
-                               validation_regex='|'.join(types), complete=types)
+                               validation_regex='|'.join(types),
+                               complete=types)
 
 
 def ask_for_keyboard(args):
-    return pmb.helpers.cli.confirm(args, "Does the device have a hardware keyboard?")
+    return pmb.helpers.cli.confirm(args, "Does the device have a hardware"
+                                   " keyboard?")
 
 
 def ask_for_external_storage(args):
-    return pmb.helpers.cli.confirm(args, "Does the device have a sdcard or other"
-                                   " external storage medium?")
+    return pmb.helpers.cli.confirm(args, "Does the device have a sdcard or"
+                                   " other external storage medium?")
 
 
 def ask_for_flash_method(args):
     while True:
         logging.info("Which flash method does the device support?")
-        method = pmb.helpers.cli.ask(args, "Flash method", pmb.config.flash_methods,
+        method = pmb.helpers.cli.ask(args, "Flash method",
+                                     pmb.config.flash_methods,
                                      pmb.config.flash_methods[0])
 
         if method in pmb.config.flash_methods:
             if method == "heimdall":
                 heimdall_types = ["isorec", "bootimg"]
                 while True:
-                    logging.info("Does the device use the \"isolated recovery\" or boot.img?")
-                    logging.info("<https://wiki.postmarketos.org/wiki/Deviceinfo_flash_methods#Isorec_or_bootimg.3F>")
-                    heimdall_type = pmb.helpers.cli.ask(args, "Type", heimdall_types,
+                    logging.info("Does the device use the \"isolated"
+                                 " recovery\" or boot.img?")
+                    logging.info("<https://wiki.postmarketos.org/wiki"
+                                 "/Deviceinfo_flash_methods#Isorec_or_bootimg"
+                                 ".3F>")
+                    heimdall_type = pmb.helpers.cli.ask(args, "Type",
+                                                        heimdall_types,
                                                         heimdall_types[0])
                     if heimdall_type in heimdall_types:
                         method += "-" + heimdall_type
@@ -88,13 +96,15 @@ def ask_for_flash_method(args):
 
 
 def ask_for_bootimg(args):
-    logging.info("You can analyze a known working boot.img file to automatically fill"
-                 " out the flasher information for your deviceinfo file. Either specify"
-                 " the path to an image or press return to skip this step (you can do"
-                 " it later with 'pmbootstrap bootimg_analyze').")
+    logging.info("You can analyze a known working boot.img file to"
+                 " automatically fill out the flasher information for your"
+                 " deviceinfo file. Either specify the path to an image or"
+                 " press return to skip this step (you can do it later with"
+                 " 'pmbootstrap bootimg_analyze').")
 
     while True:
-        path = os.path.expanduser(pmb.helpers.cli.ask(args, "Path", None, "", False))
+        response = pmb.helpers.cli.ask(args, "Path", None, "", False)
+        path = os.path.expanduser(response)
         if not path:
             return None
         try:
@@ -134,10 +144,12 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
+    external_storage = "true" if has_external_storage else "false"
     # Note: New variables must be added to pmb/config/__init__.py as well
     content = f"""\
         # Reference: <https://postmarketos.org/deviceinfo>
-        # Please use double quotes only. You can source this file in shell scripts.
+        # Please use double quotes only. You can source this file in shell
+        # scripts.
 
         deviceinfo_format_version="0"
         deviceinfo_name="{name}"
@@ -151,7 +163,7 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
         # Device related
         deviceinfo_chassis="{chassis}"
         deviceinfo_keyboard="{"true" if has_keyboard else "false"}"
-        deviceinfo_external_storage="{"true" if has_external_storage else "false"}"
+        deviceinfo_external_storage="{external_storage}"
         deviceinfo_screen_width="800"
         deviceinfo_screen_height="600"
 
@@ -192,7 +204,8 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
 
     # Write to file
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    with open(args.work + "/aportgen/deviceinfo", "w", encoding="utf-8") as handle:
+    path = args.work + "/aportgen/deviceinfo"
+    with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
 
@@ -234,7 +247,8 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
 
     # Write the file
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
+    path = args.work + "/aportgen/APKBUILD"
+    with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
