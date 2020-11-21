@@ -32,14 +32,17 @@ def init_req_headers() -> None:
     if req_headers is not None and req_headers_github is not None:
         return
     # Generic request headers
-    req_headers = {'User-Agent': 'pmbootstrap/{} aportupgrade'.format(pmb.config.version)}
+    req_headers = {
+        'User-Agent': f'pmbootstrap/{pmb.config.version} aportupgrade'}
 
     # Request headers specific to GitHub
     req_headers_github = dict(req_headers)
     if os.getenv("GITHUB_TOKEN") is not None:
-        req_headers_github['Authorization'] = f'token {os.getenv("GITHUB_TOKEN")}'
+        token = os.getenv("GITHUB_TOKEN")
+        req_headers_github['Authorization'] = f'token {token}'
     else:
-        logging.info("NOTE: Consider using a GITHUB_TOKEN environment variable to increase your rate limit")
+        logging.info("NOTE: Consider using a GITHUB_TOKEN environment variable"
+                     " to increase your rate limit")
 
 
 def get_package_version_info_github(repo_name: str, ref: Optional[str]):
@@ -77,7 +80,8 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository/commits{ref_arg}",
+        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository"
+        f"/commits{ref_arg}",
         headers=req_headers)
     latest_commit = commits[0]
     commit_date = latest_commit["committed_date"]
@@ -92,7 +96,8 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
 
 def upgrade_git_package(args, pkgname: str, package) -> bool:
     """
-    Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if args.dry is set).
+    Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if
+    args.dry is set).
     :param pkgname: the package name
     :param package: a dict containing package information
     :returns: if something (would have) been changed
@@ -103,16 +108,21 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     if 1 <= len(source) <= 2:
         source = source[-1]
     else:
-        raise RuntimeError("Unhandled number of source elements. Please open a bug report: {}".format(source))
+        raise RuntimeError("Unhandled number of source elements. Please open"
+                           f" a bug report: {source}")
 
     verinfo = None
 
-    github_match = re.match(r"https://github\.com/(.+)/(?:archive|releases)", source)
-    gitlab_match = re.match(fr"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
+    github_match = re.match(
+        r"https://github\.com/(.+)/(?:archive|releases)", source)
+    gitlab_match = re.match(
+        fr"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
     if github_match:
-        verinfo = get_package_version_info_github(github_match.group(1), args.ref)
+        verinfo = get_package_version_info_github(
+            github_match.group(1), args.ref)
     elif gitlab_match:
-        verinfo = get_package_version_info_gitlab(gitlab_match.group(1), gitlab_match.group(2), args.ref)
+        verinfo = get_package_version_info_gitlab(
+            gitlab_match.group(1), gitlab_match.group(2), args.ref)
 
     if verinfo is None:
         # ignore for now
@@ -139,9 +149,9 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
 
     logging.info("{}: upgrading pmaport".format(pkgname))
     if args.dry:
-        logging.info("  Would change _commit from {} to {}".format(sha, sha_new))
-        logging.info("  Would change pkgver from {} to {}".format(pkgver, pkgver_new))
-        logging.info("  Would change pkgrel from {} to {}".format(pkgrel, pkgrel_new))
+        logging.info(f"  Would change _commit from {sha} to {sha_new}")
+        logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
+        logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return True
 
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
@@ -152,24 +162,29 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
 
 def upgrade_stable_package(args, pkgname: str, package) -> bool:
     """
-    Update _commit/pkgver/pkgrel in an APKBUILD (or pretend to do it if args.dry is set).
+    Update _commit/pkgver/pkgrel in an APKBUILD (or pretend to do it if
+    args.dry is set).
 
     :param pkgname: the package name
     :param package: a dict containing package information
     :returns: if something (would have) been changed
     """
-    projects = pmb.helpers.http.retrieve_json(f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
+    projects = pmb.helpers.http.retrieve_json(
+        f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
     if projects["total_items"] < 1:
         # There is no Anitya project with the package name.
-        # Looking up if there's a custom mapping from postmarketOS package name to Anitya project name.
+        # Looking up if there's a custom mapping from postmarketOS package name
+        # to Anitya project name.
         mappings = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS&name={pkgname}", headers=req_headers)
+            f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS"
+            f"&name={pkgname}", headers=req_headers)
         if mappings["total_items"] < 1:
             logging.warning("{}: failed to get Anitya project".format(pkgname))
             return False
         project_name = mappings["items"][0]["project"]
         projects = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/projects/?name={project_name}", headers=req_headers)
+            f"{ANITYA_API_BASE}/projects/?name={project_name}",
+            headers=req_headers)
 
     # Get the first, best-matching item
     project = projects["items"][0]
@@ -191,13 +206,14 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     pkgrel_new = 0
 
     if not pmb.parse.version.validate(pkgver_new):
-        logging.warning("{}: would upgrade to invalid pkgver: {}, ignoring".format(pkgname, pkgver_new))
+        logging.warning(f"{pkgname}: would upgrade to invalid pkgver:"
+                        f" {pkgver_new}, ignoring")
         return False
 
     logging.info("{}: upgrading pmaport".format(pkgname))
     if args.dry:
-        logging.info("  Would change pkgver from {} to {}".format(pkgver, pkgver_new))
-        logging.info("  Would change pkgrel from {} to {}".format(pkgrel, pkgrel_new))
+        logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
+        logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return True
 
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
@@ -232,7 +248,8 @@ def upgrade_all(args) -> None:
     Upgrade all packages, based on args.all, args.all_git and args.all_stable.
     """
     for pkgname in pmb.helpers.pmaports.get_list(args):
-        # Always ignore postmarketOS-specific packages that have no upstream source
+        # Always ignore postmarketOS-specific packages that have no upstream
+        # source
         skip = False
         for pattern in pmb.config.upgrade_ignore:
             if fnmatch.fnmatch(pkgname, pattern):
@@ -240,4 +257,5 @@ def upgrade_all(args) -> None:
         if skip:
             continue
 
-        upgrade(args, pkgname, args.all or args.all_git, args.all or args.all_stable)
+        upgrade(args, pkgname, args.all or args.all_git,
+                args.all or args.all_stable)
