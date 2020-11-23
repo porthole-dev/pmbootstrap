@@ -40,7 +40,7 @@ def format_luks_root(args, device):
                            "-q",
                            "--cipher", args.cipher,
                            "--iter-time", args.iter_time,
-                           "--use-urandom",
+                           "--use-random",
                            device], output="interactive")
     pmb.chroot.root(args, ["cryptsetup", "luksOpen", device, "pm_crypt"],
                     output="interactive")
