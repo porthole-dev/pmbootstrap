@@ -7,6 +7,7 @@ import tarfile
 import tempfile
 import stat
 
+import pmb.helpers.apk
 import pmb.helpers.run
 import pmb.config
 import pmb.config.load
@@ -169,4 +170,4 @@ def init(args):
 def run(args, parameters):
     if args.offline:
         parameters = ["--no-network"] + parameters
-    pmb.helpers.run.root(args, [args.work + "/apk.static"] + parameters)
+    pmb.helpers.apk.apk_with_progress(args, [args.work + "/apk.static"] + parameters, chroot=False)

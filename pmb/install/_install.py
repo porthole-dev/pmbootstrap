@@ -150,6 +150,11 @@ def copy_files_from_chroot(args, suffix):
     if os.path.exists(qemu_binary):
         pmb.helpers.run.root(args, ["rm", qemu_binary])
 
+    # Remove apk progress fifo
+    fifo = f"{args.work}/chroot_{suffix}/tmp/apk_progress_fifo"
+    if os.path.exists(fifo):
+        pmb.helpers.run.root(args, ["rm", fifo])
+
     # Get all folders inside the device rootfs (except for home)
     folders = []
     for path in glob.glob(mountpoint_outside + "/*"):

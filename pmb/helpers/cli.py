@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import logging
+import os
 import re
 import readline
+import sys
+
+import pmb.config
 
 
 class ReadlineTabCompleter:
@@ -99,3 +103,35 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
         return True
     answer = ask(args, question, ["y", "n"], default_str, True, "(y|n)")
     return answer == "y"
+
+
+def progress_print(progress):
+    """
+    Print a snapshot of a progress bar to STDOUT. Call progress_flush to end
+    printing progress and clear the line. No output is printed in
+    non-interactive mode.
+
+    :param progress: completion percentage as a number between 0 and 1
+    """
+    width = 79
+    try:
+        width = os.get_terminal_size().columns - 6
+    except OSError:
+        pass
+    chars = int(width * progress)
+    filled = "\u2588" * chars
+    empty = " " * (width - chars)
+    percent = int(progress * 100)
+    if pmb.config.is_interactive:
+        sys.stdout.write(f"\u001b7{percent:>3}% {filled}{empty}")
+        sys.stdout.flush()
+        sys.stdout.write("\u001b8\u001b[0K")
+
+
+def progress_flush():
+    """
+    Finish printing a progress bar. This will erase the line. Does nothing in
+    non-interactive mode.
+    """
+    if pmb.config.is_interactive:
+        sys.stdout.flush()

@@ -6,6 +6,7 @@ import shlex
 
 import pmb.chroot
 import pmb.config
+import pmb.helpers.apk
 import pmb.helpers.pmaports
 import pmb.parse.apkindex
 import pmb.parse.arch
@@ -231,10 +232,18 @@ def install(args, packages, suffix="native", build=True):
         commands = [["add", "-u", "--virtual", ".pmbootstrap"] + packages_todo,
                     ["add"] + packages,
                     ["del", ".pmbootstrap"]]
-    for command in commands:
+    for (i, command) in enumerate(commands):
         if args.offline:
             command = ["--no-network"] + command
-        pmb.chroot.root(args, ["apk", "--no-progress"] + command, suffix=suffix, disable_timeout=True)
+        if i == 0:
+            pmb.helpers.apk.apk_with_progress(args, ["apk"] + command,
+                                              chroot=True, suffix=suffix)
+        else:
+            # Virtual package related commands don't actually install or remove
+            # packages, but only mark the right ones as explicitly installed.
+            # They finish up almost instantly, so don't display a progress bar.
+            pmb.chroot.root(args, ["apk", "--no-progress"] + command,
+                            suffix=suffix)
 
 
 def installed(args, suffix="native"):

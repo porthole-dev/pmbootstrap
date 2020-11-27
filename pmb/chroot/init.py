@@ -79,7 +79,7 @@ def init(args, suffix="native"):
 
     # Install alpine-base
     pmb.helpers.repo.update(args, arch)
-    pmb.chroot.apk_static.run(args, ["--no-progress", "--root", chroot,
+    pmb.chroot.apk_static.run(args, ["--root", chroot,
                                      "--cache-dir", apk_cache, "--initdb", "--arch", arch,
                                      "add", "alpine-base"])
 

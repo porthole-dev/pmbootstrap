@@ -74,6 +74,7 @@ py_files="
 	pmb/export/symlinks.py
 	pmb/flasher/__init__.py
 	pmb/helpers/__init__.py
+	pmb/helpers/apk.py
 	pmb/helpers/aportupgrade.py
 	pmb/helpers/args.py
 	pmb/helpers/file.py

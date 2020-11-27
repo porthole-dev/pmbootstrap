@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import multiprocessing
 import os
+import sys
 
 #
 # Exported functions
@@ -97,6 +98,13 @@ defaults = {
     "boot_size": "128",
     "extra_space": "0"
 }
+
+
+# Whether we're connected to a TTY (which allows things like e.g. printing
+# progress bars)
+is_interactive = sys.stdout.isatty() and \
+    sys.stderr.isatty() and \
+    sys.stdin.isatty()
 
 
 # pmbootstrap will kill programs which do not output anything for several

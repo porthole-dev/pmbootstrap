@@ -213,6 +213,7 @@ def check_return_code(args, code, log_message):
                         entering the chroot and more escaping
     :raises RuntimeError: when the code indicates that the command failed
     """
+
     if code:
         logging.debug("^" * 70)
         logging.info("NOTE: The failed command's output is above the ^^^ line"
