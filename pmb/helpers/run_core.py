@@ -203,6 +203,23 @@ def foreground_tui(cmd, working_dir=None):
     return process.wait()
 
 
+def check_return_code(args, code, log_message):
+    """
+    Check the return code of a command.
+
+    :param code: exit code to check
+    :param log_message: simplified and more readable form of the command, e.g.
+                        "(native) % echo test" instead of the full command with
+                        entering the chroot and more escaping
+    :raises RuntimeError: when the code indicates that the command failed
+    """
+    if code:
+        logging.debug("^" * 70)
+        logging.info("NOTE: The failed command's output is above the ^^^ line"
+                     " in the log file: " + args.log)
+        raise RuntimeError("Command failed: " + log_message)
+
+
 def core(args, log_message, cmd, working_dir=None, output="log",
          output_return=False, check=None, kill_as_root=False, disable_timeout=False):
     """
@@ -295,11 +312,8 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                                                    kill_as_root)
 
     # Check the return code
-    if code and check is not False:
-        logging.debug("^" * 70)
-        logging.info("NOTE: The failed command's output is above the ^^^ line"
-                     " in the log file: " + args.log)
-        raise RuntimeError("Command failed: " + log_message)
+    if check is not False:
+        check_return_code(args, code, log_message)
 
     # Return (code or output string)
     return output_after_run if output_return else code
