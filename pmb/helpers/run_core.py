@@ -20,7 +20,7 @@ def sanity_checks(output="log", output_return=False, check=None,
     Raise an exception if the parameters passed to core() don't make sense
     (all parameters are described in core() below).
     """
-    if output not in ["log", "stdout", "interactive", "tui", "background"]:
+    if output not in ["log", "stdout", "interactive", "tui", "background", "pipe"]:
         raise RuntimeError("Invalid output value: " + str(output))
 
     # Prevent setting the check parameter with output="background".
@@ -42,6 +42,14 @@ def background(args, cmd, working_dir=None):
     ret = subprocess.Popen(cmd, stdout=args.logfd, stderr=args.logfd,
                            cwd=working_dir)
     logging.debug(f"New background process: pid={ret.pid}, output=background")
+    return ret
+
+
+def pipe(args, cmd, working_dir=None):
+    """ Run a subprocess in background and redirect its output to a pipe. """
+    ret = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=args.logfd,
+                           cwd=working_dir)
+    logging.verbose(f"New background process: pid={ret.pid}, output=pipe")
     return ret
 
 
@@ -215,14 +223,16 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                    "stdout", "interactive", "background"), so it's easy to
                    trace what pmbootstrap does.
 
-                   The exception is "tui" (text-based user interface), where
+                   The exceptions are "tui" (text-based user interface), where
                    it does not make sense to write to the log file (think of
-                   ncurses UIs, such as "menuconfig").
+                   ncurses UIs, such as "menuconfig") and "pipe" where the
+                   output is written to a pipe for manual asynchronous
+                   consumption by the caller.
 
-                   When the output is not set to "interactive", "tui" or
-                   "background", we kill the process if it does not output
-                   anything for 5 minutes (time can be set with "pmbootstrap
-                   --timeout").
+                   When the output is not set to "interactive", "tui",
+                   "background" or "pipe", we kill the process if it does not
+                   output anything for 5 minutes (time can be set with
+                   "pmbootstrap --timeout").
 
                    The table below shows all possible values along with
                    their properties. "wait" indicates that we wait for the
@@ -235,18 +245,20 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                    "interactive" |         | x          | x             | x
                    "tui"         |         |            | x             | x
                    "background"  |         | x          |               |
+                   "pipe"        |         |            |               |
 
     :param output_return: in addition to writing the program's output to the
                           destinations above in real time, write to a buffer
                           and return it as string when the command has
                           completed. This is not possible when output is
-                          "background" or "tui".
+                          "background", "pipe" or "tui".
     :param check: an exception will be raised when the command's return code
                   is not 0. Set this to False to disable the check. This
-                  parameter can not be used when the output is "background".
+                  parameter can not be used when the output is "background" or
+                  "pipe".
     :param kill_as_root: use sudo to kill the process when it hits the timeout.
     :returns: * program's return code (default)
-              * subprocess.Popen instance (output is "background")
+              * subprocess.Popen instance (output is "background" or "pipe")
               * the program's entire output (output_return is True)
     """
     sanity_checks(output, output_return, check, kill_as_root)
@@ -258,6 +270,10 @@ def core(args, log_message, cmd, working_dir=None, output="log",
     # Background
     if output == "background":
         return background(args, cmd, working_dir)
+
+    # Pipe
+    if output == "pipe":
+        return pipe(args, cmd, working_dir)
 
     # Foreground
     output_after_run = ""

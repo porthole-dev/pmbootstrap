@@ -56,6 +56,20 @@ def test_background(args):
     assert process.poll() is None
 
 
+def test_pipe(args):
+    # Sleep in background
+    process = pmb.helpers.run_core.pipe(args, ["sleep", "1"], "/")
+
+    # Check if it is still running
+    assert process.poll() is None
+
+    # Print output in background
+    process = pmb.helpers.run_core.pipe(args, ["echo", "-n", "hello"], "/")
+
+    # Read output
+    assert process.communicate()[0].decode('utf-8') == "hello"
+
+
 def test_foreground_pipe(args):
     func = pmb.helpers.run_core.foreground_pipe
     cmd = ["echo", "test"]
