@@ -41,7 +41,7 @@ def background(args, cmd, working_dir=None):
     """ Run a subprocess in background and redirect its output to the log. """
     ret = subprocess.Popen(cmd, stdout=args.logfd, stderr=args.logfd,
                            cwd=working_dir)
-    logging.debug("Started process in background with PID " + str(ret.pid))
+    logging.debug(f"New background process: pid={ret.pid}, output=background")
     return ret
 
 
