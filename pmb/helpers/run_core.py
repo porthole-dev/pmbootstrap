@@ -5,6 +5,7 @@ import logging
 import selectors
 import subprocess
 import sys
+import threading
 import time
 import os
 import pmb.helpers.run
@@ -217,6 +218,31 @@ def check_return_code(args, code, log_message):
         raise RuntimeError("Command failed: " + log_message)
 
 
+def sudo_timer_iterate():
+    """
+    Run sudo -v and schedule a new timer to repeat the same.
+    """
+
+    subprocess.Popen(["sudo", "-v"]).wait()
+
+    timer = threading.Timer(interval=60, function=sudo_timer_iterate)
+    timer.daemon = True
+    timer.start()
+
+
+def sudo_timer_start(args):
+    """
+    Start a timer to call sudo -v periodically, so that the password is only
+    needed once.
+    """
+
+    if "sudo_timer_active" in args.cache:
+        return
+    args.cache["sudo_timer_active"] = True
+
+    sudo_timer_iterate()
+
+
 def core(args, log_message, cmd, working_dir=None, output="log",
          output_return=False, check=None, sudo=False, disable_timeout=False):
     """
@@ -276,6 +302,9 @@ def core(args, log_message, cmd, working_dir=None, output="log",
               * the program's entire output (output_return is True)
     """
     sanity_checks(output, output_return, check)
+
+    if args.sudo_timer and sudo:
+        sudo_timer_start(args)
 
     # Log simplified and full command (pmbootstrap -v)
     logging.debug(log_message)

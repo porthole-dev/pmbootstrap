@@ -23,12 +23,6 @@ def check_legacy_folder():
 
 
 def clone(args):
-    # Explain sudo-usage before using it the first time
-    logging.info("pmbootstrap does everything in Alpine Linux chroots, so your"
-                 " host system does not get modified. In order to work with"
-                 " these chroots, pmbootstrap calls 'sudo' internally. To see"
-                 " the commands it runs, you can run 'pmbootstrap log' in a"
-                 " second terminal.")
     logging.info("Setting up the native chroot and cloning the package build"
                  " recipes (pmaports)...")
 

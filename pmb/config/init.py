@@ -344,7 +344,8 @@ def ask_for_additional_options(args, cfg):
                  f" extra free space: {args.extra_space} MB,"
                  f" boot partition size: {args.boot_size} MB,"
                  f" parallel jobs: {args.jobs},"
-                 f" ccache per arch: {args.ccache_size}")
+                 f" ccache per arch: {args.ccache_size},"
+                 f" sudo timer: {args.sudo_timer}")
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
                                    default=False):
@@ -384,6 +385,17 @@ def ask_for_additional_options(args, cfg):
     answer = pmb.helpers.cli.ask(args, "Ccache size", None, args.ccache_size,
                                  lowercase_answer=False, validation_regex=regex)
     cfg["pmbootstrap"]["ccache_size"] = answer
+
+    # Sudo timer
+    logging.info("pmbootstrap does everything in Alpine Linux chroots, so"
+                 " your host system does not get modified. In order to"
+                 " work with these chroots, pmbootstrap calls 'sudo'"
+                 " internally. For long running operations, it is possible"
+                 " that you'll have to authorize sudo more than once.")
+    answer = pmb.helpers.cli.confirm(args, "Enable background timer to prevent"
+                                     " repeated sudo authorization?",
+                                     default=args.sudo_timer)
+    cfg["pmbootstrap"]["sudo_timer"] = str(answer)
 
 
 def ask_for_hostname(args, device):

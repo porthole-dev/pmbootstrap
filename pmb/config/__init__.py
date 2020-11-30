@@ -60,7 +60,8 @@ config_keys = ["aports",
                "user",
                "work",
                "boot_size",
-               "extra_space"]
+               "extra_space",
+               "sudo_timer"]
 
 # Config file/commandline default values
 # $WORK gets replaced with the actual value for args.work (which may be
@@ -96,7 +97,8 @@ defaults = {
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
     "boot_size": "128",
-    "extra_space": "0"
+    "extra_space": "0",
+    "sudo_timer": False
 }
 
 
