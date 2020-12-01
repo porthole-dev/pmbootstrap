@@ -380,7 +380,7 @@ def arguments_kconfig(subparser):
     edit.add_argument("-g", dest="gconfig", action="store_true",
                       help="use gconfig rather than ncurses for kernel"
                            " configuration")
-    edit_package = edit.add_argument("package")
+    edit_package = edit.add_argument("package", nargs='?')
     if argcomplete:
         edit_package.completer = kernel_completer
 

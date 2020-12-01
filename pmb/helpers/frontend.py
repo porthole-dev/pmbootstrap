@@ -365,7 +365,11 @@ def kconfig(args):
                              " (consider 'pmbootstrap kconfig check -f')")
             logging.info("kconfig check succeeded!")
     elif args.action_kconfig == "edit":
-        pmb.build.menuconfig(args, args.package)
+        if args.package:
+            pkgname = args.package
+        else:
+            pkgname = args.deviceinfo["codename"]
+        pmb.build.menuconfig(args, pkgname)
 
 
 def deviceinfo_parse(args):
