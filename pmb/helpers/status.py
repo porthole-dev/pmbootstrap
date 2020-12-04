@@ -121,7 +121,7 @@ def print_checks_chroots_outdated(args, details):
         :returns: list of unresolved checklist items """
     if pmb.config.workdir.chroots_outdated(args):
         logging.info("[NOK] Chroots not zapped recently")
-        return ["Run 'pmbootststrap zap' to delete possibly outdated chroots"]
+        return ["Run 'pmbootstrap zap' to delete possibly outdated chroots"]
     elif details:
         logging.info("[OK ] Chroots zapped recently (or non-existing)")
     return []
