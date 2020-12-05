@@ -33,7 +33,7 @@ def sanity_checks(output="log", output_return=False, check=None,
     if output_return and output in ["tui", "background"]:
         raise RuntimeError("Can't use output_return with output: " + output)
 
-    if kill_as_root and output in ["interactive", "tui", "background"]:
+    if kill_as_root and output not in pmb.config.run_outputs_with_timeout:
         raise RuntimeError("Can't use kill_as_root with output: " + output)
 
 
@@ -270,7 +270,8 @@ def core(args, log_message, cmd, working_dir=None, output="log",
         if not args.details_to_stdout and output in ["stdout", "interactive"]:
             output_to_stdout = True
 
-        output_timeout = output in ["log", "stdout"] and not disable_timeout
+        output_timeout = output in pmb.config.run_outputs_with_timeout \
+            and not disable_timeout
         (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,

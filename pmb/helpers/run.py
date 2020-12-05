@@ -73,5 +73,9 @@ def root(args, cmd, working_dir=None, output="log", output_return=False,
     if env:
         cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
     cmd = ["sudo"] + cmd
+
+    # pmbootstrap shall use 'sudo kill' to get rid of timed out programs
+    kill_as_root = output in pmb.config.run_outputs_with_timeout or None
+
     return user(args, cmd, working_dir, output, output_return, check, env,
-                True)
+                kill_as_root)
