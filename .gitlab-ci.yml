@@ -42,6 +42,16 @@ static-code-analysis:
     # Note: This script uses CI_PROJECT_DIR
     - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh --static-code-analysis"
 
+vermin:
+  image: alpine:latest
+  stage: checks
+  <<: *only-default
+  before_script:
+  - "apk -q add py3-pip"
+  - "pip3 -q --disable-pip-version-check install vermin"
+  script:
+  - ".gitlab/vermin.sh"
+
 # MR settings
 # (Checks for "Allow commits from members who can merge to the target branch")
 mr-settings:
