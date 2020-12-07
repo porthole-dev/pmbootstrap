@@ -178,7 +178,10 @@ def create_home_from_skel(args):
     rootfs = args.work + "/chroot_native/mnt/install"
     homedir = rootfs + "/home/" + args.user
     pmb.helpers.run.root(args, ["mkdir", rootfs + "/home"])
-    pmb.helpers.run.root(args, ["cp", "-a", rootfs + "/etc/skel", homedir])
+    if os.path.exists(f"{rootfs}/etc/skel"):
+        pmb.helpers.run.root(args, ["cp", "-a", f"{rootfs}/etc/skel", homedir])
+    else:
+        pmb.helpers.run.root(args, ["mkdir", homedir])
     pmb.helpers.run.root(args, ["chown", "-R", "10000", homedir])
 
 
