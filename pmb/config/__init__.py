@@ -51,6 +51,7 @@ config_keys = ["aports",
                "jobs",
                "kernel",
                "keymap",
+               "locale",
                "nonfree_firmware",
                "nonfree_userland",
                "ssh_keys",
@@ -84,6 +85,7 @@ defaults = {
     "jobs": str(multiprocessing.cpu_count() + 1),
     "kernel": "stable",
     "keymap": "",
+    "locale": "C.UTF-8",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-2.alpinelinux.org/alpine/",
     "mirrors_postmarketos": ["http://mirror.postmarketos.org/postmarketos/"],
@@ -107,6 +109,26 @@ defaults = {
 is_interactive = sys.stdout.isatty() and \
     sys.stderr.isatty() and \
     sys.stdin.isatty()
+
+
+# List of available locales taken from musl-locales package; see
+# https://pkgs.alpinelinux.org/contents?name=musl-locales
+locales = [
+    "C.UTF-8",
+    "ch_DE.UTF-8",
+    "de_CH.UTF-8",
+    "de_DE.UTF-8",
+    "en_GB.UTF-8",
+    "en_US.UTF-8",
+    "es_ES.UTF-8",
+    "fr_FR.UTF-8",
+    "it_IT.UTF-8",
+    "nb_NO.UTF-8",
+    "nl_NL.UTF-8",
+    "pt_BR.UTF-8",
+    "ru_RU.UTF-8",
+    "sv_SE.UTF-8"
+]
 
 
 #

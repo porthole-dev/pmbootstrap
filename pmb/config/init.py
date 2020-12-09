@@ -427,6 +427,16 @@ def ask_build_pkgs_on_install(args):
                                    default=args.build_pkgs_on_install)
 
 
+def ask_for_locale(args):
+    locales = pmb.config.locales
+    logging.info(f"Available locales ({len(locales)}): {', '.join(locales)}")
+    return pmb.helpers.cli.ask(args, "Choose default locale for installation",
+                               default=args.locale,
+                               lowercase_answer=False,
+                               validation_regex="|".join(locales),
+                               complete=locales)
+
+
 def frontend(args):
     require_programs()
 
@@ -482,6 +492,9 @@ def frontend(args):
 
     # Configure timezone info
     cfg["pmbootstrap"]["timezone"] = ask_for_timezone(args)
+
+    # Locale
+    cfg["pmbootstrap"]["locale"] = ask_for_locale(args)
 
     # Hostname
     cfg["pmbootstrap"]["hostname"] = ask_for_hostname(args, device)

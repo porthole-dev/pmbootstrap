@@ -678,6 +678,7 @@ def create_device_rootfs(args, step, steps):
     logging.info(f'*** ({step}/{steps}) CREATE DEVICE ROOTFS ("{args.device}")'
                  ' ***')
 
+    suffix = f"rootfs_{args.device}"
     # Create user before installing packages, so post-install scripts of
     # pmaports can figure out the username (legacy reasons: pmaports#820)
     set_user(args)
@@ -698,6 +699,9 @@ def create_device_rootfs(args, step, steps):
         install_packages += args.extra_packages.split(",")
     if args.add:
         install_packages += args.add.split(",")
+    locale_is_set = (args.locale != pmb.config.defaults["locale"])
+    if locale_is_set:
+        install_packages += ["lang", "musl-locales"]
 
     pmb.helpers.repo.update(args, args.deviceinfo["arch"])
 
@@ -724,6 +728,12 @@ def create_device_rootfs(args, step, steps):
 
     # Set timezone
     pmb.chroot.root(args, ["setup-timezone", "-z", args.timezone], suffix)
+
+    # Set locale
+    if locale_is_set:
+        pmb.chroot.root(args, ["sed", "-i",
+                               f"s/LANG=C.UTF-8/LANG={args.locale}/",
+                               "/etc/profile.d/locale.sh"], suffix)
 
     # Set the hostname as the device name
     setup_hostname(args)
