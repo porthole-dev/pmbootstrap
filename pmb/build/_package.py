@@ -476,9 +476,14 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     """
     Build a package and its dependencies with Alpine Linux' abuild.
 
+    If this function is called multiple times on the same pkgname but first
+    with force=False and then force=True the force argument will be ignored due
+    to the package cache.
+    See the skip_already_built() call below.
+
     :param pkgname: package name to be built, as specified in the APKBUILD
     :param arch: architecture we're building for (default: native)
-    :param force: allways build, even if not necessary
+    :param force: always build, even if not necessary
     :param strict: avoid building with irrelevant dependencies installed by
                    letting abuild install and uninstall all dependencies.
     :param skip_init_buildenv: can be set to False to avoid initializing the
