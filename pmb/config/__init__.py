@@ -107,12 +107,6 @@ is_interactive = sys.stdout.isatty() and \
     sys.stdin.isatty()
 
 
-# pmbootstrap will kill programs which do not output anything for several
-# minutes and have one of the following output types. See
-# pmb.helpers.run_core.core() for more information.
-run_outputs_with_timeout = ["log", "stdout"]
-
-
 #
 # CHROOT
 #

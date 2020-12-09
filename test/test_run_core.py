@@ -41,12 +41,6 @@ def test_sanity_checks():
         func("tui", output_return=True)
     assert str(e.value).startswith("Can't use output_return with")
 
-    # kill_as_root
-    func("log", kill_as_root=True)
-    with pytest.raises(RuntimeError) as e:
-        func("tui", kill_as_root=True)
-    assert str(e.value).startswith("Can't use kill_as_root with")
-
 
 def test_background(args):
     # Sleep in background
@@ -90,7 +84,7 @@ def test_foreground_pipe(args):
     cmd = ["sudo", "sh", "-c", "printf first; sleep 2; printf second"]
     args.timeout = 0.3
     ret = func(args, cmd, output_return=True, output_timeout=True,
-               kill_as_root=True)
+               sudo=True)
     assert ret == (-9, "first")
 
     # Finish before timeout
@@ -108,7 +102,7 @@ def test_foreground_pipe(args):
            "sleep 10 | sleep 20 | sleep 30"]
     args.timeout = 0.3
     ret = func(args, cmd, output_return=True, output_timeout=True,
-               kill_as_root=True)
+               sudo=True)
     pgid = str(ret[1])
 
     cmd = ["ps", "-e", "-o", "pgid=,comm=", "--noheaders"]

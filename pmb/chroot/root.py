@@ -71,6 +71,5 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
                   pmb.helpers.run.flat_cmd(cmd, working_dir)]
     cmd_sudo = ["sudo", "env", "-i", executables["sh"], "-c",
                 pmb.helpers.run.flat_cmd(cmd_chroot, env=env_all)]
-    kill_as_root = output in ["log", "stdout"]
     return pmb.helpers.run_core.core(args, msg, cmd_sudo, None, output,
-                                     output_return, check, kill_as_root, disable_timeout)
+                                     output_return, check, True, disable_timeout)

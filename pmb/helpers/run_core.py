@@ -14,8 +14,7 @@ import pmb.helpers.run
     called by core(). """
 
 
-def sanity_checks(output="log", output_return=False, check=None,
-                  kill_as_root=False):
+def sanity_checks(output="log", output_return=False, check=None):
     """
     Raise an exception if the parameters passed to core() don't make sense
     (all parameters are described in core() below).
@@ -32,9 +31,6 @@ def sanity_checks(output="log", output_return=False, check=None,
 
     if output_return and output in ["tui", "background"]:
         raise RuntimeError("Can't use output_return with output: " + output)
-
-    if kill_as_root and output not in pmb.config.run_outputs_with_timeout:
-        raise RuntimeError("Can't use kill_as_root with output: " + output)
 
 
 def background(args, cmd, working_dir=None):
@@ -85,15 +81,15 @@ def pipe_read(args, process, output_to_stdout=False, output_return=False,
         return
 
 
-def kill_process_tree(args, pid, ppids, kill_as_root):
+def kill_process_tree(args, pid, ppids, sudo):
     """
     Recursively kill a pid and its child processes
 
     :param pid: process id that will be killed
     :param ppids: list of process id and parent process id tuples (pid, ppid)
-    :param kill_as_root: use sudo to kill the process
+    :param sudo: use sudo to kill the process
     """
-    if kill_as_root:
+    if sudo:
         pmb.helpers.run.root(args, ["kill", "-9", str(pid)],
                              check=False)
     else:
@@ -102,15 +98,15 @@ def kill_process_tree(args, pid, ppids, kill_as_root):
 
     for (child_pid, child_ppid) in ppids:
         if child_ppid == str(pid):
-            kill_process_tree(args, child_pid, ppids, kill_as_root)
+            kill_process_tree(args, child_pid, ppids, sudo)
 
 
-def kill_command(args, pid, kill_as_root):
+def kill_command(args, pid, sudo):
     """
     Kill a command process and recursively kill its child processes
 
     :param pid: process id that will be killed
-    :param kill_as_root: use sudo to kill the process
+    :param sudo: use sudo to kill the process
     """
     cmd = ["ps", "-e", "-o", "pid=,ppid=", "--noheaders"]
     ret = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
@@ -122,12 +118,12 @@ def kill_command(args, pid, kill_as_root):
             raise RuntimeError("Unexpected ps output: " + row)
         ppids.append(items)
 
-    kill_process_tree(args, pid, ppids, kill_as_root)
+    kill_process_tree(args, pid, ppids, sudo)
 
 
 def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
                     output_return=False, output_timeout=True,
-                    kill_as_root=False):
+                    sudo=False):
     """
     Run a subprocess in foreground with redirected output and optionally kill
     it after being silent for too long.
@@ -139,7 +135,7 @@ def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
     :param output_timeout: kill the process when it doesn't print any output
                            after a certain time (configured with --timeout)
                            and raise a RuntimeError exception
-    :param kill_as_root: use sudo to kill the process when it hits the timeout
+    :param sudo: use sudo to kill the process when it hits the timeout
     :returns: (code, output)
               * code: return code of the program
               * output: ""
@@ -173,7 +169,7 @@ def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
                              str(args.timeout) + " seconds. Killing it.")
                 logging.info("NOTE: The timeout can be increased with"
                              " 'pmbootstrap -t'.")
-                kill_command(args, process.pid, kill_as_root)
+                kill_command(args, process.pid, sudo)
                 continue
 
         # Read all currently available output
@@ -222,7 +218,7 @@ def check_return_code(args, code, log_message):
 
 
 def core(args, log_message, cmd, working_dir=None, output="log",
-         output_return=False, check=None, kill_as_root=False, disable_timeout=False):
+         output_return=False, check=None, sudo=False, disable_timeout=False):
     """
     Run a command and create a log entry.
 
@@ -274,12 +270,12 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                   is not 0. Set this to False to disable the check. This
                   parameter can not be used when the output is "background" or
                   "pipe".
-    :param kill_as_root: use sudo to kill the process when it hits the timeout.
+    :param sudo: use sudo to kill the process when it hits the timeout.
     :returns: * program's return code (default)
               * subprocess.Popen instance (output is "background" or "pipe")
               * the program's entire output (output_return is True)
     """
-    sanity_checks(output, output_return, check, kill_as_root)
+    sanity_checks(output, output_return, check)
 
     # Log simplified and full command (pmbootstrap -v)
     logging.debug(log_message)
@@ -304,13 +300,13 @@ def core(args, log_message, cmd, working_dir=None, output="log",
         if not args.details_to_stdout and output in ["stdout", "interactive"]:
             output_to_stdout = True
 
-        output_timeout = output in pmb.config.run_outputs_with_timeout \
-            and not disable_timeout
+        output_timeout = output in ["log", "stdout"] and not disable_timeout
+
         (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,
                                                    output_timeout,
-                                                   kill_as_root)
+                                                   sudo)
 
     # Check the return code
     if check is not False:

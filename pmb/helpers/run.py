@@ -34,7 +34,7 @@ def flat_cmd(cmd, working_dir=None, env={}):
 
 
 def user(args, cmd, working_dir=None, output="log", output_return=False,
-         check=None, env={}, kill_as_root=False):
+         check=None, env={}, sudo=False):
     """
     Run a command on the host system as user.
 
@@ -56,7 +56,7 @@ def user(args, cmd, working_dir=None, output="log", output_return=False,
     if env:
         cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
     return pmb.helpers.run_core.core(args, msg, cmd, working_dir, output,
-                                     output_return, check, kill_as_root)
+                                     output_return, check, sudo)
 
 
 def root(args, cmd, working_dir=None, output="log", output_return=False,
@@ -74,8 +74,5 @@ def root(args, cmd, working_dir=None, output="log", output_return=False,
         cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
     cmd = ["sudo"] + cmd
 
-    # pmbootstrap shall use 'sudo kill' to get rid of timed out programs
-    kill_as_root = output in pmb.config.run_outputs_with_timeout or None
-
     return user(args, cmd, working_dir, output, output_return, check, env,
-                kill_as_root)
+                True)
