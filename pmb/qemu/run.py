@@ -185,11 +185,12 @@ def command_qemu(args, arch, img_path):
 
 def resize_image(args, img_size_new, img_path):
     """
-    Truncates the rootfs to a specific size. The value must be larger than the
-    current image size, and it must be specified in MiB or GiB units (powers of 1024).
+    Truncates an image to a specific size. The value must be larger than the
+    current image size, and it must be specified in MiB or GiB units (powers of
+    1024).
 
     :param img_size_new: new image size in M or G
-    :param img_path: the path to the rootfs
+    :param img_path: the path to the image
     """
     # Current image size in bytes
     img_size = os.path.getsize(img_path)
@@ -197,7 +198,8 @@ def resize_image(args, img_size_new, img_path):
     # Make sure we have at least 1 integer followed by either M or G
     pattern = re.compile("^[0-9]+[M|G]$")
     if not pattern.match(img_size_new):
-        raise RuntimeError("You must specify the rootfs size in [M]iB or [G]iB, e.g. 2048M or 2G")
+        raise RuntimeError("IMAGE_SIZE must be in [M]iB or [G]iB, e.g. 2048M"
+                           " or 2G")
 
     # Remove M or G and convert to bytes
     img_size_new_bytes = int(img_size_new[:-1]) * 1024 * 1024
@@ -207,7 +209,7 @@ def resize_image(args, img_size_new, img_path):
         img_size_new_bytes = img_size_new_bytes * 1024
 
     if (img_size_new_bytes >= img_size):
-        logging.info("Setting the rootfs size to " + img_size_new)
+        logging.info(f"Resize image to {img_size_new}: {img_path}")
         pmb.helpers.run.root(args, ["truncate", "-s", img_size_new, img_path])
     else:
         # Convert to human-readable format
@@ -217,7 +219,7 @@ def resize_image(args, img_size_new, img_path):
         # this example, they would need to use a size greater then 1280M instead.
         img_size_str = str(round(img_size / 1024 / 1024)) + "M"
 
-        raise RuntimeError("The rootfs size must be " + img_size_str + " or greater")
+        raise RuntimeError(f"IMAGE_SIZE must be {img_size_str} or greater")
 
 
 def sigterm_handler(number, frame):
