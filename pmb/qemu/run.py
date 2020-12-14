@@ -31,6 +31,18 @@ def system_image(args):
     return path
 
 
+def create_second_storage(args):
+    """
+    Generate a second storage image if it does not exist.
+    :returns: path to the image or None
+    """
+    path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}-2nd.img"
+    pmb.helpers.run.root(args, ["touch", path])
+    pmb.helpers.run.root(args, ["chmod", "a+w", path])
+    resize_image(args, args.second_storage, path)
+    return path
+
+
 def which_qemu(args, arch):
     """
     Finds the qemu executable or raises an exception otherwise
@@ -67,7 +79,7 @@ def create_gdk_loader_cache(args):
     return rootfs_native + custom_cache_path
 
 
-def command_qemu(args, arch, img_path):
+def command_qemu(args, arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
@@ -137,7 +149,11 @@ def command_qemu(args, arch, img_path):
     command += ["-m", str(args.memory)]
 
     command += ["-serial", "stdio"]
+
     command += ["-drive", "file=" + img_path + ",format=raw,if=virtio"]
+    if img_path_2nd:
+        command += ["-drive", "file=" + img_path_2nd + ",format=raw,if=virtio"]
+
     if args.qemu_tablet:
         command += ["-device", "virtio-tablet-pci"]
     else:
@@ -271,11 +287,15 @@ def run(args):
     arch = pmb.parse.arch.alpine_to_qemu(args.deviceinfo["arch"])
 
     img_path = system_image(args)
+    img_path_2nd = None
+    if args.second_storage:
+        img_path_2nd = create_second_storage(args)
+
     if not args.host_qemu:
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
 
-    qemu, env = command_qemu(args, arch, img_path)
+    qemu, env = command_qemu(args, arch, img_path, img_path_2nd)
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root

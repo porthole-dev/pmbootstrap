@@ -276,6 +276,11 @@ def arguments_qemu(subparser):
     ret.add_argument("--cmdline", help="override kernel commandline")
     ret.add_argument("--image-size", default="4G",
                      help="set rootfs size, e.g. 2048M or 2G (default: 4G)")
+    ret.add_argument("--second-storage", metavar="IMAGE_SIZE",
+                     help="add a second storage with the given size (default:"
+                          " 4G), gets created if it does not exist. Use to"
+                          " test install from SD to eMMC",
+                     nargs="?", default=None, const="4G")
     ret.add_argument("-m", "--memory", type=int, default=1024,
                      help="guest RAM (default: 1024)")
     ret.add_argument("-p", "--port", type=int, default=2222,
