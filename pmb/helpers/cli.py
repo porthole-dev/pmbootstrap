@@ -105,7 +105,7 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
     return answer == "y"
 
 
-def progress_print(progress):
+def progress_print(args, progress):
     """
     Print a snapshot of a progress bar to STDOUT. Call progress_flush to end
     printing progress and clear the line. No output is printed in
@@ -122,16 +122,16 @@ def progress_print(progress):
     filled = "\u2588" * chars
     empty = " " * (width - chars)
     percent = int(progress * 100)
-    if pmb.config.is_interactive:
+    if pmb.config.is_interactive and not args.details_to_stdout:
         sys.stdout.write(f"\u001b7{percent:>3}% {filled}{empty}")
         sys.stdout.flush()
         sys.stdout.write("\u001b8\u001b[0K")
 
 
-def progress_flush():
+def progress_flush(args):
     """
     Finish printing a progress bar. This will erase the line. Does nothing in
     non-interactive mode.
     """
-    if pmb.config.is_interactive:
+    if pmb.config.is_interactive and not args.details_to_stdout:
         sys.stdout.flush()
