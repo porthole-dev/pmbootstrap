@@ -229,9 +229,19 @@ def install_depends(args, arch):
     """
     Install any necessary qemu dependencies in native chroot
     """
-    depends = ["qemu", "qemu-system-" + arch, "qemu-ui-sdl", "qemu-ui-gtk",
-               "mesa-gl", "mesa-egl", "mesa-dri-classic", "mesa-dri-gallium",
-               "qemu-audio-alsa", "qemu-audio-pa", "qemu-audio-sdl"]
+    depends = [
+        "mesa-dri-classic",
+        "mesa-dri-gallium",
+        "mesa-egl",
+        "mesa-gl",
+        "qemu",
+        "qemu-audio-alsa",
+        "qemu-audio-pa",
+        "qemu-audio-sdl",
+        "qemu-system-" + arch,
+        "qemu-ui-gtk",
+        "qemu-ui-sdl",
+    ]
     pmb.chroot.apk.install(args, depends)
 
 
