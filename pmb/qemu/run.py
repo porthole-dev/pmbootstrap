@@ -238,8 +238,12 @@ def install_depends(args, arch):
         "qemu-audio-alsa",
         "qemu-audio-pa",
         "qemu-audio-sdl",
+        "qemu-hw-display-virtio-gpu",
+        "qemu-hw-display-virtio-gpu-pci",
+        "qemu-hw-display-virtio-vga",
         "qemu-system-" + arch,
         "qemu-ui-gtk",
+        "qemu-ui-opengl",
         "qemu-ui-sdl",
     ]
     pmb.chroot.apk.install(args, depends)
