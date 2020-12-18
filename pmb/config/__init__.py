@@ -32,7 +32,10 @@ pmaports_min_version = "7"
 # see migrate_work_folder()).
 work_version = 5
 
-# Minimum required version of postmarketos-ondev (pmbootstrap install --ondev)
+# Minimum required version of postmarketos-ondev (pmbootstrap install --ondev).
+# Try to support the current versions of all channels (edge, stable). When
+# bumping > 0.4.0, remove compat code in pmb/install/_install.py (search for
+# get_ondev_pkgver).
 ondev_min_version = "0.2.0"
 
 # Programs that pmbootstrap expects to be available from the host system. Keep

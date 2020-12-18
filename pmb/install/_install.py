@@ -645,8 +645,11 @@ def install_on_device_installer(args, step, steps):
 
     # Generate installer image
     size_reserve = round(os.path.getsize(img_path_dest) / 1024 / 1024) + 200
+    boot_label = "pmOS_inst_boot"
+    if pmb.parse.version.compare(get_ondev_pkgver(args), "0.4.0") == -1:
+        boot_label = "pmOS_boot"
     install_system_image(args, size_reserve, suffix_installer, step, steps,
-                         "pmOS_install", args.split, args.sdcard)
+                         boot_label, "pmOS_install", args.split, args.sdcard)
 
 
 def create_device_rootfs(args, step, steps):
