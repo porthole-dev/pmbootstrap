@@ -445,13 +445,15 @@ def sanity_check_ondev_version(args):
 
 
 def install_system_image(args, size_reserve, suffix, step, steps,
-                         root_label="pmOS_root", split=False, sdcard=None):
+                         boot_label="pmOS_boot", root_label="pmOS_root",
+                         split=False, sdcard=None):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param suffix: the chroot suffix, where the rootfs that will be installed
                    on the device has been created (e.g. "rootfs_qemu-amd64")
     :param step: next installation step
     :param steps: total installation steps
+    :param boot_label: label of the boot partition (e.g. "pmOS_boot")
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param split: create separate images for boot and root partitions
     :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
@@ -469,7 +471,7 @@ def install_system_image(args, size_reserve, suffix, step, steps,
         root_id = 3 if size_reserve else 2
         pmb.install.partitions_mount(args, root_id, sdcard)
 
-    pmb.install.format(args, size_reserve, root_label, sdcard)
+    pmb.install.format(args, size_reserve, boot_label, root_label, sdcard)
 
     # Just copy all the files
     logging.info(f"*** ({step + 1}/{steps}) FILL INSTALL BLOCKDEVICE ***")

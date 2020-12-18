@@ -5,18 +5,24 @@ import logging
 import pmb.chroot
 
 
-def format_and_mount_boot(args):
+def format_and_mount_boot(args, boot_label):
+    """
+    :param boot_label: label of the root partition (e.g. "pmOS_boot")
+    """
     mountpoint = "/mnt/install/boot"
     device = "/dev/installp1"
     filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
     logging.info("(native) format " + device + " (boot, " + filesystem + "), mount to " +
                  mountpoint)
     if filesystem == "fat16":
-        pmb.chroot.root(args, ["mkfs.fat", "-F", "16", "-n", "pmOS_boot", device])
+        pmb.chroot.root(args, ["mkfs.fat", "-F", "16", "-n", boot_label,
+                               device])
     elif filesystem == "fat32":
-        pmb.chroot.root(args, ["mkfs.fat", "-F", "32", "-n", "pmOS_boot", device])
+        pmb.chroot.root(args, ["mkfs.fat", "-F", "32", "-n", boot_label,
+                               device])
     elif filesystem == "ext2":
-        pmb.chroot.root(args, ["mkfs.ext2", "-F", "-q", "-L", "pmOS_boot", device])
+        pmb.chroot.root(args, ["mkfs.ext2", "-F", "-q", "-L", boot_label,
+                               device])
     else:
         raise RuntimeError("Filesystem " + filesystem + " is not supported!")
     pmb.chroot.root(args, ["mkdir", "-p", mountpoint])
@@ -79,9 +85,10 @@ def format_and_mount_root(args, device, root_label, sdcard):
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
 
-def format(args, size_reserve, root_label, sdcard):
+def format(args, size_reserve, boot_label, root_label, sdcard):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
+    :param boot_label: label of the boot partition (e.g. "pmOS_boot")
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
     """
@@ -92,4 +99,4 @@ def format(args, size_reserve, root_label, sdcard):
         root_dev = "/dev/mapper/pm_crypt"
 
     format_and_mount_root(args, root_dev, root_label, sdcard)
-    format_and_mount_boot(args)
+    format_and_mount_boot(args, boot_label)
