@@ -8,6 +8,9 @@ import pmb.chroot
 def format_and_mount_boot(args, boot_label):
     """
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
+
+    When adjusting this function, make sure to also adjust
+    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
     """
     mountpoint = "/mnt/install/boot"
     device = "/dev/installp1"

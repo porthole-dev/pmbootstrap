@@ -50,6 +50,9 @@ def partition(args, size_boot, size_reserve):
     * /dev/installp2: root (or reserved space)
     * /dev/installp3: (root, if reserved space > 0)
 
+    When adjusting this function, make sure to also adjust
+    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
+
     :param size_boot: size of the boot partition in MiB
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
