@@ -88,6 +88,7 @@ py_files="
 	pmb/helpers/status.py
 	pmb/helpers/ui.py
 	pmb/install/__init__.py
+	pmb/install/format.py
 	pmb/install/recovery.py
 	pmb/install/ui.py
 	pmb/parse/__init__.py

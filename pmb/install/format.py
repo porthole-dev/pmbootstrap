@@ -15,8 +15,8 @@ def format_and_mount_boot(args, boot_label):
     mountpoint = "/mnt/install/boot"
     device = "/dev/installp1"
     filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
-    logging.info("(native) format " + device + " (boot, " + filesystem + "), mount to " +
-                 mountpoint)
+    logging.info(f"(native) format {device} (boot, {filesystem}), mount to"
+                 " mountpoint")
     if filesystem == "fat16":
         pmb.chroot.root(args, ["mkfs.fat", "-F", "16", "-n", boot_label,
                                device])
