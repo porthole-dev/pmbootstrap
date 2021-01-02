@@ -246,6 +246,15 @@ def install_depends(args, arch):
         "qemu-ui-opengl",
         "qemu-ui-sdl",
     ]
+
+    # QEMU packaging isn't split up as much in 3.12
+    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    if channel_cfg["branch_aports"] == "3.12-stable":
+        depends.remove("qemu-hw-display-virtio-gpu")
+        depends.remove("qemu-hw-display-virtio-gpu-pci")
+        depends.remove("qemu-hw-display-virtio-vga")
+        depends.remove("qemu-ui-opengl")
+
     pmb.chroot.apk.install(args, depends)
 
 
