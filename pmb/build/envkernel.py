@@ -166,14 +166,17 @@ def package_kernel(args):
                            "argument.")
 
     aport = pmb.helpers.pmaports.find(args, pkgname)
-    function_body = pmb.parse.function_body(aport + "/APKBUILD", "package")
-    kbuild_out = find_kbuild_output_dir(args, function_body)
 
     modify_apkbuild(args, pkgname, aport)
     apkbuild_path = args.work + "/aportgen/APKBUILD"
 
     arch = args.deviceinfo["arch"]
     apkbuild = pmb.parse.apkbuild(args, apkbuild_path, check_pkgname=False)
+    if apkbuild["_outdir"]:
+        kbuild_out = apkbuild["_outdir"]
+    else:
+        function_body = pmb.parse.function_body(aport + "/APKBUILD", "package")
+        kbuild_out = find_kbuild_output_dir(args, function_body)
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
 
     # Install package dependencies
