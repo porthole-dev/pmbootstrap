@@ -1,4 +1,4 @@
-# Copyright 2020 Johannes Marbach
+# Copyright 2021 Johannes Marbach
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 

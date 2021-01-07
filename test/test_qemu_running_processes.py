@@ -1,4 +1,4 @@
-# Copyright 2020 Oliver Smith
+# Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
 This file runs various installations and boots into them with QEMU, then checks

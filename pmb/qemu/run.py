@@ -1,4 +1,4 @@
-# Copyright 2020 Pablo Castellano, Oliver Smith
+# Copyright 2021 Pablo Castellano, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os

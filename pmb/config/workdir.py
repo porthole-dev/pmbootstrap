@@ -1,4 +1,4 @@
-# Copyright 2020 Oliver Smith
+# Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Save, read, verify workdir state related information in $WORK/workdir.cfg,
     for example the init dates of the chroots. This is not saved in

@@ -1,4 +1,4 @@
-# Copyright 2020 Attila Szollosi
+# Copyright 2021 Attila Szollosi
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
 import logging

@@ -1,4 +1,4 @@
-# Copyright 2020 Martijn Braam
+# Copyright 2021 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
 import os

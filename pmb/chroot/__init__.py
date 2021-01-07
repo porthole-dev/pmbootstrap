@@ -1,4 +1,4 @@
-# Copyright 2020 Oliver Smith
+# Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.chroot.init import init
 from pmb.chroot.mount import mount, mount_native_into_foreign
