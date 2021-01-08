@@ -484,6 +484,9 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     configure_apk(args)
     copy_ssh_keys(args)
     embed_firmware(args, suffix)
+    if sdcard:
+        logging.info("Unmounting SD card (this may take a while "
+                     "to sync, please wait)")
     pmb.chroot.shutdown(args, True)
 
     # Convert rootfs to sparse using img2simg
