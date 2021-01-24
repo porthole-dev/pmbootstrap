@@ -46,9 +46,9 @@ def test_get_nonfree_packages(args):
     assert func(args, device) == []
 
 
-def test_get_recommends_packages(args):
+def test_get_recommends(args):
     args.aports = pmb_test.const.testdata + "/pmb_recommends"
-    func = pmb.install._install.get_recommends_packages
+    func = pmb.install.ui.get_recommends
 
     # UI: none
     args.install_recommends = True
