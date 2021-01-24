@@ -296,6 +296,10 @@ apkbuild_package_attributes = {
     # removing the meta-package. (#1933). To disable this feature, use:
     # "pmbootstrap install --no-recommends".
     "_pmb_recommends": {"array": True},
+
+    # UI meta-packages can specify groups to which the user must be added
+    # to access specific hardware such as LED indicators.
+    "_pmb_groups": {"array": True},
 }
 
 # Variables in APKBUILD files, that get parsed

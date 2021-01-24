@@ -79,3 +79,28 @@ def test_get_recommends(args):
     with pytest.raises(RuntimeError) as e:
         func(args)
     assert str(e.value).startswith("Could not find aport for package")
+
+
+def test_get_groups(args):
+    args.aports = f"{pmb_test.const.testdata}/pmb_groups"
+    func = pmb.install.ui.get_groups
+
+    # UI: none:
+    args.ui = "none"
+    assert func(args) == []
+
+    # UI: test, without -extras
+    args.ui = "test"
+    args.ui_extras = False
+    assert func(args) == ["feedbackd"]
+
+    # UI: test, with -extras
+    args.ui = "test"
+    args.ui_extras = True
+    assert func(args) == ["feedbackd", "extra"]
+
+    # UI: invalid
+    args.ui = "invalid"
+    with pytest.raises(RuntimeError) as e:
+        func(args)
+    assert str(e.value).startswith("Could not find aport for package")
