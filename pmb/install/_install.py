@@ -432,10 +432,14 @@ def sanity_check_sdcard_size(args):
             raise RuntimeError("Aborted.")
 
 
-def sanity_check_ondev_version(args):
+def get_ondev_pkgver(args):
     arch = args.deviceinfo["arch"]
     package = pmb.helpers.package.get(args, "postmarketos-ondev", arch)
-    ver_pkg = package["version"].split("-r")[0]
+    return package["version"].split("-r")[0]
+
+
+def sanity_check_ondev_version(args):
+    ver_pkg = get_ondev_pkgver(args)
     ver_min = pmb.config.ondev_min_version
     if pmb.parse.version.compare(ver_pkg, ver_min) == -1:
         raise RuntimeError("This version of pmbootstrap requires"
