@@ -1,10 +1,12 @@
-# Copyright 2021 Johannes Marbach
+# Copyright 2021 Johannes Marbach, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 
 import pmb.chroot.root
+import pmb.config.pmaports
 import pmb.helpers.cli
 import pmb.helpers.run
+import pmb.parse.version
 
 
 def _run(args, command, chroot=False, suffix="native", output="log"):
@@ -106,3 +108,26 @@ def apk_with_progress(args, command, chroot=False, suffix="native"):
             pmb.helpers.cli.progress_flush(args)
             pmb.helpers.run_core.check_return_code(args, p_apk.returncode,
                                                    log_msg)
+
+
+def check_outdated(args, version_installed, action_msg):
+    """
+    Check if the provided alpine version is outdated, depending on the alpine
+    mirrordir (edge, v3.12, ...) related to currently checked out pmaports
+    branch.
+
+    :param version_installed: currently installed apk version, e.g. "2.12.1-r0"
+    :param action_msg: string explaining what the user should do to resolve
+                       this
+    :raises: RuntimeError if the version is outdated
+    """
+    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    mirrordir_alpine = channel_cfg["mirrordir_alpine"]
+    version_min = pmb.config.apk_tools_min_version[mirrordir_alpine]
+
+    if pmb.parse.version.compare(version_installed, version_min) >= 0:
+        return
+
+    raise RuntimeError("Found an outdated version of the 'apk' package"
+                       f" manager ({version_installed}, expected at least:"
+                       f" {version_min}). {action_msg}")

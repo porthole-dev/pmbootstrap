@@ -78,13 +78,10 @@ def check_min_version(args, suffix="native"):
 
     # Compare
     version_installed = installed(args, suffix)["apk-tools"]["version"]
-    version_min = pmb.config.apk_tools_min_version
-    if pmb.parse.version.compare(version_installed, version_min) == -1:
-        raise RuntimeError("You have an outdated version of the 'apk' package"
-                           " manager installed (your version: " + version_installed +
-                           ", expected at least: " + version_min + "). Delete"
-                           " your http cache and zap all chroots, then try again:"
-                           " 'pmbootstrap zap -hc'")
+    pmb.helpers.apk.check_outdated(
+        args, version_installed,
+        "Delete your http cache and zap all chroots, then try again:"
+        " 'pmbootstrap zap -hc'")
 
     # Mark this suffix as checked
     args.cache["apk_min_version_checked"].append(suffix)

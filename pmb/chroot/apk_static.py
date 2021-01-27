@@ -153,16 +153,12 @@ def init(args):
                                             indexes=[apkindex])
     version = index_data["version"]
 
-    # Extract and verify the apk-tools-static version
-    version_min = pmb.config.apk_tools_min_version
-    apk_name = "apk-tools-static-" + version + ".apk"
-    if pmb.parse.version.compare(version, version_min) == -1:
-        raise RuntimeError("Your APKINDEX has an outdated version of"
-                           " apk-tools-static (your version: " + version +
-                           ", expected at least:" + version_min + "). Please" +
-                           " run 'pmbootstrap update'.")
+    # Verify the apk-tools-static version
+    pmb.helpers.apk.check_outdated(
+        args, version, "Run 'pmbootstrap update', then try again.")
 
     # Download, extract, verify apk-tools-static
+    apk_name = "apk-tools-static-" + version + ".apk"
     apk_static = download(args, apk_name)
     extract(args, version, apk_static)
 

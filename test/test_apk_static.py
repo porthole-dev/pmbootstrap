@@ -1,6 +1,7 @@
 # Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+import copy
 import sys
 import tarfile
 import glob
@@ -113,17 +114,16 @@ def test_signature_verification(args, tmpdir):
     assert "downgrade attack" in str(e.value)
 
 
-def test_outdated_version(args):
+def test_outdated_version(args, monkeypatch):
     if os.path.exists(args.work + "/apk.static"):
         os.remove(args.work + "/apk.static")
 
-    # change min version
-    min = pmb.config.apk_tools_min_version
-    pmb.config.apk_tools_min_version = "99.1.2-r1"
+    # Change min version for all branches
+    min_copy = copy.copy(pmb.config.apk_tools_min_version)
+    for key, old_ver in min_copy.items():
+        min_copy[key] = "99.1.2-r1"
+    monkeypatch.setattr(pmb.config, "apk_tools_min_version", min_copy)
 
     with pytest.raises(RuntimeError) as e:
         pmb.chroot.apk_static.init(args)
     assert "outdated version" in str(e.value)
-
-    # reset min version
-    pmb.config.apk_tools_min_version = min
