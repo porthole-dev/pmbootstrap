@@ -94,7 +94,7 @@ defaults = {
     "keymap": "",
     "locale": "C.UTF-8",
     "log": "$WORK/log.txt",
-    "mirror_alpine": "http://dl-2.alpinelinux.org/alpine/",
+    "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
     "mirrors_postmarketos": ["http://mirror.postmarketos.org/postmarketos/"],
     "nonfree_firmware": True,
     "nonfree_userland": False,
