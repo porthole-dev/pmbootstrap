@@ -154,7 +154,7 @@ def init(args):
     version = index_data["version"]
 
     # Extract and verify the apk-tools-static version
-    version_min = pmb.config.apk_tools_static_min_version
+    version_min = pmb.config.apk_tools_min_version
     apk_name = "apk-tools-static-" + version + ".apk"
     if pmb.parse.version.compare(version, version_min) == -1:
         raise RuntimeError("Your APKINDEX has an outdated version of"

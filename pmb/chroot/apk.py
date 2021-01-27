@@ -78,7 +78,7 @@ def check_min_version(args, suffix="native"):
 
     # Compare
     version_installed = installed(args, suffix)["apk-tools"]["version"]
-    version_min = pmb.config.apk_tools_static_min_version
+    version_min = pmb.config.apk_tools_min_version
     if pmb.parse.version.compare(version_installed, version_min) == -1:
         raise RuntimeError("You have an outdated version of the 'apk' package"
                            " manager installed (your version: " + version_installed +

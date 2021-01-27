@@ -118,12 +118,12 @@ def test_outdated_version(args):
         os.remove(args.work + "/apk.static")
 
     # change min version
-    min = pmb.config.apk_tools_static_min_version
-    pmb.config.apk_tools_static_min_version = "99.1.2-r1"
+    min = pmb.config.apk_tools_min_version
+    pmb.config.apk_tools_min_version = "99.1.2-r1"
 
     with pytest.raises(RuntimeError) as e:
         pmb.chroot.apk_static.init(args)
     assert "outdated version" in str(e.value)
 
     # reset min version
-    pmb.config.apk_tools_static_min_version = min
+    pmb.config.apk_tools_min_version = min
