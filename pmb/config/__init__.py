@@ -15,14 +15,14 @@ from pmb.config.merge_with_args import merge_with_args
 #
 # Exported variables (internal configuration)
 #
-version = "1.28.0"
+version = "1.29.0"
 pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
 apk_keys_path = pmb_src + "/pmb/data/keys"
 
 # Update this frequently to prevent a MITM attack with an outdated version
 # (which may contain a vulnerable apk/libressl, and allows an attacker to
 # exploit the system!)
-apk_tools_static_min_version = "2.10.5-r0"
+apk_tools_static_min_version = "2.12.1-r0"
 
 # postmarketOS aports compatibility (checked against "version" in pmaports.cfg)
 pmaports_min_version = "7"
