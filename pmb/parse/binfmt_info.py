@@ -26,8 +26,8 @@ def binfmt_info(args, arch_qemu):
     for type in ["mask", "magic"]:
         key = arch_qemu + "_" + type
         if key not in full:
-            raise RuntimeError("Could not find key " + key + " in binfmt info file: " +
-                               info)
+            raise RuntimeError(
+                f"Could not find key {key} in binfmt info file: {info}")
         ret[type] = full[key]
     logging.verbose("=> " + str(ret))
     return ret

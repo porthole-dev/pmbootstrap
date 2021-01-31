@@ -71,8 +71,8 @@ def parse_next_block(args, path, lines, start):
         # Check for required keys
         for key in ["arch", "pkgname", "version"]:
             if key not in ret:
-                raise RuntimeError("Missing required key '" + key +
-                                   "' in block " + str(ret) + ", file: " + path)
+                raise RuntimeError(f"Missing required key '{key}' in block "
+                                   f"{ret}, file: {path}")
 
         # Format optional lists
         for key in ["provides", "depends"]:
@@ -340,8 +340,9 @@ def provider_highest_priority(providers, pkgname):
             priority_providers[provider_name] = provider
 
     if priority_providers:
-        logging.debug(f"{pkgname}: picked provider(s) with higest priority {max_priority}: " +
-                      ", ".join(priority_providers.keys()))
+        logging.debug(
+            f"{pkgname}: picked provider(s) with higest priority "
+            f"{max_priority}: {', '.join(priority_providers.keys())}")
         return priority_providers
 
     # None of the providers seems to have a provider_priority defined
@@ -359,8 +360,9 @@ def provider_shortest(providers, pkgname):
     """
     ret = min(list(providers.keys()), key=len)
     if len(providers) != 1:
-        logging.debug(pkgname + ": has multiple providers (" +
-                      ", ".join(providers.keys()) + "), picked shortest: " + ret)
+        logging.debug(
+            f"{pkgname}: has multiple providers ("
+            f"{', '.join(providers.keys())}), picked shortest: {ret}")
     return providers[ret]
 
 

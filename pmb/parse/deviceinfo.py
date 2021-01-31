@@ -48,8 +48,8 @@ def sanity_check(info, path):
     if codename.startswith("device-"):
         codename = codename[7:]
     if "codename" not in info or info["codename"] != codename:
-        raise RuntimeError("Please add 'deviceinfo_codename=\"" + codename +
-                           "\"' to: " + path)
+        raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' "
+                           f"to: {path}")
 
     # "chassis" is required
     chassis_types = pmb.config.deviceinfo_chassis_types
@@ -118,8 +118,9 @@ def deviceinfo(args, device=None, kernel=None):
         kernel = args.kernel
 
     if not os.path.exists(args.aports):
-        logging.fatal("Aports directory is missing, expected: " + args.aports)
-        logging.fatal("Please provide a path to the aports directory using the -p flag")
+        logging.fatal(f"Aports directory is missing, expected: {args.aports}")
+        logging.fatal("Please provide a path to the aports directory using the"
+                      " -p flag")
         raise RuntimeError("Aports directory missing")
 
     path = pmb.helpers.devices.find_path(args, device, 'deviceinfo')
@@ -135,7 +136,7 @@ def deviceinfo(args, device=None, kernel=None):
             if not line.startswith("deviceinfo_"):
                 continue
             if "=" not in line:
-                raise SyntaxError(path + ": No '=' found:\n\t" + line)
+                raise SyntaxError(f"{path}: No '=' found:\n\t{line}")
             split = line.split("=", 1)
             key = split[0][len("deviceinfo_"):]
             value = split[1].replace("\"", "").replace("\n", "")

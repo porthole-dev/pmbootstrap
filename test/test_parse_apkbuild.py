@@ -37,13 +37,15 @@ def test_subpackages(args):
     path = (testdata + "/init_questions_device/aports/device/testing/"
             "device-nonfree-firmware/APKBUILD")
     apkbuild = pmb.parse.apkbuild(args, path)
-    subpkg = apkbuild["subpackages"]["device-nonfree-firmware-nonfree-firmware"]
+    subpkg = (apkbuild["subpackages"]
+              ["device-nonfree-firmware-nonfree-firmware"])
     assert subpkg["pkgdesc"] == "firmware description"
 
     # Can't find the pkgdesc in the function
     path = testdata + "/apkbuild/APKBUILD.missing-pkgdesc-in-subpackage"
     apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
-    subpkg = apkbuild["subpackages"]["missing-pkgdesc-in-subpackage-subpackage"]
+    subpkg = (apkbuild["subpackages"]
+              ["missing-pkgdesc-in-subpackage-subpackage"])
     assert subpkg["pkgdesc"] == ""
 
     # Can't find the function
@@ -131,4 +133,5 @@ def test_variable_replacements(args):
 
     assert apkbuild["subpackages"]["replacements"] is None
     test_subpkg = apkbuild["subpackages"]["test"]
-    assert test_subpkg["pkgdesc"] == "this should not affect variable replacement"
+    assert test_subpkg["pkgdesc"] == ("this should not affect variable "
+                                      "replacement")

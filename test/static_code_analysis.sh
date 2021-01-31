@@ -92,9 +92,13 @@ py_files="
 	pmb/install/recovery.py
 	pmb/install/ui.py
 	pmb/parse/__init__.py
+	pmb/parse/_apkbuild.py
+	pmb/parse/apkindex.py
 	pmb/parse/arch.py
 	pmb/parse/arguments.py
+	pmb/parse/binfmt_info.py
 	pmb/parse/cpuinfo.py
+	pmb/parse/deviceinfo.py
 	pmb/parse/version.py
 	pmb/qemu/__init__.py
 	pmb/sideload/__init__.py
@@ -126,6 +130,7 @@ py_files="
 	test/test_keys.py
 	test/test_mount.py
 	test/test_newapkbuild.py
+	test/test_parse_apkbuild.py
 	test/test_parse_apkindex.py
 	test/test_parse_deviceinfo.py
 	test/test_questions.py

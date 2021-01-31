@@ -25,6 +25,10 @@ revar4 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)#(.*)}")
 
 
 def replace_variable(apkbuild, value: str) -> str:
+    def log_key_not_found(match):
+        logging.verbose(f"{apkbuild['pkgname']}: key '{match.group(1)}' for"
+                        f" replacing '{match.group(0)}' not found, ignoring")
+
     # ${foo}
     for match in revar.finditer(value):
         try:
@@ -33,9 +37,7 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild[match.group(1)]))
             value = value.replace(match.group(0), apkbuild[match.group(1)], 1)
         except KeyError:
-            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
-                            "".format(apkbuild["pkgname"], match.group(1),
-                                      match.group(0)))
+            log_key_not_found(match)
 
     # $foo
     for match in revar2.finditer(value):
@@ -46,9 +48,7 @@ def replace_variable(apkbuild, value: str) -> str:
                             newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
-                            "".format(apkbuild["pkgname"], match.group(1),
-                                      match.group(0)))
+            log_key_not_found(match)
 
     # ${var/foo/bar}, ${var/foo/}, ${var/foo}
     for match in revar3.finditer(value):
@@ -63,9 +63,7 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild["pkgname"], match.group(0), newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
-                            "".format(apkbuild["pkgname"], match.group(1),
-                                      match.group(0)))
+            log_key_not_found(match)
 
     # ${foo#bar}
     rematch4 = revar4.finditer(value)
@@ -79,9 +77,7 @@ def replace_variable(apkbuild, value: str) -> str:
                             apkbuild["pkgname"], match.group(0), newvalue))
             value = value.replace(match.group(0), newvalue, 1)
         except KeyError:
-            logging.verbose("{}: key '{}' for replacing '{}' not found, ignoring"
-                            "".format(apkbuild["pkgname"], match.group(1),
-                                      match.group(0)))
+            log_key_not_found(match)
 
     return value
 
@@ -121,7 +117,7 @@ def read_file(path):
     with open(path, encoding="utf-8") as handle:
         lines = handle.readlines()
         if handle.newlines != '\n':
-            raise RuntimeError("Wrong line endings in APKBUILD: " + path)
+            raise RuntimeError(f"Wrong line endings in APKBUILD: {path}")
     return lines
 
 
@@ -179,14 +175,15 @@ def parse_attribute(attribute, lines, i, path):
         value += line.strip()
         i += 1
 
-    raise RuntimeError("Can't find closing quote sign (" + end_char + ") for"
-                       " attribute '" + attribute + "' in: " + path)
+    raise RuntimeError(f"Can't find closing quote sign ({end_char}) for"
+                       f" attribute '{attribute}' in: {path}")
 
 
 def _parse_attributes(path, lines, apkbuild_attributes, ret):
     """
     Parse attributes from a list of lines. Variables are replaced with values
-    from ret (if found) and split into the format configured in apkbuild_attributes.
+    from ret (if found) and split into the format configured in
+    apkbuild_attributes.
 
     :param lines: the lines to parse
     :param apkbuild_attributes: the attributes to parse
@@ -245,19 +242,21 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
 
     if not start:
         # Unable to find subpackage function in the APKBUILD.
-        # The subpackage function could be actually missing, or this is a problem
-        # in the parser. For now we also don't handle subpackages with default
-        # functions (e.g. -dev or -doc).
+        # The subpackage function could be actually missing, or this is a
+        # problem in the parser. For now we also don't handle subpackages with
+        # default functions (e.g. -dev or -doc).
         # In the future we may want to specifically handle these, and throw
         # an exception here for all other missing subpackage functions.
         subpackages[subpkgname] = None
-        logging.verbose("{}: subpackage function '{}' for subpackage '{}' not found, ignoring"
-                        "".format(apkbuild["pkgname"], subpkgsplit, subpkgname))
+        logging.verbose(
+            f"{apkbuild['pkgname']}: subpackage function '{subpkgsplit}' for "
+            f"subpackage '{subpkgname}' not found, ignoring")
         return
 
     if not end:
-        raise RuntimeError("Could not find end of subpackage function, no line starts"
-                           " with '}' after '" + prefix + "' in " + path)
+        raise RuntimeError(
+            f"Could not find end of subpackage function, no line starts with "
+            f"'}}' after '{prefix}' in {path}")
 
     lines = lines[start:end]
     # Strip tabs before lines in function
@@ -268,7 +267,8 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     apkbuild["subpkgname"] = subpkgname
 
     # Parse relevant attributes for the subpackage
-    _parse_attributes(path, lines, pmb.config.apkbuild_package_attributes, apkbuild)
+    _parse_attributes(
+        path, lines, pmb.config.apkbuild_package_attributes, apkbuild)
 
     # Return only properties interesting for subpackages
     ret = {}
@@ -304,21 +304,23 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
 
     # Sanity check: pkgname
-    suffix = "/" + ret["pkgname"] + "/APKBUILD"
+    suffix = f"/{ret['pkgname']}/APKBUILD"
     if check_pkgname:
         if not os.path.realpath(path).endswith(suffix):
-            logging.info("Folder: '" + os.path.dirname(path) + "'")
-            logging.info("Pkgname: '" + ret["pkgname"] + "'")
+            logging.info(f"Folder: '{os.path.dirname(path)}'")
+            logging.info(f"Pkgname: '{ret['pkgname']}'")
             raise RuntimeError("The pkgname must be equal to the name of"
                                " the folder, that contains the APKBUILD!")
 
     # Sanity check: pkgver
     if check_pkgver:
-        if "-r" in ret["pkgver"] or not pmb.parse.version.validate(ret["pkgver"]):
-            logging.info("NOTE: Valid pkgvers are described here:")
-            logging.info("<https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver>")
-            raise RuntimeError("Invalid pkgver '" + ret["pkgver"] +
-                               "' in APKBUILD: " + path)
+        if ("-r" in ret["pkgver"] or not
+           pmb.parse.version.validate(ret["pkgver"])):
+            logging.info(
+                "NOTE: Valid pkgvers are described here: "
+                "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver")
+            raise RuntimeError(f"Invalid pkgver '{ret['pkgver']}' in"
+                               f" APKBUILD: {path}")
 
     # Fill cache
     args.cache["apkbuild"][path] = ret
@@ -344,12 +346,13 @@ def kernels(args, device):
 
     # Read kernels from subpackages
     ret = {}
-    subpackage_prefix = "device-" + device + "-kernel-"
+    subpackage_prefix = f"device-{device}-kernel-"
     for subpkgname, subpkg in subpackages.items():
         if not subpkgname.startswith(subpackage_prefix):
             continue
         if subpkg is None:
-            raise RuntimeError("Cannot find subpackage function for: " + subpkgname)
+            raise RuntimeError(
+                f"Cannot find subpackage function for: {subpkgname}")
         name = subpkgname[len(subpackage_prefix):]
         ret[name] = subpkg["pkgdesc"]
 
