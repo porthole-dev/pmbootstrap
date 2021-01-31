@@ -24,8 +24,8 @@ def package_from_aports(args, pkgname_depend):
     version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 
     # Return the dict
-    logging.verbose(pkgname_depend + ": provided by: " + pkgname + "-" +
-                    version + " in " + aport)
+    logging.verbose(
+        f"{pkgname_depend}: provided by: {pkgname}-{version} in {aport}")
     return {"pkgname": pkgname,
             "depends": apkbuild["depends"],
             "version": version}
@@ -46,35 +46,35 @@ def package_provider(args, pkgname, pkgnames_install, suffix="native"):
         return None
 
     # 1. Only one provider
-    logging.verbose(pkgname + ": provided by: " + ", ".join(providers))
+    logging.verbose(f"{pkgname}: provided by: {', '.join(providers)}")
     if len(providers) == 1:
         return list(providers.values())[0]
 
     # 2. Provider with the same package name
     if pkgname in providers:
-        logging.verbose(pkgname + ": choosing package of the same name as"
-                        " provider")
+        logging.verbose(f"{pkgname}: choosing package of the same name as "
+                        "provider")
         return providers[pkgname]
 
     # 3. Pick a package that will be installed anyway
     for provider_pkgname, provider in providers.items():
         if provider_pkgname in pkgnames_install:
-            logging.verbose(pkgname + ": choosing provider '" +
-                            provider_pkgname + "', because it will be"
-                            " installed anyway")
+            logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}"
+                            "', because it will be installed anyway")
             return provider
 
     # 4. Pick a package that is already installed
     installed = pmb.chroot.apk.installed(args, suffix)
     for provider_pkgname, provider in providers.items():
         if provider_pkgname in installed:
-            logging.verbose(pkgname + ": choosing provider '" +
-                            provider_pkgname + "', because it is installed in"
-                            " the '" + suffix + "' chroot already")
+            logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}"
+                            f"', because it is installed in the '{suffix}' "
+                            "chroot already")
             return provider
 
     # 5. Pick the provider(s) with the highest priority
-    providers = pmb.parse.apkindex.provider_highest_priority(providers, pkgname)
+    providers = pmb.parse.apkindex.provider_highest_priority(
+        providers, pkgname)
     if len(providers) == 1:
         return list(providers.values())[0]
 
@@ -118,8 +118,8 @@ def recurse(args, pkgnames, suffix="native"):
     :returns: list of pkgnames: consists of the initial pkgnames plus all
               depends
     """
-    logging.debug("(" + suffix + ") calculate depends of " +
-                  ", ".join(pkgnames) + " (pmbootstrap -v for details)")
+    logging.debug(f"({suffix}) calculate depends of {', '.join(pkgnames)} "
+                  "(pmbootstrap -v for details)")
 
     # Iterate over todo-list until is is empty
     todo = list(pkgnames)
@@ -138,17 +138,17 @@ def recurse(args, pkgnames, suffix="native"):
 
         # Nothing found
         if not package:
-            raise RuntimeError("Could not find dependency '" + pkgname_depend +
-                               "' in any aports folder or APKINDEX. See:"
+            raise RuntimeError(f"Could not find dependency '{pkgname_depend}' "
+                               "in any aports folder or APKINDEX. See:"
                                " <https://postmarketos.org/depends>")
 
         # Append to todo/ret (unless it is a duplicate)
         pkgname = package["pkgname"]
         if pkgname in ret:
-            logging.verbose(pkgname + ": already found")
+            logging.verbose(f"{pkgname}: already found")
         else:
             depends = package["depends"]
-            logging.verbose(pkgname + ": depends on: " + ",".join(depends))
+            logging.verbose(f"{pkgname}: depends on: {','.join(depends)}")
             if depends:
                 todo += depends
             ret.append(pkgname)

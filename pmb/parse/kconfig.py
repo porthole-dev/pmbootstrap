@@ -31,7 +31,8 @@ def is_in_array(config, option, string):
         return False
 
 
-def check_option(component, details, config, config_path_pretty, option, option_value):
+def check_option(component, details, config, config_path_pretty, option,
+                 option_value):
     link = (f"https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}")
     warning_no_details = (f"WARNING: {config_path_pretty} isn't"
                           f" configured properly for {component}, run"
@@ -86,15 +87,16 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
 
         for archs, options in archs_options.items():
             if archs != "all":
-                # Split and check if the device's architecture architecture has special config
-                # options. If option does not contain the architecture of the device
-                # kernel, then just skip the option.
+                # Split and check if the device's architecture architecture has
+                # special config options. If option does not contain the
+                # architecture of the device kernel, then just skip the option.
                 architectures = archs.split(" ")
                 if config_arch not in architectures:
                     continue
 
             for option, option_value in options.items():
-                if not check_option(component, details, config, config_path_pretty, option, option_value):
+                if not check_option(component, details, config,
+                                    config_path_pretty, option, option_value):
                     ret = False
                     if not details:
                         break  # do not give too much error messages
@@ -120,12 +122,13 @@ def check(args, pkgname, force_anbox_check=False, details=False):
     aport = pmb.helpers.pmaports.find(args, "linux-" + flavor)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     pkgver = apkbuild["pkgver"]
-    check_anbox = force_anbox_check or ("pmb:kconfigcheck-anbox" in apkbuild["options"])
+    check_anbox = force_anbox_check or (
+        "pmb:kconfigcheck-anbox" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
         config_arch = os.path.basename(config_path).split(".")[1]
-        config_path_pretty = "linux-" + flavor + "/" + os.path.basename(config_path)
+        config_path_pretty = f"linux-{flavor}/{os.path.basename(config_path)}"
         ret &= check_config(config_path, config_path_pretty, config_arch,
                             pkgver, details=details)
         if check_anbox:
@@ -174,11 +177,11 @@ def check_file(args, config_file, anbox=False, details=False):
     """
     arch = extract_arch(config_file)
     version = extract_version(config_file)
-    logging.debug("Check kconfig: parsed arch=" + arch + ", version=" +
-                  version + " from file: " + config_file)
+    logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
+                  "file: {config_file}")
     ret = check_config(config_file, config_file, arch, version, anbox=False,
                        details=details)
     if anbox:
-        ret &= check_config(config_file, config_file, arch, version, anbox=True,
-                            details=details)
+        ret &= check_config(config_file, config_file, arch, version,
+                            anbox=True, details=details)
     return ret

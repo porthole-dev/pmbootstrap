@@ -97,8 +97,11 @@ py_files="
 	pmb/parse/arch.py
 	pmb/parse/arguments.py
 	pmb/parse/binfmt_info.py
+	pmb/parse/bootimg.py
 	pmb/parse/cpuinfo.py
+	pmb/parse/depends.py
 	pmb/parse/deviceinfo.py
+	pmb/parse/kconfig.py
 	pmb/parse/version.py
 	pmb/qemu/__init__.py
 	pmb/sideload/__init__.py
@@ -132,6 +135,7 @@ py_files="
 	test/test_newapkbuild.py
 	test/test_parse_apkbuild.py
 	test/test_parse_apkindex.py
+	test/test_parse_depends.py
 	test/test_parse_deviceinfo.py
 	test/test_questions.py
 	test/test_run_core.py

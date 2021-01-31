@@ -75,7 +75,8 @@ def test_package_provider(args, monkeypatch):
     # 5. Pick package with highest priority
     package_with_priority = {"pkgname": "test-priority", "provides": ["test"],
                              "provider_priority": 100}
-    providers = {"test-two": package_two, "test-priority": package_with_priority}
+    providers = {"test-two": package_two,
+                 "test-priority": package_with_priority}
     assert func(args, pkgname, pkgnames_install) == package_with_priority
 
     # 6. Pick the first one
