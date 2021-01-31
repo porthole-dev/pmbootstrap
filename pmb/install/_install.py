@@ -94,7 +94,7 @@ def get_kernel_package(args, device):
     # Sanity check
     if args.kernel not in kernels:
         raise RuntimeError("Selected kernel (" + args.kernel + ") is not"
-                           " configured for device " + device + ". Please"
+                           " valid for device " + device + ". Please"
                            " run 'pmbootstrap init' to select a valid kernel.")
 
     # Selected kernel subpackage
