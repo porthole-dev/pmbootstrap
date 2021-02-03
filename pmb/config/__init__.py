@@ -570,7 +570,7 @@ flashers = {
         }
     },
     "uuu": {
-        "depends": ["uuu"],
+        "depends": ["nxp-mfgtools-uuu"],
         "actions": {
             "flash_rootfs": [
                 # There's a bug(?) in uuu where it clobbers the path in the cmd
