@@ -15,7 +15,7 @@ from pmb.config.merge_with_args import merge_with_args
 #
 # Exported variables (internal configuration)
 #
-version = "1.29.1"
+version = "1.29.2"
 pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
 apk_keys_path = pmb_src + "/pmb/data/keys"
 
