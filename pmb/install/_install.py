@@ -202,12 +202,14 @@ def set_user(args):
         pmb.chroot.root(args, ["addgroup", args.user, group], suffix)
 
 
-def setup_login(args):
+def setup_login(args, suffix):
     """
     Loop until the password for user has been set successfully, and disable root
     login.
+
+    :param suffix: of the chroot, where passwd will be execute (either the
+                   f"rootfs_{args.device}", or f"installer_{args.device}")
     """
-    suffix = "rootfs_" + args.device
     if not args.on_device_installer:
         # User password
         logging.info(" *** SET LOGIN PASSWORD FOR: '" + args.user + "' ***")
@@ -646,6 +648,9 @@ def install_on_device_installer(args, step, steps):
         logging.info(f"(native) rm {img_boot}")
         pmb.chroot.root(args, ["rm", f"/home/pmos/rootfs/{img_boot}"])
 
+    # Disable root login
+    setup_login(args, suffix_installer)
+
     # Generate installer image
     size_reserve = round(os.path.getsize(img_path_dest) / 1024 / 1024) + 200
     boot_label = "pmOS_inst_boot"
@@ -703,7 +708,7 @@ def create_device_rootfs(args, step, steps):
         pmb.chroot.initfs.build(args, flavor, suffix)
 
     # Set the user password
-    setup_login(args)
+    setup_login(args, suffix)
 
     # Set the keymap if the device requires it
     setup_keymap(args)
