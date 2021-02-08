@@ -91,7 +91,6 @@ def menuconfig(args, pkgname):
     aport = pmb.helpers.pmaports.find(args, pkgname)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     arch = args.arch or get_arch(args, apkbuild)
-    kopt = "menuconfig"
 
     # Set up build tools and makedepends
     pmb.build.init(args)
