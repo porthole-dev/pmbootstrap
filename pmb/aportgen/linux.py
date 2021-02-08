@@ -10,7 +10,8 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
     carch = pmb.parse.arch.alpine_to_kernel(deviceinfo["arch"])
 
-    makedepends = "bash bc bison devicepkg-dev flex openssl-dev perl"
+    makedepends = ["bash", "bc", "bison", "devicepkg-dev", "flex", "openssl-dev",
+                   "perl"]
 
     build = """
             unset LDFLAGS
@@ -27,19 +28,19 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         soc_vendor = pmb.helpers.cli.ask(args, "SoC vendor", vendors,
                                          vendors[-1], complete=vendors)
         if soc_vendor == "spreadtrum":
-            makedepends += " dtbtool-sprd"
+            makedepends.append("dtbtool-sprd")
             build += """
             dtbTool-sprd -p scripts/dtc/ \\
                 -o "$_outdir/arch/$_carch/boot"/dt.img \\
                 "$_outdir/arch/$_carch/boot/dts/\""""
         elif soc_vendor == "exynos":
             codename = "-".join(pkgname.split("-")[2:])
-            makedepends += " dtbtool-exynos"
+            makedepends.append("dtbtool-exynos")
             build += f"""
             dtbTool-exynos -o "$_outdir/arch/$_carch/boot"/dt.img \\
                 $(find "$_outdir/arch/$_carch/boot/dts/" -name *{codename}*.dtb)"""
         else:
-            makedepends += " dtbtool"
+            makedepends.append("dtbtool")
             build += """
             dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img \\
                 "$_outdir/arch/$_carch/boot/\""""
@@ -47,6 +48,8 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img \\
                 "$pkgdir"/boot/dt.img"""
 
+    makedepends.sort()
+    makedepends = ("\n" + " " * 12).join(makedepends)
     patches = ("\n" + " " * 12).join(patches)
     content = f"""\
         # Reference: <https://postmarketos.org/vendorkernel>
@@ -62,7 +65,9 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         url="https://kernel.org"
         license="GPL-2.0-only"
         options="!strip !check !tracedeps pmb:cross-native"
-        makedepends="{makedepends}"
+        makedepends="
+            {makedepends}
+        "
 
         # Source
         _repository="(CHANGEME!)"

@@ -212,14 +212,17 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
 
 def generate_apkbuild(args, pkgname, name, arch, flash_method):
     # Dependencies
-    depends = "postmarketos-base linux-" + "-".join(pkgname.split("-")[1:])
+    depends = ["postmarketos-base",
+               "linux-" + "-".join(pkgname.split("-")[1:])]
     if flash_method in ["fastboot", "heimdall-bootimg"]:
-        depends += " mkbootimg"
+        depends.append("mkbootimg")
     if flash_method == "0xffff":
-        depends += " uboot-tools"
-    depends += " mesa-dri-gallium"
+        depends.append("uboot-tools")
+    depends.append("mesa-dri-gallium")
 
     # Whole APKBUILD
+    depends.sort()
+    depends = ("\n" + " " * 12).join(depends)
     content = f"""\
         # Reference: <https://postmarketos.org/devicepkg>
         pkgname={pkgname}
@@ -230,7 +233,9 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         license="MIT"
         arch="{arch}"
         options="!check !archcheck"
-        depends="{depends}"
+        depends="
+            {depends}
+        "
         makedepends="devicepkg-dev"
         source="deviceinfo"
 
