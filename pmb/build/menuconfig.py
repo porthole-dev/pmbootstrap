@@ -91,9 +91,13 @@ def menuconfig(args, pkgname):
     aport = pmb.helpers.pmaports.find(args, pkgname)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     arch = args.arch or get_arch(args, apkbuild)
+    suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
+    cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
+    hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
 
     # Set up build tools and makedepends
-    pmb.build.init(args)
+    pmb.build.init(args, suffix)
+    pmb.build.init_compiler(args, [], cross, arch)
     depends = apkbuild["makedepends"]
     kopt = "menuconfig"
     copy_xauth = False
@@ -128,7 +132,9 @@ def menuconfig(args, pkgname):
                     outputdir, output="tui",
                     env={"ARCH": pmb.parse.arch.alpine_to_kernel(arch),
                          "DISPLAY": os.environ.get("DISPLAY"),
-                         "XAUTHORITY": "/home/pmos/.Xauthority"})
+                         "XAUTHORITY": "/home/pmos/.Xauthority",
+                         "CROSS_COMPILE": hostspec + "-",
+                         "CC": hostspec + "-gcc"})
 
     # Find the updated config
     source = args.work + "/chroot_native" + outputdir + "/.config"
