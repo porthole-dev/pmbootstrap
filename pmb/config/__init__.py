@@ -242,6 +242,7 @@ necessary_kconfig_options = {
             "SAMSUNG_TUI": False,
             "SEC_RESTRICT_ROOTING": False,
             "SYSVIPC": True,
+            "TMPFS_POSIX_ACL": True,
             "TZDEV": False,
             "USE_VFB": False,
             "VT": True,
