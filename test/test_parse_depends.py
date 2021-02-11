@@ -28,7 +28,7 @@ def test_package_from_aports(args):
     assert func(args, "invalid-package") is None
     assert func(args, "hello-world") == {"pkgname": "hello-world",
                                          "depends": [],
-                                         "version": "1-r5"}
+                                         "version": "1-r6"}
 
 
 def test_package_provider(args, monkeypatch):
