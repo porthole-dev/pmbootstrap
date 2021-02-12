@@ -55,7 +55,7 @@ def check_binfmt_misc(args):
     if os.path.exists(path):
         return
 
-    pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"])
+    pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"], check=False)
     pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
 
     if not os.path.exists(path):
