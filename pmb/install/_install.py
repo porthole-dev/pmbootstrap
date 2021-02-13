@@ -739,7 +739,6 @@ def create_device_rootfs(args, step, steps):
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
     # installed a hook without pmbootstrap - see #69 for more info)
-    suffix = "rootfs_" + args.device
     pmb.chroot.apk.install(args, install_packages, suffix)
     for flavor in pmb.chroot.other.kernel_flavors_installed(args, suffix):
         pmb.chroot.initfs.build(args, flavor, suffix)
