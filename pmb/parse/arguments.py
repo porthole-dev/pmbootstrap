@@ -50,6 +50,10 @@ def arguments_install(subparser):
     ret = subparser.add_parser("install", help="set up device specific"
                                " chroot and install to SD card or image file")
 
+    # Other arguments (that don't fit categories below)
+    ret.add_argument("--no-sshd", action="store_true",
+                     help="do not enable the SSH daemon by default")
+
     # Image type
     group_desc = ret.add_argument_group(
         "optional image type",

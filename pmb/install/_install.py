@@ -323,6 +323,43 @@ def setup_hostname(args):
     pmb.chroot.root(args, ["sed", "-i", "-e", regex, "/etc/hosts"], suffix)
 
 
+def disable_sshd(args):
+    if not args.no_sshd:
+        return
+
+    # check=False: rc-update doesn't exit with 0 if already disabled
+    suffix = f"rootfs_{args.device}"
+    pmb.chroot.root(args, ["rc-update", "del", "sshd", "default"], suffix,
+                    check=False)
+
+    # Verify that it's gone
+    sshd_files = pmb.helpers.run.root(
+        args, ["find", "-name", "sshd"], output_return=True,
+        working_dir=f"{args.work}/chroot_{suffix}/etc/runlevels")
+    if sshd_files:
+        raise RuntimeError(f"Failed to disable sshd service: {sshd_files}")
+
+
+def print_sshd_info(args):
+    logging.info("*** SSH DAEMON INFORMATION ***")
+
+    if not args.ondev_no_rootfs:
+        if args.no_sshd:
+            logging.info("SSH daemon is disabled (--no-sshd).")
+        else:
+            logging.info("SSH daemon is enabled (disable with --no-sshd).")
+            logging.info(f"Login as '{args.user}' with the password given"
+                         " during installation.")
+
+    if args.on_device_installer:
+        # We don't disable sshd in the installer OS. If the device is reachable
+        # on the network by default (e.g. Raspberry Pi), one can lock down the
+        # installer OS down by disabling the debug user (see wiki page).
+        logging.info("SSH daemon is enabled in the installer OS, to allow"
+                     " debugging the installer image.")
+        logging.info("More info: https://postmarketos.org/ondev-debug")
+
+
 def embed_firmware(args, suffix):
     """
     This method will embed firmware, located at /usr/share, that are specified
@@ -725,6 +762,8 @@ def create_device_rootfs(args, step, steps):
     # Set the hostname as the device name
     setup_hostname(args)
 
+    disable_sshd(args)
+
 
 def install(args):
     # Sanity checks
@@ -767,3 +806,4 @@ def install(args):
         install_system_image(args, 0, f"rootfs_{args.device}", step, steps,
                              split=args.split, sdcard=args.sdcard)
     print_flash_info(args)
+    print_sshd_info(args)
