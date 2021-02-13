@@ -341,6 +341,7 @@ def disable_sshd(args):
 
 
 def print_sshd_info(args):
+    logging.info("")  # make the note stand out
     logging.info("*** SSH DAEMON INFORMATION ***")
 
     if not args.ondev_no_rootfs:
@@ -547,6 +548,7 @@ def install_system_image(args, size_reserve, suffix, step, steps,
 def print_flash_info(args):
     """ Print flashing information, based on the deviceinfo data and the
         pmbootstrap arguments. """
+    logging.info("")  # make the note stand out
     logging.info("*** FLASHING INFORMATION ***")
 
     # System flash information
@@ -804,5 +806,9 @@ def install(args):
     else:
         install_system_image(args, 0, f"rootfs_{args.device}", step, steps,
                              split=args.split, sdcard=args.sdcard)
+
     print_flash_info(args)
     print_sshd_info(args)
+
+    # Leave space before 'chroot still active' note
+    logging.info("")
