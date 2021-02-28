@@ -14,10 +14,11 @@ import pmb.chroot
 def init(args):
     if not os.path.isdir("/sys/module/loop"):
         pmb.helpers.run.root(args, ["modprobe", "loop"])
-    loopdevices = [loopdev for loopdev in glob.glob("/dev/loop*") if not os.path.isdir(loopdev)]
-    for loopdev in loopdevices:
-        pmb.helpers.mount.bind_file(args, loopdev,
-                                    args.work + "/chroot_native/" + loopdev)
+    for loopdevice in glob.glob("/dev/loop*"):
+        if os.path.isdir(loopdevice):
+            continue
+        pmb.helpers.mount.bind_file(args, loopdevice,
+                                    args.work + "/chroot_native/" + loopdevice)
 
 
 def mount(args, img_path):

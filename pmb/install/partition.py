@@ -27,8 +27,8 @@ def partitions_mount(args, root_id, sdcard):
                 partition_prefix = symbol
         if partition_prefix is not None:
             break
-        logging.debug("NOTE: (" + str(i + 1) + "/" + str(tries) + ") failed to find"
-                      " the install partition. Retrying...")
+        logging.debug(f"NOTE: ({i + 1}/{tries}) failed to find the install "
+                      "partition. Retrying...")
         time.sleep(0.1)
 
     if partition_prefix is None:

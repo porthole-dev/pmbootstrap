@@ -64,7 +64,9 @@ def get_nonfree_packages(args, device):
               ["device-nokia-n900-nonfree-firmware"]
     """
     # Read subpackages
-    apkbuild = pmb.parse.apkbuild(args, pmb.helpers.devices.find_path(args, device, 'APKBUILD'))
+    apkbuild = pmb.parse.apkbuild(args,
+                                  pmb.helpers.devices.find_path(args, device,
+                                                                'APKBUILD'))
     subpackages = apkbuild["subpackages"]
 
     # Check for firmware and userland
@@ -138,8 +140,8 @@ def copy_files_from_chroot(args, suffix):
         rsync_flags = "-a"
         if args.verbose:
             rsync_flags += "vP"
-        pmb.chroot.root(args, ["rsync", rsync_flags, "--delete"] + folders + ["/mnt/install/"],
-                        working_dir=mountpoint)
+        pmb.chroot.root(args, ["rsync", rsync_flags, "--delete"] + folders +
+                        ["/mnt/install/"], working_dir=mountpoint)
         pmb.chroot.root(args, ["rm", "-rf", "/mnt/install/home"])
     else:
         pmb.chroot.root(args, ["cp", "-a"] + folders + ["/mnt/install/"],
@@ -204,8 +206,8 @@ def set_user(args):
 
 def setup_login(args, suffix):
     """
-    Loop until the password for user has been set successfully, and disable root
-    login.
+    Loop until the password for user has been set successfully, and disable
+    root login.
 
     :param suffix: of the chroot, where passwd will be execute (either the
                    f"rootfs_{args.device}", or f"installer_{args.device}")
@@ -239,8 +241,9 @@ def copy_ssh_keys(args):
             keys += infile.readlines()
 
     if not len(keys):
-        logging.info("NOTE: Public SSH keys not found. Since no SSH keys " +
-                     "were copied, you will need to use SSH password authentication!")
+        logging.info("NOTE: Public SSH keys not found. Since no SSH keys "
+                     "were copied, you will need to use SSH password "
+                     "authentication!")
         return
 
     authorized_keys = args.work + "/chroot_native/tmp/authorized_keys"
@@ -249,10 +252,11 @@ def copy_ssh_keys(args):
         outfile.write("%s" % key)
     outfile.close()
 
-    target = args.work + "/chroot_native/mnt/install/home/" + args.user + "/.ssh"
+    target = f"{args.work}/chroot_native/mnt/install/home/{args.user}/.ssh"
     pmb.helpers.run.root(args, ["mkdir", target])
     pmb.helpers.run.root(args, ["chmod", "700", target])
-    pmb.helpers.run.root(args, ["cp", authorized_keys, target + "/authorized_keys"])
+    pmb.helpers.run.root(args, ["cp", authorized_keys, target +
+                                "/authorized_keys"])
     pmb.helpers.run.root(args, ["rm", authorized_keys])
     pmb.helpers.run.root(args, ["chown", "-R", "10000:10000", target])
 
@@ -294,8 +298,8 @@ def setup_keymap(args):
             config = config.splitlines()[-1]
             old_text = "Option *\\\"XkbLayout\\\" *\\\".*\\\""
             new_text = "Option \\\"XkbLayout\\\" \\\"" + layout + "\\\""
-            pmb.chroot.root(args, ["sed", "-i", "s/" + old_text + "/" + new_text + "/", config],
-                            suffix)
+            pmb.chroot.root(args, ["sed", "-i", "s/" + old_text + "/" +
+                            new_text + "/", config], suffix)
     else:
         logging.info("NOTE: No valid keymap specified for device")
 
@@ -440,12 +444,12 @@ def sanity_check_sdcard(args):
     device = args.sdcard
     device_name = os.path.basename(device)
     if not os.path.exists(device):
-        raise RuntimeError("{} doesn't exist, is the sdcard plugged?".format(device))
+        raise RuntimeError(f"{device} doesn't exist, is the sdcard plugged?")
     if os.path.isdir('/sys/class/block/{}'.format(device_name)):
         with open('/sys/class/block/{}/ro'.format(device_name), 'r') as handle:
             ro = handle.read()
         if ro == '1\n':
-            raise RuntimeError("{} is read-only, is the sdcard locked?".format(device))
+            raise RuntimeError(f"{device} is read-only, is the sdcard locked?")
 
 
 def sanity_check_sdcard_size(args):
@@ -465,10 +469,12 @@ def sanity_check_sdcard_size(args):
 
     # Warn if the size is larger than 100GiB
     if size > (100 * 2 * 1024 * 1024):
-        if not pmb.helpers.cli.confirm(args, f"WARNING: The target disk ({devpath}) is"
-                                             " larger than a usual SD card (>100GiB)."
-                                             " Are you sure you want to overwrite"
-                                             f" this {human} disk?", no_assumptions=True):
+        if not pmb.helpers.cli.confirm(args,
+                                       f"WARNING: The target disk ({devpath}) "
+                                       "is larger than a usual SD card "
+                                       "(>100GiB). Are you sure you want to "
+                                       f"overwrite this {human} disk?",
+                                       no_assumptions=True):
             raise RuntimeError("Aborted.")
 
 
@@ -722,7 +728,8 @@ def create_device_rootfs(args, step, steps):
                         get_nonfree_packages(args, args.device) +
                         pmb.install.ui.get_recommends(args))
     if not args.install_base:
-        install_packages = [p for p in install_packages if p != "postmarketos-base"]
+        install_packages = [p for p in install_packages
+                            if p != "postmarketos-base"]
     if args.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + args.ui]
         if args.ui_extras:

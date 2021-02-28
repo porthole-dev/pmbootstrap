@@ -11,9 +11,9 @@ import pmb.config
 
 def previous_install(args, path):
     """
-    Search the sdcard for possible existence of a previous installation of pmOS.
-    We temporarily mount the possible pmOS_boot partition as /dev/sdcardp1 inside
-    the native chroot to check the label from there.
+    Search the sdcard for possible existence of a previous installation of
+    pmOS. We temporarily mount the possible pmOS_boot partition as
+    /dev/sdcardp1 inside the native chroot to check the label from there.
     :param path: path to sdcard device (e.g. /dev/mmcblk0)
     """
     label = ""
@@ -22,10 +22,12 @@ def previous_install(args, path):
             continue
         blockdevice_inside = "/dev/sdcardp1"
         pmb.helpers.mount.bind_file(args, blockdevice_outside,
-                                    args.work + "/chroot_native" + blockdevice_inside)
+                                    args.work + '/chroot_native' +
+                                    blockdevice_inside)
         label = pmb.chroot.root(args, ["blkid", "-s", "LABEL", "-o", "value",
                                        blockdevice_inside], output_return=True)
-        pmb.helpers.run.root(args, ["umount", args.work + "/chroot_native" + blockdevice_inside])
+        pmb.helpers.run.root(args, ["umount", args.work + "/chroot_native" +
+                                    blockdevice_inside])
     return "pmOS_boot" in label
 
 
@@ -88,7 +90,8 @@ def create_and_mount_image(args, size_boot, size_root, size_reserve,
     disk_data = os.statvfs(args.work)
     free = round((disk_data.f_bsize * disk_data.f_bavail) / (1024**2))
     if size_mb > free:
-        raise RuntimeError("Not enough free space to create rootfs image! (free: " + str(free) + "M, required: " + str(size_mb) + "M)")
+        raise RuntimeError("Not enough free space to create rootfs image! "
+                           f"(free: {free}M, required: {size_mb}M)")
 
     # Create empty image files
     pmb.chroot.user(args, ["mkdir", "-p", "/home/pmos/rootfs"])
@@ -100,7 +103,8 @@ def create_and_mount_image(args, size_boot, size_root, size_reserve,
         images = {img_path_boot: size_mb_boot,
                   img_path_root: size_mb_root}
     for img_path, size_mb in images.items():
-        logging.info("(native) create " + os.path.basename(img_path) + " (" + size_mb + ")")
+        logging.info(f"(native) create {os.path.basename(img_path)} "
+                     f"({size_mb})")
         pmb.chroot.root(args, ["truncate", "-s", size_mb, img_path])
 
     # Mount to /dev/install
