@@ -34,10 +34,10 @@ pmaports_min_version = "7"
 # Version of the work folder (as asked during 'pmbootstrap init'). Increase
 # this number, whenever migration is required and provide the migration code,
 # see migrate_work_folder()).
-work_version = 5
+work_version = 6
 
 # Minimum required version of postmarketos-ondev (pmbootstrap install --ondev).
-# Try to support the current versions of all channels (edge, stable). When
+# Try to support the current versions of all channels (edge, v21.03). When
 # bumping > 0.4.0, remove compat code in pmb/install/_install.py (search for
 # get_ondev_pkgver).
 ondev_min_version = "0.2.0"
@@ -138,6 +138,9 @@ locales = [
 ]
 
 
+# Legacy channels and their new names (pmb#2015)
+pmaports_channels_legacy = {"stable": "v20.05",
+                            "stable-next": "v21.03"}
 #
 # CHROOT
 #
@@ -165,7 +168,7 @@ chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 # Folders, that get mounted inside the chroot
 # $WORK gets replaced with args.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
-# $CHANNEL gets replaced with the release channel (e.g. edge, stable)
+# $CHANNEL gets replaced with the release channel (e.g. edge, v21.03)
 chroot_mount_bind = {
     "/proc": "/proc",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",

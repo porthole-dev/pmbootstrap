@@ -8,6 +8,7 @@ import time
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
+import pmb.helpers.pmaports
 import pmb.helpers.run
 
 
@@ -138,11 +139,13 @@ def parse_channels_cfg(args):
         if channel == "channels.cfg":
             continue  # meta section
 
-        ret["channels"][channel] = {}
+        channel_new = pmb.helpers.pmaports.get_channel_new(channel)
+
+        ret["channels"][channel_new] = {}
         for key in ["description", "branch_pmaports", "branch_aports",
                     "mirrordir_alpine"]:
             value = cfg.get(channel, key)
-            ret["channels"][channel][key] = value
+            ret["channels"][channel_new][key] = value
 
     args.cache[cache_key] = ret
     return ret

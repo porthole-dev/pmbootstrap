@@ -36,7 +36,7 @@ def test_alpine_apkindex_path(args):
 
 def test_urls(args, monkeypatch):
     func = pmb.helpers.repo.urls
-    channel = "stable"
+    channel = "v20.05"
     args.mirror_alpine = "http://localhost/alpine/"
 
     # Second mirror with /master at the end is legacy, gets fixed by func.
@@ -50,7 +50,7 @@ def test_urls(args, monkeypatch):
         return {"channel": channel}
     monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
 
-    # Channel: stable
+    # Channel: v20.05
     assert func(args) == ["/mnt/pmbootstrap-packages",
                           "http://localhost/pmos1/v20.05",
                           "http://localhost/pmos2/v20.05",

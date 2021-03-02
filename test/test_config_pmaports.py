@@ -39,13 +39,13 @@ def test_switch_to_channel_branch(args, monkeypatch, tmpdir):
 
     # Fail: git error (could be any error, but here: branch does not exist)
     with pytest.raises(RuntimeError) as e:
-        func(args, "stable")
+        func(args, "v20.05")
     assert str(e.value).startswith("Failed to switch branch")
 
     # Success: switch channel and change branch
     run_git(["checkout", "-b", "v20.05"])
     run_git(["checkout", "master"])
-    assert func(args, "stable") is True
+    assert func(args, "v20.05") is True
     branch = pmb.helpers.git.rev_parse(args, path, extra_args=["--abbrev-ref"])
     assert branch == "v20.05"
 

@@ -199,6 +199,34 @@ def migrate_work_folder(args):
         migrate_success(args, 5)
         current = 5
 
+    if current == 5:
+        # Ask for confirmation
+        logging.info("Changelog:")
+        logging.info("* besides edge, pmaports channels have the same name")
+        logging.info("  as the branch now (pmbootstrap#2015)")
+        logging.info("Migration will do the following:")
+        logging.info("* Zap your chroots")
+        logging.info("* Adjust subdirs of your locally built packages dir:")
+        logging.info(f"  {args.work}/packages")
+        logging.info("  stable => v20.05")
+        logging.info("  stable-next => v21.03")
+        if not pmb.helpers.cli.confirm(args):
+            raise RuntimeError("Aborted.")
+
+        # Zap chroots to avoid potential "ERROR: Chroot 'native' was created
+        # for the 'stable' channel, but you are on the 'v20.05' channel now."
+        pmb.chroot.zap(args, False)
+
+        # Migrate
+        packages_dir = f"{args.work}/packages"
+        for old, new in pmb.config.pmaports_channels_legacy.items():
+            if os.path.exists(f"{packages_dir}/{old}"):
+                pmb.helpers.run.root(args, ["mv", old, new], packages_dir)
+
+        # Update version file
+        migrate_success(args, 6)
+        current = 6
+
     # Can't migrate, user must delete it
     if current != required:
         raise RuntimeError("Sorry, we can't migrate that automatically. Please"

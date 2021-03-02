@@ -29,9 +29,9 @@ def test_chroot_save_init(args, tmpdir, monkeypatch):
         return 1234567890.1234
     monkeypatch.setattr(time, "time", fake_time)
 
-    # Pretend channel=stable in pmaports.cfg
+    # Pretend channel=v20.05 in pmaports.cfg
     def read_config(args):
-        return {"channel": "stable"}
+        return {"channel": "v20.05"}
     monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
 
     args.work = str(tmpdir)
@@ -41,7 +41,7 @@ def test_chroot_save_init(args, tmpdir, monkeypatch):
     expected = ("[chroot-init-dates]\n"
                 "native = 1234567890\n\n"
                 "[chroot-channels]\n"
-                "native = stable\n\n")
+                "native = v20.05\n\n")
     with open(args.work + "/workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
@@ -51,8 +51,8 @@ def test_chroot_save_init(args, tmpdir, monkeypatch):
                 "native = 1234567890\n"
                 "buildroot_armhf = 1234567890\n\n"
                 "[chroot-channels]\n"
-                "native = stable\n"
-                "buildroot_armhf = stable\n\n")
+                "native = v20.05\n"
+                "buildroot_armhf = v20.05\n\n")
     with open(args.work + "/workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
@@ -104,7 +104,7 @@ def test_chroot_check_channel(args, tmpdir, monkeypatch):
 
     # Write workdir.cfg
     with open(f"{args.work}/workdir.cfg", "w") as handle:
-        handle.write("[chroot-channels]\nnative = stable\n\n")
+        handle.write("[chroot-channels]\nnative = v20.05\n\n")
 
     # workdir.cfg: no entry for buildroot_armhf chroot
     with pytest.raises(RuntimeError) as e:
@@ -114,11 +114,11 @@ def test_chroot_check_channel(args, tmpdir, monkeypatch):
     # Chroot was created for wrong channel
     with pytest.raises(RuntimeError) as e:
         func(args, "native")
-    exp = "created for the 'stable' channel, but you are on the 'edge'"
+    exp = "created for the 'v20.05' channel, but you are on the 'edge'"
     assert exp in str(e.value)
 
     # Check runs through without raising an exception
-    channel = "stable"
+    channel = "v20.05"
     func(args, "native")
 
 

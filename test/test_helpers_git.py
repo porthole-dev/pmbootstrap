@@ -116,10 +116,14 @@ def test_parse_channels_cfg(args):
                                  "branch_pmaports": "master",
                                  "branch_aports": "master",
                                  "mirrordir_alpine": "edge"},
-                        "stable": {"description": "For workgroups",
+                        "v20.05": {"description": "For workgroups",
                                    "branch_pmaports": "v20.05",
                                    "branch_aports": "3.11-stable",
-                                   "mirrordir_alpine": "v3.11"}}}
+                                   "mirrordir_alpine": "v3.11"},
+                        "v21.03": {"description": "Second beta release",
+                                   "branch_pmaports": "v21.03",
+                                   "branch_aports": "3.13-stable",
+                                   "mirrordir_alpine": "v3.13"}}}
     assert pmb.helpers.git.parse_channels_cfg(args) == exp
 
 

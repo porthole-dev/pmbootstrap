@@ -37,11 +37,11 @@ def test_crossdirect_rust(args):
         working. """
     pmbootstrap_run(args, ["-y", "zap"])
     try:
-        # Switch to "stable" channel, as the stable release of alpine is more
+        # Switch to "v20.05" channel, as a stable release of alpine is more
         # likely to have the same rustc version across various architectures.
         # If armv7/x86_64 have a different rustc version, this test will fail:
         # 'found crate `std` compiled by an incompatible version of rustc'
-        pmb.config.pmaports.switch_to_channel_branch(args, "stable")
+        pmb.config.pmaports.switch_to_channel_branch(args, "v20.05")
 
         pmbootstrap_run(args, ["build_init", "-barmv7"])
         pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",

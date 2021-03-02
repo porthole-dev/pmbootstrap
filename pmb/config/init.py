@@ -80,7 +80,7 @@ def ask_for_channel(args):
     """ Ask for the postmarketOS release channel. The channel dictates, which
         pmaports branch pmbootstrap will check out, and which repository URLs
         will be used when initializing chroots.
-        :returns: channel name (e.g. "edge", "stable") """
+        :returns: channel name (e.g. "edge", "v21.03") """
     channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
     count = len(channels_cfg["channels"])
 

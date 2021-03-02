@@ -6,6 +6,7 @@ import os
 
 import pmb.config
 import pmb.helpers.git
+import pmb.helpers.pmaports
 
 
 def check_legacy_folder():
@@ -107,6 +108,9 @@ def read_config(args):
     check_version_pmaports(ret["version"])
     check_version_pmbootstrap(ret["pmbootstrap_min_version"])
 
+    # Translate legacy channel names
+    ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
+
     # Cache and return
     args.cache[cache_key] = ret
     return ret
@@ -153,7 +157,7 @@ def init(args):
 
 def switch_to_channel_branch(args, channel_new):
     """ Checkout the channel's branch in pmaports.git.
-        :channel_new: channel name (e.g. "edge", "stable")
+        :channel_new: channel name (e.g. "edge", "v21.03")
         :returns: True if another branch was checked out, False otherwise """
     # Check current pmaports branch channel
     channel_current = read_config(args)["channel"]

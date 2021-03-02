@@ -296,5 +296,5 @@ def test_questions_hostname(args, monkeypatch):
 
 
 def test_questions_channel(args, monkeypatch):
-    fake_answers(monkeypatch, ["invalid-channel", "stable"])
-    assert pmb.config.init.ask_for_channel(args) == "stable"
+    fake_answers(monkeypatch, ["invalid-channel", "v20.05"])
+    assert pmb.config.init.ask_for_channel(args) == "v20.05"
