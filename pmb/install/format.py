@@ -5,6 +5,14 @@ import logging
 import pmb.chroot
 
 
+def install_fsprogs(args, filesystem):
+    """ Install the package required to format a specific filesystem. """
+    fsprogs = pmb.config.filesystems.get(filesystem)
+    if not fsprogs:
+        raise RuntimeError(f"Unsupported filesystem: {filesystem}")
+    pmb.chroot.apk.install(args, [fsprogs])
+
+
 def format_and_mount_boot(args, boot_label):
     """
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
@@ -15,6 +23,7 @@ def format_and_mount_boot(args, boot_label):
     mountpoint = "/mnt/install/boot"
     device = "/dev/installp1"
     filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
+    install_fsprogs(args, filesystem)
     logging.info(f"(native) format {device} (boot, {filesystem}), mount to"
                  " mountpoint")
     if filesystem == "fat16":
@@ -66,7 +75,6 @@ def format_and_mount_root(args, device, root_label, sdcard):
     """
     # Format
     if not args.rsync:
-        logging.info("(native) format " + device)
         # Some downstream kernels don't support metadata_csum (#1364).
         # When changing the options of mkfs.ext4, also change them in the
         # recovery zip code (see 'grep -r mkfs\.ext4')!
@@ -79,6 +87,8 @@ def format_and_mount_root(args, device, root_label, sdcard):
         if not sdcard:
             mkfs_ext4_args = mkfs_ext4_args + ["-N", "100000"]
 
+        install_fsprogs(args, "ext4")
+        logging.info("(native) format " + device)
         pmb.chroot.root(args, mkfs_ext4_args + [device])
 
     # Mount

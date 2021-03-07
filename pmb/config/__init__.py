@@ -137,6 +137,12 @@ locales = [
     "sv_SE.UTF-8"
 ]
 
+# Supported filesystems and their fstools packages
+filesystems = {"ext2": "e2fsprogs",
+               "ext4": "e2fsprogs",
+               "f2fs": "f2fs-tools",
+               "fat16": "dosfstools",
+               "fat32": "dosfstools"}
 
 # Legacy channels and their new names (pmb#2015)
 pmaports_channels_legacy = {"stable": "v20.05",
@@ -450,7 +456,7 @@ default_ip = "172.16.42.1"
 # Packages, that will be installed inside the native chroot to perform
 # the installation to the device.
 # util-linux: losetup, fallocate
-install_native_packages = ["cryptsetup", "util-linux", "e2fsprogs", "parted", "dosfstools"]
+install_native_packages = ["cryptsetup", "util-linux", "parted"]
 install_device_packages = ["postmarketos-base"]
 
 # Groups for the default user
