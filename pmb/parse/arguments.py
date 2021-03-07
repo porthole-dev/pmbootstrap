@@ -155,6 +155,11 @@ def arguments_install(subparser):
                             " 'pmbootstrap install' run or by providing it"
                             " as CHROOT_DEST with --cp", action="store_true")
 
+    # Other
+    group = ret.add_argument_group("other optional arguments")
+    group.add_argument("--filesystem", help="root filesystem type",
+                       choices=["ext4", "f2fs"])
+
 
 def arguments_export(subparser):
     ret = subparser.add_parser("export", help="create convenience symlinks"

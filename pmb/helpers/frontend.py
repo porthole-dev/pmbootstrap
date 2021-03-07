@@ -251,6 +251,9 @@ def install(args):
         if args.rsync:
             raise ValueError("--on-device-installer cannot be combined with"
                              " --rsync")
+        if args.filesystem:
+            raise ValueError("--on-device-installer cannot be combined with"
+                             " --filesystem")
     else:
         if args.ondev_cp:
             raise ValueError("--cp can only be combined with --ondev")
@@ -279,7 +282,10 @@ def install(args):
         if flasher.get("split", False):
             args.split = True
 
-    # Warning for android recovery zip with FDE
+    # Android recovery zip related
+    if args.android_recovery_zip and args.filesystem:
+        raise ValueError("--android-recovery-zip cannot be combined with"
+                         " --filesystem (patches welcome)")
     if args.android_recovery_zip and args.full_disk_encryption:
         logging.info("WARNING: --fde is rarely used in combination with"
                      " --android-recovery-zip. If this does not work, consider"

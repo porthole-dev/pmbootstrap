@@ -75,21 +75,28 @@ def format_and_mount_root(args, device, root_label, sdcard):
     """
     # Format
     if not args.rsync:
-        # Some downstream kernels don't support metadata_csum (#1364).
-        # When changing the options of mkfs.ext4, also change them in the
-        # recovery zip code (see 'grep -r mkfs\.ext4')!
-        mkfs_ext4_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F",
-                          "-q", "-L", root_label]
+        filesystem = (args.filesystem or args.deviceinfo["root_filesystem"] or
+                      "ext4")
 
-        # When we don't know the file system size before hand like
-        # with non-block devices, we need to explicitely set a number of
-        # inodes. See #1717 and #1845 for details
-        if not sdcard:
-            mkfs_ext4_args = mkfs_ext4_args + ["-N", "100000"]
+        if filesystem == "ext4":
+            # Some downstream kernels don't support metadata_csum (#1364).
+            # When changing the options of mkfs.ext4, also change them in the
+            # recovery zip code (see 'grep -r mkfs\.ext4')!
+            mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F",
+                              "-q", "-L", root_label]
+            # When we don't know the file system size before hand like
+            # with non-block devices, we need to explicitely set a number of
+            # inodes. See #1717 and #1845 for details
+            if not sdcard:
+                mkfs_root_args = mkfs_root_args + ["-N", "100000"]
+        elif filesystem == "f2fs":
+            mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
+        else:
+            raise RuntimeError(f"Don't know how to format {filesystem}!")
 
-        install_fsprogs(args, "ext4")
-        logging.info("(native) format " + device)
-        pmb.chroot.root(args, mkfs_ext4_args + [device])
+        install_fsprogs(args, filesystem)
+        logging.info(f"(native) format {device} (root, {filesystem})")
+        pmb.chroot.root(args, mkfs_root_args + [device])
 
     # Mount
     mountpoint = "/mnt/install"
