@@ -218,20 +218,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
 
     # Cross-compiler init
     if cross:
-        cross_pkgs = ["ccache-cross-symlinks"]
-        if "gcc4" in depends:
-            cross_pkgs += ["gcc4-" + arch]
-        elif "gcc6" in depends:
-            cross_pkgs += ["gcc6-" + arch]
-        else:
-            cross_pkgs += ["gcc-" + arch, "g++-" + arch]
-        if "clang" in depends or "clang-dev" in depends:
-            cross_pkgs += ["clang"]
-        if cross == "crossdirect":
-            cross_pkgs += ["crossdirect"]
-            if "rust" in depends or "cargo" in depends:
-                cross_pkgs += ["rust"]
-        pmb.chroot.apk.install(args, cross_pkgs)
+        pmb.build.init_compiler(args, depends, cross, arch)
     if cross == "distcc":
         pmb.chroot.distccd.start(args, arch)
     if cross == "crossdirect":

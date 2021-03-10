@@ -1,6 +1,6 @@
 # Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.build.init import init
+from pmb.build.init import init, init_compiler
 from pmb.build.envkernel import package_kernel
 from pmb.build.menuconfig import menuconfig
 from pmb.build.newapkbuild import newapkbuild

@@ -78,3 +78,21 @@ def init(args, suffix="native"):
 
     # Mark the chroot as initialized
     pmb.chroot.root(args, ["touch", marker], suffix)
+
+
+def init_compiler(args, depends, cross, arch):
+    cross_pkgs = ["ccache-cross-symlinks"]
+    if "gcc4" in depends:
+        cross_pkgs += ["gcc4-" + arch]
+    elif "gcc6" in depends:
+        cross_pkgs += ["gcc6-" + arch]
+    else:
+        cross_pkgs += ["gcc-" + arch, "g++-" + arch]
+    if "clang" in depends or "clang-dev" in depends:
+        cross_pkgs += ["clang"]
+    if cross == "crossdirect":
+        cross_pkgs += ["crossdirect"]
+        if "rust" in depends or "cargo" in depends:
+            cross_pkgs += ["rust"]
+
+    pmb.chroot.apk.install(args, cross_pkgs)
