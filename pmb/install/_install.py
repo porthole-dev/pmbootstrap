@@ -523,7 +523,12 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     create_home_from_skel(args)
     configure_apk(args)
     copy_ssh_keys(args)
-    embed_firmware(args, suffix)
+
+    # Don't try to embed firmware on split images since there's no
+    # place to put it and it will end up in /dev of the chroot instead
+    if not split:
+        embed_firmware(args, suffix)
+
     if sdcard:
         logging.info("Unmounting SD card (this may take a while "
                      "to sync, please wait)")
