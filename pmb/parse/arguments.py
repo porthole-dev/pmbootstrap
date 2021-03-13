@@ -435,10 +435,13 @@ def arguments_kconfig(subparser):
     edit = sub.add_parser("edit", help="edit kernel aport config")
     edit.add_argument("--arch", choices=arch_choices, dest="arch")
     edit.add_argument("-x", dest="xconfig", action="store_true",
-                      help="use xconfig rather than ncurses for kernel"
+                      help="use xconfig rather than menuconfig for kernel"
                            " configuration")
     edit.add_argument("-g", dest="gconfig", action="store_true",
-                      help="use gconfig rather than ncurses for kernel"
+                      help="use gconfig rather than menuconfig for kernel"
+                           " configuration")
+    edit.add_argument("-n", dest="nconfig", action="store_true",
+                      help="use nconfig rather than menuconfig for kernel"
                            " configuration")
     edit_package = edit.add_argument("package", nargs='?')
     if argcomplete:
