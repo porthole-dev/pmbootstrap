@@ -437,9 +437,6 @@ def arguments_kconfig(subparser):
     edit.add_argument("-x", dest="xconfig", action="store_true",
                       help="use xconfig rather than menuconfig for kernel"
                            " configuration")
-    edit.add_argument("-g", dest="gconfig", action="store_true",
-                      help="use gconfig rather than menuconfig for kernel"
-                           " configuration")
     edit.add_argument("-n", dest="nconfig", action="store_true",
                       help="use nconfig rather than menuconfig for kernel"
                            " configuration")

@@ -102,10 +102,6 @@ def menuconfig(args, pkgname):
         depends += ["qt5-qtbase-dev", "font-noto"]
         kopt = "xconfig"
         copy_xauth = True
-    elif args.gconfig:
-        depends += ["gtk+2.0-dev", "glib-dev", "libglade-dev", "font-noto"]
-        kopt = "gconfig"
-        copy_xauth = True
     elif args.nconfig:
         kopt = "nconfig"
         depends += ["ncurses-dev"]
