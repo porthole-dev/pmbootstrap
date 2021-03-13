@@ -99,7 +99,7 @@ def menuconfig(args, pkgname):
     kopt = "menuconfig"
     copy_xauth = False
     if args.xconfig:
-        depends += ["qt-dev", "font-noto"]
+        depends += ["qt5-qtbase-dev", "font-noto"]
         kopt = "xconfig"
         copy_xauth = True
     elif args.gconfig:
