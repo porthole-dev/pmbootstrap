@@ -79,7 +79,9 @@ def fix_mirrors_postmarketos(args):
         subparsers: <https://bugs.python.org/issue9338> """
     # -mp not specified: use default mirrors
     if not args.mirrors_postmarketos:
-        args.mirrors_postmarketos = pmb.config.defaults["mirrors_postmarketos"]
+        cfg = pmb.config.load(args)
+        args.mirrors_postmarketos = \
+            cfg["pmbootstrap"]["mirrors_postmarketos"].split(",")
 
     # -mp="": use no postmarketOS mirrors (build everything locally)
     if args.mirrors_postmarketos == [""]:

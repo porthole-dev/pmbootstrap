@@ -261,13 +261,16 @@ def test_questions_additional_options(args, monkeypatch):
     assert cfg == {"pmbootstrap": {}}
 
     # Answer everything
-    fake_answers(monkeypatch, ["y", "128", "64", "5", "2G", "n", "n"])
+    fake_answers(monkeypatch, ["y", "128", "64", "5", "2G", "n", "y", "1",
+                               "n"])
     func(args, cfg)
+    mirror = pmb.config.defaults["mirrors_postmarketos"]
     assert cfg == {"pmbootstrap": {"extra_space": "128",
                                    "boot_size": "64",
                                    "jobs": "5",
                                    "ccache_size": "2G",
-                                   "sudo_timer": "False"}}
+                                   "sudo_timer": "False",
+                                   "mirrors_postmarketos": mirror}}
 
 
 def test_questions_hostname(args, monkeypatch):

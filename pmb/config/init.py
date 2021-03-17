@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import glob
+import json
 import os
 import shutil
 
@@ -10,6 +11,7 @@ import pmb.config
 import pmb.config.pmaports
 import pmb.helpers.cli
 import pmb.helpers.devices
+import pmb.helpers.http
 import pmb.helpers.logging
 import pmb.helpers.other
 import pmb.helpers.run
@@ -357,7 +359,8 @@ def ask_for_additional_options(args, cfg):
                  f" boot partition size: {args.boot_size} MB,"
                  f" parallel jobs: {args.jobs},"
                  f" ccache per arch: {args.ccache_size},"
-                 f" sudo timer: {args.sudo_timer}")
+                 f" sudo timer: {args.sudo_timer},"
+                 f" mirror: {','.join(args.mirrors_postmarketos)}")
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
                                    default=False):
@@ -410,6 +413,72 @@ def ask_for_additional_options(args, cfg):
                                      " repeated sudo authorization?",
                                      default=args.sudo_timer)
     cfg["pmbootstrap"]["sudo_timer"] = str(answer)
+
+    # Mirrors
+    # prompt for mirror change
+    logging.info("Selected mirror:"
+                 f" {','.join(args.mirrors_postmarketos)}")
+    if pmb.helpers.cli.confirm(args, "Change mirror?", default=False):
+        mirrors = ask_for_mirror(args)
+        cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(mirrors)
+
+
+def ask_for_mirror(args):
+    regex = "^[1-9][0-9]*$"  # single non-zero number only
+
+    json_path = pmb.helpers.http.download(
+        args, "https://postmarketos.org/mirrors.json", "pmos_mirrors",
+        cache=False)
+    with open(json_path, "rt") as handle:
+        s = handle.read()
+
+    logging.info("List of available mirrors:")
+    mirrors = json.loads(s)
+    keys = mirrors.keys()
+    i = 1
+    for key in keys:
+        logging.info(f"[{i}]\t{key} ({mirrors[key]['location']})")
+        i += 1
+
+    urls = []
+    for key in keys:
+        # accept only http:// or https:// urls
+        http_count = 0  # remember if we saw any http:// only URLs
+        link_list = []
+        for k in mirrors[key]["urls"]:
+            if k.startswith("http"):
+                link_list.append(k)
+            if k.startswith("http://"):
+                http_count += 1
+        # remove all https urls if there is more that one URL and one of
+        #     them was http://
+        if http_count > 0 and len(link_list) > 1:
+            link_list = [k for k in link_list if not k.startswith("https")]
+        if len(link_list) > 0:
+            urls.append(link_list[0])
+
+    mirror_indexes = []
+    for mirror in args.mirrors_postmarketos:
+        for i in range(len(urls)):
+            if urls[i] == mirror:
+                mirror_indexes.append(str(i + 1))
+                break
+
+    mirrors_list = []
+    # require one valid mirror index selected by user
+    while len(mirrors_list) != 1:
+        answer = pmb.helpers.cli.ask(args, "Select a mirror", None,
+                                     ",".join(mirror_indexes),
+                                     validation_regex=regex)
+        mirrors_list = []
+        for i in answer.split(","):
+            idx = int(i) - 1
+            if 0 <= idx < len(urls):
+                mirrors_list.append(urls[idx])
+        if len(mirrors_list) != 1:
+            logging.info("You must select one valid mirror!")
+
+    return mirrors_list
 
 
 def ask_for_hostname(args, device):

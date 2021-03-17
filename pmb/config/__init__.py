@@ -60,6 +60,7 @@ config_keys = ["aports",
                "kernel",
                "keymap",
                "locale",
+               "mirrors_postmarketos",
                "nonfree_firmware",
                "nonfree_userland",
                "ssh_keys",
@@ -97,7 +98,9 @@ defaults = {
     "locale": "C.UTF-8",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
-    "mirrors_postmarketos": ["http://mirror.postmarketos.org/postmarketos/"],
+    # NOTE: mirrors_postmarketos variable type is supposed to be
+    #       comma-separated string, not a python list or any other type!
+    "mirrors_postmarketos": "http://mirror.postmarketos.org/postmarketos/",
     "nonfree_firmware": True,
     "nonfree_userland": False,
     "port_distccd": "33632",
