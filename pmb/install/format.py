@@ -67,6 +67,22 @@ def format_luks_root(args, device):
         raise RuntimeError("Failed to open cryptdevice!")
 
 
+def get_root_filesystem(args):
+    ret = args.filesystem or args.deviceinfo["root_filesystem"] or "ext4"
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+
+    supported = pmaports_cfg.get("supported_root_filesystems", "ext4")
+    supported_list = supported.split(",")
+
+    if ret not in supported_list:
+        raise ValueError(f"Root filesystem {ret} is not supported by your"
+                         " currently checked out pmaports branch. Update your"
+                         " branch ('pmbootstrap pull'), change it"
+                         " ('pmbootstrap init'), or select one of these"
+                         f" filesystems: {', '.join(supported_list)}")
+    return ret
+
+
 def format_and_mount_root(args, device, root_label, sdcard):
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
@@ -75,8 +91,7 @@ def format_and_mount_root(args, device, root_label, sdcard):
     """
     # Format
     if not args.rsync:
-        filesystem = (args.filesystem or args.deviceinfo["root_filesystem"] or
-                      "ext4")
+        filesystem = get_root_filesystem(args)
 
         if filesystem == "ext4":
             # Some downstream kernels don't support metadata_csum (#1364).

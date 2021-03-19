@@ -308,6 +308,9 @@ def install(args):
                              " packages found. Consider 'pmbootstrap zap -p'"
                              " to delete them.")
 
+    # Verify that the root filesystem is supported by current pmaports branch
+    pmb.install.get_root_filesystem(args)
+
     pmb.install.install(args)
 
 
