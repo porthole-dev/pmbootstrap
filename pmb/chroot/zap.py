@@ -23,10 +23,10 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     :param dry: Only show what would be deleted, do not delete for real
     :param pkgs_local: Remove *all* self-compiled packages (!)
     :param http: Clear the http cache (used e.g. for the initial apk download)
-    :param pkgs_local_mismatch: Remove the packages, that have a different version
-                          compared to what is in the aports folder.
-    :param pkgs_online_mismatch: Clean out outdated binary packages downloaded from
-                     mirrors (e.g. from Alpine)
+    :param pkgs_local_mismatch: Remove the packages, that have
+        a different version compared to what is in the aports folder.
+    :param pkgs_online_mismatch: Clean out outdated binary packages
+        downloaded from mirrors (e.g. from Alpine)
     :param distfiles: Clear the downloaded files cache
     :param rust: Remove rust related caches
 
@@ -39,7 +39,8 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         logging.debug("Calculate work folder size")
         size_old = pmb.helpers.other.folder_size(args, args.work)
 
-    # Delete packages with a different version compared to aports, then re-index
+    # Delete packages with a different version compared to aports,
+    # then re-index
     if pkgs_local_mismatch:
         zap_pkgs_local_mismatch(args, confirm, dry)
 
@@ -67,11 +68,12 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
 
     # Delete everything matching the patterns
     for pattern in patterns:
-        pattern = os.path.realpath(args.work + "/" + pattern)
+        pattern = os.path.realpath(f"{args.work}/{pattern}")
         matches = glob.glob(pattern)
         for match in matches:
-            if not confirm or pmb.helpers.cli.confirm(args, "Remove " + match + "?"):
-                logging.info("% rm -rf " + match)
+            if (not confirm or
+                    pmb.helpers.cli.confirm(args, f"Remove {match}?")):
+                logging.info(f"% rm -rf {match}")
                 if not dry:
                     pmb.helpers.run.root(args, ["rm", "-rf", match])
 
@@ -87,7 +89,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     else:
         size_new = pmb.helpers.other.folder_size(args, args.work)
         mb = (size_old - size_new) / 1024 / 1024
-        logging.info("Cleared up ~" + str(math.ceil(mb)) + " MB of space")
+        logging.info(f"Cleared up ~{math.ceil(mb)} MB of space")
 
 
 def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
@@ -112,29 +114,29 @@ def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
             arch = block["arch"]
 
             # Apk path
-            apk_path_short = arch + "/" + pkgname + "-" + version + ".apk"
+            apk_path_short = f"{arch}/{pkgname}-{version}.apk"
             apk_path = f"{args.work}/packages/{channel}/{apk_path_short}"
             if not os.path.exists(apk_path):
                 logging.info("WARNING: Package mentioned in index not"
-                             " found: " + apk_path_short)
+                             f" found: {apk_path_short}")
                 continue
 
             # Aport path
             aport_path = pmb.helpers.pmaports.find(args, origin, False)
             if not aport_path:
-                logging.info("% rm " + apk_path_short + " (" + origin +
-                             " aport not found)")
+                logging.info(f"% rm {apk_path_short}"
+                             f" ({origin} aport not found)")
                 if not dry:
                     pmb.helpers.run.root(args, ["rm", apk_path])
                     reindex = True
                 continue
 
             # Clear out any binary apks that do not match what is in aports
-            apkbuild = pmb.parse.apkbuild(args, aport_path + "/APKBUILD")
-            version_aport = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
+            apkbuild = pmb.parse.apkbuild(args, f"{aport_path}/APKBUILD")
+            version_aport = f"{apkbuild['pkgver']}-r{apkbuild['pkgrel']}"
             if version != version_aport:
-                logging.info("% rm " + apk_path_short + " (" + origin +
-                             " aport: " + version_aport + ")")
+                logging.info(f"% rm {apk_path_short}"
+                             f" ({origin} aport: {version_aport})")
                 if not dry:
                     pmb.helpers.run.root(args, ["rm", apk_path])
                     reindex = True
@@ -145,18 +147,20 @@ def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
 
 def zap_pkgs_online_mismatch(args, confirm=True, dry=False):
     # Check whether we need to do anything
-    paths = glob.glob(args.work + "/cache_apk_*")
+    paths = glob.glob(f"{args.work}/cache_apk_*")
     if not len(paths):
         return
-    if confirm and not pmb.helpers.cli.confirm(args, "Remove outdated binary packages?"):
+    if (confirm and not pmb.helpers.cli.confirm(args,
+                                                "Remove outdated"
+                                                " binary packages?")):
         return
 
     # Iterate over existing apk caches
     for path in paths:
         arch = os.path.basename(path).split("_", 2)[2]
-        suffix = "native" if arch == args.arch_native else "buildroot_" + arch
+        suffix = "native" if arch == args.arch_native else f"buildroot_{arch}"
 
         # Clean the cache with apk
-        logging.info("(" + suffix + ") apk -v cache clean")
+        logging.info(f"({suffix}) apk -v cache clean")
         if not dry:
             pmb.chroot.root(args, ["apk", "-v", "cache", "clean"], suffix)

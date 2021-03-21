@@ -29,7 +29,7 @@ def update_repository_list(args, suffix="native", check=False):
         return
 
     # Read old entries or create folder structure
-    path = args.work + "/chroot_" + suffix + "/etc/apk/repositories"
+    path = f"{args.work}/chroot_{suffix}/etc/apk/repositories"
     lines_old = []
     if os.path.exists(path):
         # Read all old lines
@@ -48,15 +48,15 @@ def update_repository_list(args, suffix="native", check=False):
 
     # Check phase: raise error when still outdated
     if check:
-        raise RuntimeError("Failed to update: " + path)
+        raise RuntimeError(f"Failed to update: {path}")
 
     # Update the file
-    logging.debug("(" + suffix + ") update /etc/apk/repositories")
+    logging.debug(f"({suffix}) update /etc/apk/repositories")
     if os.path.exists(path):
         pmb.helpers.run.root(args, ["rm", path])
     for line in lines_new:
-        pmb.helpers.run.root(args, ["sh", "-c", "echo " +
-                                    shlex.quote(line) + " >> " + path])
+        pmb.helpers.run.root(args, ["sh", "-c", "echo "
+                                    f"{shlex.quote(line)} >> {path}"])
     update_repository_list(args, suffix, True)
 
 
@@ -71,9 +71,9 @@ def check_min_version(args, suffix="native"):
         return
 
     # Skip if apk is not installed yet
-    if not os.path.exists(args.work + "/chroot_" + suffix + "/sbin/apk"):
-        logging.debug("NOTE: Skipped apk version check for chroot '" + suffix +
-                      "', because it is not installed yet!")
+    if not os.path.exists(f"{args.work}/chroot_{suffix}/sbin/apk"):
+        logging.debug(f"NOTE: Skipped apk version check for chroot '{suffix}'"
+                      ", because it is not installed yet!")
         return
 
     # Compare
@@ -94,7 +94,8 @@ def install_is_necessary(args, build, arch, package, packages_installed):
     :param build: Set to true to build the package, if the binary packages are
                   out of date, and it is in the aports folder.
     :param packages_installed: Return value from installed().
-    :returns: True if the package needs to be installed/updated, False otherwise.
+    :returns: True if the package needs to be installed/updated,
+              False otherwise.
     """
     # User may have disabled buiding packages during "pmbootstrap install"
     build_disabled = False
@@ -118,8 +119,8 @@ def install_is_necessary(args, build, arch, package, packages_installed):
                                " 'pmbootstrap install' has been disabled."
                                " Consider changing this option in"
                                " 'pmbootstrap init'.")
-        logging.warning("WARNING: Internal error in pmbootstrap," +
-                        " package '" + package + "' for " + arch +
+        logging.warning("WARNING: Internal error in pmbootstrap,"
+                        f" package '{package}' for {arch}"
                         " has not been built yet, but it should have"
                         " been. Rebuilding it with force. Please "
                         " report this, if there is no ticket about this"
@@ -134,10 +135,10 @@ def install_is_necessary(args, build, arch, package, packages_installed):
                                         data_repo["version"])
     # a) Installed newer (should not happen normally)
     if compare == 1:
-        logging.info("WARNING: " + arch + " package '" + package +
-                     "' installed version " + data_installed["version"] +
-                     " is newer, than the version in the repositories: " +
-                     data_repo["version"] +
+        logging.info(f"WARNING: {arch} package '{package}'"
+                     f" installed version {data_installed['version']}"
+                     " is newer, than the version in the repositories:"
+                     f" {data_repo['version']}"
                      " See also: <https://postmarketos.org/warning-repo>")
         return False
 
@@ -154,9 +155,10 @@ def install_is_necessary(args, build, arch, package, packages_installed):
 
 def replace_aports_packages_with_path(args, packages, suffix, arch):
     """
-    apk will only re-install packages with the same pkgname, pkgver and pkgrel,
-    when you give it the absolute path to the package. This function replaces
-    all packages, that were built locally, with the absolute path to the package.
+    apk will only re-install packages with the same pkgname,
+    pkgver and pkgrel, when you give it the absolute path to the package.
+    This function replaces all packages, that were built locally,
+    with the absolute path to the package.
     """
     ret = []
     for package in packages:
@@ -164,16 +166,16 @@ def replace_aports_packages_with_path(args, packages, suffix, arch):
         if aport:
             data_repo = pmb.parse.apkindex.package(args, package, arch, False)
             if not data_repo:
-                raise RuntimeError(package + ": could not find binary"
+                raise RuntimeError(f"{package}: could not find binary"
                                    " package, although it should exist for"
                                    " sure at this point in the code."
                                    " Probably an APKBUILD subpackage parsing"
                                    " bug. Related: https://gitlab.com/"
                                    "postmarketOS/build.postmarketos.org/"
                                    "issues/61")
-            apk_path = ("/mnt/pmbootstrap-packages/" + arch + "/" +
-                        package + "-" + data_repo["version"] + ".apk")
-            if os.path.exists(args.work + "/chroot_" + suffix + apk_path):
+            apk_path = (f"/mnt/pmbootstrap-packages/{arch}/"
+                        f"{package}-{data_repo['version']}.apk")
+            if os.path.exists(f"{args.work}/chroot_{suffix}{apk_path}"):
                 package = apk_path
         ret.append(package)
     return ret
@@ -208,13 +210,13 @@ def install(args, packages, suffix="native", build=True):
     # to be passed to apk!
     for package in packages_todo:
         if package.startswith("-"):
-            raise ValueError("Invalid package name: " + package)
+            raise ValueError(f"Invalid package name: {package}")
 
     # Readable install message without dependencies
-    message = "(" + suffix + ") install"
+    message = f"({suffix}) install"
     for pkgname in packages:
         if pkgname not in packages_installed:
-            message += " " + pkgname
+            message += f" {pkgname}"
     logging.info(message)
 
     # Local packages: Using the path instead of pkgname makes apk update
@@ -258,5 +260,5 @@ def installed(args, suffix="native"):
                 }, ...
               }
     """
-    path = args.work + "/chroot_" + suffix + "/lib/apk/db/installed"
+    path = f"{args.work}/chroot_{suffix}/lib/apk/db/installed"
     return pmb.parse.apkindex.parse(args, path, False)

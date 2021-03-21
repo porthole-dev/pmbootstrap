@@ -18,14 +18,16 @@ def executables_absolute_path():
     for binary in ["sh", "chroot"]:
         path = shutil.which(binary, path=pmb.config.chroot_host_path)
         if not path:
-            raise RuntimeError("Could not find the '" + binary +
-                               "' executable. Make sure, that it is in" " your current user's PATH.")
+            raise RuntimeError(f"Could not find the '{binary}'"
+                               " executable. Make sure, that it is in"
+                               " your current user's PATH.")
         ret[binary] = path
     return ret
 
 
 def root(args, cmd, suffix="native", working_dir="/", output="log",
-         output_return=False, check=None, env={}, auto_init=True, disable_timeout=False):
+         output_return=False, check=None, env={}, auto_init=True,
+         disable_timeout=False):
     """
     Run a command inside a chroot as root.
 
@@ -37,18 +39,18 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
     arguments and the return value.
     """
     # Initialize chroot
-    chroot = args.work + "/chroot_" + suffix
-    if not auto_init and not os.path.islink(chroot + "/bin/sh"):
-        raise RuntimeError("Chroot does not exist: " + chroot)
+    chroot = f"{args.work}/chroot_{suffix}"
+    if not auto_init and not os.path.islink(f"{chroot}/bin/sh"):
+        raise RuntimeError(f"Chroot does not exist: {chroot}")
     if auto_init:
         pmb.chroot.init(args, suffix)
 
     # Readable log message (without all the escaping)
-    msg = "(" + suffix + ") % "
+    msg = f"({suffix}) % "
     for key, value in env.items():
-        msg += key + "=" + value + " "
+        msg += f"{key}={value} "
     if working_dir != "/":
-        msg += "cd " + working_dir + "; "
+        msg += f"cd {working_dir}; "
     msg += " ".join(cmd)
 
     # Merge env with defaults into env_all
@@ -72,4 +74,5 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
     cmd_sudo = ["sudo", "env", "-i", executables["sh"], "-c",
                 pmb.helpers.run.flat_cmd(cmd_chroot, env=env_all)]
     return pmb.helpers.run_core.core(args, msg, cmd_sudo, None, output,
-                                     output_return, check, True, disable_timeout)
+                                     output_return, check, True,
+                                     disable_timeout)

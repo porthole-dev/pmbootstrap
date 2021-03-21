@@ -32,19 +32,19 @@ def read_signature_info(tar):
             sigfilename = filename
             break
     if not sigfilename:
-        raise RuntimeError("Could not find signature filename in apk." +
-                           " This means, that your apk file is damaged. Delete it" +
-                           " and try again. If the problem persists, fill out a bug" +
-                           " report.")
+        raise RuntimeError("Could not find signature filename in apk."
+                           " This means, that your apk file is damaged."
+                           " Delete it and try again."
+                           " If the problem persists, fill out a bug report.")
     sigkey = sigfilename[len(prefix):]
-    logging.debug("sigfilename: " + sigfilename)
-    logging.debug("sigkey: " + sigkey)
+    logging.debug(f"sigfilename: {sigfilename}")
+    logging.debug(f"sigkey: {sigkey}")
 
     # Get path to keyfile on disk
-    sigkey_path = pmb.config.apk_keys_path + "/" + sigkey
+    sigkey_path = f"{pmb.config.apk_keys_path}/{sigkey}"
     if "/" in sigkey or not os.path.exists(sigkey_path):
-        logging.debug("sigkey_path: " + sigkey_path)
-        raise RuntimeError("Invalid signature key: " + sigkey)
+        logging.debug(f"sigkey_path: {sigkey_path}")
+        raise RuntimeError(f"Invalid signature key: {sigkey}")
 
     return (sigfilename, sigkey_path)
 
@@ -71,7 +71,7 @@ def extract_temp(tar, sigfilename):
         ret[ftype]["temp_path"] = path
         shutil.copyfileobj(tar.extractfile(member), handle)
 
-        logging.debug("extracted: " + path)
+        logging.debug(f"extracted: {path}")
         handle.close()
     return ret
 
@@ -83,7 +83,7 @@ def verify_signature(args, files, sigkey_path):
     :param files: return value from extract_temp()
     :raises RuntimeError: when verification failed and  removes temp files
     """
-    logging.debug("Verify apk.static signature with " + sigkey_path)
+    logging.debug(f"Verify apk.static signature with {sigkey_path}")
     try:
         pmb.helpers.run.user(args, ["openssl", "dgst", "-sha1", "-verify",
                                     sigkey_path, "-signature", files[
@@ -115,21 +115,23 @@ def extract(args, version, apk_path):
     temp_path = files["apk"]["temp_path"]
 
     # Verify the version, that the extracted binary reports
-    logging.debug("Verify the version reported by the apk.static binary" +
-                  " (must match the package version " + version + ")")
+    logging.debug("Verify the version reported by the apk.static binary"
+                  f" (must match the package version {version})")
     os.chmod(temp_path, os.stat(temp_path).st_mode | stat.S_IEXEC)
     version_bin = pmb.helpers.run.user(args, [temp_path, "--version"],
                                        output_return=True)
     version_bin = version_bin.split(" ")[1].split(",")[0]
-    if not version.startswith(version_bin + "-r"):
+    if not version.startswith(f"{version_bin}-r"):
         os.unlink(temp_path)
-        raise RuntimeError("Downloaded apk-tools-static-" + version + ".apk,"
-                           " but the apk binary inside that package reports to be"
-                           " version: " + version_bin + "! Looks like a downgrade attack"
-                           " from a malicious server! Switch the server (-m) and try again.")
+        raise RuntimeError(f"Downloaded apk-tools-static-{version}.apk,"
+                           " but the apk binary inside that package reports"
+                           f" to be version: {version_bin}!"
+                           " Looks like a downgrade attack"
+                           " from a malicious server! Switch the server (-m)"
+                           " and try again.")
 
     # Move it to the right path
-    target_path = args.work + "/apk.static"
+    target_path = f"{args.work}/apk.static"
     shutil.move(temp_path, target_path)
 
 
@@ -140,7 +142,7 @@ def download(args, file):
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     mirrordir = channel_cfg["mirrordir_alpine"]
     base_url = f"{args.mirror_alpine}{mirrordir}/main/{args.arch_native}"
-    return pmb.helpers.http.download(args, base_url + "/" + file, file)
+    return pmb.helpers.http.download(args, f"{base_url}/{file}", file)
 
 
 def init(args):
@@ -158,7 +160,7 @@ def init(args):
         args, version, "Run 'pmbootstrap update', then try again.")
 
     # Download, extract, verify apk-tools-static
-    apk_name = "apk-tools-static-" + version + ".apk"
+    apk_name = f"apk-tools-static-{version}.apk"
     apk_static = download(args, apk_name)
     extract(args, version, apk_static)
 
@@ -166,4 +168,5 @@ def init(args):
 def run(args, parameters):
     if args.offline:
         parameters = ["--no-network"] + parameters
-    pmb.helpers.apk.apk_with_progress(args, [args.work + "/apk.static"] + parameters, chroot=False)
+    pmb.helpers.apk.apk_with_progress(
+        args, [f"{args.work}/apk.static"] + parameters, chroot=False)

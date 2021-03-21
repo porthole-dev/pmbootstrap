@@ -60,12 +60,19 @@ py_files="
 	pmb/build/menuconfig.py
 	pmb/build/newapkbuild.py
 	pmb/chroot/__init__.py
+	pmb/chroot/apk.py
+	pmb/chroot/apk_static.py
 	pmb/chroot/binfmt.py
 	pmb/chroot/distccd.py
+	pmb/chroot/init.py
+	pmb/chroot/initfs.py
+	pmb/chroot/initfs_hooks.py
 	pmb/chroot/mount.py
 	pmb/chroot/other.py
+	pmb/chroot/root.py
 	pmb/chroot/shutdown.py
 	pmb/chroot/user.py
+	pmb/chroot/zap.py
 	pmb/config/pmaports.py
 	pmb/config/save.py
 	pmb/config/workdir.py

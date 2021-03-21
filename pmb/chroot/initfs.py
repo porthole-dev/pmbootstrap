@@ -14,12 +14,13 @@ def build(args, flavor, suffix):
     pmb.chroot.initfs_hooks.update(args, suffix)
 
     # Call mkinitfs
-    logging.info("(" + suffix + ") mkinitfs " + flavor)
-    release_file = (args.work + "/chroot_" + suffix + "/usr/share/kernel/" +
-                    flavor + "/kernel.release")
+    logging.info(f"({suffix}) mkinitfs {flavor}")
+    release_file = (f"{args.work}/chroot_{suffix}/usr/share/kernel/"
+                    f"{flavor}/kernel.release")
     with open(release_file, "r") as handle:
         release = handle.read().rstrip()
-    pmb.chroot.root(args, ["mkinitfs", "-o", "/boot/initramfs-" + flavor, release],
+    pmb.chroot.root(args, ["mkinitfs", "-o",
+                           f"/boot/initramfs-{flavor}", release],
                     suffix)
 
 
@@ -33,27 +34,28 @@ def extract(args, flavor, suffix, extra=False):
     if extra:
         inside = "/tmp/initfs-extra-extracted"
         flavor += "-extra"
-    outside = args.work + "/chroot_" + suffix + inside
+    outside = f"{args.work}/chroot_{suffix}{inside}"
     if os.path.exists(outside):
-        if not pmb.helpers.cli.confirm(args, "Extraction folder " + outside +
-                                       " already exists. Do you want to overwrite it?"):
+        if not pmb.helpers.cli.confirm(args, f"Extraction folder {outside}"
+                                       " already exists."
+                                       " Do you want to overwrite it?"):
             raise RuntimeError("Aborted!")
         pmb.chroot.root(args, ["rm", "-r", inside], suffix)
 
     # Extraction script (because passing a file to stdin is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    with open(args.work + "/chroot_" + suffix + "/tmp/_extract.sh", "w") as handle:
+    with open(f"{args.work}/chroot_{suffix}/tmp/_extract.sh", "w") as handle:
         handle.write(
             "#!/bin/sh\n"
-            "cd " + inside + " && cpio -i < _initfs\n")
+            f"cd {inside} && cpio -i < _initfs\n")
 
     # Extract
     commands = [["mkdir", "-p", inside],
-                ["cp", "/boot/initramfs-" + flavor, inside + "/_initfs.gz"],
-                ["gzip", "-d", inside + "/_initfs.gz"],
+                ["cp", f"/boot/initramfs-{flavor}", f"{inside}/_initfs.gz"],
+                ["gzip", "-d", f"{inside}/_initfs.gz"],
                 ["cat", "/tmp/_extract.sh"],  # for the log
                 ["sh", "/tmp/_extract.sh"],
-                ["rm", "/tmp/_extract.sh", inside + "/_initfs"]
+                ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"]
                 ]
     for command in commands:
         pmb.chroot.root(args, command, suffix)
@@ -73,7 +75,7 @@ def ls(args, flavor, suffix, extra=False):
 
 def frontend(args):
     # Find the appropriate kernel flavor
-    suffix = "rootfs_" + args.device
+    suffix = f"rootfs_{args.device}"
     flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix)
     flavor = flavors[0]
     if hasattr(args, "flavor") and args.flavor:
@@ -85,9 +87,9 @@ def frontend(args):
         build(args, flavor, suffix)
     elif action == "extract":
         dir = extract(args, flavor, suffix)
-        logging.info("Successfully extracted initramfs to: " + dir)
+        logging.info(f"Successfully extracted initramfs to: {dir}")
         dir_extra = extract(args, flavor, suffix, True)
-        logging.info("Successfully extracted initramfs-extra to: " + dir_extra)
+        logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
     elif action == "ls":
         logging.info("*** initramfs ***")
         ls(args, flavor, suffix)
@@ -109,4 +111,4 @@ def frontend(args):
 
     if action in ["ls", "extract"]:
         link = "https://wiki.postmarketos.org/wiki/Initramfs_development"
-        logging.info("See also: <" + link + ">")
+        logging.info(f"See also: <{link}>")
