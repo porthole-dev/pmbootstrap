@@ -105,7 +105,7 @@ defaults = {
     "ui_extras": False,
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
-    "boot_size": "128",
+    "boot_size": "256",
     "extra_space": "0",
     "sudo_timer": False
 }
