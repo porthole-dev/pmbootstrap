@@ -153,6 +153,7 @@ initialize_chroot() {
 		elfutils-dev \
 		findutils \
 		flex \
+		g++ \
 		"$gcc_pkgname" \
 		gmp-dev \
 		linux-headers \
@@ -164,6 +165,7 @@ initialize_chroot() {
 		ncurses-dev \
 		perl \
 		sed \
+		yaml-dev \
 		xz || return 1
 
 	# Create /mnt/linux
