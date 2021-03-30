@@ -97,7 +97,8 @@ def menuconfig(args, pkgname):
 
     # Set up build tools and makedepends
     pmb.build.init(args, suffix)
-    pmb.build.init_compiler(args, [], cross, arch)
+    if cross:
+        pmb.build.init_compiler(args, [], cross, arch)
     depends = apkbuild["makedepends"]
     kopt = "menuconfig"
     copy_xauth = False
@@ -128,13 +129,14 @@ def menuconfig(args, pkgname):
     # Run make menuconfig
     outputdir = get_outputdir(args, pkgname, apkbuild)
     logging.info("(native) make " + kopt)
+    env = {"ARCH": pmb.parse.arch.alpine_to_kernel(arch),
+           "DISPLAY": os.environ.get("DISPLAY"),
+           "XAUTHORITY": "/home/pmos/.Xauthority"}
+    if cross:
+        env["CROSS_COMPILE"] = f"{hostspec}-"
+        env["CC"] = f"{hostspec}-gcc"
     pmb.chroot.user(args, ["make", kopt], "native",
-                    outputdir, output="tui",
-                    env={"ARCH": pmb.parse.arch.alpine_to_kernel(arch),
-                         "DISPLAY": os.environ.get("DISPLAY"),
-                         "XAUTHORITY": "/home/pmos/.Xauthority",
-                         "CROSS_COMPILE": hostspec + "-",
-                         "CC": hostspec + "-gcc"})
+                    outputdir, output="tui", env=env)
 
     # Find the updated config
     source = args.work + "/chroot_native" + outputdir + "/.config"
