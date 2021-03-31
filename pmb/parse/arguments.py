@@ -53,6 +53,8 @@ def arguments_install(subparser):
     # Other arguments (that don't fit categories below)
     ret.add_argument("--no-sshd", action="store_true",
                      help="do not enable the SSH daemon by default")
+    ret.add_argument("--no-firewall", action="store_true",
+                     help="do not enable the firewall by default")
 
     # Image type
     group_desc = ret.add_argument_group(

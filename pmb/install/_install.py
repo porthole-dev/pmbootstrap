@@ -365,6 +365,66 @@ def print_sshd_info(args):
         logging.info("More info: https://postmarketos.org/ondev-debug")
 
 
+def disable_firewall(args):
+    if not args.no_firewall:
+        return
+
+    # check=False: rc-update doesn't exit with 0 if already disabled
+    suffix = f"rootfs_{args.device}"
+    pmb.chroot.root(args, ["rc-update", "del", "nftables", "default"], suffix,
+                    check=False)
+
+    # Verify that it's gone
+    nftables_files = pmb.helpers.run.root(
+        args, ["find", "-name", "nftables"], output_return=True,
+        working_dir=f"{args.work}/chroot_{suffix}/etc/runlevels")
+    if nftables_files:
+        raise RuntimeError(f"Failed to disable firewall: {nftables_files}")
+
+
+def print_firewall_info(args):
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_ok = pmaports_cfg.get("supported_firewall", None) == "nftables"
+
+    # Find kernel pmaport (will not be found if Alpine kernel is used)
+    apkbuild_found = False
+    apkbuild_has_opt = False
+
+    arch = args.deviceinfo["arch"]
+    suffix = f"rootfs_{args.device}"
+    kernels = pmb.chroot.other.kernel_flavors_installed(args, suffix,
+                                                        autoinstall=False)
+    if kernels:
+        kernel = f"linux-{kernels[0]}"
+        kernel_apkbuild = pmb.build._package.get_apkbuild(args, kernel, arch)
+        if kernel_apkbuild:
+            opts = kernel_apkbuild["options"]
+            apkbuild_has_opt = "pmb:kconfigcheck-nftables" in opts
+            apkbuild_found = True
+
+    # Print the note and make it stand out
+    logging.info("")
+    logging.info("*** FIREWALL INFORMATION ***")
+
+    if not pmaports_ok:
+        logging.info("Firewall is not supported in checked out pmaports"
+                     " branch.")
+    elif args.no_firewall:
+        logging.info("Firewall is disabled (--no-firewall).")
+    elif not apkbuild_found:
+        logging.info("Firewall is enabled, but may not work (couldn't"
+                     " determine if kernel supports nftables).")
+    elif apkbuild_has_opt:
+        logging.info("Firewall is enabled and supported by kernel.")
+    else:
+        logging.info("Firewall is enabled, but will not work (no support in"
+                     " kernel config for nftables).")
+        logging.info("If/when the kernel supports it in the future, it"
+                     " will work automatically.")
+
+    logging.info("For more information: https://postmarketos.org/firewall")
+
+
 def embed_firmware(args, suffix):
     """
     This method will embed firmware, located at /usr/share, that are specified
@@ -782,6 +842,8 @@ def create_device_rootfs(args, step, steps):
     disable_sshd(args)
     cleanup(args, suffix)
 
+    disable_firewall(args)
+
 
 def install(args):
     # Sanity checks
@@ -826,6 +888,7 @@ def install(args):
 
     print_flash_info(args)
     print_sshd_info(args)
+    print_firewall_info(args)
 
     # Leave space before 'chroot still active' note
     logging.info("")
