@@ -65,7 +65,7 @@ def check_option(component, details, config, config_path_pretty, option,
 
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
-                 anbox=False, details=False):
+                 anbox=False, nftables=False, details=False):
     logging.debug("Check kconfig: " + config_path)
     with open(config_path) as handle:
         config = handle.read()
@@ -73,6 +73,9 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     if anbox:
         options = pmb.config.necessary_kconfig_options_anbox
         component = "anbox"
+    elif nftables:
+        options = pmb.config.necessary_kconfig_options_nftables
+        component = "nftables"
     else:
         options = pmb.config.necessary_kconfig_options
         component = "postmarketOS"
@@ -103,7 +106,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     return ret
 
 
-def check(args, pkgname, force_anbox_check=False, details=False):
+def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
+          details=False):
     """
     Check for necessary kernel config options in a package.
 
@@ -124,6 +128,8 @@ def check(args, pkgname, force_anbox_check=False, details=False):
     pkgver = apkbuild["pkgver"]
     check_anbox = force_anbox_check or (
         "pmb:kconfigcheck-anbox" in apkbuild["options"])
+    check_nftables = force_nftables_check or (
+        "pmb:kconfigcheck-nftables" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
@@ -134,6 +140,9 @@ def check(args, pkgname, force_anbox_check=False, details=False):
         if check_anbox:
             ret &= check_config(config_path, config_path_pretty, config_arch,
                                 pkgver, anbox=True, details=details)
+        if check_nftables:
+            ret &= check_config(config_path, config_path_pretty, config_arch,
+                                pkgver, nftables=True, details=details)
     return ret
 
 
@@ -169,7 +178,8 @@ def extract_version(config_file):
     return "unknown"
 
 
-def check_file(args, config_file, anbox=False, details=False):
+def check_file(args, config_file, anbox=False, nftables=False,
+               details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
@@ -184,4 +194,7 @@ def check_file(args, config_file, anbox=False, details=False):
     if anbox:
         ret &= check_config(config_file, config_file, arch, version,
                             anbox=True, details=details)
+    if nftables:
+        ret &= check_config(config_file, config_file, arch, version,
+                            nftables=True, details=details)
     return ret

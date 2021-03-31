@@ -375,6 +375,7 @@ def kconfig(args):
         if args.file:
             if pmb.parse.kconfig.check_file(args, args.package,
                                             anbox=args.anbox,
+                                            nftables=args.nftables,
                                             details=True):
                 logging.info("kconfig check succeeded!")
                 return
@@ -404,6 +405,7 @@ def kconfig(args):
                     continue
             if not pmb.parse.kconfig.check(args, package,
                                            force_anbox_check=args.anbox,
+                                           force_nftables_check=args.nftables,
                                            details=True):
                 error = True
 

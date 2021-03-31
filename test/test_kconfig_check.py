@@ -32,10 +32,15 @@ def test_kconfig_check(args):
     assert not pmb.parse.kconfig.check_file(args, dir +
                                             "bad-array-missing-some-options",
                                             anbox=True)
+    assert pmb.parse.kconfig.check_file(args, dir + "good-nftables",
+                                        nftables=True)
+    assert not pmb.parse.kconfig.check_file(args, dir + "bad-nftables",
+                                            nftables=True)
 
     # tests on real devices
 
-    # it's a postmarketOS device, it will have the required options
+    # it's a postmarketOS device, it will have the required options, and
+    # supports nftables (with pmb:kconfigcheck-nftables)
     assert pmb.parse.kconfig.check(args, "nokia-n900")
 
     # supports Anbox (with pmb:kconfigcheck-anbox)

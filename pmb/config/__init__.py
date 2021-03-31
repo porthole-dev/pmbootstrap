@@ -302,6 +302,26 @@ necessary_kconfig_options_anbox = {
     },
 }
 
+# Necessary nftables kernel config options
+necessary_kconfig_options_nftables = {
+    ">=3.13.0": {  # nftables support introduced here
+        "all": {  # all arches
+            "NETFILTER": True,
+            "NF_TABLES": True,
+            "NFT_CT": True,
+            "NFT_COUNTER": True,
+            "NFT_LOG": True,
+            "NFT_LIMIT": True,
+            "NFT_MASQ": True,
+            "NFT_NAT": True,
+            "NF_TABLES_IPV4": True,
+            "NF_REJECT_IPV4": True,
+            "NF_TABLES_IPV6": True,
+            "NF_REJECT_IPV6": True,
+        }
+    },
+}
+
 #
 # PARSE
 #
@@ -369,6 +389,7 @@ apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
     "!pmb:kconfig-check",
     "pmb:kconfigcheck-anbox",
+    "pmb:kconfigcheck-nftables",
     "pmb:cross-native",
     "pmb:strict",
 ]
