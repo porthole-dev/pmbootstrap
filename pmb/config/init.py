@@ -28,8 +28,8 @@ def require_programs():
             missing.append(program)
     if missing:
         raise RuntimeError("Can't find all programs required to run"
-                           " pmbootstrap. Please install first: " +
-                           ", ".join(missing))
+                           " pmbootstrap. Please install first:"
+                           f" {', '.join(missing)}")
 
 
 def ask_for_work_path(args):
@@ -53,7 +53,7 @@ def ask_for_work_path(args):
 
             # Work must not be inside the pmbootstrap path
             if (work == pmb.config.pmb_src or
-                    work.startswith(pmb.config.pmb_src + "/")):
+                    work.startswith(f"{pmb.config.pmb_src}/")):
                 logging.fatal("ERROR: The work path must not be inside the"
                               " pmbootstrap path. Please specify another"
                               " location.")
@@ -66,12 +66,12 @@ def ask_for_work_path(args):
             if not os.listdir(work):
                 # Directory is empty, either because we just created it or
                 # because user created it before running pmbootstrap init
-                with open(work + "/version", "w") as handle:
-                    handle.write(str(pmb.config.work_version) + "\n")
+                with open(f"{work}/version", "w") as handle:
+                    handle.write(f"{pmb.config.work_version}\n")
 
             # Create cache_git dir, so it is owned by the host system's user
             # (otherwise pmb.helpers.mount.bind would create it as root)
-            os.makedirs(work + "/cache_git", 0o700, True)
+            os.makedirs(f"{work}/cache_git", 0o700, True)
             return (work, exists)
         except OSError:
             logging.fatal("ERROR: Could not create this folder, or write"
@@ -147,17 +147,17 @@ def ask_for_ui(args, device):
 
 
 def ask_for_ui_extras(args, ui):
-    apkbuild = pmb.helpers.pmaports.get(args, "postmarketos-ui-" + ui,
+    apkbuild = pmb.helpers.pmaports.get(args, f"postmarketos-ui-{ui}",
                                         subpackages=False, must_exist=False)
     if not apkbuild:
         return False
 
-    extra = apkbuild["subpackages"].get("postmarketos-ui-" + ui + "-extras")
+    extra = apkbuild["subpackages"].get(f"postmarketos-ui-{ui}-extras")
     if extra is None:
         return False
 
-    logging.info("This user interface has an extra package: " +
-                 extra["pkgdesc"])
+    logging.info("This user interface has an extra package:"
+                 f" {extra['pkgdesc']}")
 
     return pmb.helpers.cli.confirm(args, "Enable this package?",
                                    default=args.ui_extras)
@@ -168,8 +168,8 @@ def ask_for_keymaps(args, device):
     if "keymaps" not in info or info["keymaps"].strip() == "":
         return ""
     options = info["keymaps"].split(' ')
-    logging.info("Available keymaps for device (" + str(len(options)) +
-                 "): " + ", ".join(options))
+    logging.info(f"Available keymaps for device ({len(options)}): "
+                 f"{', '.join(options)}")
     if args.keymap == "":
         args.keymap = options[0]
 
@@ -198,7 +198,7 @@ def ask_for_timezone(args):
                 except:
                     pass
         if tz:
-            logging.info("Your host timezone: " + tz)
+            logging.info(f"Your host timezone: {tz}")
             if pmb.helpers.cli.confirm(args,
                                        "Use this timezone instead of GMT?",
                                        default="y"):
@@ -237,9 +237,9 @@ def ask_for_device_kernel(args, device):
                      " downstream kernels.")
 
     # List kernels
-    logging.info("Available kernels (" + str(len(kernels)) + "):")
+    logging.info(f"Available kernels ({len(kernels)}):")
     for type in sorted(kernels.keys()):
-        logging.info("* " + type + ": " + kernels[type])
+        logging.info(f"* {type}: {kernels[type]}")
     while True:
         ret = pmb.helpers.cli.ask(args, "Kernel", None, default, True,
                                   complete=kernels)
@@ -271,7 +271,7 @@ def ask_for_device_nonfree(args, device):
     # Only run when there is a "nonfree" subpackage
     nonfree_found = False
     for subpackage in apkbuild["subpackages"].keys():
-        if subpackage.startswith("device-" + device + "-nonfree"):
+        if subpackage.startswith(f"device-{device}-nonfree"):
             nonfree_found = True
     if not nonfree_found:
         return ret
@@ -285,13 +285,13 @@ def ask_for_device_nonfree(args, device):
 
     # Ask for firmware and userland individually
     for type in ["firmware", "userland"]:
-        subpkgname = "device-" + device + "-nonfree-" + type
+        subpkgname = f"device-{device}-nonfree-{type}"
         subpkg = apkbuild["subpackages"].get(subpkgname, {})
         if subpkg is None:
             raise RuntimeError("Cannot find subpackage function for "
                                f"{subpkgname}")
         if subpkg:
-            logging.info(subpkgname + ": " + subpkg["pkgdesc"])
+            logging.info(f"{subpkgname}: {subpkg['pkgdesc']}")
             ret[type] = pmb.helpers.cli.confirm(args, "Enable this package?",
                                                 default=ret[type])
     return ret
@@ -301,8 +301,7 @@ def ask_for_device(args):
     vendors = sorted(pmb.helpers.devices.list_vendors(args))
     logging.info("Choose your target device vendor (either an "
                  "existing one, or a new one for porting).")
-    logging.info("Available vendors (" + str(len(vendors)) + "): " +
-                 ", ".join(vendors))
+    logging.info(f"Available vendors ({len(vendors)}): {', '.join(vendors)}")
 
     current_vendor = None
     current_codename = None
@@ -337,7 +336,7 @@ def ask_for_device(args):
                                        current_codename, False, r"[a-z0-9]+",
                                        codenames)
 
-        device = vendor + '-' + codename
+        device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(args, device, 'deviceinfo')
         device_exists = device_path is not None
         if not device_exists:
@@ -346,18 +345,18 @@ def ask_for_device(args):
                     "This device does not exist anymore, check"
                     " <https://postmarketos.org/renamed>"
                     " to see if it was renamed")
-            logging.info("You are about to do a new device port for '" +
-                         device + "'.")
+            logging.info("You are about to do"
+                         f" a new device port for '{device}'.")
             if not pmb.helpers.cli.confirm(args, default=True):
                 current_vendor = vendor
                 continue
 
             # New port creation confirmed
             logging.info("Generating new aports for: {}...".format(device))
-            pmb.aportgen.generate(args, "device-" + device)
-            pmb.aportgen.generate(args, "linux-" + device)
+            pmb.aportgen.generate(args, f"device-{device}")
+            pmb.aportgen.generate(args, f"linux-{device}")
         elif "/unmaintained/" in device_path:
-            apkbuild = device_path[:-len("deviceinfo")] + 'APKBUILD'
+            apkbuild = f"{device_path[:-len('deviceinfo')]}APKBUILD"
             unmaintained = pmb.parse._apkbuild.unmaintained(apkbuild)
             logging.info(f"WARNING: {device} is unmaintained: {unmaintained}")
             if not pmb.helpers.cli.confirm(args):
