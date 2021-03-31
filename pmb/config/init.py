@@ -114,12 +114,29 @@ def ask_for_channel(args):
 def ask_for_ui(args, device):
     info = pmb.parse.deviceinfo(args, device)
     ui_list = pmb.helpers.ui.list(args, info["arch"])
-    logging.info("Available user interfaces (" +
-                 str(len(ui_list) - 1) + "): ")
+    hidden_ui_count = 0
+    device_is_accelerated = info.get("gpu_accelerated") == "true"
+    if not device_is_accelerated:
+        for i in reversed(range(len(ui_list))):
+            pkgname = f"postmarketos-ui-{ui_list[i][0]}"
+            apkbuild = pmb.helpers.pmaports.get(args, pkgname,
+                                                subpackages=False,
+                                                must_exist=False)
+            if apkbuild and "pmb:gpu-accel" in apkbuild["options"]:
+                ui_list.pop(i)
+                hidden_ui_count += 1
+
+    logging.info(f"Available user interfaces ({len(ui_list) - 1}): ")
     ui_completion_list = []
     for ui in ui_list:
-        logging.info("* " + ui[0] + ": " + ui[1])
+        logging.info(f"* {ui[0]}: {ui[1]}")
         ui_completion_list.append(ui[0])
+    if hidden_ui_count > 0:
+        logging.info(f"NOTE: {hidden_ui_count} user interfaces are not"
+                     " available. If device supports GPU acceleration,"
+                     " set \"deviceinfo_gpu_accelerated\" to make UIs"
+                     " available. See: <https://wiki.postmarketos.org/wiki/"
+                     "Deviceinfo_reference")
     while True:
         ret = pmb.helpers.cli.ask(args, "User interface", None, args.ui, True,
                                   complete=ui_completion_list)

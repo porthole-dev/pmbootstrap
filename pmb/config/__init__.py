@@ -529,6 +529,7 @@ apkbuild_custom_valid_options = [
     "pmb:kconfigcheck-containers",
     "pmb:kconfigcheck-nftables",
     "pmb:cross-native",
+    "pmb:gpu-accel",
     "pmb:strict",
 ]
 
