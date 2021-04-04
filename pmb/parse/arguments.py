@@ -315,8 +315,8 @@ def arguments_qemu(subparser):
 
     ret.add_argument("--display", dest="qemu_display",
                      choices=["sdl", "gtk", "none"],
-                     help="QEMU's display parameter (default: sdl,gl=on)",
-                     default="sdl", nargs="?")
+                     help="QEMU's display parameter (default: gtk,gl=on)",
+                     default="gtk", nargs="?")
     ret.add_argument("--no-gl", dest="qemu_gl", default=True,
                      action='store_false', help="Avoid using GL for"
                      " accelerating graphics in QEMU  (use software"
