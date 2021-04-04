@@ -99,6 +99,11 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     flavor = pmb.chroot.other.kernel_flavors_installed(args, suffix)[0]
     ncpus = os.cpu_count()
 
+    # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
+    # on systems with more than 8 CPUs
+    if arch != args.arch_native and ncpus > 8:
+        ncpus = 8
+
     if args.host_qemu:
         qemu_bin = which_qemu(args, arch)
         env = {}
