@@ -185,6 +185,9 @@ def arguments_sideload(subparser):
     ret.add_argument("--host", help="ip of the device over wifi"
                                     " (defaults to 172.16.42.1)",
                      default="172.16.42.1")
+    ret.add_argument("--port", help="SSH port of the device over wifi"
+                                    " (defaults to 22)",
+                     default="22")
     ret.add_argument("--user", help="use a different username than the"
                      " one set in init")
     ret.add_argument("--arch", help="use a different architecture than the one"

@@ -138,7 +138,8 @@ def sideload(args):
         arch = args.arch
     user = args.user
     host = args.host
-    pmb.sideload.sideload(args, user, host, arch, args.install_key, args.packages)
+    pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key,
+                          args.packages)
 
 
 def chroot(args):
