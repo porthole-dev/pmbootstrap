@@ -171,11 +171,8 @@ def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
         ret = True
 
     if not ret and len(depends_built):
-        # Warn of potentially outdated package
-        logging.warning("WARNING: " + pkgname + " depends on rebuilt" +
-                        " package(s) " + ",".join(depends_built) + " (use" +
-                        " 'pmbootstrap build " + pkgname + " --force' if" +
-                        " necessary!)")
+        logging.verbose(f"{pkgname}: depends on rebuilt package(s): "
+                        f" {', '.join(depends_built)}")
 
     logging.verbose(pkgname + ": build necessary: " + str(ret))
     return ret
