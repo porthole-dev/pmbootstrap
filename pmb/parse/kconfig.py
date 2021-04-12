@@ -66,20 +66,25 @@ def check_option(component, details, config, config_path_pretty, option,
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  anbox=False, nftables=False, details=False):
-    logging.debug("Check kconfig: " + config_path)
+    logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
 
+    components = {"postmarketOS": pmb.config.necessary_kconfig_options}
     if anbox:
-        options = pmb.config.necessary_kconfig_options_anbox
-        component = "anbox"
-    elif nftables:
-        options = pmb.config.necessary_kconfig_options_nftables
-        component = "nftables"
-    else:
-        options = pmb.config.necessary_kconfig_options
-        component = "postmarketOS"
+        components["anbox"] = pmb.config.necessary_kconfig_options_anbox
+    if nftables:
+        components["nftables"] = pmb.config.necessary_kconfig_options_nftables
 
+    results = [check_config_options_set(config, config_path_pretty,
+                                        config_arch, options, component,
+                                        pkgver, details)
+               for component, options in components.items()]
+    return all(results)
+
+
+def check_config_options_set(config, config_path_pretty, config_arch, options,
+                             component, pkgver, details=False):
     # Loop through necessary config options, and print a warning,
     # if any is missing
     ret = True
@@ -136,13 +141,8 @@ def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
         config_arch = os.path.basename(config_path).split(".")[1]
         config_path_pretty = f"linux-{flavor}/{os.path.basename(config_path)}"
         ret &= check_config(config_path, config_path_pretty, config_arch,
-                            pkgver, details=details)
-        if check_anbox:
-            ret &= check_config(config_path, config_path_pretty, config_arch,
-                                pkgver, anbox=True, details=details)
-        if check_nftables:
-            ret &= check_config(config_path, config_path_pretty, config_arch,
-                                pkgver, nftables=True, details=details)
+                            pkgver, anbox=check_anbox, nftables=check_nftables,
+                            details=details)
     return ret
 
 
@@ -189,12 +189,5 @@ def check_file(args, config_file, anbox=False, nftables=False,
     version = extract_version(config_file)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
                   "file: {config_file}")
-    ret = check_config(config_file, config_file, arch, version, anbox=False,
-                       details=details)
-    if anbox:
-        ret &= check_config(config_file, config_file, arch, version,
-                            anbox=True, details=details)
-    if nftables:
-        ret &= check_config(config_file, config_file, arch, version,
-                            nftables=True, details=details)
-    return ret
+    return check_config(config_file, config_file, arch, version,
+                        anbox=anbox, nftables=nftables, details=details)
