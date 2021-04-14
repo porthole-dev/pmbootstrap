@@ -15,7 +15,7 @@ from pmb.config.merge_with_args import merge_with_args
 #
 # Exported variables (internal configuration)
 #
-version = "1.30.0"
+version = "1.31.0"
 pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
 apk_keys_path = pmb_src + "/pmb/data/keys"
 
@@ -24,9 +24,9 @@ apk_keys_path = pmb_src + "/pmb/data/keys"
 # Update this frequently to prevent a MITM attack with an outdated version
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
-apk_tools_min_version = {"edge": "2.12.4-r0",
-                         "v3.13": "2.12.1-r0",
-                         "v3.12": "2.10.5-r1"}
+apk_tools_min_version = {"edge": "2.12.5-r0",
+                         "v3.13": "2.12.5-r0",
+                         "v3.12": "2.10.6-r0"}
 
 # postmarketOS aports compatibility (checked against "version" in pmaports.cfg)
 pmaports_min_version = "7"
