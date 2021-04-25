@@ -50,5 +50,8 @@ def generate(args, pkgname):
         "gold": None,
     }
 
+    replace_simple = {"\tsubpackages=*": "\tsubpackages=\"\""}
+
     pmb.aportgen.core.rewrite(args, pkgname, "main/binutils", fields,
-                              "binutils", replace_functions, remove_indent=8)
+                              "binutils", replace_functions, replace_simple,
+                              remove_indent=8)
