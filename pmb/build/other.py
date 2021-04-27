@@ -75,8 +75,8 @@ def is_necessary(args, arch, apkbuild, indexes=None):
 
     # b) Aports folder has a newer version
     if version_new != version_old:
-        logging.debug(msg + "Binary package out of date (binary: " + version_old +
-                      ", aport: " + version_new + ")")
+        logging.debug(f"{msg}Binary package out of date (binary: "
+                      f"{version_old}, aport: {version_new})")
         return True
 
     # Aports and binary repo have the same version.
@@ -134,11 +134,13 @@ def configure_abuild(args, suffix, verify=False):
                 continue
             if line != (prefix + args.jobs + "\n"):
                 if verify:
-                    raise RuntimeError("Failed to configure abuild: " + path +
-                                       "\nTry to delete the file (or zap the chroot).")
+                    raise RuntimeError(f"Failed to configure abuild: {path}"
+                                       "\nTry to delete the file"
+                                       "(or zap the chroot).")
                 pmb.chroot.root(args, ["sed", "-i", "-e",
-                                       "s/^" + prefix + ".*/" + prefix + args.jobs + "/",
-                                       "/etc/abuild.conf"], suffix)
+                                       f"s/^{prefix}.*/{prefix}{args.jobs}/",
+                                       "/etc/abuild.conf"],
+                                suffix)
                 configure_abuild(args, suffix, True)
             return
     raise RuntimeError("Could not find " + prefix + " line in " + path)

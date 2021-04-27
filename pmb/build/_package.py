@@ -104,7 +104,8 @@ def get_depends(args, apkbuild):
     ret = sorted(set(ret))
 
     # Don't recurse forever when a package depends on itself (#948)
-    for pkgname in [apkbuild["pkgname"]] + list(apkbuild["subpackages"].keys()):
+    for pkgname in ([apkbuild["pkgname"]] +
+                    list(apkbuild["subpackages"].keys())):
         if pkgname in ret:
             logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on"
                             " itself: " + pkgname)
@@ -137,7 +138,8 @@ def build_depends(args, apkbuild, arch, strict):
                                    " it was started with --no-depends.")
             # Check if binary package is outdated
             apkbuild_dep = get_apkbuild(args, depend, arch)
-            if apkbuild_dep and pmb.build.is_necessary(args, arch, apkbuild_dep):
+            if apkbuild_dep and \
+               pmb.build.is_necessary(args, arch, apkbuild_dep):
                 raise RuntimeError(f"Binary package for dependency '{depend}'"
                                    f" of '{pkgname}' is outdated, but"
                                    f" pmbootstrap won't build any depends"
@@ -399,7 +401,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
         env["CC"] = hostspec + "-gcc"
     if cross == "distcc":
         env["CCACHE_PREFIX"] = "distcc"
-        env["CCACHE_PATH"] = "/usr/lib/arch-bin-masquerade/" + arch + ":/usr/bin"
+        env["CCACHE_PATH"] = f"/usr/lib/arch-bin-masquerade/{arch}:/usr/bin"
         env["CCACHE_COMPILERCHECK"] = "string:" + get_gcc_version(args, arch)
         env["DISTCC_HOSTS"] = "@127.0.0.1:/home/pmos/.distcc-sshd/distccd"
         env["DISTCC_SSH"] = ("ssh -o StrictHostKeyChecking=no -p" +

@@ -45,8 +45,9 @@ def init(args, suffix="native"):
         with open(chroot + "/tmp/gzip_wrapper.sh", "w") as handle:
             content = """
                 #!/bin/sh
-                # Simple wrapper, that converts -9 flag for gzip to -1 for speed
-                # improvement with abuild. FIXME: upstream to abuild with a flag!
+                # Simple wrapper, that converts -9 flag for gzip to -1 for
+                # speed improvement with abuild. FIXME: upstream to abuild
+                # with a flag!
                 args=""
                 for arg in "$@"; do
                     [ "$arg" == "-9" ] && arg="-1"
@@ -58,8 +59,8 @@ def init(args, suffix="native"):
             for i in range(len(lines)):
                 lines[i] = lines[i][16:]
             handle.write("\n".join(lines))
-        pmb.chroot.root(args, ["cp", "/tmp/gzip_wrapper.sh", "/usr/local/bin/gzip"],
-                        suffix)
+        pmb.chroot.root(args, ["cp", "/tmp/gzip_wrapper.sh",
+                               "/usr/local/bin/gzip"], suffix)
         pmb.chroot.root(args, ["chmod", "+x", "/usr/local/bin/gzip"], suffix)
 
     # Add user to group abuild

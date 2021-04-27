@@ -180,7 +180,8 @@ def package_kernel(args):
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
 
     # Install package dependencies
-    depends, _ = pmb.build._package.build_depends(args, apkbuild, args.arch_native, strict=False)
+    depends, _ = pmb.build._package.build_depends(
+        args, apkbuild, args.arch_native, strict=False)
     pmb.build.init(args, suffix)
     pmb.chroot.apk.install(args, depends, suffix)
 

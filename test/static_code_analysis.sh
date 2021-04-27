@@ -55,10 +55,14 @@ py_files="
 	.gitlab/check_mr_settings.py
 	pmb/aportgen/device.py
 	pmb/build/__init__.py
+	pmb/build/_package.py
 	pmb/build/autodetect.py
 	pmb/build/checksum.py
+	pmb/build/envkernel.py
+	pmb/build/init.py
 	pmb/build/menuconfig.py
 	pmb/build/newapkbuild.py
+	pmb/build/other.py
 	pmb/chroot/__init__.py
 	pmb/chroot/apk.py
 	pmb/chroot/apk_static.py
