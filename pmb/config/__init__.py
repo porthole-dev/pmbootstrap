@@ -263,6 +263,11 @@ necessary_kconfig_options = {
             "USER_NS": True,
         },
     },
+    "<4.7.0": {
+        "all": {
+            "DEVPTS_MULTIPLE_INSTANCES": True,
+        }
+    },
     "<5.2.0": {
         "armhf armv7 x86": {
             "LBDAF": True
