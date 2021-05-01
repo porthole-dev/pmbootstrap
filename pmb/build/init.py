@@ -32,7 +32,7 @@ def init(args, suffix="native"):
     if not os.path.exists(args.work + "/config_abuild/abuild.conf"):
         logging.info("(" + suffix + ") generate abuild keys")
         pmb.chroot.user(args, ["abuild-keygen", "-n", "-q", "-a"],
-                        suffix)
+                        suffix, env={"PACKAGER": "pmos <pmos@local>"})
 
         # Copy package signing key to /etc/apk/keys
         for key in glob.glob(chroot +
