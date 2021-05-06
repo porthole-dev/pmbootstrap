@@ -16,7 +16,7 @@ def ask_for_architecture(args):
         architectures.remove("armhf")
     while True:
         ret = pmb.helpers.cli.ask(args, "Device architecture", architectures,
-                                  architectures[0])
+                                  architectures[0], complete=architectures)
         if ret in architectures:
             return ret
         logging.fatal("ERROR: Invalid architecture specified. If you want to"
