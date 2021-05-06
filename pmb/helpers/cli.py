@@ -68,7 +68,8 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
 
         # Stop completing (question is answered)
         if complete:
-            readline.set_completer(None)
+            # set_completer(None) would use the default file system completer
+            readline.set_completer(lambda text, state: None)
 
         if lowercase_answer:
             ret = ret.lower()
