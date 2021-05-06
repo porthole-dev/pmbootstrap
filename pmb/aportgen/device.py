@@ -11,6 +11,9 @@ import pmb.parse.bootimg
 
 def ask_for_architecture(args):
     architectures = pmb.config.build_device_architectures
+    # Don't show armhf, new ports shouldn't use this architecture
+    if "armhf" in architectures:
+        architectures.remove("armhf")
     while True:
         ret = pmb.helpers.cli.ask(args, "Device architecture", architectures,
                                   architectures[0])
