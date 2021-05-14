@@ -20,7 +20,6 @@ def symlinks(args, flavor, folder):
     info = {
         "boot.img-" + flavor: "Fastboot compatible boot.img file,"
         " contains initramfs and kernel",
-        "blob-" + flavor: "Asus boot blob for TF101",
         "initramfs-" + flavor: "Initramfs",
         "initramfs-" + flavor + "-extra": "Extra initramfs files in /boot",
         "uInitrd-" + flavor: "Initramfs, legacy u-boot image format",
