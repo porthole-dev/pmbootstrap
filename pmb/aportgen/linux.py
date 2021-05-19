@@ -10,8 +10,8 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
     carch = pmb.parse.arch.alpine_to_kernel(deviceinfo["arch"])
 
-    makedepends = ["bash", "bc", "bison", "devicepkg-dev", "flex", "openssl-dev",
-                   "perl"]
+    makedepends = ["bash", "bc", "bison", "devicepkg-dev", "flex",
+                   "openssl-dev", "perl"]
 
     build = """
             unset LDFLAGS
@@ -96,9 +96,9 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         """
 
     # Write the file
-    with open(args.work + "/aportgen/APKBUILD", "w", encoding="utf-8") as handle:
+    with open(f"{args.work}/aportgen/APKBUILD", "w", encoding="utf-8") as hndl:
         for line in content.rstrip().split("\n"):
-            handle.write(line[8:].replace(" " * 4, "\t") + "\n")
+            hndl.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
 def generate(args, pkgname):

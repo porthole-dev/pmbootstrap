@@ -14,7 +14,7 @@ def generate(args, pkgname):
     # Rewrite APKBUILD
     fields = {
         "pkgname": pkgname,
-        "pkgdesc": "Tools necessary to build programs for " + arch + " targets",
+        "pkgdesc": f"Tools necessary to build programs for {arch} targets",
         "arch": args.arch_native,
         "makedepends_build": "",
         "makedepends_host": "",

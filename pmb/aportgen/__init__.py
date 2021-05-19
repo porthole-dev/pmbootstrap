@@ -37,14 +37,16 @@ def properties(pkgname):
 
 def generate(args, pkgname):
     if args.fork_alpine:
-        prefix, folder, options = (pkgname, "temp", {"confirm_overwrite": True})
+        prefix, folder, options = (pkgname, "temp",
+                                   {"confirm_overwrite": True})
     else:
         prefix, folder, options = properties(pkgname)
     path_target = args.aports + "/" + folder + "/" + pkgname
 
     # Confirm overwrite
     if options["confirm_overwrite"] and os.path.exists(path_target):
-        logging.warning("WARNING: Target folder already exists: " + path_target)
+        logging.warning("WARNING: Target folder already exists: "
+                        f"{path_target}")
         if not pmb.helpers.cli.confirm(args, "Continue and overwrite?"):
             raise RuntimeError("Aborted.")
 
@@ -52,8 +54,10 @@ def generate(args, pkgname):
         pmb.helpers.run.user(args, ["rm", "-r", args.work + "/aportgen"])
     if args.fork_alpine:
         upstream = pmb.aportgen.core.get_upstream_aport(args, pkgname)
-        pmb.helpers.run.user(args, ["cp", "-r", upstream, args.work + "/aportgen"])
-        pmb.aportgen.core.rewrite(args, pkgname, replace_simple={"# Contributor:*": None, "# Maintainer:*": None})
+        pmb.helpers.run.user(args, ["cp", "-r", upstream,
+                                    f"{args.work}/aportgen"])
+        pmb.aportgen.core.rewrite(args, pkgname, replace_simple={
+            "# Contributor:*": None, "# Maintainer:*": None})
     else:
         # Run pmb.aportgen.PREFIX.generate()
         getattr(pmb.aportgen, prefix.replace("-", "_")).generate(args, pkgname)
