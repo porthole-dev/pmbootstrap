@@ -6,7 +6,8 @@ import pmb.config
 def merge_with_args(args):
     """
     We have the internal config (pmb/config/__init__.py) and the user config
-    (usually ~/.config/pmbootstrap.cfg, can be changed with the '-c' parameter).
+    (usually ~/.config/pmbootstrap.cfg, can be changed with the '-c'
+    parameter).
 
     Args holds the variables parsed from the commandline (e.g. -j fills out
     args.jobs), and values specified on the commandline count the most.

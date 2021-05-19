@@ -79,7 +79,8 @@ defaults = {
     "ccache_size": "5G",
     "is_default_channel": True,
     "cipher": "aes-xts-plain64",
-    "config": (os.environ.get('XDG_CONFIG_HOME') or os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
+    "config": os.environ.get('XDG_CONFIG_HOME') or
+              ((os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"),
     "device": "qemu-amd64",
     "extra_packages": "none",
     "fork_alpine": False,
@@ -521,10 +522,11 @@ flashers = {
                       "boot", "$BOOT/boot.img-$FLAVOR"]],
         },
     },
-    # Some devices provide Fastboot but using Android boot images is not practical
-    # for them (e.g. because they support booting from FAT32 partitions directly
-    # and/or the Android boot partition is too small). This can be implemented
-    # using --split (separate image files for boot and rootfs).
+    # Some devices provide Fastboot but using Android boot images is not
+    # practical for them (e.g. because they support booting from FAT32
+    # partitions directly and/or the Android boot partition is too small).
+    # This can be implemented using --split (separate image files for boot and
+    # rootfs).
     # This flasher allows flashing the split image files using Fastboot.
     "fastboot-bootpart": {
         "split": True,
@@ -567,7 +569,8 @@ flashers = {
                 ["heimdall", "flash", "--$PARTITION_SYSTEM", "$IMAGE"]],
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/boot.img-$FLAVOR"]],
+                ["heimdall", "flash", "--$PARTITION_KERNEL",
+                 "$BOOT/boot.img-$FLAVOR"]],
             "flash_vbmeta": [
                 ["avbtool", "make_vbmeta_image", "--flags", "2",
                     "--padding_size", "$FLASH_PAGESIZE",
@@ -660,8 +663,10 @@ newapkbuild_arguments_switches_other = [
 #
 # UPGRADE
 #
-# Patterns of package names to ignore for automatic pmaport upgrading ("pmbootstrap aportupgrade --all")
-upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*", "*-aarch64", "*-armhf", "*-armv7"]
+# Patterns of package names to ignore for automatic pmaport upgrading
+# ("pmbootstrap aportupgrade --all")
+upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*",
+                  "*-aarch64", "*-armhf", "*-armv7"]
 
 #
 # SIDELOAD

@@ -137,7 +137,8 @@ def ask_for_ui_extras(args, ui):
     if extra is None:
         return False
 
-    logging.info("This user interface has an extra package: " + extra["pkgdesc"])
+    logging.info("This user interface has an extra package: " +
+                 extra["pkgdesc"])
 
     return pmb.helpers.cli.confirm(args, "Enable this package?",
                                    default=args.ui_extras)
@@ -179,7 +180,8 @@ def ask_for_timezone(args):
                     pass
         if tz:
             logging.info("Your host timezone: " + tz)
-            if pmb.helpers.cli.confirm(args, "Use this timezone instead of GMT?",
+            if pmb.helpers.cli.confirm(args,
+                                       "Use this timezone instead of GMT?",
                                        default="y"):
                 return tz
     logging.info("WARNING: Unable to determine timezone configuration on host,"
@@ -267,7 +269,8 @@ def ask_for_device_nonfree(args, device):
         subpkgname = "device-" + device + "-nonfree-" + type
         subpkg = apkbuild["subpackages"].get(subpkgname, {})
         if subpkg is None:
-            raise RuntimeError("Cannot find subpackage function for " + subpkgname)
+            raise RuntimeError("Cannot find subpackage function for "
+                               f"{subpkgname}")
         if subpkg:
             logging.info(subpkgname + ": " + subpkg["pkgdesc"])
             ret[type] = pmb.helpers.cli.confirm(args, "Enable this package?",
@@ -302,10 +305,11 @@ def ask_for_device(args):
                 continue
         else:
             # Unmaintained devices can be selected, but are not displayed
-            devices = sorted(pmb.helpers.devices.list_codenames(args, vendor, unmaintained=False))
+            devices = sorted(pmb.helpers.devices.list_codenames(
+                args, vendor, unmaintained=False))
             # Remove "vendor-" prefixes from device list
             codenames = [x.split('-', 1)[1] for x in devices]
-            logging.info("Available codenames (" + str(len(codenames)) + "): " +
+            logging.info(f"Available codenames ({len(codenames)}): " +
                          ", ".join(codenames))
 
         if current_vendor != vendor:
@@ -387,11 +391,13 @@ def ask_for_additional_options(args, cfg):
     # Ccache size
     logging.info("We use ccache to speed up building the same code multiple"
                  " times. How much space should the ccache folder take up per"
-                 " architecture? After init is through, you can check the current"
-                 " usage with 'pmbootstrap stats'. Answer with 0 for infinite.")
+                 " architecture? After init is through, you can check the"
+                 " current usage with 'pmbootstrap stats'. Answer with 0 for"
+                 " infinite.")
     regex = "0|[0-9]+(k|M|G|T|Ki|Mi|Gi|Ti)"
     answer = pmb.helpers.cli.ask(args, "Ccache size", None, args.ccache_size,
-                                 lowercase_answer=False, validation_regex=regex)
+                                 lowercase_answer=False,
+                                 validation_regex=regex)
     cfg["pmbootstrap"]["ccache_size"] = answer
 
     # Sudo timer
@@ -408,7 +414,8 @@ def ask_for_additional_options(args, cfg):
 
 def ask_for_hostname(args, device):
     while True:
-        ret = pmb.helpers.cli.ask(args, "Device hostname (short form, e.g. 'foo')",
+        ret = pmb.helpers.cli.ask(args,
+                                  "Device hostname (short form, e.g. 'foo')",
                                   None, (args.hostname or device), True)
         if not pmb.helpers.other.validate_hostname(ret):
             continue
@@ -422,7 +429,8 @@ def ask_for_ssh_keys(args):
     if not len(glob.glob(os.path.expanduser("~/.ssh/id_*.pub"))):
         return False
     return pmb.helpers.cli.confirm(args,
-                                   "Would you like to copy your SSH public keys to the device?",
+                                   "Would you like to copy your SSH public"
+                                   " keys to the device?",
                                    default=args.ssh_keys)
 
 
@@ -514,7 +522,8 @@ def frontend(args):
     cfg["pmbootstrap"]["aports"] = args.aports
 
     # Build outdated packages in pmbootstrap install
-    cfg["pmbootstrap"]["build_pkgs_on_install"] = str(ask_build_pkgs_on_install(args))
+    cfg["pmbootstrap"]["build_pkgs_on_install"] = str(
+        ask_build_pkgs_on_install(args))
 
     # Save config
     pmb.config.save(args, cfg)
@@ -522,7 +531,9 @@ def frontend(args):
     # Zap existing chroots
     if (work_exists and device_exists and
             len(glob.glob(args.work + "/chroot_*")) and
-            pmb.helpers.cli.confirm(args, "Zap existing chroots to apply configuration?", default=True)):
+            pmb.helpers.cli.confirm(
+                args, "Zap existing chroots to apply configuration?",
+                default=True)):
         setattr(args, "deviceinfo", pmb.parse.deviceinfo(args, device=device))
 
         # Do not zap any existing packages or cache_http directories
