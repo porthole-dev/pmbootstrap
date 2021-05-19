@@ -69,8 +69,8 @@ def main():
         log_hint = "Run 'pmbootstrap log' for details."
         if not args or not os.path.exists(args.log):
             log_hint += (" Alternatively you can use '--details-to-stdout' to"
-                         " get more output, e.g. 'pmbootstrap --details-to-stdout"
-                         " init'.")
+                         " get more output, e.g. 'pmbootstrap"
+                         " --details-to-stdout init'.")
         print(log_hint)
         return 1
 

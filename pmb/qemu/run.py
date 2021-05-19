@@ -23,7 +23,7 @@ def system_image(args):
     Returns path to rootfs for specified device. In case that it doesn't
     exist, raise and exception explaining how to generate it.
     """
-    path = args.work + "/chroot_native/home/pmos/rootfs/" + args.device + ".img"
+    path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}.img"
     if not os.path.exists(path):
         logging.debug("Could not find rootfs: " + path)
         raise RuntimeError("The rootfs has not been generated yet, please "
@@ -73,7 +73,7 @@ def create_gdk_loader_cache(args):
 
     pmb.chroot.root(args, ["cp", cache_path, custom_cache_path])
     cmd = ["sed", "-i", "-e",
-           "s@\"" + gdk_cache_dir + "@\"" + rootfs_native + gdk_cache_dir + "@",
+           f"s@\"{gdk_cache_dir}@\"{rootfs_native}{gdk_cache_dir}@",
            custom_cache_path]
     pmb.chroot.root(args, cmd)
     return rootfs_native + custom_cache_path
@@ -110,9 +110,10 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         command = [qemu_bin]
     else:
         rootfs_native = args.work + "/chroot_native"
-        env = {"QEMU_MODULE_DIR": rootfs_native + "/usr/lib/qemu",
-               "GBM_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri",
-               "LIBGL_DRIVERS_PATH": rootfs_native + "/usr/lib/xorg/modules/dri"}
+        env = {"QEMU_MODULE_DIR": f"{rootfs_native}/usr/lib/qemu",
+               "GBM_DRIVERS_PATH": f"{rootfs_native}/usr/lib/xorg/modules/dri",
+               "LIBGL_DRIVERS_PATH": f"{rootfs_native}"
+                                     "/usr/lib/xorg/modules/dri"}
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
@@ -123,9 +124,10 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
         command = []
         if args.arch_native in ["aarch64", "armv7"]:
-            # Workaround for QEMU failing on aarch64 asymetric multiprocessor arch
-            # (big/little architecture https://en.wikipedia.org/wiki/ARM_big.LITTLE)
-            # see https://bugs.linaro.org/show_bug.cgi?id=1443
+            # Workaround for QEMU failing on aarch64 asymetric multiprocessor
+            # arch (big/little architecture
+            # https://en.wikipedia.org/wiki/ARM_big.LITTLE) see
+            # https://bugs.linaro.org/show_bug.cgi?id=1443
             ncpus_bl = pmb.parse.cpuinfo.arm_big_little_first_group_ncpus()
             if ncpus_bl:
                 ncpus = ncpus_bl
@@ -176,7 +178,8 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         command += ["-cpu", "cortex-a57"]
         command += ["-device", "virtio-gpu-pci"]
     else:
-        raise RuntimeError("Architecture {} not supported by this command yet.".format(arch))
+        raise RuntimeError(f"Architecture {arch} not supported by this command"
+                           " yet.")
 
     # Kernel Virtual Machine (KVM) support
     native = args.arch_native == args.deviceinfo["arch"]
@@ -235,10 +238,12 @@ def resize_image(args, img_size_new, img_path):
         pmb.helpers.run.root(args, ["truncate", "-s", img_size_new, img_path])
     else:
         # Convert to human-readable format
-        # NOTE: We convert to M here, and not G, so that we don't have to display
-        # a size like 1.25G, since decimal places are not allowed by truncate.
+        # NOTE: We convert to M here, and not G, so that we don't have to
+        # display a size like 1.25G, since decimal places are not allowed by
+        # truncate.
         # We don't want users thinking they can use decimal numbers, and so in
-        # this example, they would need to use a size greater then 1280M instead.
+        # this example, they would need to use a size greater then 1280M
+        # instead.
         img_size_str = str(round(img_size / 1024 / 1024)) + "M"
 
         raise RuntimeError(f"IMAGE_SIZE must be {img_size_str} or greater")
