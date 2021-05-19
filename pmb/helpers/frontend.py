@@ -40,14 +40,16 @@ def _parse_flavor(args, autoinstall=True):
     """
     # Install at least one kernel and get installed flavors
     suffix = "rootfs_" + args.device
-    flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix, autoinstall)
+    flavors = pmb.chroot.other.kernel_flavors_installed(
+        args, suffix, autoinstall)
 
     # Parse and verify the flavor argument
     flavor = args.flavor
     if flavor:
         if flavor not in flavors:
-            raise RuntimeError("No kernel installed with flavor " + flavor + "!" +
-                               " Run 'pmbootstrap flasher list_flavors' to get a list.")
+            raise RuntimeError(f"No kernel installed with flavor {flavor}!" +
+                               " Run 'pmbootstrap flasher list_flavors' to"
+                               " get a list.")
         return flavor
     if not len(flavors):
         raise RuntimeError(
@@ -104,7 +106,8 @@ def build(args):
         return
 
     # Set src and force
-    src = os.path.realpath(os.path.expanduser(args.src[0])) if args.src else None
+    src = os.path.realpath(os.path.expanduser(args.src[0])) \
+        if args.src else None
     force = True if src else args.force
     if src and not os.path.exists(src):
         raise RuntimeError("Invalid path specified for --src: " + src)
@@ -196,7 +199,7 @@ def config(args):
             raise RuntimeError("config --reset requires a name to be given.")
         value = pmb.config.defaults[args.name]
         cfg["pmbootstrap"][args.name] = value
-        logging.info("Config changed to default: " + args.name + "='" + value + "'")
+        logging.info(f"Config changed to default: {args.name}='{value}'")
         pmb.config.save(args, cfg)
     elif args.value is not None:
         cfg["pmbootstrap"][args.name] = args.value
@@ -228,7 +231,8 @@ def initfs(args):
 
 def install(args):
     if args.no_fde:
-        logging.warning("WARNING: --no-fde is deprecated, as it is now the default.")
+        logging.warning("WARNING: --no-fde is deprecated,"
+                        " as it is now the default.")
     if args.rsync and args.full_disk_encryption:
         raise ValueError("Installation using rsync is not compatible with full"
                          " disk encryption.")
@@ -391,7 +395,8 @@ def kconfig(args):
         packages.sort()
         for package in packages:
             if not args.force:
-                pkgname = package if package.startswith("linux-") else "linux-" + package
+                pkgname = package if package.startswith("linux-") \
+                    else "linux-" + package
                 aport = pmb.helpers.pmaports.find(args, pkgname)
                 apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
@@ -542,7 +547,8 @@ def zap(args):
 def bootimg_analyze(args):
     bootimg = pmb.parse.bootimg(args, args.path)
     tmp_output = "Put these variables in the deviceinfo file of your device:\n"
-    for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(args, bootimg).split("\n"):
+    for line in pmb.aportgen.device.\
+            generate_deviceinfo_fastboot_content(args, bootimg).split("\n"):
         tmp_output += "\n" + line.lstrip()
     logging.info(tmp_output)
 

@@ -49,8 +49,9 @@ def add_verbose_log_level():
     logging.addLevelName(logging.VERBOSE, "VERBOSE")
     logging.Logger.verbose = lambda inst, msg, * \
         args, **kwargs: inst.log(logging.VERBOSE, msg, *args, **kwargs)
-    logging.verbose = lambda msg, *args, **kwargs: logging.log(logging.VERBOSE, msg,
-                                                               *args, **kwargs)
+    logging.verbose = lambda msg, *args, **kwargs: logging.log(logging.VERBOSE,
+                                                               msg, *args,
+                                                               **kwargs)
 
 
 def init(args):

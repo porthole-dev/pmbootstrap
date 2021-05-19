@@ -27,7 +27,8 @@ class ReadlineTabCompleter:
         # First time: build match list
         if iteration == 0:
             if input_text:
-                self.matches = [s for s in self.options if s and s.startswith(input_text)]
+                self.matches = [s for s in self.options
+                                if s and s.startswith(input_text)]
             else:
                 self.matches = self.options[:]
 
@@ -42,7 +43,8 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
     """
     Ask a question on the terminal.
     :param question: display prompt
-    :param choices: short list of possible answers, displayed after prompt if set
+    :param choices: short list of possible answers,
+                    displayed after prompt if set
     :param default: default value to return if user doesn't input anything
     :param lowercase_answer: if True, convert return value to lower case
     :param validation_regex: if set, keep asking until regex matches
@@ -62,7 +64,8 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
             if '-' in delims:
                 delims = delims.replace('-', '')
                 readline.set_completer_delims(delims)
-            readline.set_completer(ReadlineTabCompleter(complete).completer_func)
+            readline.set_completer(
+                ReadlineTabCompleter(complete).completer_func)
 
         ret = input(question_full + ": ")
 
@@ -95,7 +98,8 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
     """
     Convenience wrapper around ask for simple yes-no questions with validation.
 
-    :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
+    :param no_assumptions: ask for confirmation, even if "pmbootstrap -y'
+                           is set
     :returns: True for "y", False for "n"
     """
     default_str = "y" if default else "n"

@@ -20,7 +20,8 @@ def sanity_checks(output="log", output_return=False, check=None):
     Raise an exception if the parameters passed to core() don't make sense
     (all parameters are described in core() below).
     """
-    if output not in ["log", "stdout", "interactive", "tui", "background", "pipe"]:
+    vals = ["log", "stdout", "interactive", "tui", "background", "pipe"]
+    if output not in vals:
         raise RuntimeError("Invalid output value: " + str(output))
 
     # Prevent setting the check parameter with output="background".

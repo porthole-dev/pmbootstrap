@@ -27,7 +27,8 @@ def _find_apkbuilds(args):
                                "subfolders. Please put it only in one folder.")
         apkbuilds[package] = apkbuild
 
-    # Sort dictionary so we don't need to do it over and over again in get_list()
+    # Sort dictionary so we don't need to do it over and over again in
+    # get_list()
     apkbuilds = dict(sorted(apkbuilds.items()))
 
     # Save result in cache
@@ -170,8 +171,9 @@ def get(args, pkgname, must_exist=True, subpackages=True):
 
         :param pkgname: the package name to find
         :param must_exist: raise an exception when it can't be found
-        :param subpackages: also search for subpackages with the specified names
-                            (slow! might need to parse all APKBUILDs to find it)
+        :param subpackages: also search for subpackages with the specified
+                            names (slow! might need to parse all APKBUILDs to
+                            find it)
         :returns: relevant variables from the APKBUILD as dictionary, e.g.:
                   { "pkgname": "hello-world",
                     "arch": ["all"],
@@ -189,7 +191,8 @@ def get(args, pkgname, must_exist=True, subpackages=True):
         if path:
             return pmb.parse.apkbuild(args, path)
         if must_exist:
-            raise RuntimeError(f"Could not find APKBUILD for package: {pkgname}")
+            raise RuntimeError("Could not find APKBUILD for package:"
+                               f" {pkgname}")
 
     return None
 

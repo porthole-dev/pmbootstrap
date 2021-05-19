@@ -112,8 +112,8 @@ def auto(args, dry=False):
                 origin = apk["origin"]
                 # Only increase once!
                 if origin in ret:
-                    logging.verbose("{}: origin '{}' found again".format(pkgname,
-                                                                         origin))
+                    logging.verbose(
+                        f"{pkgname}: origin '{origin}' found again")
                     continue
                 aport_path = pmb.helpers.pmaports.find(args, origin, False)
                 if not aport_path:

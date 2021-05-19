@@ -40,7 +40,8 @@ def download(args, url, prefix, cache=True, loglevel=logging.INFO,
 
     # Offline and not cached
     if args.offline:
-        raise RuntimeError(f"File not found in cache and offline flag is enabled: {url}")
+        raise RuntimeError("File not found in cache and offline flag is"
+                           f" enabled: {url}")
 
     # Download the file
     logging.log(loglevel, "Download " + url)
@@ -87,6 +88,6 @@ def retrieve(url, headers=None, allow_404=False):
 
 
 def retrieve_json(*args, **kwargs):
-    """ Fetch the contents of a URL, parse it as JSON and return it. See retrieve() for the
-        list of all parameters. """
+    """ Fetch the contents of a URL, parse it as JSON and return it. See
+        retrieve() for the list of all parameters. """
     return json.loads(retrieve(*args, **kwargs))

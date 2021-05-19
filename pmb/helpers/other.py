@@ -56,7 +56,8 @@ def check_binfmt_misc(args):
         return
 
     pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"], check=False)
-    pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
+    pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none",
+                                "/proc/sys/fs/binfmt_misc"])
 
     if not os.path.exists(path):
         link = "https://postmarketos.org/binfmt_misc"
@@ -271,6 +272,7 @@ def validate_hostname(hostname):
 
     # Check that doesn't begin or end with a minus sign
     if hostname[:1] == "-" or hostname[-1:] == "-":
-        logging.fatal("ERROR: Hostname must not begin or end with a minus sign")
+        logging.fatal("ERROR: Hostname must not begin or end with a minus"
+                      " sign")
         return False
     return True
