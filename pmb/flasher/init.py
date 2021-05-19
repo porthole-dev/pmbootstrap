@@ -13,11 +13,13 @@ def init(args):
         method = args.deviceinfo["flash_method"]
 
     if method not in pmb.config.flashers:
-        raise RuntimeError("Flash method " + method + " is not supported by the"
-                           " current configuration. However, adding a new flash method is "
-                           " not that hard, when the flashing application already exists.\n"
-                           "Make sure, it is packaged for Alpine Linux, or package it "
-                           " yourself, and then add it to pmb/config/__init__.py.")
+        raise RuntimeError(f"Flash method {method} is not supported by the"
+                           " current configuration. However, adding a new"
+                           " flash method is not that hard, when the flashing"
+                           " application already exists.\n"
+                           "Make sure, it is packaged for Alpine Linux, or"
+                           " package it yourself, and then add it to"
+                           " pmb/config/__init__.py.")
     cfg = pmb.config.flashers[method]
 
     # Install depends

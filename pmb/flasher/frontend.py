@@ -31,10 +31,12 @@ def kernel(args):
         pmb.flasher.run(args, "flash_kernel", flavor)
     logging.info("You will get an IP automatically assigned to your "
                  "USB interface shortly.")
-    logging.info("Then you can connect to your device using ssh after pmOS has booted:")
+    logging.info("Then you can connect to your device using ssh after pmOS has"
+                 " booted:")
     logging.info("ssh {}@{}".format(args.user, pmb.config.default_ip))
-    logging.info("NOTE: If you enabled full disk encryption, you should make sure that"
-                 " osk-sdl has been properly configured for your device")
+    logging.info("NOTE: If you enabled full disk encryption, you should make"
+                 " sure that osk-sdl has been properly configured for your"
+                 " device")
 
 
 def list_flavors(args):
@@ -52,13 +54,15 @@ def rootfs(args):
     if pmb.config.flashers.get(method, {}).get("split", False):
         suffix = "-root.img"
 
-    img_path = args.work + "/chroot_native/home/pmos/rootfs/" + args.device + suffix
+    img_path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}"\
+               f"{suffix}"
     if not os.path.exists(img_path):
         raise RuntimeError("The rootfs has not been generated yet, please run"
                            " 'pmbootstrap install' first.")
 
     # Do not flash if using fastboot & image is too large
-    if method.startswith("fastboot") and args.deviceinfo["flash_fastboot_max_size"]:
+    if method.startswith("fastboot") \
+            and args.deviceinfo["flash_fastboot_max_size"]:
         img_size = os.path.getsize(img_path) / 1024**2
         max_size = int(args.deviceinfo["flash_fastboot_max_size"])
         if img_size > max_size:

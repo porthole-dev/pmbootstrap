@@ -49,10 +49,11 @@ def run(args, action, flavor=None):
             for i in range(len(command)):
                 if key in command[i]:
                     if value is None:
-                        raise RuntimeError("Variable " + key + " found in"
-                                           " action " + action + " for method " + method + ","
-                                           " but the value for this variable is None! Is that"
-                                           " missing in your deviceinfo?")
+                        raise RuntimeError(f"Variable {key} found in action"
+                                           f" {action} for method {method},"
+                                           " but the value for this variable"
+                                           " is None! Is that missing in your"
+                                           " deviceinfo?")
                     check_partition_blacklist(args, key, value)
                     command[i] = command[i].replace(key, value)
 
