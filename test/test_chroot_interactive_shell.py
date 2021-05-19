@@ -8,7 +8,8 @@ import pmb.config
 
 def test_chroot_interactive_shell():
     """
-    Open a shell with 'pmbootstrap chroot' and pass 'echo hello_world\n' as stdin.
+    Open a shell with 'pmbootstrap chroot' and pass 'echo hello_world\n' as
+    stdin.
     """
     os.chdir(pmb.config.pmb_src)
     ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot", "sh"],
@@ -24,7 +25,8 @@ def test_chroot_interactive_shell_user():
     """
     os.chdir(pmb.config.pmb_src)
     ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot",
-                                   "--user", "sh"], timeout=300, input="id -un",
+                                   "--user", "sh"], timeout=300,
+                                  input="id -un",
                                   universal_newlines=True,
                                   stderr=subprocess.STDOUT)
     assert ret == "pmos\n"
@@ -32,15 +34,18 @@ def test_chroot_interactive_shell_user():
 
 def test_chroot_arguments():
     """
-    Open a shell with 'pmbootstrap chroot' for every architecture, pass 'uname -m\n'
-    as stdin and check the output
+    Open a shell with 'pmbootstrap chroot' for every architecture, pass
+    'uname -m\n' as stdin and check the output
     """
     os.chdir(pmb.config.pmb_src)
 
     for arch in ["armhf", "aarch64", "x86_64"]:
-        ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot", "-b", arch,
-                                       "sh"], timeout=300, input="uname -m\n",
-                                      universal_newlines=True, stderr=subprocess.STDOUT)
+        ret = subprocess.check_output(["./pmbootstrap.py", "-q", "chroot",
+                                       "-b", arch, "sh"],
+                                      timeout=300,
+                                      input="uname -m\n",
+                                      universal_newlines=True,
+                                      stderr=subprocess.STDOUT)
         if arch == "armhf":
             assert ret == "armv7l\n"
         else:

@@ -37,7 +37,8 @@ def args(tmpdir, request):
     # Copy the linux-lg-mako aport (we currently copy patches from there)
     pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/device/testing"])
     path_mako = args._aports_real + "/device/testing/linux-lg-mako"
-    pmb.helpers.run.user(args, ["cp", "-r", path_mako, tmpdir + "/device/testing"])
+    pmb.helpers.run.user(args, ["cp", "-r", path_mako,
+                                f"{tmpdir}/device/testing"])
 
     # Copy pmaports.cfg
     shutil.copy(f"{pmb_test.const.testdata}/pmaports.cfg", args.aports)
@@ -46,7 +47,8 @@ def args(tmpdir, request):
 
 def generate(args, monkeypatch, answers):
     """
-    Generate the device-new-device and linux-new-device aports (with a patched pmb.helpers.cli()).
+    Generate the device-new-device and linux-new-device aports (with a patched
+    pmb.helpers.cli()).
 
     :returns: (deviceinfo, apkbuild, apkbuild_linux) - the parsed dictionaries
               of the created files, as returned by pmb.parse.apkbuild() and
@@ -69,12 +71,13 @@ def generate(args, monkeypatch, answers):
     pmb.aportgen.generate(args, "linux-testsuite-testdevice")
     monkeypatch.undo()
 
-    apkbuild_path = (args.aports + "/device/testing/device-testsuite-testdevice/"
-                     "APKBUILD")
+    apkbuild_path = (f"{args.aports}/device/testing/"
+                     "device-testsuite-testdevice/APKBUILD")
     apkbuild_path_linux = (args.aports + "/device/testing/"
                            "linux-testsuite-testdevice/APKBUILD")
 
-    # The build fails if the email is not a valid email, so remove them just for tests
+    # The build fails if the email is not a valid email, so remove them just
+    # for tests
     remove_contributor_maintainer_lines(args, apkbuild_path)
     remove_contributor_maintainer_lines(args, apkbuild_path_linux)
 

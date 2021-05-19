@@ -25,9 +25,9 @@ def args(request):
 
 def pmbootstrap(args, tmpdir, parameters, zero_exit=True):
     """
-    Helper function for running pmbootstrap inside the fake work folder (created
-    by setup() below) with the binary repo disabled and with the testdata
-    configured as aports.
+    Helper function for running pmbootstrap inside the fake work folder
+    (created by setup() below) with the binary repo disabled and with the
+    testdata configured as aports.
 
     :param parameters: what to pass to pmbootstrap, e.g. ["build", "testlib"]
     :param zero_exit: expect pmbootstrap to exit with 0 (no error)
@@ -64,8 +64,8 @@ def setup_work(args, tmpdir):
     well, so it can be modified during testing.
     """
     # Clean the chroots, and initialize the build chroot in the native chroot.
-    # We do this before creating the fake work folder, because then all packages
-    # are still present.
+    # We do this before creating the fake work folder, because then all
+    # packages are still present.
     os.chdir(pmb.config.pmb_src)
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "-y", "zap"])
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "build_init"])
@@ -85,8 +85,9 @@ def setup_work(args, tmpdir):
                                 f"{tmpdir}/_aports/device/testing"])
     for pkgname in ["testlib", "testapp", "testsubpkg"]:
         pmb.helpers.run.user(args, ["cp", "-r",
-                                    "test/testdata/pkgrel_bump/aports/" + pkgname,
-                                    tmpdir + "/_aports/main/" + pkgname])
+                                    "test/testdata/pkgrel_bump/aports/"
+                                    f"{pkgname}",
+                                    f"{tmpdir}/_aports/main/{pkgname}"])
 
     # Copy pmaports.cfg
     pmb.helpers.run.user(args, ["cp", args.aports + "/pmaports.cfg", tmpdir +

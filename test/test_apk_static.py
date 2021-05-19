@@ -57,11 +57,13 @@ def test_read_signature_info(args):
     path = glob.glob(pmb.config.apk_keys_path + "/*.pub")[0]
     name = os.path.basename(path)
     path_archive = "sbin/apk.static.SIGN.RSA." + name
-    pmb.chroot.user(args, ["mv", tmp_path + "/sbin/apk.static.SIGN.RSA.invalid.pub",
-                           tmp_path + "/" + path_archive])
+    pmb.chroot.user(args, ["mv",
+                           f"{tmp_path}/sbin/apk.static.SIGN.RSA.invalid.pub",
+                           f"{tmp_path}/{path_archive}"])
     pmb.chroot.user(args, ["tar", "-czf", tmp_path + "/realistic_name_sig.apk",
                            path_archive], working_dir=tmp_path)
-    with tarfile.open(tmp_path_outside + "/realistic_name_sig.apk", "r:gz") as tar:
+    with tarfile.open(f"{tmp_path_outside}/realistic_name_sig.apk", "r:gz")\
+            as tar:
         sigfilename, sigkey_path = pmb.chroot.apk_static.read_signature_info(
             tar)
         assert sigfilename == path_archive
@@ -85,8 +87,8 @@ def test_signature_verification(args, tmpdir):
         os.remove(args.work + "/apk.static")
 
     version = pmb.parse.apkindex.package(args, "apk-tools-static")["version"]
-    apk_path = pmb.chroot.apk_static.download(args,
-                                              "apk-tools-static-" + version + ".apk")
+    apk_path = pmb.chroot.apk_static.download(
+        args, f"apk-tools-static-{version}.apk")
 
     # Extract to temporary folder
     with tarfile.open(apk_path, "r:gz") as tar:

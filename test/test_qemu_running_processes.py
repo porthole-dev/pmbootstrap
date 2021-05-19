@@ -120,15 +120,15 @@ def is_running(args, programs, timeout=300, sleep_before_retry=1):
     """
     Simple check that looks for program names in the output of "ps ax".
     This is error-prone, only use it with programs that have a unique name.
-    With defaults timeout and sleep_before_retry values, it will try keep trying
-    for 5 minutes, but not more than once per second.
+    With defaults timeout and sleep_before_retry values, it will try keep
+    trying for 5 minutes, but not more than once per second.
 
     :param programs: list of programs to check for, e.g. ["xfce4-desktop"]
     :param timeout: approximate time in seconds until timeout
     :param sleep_before_retry: time in seconds to sleep before trying again
     """
-    print("Looking for programs to appear in the VM (timeout: " + str(timeout) +
-          "): " + ", ".join(programs))
+    print(f"Looking for programs to appear in the VM (timeout: {timeout}): " +
+          ", ".join(programs))
     ssh_works = False
 
     end = time.monotonic() + timeout
@@ -170,7 +170,8 @@ def test_none(args, tmpdir, qemu):
     # Check that at least SSH works (no special process running)
     assert is_running(args, [])
 
-    # self-test of is_running() - invalid-process should not be detected as running
+    # self-test of is_running() - invalid-process should not be detected as
+    # running
     assert is_running(args, ["invalid-process"], 1) is False
 
 
@@ -181,7 +182,7 @@ def test_xfce4(args, tmpdir, qemu):
 
 
 def test_plasma_mobile(args, tmpdir, qemu):
-    # NOTE: Once we have plasma mobile running properly without GL, we can check
-    # for more processes
+    # NOTE: Once we have plasma mobile running properly without GL, we can
+    # check for more processes
     qemu.run(args, tmpdir, "plasma-mobile")
     assert is_running(args, ["polkitd"])

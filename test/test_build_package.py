@@ -235,7 +235,8 @@ def test_init_buildenv(args, monkeypatch):
 
     # Shortcut and fake apkbuild
     func = pmb.build._package.init_buildenv
-    apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"], "options": []}
+    apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"],
+                "options": []}
 
     # Build is necessary (various code paths)
     assert func(args, apkbuild, "armhf", strict=True) is True

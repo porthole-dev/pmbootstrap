@@ -23,7 +23,8 @@ def args(request, tmpdir):
     apkindex_path = str(tmpdir) + "/APKINDEX.tar.gz"
     open(apkindex_path, "a").close()
     lastmod = os.path.getmtime(apkindex_path)
-    args.cache["apkindex"][apkindex_path] = {"lastmod": lastmod, "multiple": {}}
+    args.cache["apkindex"][apkindex_path] = {"lastmod": lastmod,
+                                             "multiple": {}}
     return args
 
 
@@ -35,7 +36,8 @@ def cache_apkindex(args, version):
     """
     apkindex_path = list(args.cache["apkindex"].keys())[0]
 
-    providers = args.cache["apkindex"][apkindex_path]["multiple"]["hello-world"]
+    providers = args.cache[
+        "apkindex"][apkindex_path]["multiple"]["hello-world"]
     providers["hello-world"]["version"] = version
 
 

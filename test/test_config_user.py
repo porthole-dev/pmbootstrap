@@ -23,8 +23,8 @@ def args(tmpdir, request):
 
 
 def change_config(monkeypatch, path_config, key, value):
-    args = args_patched(monkeypatch, ["pmbootstrap.py", "-c", path_config, "config",
-                                      key, value])
+    args = args_patched(monkeypatch, ["pmbootstrap.py", "-c", path_config,
+                                      "config", key, value])
     pmb.helpers.frontend.config(args)
 
 
