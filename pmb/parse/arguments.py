@@ -439,6 +439,8 @@ def arguments_kconfig(subparser):
                        " options needed for anbox too")
     check.add_argument("--nftables", action="store_true", help="check"
                        " options needed for nftables too")
+    check.add_argument("--containers", action="store_true",
+                       help="check options needed for containers too")
     check_package = check.add_argument("package", default="", nargs='?')
     if argcomplete:
         check_package.completer = kernel_completer

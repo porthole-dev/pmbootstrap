@@ -323,6 +323,117 @@ necessary_kconfig_options_nftables = {
     },
 }
 
+# Necessary kernel config options for containers (lxc, Docker)
+necessary_kconfig_options_containers = {
+    ">=0.0.0": {  # all versions, more specifically - since >=2.5~2.6
+        "all": {  # all arches
+            "NAMESPACES": True,
+            "NET_NS": True,
+            "PID_NS": True,
+            "IPC_NS": True,
+            "UTS_NS": True,
+            "CGROUPS": True,
+            "CGROUP_CPUACCT": True,
+            "CGROUP_DEVICE": True,
+            "CGROUP_FREEZER": True,
+            "CGROUP_SCHED": True,
+            "CPUSETS": True,
+            "KEYS": True,
+            "VETH": True,
+            "BRIDGE": True,  # (also needed for anbox)
+            "BRIDGE_NETFILTER": True,
+            "IP_NF_FILTER": True,
+            "IP_NF_TARGET_MASQUERADE": True,
+            "NETFILTER_XT_MATCH_ADDRTYPE": True,
+            "NETFILTER_XT_MATCH_CONNTRACK": True,
+            "NETFILTER_XT_MATCH_IPVS": True,
+            "NETFILTER_XT_MARK": True,
+            "NETFILTER_XT_TARGET_CHECKSUM": True,  # Needed for lxc
+            "IP_NF_NAT": True,
+            "NF_NAT": True,
+            "POSIX_MQUEUE": True,
+            "BLK_DEV_DM": True,  # Storage Drivers
+            "DUMMY": True,  # Network Drivers
+            # "USER_NS": True,  # This is already in pmOS kconfig check
+            "BLK_CGROUP": True,  # Optional section
+            "BLK_DEV_THROTTLING": True,  # Optional section
+            "CGROUP_PERF": True,  # Optional section
+            "NET_CLS_CGROUP": True,  # Optional section
+            "FAIR_GROUP_SCHED": True,  # Optional section
+            "RT_GROUP_SCHED": True,  # Optional section
+            "IP_NF_TARGET_REDIRECT": True,  # Optional section
+            "IP_VS": True,  # Optional section
+            "IP_VS_NFCT": True,  # Optional section
+            "IP_VS_PROTO_TCP": True,  # Optional section
+            "IP_VS_PROTO_UDP": True,  # Optional section
+            "IP_VS_RR": True,  # Optional section
+            # "EXT4_FS": True,  # This is already in pmOS kconfig check
+            "EXT4_FS_POSIX_ACL": True,  # Optional section
+            "EXT4_FS_SECURITY": True,  # Optional section
+        }
+    },
+    ">=3.2": {
+        "all": {
+            "CFS_BANDWIDTH": True,  # Optional section
+        }
+    },
+    ">=3.3": {
+        "all": {  # all arches
+            "CHECKPOINT_RESTORE": True,  # Needed for lxc
+        }
+    },
+    ">=3.6": {
+        "all": {  # all arches
+            "MEMCG": True,
+            "MEMCG_SWAP": True,
+            "DM_THIN_PROVISIONING": True,  # Storage Drivers
+        },
+        "x86 x86_64": {  # only for x86, x86_64 (and sparc64, ia64)
+            "CONFIG_HUGETLB_PAGE": True,
+            "CGROUP_HUGETLB": True,  # Optional section
+        }
+    },
+    ">=3.7 <5.0": {
+        "all": {
+            "NF_NAT_IPV4": True,  # Needed for lxc
+            "NF_NAT_IPV6": True,  # Needed for lxc
+        },
+    },
+    ">=3.7": {
+        "all": {  # all arches
+            "VXLAN": True,  # Network Drivers
+            "IP6_NF_TARGET_MASQUERADE": True,  # Needed for lxc
+        }
+    },
+    ">=3.9": {
+        "all": {  # all arches
+            "BRIDGE_VLAN_FILTERING": True,  # Network Drivers (also for anbox)
+            "MACVLAN": True,  # Network Drivers
+        }
+    },
+    ">=3.14": {
+        "all": {  # all arches
+            "CGROUP_NET_PRIO": True,  # Optional section
+        }
+    },
+    ">=3.18": {
+        "all": {  # all arches
+            "OVERLAY_FS": True,  # Storage Drivers
+        }
+    },
+    ">=3.19": {
+        "all": {  # all arches
+            "IPVLAN": True,  # Network Drivers
+            "SECCOMP": True,  # Optional section
+        }
+    },
+    ">=4.4": {
+        "all": {  # all arches
+            "CGROUP_PIDS": True,  # Optional section
+        }
+    },
+}
+
 #
 # PARSE
 #
@@ -390,6 +501,7 @@ apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
     "!pmb:kconfig-check",
     "pmb:kconfigcheck-anbox",
+    "pmb:kconfigcheck-containers",
     "pmb:kconfigcheck-nftables",
     "pmb:cross-native",
     "pmb:strict",

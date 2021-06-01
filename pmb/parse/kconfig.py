@@ -65,7 +65,7 @@ def check_option(component, details, config, config_path_pretty, option,
 
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
-                 anbox=False, nftables=False, details=False):
+                 anbox=False, nftables=False, containers=False, details=False):
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
@@ -75,6 +75,9 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
         components["anbox"] = pmb.config.necessary_kconfig_options_anbox
     if nftables:
         components["nftables"] = pmb.config.necessary_kconfig_options_nftables
+    if containers:
+        components["containers"] = \
+            pmb.config.necessary_kconfig_options_containers
 
     results = [check_config_options_set(config, config_path_pretty,
                                         config_arch, options, component,
@@ -118,7 +121,7 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
 
 
 def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
-          details=False):
+          force_containers_check=False, details=False):
     """
     Check for necessary kernel config options in a package.
 
@@ -141,13 +144,18 @@ def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
         "pmb:kconfigcheck-anbox" in apkbuild["options"])
     check_nftables = force_nftables_check or (
         "pmb:kconfigcheck-nftables" in apkbuild["options"])
+    check_containers = force_containers_check or (
+        "pmb:kconfigcheck-containers" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
         config_arch = os.path.basename(config_path).split(".")[1]
         config_path_pretty = f"linux-{flavor}/{os.path.basename(config_path)}"
         ret &= check_config(config_path, config_path_pretty, config_arch,
-                            pkgver, anbox=check_anbox, nftables=check_nftables,
+                            pkgver,
+                            anbox=check_anbox,
+                            nftables=check_nftables,
+                            containers=check_containers,
                             details=details)
     return ret
 
@@ -185,7 +193,7 @@ def extract_version(config_file):
 
 
 def check_file(args, config_file, anbox=False, nftables=False,
-               details=False):
+               containers=False, details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
@@ -196,4 +204,7 @@ def check_file(args, config_file, anbox=False, nftables=False,
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
                   "file: {config_file}")
     return check_config(config_file, config_file, arch, version,
-                        anbox=anbox, nftables=nftables, details=details)
+                        anbox=anbox,
+                        nftables=nftables,
+                        containers=containers,
+                        details=details)

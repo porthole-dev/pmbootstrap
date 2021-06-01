@@ -376,6 +376,7 @@ def kconfig(args):
             if pmb.parse.kconfig.check_file(args, args.package,
                                             anbox=args.anbox,
                                             nftables=args.nftables,
+                                            containers=args.containers,
                                             details=True):
                 logging.info("kconfig check succeeded!")
                 return
@@ -403,10 +404,12 @@ def kconfig(args):
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(args, package,
-                                           force_anbox_check=args.anbox,
-                                           force_nftables_check=args.nftables,
-                                           details=True):
+            if not pmb.parse.kconfig.check(
+                    args, package,
+                    force_anbox_check=args.anbox,
+                    force_nftables_check=args.nftables,
+                    force_containers_check=args.containers,
+                    details=True):
                 error = True
 
         # At least one failure
