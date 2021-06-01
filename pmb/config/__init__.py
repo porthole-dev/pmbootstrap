@@ -426,6 +426,7 @@ deviceinfo_attributes = [
     "partition_blacklist",
     "boot_part_start",
     "root_filesystem",
+    "flash_kernel_on_update",
 
     # weston
     "weston_pixman_type",
