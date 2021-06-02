@@ -94,7 +94,7 @@ def bootimg(args, path):
         output["cmdline"] = f.read().replace('\n', '')
     output["qcdt"] = ("true" if os.path.isfile(f"{bootimg_path}-dt") and
                       os.path.getsize(f"{bootimg_path}-dt") > 0 else "false")
-    output["mtk_mkimage"] = ("true" if has_mtk_header(f"{bootimg_path}-zImage",
+    output["mtk_mkimage"] = ("true" if has_mtk_header(f"{bootimg_path}-kernel",
                              "KERNEL") else "false")
     output["dtb_second"] = ("true" if is_dtb(f"{bootimg_path}-second")
                             else "false")
@@ -102,7 +102,7 @@ def bootimg(args, path):
     # Mediatek: Check that the ramdisk also has a known-good label
     # We don't care about the return value, just whether it throws an exception
     # or not.
-    has_mtk_header(f"{bootimg_path}-ramdisk.gz", "ROOTFS")
+    has_mtk_header(f"{bootimg_path}-ramdisk", "ROOTFS")
 
     # Cleanup
     pmb.chroot.root(args, ["rm", "-r", temp_path])
