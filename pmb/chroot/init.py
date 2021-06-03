@@ -30,6 +30,16 @@ def copy_resolv_conf(args, suffix="native"):
         pmb.helpers.run.root(args, ["touch", chroot])
 
 
+def mark_in_chroot(args, suffix="native"):
+    """
+    Touch a flag so we can know when we're running in chroot (and
+    don't accidentally flash partitions on our host)
+    """
+    in_chroot_file = f"{args.work}/chroot_{suffix}/in-pmbootstrap"
+    if not os.path.exists(in_chroot_file):
+        pmb.helpers.run.root(args, ["touch", in_chroot_file])
+
+
 def setup_qemu_emulation(args, suffix):
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
     if not pmb.parse.arch.cpu_emulation_required(args, arch):
@@ -53,6 +63,7 @@ def init(args, suffix="native"):
 
     pmb.chroot.mount(args, suffix)
     setup_qemu_emulation(args, suffix)
+    mark_in_chroot(args, suffix)
     if os.path.islink(f"{chroot}/bin/sh"):
         pmb.config.workdir.chroot_check_channel(args, suffix)
         copy_resolv_conf(args, suffix)

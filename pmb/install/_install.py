@@ -710,6 +710,10 @@ def install_on_device_installer(args, step, steps):
                          boot_label, "pmOS_install", args.split, args.sdcard)
 
 
+def cleanup(args, suffix):
+    pmb.chroot.root(args, ["rm", "/in-pmbootstrap"], suffix)
+
+
 def create_device_rootfs(args, step, steps):
     # List all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
@@ -776,6 +780,7 @@ def create_device_rootfs(args, step, steps):
     setup_hostname(args)
 
     disable_sshd(args)
+    cleanup(args, suffix)
 
 
 def install(args):
