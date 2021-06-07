@@ -79,8 +79,8 @@ defaults = {
     "ccache_size": "5G",
     "is_default_channel": True,
     "cipher": "aes-xts-plain64",
-    "config": os.environ.get('XDG_CONFIG_HOME') or
-              ((os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"),
+    "config": (os.environ.get('XDG_CONFIG_HOME') or
+               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
     "device": "qemu-amd64",
     "extra_packages": "none",
     "fork_alpine": False,
