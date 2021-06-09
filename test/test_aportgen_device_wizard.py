@@ -113,7 +113,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
     """
     # Answers to interactive questions
     answers = {
-        "Device architecture": "armhf",
+        "Device architecture": "armv7",
         "external storage": "y",
         "hardware keyboard": "n",
         "Flash method": "heimdall",
@@ -134,12 +134,12 @@ def test_aportgen_device_wizard(args, monkeypatch):
 
     assert apkbuild_linux["pkgname"] == "linux-testsuite-testdevice"
     assert apkbuild_linux["pkgdesc"] == "Testsuite Testdevice kernel fork"
-    assert apkbuild_linux["arch"] == ["armhf"]
+    assert apkbuild_linux["arch"] == ["armv7"]
     assert apkbuild_linux["_flavor"] == "testsuite-testdevice"
 
     assert deviceinfo["name"] == "Testsuite Testdevice"
     assert deviceinfo["manufacturer"] == answers["Manufacturer"]
-    assert deviceinfo["arch"] == "armhf"
+    assert deviceinfo["arch"] == "armv7"
     assert deviceinfo["year"] == "1337"
     assert deviceinfo["chassis"] == "handset"
     assert deviceinfo["keyboard"] == "false"
@@ -151,7 +151,7 @@ def test_aportgen_device_wizard(args, monkeypatch):
     # Build the device package
     pkgname = "device-testsuite-testdevice"
     pmb.build.checksum.update(args, pkgname)
-    pmb.build.package(args, pkgname, "armhf", force=True)
+    pmb.build.package(args, pkgname, "armv7", force=True)
 
     # Abort on overwrite confirmation
     answers["overwrite"] = "n"
