@@ -632,7 +632,7 @@ aportgen = {
 # generate a pmaport that wraps an apk from Alpine (e.g. musl-armv7) locally
 # with one up-to-date mirror given by the CDN. But then the build will fail if
 # CDN picks an outdated mirror for CI or BPO.
-aportgen_mirror_alpine = "http://dl-2.alpinelinux.org/alpine/"
+aportgen_mirror_alpine = "http://dl-4.alpinelinux.org/alpine/"
 
 #
 # NEWAPKBUILD
