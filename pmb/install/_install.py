@@ -713,6 +713,13 @@ def install_on_device_installer(args, step, steps):
                  "postmarketos-ondev"] +
                 get_kernel_package(args, args.device) +
                 get_nonfree_packages(args, args.device))
+
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    # Use the fde unlocker dummy package instead of osk-sdl if pmaports
+    # supports it, since the ondev image isn't using fde itself
+    if pmaports_cfg.get("supported_base_nofde", None):
+        packages += ["postmarketos-base-nofde"]
+
     suffix_installer = f"installer_{args.device}"
     pmb.chroot.apk.install(args, packages, suffix_installer)
 
@@ -805,6 +812,19 @@ def create_device_rootfs(args, step, steps):
     locale_is_set = (args.locale != pmb.config.defaults["locale"])
     if locale_is_set:
         install_packages += ["lang", "musl-locales"]
+
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    # postmarketos-base supports a dummy package for blocking osk-sdl install
+    # when not required
+    if pmaports_cfg.get("supported_base_nofde", None):
+        # The ondev installer *could* enable fde at runtime, so include it
+        # explicitly in the rootfs until there's a mechanism to selectively
+        # install it when the ondev installer is running.
+        # Always install it when --fde is specified.
+        if args.full_disk_encryption or args.on_device_installer:
+            install_packages += ["osk-sdl"]
+        else:
+            install_packages += ["postmarketos-base-nofde"]
 
     pmb.helpers.repo.update(args, args.deviceinfo["arch"])
 
