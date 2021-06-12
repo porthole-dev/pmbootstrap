@@ -36,7 +36,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     testdata = pmb_test.const.testdata + "/aportgen"
 
     # Override get_upstream_aport() to point to testdata
-    def func(args, upstream_path):
+    def func(args, upstream_path, arch=None):
         return testdata + "/aports/main/" + upstream_path
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 
@@ -60,7 +60,7 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     args.fork_alpine = True
 
     # Override get_upstream_aport() to point to testdata
-    def func(args, upstream_path):
+    def func(args, upstream_path, arch=None):
         return testdata + "/aports/main/" + upstream_path
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 

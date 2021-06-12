@@ -10,7 +10,7 @@ def generate(args, pkgname):
     prefix = pkgname.split("-")[0]
     arch = pkgname.split("-")[1]
     if prefix == "gcc":
-        upstream = pmb.aportgen.core.get_upstream_aport(args, "gcc")
+        upstream = pmb.aportgen.core.get_upstream_aport(args, "gcc", arch)
         based_on = "main/gcc (from Alpine)"
     elif prefix == "gcc4":
         upstream = args.aports + "/main/gcc4"

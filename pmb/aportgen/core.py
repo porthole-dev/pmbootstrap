@@ -152,11 +152,12 @@ def rewrite(args, pkgname, path_original="", fields={}, replace_pkgname=None,
         handle.truncate()
 
 
-def get_upstream_aport(args, pkgname):
+def get_upstream_aport(args, pkgname, arch=None):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 
     :param pkgname: package name
+    :param arch: Alpine architecture (e.g. "armhf"), defaults to native arch
     :returns: absolute path on disk where the Alpine aport is checked out
               example: /opt/pmbootstrap_work/cache_git/aports/upstream/main/gcc
     """
@@ -196,7 +197,7 @@ def get_upstream_aport(args, pkgname):
     split = aport_path.split("/")
     repo = split[-2]
     pkgname = split[-1]
-    index_path = pmb.helpers.repo.alpine_apkindex_path(args, repo)
+    index_path = pmb.helpers.repo.alpine_apkindex_path(args, repo, arch)
     package = pmb.parse.apkindex.package(args, pkgname, indexes=[index_path])
 
     # Compare version (return when equal)
