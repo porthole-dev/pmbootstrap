@@ -24,7 +24,7 @@ def test_helpers_package_get_pmaports_and_cache(args, monkeypatch):
 
     # Fake APKBUILD data
     def stub(args, pkgname, must_exist):
-        return {"arch": ["armhf"],
+        return {"arch": ["armv7"],
                 "depends": ["testdepend"],
                 "pkgname": "testpkgname",
                 "provides": ["testprovide"],
@@ -36,24 +36,24 @@ def test_helpers_package_get_pmaports_and_cache(args, monkeypatch):
                 "pkgrel": "1"}
     monkeypatch.setattr(pmb.helpers.pmaports, "get", stub)
 
-    package = {"arch": ["armhf"],
+    package = {"arch": ["armv7"],
                "depends": ["testdepend"],
                "pkgname": "testpkgname",
                "provides": ["testprovide"],
                "version": "1.0-r1"}
     func = pmb.helpers.package.get
-    assert func(args, "testpkgname", "armhf") == package
+    assert func(args, "testpkgname", "armv7") == package
 
     # Cached result
     monkeypatch.delattr(pmb.helpers.pmaports, "get")
-    assert func(args, "testpkgname", "armhf") == package
+    assert func(args, "testpkgname", "armv7") == package
 
 
 def test_helpers_package_get_apkindex(args, monkeypatch):
     """ Test pmb.helpers.package.get(): find in apkindex """
 
     # Fake APKINDEX data
-    fake_apkindex_data = {"arch": "armhf",
+    fake_apkindex_data = {"arch": "armv7",
                           "depends": ["testdepend"],
                           "pkgname": "testpkgname",
                           "provides": ["testprovide"],
@@ -66,13 +66,13 @@ def test_helpers_package_get_apkindex(args, monkeypatch):
     monkeypatch.setattr(pmb.parse.apkindex, "package", stub)
 
     # Given arch
-    package = {"arch": ["armhf"],
+    package = {"arch": ["armv7"],
                "depends": ["testdepend"],
                "pkgname": "testpkgname",
                "provides": ["testprovide"],
                "version": "1.0-r1"}
     func = pmb.helpers.package.get
-    assert func(args, "testpkgname", "armhf") == package
+    assert func(args, "testpkgname", "armv7") == package
 
     # Other arch
     assert func(args, "testpkgname", "x86_64") == package
