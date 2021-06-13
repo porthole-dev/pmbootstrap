@@ -425,6 +425,57 @@ def print_firewall_info(args):
     logging.info("For more information: https://postmarketos.org/firewall")
 
 
+def generate_binary_list(args, suffix, step):
+    """
+    Perform three checks prior to writing binaries to disk: 1) that binaries
+    exist, 2) that binaries do not extend into the first partition, 3) that
+    binaries do not overlap each other.
+
+    :param suffix: of the chroot, which holds the firmware files (either the
+                   f"rootfs_{args.device}", or f"installer_{args.device}")
+    :param step: partition step size in bytes
+    """
+    binary_ranges = {}
+    binary_list = []
+    binaries = args.deviceinfo["sd_embed_firmware"].split(",")
+
+    for binary_offset in binaries:
+        binary, offset = binary_offset.split(':')
+        try:
+            offset = int(offset)
+        except ValueError:
+            raise RuntimeError("Value for firmware binary offset is "
+                               f"not valid: {offset}")
+        binary_path = os.path.join(args.work, f"chroot_{suffix}", "usr/share",
+                                   binary)
+        if not os.path.exists(binary_path):
+            raise RuntimeError("The following firmware binary does not "
+                               f"exist in the {suffix} chroot: "
+                               f"/usr/share/{binary}")
+        # Insure that embedding the firmware will not overrun the
+        # first partition
+        boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
+        max_size = (int(boot_part_start) * 512) - (offset * step)
+        binary_size = os.path.getsize(binary_path)
+        if binary_size > max_size:
+            raise RuntimeError("The firmware is too big to embed in the "
+                               f"disk image {binary_size}B > {max_size}B")
+        # Insure that the firmware does not conflict with any other firmware
+        # that will be embedded
+        binary_start = offset * step
+        binary_end = binary_start + binary_size
+        for start, end in binary_ranges.items():
+            if ((binary_start >= start and binary_start <= end) or
+                    (binary_end >= start and binary_end <= end)):
+                raise RuntimeError("The firmware overlaps with at least one "
+                                   f"other firmware image: {binary}")
+
+        binary_ranges[binary_start] = binary_end
+        binary_list.append((binary, offset))
+
+    return binary_list
+
+
 def embed_firmware(args, suffix):
     """
     This method will embed firmware, located at /usr/share, that are specified
@@ -449,46 +500,7 @@ def embed_firmware(args, suffix):
                                "is not valid: {}".format(step))
 
     device_rootfs = mount_device_rootfs(args, suffix)
-    binaries = args.deviceinfo["sd_embed_firmware"].split(",")
-
-    # Perform three checks prior to writing binaries to disk: 1) that binaries
-    # exist, 2) that binaries do not extend into the first partition, 3) that
-    # binaries do not overlap each other
-    binary_ranges = {}
-    binary_list = []
-    for binary_offset in binaries:
-        binary, offset = binary_offset.split(':')
-        try:
-            offset = int(offset)
-        except ValueError:
-            raise RuntimeError("Value for firmware binary offset is "
-                               "not valid: {}".format(offset))
-        binary_path = os.path.join(args.work, f"chroot_{suffix}", "usr/share",
-                                   binary)
-        if not os.path.exists(binary_path):
-            raise RuntimeError("The following firmware binary does not "
-                               f"exist in the {suffix} chroot: "
-                               f"/usr/share/{binary}")
-        # Insure that embedding the firmware will not overrun the
-        # first partition
-        boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
-        max_size = (int(boot_part_start) * 512) - (offset * step)
-        binary_size = os.path.getsize(binary_path)
-        if binary_size > max_size:
-            raise RuntimeError("The firmware is too big to embed in the "
-                               "disk image {}B > {}B".format(binary_size,
-                                                             max_size))
-        # Insure that the firmware does not conflict with any other firmware
-        # that will be embedded
-        binary_start = offset * step
-        binary_end = binary_start + binary_size
-        for start, end in binary_ranges.items():
-            if ((binary_start >= start and binary_start <= end) or
-                    (binary_end >= start and binary_end <= end)):
-                raise RuntimeError("The firmware overlaps with at least one "
-                                   "other firmware image: {}".format(binary))
-        binary_ranges[binary_start] = binary_end
-        binary_list.append((binary, offset))
+    binary_list = generate_binary_list(args, suffix, step)
 
     # Write binaries to disk
     for binary, offset in binary_list:

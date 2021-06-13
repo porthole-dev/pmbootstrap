@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pytest
 import sys
+import os
+import shutil
 
 import pmb_test
 import pmb_test.const
@@ -104,3 +106,57 @@ def test_get_groups(args):
     with pytest.raises(RuntimeError) as e:
         func(args)
     assert str(e.value).startswith("Could not find aport for package")
+
+
+def test_generate_binary_list(args):
+    suffix = "mysuffix"
+    args.work = "/tmp"
+    func = pmb.install._install.generate_binary_list
+    binary_dir = os.path.join(args.work, f"chroot_{suffix}", "usr/share")
+    os.makedirs(binary_dir, exist_ok=True)
+    step = 1024
+    binaries = [f"{pmb_test.const.testdata}/pmb_install/small.bin",
+                f"{pmb_test.const.testdata}/pmb_install/full.bin",
+                f"{pmb_test.const.testdata}/pmb_install/big.bin",
+                f"{pmb_test.const.testdata}/pmb_install/overrun.bin",
+                f"{pmb_test.const.testdata}/pmb_install/binary2.bin"]
+    for b in binaries:
+        shutil.copy(b, binary_dir)
+
+    # Binary that is small enough to fit the partition of 10 blocks
+    # of 512 bytes each
+    binaries = "small.bin:1,binary2.bin:11"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "128"}
+    assert func(args, suffix, step) == [('small.bin', 1), ('binary2.bin', 11)]
+
+    # Binary that is fully filling the partition of 10 blocks of 512 bytes each
+    binaries = "full.bin:1,binary2.bin:11"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "128"}
+    assert func(args, suffix, step) == [('full.bin', 1), ('binary2.bin', 11)]
+
+    # Binary that is too big to fit the partition of 10 blocks
+    # of 512 bytes each
+    binaries = "big.bin:1,binary2.bin:2"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "128"}
+    with pytest.raises(RuntimeError) as e:
+        func(args, suffix, step)
+    assert str(e.value).startswith("The firmware overlaps with at least one")
+
+    # Binary that overruns the first partition
+    binaries = "overrun.bin:1"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "1"}
+    with pytest.raises(RuntimeError) as e:
+        func(args, suffix, step)
+    assert str(e.value).startswith("The firmware is too big to embed in")
+
+    # Binary does not exist
+    binaries = "does-not-exist.bin:1,binary2.bin:11"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "128"}
+    with pytest.raises(RuntimeError) as e:
+        func(args, suffix, step)
+    assert str(e.value).startswith("The following firmware binary does not")
