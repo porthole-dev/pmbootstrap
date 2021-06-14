@@ -17,6 +17,7 @@ def download(args, url, prefix, cache=True, loglevel=logging.INFO,
         :param url: the http(s) address of to the file to download
         :param prefix: for the cache, to make it easier to find (cache files
                        get a hash of the URL after the prefix)
+        :param cache: if True, and url is cached, do not download it again
         :param loglevel: change to logging.DEBUG to only display the download
                          message in 'pmbootstrap log', not in stdout. We use
                          this when downloading many APKINDEX files at once, no
