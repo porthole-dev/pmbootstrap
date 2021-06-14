@@ -5,6 +5,7 @@ import sys
 
 import pmb_test  # noqa
 import pmb.chroot.apk_static
+import pmb.config.pmaports
 import pmb.parse.apkindex
 import pmb.helpers.logging
 import pmb.helpers.run
@@ -36,12 +37,23 @@ def test_crossdirect_rust(args):
         check() function, which makes sure that the built program is actually
         working. """
     pmbootstrap_run(args, ["-y", "zap"])
+
+    # Remember previously selected device
+    cfg = pmb.config.load(args)
+    old_device = cfg['pmbootstrap']['device']
+
     try:
+        # First, switch to device that is known to exist on all channels,
+        # such as qemu-amd64. Currently selected device may not exist in
+        # stable branch!
+        cfg['pmbootstrap']['device'] = 'qemu-amd64'
+        pmb.config.save(args, cfg)
+
         # Switch to "v20.05" channel, as a stable release of alpine is more
         # likely to have the same rustc version across various architectures.
         # If armv7/x86_64 have a different rustc version, this test will fail:
         # 'found crate `std` compiled by an incompatible version of rustc'
-        pmb.config.pmaports.switch_to_channel_branch(args, "v20.05")
+        pmb.config.pmaports.switch_to_channel_branch(args, "v21.03")
 
         pmbootstrap_run(args, ["build_init", "-barmv7"])
         pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",
@@ -63,3 +75,7 @@ def test_crossdirect_rust(args):
         # Clean up
         pmb.config.pmaports.switch_to_channel_branch(args, "edge")
         pmbootstrap_run(args, ["-y", "zap"])
+
+        # Restore previously selected device
+        cfg['pmbootstrap']['device'] = old_device
+        pmb.config.save(args, cfg)
