@@ -25,6 +25,7 @@ apk_keys_path = pmb_src + "/pmb/data/keys"
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
 apk_tools_min_version = {"edge": "2.12.5-r1",
+                         "v3.14": "2.12.5-r1",
                          "v3.13": "2.12.5-r0",
                          "v3.12": "2.10.6-r0"}
 
