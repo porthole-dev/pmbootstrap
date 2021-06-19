@@ -44,7 +44,7 @@ export_pmbootstrap_dir() {
 
 	# Get pmbootstrap dir based on this script's location
 	# See also: <https://stackoverflow.com/a/29835459>
-	# shellcheck disable=SC2039
+	# shellcheck disable=SC3054
 	if [ -n "${BASH_SOURCE[0]}" ]; then
 		script_dir="$(dirname "${BASH_SOURCE[0]}")"
 	else
@@ -114,7 +114,7 @@ initialize_chroot() {
 	host_arch="$(uname -m)"
 	need_cross_compiler=1
 	# Match arm* architectures
-	# shellcheck disable=SC2039
+	# shellcheck disable=SC3057
 	arch_substr="${host_arch:0:3}"
 	if [ "$arch" = "$host_arch" ] || \
 		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; }; then
@@ -194,7 +194,7 @@ create_output_folder() {
 
 set_alias_make() {
 	# Cross compiler prefix
-	# shellcheck disable=SC1090
+	# shellcheck disable=SC1091
 	prefix="$(CBUILD="$deviceinfo_arch" . "$chroot/usr/share/abuild/functions.sh";
 		arch_to_hostspec "$deviceinfo_arch")"
 
@@ -315,7 +315,7 @@ check_and_deactivate() {
 
 
 print_usage() {
-	# shellcheck disable=SC2039
+	# shellcheck disable=SC3054
 	if [ -n "${BASH_SOURCE[0]}" ]; then
 		echo "usage: source $(basename "${BASH_SOURCE[0]}")"
 	else
