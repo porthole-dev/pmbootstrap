@@ -128,19 +128,30 @@ def generate_deviceinfo_fastboot_content(args, bootimg=None):
                    "second_offset": "",
                    "tags_offset": "",
                    "pagesize": "2048"}
-    return f"""\
+
+    content = f"""\
         deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"
         deviceinfo_generate_bootimg="true"
         deviceinfo_bootimg_qcdt="{bootimg["qcdt"]}"
         deviceinfo_bootimg_mtk_mkimage="{bootimg["mtk_mkimage"]}"
         deviceinfo_bootimg_dtb_second="{bootimg["dtb_second"]}"
+        deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
+        """
+
+    if "header_version" in bootimg.keys():
+        content += f"""\
+        deviceinfo_header_version="{bootimg["header_version"]}"
+        """
+    else:
+        content += f"""\
         deviceinfo_flash_offset_base="{bootimg["base"]}"
         deviceinfo_flash_offset_kernel="{bootimg["kernel_offset"]}"
         deviceinfo_flash_offset_ramdisk="{bootimg["ramdisk_offset"]}"
         deviceinfo_flash_offset_second="{bootimg["second_offset"]}"
         deviceinfo_flash_offset_tags="{bootimg["tags_offset"]}"
-        deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
         """
+
+    return content
 
 
 def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,

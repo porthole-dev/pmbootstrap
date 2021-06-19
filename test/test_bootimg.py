@@ -99,3 +99,14 @@ def test_bootimg_dtb_second(args):
               "mtk_mkimage": "false",
               "dtb_second": "true"}
     assert pmb.parse.bootimg(args, path) == output
+
+
+def test_bootimg_v3(args):
+    path = pmb_test.const.testdata + "/bootimg/boot-header-v3.img"
+    output = {"header_version": "3",
+              "pagesize": "4096",
+              "cmdline": "twrpfastboot=1",
+              "qcdt": "false",
+              "mtk_mkimage": "false",
+              "dtb_second": "false"}
+    assert pmb.parse.bootimg(args, path) == output
