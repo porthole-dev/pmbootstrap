@@ -465,8 +465,8 @@ def generate_binary_list(args, suffix, step):
         binary_start = offset * step
         binary_end = binary_start + binary_size
         for start, end in binary_ranges.items():
-            if ((binary_start >= start and binary_start <= end) or
-                    (binary_end >= start and binary_end <= end)):
+            if ((binary_start >= start and binary_start < end) or
+                    (binary_end > start and binary_end <= end)):
                 raise RuntimeError("The firmware overlaps with at least one "
                                    f"other firmware image: {binary}")
 

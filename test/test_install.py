@@ -160,3 +160,23 @@ def test_generate_binary_list(args):
     with pytest.raises(RuntimeError) as e:
         func(args, suffix, step)
     assert str(e.value).startswith("The following firmware binary does not")
+
+    # Binaries are touching but not overlapping
+    # boot_part_start is at 2 sectors (1024 b)
+    # |-----|---------------------|-------------------|-------------------
+    # |  …  | binary2.bin (100 b) | small.bin (600 b) | /boot part start …
+    # |-----|---------------------|-------------------|-------------------
+    # 0    324                   424                 1024
+    step = 1
+    binaries = "binary2.bin:324,small.bin:424"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "2"}
+    assert func(args, suffix, step) == [('binary2.bin', 324),
+                                        ('small.bin', 424)]
+
+    # Same layout written with different order in sd_embed_firmware
+    binaries = "small.bin:424,binary2.bin:324"
+    args.deviceinfo = {"sd_embed_firmware": binaries,
+                       "boot_part_start": "2"}
+    assert func(args, suffix, step) == [('small.bin', 424),
+                                        ('binary2.bin', 324)]
