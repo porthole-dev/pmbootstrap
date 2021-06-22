@@ -88,9 +88,15 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
     # Loop through necessary config options, and print a warning,
     # if any is missing
     ret = True
-    for rule, archs_options in options.items():
+    for rules, archs_options in options.items():
         # Skip options irrelevant for the current kernel's version
-        if not pmb.parse.version.check_string(pkgver, rule):
+        # Example rules: ">=4.0 <5.0"
+        skip = False
+        for rule in rules.split(" "):
+            if not pmb.parse.version.check_string(pkgver, rule):
+                skip = True
+                break
+        if skip:
             continue
 
         for archs, options in archs_options.items():
