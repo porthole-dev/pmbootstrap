@@ -98,16 +98,16 @@ def test_foreground_pipe(args):
     # The first command uses ps to get its process group id (pgid) and echo it
     # to stdout. All of the test commands will be running under that pgid.
     cmd = ["sudo", "sh", "-c",
-           "pgid=$(ps -p ${1:-$$} -o pgid=);echo $pgid | tr -d '\n';" +
+           "pgid=$(ps -o pgid= | grep ^${1:-$$});echo $pgid | tr -d '\n';" +
            "sleep 10 | sleep 20 | sleep 30"]
     args.timeout = 0.3
     ret = func(args, cmd, output_return=True, output_timeout=True,
                sudo=True)
     pgid = str(ret[1])
 
-    cmd = ["ps", "-e", "-o", "pgid=,comm=", "--noheaders"]
+    cmd = ["ps", "-e", "-o", "pgid,comm"]
     ret = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
-    procs = str(ret.stdout.decode("utf-8")).rstrip().split('\n')
+    procs = str(ret.stdout.decode("utf-8")).rstrip().split('\n')[1:]
     child_procs = []
     for process in procs:
         items = process.split(maxsplit=1)

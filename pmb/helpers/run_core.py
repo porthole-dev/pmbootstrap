@@ -110,10 +110,10 @@ def kill_command(args, pid, sudo):
     :param pid: process id that will be killed
     :param sudo: use sudo to kill the process
     """
-    cmd = ["ps", "-e", "-o", "pid=,ppid=", "--noheaders"]
+    cmd = ["ps", "-e", "-o", "pid,ppid"]
     ret = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
     ppids = []
-    proc_entries = ret.stdout.decode("utf-8").rstrip().split('\n')
+    proc_entries = ret.stdout.decode("utf-8").rstrip().split('\n')[1:]
     for row in proc_entries:
         items = row.split()
         if len(items) != 2:
