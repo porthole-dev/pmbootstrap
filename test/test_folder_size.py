@@ -31,7 +31,7 @@ def test_get_folder_size(args, tmpdir):
     # Check if the size is correct. Unfortunately, the `du` call
     # in pmb.helpers.other.folder_size is not very accurate, so we
     # allow 30kb of tolerance (good enough for our use case): #760 #1717
-    tolerance = 30 * 1024
-    size = 204800 * files
+    tolerance = 30
+    size = 200 * files
     result = pmb.helpers.other.folder_size(args, tmpdir)
     assert (result < size + tolerance and result > size - tolerance)

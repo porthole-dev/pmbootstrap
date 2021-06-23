@@ -88,7 +88,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         logging.info("Dry run: nothing has been deleted")
     else:
         size_new = pmb.helpers.other.folder_size(args, args.work)
-        mb = (size_old - size_new) / 1024 / 1024
+        mb = (size_old - size_new) / 1024
         logging.info(f"Cleared up ~{math.ceil(mb)} MB of space")
 
 

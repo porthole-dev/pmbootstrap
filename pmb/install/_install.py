@@ -49,7 +49,7 @@ def get_subpartitions_size(args, suffix):
     # calculation is not as trivial as one may think, and depending on the
     # file system etc it seems to be just impossible to get it right.
     chroot = f"{args.work}/chroot_{suffix}"
-    root = pmb.helpers.other.folder_size(args, chroot) / 1024 / 1024
+    root = pmb.helpers.other.folder_size(args, chroot) / 1024
     root *= 1.20
     root += 50 + int(args.extra_space)
     return (boot, root)

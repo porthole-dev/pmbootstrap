@@ -17,10 +17,9 @@ def folder_size(args, path):
     faster than doing the same task in pure Python). This result is only
     approximatelly right, but good enough for pmbootstrap's use case (#760).
 
-    :returns: folder size in bytes
+    :returns: folder size in kilobytes
     """
-    output = pmb.helpers.run.root(args, ["du", "--summarize",
-                                         "--block-size=1",
+    output = pmb.helpers.run.root(args, ["du", "-ks",
                                          path], output_return=True)
 
     # Only look at last line to filter out sudo garbage (#1766)
