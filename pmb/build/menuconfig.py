@@ -154,4 +154,5 @@ def menuconfig(args, pkgname):
     pmb.parse.kconfig.check(args, apkbuild["_flavor"], force_anbox_check=False,
                             force_nftables_check=False,
                             force_containers_check=False,
+                            force_zram_check=False,
                             details=True)

@@ -441,6 +441,8 @@ def arguments_kconfig(subparser):
                        " options needed for nftables too")
     check.add_argument("--containers", action="store_true",
                        help="check options needed for containers too")
+    check.add_argument("--zram", action="store_true", help="check"
+                       " options needed for zram support too")
     check_package = check.add_argument("package", default="", nargs='?')
     if argcomplete:
         check_package.completer = kernel_completer

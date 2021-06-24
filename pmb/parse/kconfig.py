@@ -65,7 +65,8 @@ def check_option(component, details, config, config_path_pretty, option,
 
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
-                 anbox=False, nftables=False, containers=False, details=False):
+                 anbox=False, nftables=False, containers=False, zram=False,
+                 details=False):
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
@@ -78,6 +79,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     if containers:
         components["containers"] = \
             pmb.config.necessary_kconfig_options_containers
+    if zram:
+        components["zram"] = pmb.config.necessary_kconfig_options_zram
 
     results = [check_config_options_set(config, config_path_pretty,
                                         config_arch, options, component,
@@ -121,7 +124,7 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
 
 
 def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
-          force_containers_check=False, details=False):
+          force_containers_check=False, force_zram_check=False, details=False):
     """
     Check for necessary kernel config options in a package.
 
@@ -146,6 +149,8 @@ def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
         "pmb:kconfigcheck-nftables" in apkbuild["options"])
     check_containers = force_containers_check or (
         "pmb:kconfigcheck-containers" in apkbuild["options"])
+    check_zram = force_zram_check or (
+        "pmb:kconfigcheck-zram" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
@@ -156,6 +161,7 @@ def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
                             anbox=check_anbox,
                             nftables=check_nftables,
                             containers=check_containers,
+                            zram=check_zram,
                             details=details)
     return ret
 
@@ -193,7 +199,7 @@ def extract_version(config_file):
 
 
 def check_file(args, config_file, anbox=False, nftables=False,
-               containers=False, details=False):
+               containers=False, zram=False, details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
@@ -207,4 +213,5 @@ def check_file(args, config_file, anbox=False, nftables=False,
                         anbox=anbox,
                         nftables=nftables,
                         containers=containers,
+                        zram=zram,
                         details=details)

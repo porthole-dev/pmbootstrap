@@ -36,6 +36,8 @@ def test_kconfig_check(args):
                                         nftables=True)
     assert not pmb.parse.kconfig.check_file(args, dir + "bad-nftables",
                                             nftables=True)
+    assert pmb.parse.kconfig.check_file(args, dir + "good-zram",
+                                        zram=True)
 
     # tests on real devices
 
@@ -49,3 +51,6 @@ def test_kconfig_check(args):
     # testing the force param: nokia-n900 will never have anbox support
     assert not pmb.parse.kconfig.check(args, "nokia-n900",
                                        force_anbox_check=True)
+
+    # supports zram (with pmb:kconfigcheck-zram), nftables
+    assert pmb.parse.kconfig.check(args, "linux-purism-librem5")

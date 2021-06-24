@@ -434,6 +434,17 @@ necessary_kconfig_options_containers = {
     },
 }
 
+necessary_kconfig_options_zram = {
+    ">=3.14.0": {  # zram support introduced here
+        "all": {  # all arches
+            "ZSMALLOC_STAT": True,
+            "ZRAM_MEMORY_TRACKING": True,
+            "CRYPTO_LZ4": True,
+            "LZ4_COMPRESS": True,
+        }
+    },
+}
+
 #
 # PARSE
 #
