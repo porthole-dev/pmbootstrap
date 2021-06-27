@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This script is meant for the gitlab CI shared runners, not for
 # any specific runners. Specific runners are expected to provide
@@ -6,18 +6,17 @@
 # Author: Clayton Craft <clayton@craftyguy.net>
 
 # skip non-shared runner
-[[ -d "/home/pmos" ]] && echo "pmos user already exists, assume running on pre-configured runner" && exit
+[ -d "/home/pmos" ] && echo "pmos user already exists, assume running on pre-configured runner" && exit
 
 # mount binfmt_misc
 mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 
 # install dependencies (procps: /bin/kill)
-apt update
-apt install -q -y git sudo procps python3-pip
-pip3 install virtualenv
+apk update
+apk -q add git sudo bash openssl procps py3-virtualenv
 
 # create pmos user
 echo "Creating pmos user"
-useradd pmos -m -s /bin/bash -b "/home"
+adduser -s /bin/sh -h /home/pmos pmos
 chown -R pmos:pmos .
 echo 'pmos ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
