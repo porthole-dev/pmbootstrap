@@ -311,17 +311,28 @@ necessary_kconfig_options_nftables = {
     ">=3.13.0": {  # nftables support introduced here
         "all": {  # all arches
             "NETFILTER": True,
+            "NF_CONNTRACK": True,
             "NF_TABLES": True,
+            "NF_TABLES_INET": True,
             "NFT_CT": True,
             "NFT_COUNTER": True,
             "NFT_LOG": True,
             "NFT_LIMIT": True,
             "NFT_MASQ": True,
             "NFT_NAT": True,
+            "NFT_REJECT": True,
             "NF_TABLES_IPV4": True,
             "NF_REJECT_IPV4": True,
+            "IP_NF_IPTABLES": True,
+            "IP_NF_FILTER": True,
+            "IP_NF_TARGET_REJECT": True,
+            "IP_NF_NAT": True,
             "NF_TABLES_IPV6": True,
             "NF_REJECT_IPV6": True,
+            "IP6_NF_IPTABLES": True,
+            "IP6_NF_FILTER": True,
+            "IP6_NF_TARGET_REJECT": True,
+            "IP6_NF_NAT": True,
         }
     },
 }
