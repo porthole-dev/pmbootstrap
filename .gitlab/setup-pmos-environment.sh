@@ -11,9 +11,9 @@
 # mount binfmt_misc
 mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 
-# install dependencies (procps: /bin/kill)
+# install dependencies
 apk update
-apk -q add git sudo bash openssl procps py3-virtualenv
+apk -q add git sudo bash openssl py3-virtualenv
 
 # create pmos user
 echo "Creating pmos user"
