@@ -563,6 +563,15 @@ necessary_kconfig_options_zram = {
     },
 }
 
+# Necessary netboot kernel config options
+necessary_kconfig_options_netboot = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "BLK_DEV_NBD": True,
+        }
+    },
+}
+
 #
 # PARSE
 #

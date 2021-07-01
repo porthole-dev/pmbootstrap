@@ -456,6 +456,8 @@ def arguments_kconfig(subparser):
                        help="check options needed for containers too")
     check.add_argument("--zram", action="store_true", help="check"
                        " options needed for zram support too")
+    check.add_argument("--netboot", action="store_true", help="check"
+                       " options needed for netboooting too")
     add_kernel_arg(check)
 
     # "pmbootstrap kconfig edit"

@@ -91,6 +91,7 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  nftables=False,
                  containers=False,
                  zram=False,
+                 netboot=False,
                  details=False):
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
@@ -110,6 +111,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
             pmb.config.necessary_kconfig_options_containers
     if zram:
         components["zram"] = pmb.config.necessary_kconfig_options_zram
+    if netboot:
+        components["netboot"] = pmb.config.necessary_kconfig_options_netboot
 
     results = [check_config_options_set(config, config_path_pretty,
                                         config_arch, options, component,
@@ -159,6 +162,7 @@ def check(args, pkgname,
           force_nftables_check=False,
           force_containers_check=False,
           force_zram_check=False,
+          force_netboot_check=False,
           details=False):
     """
     Check for necessary kernel config options in a package.
@@ -188,6 +192,8 @@ def check(args, pkgname,
         "pmb:kconfigcheck-containers" in apkbuild["options"])
     check_zram = force_zram_check or (
         "pmb:kconfigcheck-zram" in apkbuild["options"])
+    check_netboot = force_netboot_check or (
+        "pmb:kconfigcheck-netboot" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
@@ -201,6 +207,7 @@ def check(args, pkgname,
                             nftables=check_nftables,
                             containers=check_containers,
                             zram=check_zram,
+                            netboot=check_netboot,
                             details=details)
     return ret
 
@@ -238,7 +245,7 @@ def extract_version(config_file):
 
 
 def check_file(config_file, anbox=False, nftables=False,
-               containers=False, zram=False, details=False):
+               containers=False, zram=False, netboot=False, details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
@@ -253,4 +260,5 @@ def check_file(config_file, anbox=False, nftables=False,
                         nftables=nftables,
                         containers=containers,
                         zram=zram,
+                        netboot=netboot,
                         details=details)
