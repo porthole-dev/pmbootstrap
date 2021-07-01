@@ -6,4 +6,8 @@ import sys
 import pmb
 
 if __name__ == "__main__":
-    sys.exit(pmb.main())
+    try:
+        sys.exit(pmb.main())
+    except KeyboardInterrupt:
+        print("\nCaught KeyboardInterrupt, exiting …")
+        sys.exit(130)  # SIGINT(2) + 128
