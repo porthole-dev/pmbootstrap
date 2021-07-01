@@ -15,7 +15,7 @@ import pmb.parse.apkindex
 
 def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False,
-        rust=False):
+        rust=False, netboot=False):
     """
     Shutdown everything inside the chroots (e.g. distccd, adb), umount
     everything and then safely remove folders from the work-directory.
@@ -29,6 +29,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         downloaded from mirrors (e.g. from Alpine)
     :param distfiles: Clear the downloaded files cache
     :param rust: Remove rust related caches
+    :param netboot: Remove images for netboot
 
     NOTE: This function gets called in pmb/config/init.py, with only args.work
     and args.device set!
@@ -65,6 +66,8 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         patterns += ["cache_distfiles"]
     if rust:
         patterns += ["cache_rust"]
+    if netboot:
+        patterns += ["images_netboot"]
 
     # Delete everything matching the patterns
     for pattern in patterns:
