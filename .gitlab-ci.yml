@@ -37,7 +37,7 @@ vermin:
   - "apk -q add py3-pip"
   - "pip3 -q --disable-pip-version-check install vermin"
   script:
-  - ".gitlab/vermin.sh"
+  - ".ci/vermin.sh"
 
 # MR settings
 # (Checks for "Allow commits from members who can merge to the target branch")
