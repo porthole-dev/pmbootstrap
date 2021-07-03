@@ -3,10 +3,6 @@
 
 image: alpine:latest
 
-stages:
-  - checks
-  - tests
-
 # defaults for "only"
 # We need to run the CI jobs in a "merge request specific context", if CI is
 # running in a merge request. Otherwise the environment variable that holds the
@@ -22,7 +18,6 @@ stages:
     - tags
 
 static-code-analysis:
-  stage: checks
   <<: *only-default
   before_script:
     - .ci/prepare.sh
@@ -31,7 +26,6 @@ static-code-analysis:
 
 vermin:
   image: alpine:latest
-  stage: checks
   <<: *only-default
   before_script:
   - "apk -q add py3-pip"
@@ -51,7 +45,6 @@ mr-settings:
     - python3 ./check_mr_settings.py
 
 pytest:
-  stage: tests
   <<: *only-default
   before_script:
     - .ci/prepare.sh
