@@ -164,6 +164,7 @@ def is_running(args, programs, timeout=300, sleep_before_retry=1):
     return False
 
 
+@pytest.mark.skip_ci
 def test_none(args, tmpdir, qemu):
     qemu.run(args, tmpdir)
 
@@ -175,12 +176,14 @@ def test_none(args, tmpdir, qemu):
     assert is_running(args, ["invalid-process"], 1) is False
 
 
+@pytest.mark.skip_ci
 def test_xfce4(args, tmpdir, qemu):
     qemu.run(args, tmpdir, "xfce4")
     assert is_running(args, ["xfce4-session", "xfdesktop", "xfce4-panel",
                              "Thunar", "dbus-daemon", "xfwm4"])
 
 
+@pytest.mark.skip_ci
 def test_plasma_mobile(args, tmpdir, qemu):
     # NOTE: Once we have plasma mobile running properly without GL, we can
     # check for more processes

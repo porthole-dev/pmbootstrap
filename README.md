@@ -201,7 +201,7 @@ $ pmbootstrap log_distccd
 
 You also need to install the following python packages (pip can be useful if you distribution hasn't got them packaged):
 * `pytest`
-* `pytest-cov` (only needed for `test/testcases_fast.sh`, which is what CI runs)
+* `pytest-cov`
 * `flake8`
 
 On Alpine Linux it can be done with:
@@ -220,11 +220,11 @@ You can now run `pytest -vv` inside the pmbootstrap folder to run all available 
 
 CI runs slightly reduces set of tests (it skips tests that require running qemu) by this:
 ```shell
-$ ./test/testcases_fast.sh
+$ .ci/pytest.sh
 ```
 This is the easiest way to do the same as CI.
 
-Alternatively you can run a single test if you wish:
+Alternatively you can run a single test file if you wish:
 ```shell
 $ pytest -vv ./test/test_keys.py
 ```

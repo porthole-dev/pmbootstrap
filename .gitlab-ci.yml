@@ -3,20 +3,6 @@
 
 image: alpine:latest
 
-cache:
-  paths:
-    - venv
-
-before_script:
-  - ./.gitlab/setup-pmos-environment.sh
-  # venv created in CI_PROJECT_DIR for caching
-  - "[[ ! -d venv ]] && virtualenv venv -p $(which python3)"
-  - "source venv/bin/activate"
-  - "apk -q add py3-pytest-cov py3-coveralls py3-pytest"
-  - "python3 --version"
-  - "su pmos -c 'git config --global user.email postmarketos-ci@localhost' || true"
-  - "su pmos -c 'git config --global user.name postmarketOS_CI' || true"
-
 stages:
   - checks
   - tests
@@ -38,9 +24,10 @@ stages:
 static-code-analysis:
   stage: checks
   <<: *only-default
+  before_script:
+    - .ci/prepare.sh
   script:
-    # Note: This script uses CI_PROJECT_DIR
-    - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh --static-code-analysis"
+    - su pmos -c "test/static_code_analysis.sh"
 
 vermin:
   image: alpine:latest
@@ -61,18 +48,19 @@ mr-settings:
   script:
     - .gitlab/check_mr_settings.py
 
-test-pmbootstrap:
+pytest:
   stage: tests
   <<: *only-default
+  before_script:
+    - .ci/prepare.sh
   script:
-    # Note: This script uses CI_PROJECT_DIR
-    - su pmos -c "CI_PROJECT_DIR=$CI_PROJECT_DIR .gitlab/shared-runner_test-pmbootstrap.sh --testcases-fast"
+    - su pmos -c .ci/pytest.sh
   after_script:
      # Move logs so it can be saved as artifacts
     - "[[ -f /home/pmos/.local/var/pmbootstrap/log.txt ]] && mv /home/pmos/.local/var/pmbootstrap/log.txt $CI_PROJECT_DIR/log.txt"
     - "[[ -f /home/pmos/.local/var/pmbootstrap/log_testsuite.txt ]] && mv /home/pmos/.local/var/pmbootstrap/log_testsuite.txt $CI_PROJECT_DIR/log_testsuite.txt"
     - "[[ -f /home/pmos/.config/pmbootstrap.cfg ]] && cp /home/pmos/.config/pmbootstrap.cfg $CI_PROJECT_DIR/pmbootstrap.cfg"
-    - "sudo dmesg > $CI_PROJECT_DIR/dmesg.txt"
+    - "dmesg > $CI_PROJECT_DIR/dmesg.txt"
   artifacts:
     when: always
     paths:
