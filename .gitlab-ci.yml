@@ -42,11 +42,13 @@ vermin:
 # MR settings
 # (Checks for "Allow commits from members who can merge to the target branch")
 mr-settings:
-  stage: checks
   only:
     - merge_requests
+  before_script:
+    - apk -q add python3
   script:
-    - .gitlab/check_mr_settings.py
+    - wget -q "https://gitlab.com/postmarketOS/ci-common/-/raw/master/check_mr_settings.py"
+    - python3 ./check_mr_settings.py
 
 pytest:
   stage: tests
