@@ -33,7 +33,8 @@ def copy_resolv_conf(args, suffix="native"):
 def mark_in_chroot(args, suffix="native"):
     """
     Touch a flag so we can know when we're running in chroot (and
-    don't accidentally flash partitions on our host)
+    don't accidentally flash partitions on our host). This marker
+    gets removed in pmb.chroot.shutdown (pmbootstrap shutdown).
     """
     in_chroot_file = f"{args.work}/chroot_{suffix}/in-pmbootstrap"
     if not os.path.exists(in_chroot_file):

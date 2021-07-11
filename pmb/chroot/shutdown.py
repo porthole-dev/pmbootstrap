@@ -73,6 +73,14 @@ def shutdown(args, only_install_related=False):
         if os.path.exists(path):
             pmb.helpers.mount.umount_all(args, path)
 
+    # Remove "in-pmbootstrap" marker from all chroots. This marker indicates
+    # that pmbootstrap has set up all mount points etc. to run programs inside
+    # the chroots, but we want it gone afterwards (e.g. when the chroot
+    # contents get copied to a rootfs / installer image, or if creating an
+    # android recovery zip from its contents).
+    for marker in glob.glob(f"{args.work}/chroot_*/in-pmbootstrap"):
+        pmb.helpers.run.root(args, ["rm", marker])
+
     if not only_install_related:
         # Umount all folders inside args.work
         # The folders are explicitly iterated over, so folders symlinked inside
