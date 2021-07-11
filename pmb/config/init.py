@@ -532,6 +532,7 @@ def ask_for_locale(args):
     locales = pmb.config.locales
     logging.info(f"Available locales ({len(locales)}): {', '.join(locales)}")
     return pmb.helpers.cli.ask(args, "Choose default locale for installation",
+                               choices=None,
                                default=args.locale,
                                lowercase_answer=False,
                                validation_regex="|".join(locales),
