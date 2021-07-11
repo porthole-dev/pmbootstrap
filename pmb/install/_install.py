@@ -726,12 +726,6 @@ def install_on_device_installer(args, step, steps):
                 get_kernel_package(args, args.device) +
                 get_nonfree_packages(args, args.device))
 
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
-    # Use the fde unlocker dummy package instead of osk-sdl if pmaports
-    # supports it, since the ondev image isn't using fde itself
-    if pmaports_cfg.get("supported_base_nofde", None):
-        packages += ["postmarketos-base-nofde"]
-
     suffix_installer = f"installer_{args.device}"
     pmb.chroot.apk.install(args, packages, suffix_installer)
 
