@@ -533,7 +533,7 @@ def arguments():
     parser.add_argument("-mp", "--mirror-pmOS", dest="mirrors_postmarketos",
                         help="postmarketOS mirror, disable with: -mp='',"
                              " specify multiple with: -mp='one' -mp='two',"
-                             " default: " + ", ".join(mirrors_pmos_default),
+                             f" default: {mirrors_pmos_default}",
                         metavar="URL", action="append", default=[])
     parser.add_argument("-m", "--mirror-alpine", dest="mirror_alpine",
                         help="Alpine Linux mirror, default: " +
