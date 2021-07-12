@@ -14,6 +14,9 @@ check_kernel_folder() {
 
 
 clean_kernel_src_dir() {
+	# Prevent Linux from appending Git version information to kernel version
+	# This will cause kernels to be packaged incorrectly.
+	touch .scmversion
 
 	if [ -f ".config" ] || [ -d "include/config" ]; then
 		echo "Source directory is not clean, running 'make mrproper'."
@@ -221,11 +224,6 @@ set_alias_make() {
 	fi
 	cmd="$cmd make -C /mnt/linux O=/mnt/linux/.output"
 	cmd="$cmd CC=$cc HOSTCC=$hostcc"
-
-	# Avoid "+" suffix in kernel version if the working directory is dirty.
-	# (Otherwise we will generate a package that uses different paths...)
-	# Note: Set CONFIG_LOCALVERSION_AUTO=n in kernel config additionally
-	cmd="$cmd LOCALVERSION="
 
 	# shellcheck disable=SC2139
 	alias make="$cmd"
