@@ -455,6 +455,7 @@ necessary_kconfig_options_zram = {
             "ZRAM_MEMORY_TRACKING": True,
             "CRYPTO_LZ4": True,
             "LZ4_COMPRESS": True,
+            "SWAP": True,
         }
     },
 }
