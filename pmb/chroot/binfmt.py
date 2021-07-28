@@ -18,10 +18,15 @@ def register(args, arch):
     Get arch, magic, mask.
     """
     arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+
+    # always make sure the qemu-<arch> binary is installed, since registering
+    # may happen outside of this method (e.g. by OS)
+    if f"qemu-{arch_qemu}" not in pmb.chroot.apk.installed(args):
+        pmb.chroot.apk.install(args, ["qemu-" + arch_qemu])
+
     if is_registered(arch_qemu):
         return
     pmb.helpers.other.check_binfmt_misc(args)
-    pmb.chroot.apk.install(args, ["qemu-" + arch_qemu])
 
     # Don't continue if the actions from check_binfmt_misc caused the OS to
     # automatically register the target arch
