@@ -22,6 +22,12 @@ def register(args, arch):
         return
     pmb.helpers.other.check_binfmt_misc(args)
     pmb.chroot.apk.install(args, ["qemu-" + arch_qemu])
+
+    # Don't continue if the actions from check_binfmt_misc caused the OS to
+    # automatically register the target arch
+    if is_registered(arch_qemu):
+        return
+
     info = pmb.parse.binfmt_info(args, arch_qemu)
 
     # Build registration string
