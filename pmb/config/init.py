@@ -387,7 +387,7 @@ def ask_for_additional_options(args, cfg):
                  " left on device' error. In that case, the size of the"
                  " rootfs could not be calculated properly on your machine,"
                  " and we need to add extra free space to make the image big"
-                 " enough to fit the rootfs (pmaports#1904)."
+                 " enough to fit the rootfs (pmbootstrap#1904)."
                  " How much extra free space do you want to add to the image"
                  " (in MB)?")
     answer = pmb.helpers.cli.ask(args, "Extra space size", None,
