@@ -391,20 +391,20 @@ def ask_for_additional_options(args, cfg):
                  " How much extra free space do you want to add to the image"
                  " (in MB)?")
     answer = pmb.helpers.cli.ask(args, "Extra space size", None,
-                                 args.extra_space, validation_regex="[0-9]+")
+                                 args.extra_space, validation_regex="^[0-9]+$")
     cfg["pmbootstrap"]["extra_space"] = answer
 
     # Boot size
     logging.info("What should be the boot partition size (in MB)?")
     answer = pmb.helpers.cli.ask(args, "Boot size", None, args.boot_size,
-                                 validation_regex="[1-9][0-9]*")
+                                 validation_regex="^[1-9][0-9]*$")
     cfg["pmbootstrap"]["boot_size"] = answer
 
     # Parallel job count
     logging.info("How many jobs should run parallel on this machine, when"
                  " compiling?")
     answer = pmb.helpers.cli.ask(args, "Jobs", None, args.jobs,
-                                 validation_regex="[1-9][0-9]*")
+                                 validation_regex="^[1-9][0-9]*$")
     cfg["pmbootstrap"]["jobs"] = answer
 
     # Ccache size
