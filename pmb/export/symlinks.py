@@ -37,6 +37,7 @@ def symlinks(args, flavor, folder):
         f"{args.device}-boot.img": "Boot partition image",
         f"{args.device}-root.img": "Root partition image",
         f"pmos-{args.device}.zip": "Android recovery flashable zip",
+        "lk2nd.img": "Secondary Android bootloader",
     }
 
     # Generate a list of patterns
@@ -53,7 +54,8 @@ def symlinks(args, flavor, folder):
                 f"{path_native}/home/pmos/rootfs/{args.device}-boot.img",
                 f"{path_native}/home/pmos/rootfs/{args.device}-root.img",
                 f"{path_buildroot}/var/lib/postmarketos-android-recovery-" +
-                f"installer/pmos-{args.device}.zip"]
+                f"installer/pmos-{args.device}.zip",
+                f"{path_boot}/lk2nd.img"]
 
     # Generate a list of files from the patterns
     files = []

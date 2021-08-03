@@ -788,6 +788,8 @@ flashers = {
                             "$BOOT/dtbo.img"]],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
                       "boot", "$BOOT/boot.img$FLAVOR"]],
+            "flash_lk2nd": [["fastboot", "flash", "$PARTITION_KERNEL",
+                             "$BOOT/lk2nd.img"]]
         },
     },
     # Some devices provide Fastboot but using Android boot images is not

@@ -217,6 +217,14 @@ def arguments_flasher(subparser):
                               help="partition to flash the kernel to (defaults"
                                    " to deviceinfo_flash_*_partition_kernel)")
 
+    # Flash lk2nd
+    flash_lk2nd = sub.add_parser("flash_lk2nd",
+                                 help="flash lk2nd, a secondary bootloader"
+                                 " needed for various Android devices")
+    flash_lk2nd.add_argument("--partition", default=None,
+                             help="partition to flash lk2nd to (defaults to"
+                             " default boot image partition ")
+
     # Flash rootfs
     flash_rootfs = sub.add_parser("flash_rootfs", aliases=["flash_system"],
                                   help="flash the rootfs to a partition on the"

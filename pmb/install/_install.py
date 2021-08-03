@@ -698,6 +698,14 @@ def print_flash_info(args):
                      " the kernel/initramfs directly without flashing."
                      " Use 'pmbootstrap flasher boot' to do that.)")
 
+    if "flash_lk2nd" in flasher_actions and \
+            os.path.exists(args.work + "/chroot_rootfs_" + args.device +
+                           "/boot/lk2nd.img"):
+        logging.info(" * Your device supports and may even require"
+                     " flashing lk2nd. You should flash it before"
+                     " flashing anything else. Use 'pmbootstrap flasher"
+                     " flash_lk2nd' to do that.")
+
     # Export information
     logging.info("* If the above steps do not work, you can also create"
                  " symlinks to the generated files with 'pmbootstrap export'"

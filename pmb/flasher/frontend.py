@@ -112,6 +112,19 @@ def sideload(args):
     pmb.flasher.run(args, "sideload")
 
 
+def flash_lk2nd(args):
+    chroot_path = args.work + "/chroot_rootfs_" + args.device
+    lk2nd_path = "/boot/lk2nd.img"
+    if not os.path.exists(chroot_path + lk2nd_path):
+        raise RuntimeError(f"{chroot_path+lk2nd_path} doesn't exist. Your"
+                           " device may not support lk2nd.")
+
+    logging.info(lk2nd_path)
+    logging.info("It's normal if fastboot warns"
+                 " \"Image not signed or corrupt\" or a similar warning")
+    pmb.flasher.run(args, "flash_lk2nd")
+
+
 def frontend(args):
     action = args.action_flasher
     method = args.flash_method or args.deviceinfo["flash_method"]
@@ -120,7 +133,8 @@ def frontend(args):
     if action == "flash_system":
         action = "flash_rootfs"
 
-    if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs"]:
+    if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs",
+                                       "flash_lk2nd"]:
         logging.info("This device doesn't support any flash method.")
         return
 
@@ -138,3 +152,5 @@ def frontend(args):
         list_devices(args)
     if action == "sideload":
         sideload(args)
+    if action in ["flash_lk2nd"]:
+        flash_lk2nd(args)
