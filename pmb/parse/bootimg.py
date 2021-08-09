@@ -79,8 +79,9 @@ def bootimg(args, path):
     if not os.path.exists(path):
         raise RuntimeError("Could not find file '" + path + "'")
 
-    logging.info("NOTE: You will be prompted for your sudo password, so we can"
-                 " set up a chroot to extract and analyze your boot.img file")
+    logging.info("NOTE: You will be prompted for your sudo/doas password, so"
+                 " we can set up a chroot to extract and analyze your"
+                 " boot.img file")
     pmb.chroot.apk.install(args, ["file", "unpackbootimg"])
 
     temp_path = pmb.chroot.other.tempfolder(args, "/tmp/bootimg_parser")

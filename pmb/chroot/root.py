@@ -71,7 +71,7 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
     executables = executables_absolute_path()
     cmd_chroot = [executables["chroot"], chroot, "/bin/sh", "-c",
                   pmb.helpers.run.flat_cmd(cmd, working_dir)]
-    cmd_sudo = ["sudo", "env", "-i", executables["sh"], "-c",
+    cmd_sudo = [pmb.config.sudo, "env", "-i", executables["sh"], "-c",
                 pmb.helpers.run.flat_cmd(cmd_chroot, env=env_all)]
     return pmb.helpers.run_core.core(args, msg, cmd_sudo, None, output,
                                      output_return, check, True,

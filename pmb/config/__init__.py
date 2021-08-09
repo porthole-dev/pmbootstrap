@@ -11,6 +11,7 @@ import sys
 from pmb.config.load import load
 from pmb.config.save import save
 from pmb.config.merge_with_args import merge_with_args
+from pmb.config.sudo import which_sudo
 
 
 #
@@ -50,6 +51,7 @@ ondev_min_version = "0.2.0"
 # in sync with README.md, and try to keep the list as small as possible. The
 # idea is to run almost everything in Alpine chroots.
 required_programs = ["git", "openssl", "ps"]
+sudo = which_sudo()
 
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = ["aports",

@@ -224,7 +224,10 @@ def sudo_timer_iterate():
     Run sudo -v and schedule a new timer to repeat the same.
     """
 
-    subprocess.Popen(["sudo", "-v"]).wait()
+    if pmb.config.sudo == "sudo":
+        subprocess.Popen(["sudo", "-v"]).wait()
+    else:
+        subprocess.Popen([pmb.config.sudo, "true"]).wait()
 
     timer = threading.Timer(interval=60, function=sudo_timer_iterate)
     timer.daemon = True

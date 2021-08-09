@@ -62,7 +62,7 @@ def user(args, cmd, working_dir=None, output="log", output_return=False,
 def root(args, cmd, working_dir=None, output="log", output_return=False,
          check=None, env={}):
     """
-    Run a command on the host system as root, with sudo.
+    Run a command on the host system as root, with sudo or doas.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
@@ -72,7 +72,7 @@ def root(args, cmd, working_dir=None, output="log", output_return=False,
     """
     if env:
         cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
-    cmd = ["sudo"] + cmd
+    cmd = [pmb.config.sudo] + cmd
 
     return user(args, cmd, working_dir, output, output_return, check, env,
                 True)
