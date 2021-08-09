@@ -30,7 +30,7 @@ def generate(args, pkgname):
         "pkgdesc": "Stage2 cross-compiler for " + arch,
         "arch": args.arch_native,
         "depends": "isl binutils-" + arch + " mpc1",
-        "makedepends_build": "gcc g++ paxmark bison flex texinfo gawk zip"
+        "makedepends_build": "gcc g++ bison flex texinfo gawk zip"
                              " gmp-dev mpfr-dev mpc1-dev zlib-dev",
         "makedepends_host": "linux-headers gmp-dev mpfr-dev mpc1-dev isl-dev"
                             f" zlib-dev musl-dev-{arch} binutils-{arch}",
