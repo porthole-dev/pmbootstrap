@@ -13,28 +13,28 @@ def generate(args, pkgname):
         upstream = pmb.aportgen.core.get_upstream_aport(args, "gcc", arch)
         based_on = "main/gcc (from Alpine)"
     elif prefix == "gcc4":
-        upstream = args.aports + "/main/gcc4"
+        upstream = f"{args.aports}/main/gcc4"
         based_on = "main/gcc4 (from postmarketOS)"
     elif prefix == "gcc6":
-        upstream = args.aports + "/main/gcc6"
+        upstream = f"{args.aports}/main/gcc6"
         based_on = "main/gcc6 (from postmarketOS)"
     else:
         raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or"
                          " gcc6.")
-    pmb.helpers.run.user(args, ["cp", "-r", upstream, args.work + "/aportgen"])
+    pmb.helpers.run.user(args, ["cp", "-r", upstream, f"{args.work}/aportgen"])
 
     # Rewrite APKBUILD (only building for native covers most use cases and
     # saves a lot of build time, can be changed on demand)
     fields = {
         "pkgname": pkgname,
-        "pkgdesc": "Stage2 cross-compiler for " + arch,
+        "pkgdesc": f"Stage2 cross-compiler for {arch}",
         "arch": args.arch_native,
-        "depends": "isl binutils-" + arch + " mpc1",
+        "depends": f"isl binutils-{arch} mpc1",
         "makedepends_build": "gcc g++ bison flex texinfo gawk zip"
                              " gmp-dev mpfr-dev mpc1-dev zlib-dev",
         "makedepends_host": "linux-headers gmp-dev mpfr-dev mpc1-dev isl-dev"
                             f" zlib-dev musl-dev-{arch} binutils-{arch}",
-        "subpackages": "g++-" + arch + ":gpp" if prefix == "gcc" else "",
+        "subpackages": f"g++-{arch}:gpp" if prefix == "gcc" else "",
 
         # gcc6: options is already there, so we need to replace it and not only
         # set it below the header like done below.
