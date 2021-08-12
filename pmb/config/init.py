@@ -629,4 +629,4 @@ def frontend(args):
                  " not get updated automatically.")
     logging.info("Run 'pmbootstrap status' once a day before working with"
                  " pmbootstrap to make sure that everything is up-to-date.")
-    logging.info("Done!")
+    logging.info("DONE!")

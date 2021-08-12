@@ -54,7 +54,7 @@ def main():
         if mount.ismount(args.work + "/chroot_native/dev"):
             logging.info("NOTE: chroot is still active (use 'pmbootstrap"
                          " shutdown' as necessary)")
-        logging.info("Done")
+        logging.info("DONE!")
 
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed

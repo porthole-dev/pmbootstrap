@@ -315,7 +315,7 @@ def arguments_qemu(subparser):
                      default=False, help="Use 'tablet' instead of 'mouse'"
                      " input for QEMU. The tablet input device automatically"
                      " grabs/releases the mouse when moving in/out of the QEMU"
-                     " window. (Note: For some reason the mouse position is"
+                     " window. (NOTE: For some reason the mouse position is"
                      " not reported correctly with this in some cases...)")
 
     ret.add_argument("--display", dest="qemu_display",

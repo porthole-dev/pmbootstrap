@@ -239,7 +239,7 @@ set_alias_make() {
 	cmd="$cmd 	srcdir=/mnt/linux builddir=/mnt/linux/.output tmpdir=/tmp/envkernel"
 	cmd="$cmd 	./\"\$_script\"\";"
 	cmd="$cmd else"
-	cmd="$cmd 	echo \"Error: \$_script not found.\";"
+	cmd="$cmd 	echo \"ERROR: \$_script not found.\";"
 	cmd="$cmd fi;"
 	cmd="$cmd };"
 	cmd="$cmd _run_script \"\$@\""
