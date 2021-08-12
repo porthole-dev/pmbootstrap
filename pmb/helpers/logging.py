@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+import pmb.config
 
 
 class log_handler(logging.StreamHandler):
@@ -20,7 +21,33 @@ class log_handler(logging.StreamHandler):
                 not self._args.quiet and
                     record.levelno >= logging.INFO):
                 stream = self.stream
-                stream.write(msg)
+
+                styles = pmb.config.styles
+
+                msg_col = (
+                    msg.replace(
+                        "NOTE:",
+                        f"{styles['BLUE']}NOTE:{styles['END']}",
+                        1,
+                    )
+                    .replace(
+                        "WARNING:",
+                        f"{styles['YELLOW']}WARNING:{styles['END']}",
+                        1,
+                    )
+                    .replace(
+                        "ERROR:",
+                        f"{styles['RED']}ERROR:{styles['END']}",
+                        1,
+                    )
+                    .replace(
+                        "DONE!",
+                        f"{styles['GREEN']}DONE!{styles['END']}",
+                        1,
+                    )
+                )
+
+                stream.write(msg_col)
                 stream.write(self.terminator)
                 self.flush()
 

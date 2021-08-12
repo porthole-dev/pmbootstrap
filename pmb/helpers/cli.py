@@ -50,13 +50,17 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
     :param validation_regex: if set, keep asking until regex matches
     :param complete: set to a list to enable tab completion
     """
+    styles = pmb.config.styles
+
     while True:
         date = datetime.datetime.now().strftime("%H:%M:%S")
-        question_full = "[" + date + "] " + question
+        line = question
         if choices:
-            question_full += " (" + str.join("/", choices) + ")"
+            line += f" ({str.join('/', choices)})"
         if default:
-            question_full += " [" + str(default) + "]"
+            line += f" [{default}]"
+        line_color = f"[{date}] {styles['BOLD']}{line}{styles['END']}"
+        line = f"[{date}] {line}"
 
         if complete:
             readline.parse_and_bind('tab: complete')
@@ -67,7 +71,7 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
             readline.set_completer(
                 ReadlineTabCompleter(complete).completer_func)
 
-        ret = input(question_full + ": ")
+        ret = input(f"{line_color}: ")
 
         # Stop completing (question is answered)
         if complete:
@@ -79,7 +83,7 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
         if ret == "":
             ret = str(default)
 
-        args.logfd.write(question_full + " " + ret + "\n")
+        args.logfd.write(f"{line}: {ret}\n")
         args.logfd.flush()
 
         # Validate with regex

@@ -123,6 +123,21 @@ is_interactive = sys.stdout.isatty() and \
     sys.stdin.isatty()
 
 
+# ANSI escape codes to highlight stdout
+styles = {
+    "BLUE": '\033[94m',
+    "BOLD": '\033[1m',
+    "GREEN": '\033[92m',
+    "RED": '\033[91m',
+    "YELLOW": '\033[93m',
+    "END": '\033[0m'
+}
+
+if "NO_COLOR" in os.environ:
+    for style in styles.keys():
+        styles[style] = ""
+
+
 # List of available locales taken from musl-locales package; see
 # https://pkgs.alpinelinux.org/contents?name=musl-locales
 locales = [
