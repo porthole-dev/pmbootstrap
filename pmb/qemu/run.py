@@ -96,7 +96,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
     suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
-    flavor = pmb.chroot.other.kernel_flavors_installed(args, suffix)[0]
+    flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
     ncpus = os.cpu_count()
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly

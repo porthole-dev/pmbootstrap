@@ -80,8 +80,7 @@ def ls(args, flavor, suffix, extra=False):
 def frontend(args):
     # Find the appropriate kernel flavor
     suffix = f"rootfs_{args.device}"
-    flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix)
-    flavor = flavors[0]
+    flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
 
     # Handle initfs actions
     action = args.action_initfs
@@ -107,9 +106,8 @@ def frontend(args):
         elif action == "hook_del":
             pmb.chroot.initfs_hooks.delete(args, args.hook, suffix)
 
-        # Rebuild the initfs for all kernels after adding/removing a hook
-        for flavor in flavors:
-            build(args, flavor, suffix)
+        # Rebuild the initfs after adding/removing a hook
+        build(args, flavor, suffix)
 
     if action in ["ls", "extract"]:
         link = "https://wiki.postmarketos.org/wiki/Initramfs_development"

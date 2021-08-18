@@ -846,8 +846,8 @@ def create_device_rootfs(args, step, steps):
     # because that doesn't always happen automatically yet, e.g. when the user
     # installed a hook without pmbootstrap - see #69 for more info)
     pmb.chroot.apk.install(args, install_packages, suffix)
-    for flavor in pmb.chroot.other.kernel_flavors_installed(args, suffix):
-        pmb.chroot.initfs.build(args, flavor, suffix)
+    flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
+    pmb.chroot.initfs.build(args, flavor, suffix)
 
     # Set the user password
     setup_login(args, suffix)

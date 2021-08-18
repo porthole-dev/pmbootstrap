@@ -42,8 +42,7 @@ def kernel(args):
 def list_flavors(args):
     suffix = "rootfs_" + args.device
     logging.info("(" + suffix + ") installed kernel flavors:")
-    for flavor in pmb.chroot.other.kernel_flavors_installed(args, suffix):
-        logging.info("* " + flavor)
+    logging.info("* " + pmb.chroot.other.kernel_flavor_installed(args, suffix))
 
 
 def rootfs(args):

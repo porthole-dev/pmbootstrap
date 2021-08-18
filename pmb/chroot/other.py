@@ -7,33 +7,28 @@ import pmb.chroot.apk
 import pmb.install
 
 
-def kernel_flavors_installed(args, suffix, autoinstall=True):
+def kernel_flavor_installed(args, suffix, autoinstall=True):
     """
-    Get all installed kernel flavors and make sure that there's at least one
+    Get installed kernel flavor. Optionally install the device's kernel
+    beforehand.
 
     :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
-    :param autoinstall: make sure that at least one kernel flavor is installed
-    :returns: list of installed kernel flavors, e.g. ["postmarketos-mainline"]
+    :param autoinstall: install the device's kernel if it is not installed
+    :returns: * string with the installed kernel flavor,
+                e.g. ["postmarketos-qcom-sdm845"]
+              * None if no kernel is installed
     """
     # Automatically install the selected kernel
     if autoinstall:
-        packages = (["device-" + args.device] +
+        packages = ([f"device-{args.device}"] +
                     pmb.install.get_kernel_package(args, args.device))
         pmb.chroot.apk.install(args, packages, suffix)
 
-    # Find all kernels in /boot
-    prefix = "vmlinuz-"
-    prefix_len = len(prefix)
-    pattern = args.work + "/chroot_" + suffix + "/boot/" + prefix + "*"
-    ret = []
-    for file in glob.glob(pattern):
-        flavor = os.path.basename(file)[prefix_len:]
-        if flavor[-4:] == "-dtb" or flavor[-4:] == "-mtk":
-            flavor = flavor[:-4]
-        ret.append(flavor)
+    pattern = f"{args.work}/chroot_{suffix}/usr/share/kernel/*"
+    glob_result = glob.glob(pattern)
 
-    # Return without duplicates
-    return list(set(ret))
+    # There should be only one directory here
+    return os.path.basename(glob_result[0]) if glob_result else None
 
 
 def tempfolder(args, path, suffix="native"):
