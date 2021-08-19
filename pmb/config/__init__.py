@@ -668,7 +668,7 @@ Flasher abstraction. Allowed variables:
 
 $BOOT: Path to the /boot partition
 $DTB: Set to "-dtb" if deviceinfo_append_dtb is set, otherwise ""
-$FLAVOR: Kernel flavor
+$FLAVOR: Backwards compatibility with old mkinitfs (pma#660)
 $IMAGE: Path to the combined boot/rootfs image
 $IMAGE_SPLIT_BOOT: Path to the (split) boot image
 $IMAGE_SPLIT_ROOT: Path to the (split) rootfs image
@@ -687,7 +687,7 @@ flashers = {
             "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
                               "$IMAGE"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
-                              "$BOOT/boot.img-$FLAVOR"]],
+                              "$BOOT/boot.img$FLAVOR"]],
             "flash_vbmeta": [
                 # Generate vbmeta image with "disable verification" flag
                 ["avbtool", "make_vbmeta_image", "--flags", "2",
@@ -699,7 +699,7 @@ flashers = {
             "flash_dtbo": [["fastboot", "flash", "$PARTITION_DTBO",
                             "$BOOT/dtbo.img"]],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
-                      "boot", "$BOOT/boot.img-$FLAVOR"]],
+                      "boot", "$BOOT/boot.img$FLAVOR"]],
         },
     },
     # Some devices provide Fastboot but using Android boot images is not
@@ -750,7 +750,7 @@ flashers = {
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
                 ["heimdall", "flash", "--$PARTITION_KERNEL",
-                 "$BOOT/boot.img-$FLAVOR"]],
+                 "$BOOT/boot.img$FLAVOR"]],
             "flash_vbmeta": [
                 ["avbtool", "make_vbmeta_image", "--flags", "2",
                     "--padding_size", "$FLASH_PAGESIZE",
