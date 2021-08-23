@@ -27,6 +27,7 @@ def generate(args, pkgname):
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     mirrordir = channel_cfg["mirrordir_alpine"]
     apkbuild_path = f"{args.work}/chroot_native/{tempdir}/APKBUILD"
+    apk_name = f"busybox-static-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk"
     with open(apkbuild_path, "w", encoding="utf-8") as handle:
         apkbuild = f"""\
             # Automatically generated aport, do not edit!
@@ -58,7 +59,7 @@ def generate(args, pkgname):
             package() {{
                 mkdir -p "$pkgdir/usr/$_target"
                 cd "$pkgdir/usr/$_target"
-                tar -xf $srcdir/busybox-static-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk
+                tar -xf $srcdir/{apk_name}
                 rm .PKGINFO .SIGN.*
             }}
         """

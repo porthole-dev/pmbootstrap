@@ -19,7 +19,8 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
                 KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS\""""
 
     package = """
-            downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor" "$_outdir\""""
+            downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
+                "$_flavor" "$_outdir\""""
 
     if deviceinfo["bootimg_qcdt"] == "true":
         build += """\n
@@ -36,9 +37,10 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         elif soc_vendor == "exynos":
             codename = "-".join(pkgname.split("-")[2:])
             makedepends.append("dtbtool-exynos")
-            build += f"""
+            build += """
             dtbTool-exynos -o "$_outdir/arch/$_carch/boot"/dt.img \\
-                $(find "$_outdir/arch/$_carch/boot/dts/" -name *{codename}*.dtb)"""
+                $(find "$_outdir/arch/$_carch/boot/dts/\""""
+            build += f" -name *{codename}*.dtb)"
         else:
             makedepends.append("dtbtool")
             build += """

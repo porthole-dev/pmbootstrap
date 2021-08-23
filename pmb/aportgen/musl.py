@@ -27,6 +27,8 @@ def generate(args, pkgname):
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     mirrordir = channel_cfg["mirrordir_alpine"]
     apkbuild_path = f"{args.work}/chroot_native/{tempdir}/APKBUILD"
+    apk_name = f"$srcdir/musl-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk"
+    apk_dev_name = f"$srcdir/musl-dev-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk"
     with open(apkbuild_path, "w", encoding="utf-8") as handle:
         apkbuild = f"""\
             # Automatically generated aport, do not edit!
@@ -63,7 +65,7 @@ def generate(args, pkgname):
                 cd "$pkgdir/usr/$_target"
                 # Use 'busybox tar' to avoid 'tar: Child returned status 141'
                 # on some machines (builds.sr.ht, gitlab-ci). See pmaports#26.
-                busybox tar -xf $srcdir/musl-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk
+                busybox tar -xf {apk_name}
                 rm .PKGINFO .SIGN.*
             }}
             package_dev() {{
@@ -71,11 +73,12 @@ def generate(args, pkgname):
                 cd "$subpkgdir/usr/$_target"
                 # Use 'busybox tar' to avoid 'tar: Child returned status 141'
                 # on some machines (builds.sr.ht, gitlab-ci). See pmaports#26.
-                busybox tar -xf $srcdir/musl-dev-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk
+                busybox tar -xf {apk_dev_name}
                 rm .PKGINFO .SIGN.*
 
-                # symlink everything from /usr/$_target/usr/* to /usr/$_target/*
-                # so the cross-compiler gcc does not fail to build.
+                # symlink everything from /usr/$_target/usr/*
+                # to /usr/$_target/* so the cross-compiler gcc does not fail
+                # to build.
                 for _dir in include lib; do
                     mkdir -p "$subpkgdir/usr/$_target/$_dir"
                     cd "$subpkgdir/usr/$_target/usr/$_dir"

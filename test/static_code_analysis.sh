@@ -32,7 +32,6 @@ while read -r file; do
 done
 
 # Python: flake8
-# E501: max line length
 # F401: imported, but not used, does not make sense in __init__ files
 # E402: module import not on top of file, not possible for testcases
 # E722: do not use bare except
@@ -40,23 +39,11 @@ cd "$DIR"/..
 echo "Test with flake8: *.py"
 # Note: omitting a virtualenv if it is here (e.g. gitlab CI)
 py_files="$(find . -not -path '*/venv/*' -name '*.py')"
-_ignores="E501,E402,E722,W504,W605"
+_ignores="E402,E722,W504,W605"
 # shellcheck disable=SC2086
 $flake8_command --exclude=__init__.py --ignore "$_ignores" $py_files
 # shellcheck disable=SC2086
 $flake8_command --filename=__init__.py --ignore "F401,$_ignores" $py_files
-
-# Enforce max line length of 79 characters (#1986). We are iteratively fixing
-# up the source files to adhere to this rule, so ignore the ones that are not
-# yet fixed. Eventually, E501 can be removed from _ignores above, and this
-# whole block can be removed.
-echo "Test with flake8: *.py (E501)"
-exc_files="./pmb/aportgen/busybox_static.py"
-exc_files="$exc_files,./pmb/aportgen/grub_efi.py"
-exc_files="$exc_files,./pmb/aportgen/linux.py"
-exc_files="$exc_files,./pmb/aportgen/musl.py"
-# shellcheck disable=SC2086
-$flake8_command --select="E501" --exclude=$exc_files $py_files
 
 # Done
 echo "Success!"
