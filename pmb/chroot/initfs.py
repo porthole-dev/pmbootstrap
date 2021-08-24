@@ -82,8 +82,6 @@ def frontend(args):
     suffix = f"rootfs_{args.device}"
     flavors = pmb.chroot.other.kernel_flavors_installed(args, suffix)
     flavor = flavors[0]
-    if hasattr(args, "flavor") and args.flavor:
-        flavor = args.flavor
 
     # Handle initfs actions
     action = args.action_initfs

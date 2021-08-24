@@ -43,14 +43,7 @@ def _parse_flavor(args, autoinstall=True):
     flavors = pmb.chroot.other.kernel_flavors_installed(
         args, suffix, autoinstall)
 
-    # Parse and verify the flavor argument
-    flavor = args.flavor
-    if flavor:
-        if flavor not in flavors:
-            raise RuntimeError(f"No kernel installed with flavor {flavor}!" +
-                               " Run 'pmbootstrap flasher list_flavors' to"
-                               " get a list.")
-        return flavor
+    # Parse and verify flavor
     if not len(flavors):
         raise RuntimeError(
             "No kernel flavors installed in chroot " + suffix + "! Please let"

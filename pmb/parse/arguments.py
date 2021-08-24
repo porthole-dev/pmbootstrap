@@ -88,8 +88,6 @@ def arguments_install(subparser):
     # Image type "--android-recovery-zip" related
     group = ret.add_argument_group("optional image type 'android-recovery-zip'"
                                    " arguments")
-    group.add_argument("--flavor", help="kernel flavor to include in recovery"
-                       " flashable zip", default=None)
     group.add_argument("--recovery-install-partition", default="system",
                        help="partition to flash from recovery (e.g."
                             " 'external_sd')",
@@ -174,7 +172,6 @@ def arguments_export(subparser):
     ret.add_argument("--odin", help="odin flashable tar"
                                     " (boot.img/kernel+initramfs only)",
                      action="store_true", dest="odin_flashable_tar")
-    ret.add_argument("--flavor", default=None)
     ret.add_argument("--no-install", dest="autoinstall", default=True,
                      help="skip updating kernel/initfs", action="store_false")
     return ret
@@ -213,7 +210,6 @@ def arguments_flasher(subparser):
     boot.add_argument("--cmdline", help="override kernel commandline")
     flash_kernel = sub.add_parser("flash_kernel", help="flash a kernel")
     for action in [boot, flash_kernel]:
-        action.add_argument("--flavor", default=None)
         action.add_argument("--no-install", dest="autoinstall", default=True,
                             help="skip updating kernel/initfs",
                             action="store_false")
@@ -277,17 +273,10 @@ def arguments_initfs(subparser):
                             " for example: 'debug-shell'")
 
     # ls, build, extract
-    ls = sub.add_parser("ls", help="list initramfs contents")
-    build = sub.add_parser("build", help="(re)build the initramfs")
-    extract = sub.add_parser(
-        "extract",
-        help="extract the initramfs to a temporary folder")
-    for action in [ls, build, extract]:
-        action.add_argument(
-            "--flavor",
-            default=None,
-            help="name of the kernel flavor (run 'pmbootstrap flasher"
-            " list_flavors' to get a list of all installed flavors")
+    sub.add_parser("ls", help="list initramfs contents")
+    sub.add_parser("build", help="(re)build the initramfs")
+    sub.add_parser("extract",
+                   help="extract the initramfs to a temporary folder")
 
     return ret
 
