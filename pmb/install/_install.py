@@ -391,12 +391,10 @@ def print_firewall_info(args):
     apkbuild_has_opt = False
 
     arch = args.deviceinfo["arch"]
-    suffix = f"rootfs_{args.device}"
-    kernels = pmb.chroot.other.kernel_flavors_installed(args, suffix,
-                                                        autoinstall=False)
-    if kernels:
-        kernel = f"linux-{kernels[0]}"
-        kernel_apkbuild = pmb.build._package.get_apkbuild(args, kernel, arch)
+    kernel = get_kernel_package(args, args.device)
+    if kernel:
+        kernel_apkbuild = pmb.build._package.get_apkbuild(args, kernel[0],
+                                                          arch)
         if kernel_apkbuild:
             opts = kernel_apkbuild["options"]
             apkbuild_has_opt = "pmb:kconfigcheck-nftables" in opts
