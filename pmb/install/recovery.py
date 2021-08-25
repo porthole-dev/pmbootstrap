@@ -3,6 +3,7 @@
 import logging
 
 import pmb.chroot
+import pmb.config.pmaports
 import pmb.flasher
 import pmb.helpers.frontend
 
@@ -30,7 +31,6 @@ def create_zip(args, suffix):
     # Create config file for the recovery installer
     options = {
         "DEVICE": args.device,
-        "FLAVOR": flavor,
         "FLASH_KERNEL": args.recovery_flash_kernel,
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": vars["$PARTITION_KERNEL"],
@@ -40,6 +40,13 @@ def create_zip(args, suffix):
         "CIPHER": args.cipher,
         "FDE": args.full_disk_encryption,
     }
+
+    # Backwards compatibility with old mkinitfs (pma#660)
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
+        options["FLAVOR"] = ""
+    else:
+        options["FLAVOR"] = f"-{flavor}" if flavor is not None else "-"
 
     # Write to a temporary file
     config_temp = args.work + "/chroot_" + suffix + "/tmp/install_options"
