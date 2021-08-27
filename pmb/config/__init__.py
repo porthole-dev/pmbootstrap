@@ -583,6 +583,7 @@ deviceinfo_attributes = [
     "flash_fastboot_partition_kernel",
     "flash_fastboot_partition_system",
     "flash_fastboot_partition_vbmeta",
+    "flash_fastboot_partition_dtbo",
     "generate_legacy_uboot_initfs",
     "kernel_cmdline",
     "generate_bootimg",
@@ -694,6 +695,8 @@ flashers = {
                 ["fastboot", "flash", "$PARTITION_VBMETA", "/vbmeta.img"],
                 ["rm", "-f", "/vbmeta.img"]
             ],
+            "flash_dtbo": [["fastboot", "flash", "$PARTITION_DTBO",
+                            "$BOOT/dtbo.img"]],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
                       "boot", "$BOOT/boot.img-$FLAVOR"]],
         },

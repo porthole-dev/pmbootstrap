@@ -79,6 +79,11 @@ def flash_vbmeta(args):
     pmb.flasher.run(args, "flash_vbmeta")
 
 
+def flash_dtbo(args):
+    logging.info("(native) flash dtbo image")
+    pmb.flasher.run(args, "flash_dtbo")
+
+
 def list_devices(args):
     pmb.flasher.run(args, "list_devices")
 
@@ -126,6 +131,8 @@ def frontend(args):
         rootfs(args)
     if action == "flash_vbmeta":
         flash_vbmeta(args)
+    if action == "flash_dtbo":
+        flash_dtbo(args)
     if action == "list_flavors":
         list_flavors(args)
     if action == "list_devices":

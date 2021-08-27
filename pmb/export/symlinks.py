@@ -20,6 +20,7 @@ def symlinks(args, flavor, folder):
     info = {
         "boot.img-" + flavor: "Fastboot compatible boot.img file,"
         " contains initramfs and kernel",
+        "dtbo.img": "Fastboot compatible dtbo image",
         "initramfs-" + flavor: "Initramfs",
         "initramfs-" + flavor + "-extra": "Extra initramfs files in /boot",
         "uInitrd-" + flavor: "Initramfs, legacy u-boot image format",
@@ -37,6 +38,7 @@ def symlinks(args, flavor, folder):
     path_buildroot = args.work + "/chroot_buildroot_" + args.deviceinfo["arch"]
     patterns = [path_boot + "/*-" + flavor,
                 path_boot + "/*-" + flavor + "-extra",
+                path_boot + "/dtbo.img",
                 path_native + "/home/pmos/rootfs/" + args.device + ".img",
                 path_native + "/home/pmos/rootfs/" + args.device + "-boot.img",
                 path_native + "/home/pmos/rootfs/" + args.device + "-root.img",

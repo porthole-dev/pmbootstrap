@@ -673,6 +673,14 @@ def print_flash_info(args):
         logging.info("* pmbootstrap flasher flash_vbmeta")
         logging.info("  Flashes vbmeta image with verification disabled flag.")
 
+    # if current flasher supports dtbo and partition is explicitly specified
+    # in deviceinfo
+    if "flash_dtbo" in flasher_actions and \
+            (args.deviceinfo["flash_fastboot_partition_dtbo"] or
+             args.deviceinfo["flash_heimdall_partition_dtbo"]):
+        logging.info("* pmbootstrap flasher flash_dtbo")
+        logging.info("  Flashes dtbo image.")
+
     # Most flash methods operate independently of the boot partition.
     # (e.g. an Android boot image is generated). In that case, "flash_kernel"
     # works even when partitions are split or installing for sdcard.

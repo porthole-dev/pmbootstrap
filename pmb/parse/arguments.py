@@ -242,6 +242,13 @@ def arguments_flasher(subparser):
                               help="partition to flash the vbmeta to (defaults"
                                    " to deviceinfo_flash_*_partition_vbmeta")
 
+    # Flash dtbo
+    flash_dtbo = sub.add_parser("flash_dtbo",
+                                help="flash dtbo image")
+    flash_dtbo.add_argument("--partition", default=None,
+                            help="partition to flash the dtbo to (defaults"
+                            " to deviceinfo_flash_*_partition_dtbo)")
+
     # Actions without extra arguments
     sub.add_parser("sideload", help="sideload recovery zip")
     sub.add_parser("list_flavors", help="list installed kernel flavors" +

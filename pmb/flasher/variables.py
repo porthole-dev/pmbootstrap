@@ -16,6 +16,8 @@ def variables(args, flavor, method):
             or "system"
         _partition_vbmeta = args.deviceinfo["flash_fastboot_partition_vbmeta"]\
             or None
+        _partition_dtbo = args.deviceinfo["flash_fastboot_partition_dtbo"]\
+            or None
     else:
         _partition_kernel = args.deviceinfo["flash_heimdall_partition_kernel"]\
             or "KERNEL"
@@ -23,13 +25,16 @@ def variables(args, flavor, method):
             or "SYSTEM"
         _partition_vbmeta = args.deviceinfo["flash_heimdall_partition_vbmeta"]\
             or None
+        _partition_dtbo = args.deviceinfo["flash_heimdall_partition_dtbo"]\
+            or None
 
     if "partition" in args and args.partition:
-        # Only one of operations is done at same time so it doesn't matter
+        # Only one operation is done at same time so it doesn't matter
         # sharing the arg
         _partition_kernel = args.partition
         _partition_system = args.partition
         _partition_vbmeta = args.partition
+        _partition_dtbo = args.partition
 
     _dtb = ""
     if args.deviceinfo["append_dtb"] == "true":
@@ -48,6 +53,7 @@ def variables(args, flavor, method):
             "flash_heimdall_partition_initfs"] or "RECOVERY",
         "$PARTITION_SYSTEM": _partition_system,
         "$PARTITION_VBMETA": _partition_vbmeta,
+        "$PARTITION_DTBO": _partition_dtbo,
         "$FLASH_PAGESIZE": flash_pagesize,
         "$RECOVERY_ZIP": "/mnt/buildroot_" + args.deviceinfo["arch"] +
                          "/var/lib/postmarketos-android-recovery-installer"
