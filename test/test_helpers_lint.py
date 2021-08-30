@@ -32,7 +32,7 @@ def test_pmbootstrap_lint(args, tmpdir):
     shutil.copyfile(apkbuild_orig, apkbuild_tmp)
 
     # Lint passes
-    assert pmb.helpers.lint.check(args, "hello-world") == ""
+    assert pmb.helpers.lint.check(args, ["hello-world"]) == ""
 
     # Change "pmb:cross-native" to non-existing "pmb:invalid-opt"
     pmb.helpers.run.user(args, ["sed", "s/pmb:cross-native/pmb:invalid-opt/g",
@@ -40,4 +40,4 @@ def test_pmbootstrap_lint(args, tmpdir):
 
     # Lint error
     err_str = "invalid option 'pmb:invalid-opt'"
-    assert err_str in pmb.helpers.lint.check(args, "hello-world")
+    assert err_str in pmb.helpers.lint.check(args, ["hello-world"])

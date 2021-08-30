@@ -330,6 +330,16 @@ def override_source(args, apkbuild, pkgver, src, suffix="native"):
     pmb.chroot.user(args, ["mv", append_path + "_", apkbuild_path], suffix)
 
 
+def mount_pmaports(args, destination, suffix="native"):
+    """
+    Mount pmaports.git in chroot.
+
+    :param destination: mount point inside the chroot
+    """
+    outside_destination = args.work + "/chroot_" + suffix + destination
+    pmb.helpers.mount.bind(args, args.aports, outside_destination, umount=True)
+
+
 def link_to_git_dir(args, suffix):
     """
     Make /home/pmos/build/.git point to the .git dir from pmaports.git, with a
@@ -350,13 +360,12 @@ def link_to_git_dir(args, suffix):
     # initialization of the chroot, because the pmaports dir may not exist yet
     # at that point. Use umount=True, so we don't have an old path mounted
     # (some tests change the pmaports dir).
-    inside_destination = "/mnt/pmaports"
-    outside_destination = args.work + "/chroot_" + suffix + inside_destination
-    pmb.helpers.mount.bind(args, args.aports, outside_destination, umount=True)
+    destination = "/mnt/pmaports"
+    mount_pmaports(args, destination, suffix)
 
     # Create .git symlink
     pmb.chroot.user(args, ["mkdir", "-p", "/home/pmos/build"], suffix)
-    pmb.chroot.user(args, ["ln", "-sf", inside_destination + "/.git",
+    pmb.chroot.user(args, ["ln", "-sf", destination + "/.git",
                            "/home/pmos/build/.git"], suffix)
 
 
