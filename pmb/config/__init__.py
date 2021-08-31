@@ -659,7 +659,14 @@ install_user_groups = ["wheel", "video", "audio", "input", "plugdev", "netdev"]
 # FLASH
 #
 
-flash_methods = ["fastboot", "heimdall", "0xffff", "uuu", "none"]
+flash_methods = [
+    "0xffff",
+    "fastboot",
+    "heimdall",
+    "none"
+    "rkdeveloptool",
+    "uuu",
+]
 
 # These folders will be mounted at the same location into the native
 # chroot, before the flash programs get started.
@@ -784,6 +791,15 @@ flashers = {
                 # script if the script is not in pwd...
                 ["cp", "$UUU_SCRIPT", "./flash_script.lst"],
                 ["uuu", "flash_script.lst"],
+            ],
+        },
+    },
+    "rkdeveloptool": {
+        "depends": ["rkdeveloptool"],
+        "actions": {
+            "list_devices": [["rkdeveloptool", "ld"]],
+            "flash_rootfs": [
+                ["rkdeveloptool", "wl", "0", "$IMAGE"]
             ],
         },
     }
