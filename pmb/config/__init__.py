@@ -580,6 +580,7 @@ deviceinfo_attributes = [
     "flash_heimdall_partition_initfs",
     "flash_heimdall_partition_system",
     "flash_heimdall_partition_vbmeta",
+    "flash_heimdall_partition_dtbo",
     "flash_fastboot_partition_kernel",
     "flash_fastboot_partition_system",
     "flash_fastboot_partition_vbmeta",
