@@ -13,6 +13,7 @@ import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
+import pmb.config.pmaports
 import pmb.helpers.run
 import pmb.parse.arch
 import pmb.parse.cpuinfo
@@ -97,6 +98,12 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     suffix = "rootfs_" + args.device
     rootfs = args.work + "/chroot_" + suffix
     flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
+    flavor_suffix = f"-{flavor}"
+    # Backwards compatibility with old mkinitfs (pma#660)
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
+        flavor_suffix = ""
+
     ncpus = os.cpu_count()
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
@@ -147,8 +154,8 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         command += ["-L", rootfs_native + "/usr/share/qemu/"]
 
     command += ["-nodefaults"]
-    command += ["-kernel", rootfs + "/boot/vmlinuz-" + flavor]
-    command += ["-initrd", rootfs + "/boot/initramfs-" + flavor]
+    command += ["-kernel", rootfs + "/boot/vmlinuz" + flavor_suffix]
+    command += ["-initrd", rootfs + "/boot/initramfs" + flavor_suffix]
     command += ["-append", shlex.quote(cmdline)]
 
     command += ["-smp", str(ncpus)]
