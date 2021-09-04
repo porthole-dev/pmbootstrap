@@ -59,7 +59,15 @@ def check_mtk_bootimg(bootimg_path):
         raise RuntimeError(f"{err_start} Expected the kernel inside the"
                            " boot.img to have a 'KERNEL' label instead of"
                            f" '{label_kernel}'. {err_end}")
-    if label_ramdisk != "ROOTFS":
+    if label_ramdisk == "RECOVERY":
+        logging.warning(
+            f"WARNING: {err_start} But since you apparently passed a recovery"
+            " image instead of a regular boot.img, we can't tell if it has the"
+            " expected label 'ROOTFS' inside the ramdisk (found 'RECOVERY')."
+            " So there is a slight chance that it may not boot, in that case"
+            " run bootimg_analyze again with a regular boot.img. It will fail"
+            " if the label is different from 'ROOTFS'.")
+    elif label_ramdisk != "ROOTFS":
         raise RuntimeError(f"{err_start} Expected the ramdisk inside the"
                            " boot.img to have a 'ROOTFS' label instead of"
                            f" '{label_ramdisk}'. {err_end}")
