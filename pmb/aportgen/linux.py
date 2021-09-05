@@ -42,7 +42,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         else:
             makedepends.append("dtbtool")
             build += """
-            dtbTool -p scripts/dtc/ -o "$_outdir/arch/$_carch/boot"/dt.img \\
+            dtbTool -o "$_outdir/arch/$_carch/boot"/dt.img \\
                 "$_outdir/arch/$_carch/boot/\""""
         package += """
             install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img \\
