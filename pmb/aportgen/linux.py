@@ -30,7 +30,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         if soc_vendor == "spreadtrum":
             makedepends.append("dtbtool-sprd")
             build += """
-            dtbTool-sprd -p scripts/dtc/ \\
+            dtbTool-sprd -p "$_outdir/scripts/dtc/" \\
                 -o "$_outdir/arch/$_carch/boot"/dt.img \\
                 "$_outdir/arch/$_carch/boot/dts/\""""
         elif soc_vendor == "exynos":
