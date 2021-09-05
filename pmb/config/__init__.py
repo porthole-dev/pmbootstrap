@@ -733,8 +733,8 @@ flashers = {
                 ["heimdall_wait_for_device.sh"],
                 ["heimdall", "flash", "--$PARTITION_SYSTEM", "$IMAGE"]],
             "flash_kernel": [["heimdall_flash_kernel.sh",
-                              "$BOOT/initramfs-$FLAVOR", "$PARTITION_INITFS",
-                              "$BOOT/vmlinuz-$FLAVOR$DTB",
+                              "$BOOT/initramfs$FLAVOR", "$PARTITION_INITFS",
+                              "$BOOT/vmlinuz$FLAVOR$DTB",
                               "$PARTITION_KERNEL"]]
         },
     },
