@@ -319,6 +319,12 @@ necessary_kconfig_options_anbox = {
             "BRIDGE_VLAN_FILTERING": True,
         }
     },
+    ">=4.20.0": {
+        "all": {
+            "PSI": True,  # required by userspace OOM killer in Waydroid
+            "PSI_DEFAULT_DISABLED": False,
+        }
+    }
 }
 
 # Necessary nftables kernel config options
