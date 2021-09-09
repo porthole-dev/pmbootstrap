@@ -464,6 +464,9 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
         logging.info("(" + suffix + ") uninstall build dependencies")
         pmb.chroot.user(args, ["abuild", "undeps"], suffix, "/home/pmos/build",
                         env={"SUDO_APK": "abuild-apk --no-progress"})
+        # If the build depends contain postmarketos-keys or postmarketos-base,
+        # abuild will have removed the postmarketOS repository key (pma#1230)
+        pmb.chroot.init_keys(args)
 
 
 def package(args, pkgname, arch=None, force=False, strict=False,
