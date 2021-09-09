@@ -57,6 +57,23 @@ def setup_qemu_emulation(args, suffix):
                                 create_folders=True)
 
 
+def init_keys(args):
+    """
+    All Alpine and postmarketOS repository keys are shipped with pmbootstrap.
+    Copy them into $WORK/config_apk_keys, which gets mounted inside the various
+    chroots as /etc/apk/keys.
+
+    This is done before installing any package, so apk can verify APKINDEX
+    files of binary repositories even though alpine-keys/postmarketos-keys are
+    not installed yet.
+    """
+    for key in glob.glob(f"{pmb.config.apk_keys_path}/*.pub"):
+        target = f"{args.work}/config_apk_keys/{os.path.basename(key)}"
+        if not os.path.exists(target):
+            # Copy as root, so the resulting files in chroots are owned by root
+            pmb.helpers.run.root(args, ["cp", key, target])
+
+
 def init(args, suffix="native"):
     # When already initialized: just prepare the chroot
     chroot = f"{args.work}/chroot_{suffix}"
@@ -82,9 +99,7 @@ def init(args, suffix="native"):
                                 f"{chroot}/etc/apk/cache"])
 
     # Initialize /etc/apk/keys/, resolv.conf, repositories
-    for key in glob.glob(f"{pmb.config.apk_keys_path}/*.pub"):
-        pmb.helpers.run.root(args, ["cp", key, f"{args.work}"
-                                               "/config_apk_keys/"])
+    init_keys(args)
     copy_resolv_conf(args, suffix)
     pmb.chroot.apk.update_repository_list(args, suffix)
 
