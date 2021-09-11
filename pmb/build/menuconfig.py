@@ -78,12 +78,12 @@ def get_outputdir(args, pkgname, apkbuild):
                        " template with: pmbootstrap aportgen " + pkgname)
 
 
-def menuconfig(args, pkgname):
+def menuconfig(args, pkgname, use_oldconfig):
     # Pkgname: allow omitting "linux-" prefix
     if pkgname.startswith("linux-"):
         pkgname_ = pkgname.split("linux-")[1]
-        logging.info("PROTIP: You can simply do 'pmbootstrap kconfig edit " +
-                     pkgname_ + "'")
+        logging.info(f"PROTIP: You can simply do 'pmbootstrap kconfig "
+                     f"{args.action_kconfig} {pkgname_}'")
     else:
         pkgname = "linux-" + pkgname
 
@@ -99,18 +99,24 @@ def menuconfig(args, pkgname):
     pmb.build.init(args, suffix)
     if cross:
         pmb.build.init_compiler(args, [], cross, arch)
+
     depends = apkbuild["makedepends"]
-    kopt = "menuconfig"
     copy_xauth = False
-    if args.xconfig:
-        depends += ["qt5-qtbase-dev", "font-noto"]
-        kopt = "xconfig"
-        copy_xauth = True
-    elif args.nconfig:
-        kopt = "nconfig"
-        depends += ["ncurses-dev"]
+
+    if use_oldconfig:
+        kopt = "oldconfig"
     else:
-        depends += ["ncurses-dev"]
+        kopt = "menuconfig"
+        if args.xconfig:
+            depends += ["qt5-qtbase-dev", "font-noto"]
+            kopt = "xconfig"
+            copy_xauth = True
+        elif args.nconfig:
+            kopt = "nconfig"
+            depends += ["ncurses-dev"]
+        else:
+            depends += ["ncurses-dev"]
+
     pmb.chroot.apk.install(args, depends)
 
     # Copy host's .xauthority into native

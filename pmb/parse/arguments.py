@@ -457,6 +457,17 @@ def arguments_kconfig(subparser):
     if argcomplete:
         edit_package.completer = kernel_completer
 
+    # "pmbootstrap kconfig migrate"
+    migrate = sub.add_parser("migrate",
+                             help="Migrate kconfig from older version to "
+                                  "newer. Internally runs 'make oldconfig', "
+                                  "which asks question for every new kernel "
+                                  "config option.")
+    migrate.add_argument("--arch", choices=arch_choices, dest="arch")
+    migrate_package = migrate.add_argument("package", nargs='?')
+    if argcomplete:
+        migrate_package.completer = kernel_completer
+
 
 def arguments_repo_missing(subparser):
     ret = subparser.add_parser("repo_missing")

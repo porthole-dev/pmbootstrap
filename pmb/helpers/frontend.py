@@ -417,12 +417,13 @@ def kconfig(args):
                 logging.info("NOTE: " + str(skipped) + " kernel(s) was skipped"
                              " (consider 'pmbootstrap kconfig check -f')")
             logging.info("kconfig check succeeded!")
-    elif args.action_kconfig == "edit":
+    elif args.action_kconfig in ["edit", "migrate"]:
         if args.package:
             pkgname = args.package
         else:
             pkgname = args.deviceinfo["codename"]
-        pmb.build.menuconfig(args, pkgname)
+        use_oldconfig = args.action_kconfig == "migrate"
+        pmb.build.menuconfig(args, pkgname, use_oldconfig)
 
 
 def deviceinfo_parse(args):
