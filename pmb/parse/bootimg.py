@@ -13,23 +13,58 @@ def is_dtb(path):
         return f.read(4) == b'\xd0\x0d\xfe\xed'
 
 
-def has_mtk_header(path, supported_label):
+def get_mtk_label(path):
+    """ Read the label of a mediatek header of kernel or ramdisk inside an
+        extracted boot.img.
+        :param path: to either the kernel or ramdisk file extracted from
+                     boot.img
+        :returns: * None: file does not exist or does not have Mediatek header
+                  * Label string (e.g. "ROOTFS", "RECOVERY", "KERNEL") """
+    if not os.path.exists(path):
+        return None
+
     with open(path, 'rb') as f:
         # Check Mediatek header (0x88168858)
         if not f.read(4) == b'\x88\x16\x88\x58':
-            return False
+            return None
         f.seek(8)
         label = f.read(32).decode("utf-8").rstrip('\0')
-        # We only support hardcoded labels for now as the known devices only
-        # use KERNEL & ROOTFS for kernel and ramdisk respectively. To change
-        # this, deviceinfo would need to store the label and
-        # postmarketos-mkinitfs would need to use that label.
-        if label != supported_label:
-            raise RuntimeError(f"Only '{supported_label}' is supported as"
-                               f" label, but your device has '{label}'. Please"
-                               f" create an issue and attach your boot.img:"
-                               f" https://postmarketos.org/issues")
-        return True
+        return label
+
+
+def check_mtk_bootimg(bootimg_path):
+    """ Check if a boot.img contains a kernel and ramdisk with Mediatek
+        headers, and verify that these headers have labels we expect in
+        boot-deploy.
+        :param bootimg_path: path to boot.img, with extracted files in the same
+                             directory
+        :returns: * True: has Mediatek headers
+                  * False: has no Mediatek headers """
+    label_kernel = get_mtk_label(f"{bootimg_path}-kernel")
+    label_ramdisk = get_mtk_label(f"{bootimg_path}-ramdisk")
+
+    # Doesn't have Mediatek headers
+    if label_kernel is None and label_ramdisk is None:
+        return False
+
+    # Verify that the kernel and ramdisk have the labels we expect and have
+    # hardcoded in boot-deploy.git's add_mtk_header() function. We don't know
+    # if there are devices out there with different labels, but if there are,
+    # our code in boot-deploy needs to be adjusted to use the proper labels
+    # (store the label in deviceinfo and use it).
+    err_start = "This boot.img has Mediatek headers."
+    err_end = ("Please create an issue and attach your boot.img:"
+               " https://postmarketos.org/issues")
+    if label_kernel != "KERNEL":
+        raise RuntimeError(f"{err_start} Expected the kernel inside the"
+                           " boot.img to have a 'KERNEL' label instead of"
+                           f" '{label_kernel}'. {err_end}")
+    if label_ramdisk != "ROOTFS":
+        raise RuntimeError(f"{err_start} Expected the ramdisk inside the"
+                           " boot.img to have a 'ROOTFS' label instead of"
+                           f" '{label_ramdisk}'. {err_end}")
+
+    return True
 
 
 def bootimg(args, path):
@@ -103,17 +138,13 @@ def bootimg(args, path):
 
     output["qcdt"] = ("true" if os.path.isfile(f"{bootimg_path}-dt") and
                       os.path.getsize(f"{bootimg_path}-dt") > 0 else "false")
-    output["mtk_mkimage"] = ("true" if has_mtk_header(f"{bootimg_path}-kernel",
-                             "KERNEL") else "false")
+    output["mtk_mkimage"] = ("true" if check_mtk_bootimg(bootimg_path)
+                             else "false")
     output["dtb_second"] = ("true" if is_dtb(f"{bootimg_path}-second")
                             else "false")
 
     with open(f"{bootimg_path}-cmdline", 'r') as f:
         output["cmdline"] = f.read().replace('\n', '')
-    # Mediatek: Check that the ramdisk also has a known-good label
-    # We don't care about the return value, just whether it throws an exception
-    # or not.
-    has_mtk_header(f"{bootimg_path}-ramdisk", "ROOTFS")
 
     # Cleanup
     pmb.chroot.root(args, ["rm", "-r", temp_path])
