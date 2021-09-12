@@ -73,13 +73,13 @@ def test_bootimg_qcdt(args):
 
 def test_bootimg_mtk_mkimage(args):
     path = pmb_test.const.testdata + "/bootimg/mtk_mkimage-boot.img"
-    output = {"base": "0x80000000",
+    output = {"base": "0x10000000",
               "kernel_offset": "0x00008000",
-              "ramdisk_offset": "0x04000000",
+              "ramdisk_offset": "0x01000000",
               "second_offset": "0x00f00000",
-              "tags_offset": "0x0e000000",
+              "tags_offset": "0x00000100",
               "pagesize": "2048",
-              "cmdline": "bootopt=64S3,32S1,32S1",
+              "cmdline": "",
               "qcdt": "false",
               "mtk_mkimage": "true",
               "dtb_second": "false"}
