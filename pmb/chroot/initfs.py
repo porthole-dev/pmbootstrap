@@ -5,6 +5,7 @@ import logging
 import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
+import pmb.config.pmaports
 import pmb.helpers.cli
 
 
@@ -35,9 +36,16 @@ def extract(args, flavor, suffix, extra=False):
     """
     # Extraction folder
     inside = "/tmp/initfs-extracted"
+
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
+        initfs_file = "/boot/initramfs"
+    else:
+        initfs_file = f"/boot/initramfs-${flavor}"
     if extra:
         inside = "/tmp/initfs-extra-extracted"
-        flavor += "-extra"
+        initfs_file += "-extra"
+
     outside = f"{args.work}/chroot_{suffix}{inside}"
     if os.path.exists(outside):
         if not pmb.helpers.cli.confirm(args, f"Extraction folder {outside}"
@@ -55,7 +63,7 @@ def extract(args, flavor, suffix, extra=False):
 
     # Extract
     commands = [["mkdir", "-p", inside],
-                ["cp", f"/boot/initramfs-{flavor}", f"{inside}/_initfs.gz"],
+                ["cp", initfs_file, f"{inside}/_initfs.gz"],
                 ["gzip", "-d", f"{inside}/_initfs.gz"],
                 ["cat", "/tmp/_extract.sh"],  # for the log
                 ["sh", "/tmp/_extract.sh"],
