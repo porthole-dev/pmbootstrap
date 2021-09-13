@@ -87,7 +87,9 @@ def bootimg(args, path):
     bootimg_path = f"{args.work}/chroot_native{temp_path}/boot.img"
 
     # Copy the boot.img into the chroot temporary folder
+    # and make it world readable
     pmb.helpers.run.root(args, ["cp", path, bootimg_path])
+    pmb.helpers.run.root(args, ["chmod", "a+r", bootimg_path])
 
     file_output = pmb.chroot.user(args, ["file", "-b", "boot.img"],
                                   working_dir=temp_path,
