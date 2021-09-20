@@ -16,7 +16,7 @@ def args(request, tmpdir):
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
-    request.addfinalizer(args.logfd.close)
+    request.addfinalizer(pmb.helpers.logging.logfd.close)
 
     # Create an empty APKINDEX.tar.gz file, so we can use its path and
     # timestamp to put test information in the cache.

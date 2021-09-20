@@ -9,13 +9,13 @@ import pmb.parse.apkindex
 import pmb.parse.bootimg
 
 
-def ask_for_architecture(args):
+def ask_for_architecture():
     architectures = pmb.config.build_device_architectures
     # Don't show armhf, new ports shouldn't use this architecture
     if "armhf" in architectures:
         architectures.remove("armhf")
     while True:
-        ret = pmb.helpers.cli.ask(args, "Device architecture", architectures,
+        ret = pmb.helpers.cli.ask("Device architecture", architectures,
                                   architectures[0], complete=architectures)
         if ret in architectures:
             return ret
@@ -25,14 +25,14 @@ def ask_for_architecture(args):
                       " pmb/config/__init__.py.")
 
 
-def ask_for_manufacturer(args):
+def ask_for_manufacturer():
     logging.info("Who produced the device (e.g. LG)?")
-    return pmb.helpers.cli.ask(args, "Manufacturer", None, None, False)
+    return pmb.helpers.cli.ask("Manufacturer", None, None, False)
 
 
-def ask_for_name(args, manufacturer):
+def ask_for_name(manufacturer):
     logging.info("What is the official name (e.g. Google Nexus 5)?")
-    ret = pmb.helpers.cli.ask(args, "Name", None, None, False)
+    ret = pmb.helpers.cli.ask("Name", None, None, False)
 
     # Always add the manufacturer
     if not ret.startswith(manufacturer) and \
@@ -41,19 +41,19 @@ def ask_for_name(args, manufacturer):
     return ret
 
 
-def ask_for_year(args):
+def ask_for_year():
     # Regex from https://stackoverflow.com/a/12240826
     logging.info("In what year was the device released (e.g. 2012)?")
-    return pmb.helpers.cli.ask(args, "Year", None, None, False,
+    return pmb.helpers.cli.ask("Year", None, None, False,
                                validation_regex=r'^[1-9]\d{3,}$')
 
 
-def ask_for_chassis(args):
+def ask_for_chassis():
     types = pmb.config.deviceinfo_chassis_types
 
     logging.info("What type of device is it?")
     logging.info("Valid types are: " + ", ".join(types))
-    return pmb.helpers.cli.ask(args, "Chassis", None, None, True,
+    return pmb.helpers.cli.ask("Chassis", None, None, True,
                                validation_regex='|'.join(types),
                                complete=types)
 
@@ -68,10 +68,10 @@ def ask_for_external_storage(args):
                                    " other external storage medium?")
 
 
-def ask_for_flash_method(args):
+def ask_for_flash_method():
     while True:
         logging.info("Which flash method does the device support?")
-        method = pmb.helpers.cli.ask(args, "Flash method",
+        method = pmb.helpers.cli.ask("Flash method",
                                      pmb.config.flash_methods,
                                      pmb.config.flash_methods[0])
 
@@ -84,7 +84,7 @@ def ask_for_flash_method(args):
                     logging.info("<https://wiki.postmarketos.org/wiki"
                                  "/Deviceinfo_flash_methods#Isorec_or_bootimg"
                                  ".3F>")
-                    heimdall_type = pmb.helpers.cli.ask(args, "Type",
+                    heimdall_type = pmb.helpers.cli.ask("Type",
                                                         heimdall_types,
                                                         heimdall_types[0])
                     if heimdall_type in heimdall_types:
@@ -106,7 +106,7 @@ def ask_for_bootimg(args):
                  " 'pmbootstrap bootimg_analyze').")
 
     while True:
-        response = pmb.helpers.cli.ask(args, "Path", None, "", False)
+        response = pmb.helpers.cli.ask("Path", None, "", False)
         path = os.path.expanduser(response)
         if not path:
             return None
@@ -116,7 +116,7 @@ def ask_for_bootimg(args):
             logging.fatal("ERROR: " + str(e) + ". Please try again.")
 
 
-def generate_deviceinfo_fastboot_content(args, bootimg=None):
+def generate_deviceinfo_fastboot_content(bootimg=None):
     if bootimg is None:
         bootimg = {"cmdline": "",
                    "qcdt": "false",
@@ -205,9 +205,9 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
         """
 
     if flash_method == "fastboot":
-        content += generate_deviceinfo_fastboot_content(args, bootimg)
+        content += generate_deviceinfo_fastboot_content(bootimg)
     elif flash_method == "heimdall-bootimg":
-        content += generate_deviceinfo_fastboot_content(args, bootimg)
+        content += generate_deviceinfo_fastboot_content(bootimg)
         content += content_heimdall_bootimg
     elif flash_method == "heimdall-isorec":
         content += content_heimdall_isorec
@@ -273,14 +273,14 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
 
 
 def generate(args, pkgname):
-    arch = ask_for_architecture(args)
-    manufacturer = ask_for_manufacturer(args)
-    name = ask_for_name(args, manufacturer)
-    year = ask_for_year(args)
-    chassis = ask_for_chassis(args)
+    arch = ask_for_architecture()
+    manufacturer = ask_for_manufacturer()
+    name = ask_for_name(manufacturer)
+    year = ask_for_year()
+    chassis = ask_for_chassis()
     has_keyboard = ask_for_keyboard(args)
     has_external_storage = ask_for_external_storage(args)
-    flash_method = ask_for_flash_method(args)
+    flash_method = ask_for_flash_method()
     bootimg = None
     if flash_method in ["fastboot", "heimdall-bootimg"]:
         bootimg = ask_for_bootimg(args)

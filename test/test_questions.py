@@ -21,7 +21,7 @@ def args(tmpdir, request):
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
-    request.addfinalizer(args.logfd.close)
+    request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
@@ -34,7 +34,7 @@ def fake_answers(monkeypatch, answers):
                     In this example, the first question is answered with "y",
                     the second question with "n" and so on.
     """
-    def fake_ask(args, question="Continue?", choices=["y", "n"], default="n",
+    def fake_ask(question="Continue?", choices=["y", "n"], default="n",
                  lowercase_answer=True, validation_regex=None, complete=None):
         answer = answers.pop(0)
         logging.info("pmb.helpers.cli.ask() fake answer: " + answer)
@@ -44,8 +44,8 @@ def fake_answers(monkeypatch, answers):
 
 def test_fake_answers_selftest(monkeypatch):
     fake_answers(monkeypatch, ["first", "second"])
-    assert pmb.helpers.cli.ask(args) == "first"
-    assert pmb.helpers.cli.ask(args) == "second"
+    assert pmb.helpers.cli.ask() == "first"
+    assert pmb.helpers.cli.ask() == "second"
 
 
 def test_questions_booleans(args, monkeypatch):
@@ -61,7 +61,7 @@ def test_questions_strings(args, monkeypatch):
     functions = [pmb.aportgen.device.ask_for_manufacturer]
     for func in functions:
         fake_answers(monkeypatch, ["Simple string answer"])
-        assert func(args) == "Simple string answer"
+        assert func() == "Simple string answer"
 
 
 def test_questions_name(args, monkeypatch):
@@ -69,18 +69,18 @@ def test_questions_name(args, monkeypatch):
 
     # Manufacturer should get added automatically, but not twice
     fake_answers(monkeypatch, ["Amazon Thor"])
-    assert func(args, "Amazon") == "Amazon Thor"
+    assert func("Amazon") == "Amazon Thor"
     fake_answers(monkeypatch, ["Thor"])
-    assert func(args, "Amazon") == "Amazon Thor"
+    assert func("Amazon") == "Amazon Thor"
 
     # Don't add the manufacturer when it starts with "Google"
     fake_answers(monkeypatch, ["Google Nexus 12345"])
-    assert func(args, "Amazon") == "Google Nexus 12345"
+    assert func("Amazon") == "Google Nexus 12345"
 
 
 def test_questions_arch(args, monkeypatch):
     fake_answers(monkeypatch, ["invalid_arch", "aarch64"])
-    assert pmb.aportgen.device.ask_for_architecture(args) == "aarch64"
+    assert pmb.aportgen.device.ask_for_architecture() == "aarch64"
 
 
 def test_questions_bootimg(args, monkeypatch):
@@ -196,16 +196,16 @@ def test_questions_device_nonfree(args, monkeypatch):
 def test_questions_flash_methods(args, monkeypatch):
     func = pmb.aportgen.device.ask_for_flash_method
     fake_answers(monkeypatch, ["invalid_flash_method", "fastboot"])
-    assert func(args) == "fastboot"
+    assert func() == "fastboot"
 
     fake_answers(monkeypatch, ["0xffff"])
-    assert func(args) == "0xffff"
+    assert func() == "0xffff"
 
     fake_answers(monkeypatch, ["heimdall", "invalid_type", "isorec"])
-    assert func(args) == "heimdall-isorec"
+    assert func() == "heimdall-isorec"
 
     fake_answers(monkeypatch, ["heimdall", "bootimg"])
-    assert func(args) == "heimdall-bootimg"
+    assert func() == "heimdall-bootimg"
 
 
 def test_questions_keymaps(args, monkeypatch):

@@ -35,23 +35,23 @@ def sanity_checks(output="log", output_return=False, check=None):
         raise RuntimeError("Can't use output_return with output: " + output)
 
 
-def background(args, cmd, working_dir=None):
+def background(cmd, working_dir=None):
     """ Run a subprocess in background and redirect its output to the log. """
-    ret = subprocess.Popen(cmd, stdout=args.logfd, stderr=args.logfd,
-                           cwd=working_dir)
+    ret = subprocess.Popen(cmd, stdout=pmb.helpers.logging.logfd,
+                           stderr=pmb.helpers.logging.logfd, cwd=working_dir)
     logging.debug(f"New background process: pid={ret.pid}, output=background")
     return ret
 
 
-def pipe(args, cmd, working_dir=None):
+def pipe(cmd, working_dir=None):
     """ Run a subprocess in background and redirect its output to a pipe. """
-    ret = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=args.logfd,
-                           cwd=working_dir)
+    ret = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                           stderr=pmb.helpers.logging.logfd, cwd=working_dir)
     logging.verbose(f"New background process: pid={ret.pid}, output=pipe")
     return ret
 
 
-def pipe_read(args, process, output_to_stdout=False, output_return=False,
+def pipe_read(process, output_to_stdout=False, output_return=False,
               output_return_buffer=False):
     """
     Read all available output from a subprocess and copy it to the log and
@@ -69,7 +69,7 @@ def pipe_read(args, process, output_to_stdout=False, output_return=False,
         # Copy available output
         out = process.stdout.readline()
         if len(out):
-            args.logfd.buffer.write(out)
+            pmb.helpers.logging.logfd.buffer.write(out)
             if output_to_stdout:
                 sys.stdout.buffer.write(out)
             if output_return:
@@ -77,7 +77,7 @@ def pipe_read(args, process, output_to_stdout=False, output_return=False,
             continue
 
         # No more output (flush buffers)
-        args.logfd.flush()
+        pmb.helpers.logging.logfd.flush()
         if output_to_stdout:
             sys.stdout.flush()
         return
@@ -175,11 +175,11 @@ def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
                 continue
 
         # Read all currently available output
-        pipe_read(args, process, output_to_stdout, output_return,
+        pipe_read(process, output_to_stdout, output_return,
                   output_buffer)
 
     # There may still be output after the process quit
-    pipe_read(args, process, output_to_stdout, output_return, output_buffer)
+    pipe_read(process, output_to_stdout, output_return, output_buffer)
 
     # Return the return code and output (the output gets built as list of
     # output chunks and combined at the end, this is faster than extending the
@@ -313,11 +313,11 @@ def core(args, log_message, cmd, working_dir=None, output="log",
 
     # Background
     if output == "background":
-        return background(args, cmd, working_dir)
+        return background(cmd, working_dir)
 
     # Pipe
     if output == "pipe":
-        return pipe(args, cmd, working_dir)
+        return pipe(cmd, working_dir)
 
     # Foreground
     output_after_run = ""

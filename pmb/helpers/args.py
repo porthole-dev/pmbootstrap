@@ -177,9 +177,7 @@ def update_work(args, work):
     args_new = copy.deepcopy(args.from_argparse)
 
     # Keep from the modified args:
-    # * the old log file descriptor (so we can close it)
     # * the unmodified args from argparse (to check if --aports was specified)
-    args_new.logfd = args.logfd
     args_new.from_argparse = args.from_argparse
 
     # Generate modified args again, replacing $WORK with the new work folder

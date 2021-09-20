@@ -26,7 +26,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
         build += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)"""
         vendors = ["spreadtrum", "exynos", "other"]
-        soc_vendor = pmb.helpers.cli.ask(args, "SoC vendor", vendors,
+        soc_vendor = pmb.helpers.cli.ask("SoC vendor", vendors,
                                          vendors[-1], complete=vendors)
         if soc_vendor == "spreadtrum":
             makedepends.append("dtbtool-sprd")

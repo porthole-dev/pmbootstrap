@@ -38,7 +38,7 @@ class ReadlineTabCompleter:
         return None
 
 
-def ask(args, question="Continue?", choices=["y", "n"], default="n",
+def ask(question="Continue?", choices=["y", "n"], default="n",
         lowercase_answer=True, validation_regex=None, complete=None):
     """
     Ask a question on the terminal.
@@ -83,8 +83,8 @@ def ask(args, question="Continue?", choices=["y", "n"], default="n",
         if ret == "":
             ret = str(default)
 
-        args.logfd.write(f"{line}: {ret}\n")
-        args.logfd.flush()
+        pmb.helpers.logging.logfd.write(f"{line}: {ret}\n")
+        pmb.helpers.logging.logfd.flush()
 
         # Validate with regex
         if not validation_regex:
@@ -110,7 +110,7 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
     if args.assume_yes and not no_assumptions:
         logging.info(question + " (y/n) [" + default_str + "]: y")
         return True
-    answer = ask(args, question, ["y", "n"], default_str, True, "(y|n)")
+    answer = ask(question, ["y", "n"], default_str, True, "(y|n)")
     return answer == "y"
 
 

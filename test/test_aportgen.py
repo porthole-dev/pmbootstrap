@@ -23,7 +23,7 @@ def args(tmpdir, request):
     args.log = args.work + "/log_testsuite.txt"
     args.fork_alpine = False
     pmb.helpers.logging.init(args)
-    request.addfinalizer(args.logfd.close)
+    request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 

@@ -21,7 +21,7 @@ def args(tmpdir, request):
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
-    request.addfinalizer(args.logfd.close)
+    request.addfinalizer(pmb.helpers.logging.logfd.close)
 
     # Fake aports folder:
     tmpdir = str(tmpdir)
@@ -55,7 +55,7 @@ def generate(args, monkeypatch, answers):
               pmb.parse.deviceinfo().
     """
     # Patched function
-    def fake_ask(args, question="Continue?", choices=["y", "n"], default="n",
+    def fake_ask(question="Continue?", choices=["y", "n"], default="n",
                  lowercase_answer=True, validation_regex=None, complete=None):
         for substr, answer in answers.items():
             if substr in question:

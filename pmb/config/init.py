@@ -47,7 +47,7 @@ def ask_for_work_path(args):
     while True:
         try:
             work = os.path.expanduser(pmb.helpers.cli.ask(
-                args, "Work path", None, args.work, False))
+                "Work path", None, args.work, False))
             work = os.path.realpath(work)
             exists = os.path.exists(work)
 
@@ -103,7 +103,7 @@ def ask_for_channel(args):
 
     # Ask until user gives valid channel
     while True:
-        ret = pmb.helpers.cli.ask(args, "Channel", None, default,
+        ret = pmb.helpers.cli.ask("Channel", None, default,
                                   complete=choices)
         if ret in choices:
             return ret
@@ -138,7 +138,7 @@ def ask_for_ui(args, device):
                      " available. See: <https://wiki.postmarketos.org/wiki/"
                      "Deviceinfo_reference")
     while True:
-        ret = pmb.helpers.cli.ask(args, "User interface", None, args.ui, True,
+        ret = pmb.helpers.cli.ask("User interface", None, args.ui, True,
                                   complete=ui_completion_list)
         if ret in dict(ui_list).keys():
             return ret
@@ -174,7 +174,7 @@ def ask_for_keymaps(args, device):
         args.keymap = options[0]
 
     while True:
-        ret = pmb.helpers.cli.ask(args, "Keymap", None, args.keymap,
+        ret = pmb.helpers.cli.ask("Keymap", None, args.keymap,
                                   True, complete=options)
         if ret in options:
             return ret
@@ -241,7 +241,7 @@ def ask_for_device_kernel(args, device):
     for type in sorted(kernels.keys()):
         logging.info(f"* {type}: {kernels[type]}")
     while True:
-        ret = pmb.helpers.cli.ask(args, "Kernel", None, default, True,
+        ret = pmb.helpers.cli.ask("Kernel", None, default, True,
                                   complete=kernels)
         if ret in kernels.keys():
             return ret
@@ -310,7 +310,7 @@ def ask_for_device(args):
         current_codename = args.device.split("-", 1)[1]
 
     while True:
-        vendor = pmb.helpers.cli.ask(args, "Vendor", None, current_vendor,
+        vendor = pmb.helpers.cli.ask("Vendor", None, current_vendor,
                                      False, r"[a-z0-9]+", vendors)
 
         new_vendor = vendor not in vendors
@@ -332,7 +332,7 @@ def ask_for_device(args):
 
         if current_vendor != vendor:
             current_codename = ''
-        codename = pmb.helpers.cli.ask(args, "Device codename", None,
+        codename = pmb.helpers.cli.ask("Device codename", None,
                                        current_codename, False, r"[a-z0-9]+",
                                        codenames)
 
@@ -390,20 +390,20 @@ def ask_for_additional_options(args, cfg):
                  " enough to fit the rootfs (pmbootstrap#1904)."
                  " How much extra free space do you want to add to the image"
                  " (in MB)?")
-    answer = pmb.helpers.cli.ask(args, "Extra space size", None,
+    answer = pmb.helpers.cli.ask("Extra space size", None,
                                  args.extra_space, validation_regex="^[0-9]+$")
     cfg["pmbootstrap"]["extra_space"] = answer
 
     # Boot size
     logging.info("What should be the boot partition size (in MB)?")
-    answer = pmb.helpers.cli.ask(args, "Boot size", None, args.boot_size,
+    answer = pmb.helpers.cli.ask("Boot size", None, args.boot_size,
                                  validation_regex="^[1-9][0-9]*$")
     cfg["pmbootstrap"]["boot_size"] = answer
 
     # Parallel job count
     logging.info("How many jobs should run parallel on this machine, when"
                  " compiling?")
-    answer = pmb.helpers.cli.ask(args, "Jobs", None, args.jobs,
+    answer = pmb.helpers.cli.ask("Jobs", None, args.jobs,
                                  validation_regex="^[1-9][0-9]*$")
     cfg["pmbootstrap"]["jobs"] = answer
 
@@ -414,7 +414,7 @@ def ask_for_additional_options(args, cfg):
                  " current usage with 'pmbootstrap stats'. Answer with 0 for"
                  " infinite.")
     regex = "0|[0-9]+(k|M|G|T|Ki|Mi|Gi|Ti)"
-    answer = pmb.helpers.cli.ask(args, "Ccache size", None, args.ccache_size,
+    answer = pmb.helpers.cli.ask("Ccache size", None, args.ccache_size,
                                  lowercase_answer=False,
                                  validation_regex=regex)
     cfg["pmbootstrap"]["ccache_size"] = answer
@@ -483,7 +483,7 @@ def ask_for_mirror(args):
     mirrors_list = []
     # require one valid mirror index selected by user
     while len(mirrors_list) != 1:
-        answer = pmb.helpers.cli.ask(args, "Select a mirror", None,
+        answer = pmb.helpers.cli.ask("Select a mirror", None,
                                      ",".join(mirror_indexes),
                                      validation_regex=regex)
         mirrors_list = []
@@ -499,8 +499,7 @@ def ask_for_mirror(args):
 
 def ask_for_hostname(args, device):
     while True:
-        ret = pmb.helpers.cli.ask(args,
-                                  "Device hostname (short form, e.g. 'foo')",
+        ret = pmb.helpers.cli.ask("Device hostname (short form, e.g. 'foo')",
                                   None, (args.hostname or device), True)
         if not pmb.helpers.other.validate_hostname(ret):
             continue
@@ -531,7 +530,7 @@ def ask_build_pkgs_on_install(args):
 def ask_for_locale(args):
     locales = pmb.config.locales
     logging.info(f"Available locales ({len(locales)}): {', '.join(locales)}")
-    return pmb.helpers.cli.ask(args, "Choose default locale for installation",
+    return pmb.helpers.cli.ask("Choose default locale for installation",
                                choices=None,
                                default=args.locale,
                                lowercase_answer=False,
@@ -574,7 +573,7 @@ def frontend(args):
         cfg["pmbootstrap"]["keymap"] = ask_for_keymaps(args, device)
 
     # Username
-    cfg["pmbootstrap"]["user"] = pmb.helpers.cli.ask(args, "Username", None,
+    cfg["pmbootstrap"]["user"] = pmb.helpers.cli.ask("Username", None,
                                                      args.user, False,
                                                      "[a-z_][a-z0-9_-]*")
     # UI and various build options
@@ -587,7 +586,7 @@ def frontend(args):
     logging.info("Additional packages that will be installed to rootfs."
                  " Specify them in a comma separated list (e.g.: vim,file)"
                  " or \"none\"")
-    extra = pmb.helpers.cli.ask(args, "Extra packages", None,
+    extra = pmb.helpers.cli.ask("Extra packages", None,
                                 args.extra_packages,
                                 validation_regex=r"^([-.+\w]+)(,[-.+\w]+)*$")
     cfg["pmbootstrap"]["extra_packages"] = extra

@@ -16,7 +16,7 @@ def args(request):
     args = pmb.parse.arguments()
     args.log = args.work + "/log_testsuite.txt"
     pmb.helpers.logging.init(args)
-    request.addfinalizer(args.logfd.close)
+    request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
@@ -44,7 +44,7 @@ def test_sanity_checks():
 
 def test_background(args):
     # Sleep in background
-    process = pmb.helpers.run_core.background(args, ["sleep", "1"], "/")
+    process = pmb.helpers.run_core.background(["sleep", "1"], "/")
 
     # Check if it is still running
     assert process.poll() is None
@@ -52,13 +52,13 @@ def test_background(args):
 
 def test_pipe(args):
     # Sleep in background
-    process = pmb.helpers.run_core.pipe(args, ["sleep", "1"], "/")
+    process = pmb.helpers.run_core.pipe(["sleep", "1"], "/")
 
     # Check if it is still running
     assert process.poll() is None
 
     # Print output in background
-    process = pmb.helpers.run_core.pipe(args, ["echo", "-n", "hello"], "/")
+    process = pmb.helpers.run_core.pipe(["echo", "-n", "hello"], "/")
 
     # Read output
     assert process.communicate()[0].decode('utf-8') == "hello"

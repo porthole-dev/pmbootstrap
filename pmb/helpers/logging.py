@@ -5,6 +5,8 @@ import os
 import sys
 import pmb.config
 
+logfd = None
+
 
 class log_handler(logging.StreamHandler):
     """
@@ -53,8 +55,8 @@ class log_handler(logging.StreamHandler):
 
             # Everything: Write to logfd
             msg = "(" + str(os.getpid()).zfill(6) + ") " + msg
-            self._args.logfd.write(msg + "\n")
-            self._args.logfd.flush()
+            logfd.write(msg + "\n")
+            logfd.flush()
 
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -83,23 +85,24 @@ def add_verbose_log_level():
 
 def init(args):
     """
-    Set log format and add the log file descriptor to args.logfd, add the
+    Set log format and add the log file descriptor to logfd, add the
     verbose log level.
     """
+    global logfd
     # Set log file descriptor (logfd)
     if args.details_to_stdout:
-        setattr(args, "logfd", sys.stdout)
+        logfd = sys.stdout
     else:
         # Require containing directory to exist (so we don't create the work
         # folder and break the folder migration logic, which needs to set the
         # version upon creation)
         dir = os.path.dirname(args.log)
         if os.path.exists(dir):
-            setattr(args, "logfd", open(args.log, "a+"))
+            logfd = open(args.log, "a+")
         else:
-            setattr(args, "logfd", open(os.devnull, "a+"))
+            logfd = open(os.devnull, "a+")
             if args.action != "init":
-                print("WARNING: Can't create log file in '" + dir + "', path"
+                print(f"WARNING: Can't create log file in '{dir}', path"
                       " does not exist!")
 
     # Set log format
