@@ -44,7 +44,7 @@ def create_second_storage(args):
     return path
 
 
-def which_qemu(args, arch):
+def which_qemu(arch):
     """
     Finds the qemu executable or raises an exception otherwise
     """
@@ -112,7 +112,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         ncpus = 8
 
     if args.host_qemu:
-        qemu_bin = which_qemu(args, arch)
+        qemu_bin = which_qemu(arch)
         env = {}
         command = [qemu_bin]
     else:
