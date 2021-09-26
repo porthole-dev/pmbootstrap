@@ -234,7 +234,7 @@ def is_outdated(args, path):
     # Usually it does not (before first git fetch/pull), but there is no good
     # fallback. For exampe, getting the _creation_ date of .git/HEAD is non-
     # trivial with python on linux (https://stackoverflow.com/a/39501288).
-    # Note that we have to assume here, that the user had fetched the "origin"
+    # Note that we have to assume here that the user had fetched the "origin"
     # repository. If the user fetched another repository, FETCH_HEAD would also
     # get updated, even though "origin" may be outdated. For pmbootstrap status
     # it is good enough, because it should help the users that are not doing

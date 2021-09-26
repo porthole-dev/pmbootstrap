@@ -53,7 +53,7 @@ def mount(args, img_path):
 
 def device_by_back_file(args, back_file, auto_init=True):
     """
-    Get the /dev/loopX device, that points to a specific image file.
+    Get the /dev/loopX device that points to a specific image file.
     """
 
     # Get list from losetup

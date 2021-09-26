@@ -110,7 +110,7 @@ def install_is_necessary(args, build, arch, package, packages_installed):
     if package not in packages_installed:
         return True
 
-    # Make sure, that we really have a binary package
+    # Make sure that we really have a binary package
     data_repo = pmb.parse.apkindex.package(args, package, arch, False)
     if not data_repo:
         if build_disabled:
@@ -157,7 +157,7 @@ def replace_aports_packages_with_path(args, packages, suffix, arch):
     """
     apk will only re-install packages with the same pkgname,
     pkgver and pkgrel, when you give it the absolute path to the package.
-    This function replaces all packages, that were built locally,
+    This function replaces all packages that were built locally,
     with the absolute path to the package.
     """
     ret = []
@@ -185,7 +185,7 @@ def install(args, packages, suffix="native", build=True):
     """
     :param build: automatically build the package, when it does not exist yet
                   or needs to be updated, and it is inside the pm-aports
-                  folder. Checking this is expensive - if you know, that all
+                  folder. Checking this is expensive - if you know that all
                   packages are provides by upstream repos, set this to False!
     """
     # Initialize chroot

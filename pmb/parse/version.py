@@ -41,7 +41,7 @@ def next_token(previous, rest):
     currently looking at.
 
     We do *not* get the value of the token, or advance the rest string
-    beyond the whole token, that is what the get_token() function does
+    beyond the whole token that is what the get_token() function does
     (see below).
 
     :param previous: the token before
@@ -95,7 +95,7 @@ def parse_suffix(rest):
     suffix), and return a value integer (so it can be compared later,
     "beta" > "alpha" etc).
 
-    :param rest: what is left of the version string, that we are
+    :param rest: what is left of the version string that we are
                  currently parsing, starts with a "suffix" value
                  (see below for valid suffixes).
     :returns: (rest, value, invalid_suffix)

@@ -55,6 +55,6 @@ def delete(args, hook, suffix):
 
 def update(args, suffix):
     """
-    Rebuild and update all hooks, that are out of date
+    Rebuild and update all hooks that are out of date
     """
     pmb.chroot.apk.install(args, list_chroot(args, suffix, False), suffix)

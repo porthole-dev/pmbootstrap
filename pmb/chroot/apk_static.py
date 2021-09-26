@@ -18,7 +18,7 @@ import pmb.parse.version
 
 def read_signature_info(tar):
     """
-    Find various information about the signature, that was used to sign
+    Find various information about the signature that was used to sign
     /sbin/apk.static inside the archive (not to be confused with the normal apk
     archive signature!)
 
@@ -33,7 +33,7 @@ def read_signature_info(tar):
             break
     if not sigfilename:
         raise RuntimeError("Could not find signature filename in apk."
-                           " This means, that your apk file is damaged."
+                           " This means that your apk file is damaged."
                            " Delete it and try again."
                            " If the problem persists, fill out a bug report.")
     sigkey = sigfilename[len(prefix):]
@@ -114,7 +114,7 @@ def extract(args, version, apk_path):
     os.unlink(files["sig"]["temp_path"])
     temp_path = files["apk"]["temp_path"]
 
-    # Verify the version, that the extracted binary reports
+    # Verify the version that the extracted binary reports
     logging.debug("Verify the version reported by the apk.static binary"
                   f" (must match the package version {version})")
     os.chmod(temp_path, os.stat(temp_path).st_mode | stat.S_IEXEC)

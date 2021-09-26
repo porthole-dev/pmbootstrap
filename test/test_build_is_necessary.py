@@ -68,7 +68,7 @@ def test_build_is_necessary(args):
 
 def test_build_is_necessary_no_binary_available(args):
     """
-    APKINDEX cache is set up to fake an empty APKINDEX, which means, that the
+    APKINDEX cache is set up to fake an empty APKINDEX, which means that the
     hello-world package has not been built yet.
     """
     indexes = list(args.cache["apkindex"].keys())

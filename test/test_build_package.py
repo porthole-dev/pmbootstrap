@@ -377,7 +377,7 @@ def test_build_local_source_high_level(args, tmpdir):
     Test building a package with overriding the source code:
         pmbootstrap build --src=/some/path hello-world
 
-    We use a copy of the hello-world APKBUILD here, that doesn't have the
+    We use a copy of the hello-world APKBUILD here that doesn't have the
     source files it needs to build included. And we use the original aport
     folder as local source folder, so pmbootstrap should take the source files
     from there and the build should succeed.

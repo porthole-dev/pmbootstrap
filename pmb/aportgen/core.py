@@ -56,16 +56,16 @@ def rewrite(args, pkgname, path_original="", fields={}, replace_pkgname=None,
 
     :param path_original: The original path of the automatically generated
         aport.
-    :param fields: key-value pairs of fields, that shall be changed in the
+    :param fields: key-value pairs of fields that shall be changed in the
         APKBUILD. For example: {"pkgdesc": "my new package", "subpkgs": ""}
     :param replace_pkgname: When set, $pkgname gets replaced with that string
         in every line.
     :param replace_functions: Function names and new bodies, for example:
         {"build": "return 0"}
         The body can also be None (deletes the function)
-    :param replace_simple: Lines, that fnmatch the pattern, get
+    :param replace_simple: Lines that fnmatch the pattern, get
         replaced/deleted. Example: {"*test*": "# test", "*mv test.bin*": None}
-    :param below_header: String, that gets directly placed below the header.
+    :param below_header: String that gets directly placed below the header.
     :param remove_indent: Number of spaces to remove from function body
         provided to replace_functions.
 

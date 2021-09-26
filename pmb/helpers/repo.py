@@ -15,7 +15,7 @@ import pmb.helpers.run
 
 def hash(url, length=8):
     """
-    Generate the hash, that APK adds to the APKINDEX and apk packages
+    Generate the hash that APK adds to the APKINDEX and apk packages
     in its apk cache folder. It is the "12345678" part in this example:
     "APKINDEX.12345678.tar.gz".
 

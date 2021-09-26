@@ -23,7 +23,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     :param dry: Only show what would be deleted, do not delete for real
     :param pkgs_local: Remove *all* self-compiled packages (!)
     :param http: Clear the http cache (used e.g. for the initial apk download)
-    :param pkgs_local_mismatch: Remove the packages, that have
+    :param pkgs_local_mismatch: Remove the packages that have
         a different version compared to what is in the aports folder.
     :param pkgs_online_mismatch: Clean out outdated binary packages
         downloaded from mirrors (e.g. from Alpine)

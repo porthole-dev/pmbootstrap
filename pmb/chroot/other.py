@@ -33,7 +33,7 @@ def kernel_flavor_installed(args, suffix, autoinstall=True):
 
 def tempfolder(args, path, suffix="native"):
     """
-    Create a temporary folder inside the chroot, that belongs to "user".
+    Create a temporary folder inside the chroot that belongs to "user".
     The folder gets deleted, if it already exists.
 
     :param path: of the temporary folder inside the chroot

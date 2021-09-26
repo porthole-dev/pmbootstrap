@@ -12,9 +12,9 @@ def prepare_tmpdir(args, monkeypatch, tmpdir):
 
         Git repositories:
         * local: like local clone of pmaports.git
-        * remote: emulate a remote repository, that we can add to "local", so
+        * remote: emulate a remote repository that we can add to "local", so
                   we can pass the tracking-remote tests in pmb.helpers.git.pull
-        * remote2: unexpected remote, that pmbootstrap can complain about
+        * remote2: unexpected remote that pmbootstrap can complain about
 
         Function overrides:
         * pmb.helpers.git.get_path: always return path to "local" repo

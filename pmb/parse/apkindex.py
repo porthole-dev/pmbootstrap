@@ -104,7 +104,7 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
     """
     Add one block to the return dictionary of parse().
 
-    :param ret: dictionary of all packages in the APKINDEX, that is
+    :param ret: dictionary of all packages in the APKINDEX that is
                 getting built right now. This function will extend it.
     :param block: return value from parse_next_block().
     :param alias: defaults to the pkgname, could be an alias from the

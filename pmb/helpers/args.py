@@ -20,7 +20,7 @@ import pmb.helpers.git
        ...
 
     2. Argparse merged with others
-       Variables from the user's config file (~/.config/pmbootstrap.cfg), that
+       Variables from the user's config file (~/.config/pmbootstrap.cfg) that
        can be overridden from the command line (pmb/parse/arguments.py) and
        fall back to the defaults defined in pmb/config/__init__.py (see
        "defaults = {..."). The user's config file gets generated interactively

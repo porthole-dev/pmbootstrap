@@ -62,13 +62,13 @@ def test_package_provider(args, monkeypatch):
     providers = {"test-two": package_two, "test": package}
     assert func(args, pkgname, pkgnames_install) == package
 
-    # 3. Pick a package, that will be installed anyway
+    # 3. Pick a package that will be installed anyway
     providers = {"test_": package, "test-two": package_two}
     installed = {"test_": package}
     pkgnames_install = ["test-two"]
     assert func(args, pkgname, pkgnames_install) == package_two
 
-    # 4. Pick a package, that is already installed
+    # 4. Pick a package that is already installed
     pkgnames_install = []
     assert func(args, pkgname, pkgnames_install) == package
 

@@ -40,12 +40,12 @@ def init(args, suffix="native"):
             key = key[len(chroot):]
             pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], suffix)
 
-    # Add gzip wrapper, that converts '-9' to '-1'
+    # Add gzip wrapper that converts '-9' to '-1'
     if not os.path.exists(chroot + "/usr/local/bin/gzip"):
         with open(chroot + "/tmp/gzip_wrapper.sh", "w") as handle:
             content = """
                 #!/bin/sh
-                # Simple wrapper, that converts -9 flag for gzip to -1 for
+                # Simple wrapper that converts -9 flag for gzip to -1 for
                 # speed improvement with abuild. FIXME: upstream to abuild
                 # with a flag!
                 args=""

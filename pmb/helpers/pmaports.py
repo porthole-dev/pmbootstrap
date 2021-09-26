@@ -13,7 +13,7 @@ import pmb.parse
 
 
 def _find_apkbuilds(args):
-    # Try to get a cached result first (we assume, that the aports don't change
+    # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     apkbuilds = args.cache.get("pmb.helpers.pmaports.apkbuilds")
     if apkbuilds is not None:
@@ -102,13 +102,13 @@ def guess_main(args, subpkgname):
 
 def find(args, package, must_exist=True):
     """
-    Find the aport path, that provides a certain subpackage.
+    Find the aport path that provides a certain subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
     :param must_exist: Raise an exception, when not found
     :returns: the full path to the aport folder
     """
-    # Try to get a cached result first (we assume, that the aports don't change
+    # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     ret = None
     if package in args.cache["find_aport"]:

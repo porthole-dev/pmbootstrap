@@ -291,7 +291,7 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     :returns: relevant variables from the APKBUILD. Arrays get returned as
               arrays.
     """
-    # Try to get a cached result first (we assume, that the aports don't change
+    # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     if path in args.cache["apkbuild"]:
         return args.cache["apkbuild"][path]
@@ -310,7 +310,7 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
             logging.info(f"Folder: '{os.path.dirname(path)}'")
             logging.info(f"Pkgname: '{ret['pkgname']}'")
             raise RuntimeError("The pkgname must be equal to the name of"
-                               " the folder, that contains the APKBUILD!")
+                               " the folder that contains the APKBUILD!")
 
     # Sanity check: pkgver
     if check_pkgver:

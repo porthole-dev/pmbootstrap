@@ -6,7 +6,7 @@ import pmb.helpers.run
 
 def ismount(folder):
     """
-    Ismount() implementation, that works for mount --bind.
+    Ismount() implementation that works for mount --bind.
     Workaround for: https://bugs.python.org/issue29707
     """
     folder = os.path.realpath(os.path.realpath(folder))
@@ -45,7 +45,7 @@ def bind(args, source, destination, create_folders=True, umount=False):
     # Actually mount the folder
     pmb.helpers.run.root(args, ["mount", "--bind", source, destination])
 
-    # Verify, that it has worked
+    # Verify that it has worked
     if not ismount(destination):
         raise RuntimeError("Mount failed: " + source + " -> " + destination)
 
@@ -77,7 +77,7 @@ def umount_all_list(prefix, source="/proc/mounts"):
     """
     Parses `/proc/mounts` for all folders beginning with a prefix.
     :source: can be changed for testcases
-    :returns: a list of folders, that need to be umounted
+    :returns: a list of folders that need to be umounted
     """
     ret = []
     prefix = os.path.realpath(prefix)
@@ -100,7 +100,7 @@ def umount_all_list(prefix, source="/proc/mounts"):
 
 def umount_all(args, folder):
     """
-    Umount all folders, that are mounted inside a given folder.
+    Umount all folders that are mounted inside a given folder.
     """
     for mountpoint in umount_all_list(folder):
         pmb.helpers.run.root(args, ["umount", mountpoint])

@@ -19,7 +19,7 @@ def match_kbuild_out(args, word):
       "<prefix>/<kbuild_out>/include/config/kernel.release"
 
     :param word: space separated string cut out from a line from an APKBUILD
-                 function body, that might be the kbuild output path
+                 function body that might be the kbuild output path
     :returns: kernel build output directory.
               empty string when a separate build output directory isn't used.
               None, when no output directory is found.

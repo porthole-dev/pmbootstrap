@@ -191,7 +191,7 @@ chroot_path = ":".join([
 # for the chroot executable may not be in the PATH (Debian).
 chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 
-# Folders, that get mounted inside the chroot
+# Folders that get mounted inside the chroot
 # $WORK gets replaced with args.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
 # $CHANNEL gets replaced with the release channel (e.g. edge, v21.03)
@@ -251,7 +251,7 @@ chroot_outdated = 3600 * 24 * 2
 # packages (use "pmbootstrap aportgen musl-armhf" etc.).
 build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]
 
-# Packages, that will be installed in a chroot before it builds packages
+# Packages that will be installed in a chroot before it builds packages
 # for the first time
 build_packages = ["abuild", "build-base", "ccache", "git"]
 
@@ -504,7 +504,7 @@ apkbuild_package_attributes = {
     "_pmb_groups": {"array": True},
 }
 
-# Variables in APKBUILD files, that get parsed
+# Variables in APKBUILD files that get parsed
 apkbuild_attributes = {
     **apkbuild_package_attributes,
 
@@ -645,7 +645,7 @@ default_ip = "172.16.42.1"
 # INSTALL
 #
 
-# Packages, that will be installed inside the native chroot to perform
+# Packages that will be installed inside the native chroot to perform
 # the installation to the device.
 # util-linux: losetup, fallocate
 install_native_packages = ["cryptsetup", "util-linux", "parted"]
