@@ -45,6 +45,9 @@ def generate(args, pkgname):
 
             # remove man, info folders
             rm -rf "$pkgdir"/usr/share
+
+            # remove files that conflict with non-cross binutils
+            rm -rf "$pkgdir"/usr/lib/bfd-plugins
         """,
         "libs": None,
         "gold": None,
