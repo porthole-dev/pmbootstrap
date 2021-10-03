@@ -58,6 +58,10 @@ def sanity_check(info, path):
                      " postmarketOS are 'handset' (for phones) and 'tablet'.")
         raise RuntimeError(f"Please add 'deviceinfo_chassis' to: {path}")
 
+    # "arch" is required
+    if "arch" not in info or not info["arch"]:
+        raise RuntimeError(f"Please add 'deviceinfo_arch' to: {path}")
+
     # "chassis" validation
     chassis_type = info["chassis"]
     if chassis_type not in chassis_types:
