@@ -169,38 +169,52 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     :param package: a dict containing package information
     :returns: if something (would have) been changed
     """
-    projects = pmb.helpers.http.retrieve_json(
-        f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
-    if projects["total_items"] < 1:
-        # There is no Anitya project with the package name.
-        # Looking up if there's a custom mapping from postmarketOS package name
-        # to Anitya project name.
-        mappings = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS"
-            f"&name={pkgname}", headers=req_headers)
-        if mappings["total_items"] < 1:
-            logging.warning("{}: failed to get Anitya project".format(pkgname))
-            return False
-        project_name = mappings["items"][0]["project"]
+
+    # Looking up if there's a custom mapping from postmarketOS package name
+    # to Anitya project name.
+    mappings = pmb.helpers.http.retrieve_json(
+        f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS"
+        f"&name={pkgname}", headers=req_headers)
+    if mappings["total_items"] < 1:
         projects = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/projects/?name={project_name}",
+            f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
+        if projects["total_items"] < 1:
+            logging.warning(f"{pkgname}: failed to get Anitya project")
+            return False
+    else:
+        project_name = mappings["items"][0]["project"]
+        ecosystem = mappings["items"][0]["ecosystem"]
+        projects = pmb.helpers.http.retrieve_json(
+            f"{ANITYA_API_BASE}/projects/?name={project_name}&"
+            f"ecosystem={ecosystem}",
             headers=req_headers)
+
+    if projects["total_items"] < 1:
+        logging.warning(f"{pkgname}: didn't find any projects, can't upgrade!")
+        return False
+    if projects["total_items"] > 1:
+        logging.warning(f"{pkgname}: found more than one project, can't "
+                        f"upgrade! Please create an explicit mapping of "
+                        f"\"project\" to the package name.")
+        return False
 
     # Get the first, best-matching item
     project = projects["items"][0]
 
     # Check that we got a version number
-    if project["version"] is None:
+    if len(project["stable_versions"]) < 1:
         logging.warning("{}: got no version number, ignoring".format(pkgname))
         return False
 
+    version = project["stable_versions"][0]
+
     # Compare the pmaports version with the project version
-    if package["pkgver"] == project["version"]:
+    if package["pkgver"] == version:
         logging.info("{}: up-to-date".format(pkgname))
         return False
 
     pkgver = package["pkgver"]
-    pkgver_new = project["version"]
+    pkgver_new = version
 
     pkgrel = package["pkgrel"]
     pkgrel_new = 0
