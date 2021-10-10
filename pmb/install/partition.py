@@ -77,7 +77,8 @@ def partition(args, size_boot, size_reserve):
     ]
 
     if size_reserve:
-        commands += [["mkpart", "primary", mb_boot, mb_reserved]]
+        mb_reserved_end = f"{round(size_reserve + size_boot)}M"
+        commands += [["mkpart", "primary", mb_boot, mb_reserved_end]]
 
     commands += [
         ["mkpart", "primary", mb_root_start, "100%"],
