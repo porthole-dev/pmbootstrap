@@ -204,6 +204,30 @@ def set_user(args):
         pmb.chroot.root(args, ["addgroup", args.user, group], suffix)
 
 
+def setup_login_chpasswd_user_from_arg(args, suffix):
+    """
+    Set the user's password from what the user passed as --password. Make an
+    effort to not have the password end up in the log file by writing it to
+    a temp file, instead of "echo user:$pass | chpasswd". The user should of
+    course only use this with a test password anyway, but let's be nice and try
+    to have the user protected from accidentally posting their password in
+    any case.
+
+    :param suffix: of the chroot, where passwd will be execute (either the
+                   f"rootfs_{args.device}", or f"installer_{args.device}")
+    """
+    path = "/tmp/pmbootstrap_chpasswd_in"
+    path_outside = f"{args.work}/chroot_{suffix}{path}"
+
+    with open(path_outside, "w", encoding="utf-8") as handle:
+        handle.write(f"{args.user}:{args.password}")
+
+    pmb.chroot.root(args, ["sh", "-c", f"cat {shlex.quote(path)} | chpasswd"],
+                    suffix)
+
+    os.unlink(path_outside)
+
+
 def setup_login(args, suffix):
     """
     Loop until the password for user has been set successfully, and disable
@@ -214,16 +238,19 @@ def setup_login(args, suffix):
     """
     if not args.on_device_installer:
         # User password
-        logging.info(" *** SET LOGIN PASSWORD FOR: '" + args.user + "' ***")
-        while True:
-            try:
-                pmb.chroot.root(args, ["passwd", args.user], suffix,
-                                output="interactive")
-                break
-            except RuntimeError:
-                logging.info("WARNING: Failed to set the password. Try it"
-                             " one more time.")
-                pass
+        logging.info(f" *** SET LOGIN PASSWORD FOR: '{args.user}' ***")
+        if args.password:
+            setup_login_chpasswd_user_from_arg(args, suffix)
+        else:
+            while True:
+                try:
+                    pmb.chroot.root(args, ["passwd", args.user], suffix,
+                                    output="interactive")
+                    break
+                except RuntimeError:
+                    logging.info("WARNING: Failed to set the password. Try it"
+                                 " one more time.")
+                    pass
 
     # Disable root login
     pmb.chroot.root(args, ["passwd", "-l", "root"], suffix)

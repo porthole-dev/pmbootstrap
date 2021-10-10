@@ -55,6 +55,10 @@ def arguments_install(subparser):
                      help="do not enable the SSH daemon by default")
     ret.add_argument("--no-firewall", action="store_true",
                      help="do not enable the firewall by default")
+    ret.add_argument("--password", help="dummy password for automating the"
+                     " installation - will be handled in PLAIN TEXT during"
+                     " install and may be logged to the logfile, do not use an"
+                     " important password!")
 
     # Image type
     group_desc = ret.add_argument_group(
