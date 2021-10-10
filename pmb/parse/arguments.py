@@ -355,7 +355,8 @@ def arguments_pkgrel_bump(subparser):
 
 
 def arguments_aportupgrade(subparser):
-    ret = subparser.add_parser("aportupgrade")
+    ret = subparser.add_parser("aportupgrade", help="check for outdated"
+                               " packages that need upgrading")
     ret.add_argument("--dry", action="store_true", help="instead of modifying"
                      " APKBUILDs, print the changes that would be made")
     ret.add_argument("--ref", help="git ref (tag, commit, etc) to use")
