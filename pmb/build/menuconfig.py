@@ -14,7 +14,7 @@ import pmb.helpers.run
 import pmb.parse
 
 
-def get_arch(args, apkbuild):
+def get_arch(apkbuild):
     """
     Take the architecture from the APKBUILD or complain if it's ambiguous. This
     function only gets called if --arch is not set.
@@ -90,7 +90,7 @@ def menuconfig(args, pkgname, use_oldconfig):
     # Read apkbuild
     aport = pmb.helpers.pmaports.find(args, pkgname)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
-    arch = args.arch or get_arch(args, apkbuild)
+    arch = args.arch or get_arch(apkbuild)
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
     hostspec = pmb.parse.arch.alpine_to_hostspec(arch)

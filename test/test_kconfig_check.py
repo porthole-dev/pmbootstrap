@@ -23,20 +23,20 @@ def args(tmpdir, request):
 def test_kconfig_check(args):
     # basic checks, from easiers to hard-ish
     dir = f"{pmb_test.const.testdata}/kconfig_check/"
-    assert not pmb.parse.kconfig.check_file(args, dir +
+    assert not pmb.parse.kconfig.check_file(dir +
                                             "bad-missing-required-option")
-    assert pmb.parse.kconfig.check_file(args, dir + "good")
-    assert not pmb.parse.kconfig.check_file(args, dir + "bad-wrong-option-set")
-    assert pmb.parse.kconfig.check_file(args, dir + "good-anbox",
+    assert pmb.parse.kconfig.check_file(dir + "good")
+    assert not pmb.parse.kconfig.check_file(dir + "bad-wrong-option-set")
+    assert pmb.parse.kconfig.check_file(dir + "good-anbox",
                                         anbox=True)
-    assert not pmb.parse.kconfig.check_file(args, dir +
+    assert not pmb.parse.kconfig.check_file(dir +
                                             "bad-array-missing-some-options",
                                             anbox=True)
-    assert pmb.parse.kconfig.check_file(args, dir + "good-nftables",
+    assert pmb.parse.kconfig.check_file(dir + "good-nftables",
                                         nftables=True)
-    assert not pmb.parse.kconfig.check_file(args, dir + "bad-nftables",
+    assert not pmb.parse.kconfig.check_file(dir + "bad-nftables",
                                             nftables=True)
-    assert pmb.parse.kconfig.check_file(args, dir + "good-zram",
+    assert pmb.parse.kconfig.check_file(dir + "good-zram",
                                         zram=True)
 
     # tests on real devices

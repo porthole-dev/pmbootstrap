@@ -24,7 +24,7 @@ def main():
         os.umask(0o22)
 
         # Sanity checks
-        other.check_grsec(args)
+        other.check_grsec()
         if not args.as_root and os.geteuid() == 0:
             raise RuntimeError("Do not run pmbootstrap as root!")
 

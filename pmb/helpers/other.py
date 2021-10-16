@@ -29,7 +29,7 @@ def folder_size(args, path):
     return ret
 
 
-def check_grsec(args):
+def check_grsec():
     """
     Check if the current kernel is based on the grsec patchset, and if
     the chroot_deny_chmod option is enabled. Raise an exception in that

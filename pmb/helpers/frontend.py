@@ -368,7 +368,7 @@ def kconfig(args):
     if args.action_kconfig == "check":
         # Handle passing a file directly
         if args.file:
-            if pmb.parse.kconfig.check_file(args, args.package,
+            if pmb.parse.kconfig.check_file(args.package,
                                             anbox=args.anbox,
                                             nftables=args.nftables,
                                             containers=args.containers,

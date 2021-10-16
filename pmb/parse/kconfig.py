@@ -198,7 +198,7 @@ def extract_version(config_file):
     return "unknown"
 
 
-def check_file(args, config_file, anbox=False, nftables=False,
+def check_file(config_file, anbox=False, nftables=False,
                containers=False, zram=False, details=False):
     """
     Check for necessary kernel config options in a kconfig file.

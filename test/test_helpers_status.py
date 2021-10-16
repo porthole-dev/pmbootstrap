@@ -85,7 +85,7 @@ def test_print_checks_git_repo(args, monkeypatch, tmpdir):
     assert status == 0
 
     # Outdated remote information
-    def is_outdated(args, path):
+    def is_outdated(path):
         return True
     monkeypatch.setattr(pmb.helpers.git, "is_outdated", is_outdated)
     status, _ = func(args, name_repo)

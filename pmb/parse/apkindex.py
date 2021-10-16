@@ -9,7 +9,7 @@ import pmb.helpers.repo
 import pmb.parse.version
 
 
-def parse_next_block(args, path, lines, start):
+def parse_next_block(path, lines, start):
     """
     Parse the next block in an APKINDEX.
 
@@ -200,7 +200,7 @@ def parse(args, path, multiple_providers=True):
     ret = collections.OrderedDict()
     start = [0]
     while True:
-        block = parse_next_block(args, path, lines, start)
+        block = parse_next_block(path, lines, start)
         if not block:
             break
 
@@ -223,7 +223,7 @@ def parse(args, path, multiple_providers=True):
     return ret
 
 
-def parse_blocks(args, path):
+def parse_blocks(path):
     """
     Read all blocks from an APKINDEX.tar.gz into a list.
 
@@ -244,7 +244,7 @@ def parse_blocks(args, path):
     ret = []
     start = [0]
     while True:
-        block = pmb.parse.apkindex.parse_next_block(args, path, lines, start)
+        block = pmb.parse.apkindex.parse_next_block(path, lines, start)
         if not block:
             return ret
         ret.append(block)

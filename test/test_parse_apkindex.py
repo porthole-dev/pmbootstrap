@@ -23,7 +23,7 @@ def args(tmpdir, request):
     return args
 
 
-def test_parse_next_block_exceptions(args):
+def test_parse_next_block_exceptions():
     # Mapping of input files (inside the /test/testdata/apkindex) to
     # error message substrings
     mapping = {"key_twice": "specified twice",
@@ -37,11 +37,11 @@ def test_parse_next_block_exceptions(args):
             lines = handle.readlines()
 
         with pytest.raises(RuntimeError) as e:
-            pmb.parse.apkindex.parse_next_block(args, path, lines, [0])
+            pmb.parse.apkindex.parse_next_block(path, lines, [0])
         assert error_substr in str(e.value)
 
 
-def test_parse_next_block_no_error(args):
+def test_parse_next_block_no_error():
     # Read the file
     func = pmb.parse.apkindex.parse_next_block
     path = pmb.config.pmb_src + "/test/testdata/apkindex/no_error"
@@ -57,7 +57,7 @@ def test_parse_next_block_no_error(args):
              'provides': ['so:libc.musl-x86_64.so.1'],
              'timestamp': '1515217616',
              'version': '1.1.18-r5'}
-    assert func(args, path, lines, start) == block
+    assert func(path, lines, start) == block
     assert start == [24]
 
     # Second block
@@ -71,15 +71,15 @@ def test_parse_next_block_no_error(args):
              'provides': ['cmd:curl'],
              'timestamp': '1512030418',
              'version': '7.57.0-r0'}
-    assert func(args, path, lines, start) == block
+    assert func(path, lines, start) == block
     assert start == [45]
 
     # No more blocks
-    assert func(args, path, lines, start) is None
+    assert func(path, lines, start) is None
     assert start == [45]
 
 
-def test_parse_next_block_virtual(args):
+def test_parse_next_block_virtual():
     """
     Test parsing a virtual package from an APKINDEX.
     """
@@ -98,7 +98,7 @@ def test_parse_next_block_virtual(args):
              'provides': ['cmd:hello-world'],
              'timestamp': '1500000000',
              'version': '2-r0'}
-    assert func(args, path, lines, start) == block
+    assert func(path, lines, start) == block
     assert start == [20]
 
     # Second block: virtual package
@@ -107,11 +107,11 @@ def test_parse_next_block_virtual(args):
              'pkgname': '.pmbootstrap',
              'provides': [],
              'version': '0'}
-    assert func(args, path, lines, start) == block
+    assert func(path, lines, start) == block
     assert start == [31]
 
     # No more blocks
-    assert func(args, path, lines, start) is None
+    assert func(path, lines, start) is None
     assert start == [31]
 
 

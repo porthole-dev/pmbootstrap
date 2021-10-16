@@ -12,7 +12,7 @@ import pmb.helpers.pmaports
 import pmb.parse
 
 
-def match_kbuild_out(args, word):
+def match_kbuild_out(word):
     """
     Look for paths in the following formats:
       "<prefix>/<kbuild_out>/arch/<arch>/boot"
@@ -47,7 +47,7 @@ def match_kbuild_out(args, word):
     return "" if out_dir is None else out_dir.strip("/")
 
 
-def find_kbuild_output_dir(args, function_body):
+def find_kbuild_output_dir(function_body):
     """
     Guess what the kernel build output directory is. Parses each line of the
     function word by word, looking for paths which contain the kbuild output
@@ -61,7 +61,7 @@ def find_kbuild_output_dir(args, function_body):
     guesses = []
     for line in function_body:
         for item in line.split():
-            kbuild_out = match_kbuild_out(args, item)
+            kbuild_out = match_kbuild_out(item)
             if kbuild_out is not None:
                 guesses.append(kbuild_out)
                 break
@@ -176,7 +176,7 @@ def package_kernel(args):
         kbuild_out = apkbuild["_outdir"]
     else:
         function_body = pmb.parse.function_body(aport + "/APKBUILD", "package")
-        kbuild_out = find_kbuild_output_dir(args, function_body)
+        kbuild_out = find_kbuild_output_dir(function_body)
     suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
 
     # Install package dependencies

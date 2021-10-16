@@ -229,7 +229,7 @@ def pull(args, name_repo):
     return 0
 
 
-def is_outdated(args, path):
+def is_outdated(path):
     # FETCH_HEAD always exists in repositories cloned by pmbootstrap.
     # Usually it does not (before first git fetch/pull), but there is no good
     # fallback. For exampe, getting the _creation_ date of .git/HEAD is non-

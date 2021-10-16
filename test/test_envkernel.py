@@ -32,13 +32,12 @@ def test_package_kernel_args(args):
         str(e.value)
 
 
-def test_find_kbuild_output_dir(args):
+def test_find_kbuild_output_dir():
     # Test parsing an APKBUILD
     pkgname = "linux-envkernel-test"
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD." + pkgname
     function_body = pmb.parse.function_body(path, "package")
-    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                            function_body)
+    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert kbuild_out == "build"
 
     # Test full function body
@@ -59,8 +58,7 @@ def test_find_kbuild_output_dir(args):
         "       KBUILD_BUILD_VERSION=\"$((pkgrel + 1))-Alpine\" ",
         "       INSTALL_MOD_PATH=\"$pkgdir\" modules_install",
     ]
-    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                            function_body)
+    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert kbuild_out == "build"
 
     # Test no kbuild out dir
@@ -70,8 +68,7 @@ def test_find_kbuild_output_dir(args):
         "   install -D \"$srcdir\"/include/config/kernel.release ",
         "       \"$pkgdir\"/usr/share/kernel/$_flavor/kernel.release",
     ]
-    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                            function_body)
+    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert kbuild_out == ""
 
     # Test curly brackets around srcdir
@@ -81,8 +78,7 @@ def test_find_kbuild_output_dir(args):
         "   install -D \"${srcdir}\"/build/include/config/kernel.release ",
         "       \"$pkgdir\"/usr/share/kernel/$_flavor/kernel.release",
     ]
-    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                            function_body)
+    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert kbuild_out == "build"
 
     # Test multiple sub directories
@@ -92,8 +88,7 @@ def test_find_kbuild_output_dir(args):
         "   install -D \"${srcdir}\"/sub/dir/include/config/kernel.release ",
         "       \"$pkgdir\"/usr/share/kernel/$_flavor/kernel.release",
     ]
-    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                            function_body)
+    kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert kbuild_out == "sub/dir"
 
     # Test no kbuild out dir found
@@ -104,8 +99,7 @@ def test_find_kbuild_output_dir(args):
         "       \"$pkgdir\"/usr/share/kernel/$_flavor/kernel.release",
     ]
     with pytest.raises(RuntimeError) as e:
-        kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                                function_body)
+        kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert ("Couldn't find a kbuild out directory. Is your APKBUILD messed up?"
             " If not, then consider adjusting the patterns in "
             "pmb/build/envkernel.py to work with your APKBUILD, or submit an "
@@ -119,8 +113,7 @@ def test_find_kbuild_output_dir(args):
         "       \"$pkgdir\"/usr/share/kernel/$_flavor/kernel.release",
     ]
     with pytest.raises(RuntimeError) as e:
-        kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(args,
-                                                                function_body)
+        kbuild_out = pmb.build.envkernel.find_kbuild_output_dir(function_body)
     assert ("Multiple kbuild out directories found. Can you modify your "
             "APKBUILD so it only has one output path? If you can't resolve it,"
             " please open an issue.") in str(e.value)

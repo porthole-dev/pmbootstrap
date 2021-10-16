@@ -7,7 +7,7 @@ import pmb.config
 # Return: {magic: ..., mask: ...}
 
 
-def binfmt_info(args, arch_qemu):
+def binfmt_info(arch_qemu):
     # Parse the info file
     full = {}
     info = pmb.config.pmb_src + "/pmb/data/qemu-user-binfmt.txt"

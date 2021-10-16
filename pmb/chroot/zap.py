@@ -106,7 +106,7 @@ def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
     pattern = f"{args.work}/packages/{channel}/*/APKINDEX.tar.gz"
     for apkindex_path in glob.glob(pattern):
         # Delete packages without same version in aports
-        blocks = pmb.parse.apkindex.parse_blocks(args, apkindex_path)
+        blocks = pmb.parse.apkindex.parse_blocks(apkindex_path)
         for block in blocks:
             pkgname = block["pkgname"]
             origin = block["origin"]

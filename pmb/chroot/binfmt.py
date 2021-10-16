@@ -33,7 +33,7 @@ def register(args, arch):
     if is_registered(arch_qemu):
         return
 
-    info = pmb.parse.binfmt_info(args, arch_qemu)
+    info = pmb.parse.binfmt_info(arch_qemu)
 
     # Build registration string
     # https://en.wikipedia.org/wiki/Binfmt_misc

@@ -168,7 +168,7 @@ def test_pull(args, monkeypatch, tmpdir):
     assert func(args, name_repo) == 0
 
 
-def test_is_outdated(args, tmpdir, monkeypatch):
+def test_is_outdated(tmpdir, monkeypatch):
     func = pmb.helpers.git.is_outdated
 
     # Override time.time(): now is "100"
@@ -187,8 +187,8 @@ def test_is_outdated(args, tmpdir, monkeypatch):
 
     # Outdated (date_outdated: 90)
     monkeypatch.setattr(pmb.config, "git_repo_outdated", 10)
-    assert func(args, path) is True
+    assert func(path) is True
 
     # Not outdated (date_outdated: 89)
     monkeypatch.setattr(pmb.config, "git_repo_outdated", 11)
-    assert func(args, path) is False
+    assert func(path) is False
