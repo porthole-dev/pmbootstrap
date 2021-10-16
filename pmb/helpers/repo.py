@@ -96,7 +96,7 @@ def apkindex_files(args, arch=None, user_repository=True, pmos=True,
     :returns: list of absolute APKINDEX.tar.gz file paths
     """
     if not arch:
-        arch = args.arch_native
+        arch = pmb.config.arch_native
 
     ret = []
     # Local user repository (for packages compiled with pmbootstrap)
@@ -209,7 +209,7 @@ def alpine_apkindex_path(args, repo="main", arch=None):
         raise RuntimeError("Invalid Alpine repository: " + repo)
 
     # Download the file
-    arch = arch or args.arch_native
+    arch = arch or pmb.config.arch_native
     update(args, arch)
 
     # Find it on disk

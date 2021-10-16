@@ -1,7 +1,8 @@
 # Copyright 2021 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import platform
 import fnmatch
+import platform
+import pmb.parse.arch
 
 
 def alpine_native():
@@ -22,7 +23,7 @@ def alpine_native():
 
 def from_chroot_suffix(args, suffix):
     if suffix == "native":
-        return args.arch_native
+        return pmb.config.arch_native
     if suffix in [f"rootfs_{args.device}", f"installer_{args.device}"]:
         return args.deviceinfo["arch"]
     if suffix.startswith("buildroot_"):
@@ -95,9 +96,9 @@ def alpine_to_hostspec(arch):
                      " to the right hostspec value")
 
 
-def cpu_emulation_required(args, arch):
+def cpu_emulation_required(arch):
     # Obvious case: host arch is target arch
-    if args.arch_native == arch:
+    if pmb.config.arch_native == arch:
         return False
 
     # Other cases: host arch on the left, target archs on the right
@@ -106,8 +107,8 @@ def cpu_emulation_required(args, arch):
         "armv7": ["armel", "armhf"],
         "aarch64": ["armel", "armhf", "armv7"],
     }
-    if args.arch_native in not_required:
-        if arch in not_required[args.arch_native]:
+    if pmb.config.arch_native in not_required:
+        if arch in not_required[pmb.config.arch_native]:
             return False
 
     # No match: then it's required

@@ -108,7 +108,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
     # on systems with more than 8 CPUs
-    if arch != args.arch_native and ncpus > 8:
+    if arch != pmb.config.arch_native and ncpus > 8:
         ncpus = 8
 
     if args.host_qemu:
@@ -130,7 +130,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
                         rootfs_native + "/usr/share"})
 
         command = []
-        if args.arch_native in ["aarch64", "armv7"]:
+        if pmb.config.arch_native in ["aarch64", "armv7"]:
             # Workaround for QEMU failing on aarch64 asymetric multiprocessor
             # arch (big/little architecture
             # https://en.wikipedia.org/wiki/ARM_big.LITTLE) see
@@ -141,12 +141,12 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
                 logging.info("QEMU will run on big/little architecture on the"
                              f" first {ncpus} cores (from /proc/cpuinfo)")
                 command += [rootfs_native + "/lib/ld-musl-" +
-                            args.arch_native + ".so.1"]
+                            pmb.config.arch_native + ".so.1"]
                 command += [rootfs_native + "/usr/bin/taskset"]
                 command += ["-c", "0-" + str(ncpus - 1)]
 
         command += [rootfs_native + "/lib/ld-musl-" +
-                    args.arch_native + ".so.1"]
+                    pmb.config.arch_native + ".so.1"]
         command += ["--library-path=" + rootfs_native + "/lib:" +
                     rootfs_native + "/usr/lib:" +
                     rootfs_native + "/usr/lib/pulseaudio"]
@@ -189,7 +189,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
                            " yet.")
 
     # Kernel Virtual Machine (KVM) support
-    native = args.arch_native == args.deviceinfo["arch"]
+    native = pmb.config.arch_native == args.deviceinfo["arch"]
     if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
         command += ["-cpu", "host"]

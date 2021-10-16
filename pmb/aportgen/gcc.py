@@ -28,7 +28,7 @@ def generate(args, pkgname):
     fields = {
         "pkgname": pkgname,
         "pkgdesc": f"Stage2 cross-compiler for {arch}",
-        "arch": args.arch_native,
+        "arch": pmb.config.arch_native,
         "depends": f"isl binutils-{arch} mpc1",
         "makedepends_build": "gcc g++ bison flex texinfo gawk zip"
                              " gmp-dev mpfr-dev mpc1-dev zlib-dev",

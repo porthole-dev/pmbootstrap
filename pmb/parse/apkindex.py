@@ -282,7 +282,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
     """
 
     if not indexes:
-        arch = arch or args.arch_native
+        arch = arch or pmb.config.arch_native
         indexes = pmb.helpers.repo.apkindex_files(args, arch)
 
     for operator in [">", ">=", "=", "<=", "<", "~"]:

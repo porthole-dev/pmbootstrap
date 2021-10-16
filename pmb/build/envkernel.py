@@ -142,7 +142,7 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     # Create the apk package
     env = {"CARCH": arch,
            "CHOST": arch,
-           "CBUILD": args.arch_native,
+           "CBUILD": pmb.config.arch_native,
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "rootpkg"]
     pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
@@ -177,11 +177,11 @@ def package_kernel(args):
     else:
         function_body = pmb.parse.function_body(aport + "/APKBUILD", "package")
         kbuild_out = find_kbuild_output_dir(function_body)
-    suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
+    suffix = pmb.build.autodetect.suffix(apkbuild, arch)
 
     # Install package dependencies
     depends, _ = pmb.build._package.build_depends(
-        args, apkbuild, args.arch_native, strict=False)
+        args, apkbuild, pmb.config.arch_native, strict=False)
     pmb.build.init(args, suffix)
     pmb.chroot.apk.install(args, depends, suffix)
 

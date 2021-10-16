@@ -507,7 +507,7 @@ def shutdown(args):
 def stats(args):
     # Chroot suffix
     suffix = "native"
-    if args.arch != args.arch_native:
+    if args.arch != pmb.config.arch_native:
         suffix = "buildroot_" + args.arch
 
     # Install ccache and display stats

@@ -142,7 +142,7 @@ def test_pkgrel_bump_high_level(args, tmpdir):
 
     # Delete package with previous soname (--auto-dry exits with >0 now)
     channel = pmb.config.pmaports.read_config(args)["channel"]
-    arch = args.arch_native
+    arch = pmb.config.arch_native
     apk_path = f"{tmpdir}/packages/{channel}/{arch}/testlib-1.0-r0.apk"
     pmb.helpers.run.root(args, ["rm", apk_path])
     pmbootstrap(args, tmpdir, ["index"])

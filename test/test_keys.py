@@ -27,8 +27,8 @@ def test_keys(args):
     # Get the alpine-keys apk filename
     pmb.chroot.init(args)
     version = pmb.parse.apkindex.package(args, "alpine-keys")["version"]
-    pattern = (args.work + "/cache_apk_" + args.arch_native + "/alpine-keys-" +
-               version + ".*.apk")
+    pattern = (args.work + "/cache_apk_" + pmb.config.arch_native +
+               "/alpine-keys-" + version + ".*.apk")
     filename = os.path.basename(glob.glob(pattern)[0])
 
     # Extract it to a temporary folder

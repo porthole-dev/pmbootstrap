@@ -15,7 +15,7 @@ def generate(args, pkgname):
     fields = {
         "pkgname": pkgname,
         "pkgdesc": f"Tools necessary to build programs for {arch} targets",
-        "arch": args.arch_native,
+        "arch": pmb.config.arch_native,
         "makedepends_build": "",
         "makedepends_host": "",
         "makedepends": "gettext libtool autoconf automake bison texinfo",

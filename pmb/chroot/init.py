@@ -43,7 +43,7 @@ def mark_in_chroot(args, suffix="native"):
 
 def setup_qemu_emulation(args, suffix):
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
-    if not pmb.parse.arch.cpu_emulation_required(args, arch):
+    if not pmb.parse.arch.cpu_emulation_required(arch):
         return
 
     chroot = f"{args.work}/chroot_{suffix}"

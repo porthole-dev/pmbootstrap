@@ -158,7 +158,9 @@ def zap_pkgs_online_mismatch(args, confirm=True, dry=False):
     # Iterate over existing apk caches
     for path in paths:
         arch = os.path.basename(path).split("_", 2)[2]
-        suffix = "native" if arch == args.arch_native else f"buildroot_{arch}"
+        suffix = f"buildroot_{arch}"
+        if arch == pmb.config.arch_native:
+            suffix = "native"
 
         # Clean the cache with apk
         logging.info(f"({suffix}) apk -v cache clean")

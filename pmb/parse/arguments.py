@@ -416,7 +416,7 @@ def arguments_newapkbuild(subparser):
 
 def arguments_kconfig(subparser):
     # Allowed architectures
-    arch_native = pmb.parse.arch.alpine_native()
+    arch_native = pmb.config.arch_native
     arch_choices = set(pmb.config.build_device_architectures + [arch_native])
 
     # Kconfig subparser
@@ -476,7 +476,7 @@ def arguments_repo_missing(subparser):
     if argcomplete:
         package.completer = package_completer
     ret.add_argument("--arch", choices=pmb.config.build_device_architectures,
-                     default=pmb.parse.arch.alpine_native())
+                     default=pmb.config.arch_native)
     ret.add_argument("--built", action="store_true",
                      help="include packages which exist in the binary repos")
     ret.add_argument("--overview", action="store_true",
@@ -523,7 +523,7 @@ def add_packages_arg(subparser, name="packages", *args, **kwargs):
 
 def arguments():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
-    arch_native = pmb.parse.arch.alpine_native()
+    arch_native = pmb.config.arch_native
     arch_choices = set(pmb.config.build_device_architectures + [arch_native])
     mirrors_pmos_default = pmb.config.defaults["mirrors_postmarketos"]
 

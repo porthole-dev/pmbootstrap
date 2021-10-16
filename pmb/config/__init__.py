@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import multiprocessing
 import os
+import pmb.parse.arch
 import sys
 
 #
@@ -18,6 +19,7 @@ from pmb.config.merge_with_args import merge_with_args
 version = "1.38.0"
 pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
 apk_keys_path = pmb_src + "/pmb/data/keys"
+arch_native = pmb.parse.arch.alpine_native()
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge

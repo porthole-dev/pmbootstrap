@@ -50,8 +50,10 @@ def arch(args, pkgname):
 
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     arches = apkbuild["arch"]
-    if "noarch" in arches or "all" in arches or args.arch_native in arches:
-        return args.arch_native
+    if ("noarch" in arches or
+            "all" in arches or
+            pmb.config.arch_native in arches):
+        return pmb.config.arch_native
 
     arch_device = args.deviceinfo["arch"]
     if arch_device in arches:
@@ -63,8 +65,8 @@ def arch(args, pkgname):
         return None
 
 
-def suffix(args, apkbuild, arch):
-    if arch == args.arch_native:
+def suffix(apkbuild, arch):
+    if arch == pmb.config.arch_native:
         return "native"
 
     if "pmb:cross-native" in apkbuild["options"]:
@@ -79,7 +81,7 @@ def crosscompile(args, apkbuild, arch, suffix):
     """
     if not args.cross:
         return None
-    if not pmb.parse.arch.cpu_emulation_required(args, arch):
+    if not pmb.parse.arch.cpu_emulation_required(arch):
         return None
     if suffix == "native":
         return "native"

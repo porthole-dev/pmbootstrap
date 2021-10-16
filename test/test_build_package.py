@@ -315,7 +315,7 @@ def test_finish(args, monkeypatch):
     assert "Package not found" in str(e.value)
 
     # Existing output path
-    func(args, apkbuild, args.arch_native, output)
+    func(args, apkbuild, pmb.config.arch_native, output)
 
 
 def test_package(args):
@@ -362,7 +362,7 @@ def test_build_depends_high_level(args, monkeypatch):
 
     # Remove hello-world
     pmb.helpers.run.root(args, ["rm", output_hello_outside])
-    pmb.build.index_repo(args, args.arch_native)
+    pmb.build.index_repo(args, pmb.config.arch_native)
     args.cache["built"] = {}
 
     # Ask to build the wrapper. It should not build the wrapper (it exists, not
@@ -414,7 +414,7 @@ def test_build_local_source_high_level(args, tmpdir):
 
     # Test native arch and foreign arch chroot
     channel = pmb.config.pmaports.read_config(args)["channel"]
-    for arch in [args.arch_native, "armhf"]:
+    for arch in [pmb.config.arch_native, "armhf"]:
         # Delete all hello-world --src packages
         pattern = f"{args.work}/packages/{channel}/{arch}/hello-world-*_p*.apk"
         for path in glob.glob(pattern):
@@ -432,5 +432,5 @@ def test_build_local_source_high_level(args, tmpdir):
         pmb.helpers.run.root(args, ["rm", paths[0]])
 
     # Clean up: update index, delete temp folder
-    pmb.build.index_repo(args, args.arch_native)
+    pmb.build.index_repo(args, pmb.config.arch_native)
     pmb.helpers.run.root(args, ["rm", "-r", tmpdir])

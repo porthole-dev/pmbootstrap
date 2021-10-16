@@ -196,7 +196,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
 
     depends_arch = arch
     if cross == "native":
-        depends_arch = args.arch_native
+        depends_arch = pmb.config.arch_native
 
     # Build dependencies
     depends, built = build_depends(args, apkbuild, depends_arch, strict)
@@ -236,7 +236,7 @@ def get_gcc_version(args, arch):
     :returns: a string like "6.4.0-r5"
     """
     return pmb.parse.apkindex.package(args, "gcc-" + arch,
-                                      args.arch_native)["version"]
+                                      pmb.config.arch_native)["version"]
 
 
 def get_pkgver(original_pkgver, original_source=False, now=None):
@@ -493,7 +493,7 @@ def package(args, pkgname, arch=None, force=False, strict=False,
               output path relative to the packages folder ("armhf/ab-1-r2.apk")
     """
     # Once per session is enough
-    arch = arch or args.arch_native
+    arch = arch or pmb.config.arch_native
     if skip_already_built(args, pkgname, arch):
         return
 
@@ -505,7 +505,7 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     # Detect the build environment (skip unnecessary builds)
     if not check_build_for_arch(args, pkgname, arch):
         return
-    suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
+    suffix = pmb.build.autodetect.suffix(apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
     if not init_buildenv(args, apkbuild, arch, strict, force, cross, suffix,
                          skip_init_buildenv, src):

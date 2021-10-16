@@ -141,7 +141,7 @@ def download(args, file):
     """
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     mirrordir = channel_cfg["mirrordir_alpine"]
-    base_url = f"{args.mirror_alpine}{mirrordir}/main/{args.arch_native}"
+    base_url = f"{args.mirror_alpine}{mirrordir}/main/{pmb.config.arch_native}"
     return pmb.helpers.http.download(args, f"{base_url}/{file}", file)
 
 

@@ -31,15 +31,7 @@ import pmb.helpers.git
        args.device ("samsung-i9100", "qemu-amd64" etc.)
        args.work ("/home/user/.local/var/pmbootstrap", override with --work)
 
-    3. Shortcuts
-       Long variables or function calls that always return the same information
-       may have a shortcut defined, to make the code more readable (see
-       add_shortcuts() below).
-
-       Example:
-       args.arch_native ("x86_64" etc.)
-
-    4. Cache
+    3. Cache
        pmbootstrap uses this dictionary to save the result of expensive
        results, so they work a lot faster the next time they are needed in the
        same session. Usually the cache is written to and read from in the same
@@ -54,7 +46,7 @@ import pmb.helpers.git
 
        See add_cache() below for details.
 
-    5. Parsed configs
+    4. Parsed configs
        Similar to the cache above, specific config files get parsed and added
        to args, so they can get accessed quickly (without parsing the configs
        over and over). These configs are not only used in one specific
@@ -116,11 +108,6 @@ def replace_placeholders(args):
             setattr(args, key, os.path.expanduser(getattr(args, key)))
 
 
-def add_shortcuts(args):
-    """ Add convenience shortcuts """
-    setattr(args, "arch_native", pmb.parse.arch.alpine_native())
-
-
 def add_cache(args):
     """ Add a caching dict (caches parsing of files etc. for the current
         session) """
@@ -142,7 +129,7 @@ def add_deviceinfo(args):
     """ Add and verify the deviceinfo (only after initialization) """
     setattr(args, "deviceinfo", pmb.parse.deviceinfo(args))
     arch = args.deviceinfo["arch"]
-    if (arch != args.arch_native and
+    if (arch != pmb.config.arch_native and
             arch not in pmb.config.build_device_architectures):
         raise ValueError("Arch '" + arch + "' is not available in"
                          " postmarketOS. If you would like to add it, see:"
@@ -154,7 +141,6 @@ def init(args):
     fix_mirrors_postmarketos(args)
     pmb.config.merge_with_args(args)
     replace_placeholders(args)
-    add_shortcuts(args)
     add_cache(args)
 
     # Initialize logs (we could raise errors below)

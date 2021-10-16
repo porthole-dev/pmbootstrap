@@ -43,7 +43,7 @@ def generate(args, pkgname):
             pkgdesc="GRUB $_arch EFI files for every architecture"
             url="https://www.gnu.org/software/grub/"
             license="GPL-3.0-or-later"
-            arch="{args.arch_native}"
+            arch="{pmb.config.arch_native}"
             source="grub-efi-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk::$_mirror/{mirrordir}/main/$_arch/grub-efi-$pkgver-r$pkgrel.apk"
 
             package() {{

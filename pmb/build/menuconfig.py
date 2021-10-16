@@ -91,7 +91,7 @@ def menuconfig(args, pkgname, use_oldconfig):
     aport = pmb.helpers.pmaports.find(args, pkgname)
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     arch = args.arch or get_arch(apkbuild)
-    suffix = pmb.build.autodetect.suffix(args, apkbuild, arch)
+    suffix = pmb.build.autodetect.suffix(apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
     hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
 
