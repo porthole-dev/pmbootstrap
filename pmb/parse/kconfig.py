@@ -65,7 +65,10 @@ def check_option(component, details, config, config_path_pretty, option,
 
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
-                 anbox=False, nftables=False, containers=False, zram=False,
+                 anbox=False,
+                 nftables=False,
+                 containers=False,
+                 zram=False,
                  details=False):
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
@@ -123,8 +126,12 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
     return ret
 
 
-def check(args, pkgname, force_anbox_check=False, force_nftables_check=False,
-          force_containers_check=False, force_zram_check=False, details=False):
+def check(args, pkgname,
+          force_anbox_check=False,
+          force_nftables_check=False,
+          force_containers_check=False,
+          force_zram_check=False,
+          details=False):
     """
     Check for necessary kernel config options in a package.
 
