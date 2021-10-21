@@ -352,6 +352,34 @@ necessary_kconfig_options_apparmor = {
     },
 }
 
+# Necessary iwd kernel config options (inet wireless daemon)
+# Obtained from 'grep ADD_MISSING src/main.c' in iwd.git
+necessary_kconfig_options_iwd = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "ASYMMETRIC_KEY_TYPE": True,
+            "ASYMMETRIC_PUBLIC_KEY_SUBTYPE": True,
+            "CRYPTO_AES": True,
+            "CRYPTO_CBC": True,
+            "CRYPTO_CMAC": True,
+            "CRYPTO_DES": True,
+            "CRYPTO_ECB": True,
+            "CRYPTO_HMAC": True,
+            "CRYPTO_MD5": True,
+            "CRYPTO_SHA1": True,
+            "CRYPTO_SHA256": True,
+            "CRYPTO_SHA512": True,
+            "CRYPTO_USER_API_HASH": True,
+            "CRYPTO_USER_API_SKCIPHER": True,
+            "KEYS": True,
+            "KEY_DH_OPERATIONS": True,
+            "PKCS7_MESSAGE_PARSER": True,
+            "PKCS8_PRIVATE_KEY_PARSER": True,
+            "X509_CERTIFICATE_PARSER": True,
+        },
+    },
+}
+
 # Necessary nftables kernel config options (firewall)
 necessary_kconfig_options_nftables = {
     ">=3.13.0": {  # nftables support introduced here
