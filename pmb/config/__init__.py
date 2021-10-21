@@ -300,7 +300,7 @@ necessary_kconfig_options = {
     }
 }
 
-# Necessary anbox kernel config options
+# Necessary anbox/waydroid kernel config options (android app support)
 necessary_kconfig_options_anbox = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
@@ -352,7 +352,7 @@ necessary_kconfig_options_apparmor = {
     },
 }
 
-# Necessary nftables kernel config options
+# Necessary nftables kernel config options (firewall)
 necessary_kconfig_options_nftables = {
     ">=3.13.0": {  # nftables support introduced here
         "all": {  # all arches
@@ -494,6 +494,7 @@ necessary_kconfig_options_containers = {
     },
 }
 
+# Necessary zram kernel config options (RAM disk with on-the-fly compression)
 necessary_kconfig_options_zram = {
     ">=3.14.0": {  # zram support introduced here
         "all": {  # all arches
