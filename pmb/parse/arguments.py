@@ -502,7 +502,7 @@ def arguments_status(subparser):
     return ret
 
 
-def package_completer(prefix, action, parser, parsed_args):
+def package_completer(prefix, action, parser=None, parsed_args=None):
     args = parsed_args
     pmb.config.merge_with_args(args)
     pmb.helpers.args.replace_placeholders(args)
@@ -513,7 +513,7 @@ def package_completer(prefix, action, parser, parsed_args):
     return packages
 
 
-def kernel_completer(prefix, action, parser, parsed_args):
+def kernel_completer(prefix, action, parser=None, parsed_args=None):
     packages = package_completer("linux-" + prefix, action, parser,
                                  parsed_args)
     return [package.replace("linux-", "", 1) for package in packages]
