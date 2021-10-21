@@ -81,9 +81,7 @@ def get_outputdir(args, pkgname, apkbuild):
 def menuconfig(args, pkgname, use_oldconfig):
     # Pkgname: allow omitting "linux-" prefix
     if pkgname.startswith("linux-"):
-        pkgname_ = pkgname.split("linux-")[1]
-        logging.info(f"PROTIP: You can simply do 'pmbootstrap kconfig "
-                     f"{args.action_kconfig} {pkgname_}'")
+        pkgname = pkgname.split("linux-")[1]
     else:
         pkgname = "linux-" + pkgname
 

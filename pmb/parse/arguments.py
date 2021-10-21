@@ -444,9 +444,7 @@ def arguments_kconfig(subparser):
                        help="check options needed for containers too")
     check.add_argument("--zram", action="store_true", help="check"
                        " options needed for zram support too")
-    check_package = check.add_argument("package", default="", nargs='?')
-    if argcomplete:
-        check_package.completer = kernel_completer
+    add_kernel_arg(check)
 
     # "pmbootstrap kconfig edit"
     edit = sub.add_parser("edit", help="edit kernel aport config")
@@ -457,9 +455,7 @@ def arguments_kconfig(subparser):
     edit.add_argument("-n", dest="nconfig", action="store_true",
                       help="use nconfig rather than menuconfig for kernel"
                            " configuration")
-    edit_package = edit.add_argument("package", nargs='?')
-    if argcomplete:
-        edit_package.completer = kernel_completer
+    add_kernel_arg(edit)
 
     # "pmbootstrap kconfig migrate"
     migrate = sub.add_parser("migrate",
@@ -468,9 +464,7 @@ def arguments_kconfig(subparser):
                                   "which asks question for every new kernel "
                                   "config option.")
     migrate.add_argument("--arch", choices=arch_choices, dest="arch")
-    migrate_package = migrate.add_argument("package", nargs='?')
-    if argcomplete:
-        migrate_package.completer = kernel_completer
+    add_kernel_arg(migrate)
 
 
 def arguments_repo_missing(subparser):
@@ -514,15 +508,33 @@ def package_completer(prefix, action, parser=None, parsed_args=None):
 
 
 def kernel_completer(prefix, action, parser=None, parsed_args=None):
-    packages = package_completer("linux-" + prefix, action, parser,
+    """ :returns: matched linux-* packages, with linux-* prefix and without """
+    ret = []
+
+    # Full package name, starting with "linux-"
+    if (len("linux-") < len(prefix) and prefix.startswith("linux-") or
+            "linux-".startswith(prefix)):
+        ret += package_completer(prefix, action, parser, parsed_args)
+
+    # Kernel name without "linux-"
+    packages = package_completer(f"linux-{prefix}", action, parser,
                                  parsed_args)
-    return [package.replace("linux-", "", 1) for package in packages]
+    ret += [package.replace("linux-", "", 1) for package in packages]
+
+    return ret
 
 
 def add_packages_arg(subparser, name="packages", *args, **kwargs):
     arg = subparser.add_argument(name, *args, **kwargs)
     if argcomplete:
         arg.completer = package_completer
+
+
+def add_kernel_arg(subparser, name="package", *args, **kwargs):
+    arg = subparser.add_argument("package", nargs='?', help="kernel package"
+                                 " (e.g. linux-postmarketos-allwinner)")
+    if argcomplete:
+        arg.completer = kernel_completer
 
 
 def arguments():

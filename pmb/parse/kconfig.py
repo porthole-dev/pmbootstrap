@@ -168,8 +168,6 @@ def check(args, pkgname,
     # Pkgname: allow omitting "linux-" prefix
     if pkgname.startswith("linux-"):
         flavor = pkgname.split("linux-")[1]
-        logging.info("PROTIP: You can simply do 'pmbootstrap kconfig check " +
-                     flavor + "'")
     else:
         flavor = pkgname
 
