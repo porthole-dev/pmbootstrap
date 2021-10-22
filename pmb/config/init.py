@@ -111,8 +111,7 @@ def ask_for_channel(args):
                       " from the list above.")
 
 
-def ask_for_ui(args, device):
-    info = pmb.parse.deviceinfo(args, device)
+def ask_for_ui(args, info):
     ui_list = pmb.helpers.ui.list(args, info["arch"])
     hidden_ui_count = 0
     device_is_accelerated = info.get("gpu_accelerated") == "true"
@@ -163,8 +162,7 @@ def ask_for_ui_extras(args, ui):
                                    default=args.ui_extras)
 
 
-def ask_for_keymaps(args, device):
-    info = pmb.parse.deviceinfo(args, device)
+def ask_for_keymaps(args, info):
     if "keymaps" not in info or info["keymaps"].strip() == "":
         return ""
     options = info["keymaps"].split(' ')
@@ -568,16 +566,18 @@ def frontend(args):
     cfg["pmbootstrap"]["nonfree_firmware"] = str(nonfree["firmware"])
     cfg["pmbootstrap"]["nonfree_userland"] = str(nonfree["userland"])
 
+    info = pmb.parse.deviceinfo(args, device)
+
     # Device keymap
     if device_exists:
-        cfg["pmbootstrap"]["keymap"] = ask_for_keymaps(args, device)
+        cfg["pmbootstrap"]["keymap"] = ask_for_keymaps(args, info)
 
     # Username
     cfg["pmbootstrap"]["user"] = pmb.helpers.cli.ask("Username", None,
                                                      args.user, False,
                                                      "[a-z_][a-z0-9_-]*")
     # UI and various build options
-    ui = ask_for_ui(args, device)
+    ui = ask_for_ui(args, info)
     cfg["pmbootstrap"]["ui"] = ui
     cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
     ask_for_additional_options(args, cfg)
@@ -619,7 +619,7 @@ def frontend(args):
             pmb.helpers.cli.confirm(
                 args, "Zap existing chroots to apply configuration?",
                 default=True)):
-        setattr(args, "deviceinfo", pmb.parse.deviceinfo(args, device=device))
+        setattr(args, "deviceinfo", info)
 
         # Do not zap any existing packages or cache_http directories
         pmb.chroot.zap(args, confirm=False)

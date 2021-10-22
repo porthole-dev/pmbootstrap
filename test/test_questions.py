@@ -11,6 +11,7 @@ import pmb.aportgen.device
 import pmb.config
 import pmb.config.init
 import pmb.helpers.logging
+import pmb.parse.deviceinfo
 
 
 @pytest.fixture
@@ -211,19 +212,20 @@ def test_questions_flash_methods(args, monkeypatch):
 def test_questions_keymaps(args, monkeypatch):
     func = pmb.config.init.ask_for_keymaps
     fake_answers(monkeypatch, ["invalid_keymap", "us/rx51_us"])
-    assert func(args, "nokia-n900") == "us/rx51_us"
-    assert func(args, "lg-mako") == ""
+    assert func(args, pmb.parse.deviceinfo(args, "nokia-n900")) == "us/rx51_us"
+    assert func(args, pmb.parse.deviceinfo(args, "lg-mako")) == ""
 
 
 def test_questions_ui(args, monkeypatch):
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     device = "lg-mako"
+    info = pmb.parse.deviceinfo(args, device)
 
     fake_answers(monkeypatch, ["none"])
-    assert pmb.config.init.ask_for_ui(args, device) == "none"
+    assert pmb.config.init.ask_for_ui(args, info) == "none"
 
     fake_answers(monkeypatch, ["invalid_UI", "weston"])
-    assert pmb.config.init.ask_for_ui(args, device) == "weston"
+    assert pmb.config.init.ask_for_ui(args, info) == "weston"
 
 
 def test_questions_ui_extras(args, monkeypatch):
