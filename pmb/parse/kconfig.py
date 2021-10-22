@@ -19,6 +19,17 @@ def is_set(config, option):
     return re.search("^CONFIG_" + option + "=[ym]$", config, re.M) is not None
 
 
+def is_set_str(config, option, string):
+    """
+    Check, whether a config option contains a string as value.
+    """
+    match = re.search("^CONFIG_" + option + "=\"(.*)\"$", config, re.M)
+    if match:
+        return string == match.group(1)
+    else:
+        return False
+
+
 def is_in_array(config, option, string):
     """
     Check, whether a config option contains string as an array element
@@ -47,6 +58,15 @@ def check_option(component, details, config, config_path_pretty, option,
                 else:
                     logging.warning(warning_no_details)
                 return False
+    elif isinstance(option_value, str):
+        if not is_set_str(config, option, option_value):
+            if details:
+                logging.info(f"WARNING: {config_path_pretty}: CONFIG_{option}"
+                             f' should be set to "{option_value}".'
+                             f" See <{link}> for details.")
+            else:
+                logging.warning(warning_no_details)
+            return False
     elif option_value in [True, False]:
         if option_value != is_set(config, option):
             if details:
@@ -57,10 +77,10 @@ def check_option(component, details, config, config_path_pretty, option,
                 logging.warning(warning_no_details)
             return False
     else:
-        raise RuntimeError("kconfig check code can only handle True/False and"
-                           " arrays now, given value '" + str(option_value) +
-                           "' is not supported. If you need this, please open"
-                           " an issue.")
+        raise RuntimeError("kconfig check code can only handle booleans,"
+                           f" strings and arrays. Given value {option_value}"
+                           " is not supported. If you need this, please patch"
+                           " pmbootstrap or open an issue.")
     return True
 
 
