@@ -804,8 +804,7 @@ def create_device_rootfs(args, step, steps):
     install_packages = (pmb.config.install_device_packages +
                         ["device-" + args.device] +
                         get_kernel_package(args, args.device) +
-                        get_nonfree_packages(args, args.device) +
-                        pmb.install.ui.get_recommends(args))
+                        get_nonfree_packages(args, args.device))
     if not args.install_base:
         install_packages = [p for p in install_packages
                             if p != "postmarketos-base"]
@@ -813,6 +812,8 @@ def create_device_rootfs(args, step, steps):
         install_packages += ["postmarketos-ui-" + args.ui]
         if args.ui_extras:
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
+        if args.install_recommends:
+            install_packages += pmb.install.ui.get_recommends(args)
     if args.extra_packages.lower() != "none":
         install_packages += args.extra_packages.split(",")
     if args.add:
