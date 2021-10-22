@@ -789,6 +789,24 @@ def install_on_device_installer(args, step, steps):
                          boot_label, "pmOS_install", args.split, args.sdcard)
 
 
+def get_selected_providers(args, packages):
+    """
+    Look through the specified packages and see which providers were selected
+    in "pmbootstrap init". Install those as extra packages to select them
+    instead of the default provider.
+
+    :param packages: the packages that have selectable providers (_pmb_select)
+    :return: additional provider packages to install
+    """
+    providers = []
+    for p in packages:
+        apkbuild = pmb.helpers.pmaports.get(args, p, subpackages=False)
+        for select in apkbuild['_pmb_select']:
+            if select in args.selected_providers:
+                providers.append(args.selected_providers[select])
+    return providers
+
+
 def create_device_rootfs(args, step, steps):
     # List all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
@@ -802,14 +820,19 @@ def create_device_rootfs(args, step, steps):
 
     # Fill install_packages
     install_packages = (pmb.config.install_device_packages +
-                        ["device-" + args.device] +
-                        get_kernel_package(args, args.device) +
-                        get_nonfree_packages(args, args.device))
+                        ["device-" + args.device])
     if not args.install_base:
         install_packages = [p for p in install_packages
                             if p != "postmarketos-base"]
     if args.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + args.ui]
+
+    # Add additional providers of base/device/UI package
+    install_packages += get_selected_providers(args, install_packages)
+
+    install_packages += get_kernel_package(args, args.device)
+    install_packages += get_nonfree_packages(args, args.device)
+    if args.ui.lower() != "none":
         if args.ui_extras:
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
         if args.install_recommends:

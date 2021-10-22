@@ -219,6 +219,30 @@ def get(args, pkgname, must_exist=True, subpackages=True):
     return None
 
 
+def find_providers(args, provide):
+    """
+    Search for providers of the specified (virtual) package in pmaports.
+    Note: Currently only providers from a single APKBUILD are returned.
+
+    :param provide: the (virtual) package to search providers for
+    :returns: tuple list (pkgname, apkbuild_pkg) with providers, sorted by
+              provider_priority. The provider with the highest priority
+              (which would be selected by default) comes first.
+    """
+
+    providers = {}
+
+    apkbuild = get(args, provide)
+    for subpkgname, subpkg in apkbuild["subpackages"].items():
+        for provides in subpkg["provides"]:
+            # Strip provides version (=$pkgver-r$pkgrel)
+            if provides.split("=", 1)[0] == provide:
+                providers[subpkgname] = subpkg
+
+    return sorted(providers.items(), reverse=True,
+                  key=lambda p: p[1].get('provider_priority', 0))
+
+
 def get_repo(args, pkgname, must_exist=True):
     """ Get the repository folder of an aport.
 

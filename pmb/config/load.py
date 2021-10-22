@@ -13,6 +13,8 @@ def load(args):
 
     if "pmbootstrap" not in cfg:
         cfg["pmbootstrap"] = {}
+    if "providers" not in cfg:
+        cfg["providers"] = {}
 
     for key in pmb.config.defaults:
         if key in pmb.config.config_keys and key not in cfg["pmbootstrap"]:

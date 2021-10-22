@@ -14,6 +14,7 @@ import pmb.helpers.devices
 import pmb.helpers.http
 import pmb.helpers.logging
 import pmb.helpers.other
+import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.helpers.ui
 import pmb.chroot.zap
@@ -204,6 +205,80 @@ def ask_for_timezone(args):
     logging.info("WARNING: Unable to determine timezone configuration on host,"
                  " using GMT.")
     return "GMT"
+
+
+def ask_for_provider_select(args, apkbuild, providers_cfg):
+    """
+    Ask for selectable providers that are specified using "_pmb_select"
+    in a APKBUILD.
+
+    :param apkbuild: the APKBUILD with the _pmb_select
+    :param providers_cfg: the configuration section with previously selected
+                          providers. Updated with new providers after selection
+    """
+    for select in apkbuild["_pmb_select"]:
+        providers = pmb.helpers.pmaports.find_providers(args, select)
+        logging.info(f"Available providers for {select} ({len(providers)}):")
+
+        has_default = False
+        providers_short = {}
+        last_selected = providers_cfg.get(select, 'default')
+
+        for pkgname, pkg in providers:
+            # Strip provider prefix if possible
+            short = pkgname
+            if short.startswith(f'{select}-'):
+                short = short[len(f"{select}-"):]
+
+            # Allow selecting the package using both short and long name
+            providers_short[pkgname] = pkgname
+            providers_short[short] = pkgname
+
+            if pkgname == last_selected:
+                last_selected = short
+
+            if not has_default and pkg.get('provider_priority', 0) != 0:
+                # Display as default provider
+                styles = pmb.config.styles
+                logging.info(f"* {short}: {pkg['pkgdesc']} "
+                             f"{styles['BOLD']}(default){styles['END']}")
+                has_default = True
+            else:
+                logging.info(f"* {short}: {pkg['pkgdesc']}")
+
+        while True:
+            ret = pmb.helpers.cli.ask("Provider", None, last_selected, True,
+                                      complete=providers_short.keys())
+
+            if has_default and ret == 'default':
+                # Selecting default means to not select any provider explicitly
+                # In other words, apk chooses it automatically based on
+                # "provider_priority"
+                if select in providers_cfg:
+                    del providers_cfg[select]
+                break
+            if ret in providers_short:
+                providers_cfg[select] = providers_short[ret]
+                break
+            logging.fatal("ERROR: Invalid provider specified, please type in"
+                          " one from the list above.")
+
+
+def ask_for_provider_select_pkg(args, pkgname, providers_cfg):
+    """
+    Look up the APKBUILD for the specified pkgname and ask for selectable
+    providers that are specified using "_pmb_select".
+
+    :param pkgname: name of the package to search APKBUILD for
+    :param providers_cfg: the configuration section with previously selected
+                          providers. Updated with new providers after selection
+    """
+    apkbuild = pmb.helpers.pmaports.get(args, pkgname,
+                                        subpackages=False, must_exist=False)
+    if not apkbuild:
+        return
+
+    ask_for_provider_select(args, apkbuild, providers_cfg)
 
 
 def ask_for_device_kernel(args, device):
@@ -567,6 +642,10 @@ def frontend(args):
     cfg["pmbootstrap"]["nonfree_userland"] = str(nonfree["userland"])
 
     info = pmb.parse.deviceinfo(args, device)
+    apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
+    if apkbuild_path:
+        apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
+        ask_for_provider_select(args, apkbuild, cfg["providers"])
 
     # Device keymap
     if device_exists:
@@ -576,10 +655,15 @@ def frontend(args):
     cfg["pmbootstrap"]["user"] = pmb.helpers.cli.ask("Username", None,
                                                      args.user, False,
                                                      "[a-z_][a-z0-9_-]*")
+
+    ask_for_provider_select_pkg(args, "postmarketos-base", cfg["providers"])
+
     # UI and various build options
     ui = ask_for_ui(args, info)
     cfg["pmbootstrap"]["ui"] = ui
     cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
+    ask_for_provider_select_pkg(args, f"postmarketos-ui-{ui}",
+                                cfg["providers"])
     ask_for_additional_options(args, cfg)
 
     # Extra packages to be installed to rootfs
