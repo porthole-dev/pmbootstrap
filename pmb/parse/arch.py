@@ -6,7 +6,6 @@ import fnmatch
 
 def alpine_native():
     machine = platform.machine()
-    ret = ""
 
     mapping = {
         "i686": "x86",
@@ -19,7 +18,6 @@ def alpine_native():
         return mapping[machine]
     raise ValueError("Can not map platform.machine '" + machine + "'"
                      " to the right Alpine Linux architecture")
-    return ret
 
 
 def from_chroot_suffix(args, suffix):
