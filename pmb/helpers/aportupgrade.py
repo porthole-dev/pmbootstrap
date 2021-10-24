@@ -19,9 +19,10 @@ ANITYA_API_BASE = "https://release-monitoring.org/api/v2"
 GITHUB_API_BASE = "https://api.github.com"
 GITLAB_HOSTS = [
     "https://gitlab.com",
+    "https://gitlab.freedesktop.org",
+    "https://gitlab.gnome.org",
     "https://invent.kde.org",
     "https://source.puri.sm",
-    "https://gitlab.freedesktop.org",
 ]
 
 
