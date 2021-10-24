@@ -258,6 +258,21 @@ build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]
 # for the first time
 build_packages = ["abuild", "build-base", "ccache", "git"]
 
+#
+# KCONFIG CHECK
+#
+# Implemented value types:
+# - boolean (e.g. '"ANDROID_PARANOID_NETWORK": False'):
+#   - False: disabled
+#   - True: enabled, either as module or built-in
+# - array (e.g. '"ANDROID_BINDER_DEVICES": ["binder", "hwbinder"]'):
+#   - each element of the array must be contained in the kernel config string,
+#     in any order. The example above would accept the following in the config:
+#       CONFIG_ANDROID_BINDER_DEVICES="hwbinder,vndbinder,binder"
+# - string (e.g. '"LSM": "lockdown,yama,loadpin,safesetid,integrity"'):
+#   - the value in the kernel config must be the same as the given string. Use
+#     this e.g. if the order of the elements is important.
+
 # Necessary kernel config options
 necessary_kconfig_options = {
     ">=0.0.0": {  # all versions
