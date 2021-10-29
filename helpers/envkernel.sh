@@ -120,7 +120,8 @@ initialize_chroot() {
 	# shellcheck disable=SC3057
 	arch_substr="${host_arch:0:3}"
 	if [ "$arch" = "$host_arch" ] || \
-		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; }; then
+		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; } || \
+		{ [ "$arch" = "arm64" ] && [ "$host_arch" = "aarch64" ]; }; then
 		need_cross_compiler=0
 	fi
 
