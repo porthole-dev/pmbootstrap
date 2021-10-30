@@ -82,7 +82,7 @@ def generate(args, monkeypatch, answers):
     remove_contributor_maintainer_lines(args, apkbuild_path_linux)
 
     # Parse the deviceinfo and apkbuilds
-    args.cache["apkbuild"] = {}
+    pmb.helpers.other.cache["apkbuild"] = {}
     apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
     apkbuild_linux = pmb.parse.apkbuild(args, apkbuild_path_linux,
                                         check_pkgver=False)

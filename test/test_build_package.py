@@ -58,9 +58,9 @@ def args_patched(monkeypatch, argv):
 
 def test_skip_already_built(args):
     func = pmb.build._package.skip_already_built
-    assert args.cache["built"] == {}
+    assert pmb.helpers.other.cache["built"] == {}
     assert func(args, "test-package", "armhf") is False
-    assert args.cache["built"] == {"armhf": ["test-package"]}
+    assert pmb.helpers.other.cache["built"] == {"armhf": ["test-package"]}
     assert func(args, "test-package", "armhf") is True
 
 
@@ -323,11 +323,11 @@ def test_package(args):
     assert pmb.build.package(args, "hello-world", force=True)
 
     # Package exists
-    args.cache["built"] = {}
+    pmb.helpers.other.cache["built"] = {}
     assert pmb.build.package(args, "hello-world") is None
 
     # Force building again
-    args.cache["built"] = {}
+    pmb.helpers.other.cache["built"] = {}
     assert pmb.build.package(args, "hello-world", force=True)
 
     # Build for another architecture
@@ -363,7 +363,7 @@ def test_build_depends_high_level(args, monkeypatch):
     # Remove hello-world
     pmb.helpers.run.root(args, ["rm", output_hello_outside])
     pmb.build.index_repo(args, pmb.config.arch_native)
-    args.cache["built"] = {}
+    pmb.helpers.other.cache["built"] = {}
 
     # Ask to build the wrapper. It should not build the wrapper (it exists, not
     # using force), but build/update its missing dependency "hello-world"

@@ -179,8 +179,8 @@ def parse(args, path, multiple_providers=True):
     # Try to get a cached result first
     lastmod = os.path.getmtime(path)
     cache_key = "multiple" if multiple_providers else "single"
-    if path in args.cache["apkindex"]:
-        cache = args.cache["apkindex"][path]
+    if path in pmb.helpers.other.cache["apkindex"]:
+        cache = pmb.helpers.other.cache["apkindex"][path]
         if cache["lastmod"] == lastmod:
             if cache_key in cache:
                 return cache[cache_key]
@@ -217,9 +217,9 @@ def parse(args, path, multiple_providers=True):
                 parse_add_block(ret, block, alias, multiple_providers)
 
     # Update the cache
-    if path not in args.cache["apkindex"]:
-        args.cache["apkindex"][path] = {"lastmod": lastmod}
-    args.cache["apkindex"][path][cache_key] = ret
+    if path not in pmb.helpers.other.cache["apkindex"]:
+        pmb.helpers.other.cache["apkindex"][path] = {"lastmod": lastmod}
+    pmb.helpers.other.cache["apkindex"][path][cache_key] = ret
     return ret
 
 
@@ -257,12 +257,12 @@ def clear_cache(args, path):
     :returns: True on successful deletion, False otherwise
     """
     logging.verbose("Clear APKINDEX cache for: " + path)
-    if path in args.cache["apkindex"]:
-        del args.cache["apkindex"][path]
+    if path in pmb.helpers.other.cache["apkindex"]:
+        del pmb.helpers.other.cache["apkindex"][path]
         return True
     else:
         logging.verbose("Nothing to do, path was not in cache:" +
-                        str(args.cache["apkindex"].keys()))
+                        str(pmb.helpers.other.cache["apkindex"].keys()))
         return False
 
 

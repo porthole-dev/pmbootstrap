@@ -127,9 +127,9 @@ def update(args, arch=None, force=False, existing_only=False):
     # Skip in offline mode, only show once
     cache_key = "pmb.helpers.repo.update"
     if args.offline:
-        if not args.cache[cache_key]["offline_msg_shown"]:
+        if not pmb.helpers.other.cache[cache_key]["offline_msg_shown"]:
             logging.info("NOTE: skipping package index update (offline mode)")
-            args.cache[cache_key]["offline_msg_shown"] = True
+            pmb.helpers.other.cache[cache_key]["offline_msg_shown"] = True
         return False
 
     # Architectures and retention time
@@ -151,7 +151,7 @@ def update(args, arch=None, force=False, existing_only=False):
 
             # Find update reason, possibly skip non-existing or known 404 files
             reason = None
-            if url_full in args.cache[cache_key]["404"]:
+            if url_full in pmb.helpers.other.cache[cache_key]["404"]:
                 # We already attempted to download this file once in this
                 # session
                 continue
@@ -184,7 +184,7 @@ def update(args, arch=None, force=False, existing_only=False):
         temp = pmb.helpers.http.download(args, url, "APKINDEX", False,
                                          logging.DEBUG, True)
         if not temp:
-            args.cache[cache_key]["404"].append(url)
+            pmb.helpers.other.cache[cache_key]["404"].append(url)
             continue
         target_folder = os.path.dirname(target)
         if not os.path.exists(target_folder):

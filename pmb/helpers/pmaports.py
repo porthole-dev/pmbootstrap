@@ -15,7 +15,7 @@ import pmb.parse
 def _find_apkbuilds(args):
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
-    apkbuilds = args.cache.get("pmb.helpers.pmaports.apkbuilds")
+    apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
     if apkbuilds is not None:
         return apkbuilds
 
@@ -32,7 +32,7 @@ def _find_apkbuilds(args):
     apkbuilds = dict(sorted(apkbuilds.items()))
 
     # Save result in cache
-    args.cache["pmb.helpers.pmaports.apkbuilds"] = apkbuilds
+    pmb.helpers.other.cache["pmb.helpers.pmaports.apkbuilds"] = apkbuilds
     return apkbuilds
 
 
@@ -109,7 +109,7 @@ def _find_package_in_apkbuild(args, package, path):
     :param path: The path to the apkbuild
     :return: True if the APKBUILD contains or provides the package
     """
-    apkbuild = pmb.parse.apkbuild(args, path)
+    apkbuild = pmb.parse.apkbuild(path)
 
     # Subpackages
     if package in apkbuild["subpackages"]:
@@ -146,8 +146,8 @@ def find(args, package, must_exist=True):
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     ret = None
-    if package in args.cache["find_aport"]:
-        ret = args.cache["find_aport"][package]
+    if package in pmb.helpers.other.cache["find_aport"]:
+        ret = pmb.helpers.other.cache["find_aport"][package]
     else:
         # Sanity check
         if "*" in package:
@@ -182,7 +182,7 @@ def find(args, package, must_exist=True):
                            package)
 
     # Save result in cache
-    args.cache["find_aport"][package] = ret
+    pmb.helpers.other.cache["find_aport"][package] = ret
     return ret
 
 

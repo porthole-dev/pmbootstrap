@@ -41,7 +41,7 @@ def replace_apkbuild(args, pkgname, key, new, in_quotes=False):
     replace(path, "\n" + line_old + "\n", "\n" + line_new + "\n")
 
     # Verify
-    del (args.cache["apkbuild"][path])
+    del (pmb.helpers.other.cache["apkbuild"][path])
     apkbuild = pmb.parse.apkbuild(args, path)
     if apkbuild[key] != str(new):
         raise RuntimeError("Failed to set '{}' for pmaport '{}'. Make sure"

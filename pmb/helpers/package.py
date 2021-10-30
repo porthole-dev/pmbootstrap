@@ -33,10 +33,16 @@ def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
                   * None if the package was not found """
     # Cached result
     cache_key = "pmb.helpers.package.get"
-    if (arch in args.cache[cache_key] and
-            pkgname in args.cache[cache_key][arch] and
-            replace_subpkgnames in args.cache[cache_key][arch][pkgname]):
-        return args.cache[cache_key][arch][pkgname][replace_subpkgnames]
+    if (
+        arch in pmb.helpers.other.cache[cache_key] and
+        pkgname in pmb.helpers.other.cache[cache_key][arch] and
+        replace_subpkgnames in pmb.helpers.other.cache[cache_key][arch][
+            pkgname
+        ]
+    ):
+        return pmb.helpers.other.cache[cache_key][arch][pkgname][
+            replace_subpkgnames
+        ]
 
     # Find in pmaports
     ret = None
@@ -96,11 +102,13 @@ def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
 
     # Save to cache and return
     if ret:
-        if arch not in args.cache[cache_key]:
-            args.cache[cache_key][arch] = {}
-        if pkgname not in args.cache[cache_key][arch]:
-            args.cache[cache_key][arch][pkgname] = {}
-        args.cache[cache_key][arch][pkgname][replace_subpkgnames] = ret
+        if arch not in pmb.helpers.other.cache[cache_key]:
+            pmb.helpers.other.cache[cache_key][arch] = {}
+        if pkgname not in pmb.helpers.other.cache[cache_key][arch]:
+            pmb.helpers.other.cache[cache_key][arch][pkgname] = {}
+        pmb.helpers.other.cache[cache_key][arch][pkgname][
+            replace_subpkgnames
+        ] = ret
         return ret
 
     # Could not find the package
@@ -119,9 +127,9 @@ def depends_recurse(args, pkgname, arch):
                    "linux-samsung-i9100", ...] """
     # Cached result
     cache_key = "pmb.helpers.package.depends_recurse"
-    if (arch in args.cache[cache_key] and
-            pkgname in args.cache[cache_key][arch]):
-        return args.cache[cache_key][arch][pkgname]
+    if (arch in pmb.helpers.other.cache[cache_key] and
+            pkgname in pmb.helpers.other.cache[cache_key][arch]):
+        return pmb.helpers.other.cache[cache_key][arch][pkgname]
 
     # Build ret (by iterating over the queue)
     queue = [pkgname]
@@ -141,9 +149,9 @@ def depends_recurse(args, pkgname, arch):
     ret.sort()
 
     # Save to cache and return
-    if arch not in args.cache[cache_key]:
-        args.cache[cache_key][arch] = {}
-    args.cache[cache_key][arch][pkgname] = ret
+    if arch not in pmb.helpers.other.cache[cache_key]:
+        pmb.helpers.other.cache[cache_key][arch] = {}
+    pmb.helpers.other.cache[cache_key][arch][pkgname] = ret
     return ret
 
 

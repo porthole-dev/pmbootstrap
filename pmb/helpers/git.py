@@ -109,8 +109,8 @@ def parse_channels_cfg(args):
                                            ...}} """
     # Cache during one pmbootstrap run
     cache_key = "pmb.helpers.git.parse_channels_cfg"
-    if args.cache[cache_key]:
-        return args.cache[cache_key]
+    if pmb.helpers.other.cache[cache_key]:
+        return pmb.helpers.other.cache[cache_key]
 
     # Read with configparser
     cfg = configparser.ConfigParser()
@@ -147,7 +147,7 @@ def parse_channels_cfg(args):
             value = cfg.get(channel, key)
             ret["channels"][channel_new][key] = value
 
-    args.cache[cache_key] = ret
+    pmb.helpers.other.cache[cache_key] = ret
     return ret
 
 

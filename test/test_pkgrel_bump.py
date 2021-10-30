@@ -110,7 +110,7 @@ def verify_pkgrels(args, tmpdir, pkgrel_testlib, pkgrel_testapp,
     Verify the pkgrels of the three test APKBUILDs ("testlib", "testapp",
     "testsubpkg").
     """
-    args.cache["apkbuild"] = {}
+    pmb.helpers.other.cache["apkbuild"] = {}
     mapping = {"testlib": pkgrel_testlib,
                "testapp": pkgrel_testapp,
                "testsubpkg": pkgrel_testsubpkg}

@@ -237,9 +237,9 @@ def sudo_timer_start(args):
     needed once.
     """
 
-    if "sudo_timer_active" in args.cache:
+    if "sudo_timer_active" in pmb.helpers.other.cache:
         return
-    args.cache["sudo_timer_active"] = True
+    pmb.helpers.other.cache["sudo_timer_active"] = True
 
     sudo_timer_iterate()
 

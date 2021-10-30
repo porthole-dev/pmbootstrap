@@ -298,8 +298,8 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
     """
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
-    if path in args.cache["apkbuild"]:
-        return args.cache["apkbuild"][path]
+    if path in pmb.helpers.other.cache["apkbuild"]:
+        return pmb.helpers.other.cache["apkbuild"][path]
 
     # Read the file and check line endings
     lines = read_file(path)
@@ -328,7 +328,7 @@ def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
                                f" APKBUILD: {path}")
 
     # Fill cache
-    args.cache["apkbuild"][path] = ret
+    pmb.helpers.other.cache["apkbuild"][path] = ret
     return ret
 
 

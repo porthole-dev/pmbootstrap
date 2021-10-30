@@ -512,7 +512,7 @@ def package_completer(prefix, action, parser=None, parsed_args=None):
     args = parsed_args
     pmb.config.merge_with_args(args)
     pmb.helpers.args.replace_placeholders(args)
-    pmb.helpers.args.add_cache(args)
+    pmb.helpers.other.init_cache()
     packages = set(
         package for package in pmb.helpers.pmaports.get_list(args)
         if package.startswith(prefix))

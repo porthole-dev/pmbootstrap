@@ -23,8 +23,8 @@ def args(request, tmpdir):
     apkindex_path = str(tmpdir) + "/APKINDEX.tar.gz"
     open(apkindex_path, "a").close()
     lastmod = os.path.getmtime(apkindex_path)
-    args.cache["apkindex"][apkindex_path] = {"lastmod": lastmod,
-                                             "multiple": {}}
+    pmb.helpers.other.cache["apkindex"][apkindex_path] = {"lastmod": lastmod,
+                                                          "multiple": {}}
     return args
 
 
@@ -34,9 +34,9 @@ def cache_apkindex(args, version):
     for the "hello-world" package.
     :param version: full version string, includes pkgver and pkgrl (e.g. 1-r2)
     """
-    apkindex_path = list(args.cache["apkindex"].keys())[0]
+    apkindex_path = list(pmb.helpers.other.cache["apkindex"].keys())[0]
 
-    providers = args.cache[
+    providers = pmb.helpers.other.cache[
         "apkindex"][apkindex_path]["multiple"]["hello-world"]
     providers["hello-world"]["version"] = version
 
@@ -47,11 +47,11 @@ def test_build_is_necessary(args):
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     apkbuild["pkgver"] = "1"
     apkbuild["pkgrel"] = "2"
-    indexes = list(args.cache["apkindex"].keys())
+    indexes = list(pmb.helpers.other.cache["apkindex"].keys())
     apkindex_path = indexes[0]
     cache = {"hello-world": {"hello-world": {"pkgname": "hello-world",
                                              "version": "1-r2"}}}
-    args.cache["apkindex"][apkindex_path]["multiple"] = cache
+    pmb.helpers.other.cache["apkindex"][apkindex_path]["multiple"] = cache
 
     # Binary repo has a newer version
     cache_apkindex(args, "999-r1")
@@ -71,7 +71,7 @@ def test_build_is_necessary_no_binary_available(args):
     APKINDEX cache is set up to fake an empty APKINDEX, which means that the
     hello-world package has not been built yet.
     """
-    indexes = list(args.cache["apkindex"].keys())
+    indexes = list(pmb.helpers.other.cache["apkindex"].keys())
     aport = pmb.helpers.pmaports.find(args, "hello-world")
     apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is True

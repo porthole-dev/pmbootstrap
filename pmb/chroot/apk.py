@@ -25,7 +25,7 @@ def update_repository_list(args, suffix="native", check=False):
                   True.
     """
     # Skip if we already did this
-    if suffix in args.cache["apk_repository_list_updated"]:
+    if suffix in pmb.helpers.other.cache["apk_repository_list_updated"]:
         return
 
     # Read old entries or create folder structure
@@ -43,7 +43,7 @@ def update_repository_list(args, suffix="native", check=False):
     # Up to date: Save cache, return
     lines_new = pmb.helpers.repo.urls(args)
     if lines_old == lines_new:
-        args.cache["apk_repository_list_updated"].append(suffix)
+        pmb.helpers.other.cache["apk_repository_list_updated"].append(suffix)
         return
 
     # Check phase: raise error when still outdated
@@ -67,7 +67,7 @@ def check_min_version(args, suffix="native"):
     """
 
     # Skip if we already did this
-    if suffix in args.cache["apk_min_version_checked"]:
+    if suffix in pmb.helpers.other.cache["apk_min_version_checked"]:
         return
 
     # Skip if apk is not installed yet
@@ -84,7 +84,7 @@ def check_min_version(args, suffix="native"):
         " 'pmbootstrap zap -hc'")
 
     # Mark this suffix as checked
-    args.cache["apk_min_version_checked"].append(suffix)
+    pmb.helpers.other.cache["apk_min_version_checked"].append(suffix)
 
 
 def install_is_necessary(args, build, arch, package, packages_installed):

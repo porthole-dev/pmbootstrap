@@ -275,3 +275,37 @@ def validate_hostname(hostname):
                       " sign")
         return False
     return True
+
+
+"""
+pmbootstrap uses this dictionary to save the result of expensive
+results, so they work a lot faster the next time they are needed in the
+same session. Usually the cache is written to and read from in the same
+Python file, with code similar to the following:
+
+def lookup(key):
+    if key in pmb.helpers.other.cache["mycache"]:
+        return pmb.helpers.other.cache["mycache"][key]
+    ret = expensive_operation(args, key)
+    pmb.helpers.other.cache["mycache"][key] = ret
+    return ret
+"""
+cache = None
+
+
+def init_cache():
+    global cache
+    """ Add a caching dict (caches parsing of files etc. for the current
+        session) """
+    repo_update = {"404": [], "offline_msg_shown": False}
+    cache = {"apkindex": {},
+             "apkbuild": {},
+             "apk_min_version_checked": [],
+             "apk_repository_list_updated": [],
+             "built": {},
+             "find_aport": {},
+             "pmb.helpers.package.depends_recurse": {},
+             "pmb.helpers.package.get": {},
+             "pmb.helpers.repo.update": repo_update,
+             "pmb.helpers.git.parse_channels_cfg": {},
+             "pmb.config.pmaports.read_config": None}

@@ -84,8 +84,8 @@ def read_config(args):
     """ Read and verify pmaports.cfg. """
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config"
-    if args.cache[cache_key]:
-        return args.cache[cache_key]
+    if pmb.helpers.other.cache[cache_key]:
+        return pmb.helpers.other.cache[cache_key]
 
     # Migration message
     if not os.path.exists(args.aports):
@@ -112,7 +112,7 @@ def read_config(args):
     ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
 
     # Cache and return
-    args.cache[cache_key] = ret
+    pmb.helpers.other.cache[cache_key] = ret
     return ret
 
 
@@ -186,7 +186,7 @@ def switch_to_channel_branch(args, channel_new):
                            f"{args.aports}")
 
     # Invalidate all caches
-    pmb.helpers.args.add_cache(args)
+    pmb.helpers.other.init_cache()
 
     # Verify pmaports.cfg on new branch
     read_config(args)

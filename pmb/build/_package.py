@@ -22,13 +22,13 @@ def skip_already_built(args, pkgname, arch):
 
     :returns: True when it can be skipped or False
     """
-    if arch not in args.cache["built"]:
-        args.cache["built"][arch] = []
-    if pkgname in args.cache["built"][arch]:
+    if arch not in pmb.helpers.other.cache["built"]:
+        pmb.helpers.other.cache["built"][arch] = []
+    if pkgname in pmb.helpers.other.cache["built"][arch]:
         logging.verbose(pkgname + ": already checked this session,"
                         " no need to build it or its dependencies")
         return True
-    args.cache["built"][arch].append(pkgname)
+    pmb.helpers.other.cache["built"][arch].append(pkgname)
     return False
 
 
