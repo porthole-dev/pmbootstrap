@@ -209,6 +209,11 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
         if options.get("array", False):
             # Split up arrays, delete empty strings inside the list
             ret[attribute] = list(filter(None, ret[attribute].split(" ")))
+        if options.get("int", False):
+            if ret[attribute]:
+                ret[attribute] = int(ret[attribute])
+            else:
+                ret[attribute] = 0
 
 
 def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):

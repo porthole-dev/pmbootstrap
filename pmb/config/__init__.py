@@ -559,6 +559,7 @@ apkbuild_package_attributes = {
     "pkgdesc": {},
     "depends": {"array": True},
     "provides": {"array": True},
+    "provider_priority": {"int": True},
     "install": {"array": True},
 
     # UI meta-packages can specify apps in "_pmb_recommends" to be explicitly
