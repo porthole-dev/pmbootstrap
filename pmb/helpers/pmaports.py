@@ -155,6 +155,13 @@ def find(args, package, must_exist=True):
         if path:
             ret = os.path.dirname(path)
 
+        # Try to guess based on the subpackage name
+        guess = guess_main(args, package)
+        if guess:
+            # ... but see if we were right
+            if _find_package_in_apkbuild(args, package, f'{guess}/APKBUILD'):
+                ret = guess
+
         # Search in subpackages and provides
         if not ret:
             for path_current in _find_apkbuilds(args).values():
@@ -162,9 +169,9 @@ def find(args, package, must_exist=True):
                     ret = os.path.dirname(path_current)
                     break
 
-        # Guess a main package
+        # Use the guess otherwise
         if not ret:
-            ret = guess_main(args, package)
+            ret = guess
 
     # Crash when necessary
     if ret is None and must_exist:
