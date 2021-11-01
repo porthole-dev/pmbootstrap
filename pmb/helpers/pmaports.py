@@ -115,9 +115,12 @@ def _find_package_in_apkbuild(args, package, path):
     if package in apkbuild["subpackages"]:
         return True
 
-    # Search for provides in package
-    apkbuild_pkgs = [apkbuild]
+    # Search for provides in both package and subpackages
+    apkbuild_pkgs = [apkbuild, *apkbuild["subpackages"].values()]
     for apkbuild_pkg in apkbuild_pkgs:
+        if not apkbuild_pkg:
+            continue
+
         # Provides (cut off before equals sign for entries like
         # "mkbootimg=0.0.1")
         for provides_i in apkbuild_pkg["provides"]:
