@@ -100,6 +100,38 @@ def guess_main(args, subpkgname):
             return os.path.dirname(path)
 
 
+def _find_package_in_apkbuild(args, package, path):
+    """
+    Look through subpackages and all provides to see if the APKBUILD at the
+    specified path contains (or provides) the specified package.
+
+    :param package: The package to search for
+    :param path: The path to the apkbuild
+    :return: True if the APKBUILD contains or provides the package
+    """
+    apkbuild = pmb.parse.apkbuild(args, path)
+
+    # Subpackages
+    if package in apkbuild["subpackages"]:
+        return True
+
+    # Search for provides in package
+    apkbuild_pkgs = [apkbuild]
+    for apkbuild_pkg in apkbuild_pkgs:
+        # Provides (cut off before equals sign for entries like
+        # "mkbootimg=0.0.1")
+        for provides_i in apkbuild_pkg["provides"]:
+            # Ignore provides without version, they shall never be
+            # automatically selected
+            if "=" not in provides_i:
+                continue
+
+            if package == provides_i.split("=", 1)[0]:
+                return True
+
+    return False
+
+
 def find(args, package, must_exist=True):
     """
     Find the aport path that provides a certain subpackage.
@@ -126,27 +158,7 @@ def find(args, package, must_exist=True):
         # Search in subpackages and provides
         if not ret:
             for path_current in _find_apkbuilds(args).values():
-                apkbuild = pmb.parse.apkbuild(args, path_current)
-                found = False
-
-                # Subpackages
-                if package in apkbuild["subpackages"]:
-                    found = True
-
-                # Provides (cut off before equals sign for entries like
-                # "mkbootimg=0.0.1")
-                if not found:
-                    for provides_i in apkbuild["provides"]:
-                        # Ignore provides without version, they shall never be
-                        # automatically selected
-                        if "=" not in provides_i:
-                            continue
-
-                        if package == provides_i.split("=", 1)[0]:
-                            found = True
-                            break
-
-                if found:
+                if _find_package_in_apkbuild(args, package, path_current):
                     ret = os.path.dirname(path_current)
                     break
 
