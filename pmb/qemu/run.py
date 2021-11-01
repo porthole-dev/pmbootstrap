@@ -104,6 +104,13 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         flavor_suffix = ""
 
+    # Alpine kernels always have the flavor appended to /boot/vmlinuz
+    kernel = f"{rootfs}/boot/vmlinuz{flavor_suffix}"
+    if not os.path.exists(kernel):
+        kernel = f"{kernel}-{flavor}"
+        if not os.path.exists(kernel):
+            raise RuntimeError("failed to find the proper vmlinuz path")
+
     ncpus = os.cpu_count()
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
@@ -154,7 +161,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         command += ["-L", rootfs_native + "/usr/share/qemu/"]
 
     command += ["-nodefaults"]
-    command += ["-kernel", rootfs + "/boot/vmlinuz" + flavor_suffix]
+    command += ["-kernel", kernel]
     command += ["-initrd", rootfs + "/boot/initramfs" + flavor_suffix]
     command += ["-append", shlex.quote(cmdline)]
 
