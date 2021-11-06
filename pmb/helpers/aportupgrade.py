@@ -135,7 +135,11 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     sha_new = verinfo["sha"]
 
     # Format the new pkgver, keep the value before _git the same
-    pkgver = package["pkgver"]
+    if package["pkgver"] == "9999":
+        pkgver = package["_pkgver"]
+    else:
+        pkgver = package["pkgver"]
+
     pkgver_match = re.match(r"([\d.]+)_git", pkgver)
     date_pkgver = verinfo["date"].strftime("%Y%m%d")
     pkgver_new = f"{pkgver_match.group(1)}_git{date_pkgver}"
@@ -155,7 +159,10 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return True
 
-    pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
+    if package["pkgver"] == "9999":
+        pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
+    else:
+        pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
     pmb.helpers.file.replace_apkbuild(args, pkgname, "_commit", sha_new, True)
     return True
@@ -214,7 +221,11 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
         logging.info("{}: up-to-date".format(pkgname))
         return False
 
-    pkgver = package["pkgver"]
+    if package["pkgver"] == "9999":
+        pkgver = package["_pkgver"]
+    else:
+        pkgver = package["pkgver"]
+
     pkgver_new = version
 
     pkgrel = package["pkgrel"]
@@ -231,7 +242,11 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return True
 
-    pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
+    if package["pkgver"] == "9999":
+        pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
+    else:
+        pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
+
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
     return True
 
