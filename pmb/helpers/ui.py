@@ -14,7 +14,7 @@ def list(args, arch):
     """
     ret = [("none", "No graphical environment")]
     for path in sorted(glob.glob(args.aports + "/main/postmarketos-ui-*")):
-        apkbuild = pmb.parse.apkbuild(args, path + "/APKBUILD")
+        apkbuild = pmb.parse.apkbuild(f"{path}/APKBUILD")
         ui = os.path.basename(path).split("-", 2)[2]
         if pmb.helpers.package.check_arch(args, apkbuild["pkgname"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))

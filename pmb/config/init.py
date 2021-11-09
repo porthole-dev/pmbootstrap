@@ -339,7 +339,7 @@ def ask_for_device_nonfree(args, device):
            "userland": args.nonfree_userland}
     if not apkbuild_path:
         return ret
-    apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
+    apkbuild = pmb.parse.apkbuild(apkbuild_path)
 
     # Only run when there is a "nonfree" subpackage
     nonfree_found = False
@@ -644,7 +644,7 @@ def frontend(args):
     info = pmb.parse.deviceinfo(args, device)
     apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
     if apkbuild_path:
-        apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
+        apkbuild = pmb.parse.apkbuild(apkbuild_path)
         ask_for_provider_select(args, apkbuild, cfg["providers"])
 
     # Device keymap

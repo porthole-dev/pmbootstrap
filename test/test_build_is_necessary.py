@@ -44,7 +44,7 @@ def cache_apkindex(args, version):
 def test_build_is_necessary(args):
     # Prepare APKBUILD and APKINDEX data
     aport = pmb.helpers.pmaports.find(args, "hello-world")
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     apkbuild["pkgver"] = "1"
     apkbuild["pkgrel"] = "2"
     indexes = list(pmb.helpers.other.cache["apkindex"].keys())
@@ -73,7 +73,7 @@ def test_build_is_necessary_no_binary_available(args):
     """
     indexes = list(pmb.helpers.other.cache["apkindex"].keys())
     aport = pmb.helpers.pmaports.find(args, "hello-world")
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is True
 
 

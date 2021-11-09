@@ -19,7 +19,7 @@ def package_from_aports(args, pkgname_depend):
         return None
 
     # Parse its version
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     pkgname = apkbuild["pkgname"]
     version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 

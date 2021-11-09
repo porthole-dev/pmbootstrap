@@ -282,7 +282,7 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     subpackages[subpkgname] = ret
 
 
-def apkbuild(args, path, check_pkgver=True, check_pkgname=True):
+def apkbuild(path, check_pkgver=True, check_pkgname=True):
     """
     Parse relevant information out of the APKBUILD file. This is not meant
     to be perfect and catch every edge case (for that, a full shell parser
@@ -347,7 +347,7 @@ def kernels(args, device):
     apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
     if apkbuild_path is None:
         return None
-    subpackages = apkbuild(args, apkbuild_path)["subpackages"]
+    subpackages = apkbuild(apkbuild_path)["subpackages"]
 
     # Read kernels from subpackages
     ret = {}

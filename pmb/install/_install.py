@@ -64,8 +64,7 @@ def get_nonfree_packages(args, device):
               ["device-nokia-n900-nonfree-firmware"]
     """
     # Read subpackages
-    apkbuild = pmb.parse.apkbuild(args,
-                                  pmb.helpers.devices.find_path(args, device,
+    apkbuild = pmb.parse.apkbuild(pmb.helpers.devices.find_path(args, device,
                                                                 'APKBUILD'))
     subpackages = apkbuild["subpackages"]
 

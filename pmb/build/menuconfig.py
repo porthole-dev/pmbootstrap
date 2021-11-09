@@ -87,7 +87,7 @@ def menuconfig(args, pkgname, use_oldconfig):
 
     # Read apkbuild
     aport = pmb.helpers.pmaports.find(args, pkgname)
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     arch = args.arch or get_arch(apkbuild)
     suffix = pmb.build.autodetect.suffix(apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)

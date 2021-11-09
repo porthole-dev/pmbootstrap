@@ -48,7 +48,7 @@ def arch(args, pkgname):
     if ret:
         return ret
 
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     arches = apkbuild["arch"]
     if ("noarch" in arches or
             "all" in arches or

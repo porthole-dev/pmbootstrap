@@ -396,7 +396,7 @@ def kconfig(args):
                 pkgname = package if package.startswith("linux-") \
                     else "linux-" + package
                 aport = pmb.helpers.pmaports.find(args, pkgname)
-                apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+                apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
@@ -453,7 +453,7 @@ def apkbuild_parse(args):
         print(package + ":")
         aport = pmb.helpers.pmaports.find(args, package)
         path = aport + "/APKBUILD"
-        print(json.dumps(pmb.parse.apkbuild(args, path), indent=4,
+        print(json.dumps(pmb.parse.apkbuild(path), indent=4,
                          sort_keys=True))
 
 

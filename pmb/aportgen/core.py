@@ -189,7 +189,7 @@ def get_upstream_aport(args, pkgname, arch=None):
     aport_path = paths[0]
 
     # Parse APKBUILD
-    apkbuild = pmb.parse.apkbuild(args, aport_path + "/APKBUILD",
+    apkbuild = pmb.parse.apkbuild(f"{aport_path}/APKBUILD",
                                   check_pkgname=False)
     apkbuild_version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 

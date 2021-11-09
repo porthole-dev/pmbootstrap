@@ -119,7 +119,7 @@ def verify_pkgrels(args, tmpdir, pkgrel_testlib, pkgrel_testapp,
         path = tmpdir + "/_aports/main/" + pkgname + "/APKBUILD"
 
         # Parse and verify
-        apkbuild = pmb.parse.apkbuild(args, path)
+        apkbuild = pmb.parse.apkbuild(path)
         assert pkgrel == int(apkbuild["pkgrel"])
 
 

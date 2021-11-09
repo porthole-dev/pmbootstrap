@@ -86,7 +86,7 @@ def modify_apkbuild(args, pkgname, aport):
     Modify kernel APKBUILD to package build output from envkernel.sh
     """
     apkbuild_path = aport + "/APKBUILD"
-    apkbuild = pmb.parse.apkbuild(args, apkbuild_path)
+    apkbuild = pmb.parse.apkbuild(apkbuild_path)
     if os.path.exists(args.work + "/aportgen"):
         pmb.helpers.run.user(args, ["rm", "-r", args.work + "/aportgen"])
 
@@ -171,7 +171,7 @@ def package_kernel(args):
     apkbuild_path = args.work + "/aportgen/APKBUILD"
 
     arch = args.deviceinfo["arch"]
-    apkbuild = pmb.parse.apkbuild(args, apkbuild_path, check_pkgname=False)
+    apkbuild = pmb.parse.apkbuild(apkbuild_path, check_pkgname=False)
     if apkbuild["_outdir"]:
         kbuild_out = apkbuild["_outdir"]
     else:

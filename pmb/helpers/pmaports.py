@@ -207,11 +207,11 @@ def get(args, pkgname, must_exist=True, subpackages=True):
     if subpackages:
         aport = find(args, pkgname, must_exist)
         if aport:
-            return pmb.parse.apkbuild(args, aport + "/APKBUILD")
+            return pmb.parse.apkbuild(f"{aport}/APKBUILD")
     else:
         path = _find_apkbuilds(args).get(pkgname)
         if path:
-            return pmb.parse.apkbuild(args, path)
+            return pmb.parse.apkbuild(path)
         if must_exist:
             raise RuntimeError("Could not find APKBUILD for package:"
                                f" {pkgname}")

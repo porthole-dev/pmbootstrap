@@ -22,7 +22,7 @@ def args(tmpdir, request):
 def test_subpackages(args):
     testdata = pmb_test.const.testdata
     path = testdata + "/apkbuild/APKBUILD.subpackages"
-    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
 
     subpkg = apkbuild["subpackages"]["simple"]
     assert subpkg["pkgdesc"] == ""
@@ -36,14 +36,14 @@ def test_subpackages(args):
     # Successful extraction
     path = (testdata + "/init_questions_device/aports/device/testing/"
             "device-nonfree-firmware/APKBUILD")
-    apkbuild = pmb.parse.apkbuild(args, path)
+    apkbuild = pmb.parse.apkbuild(path)
     subpkg = (apkbuild["subpackages"]
               ["device-nonfree-firmware-nonfree-firmware"])
     assert subpkg["pkgdesc"] == "firmware description"
 
     # Can't find the pkgdesc in the function
     path = testdata + "/apkbuild/APKBUILD.missing-pkgdesc-in-subpackage"
-    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     subpkg = (apkbuild["subpackages"]
               ["missing-pkgdesc-in-subpackage-subpackage"])
     assert subpkg["pkgdesc"] == ""
@@ -75,7 +75,7 @@ def test_kernels(args):
 
 def test_depends_in_depends(args):
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.depends-in-depends"
-    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["depends"] == ["first", "second", "third"]
 
 
@@ -126,7 +126,7 @@ def test_parse_attributes():
 
 def test_variable_replacements(args):
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.variable-replacements"
-    apkbuild = pmb.parse.apkbuild(args, path, check_pkgname=False)
+    apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["pkgdesc"] == "this should not affect variable replacement"
     assert apkbuild["url"] == "replacements variable string-replacements"
     assert list(apkbuild["subpackages"].keys()) == ["replacements", "test"]

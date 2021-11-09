@@ -174,7 +174,7 @@ def check(args, pkgname,
     # Read all kernel configs in the aport
     ret = True
     aport = pmb.helpers.pmaports.find(args, "linux-" + flavor)
-    apkbuild = pmb.parse.apkbuild(args, aport + "/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     pkgver = apkbuild["pkgver"]
     check_anbox = force_anbox_check or (
         "pmb:kconfigcheck-anbox" in apkbuild["options"])
