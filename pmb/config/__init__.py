@@ -339,6 +339,11 @@ necessary_kconfig_options_anbox = {
             "BRIDGE_VLAN_FILTERING": True,
         }
     },
+    ">=3.5": {
+        "all": {
+            "CROSS_MEMORY_ATTACH": True,  # required by Waydroid
+        }
+    },
     ">=4.20.0": {
         "all": {
             "PSI": True,  # required by userspace OOM killer in Waydroid
