@@ -177,7 +177,7 @@ def test_parse_add_block_multiple_providers(args):
 
 
 def test_parse_invalid_path(args):
-    assert pmb.parse.apkindex.parse(args, "/invalid/path/APKINDEX") == {}
+    assert pmb.parse.apkindex.parse("/invalid/path/APKINDEX") == {}
 
 
 def test_parse_cached(args, tmpdir):
@@ -195,12 +195,12 @@ def test_parse_cached(args, tmpdir):
 
     # Verify cache usage
     func = pmb.parse.apkindex.parse
-    assert func(args, path, True) == "cached_result_multiple"
-    assert func(args, path, False) == "cached_result_single"
+    assert func(path, True) == "cached_result_multiple"
+    assert func(path, False) == "cached_result_single"
 
     # Make cache invalid
     pmb.helpers.other.cache["apkindex"][path]["lastmod"] -= 10
-    assert func(args, path, True) == {}
+    assert func(path, True) == {}
 
     # Delete the cache (run twice for both code paths)
     assert pmb.parse.apkindex.clear_cache(args, path) is True
@@ -233,7 +233,7 @@ def test_parse(args):
                   'curl': block_curl,
                   'musl': block_musl,
                   'so:libc.musl-x86_64.so.1': block_musl}
-    assert pmb.parse.apkindex.parse(args, path, False) == ret_single
+    assert pmb.parse.apkindex.parse(path, False) == ret_single
     assert pmb.helpers.other.cache["apkindex"][path]["single"] == ret_single
 
     # Test with multiple_providers
@@ -241,7 +241,7 @@ def test_parse(args):
                     'curl': {"curl": block_curl},
                     'musl': {"musl": block_musl},
                     'so:libc.musl-x86_64.so.1': {"musl": block_musl}}
-    assert pmb.parse.apkindex.parse(args, path, True) == ret_multiple
+    assert pmb.parse.apkindex.parse(path, True) == ret_multiple
     assert (
         pmb.helpers.other.cache["apkindex"][path]["multiple"] == ret_multiple
     )
@@ -261,7 +261,7 @@ def test_parse_virtual(args):
              'timestamp': '1500000000',
              'version': '2-r0'}
     ret = {"hello-world": block, "cmd:hello-world": block}
-    assert pmb.parse.apkindex.parse(args, path, False) == ret
+    assert pmb.parse.apkindex.parse(path, False) == ret
     assert pmb.helpers.other.cache["apkindex"][path]["single"] == ret
 
 

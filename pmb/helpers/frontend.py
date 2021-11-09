@@ -458,7 +458,7 @@ def apkbuild_parse(args):
 
 
 def apkindex_parse(args):
-    result = pmb.parse.apkindex.parse(args, args.apkindex_path)
+    result = pmb.parse.apkindex.parse(args.apkindex_path)
     if args.package:
         if args.package not in result:
             raise RuntimeError("Package not found in the APKINDEX: " +

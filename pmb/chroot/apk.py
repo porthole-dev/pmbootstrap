@@ -261,4 +261,4 @@ def installed(args, suffix="native"):
               }
     """
     path = f"{args.work}/chroot_{suffix}/lib/apk/db/installed"
-    return pmb.parse.apkindex.parse(args, path, False)
+    return pmb.parse.apkindex.parse(path, False)

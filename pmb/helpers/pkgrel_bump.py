@@ -107,7 +107,7 @@ def auto(args, dry=False):
         paths = pmb.helpers.repo.apkindex_files(args, arch, alpine=False)
         for path in paths:
             logging.info("scan " + path)
-            index = pmb.parse.apkindex.parse(args, path, False)
+            index = pmb.parse.apkindex.parse(path, False)
             for pkgname, apk in index.items():
                 origin = apk["origin"]
                 # Only increase once!

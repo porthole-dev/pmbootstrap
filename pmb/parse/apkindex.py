@@ -142,7 +142,7 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
         ret[alias] = block
 
 
-def parse(args, path, multiple_providers=True):
+def parse(path, multiple_providers=True):
     """
     Parse an APKINDEX.tar.gz file, and return its content as dictionary.
 
@@ -293,7 +293,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
     ret = collections.OrderedDict()
     for path in indexes:
         # Skip indexes not providing the package
-        index_packages = parse(args, path)
+        index_packages = parse(path)
         if package not in index_packages:
             continue
 
