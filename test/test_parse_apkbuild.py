@@ -19,7 +19,7 @@ def args(tmpdir, request):
     return args
 
 
-def test_subpackages(args):
+def test_subpackages():
     testdata = pmb_test.const.testdata
     path = testdata + "/apkbuild/APKBUILD.subpackages"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
@@ -73,7 +73,7 @@ def test_kernels(args):
     assert func(args, device) == ret
 
 
-def test_depends_in_depends(args):
+def test_depends_in_depends():
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.depends-in-depends"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["depends"] == ["first", "second", "third"]
@@ -124,7 +124,7 @@ def test_parse_attributes():
     assert str(e.value).startswith("Can't find closing")
 
 
-def test_variable_replacements(args):
+def test_variable_replacements():
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.variable-replacements"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["pkgdesc"] == "this should not affect variable replacement"
@@ -137,7 +137,7 @@ def test_variable_replacements(args):
                                       "replacement")
 
 
-def test_parse_maintainers(args):
+def test_parse_maintainers():
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.lint"
     maintainers = [
         "Oliver Smith <ollieparanoid@postmarketos.org>",
@@ -147,7 +147,7 @@ def test_parse_maintainers(args):
     assert pmb.parse._apkbuild.maintainers(path) == maintainers
 
 
-def test_parse_unmaintained(args):
+def test_parse_unmaintained():
     path = (f"{pmb_test.const.testdata}/apkbuild"
             "/APKBUILD.missing-pkgdesc-in-subpackage")
     assert pmb.parse._apkbuild.unmaintained(path) == "This is broken!"

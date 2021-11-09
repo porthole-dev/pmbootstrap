@@ -15,7 +15,7 @@ import pmb.parse
 import pmb.parse.arch
 
 
-def skip_already_built(args, pkgname, arch):
+def skip_already_built(pkgname, arch):
     """
     Check if the package was already built in this session, and add it
     to the cache in case it was not built yet.
@@ -456,8 +456,8 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
     # Clear APKINDEX cache (we only parse APKINDEX files once per session and
     # cache the result for faster dependency resolving, but after we built a
     # package we need to parse it again)
-    pmb.parse.apkindex.clear_cache(args, f"{args.work}/packages/{channel}"
-                                         f"/{arch}/APKINDEX.tar.gz")
+    pmb.parse.apkindex.clear_cache(f"{args.work}/packages/{channel}"
+                                   f"/{arch}/APKINDEX.tar.gz")
 
     # Uninstall build dependencies (strict mode)
     if strict or "pmb:strict" in apkbuild["options"]:
@@ -494,7 +494,7 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     """
     # Once per session is enough
     arch = arch or pmb.config.arch_native
-    if skip_already_built(args, pkgname, arch):
+    if skip_already_built(pkgname, arch):
         return
 
     # Only build when APKBUILD exists

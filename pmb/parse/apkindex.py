@@ -185,7 +185,7 @@ def parse(path, multiple_providers=True):
             if cache_key in cache:
                 return cache[cache_key]
         else:
-            clear_cache(args, path)
+            clear_cache(path)
 
     # Read all lines
     if tarfile.is_tarfile(path):
@@ -250,7 +250,7 @@ def parse_blocks(path):
         ret.append(block)
 
 
-def clear_cache(args, path):
+def clear_cache(path):
     """
     Clear the APKINDEX parsing cache.
 

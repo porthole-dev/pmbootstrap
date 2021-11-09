@@ -176,7 +176,7 @@ def test_parse_add_block_multiple_providers(args):
                    "test_alias": {"test": block_new, "test2": block_test2}}
 
 
-def test_parse_invalid_path(args):
+def test_parse_invalid_path():
     assert pmb.parse.apkindex.parse("/invalid/path/APKINDEX") == {}
 
 
@@ -203,12 +203,12 @@ def test_parse_cached(args, tmpdir):
     assert func(path, True) == {}
 
     # Delete the cache (run twice for both code paths)
-    assert pmb.parse.apkindex.clear_cache(args, path) is True
+    assert pmb.parse.apkindex.clear_cache(path) is True
     assert pmb.helpers.other.cache["apkindex"] == {}
-    assert pmb.parse.apkindex.clear_cache(args, path) is False
+    assert pmb.parse.apkindex.clear_cache(path) is False
 
 
-def test_parse(args):
+def test_parse():
     path = pmb.config.pmb_src + "/test/testdata/apkindex/no_error"
     block_musl = {'arch': 'x86_64',
                   'depends': [],
@@ -247,7 +247,7 @@ def test_parse(args):
     )
 
 
-def test_parse_virtual(args):
+def test_parse_virtual():
     """
     This APKINDEX contains a virtual package .pbmootstrap. It must not be part
     of the output.
@@ -290,7 +290,7 @@ def test_providers_highest_version(args, monkeypatch):
     which order the APKINDEX files are processed.
     """
     # Fake parse function
-    def return_fake_parse(args, path):
+    def return_fake_parse(path):
         version_mapping = {"i0": "2", "i1": "3", "i2": "1"}
         package_block = {"pkgname": "test", "version": version_mapping[path]}
         return {"test": {"test": package_block}}

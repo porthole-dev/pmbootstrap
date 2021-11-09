@@ -117,7 +117,7 @@ def index_repo(args, arch=None):
                 pmb.chroot.user(args, command, working_dir=path_repo_chroot)
         else:
             logging.debug("NOTE: Can't build index for: " + path)
-        pmb.parse.apkindex.clear_cache(args, path + "/APKINDEX.tar.gz")
+        pmb.parse.apkindex.clear_cache(f"{path}/APKINDEX.tar.gz")
 
 
 def configure_abuild(args, suffix, verify=False):

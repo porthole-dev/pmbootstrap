@@ -231,7 +231,7 @@ def sudo_timer_iterate():
     timer.start()
 
 
-def sudo_timer_start(args):
+def sudo_timer_start():
     """
     Start a timer to call sudo -v periodically, so that the password is only
     needed once.
@@ -305,7 +305,7 @@ def core(args, log_message, cmd, working_dir=None, output="log",
     sanity_checks(output, output_return, check)
 
     if args.sudo_timer and sudo:
-        sudo_timer_start(args)
+        sudo_timer_start()
 
     # Log simplified and full command (pmbootstrap -v)
     logging.debug(log_message)

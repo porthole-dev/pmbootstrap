@@ -104,7 +104,7 @@ def setup_work(args, tmpdir):
                                 "/_pmbootstrap.cfg"])
 
 
-def verify_pkgrels(args, tmpdir, pkgrel_testlib, pkgrel_testapp,
+def verify_pkgrels(tmpdir, pkgrel_testlib, pkgrel_testapp,
                    pkgrel_testsubpkg):
     """
     Verify the pkgrels of the three test APKBUILDs ("testlib", "testapp",
@@ -131,14 +131,14 @@ def test_pkgrel_bump_high_level(args, tmpdir):
     # Let pkgrel_bump exit normally
     pmbootstrap(args, tmpdir, ["build", "testlib", "testapp", "testsubpkg"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"])
-    verify_pkgrels(args, tmpdir, 0, 0, 0)
+    verify_pkgrels(tmpdir, 0, 0, 0)
 
     # Increase soname (testlib soname changes with the pkgrel)
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "testlib"])
-    verify_pkgrels(args, tmpdir, 1, 0, 0)
+    verify_pkgrels(tmpdir, 1, 0, 0)
     pmbootstrap(args, tmpdir, ["build", "testlib"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"])
-    verify_pkgrels(args, tmpdir, 1, 0, 0)
+    verify_pkgrels(tmpdir, 1, 0, 0)
 
     # Delete package with previous soname (--auto-dry exits with >0 now)
     channel = pmb.config.pmaports.read_config(args)["channel"]
@@ -147,21 +147,21 @@ def test_pkgrel_bump_high_level(args, tmpdir):
     pmb.helpers.run.root(args, ["rm", apk_path])
     pmbootstrap(args, tmpdir, ["index"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"], False)
-    verify_pkgrels(args, tmpdir, 1, 0, 0)
+    verify_pkgrels(tmpdir, 1, 0, 0)
 
     # Bump pkgrel and build testapp/testsubpkg
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--auto"])
-    verify_pkgrels(args, tmpdir, 1, 1, 1)
+    verify_pkgrels(tmpdir, 1, 1, 1)
     pmbootstrap(args, tmpdir, ["build", "testapp", "testsubpkg"])
 
     # After rebuilding, pkgrel_bump --auto-dry exits with 0
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"])
-    verify_pkgrels(args, tmpdir, 1, 1, 1)
+    verify_pkgrels(tmpdir, 1, 1, 1)
 
     # Test running with specific package names
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "invalid_package_name"], False)
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "testlib"], False)
-    verify_pkgrels(args, tmpdir, 1, 1, 1)
+    verify_pkgrels(tmpdir, 1, 1, 1)
 
     # Clean up
     pmbootstrap(args, tmpdir, ["shutdown"])

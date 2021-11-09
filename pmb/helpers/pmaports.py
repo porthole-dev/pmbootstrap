@@ -100,7 +100,7 @@ def guess_main(args, subpkgname):
             return os.path.dirname(path)
 
 
-def _find_package_in_apkbuild(args, package, path):
+def _find_package_in_apkbuild(package, path):
     """
     Look through subpackages and all provides to see if the APKBUILD at the
     specified path contains (or provides) the specified package.
@@ -162,13 +162,13 @@ def find(args, package, must_exist=True):
         guess = guess_main(args, package)
         if guess:
             # ... but see if we were right
-            if _find_package_in_apkbuild(args, package, f'{guess}/APKBUILD'):
+            if _find_package_in_apkbuild(package, f'{guess}/APKBUILD'):
                 ret = guess
 
         # Search in subpackages and provides
         if not ret:
             for path_current in _find_apkbuilds(args).values():
-                if _find_package_in_apkbuild(args, package, path_current):
+                if _find_package_in_apkbuild(package, path_current):
                     ret = os.path.dirname(path_current)
                     break
 

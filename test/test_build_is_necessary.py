@@ -28,7 +28,7 @@ def args(request, tmpdir):
     return args
 
 
-def cache_apkindex(args, version):
+def cache_apkindex(version):
     """
     Modify the cache of the parsed binary package repository's APKINDEX
     for the "hello-world" package.
@@ -54,15 +54,15 @@ def test_build_is_necessary(args):
     pmb.helpers.other.cache["apkindex"][apkindex_path]["multiple"] = cache
 
     # Binary repo has a newer version
-    cache_apkindex(args, "999-r1")
+    cache_apkindex("999-r1")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is False
 
     # Aports folder has a newer version
-    cache_apkindex(args, "0-r0")
+    cache_apkindex("0-r0")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is True
 
     # Same version
-    cache_apkindex(args, "1-r2")
+    cache_apkindex("1-r2")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is False
 
 

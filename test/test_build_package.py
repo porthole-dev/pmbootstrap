@@ -56,12 +56,12 @@ def args_patched(monkeypatch, argv):
     return pmb.parse.arguments()
 
 
-def test_skip_already_built(args):
+def test_skip_already_built():
     func = pmb.build._package.skip_already_built
     assert pmb.helpers.other.cache["built"] == {}
-    assert func(args, "test-package", "armhf") is False
+    assert func("test-package", "armhf") is False
     assert pmb.helpers.other.cache["built"] == {"armhf": ["test-package"]}
-    assert func(args, "test-package", "armhf") is True
+    assert func("test-package", "armhf") is True
 
 
 def test_get_apkbuild(args):
