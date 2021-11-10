@@ -13,22 +13,35 @@ cd "$DIR/.."
 # Install needed packages
 echo "Initializing Alpine chroot (details: 'pmbootstrap log')"
 ./pmbootstrap.py -q chroot -- apk -q add \
-	shellcheck \
 	python3 \
 	py3-flake8 || return 1
 
 rootfs_native="$(./pmbootstrap.py config work)/chroot_native"
 command="$rootfs_native/lib/ld-musl-$(uname -m).so.1"
 command="$command --library-path=$rootfs_native/lib:$rootfs_native/usr/lib"
-shellcheck_command="$command $rootfs_native/usr/bin/shellcheck"
 flake8_command="$command $rootfs_native/usr/bin/python3 $rootfs_native/usr/bin/flake8"
+
+# Shellcheck isn't in Alpine anymore, so just download the static binary in CI
+# Related: https://gitlab.alpinelinux.org/alpine/aports/-/issues/10902
+if [ "$DOWNLOAD_SHELLCHECK" = 1 ]; then
+	pkgver="0.7.2"
+	tmpdir="/tmp/shellcheck-$pkgver"
+	url="https://github.com/koalaman/shellcheck/releases/download/v$pkgver/shellcheck-v$pkgver.linux.x86_64.tar.xz"
+	mkdir -p "$tmpdir"
+	if ! [ -e "$tmpdir"/rel.tar.xz ]; then
+		echo "Downloading $url"
+		wget -q -O "$tmpdir"/rel.tar.xz "$url"
+	fi
+	tar -C "$tmpdir" -xf "$tmpdir"/rel.tar.xz
+	export PATH="$tmpdir/shellcheck-v$pkgver/:$PATH"
+fi
 
 # Shell: shellcheck
 find . -name '*.sh' |
 while read -r file; do
 	echo "Test with shellcheck: $file"
 	cd "$DIR/../$(dirname "$file")"
-	$shellcheck_command -e SC1008 -x "$(basename "$file")"
+	shellcheck -e SC1008 -x "$(basename "$file")"
 done
 
 # Python: flake8
