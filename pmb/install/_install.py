@@ -279,7 +279,7 @@ def copy_ssh_keys(args):
     if not args.ssh_keys:
         return
     keys = []
-    for key in glob.glob(os.path.expanduser("~/.ssh/id_*.pub")):
+    for key in glob.glob(os.path.expanduser(args.ssh_key_glob)):
         with open(key, "r") as infile:
             keys += infile.readlines()
 
