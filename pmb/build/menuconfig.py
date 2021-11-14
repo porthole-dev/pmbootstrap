@@ -80,9 +80,7 @@ def get_outputdir(args, pkgname, apkbuild):
 
 def menuconfig(args, pkgname, use_oldconfig):
     # Pkgname: allow omitting "linux-" prefix
-    if pkgname.startswith("linux-"):
-        pkgname = pkgname.split("linux-")[1]
-    else:
+    if not pkgname.startswith("linux-"):
         pkgname = "linux-" + pkgname
 
     # Read apkbuild
