@@ -27,6 +27,7 @@ arch_native = pmb.parse.arch.alpine_native()
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
 apk_tools_min_version = {"edge": "2.12.7-r3",
+                         "v3.15": "2.12.7-r3",
                          "v3.14": "2.12.7-r0",
                          "v3.13": "2.12.7-r0",
                          "v3.12": "2.10.8-r0"}
