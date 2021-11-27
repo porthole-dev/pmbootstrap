@@ -22,7 +22,7 @@ static-code-analysis:
   before_script:
     - .ci/prepare.sh
   script:
-    - DOWNLOAD_SHELLCHECK=1 su pmos -c "test/static_code_analysis.sh"
+    - su pmos -c "test/static_code_analysis.sh"
 
 vermin:
   image: alpine:latest
