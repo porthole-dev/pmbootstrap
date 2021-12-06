@@ -146,7 +146,8 @@ def test_recurse(args, monkeypatch):
     depends = {
         "test": ["libtest", "so:libtest.so.1"],
         "libtest": ["libtest_depend"],
-        "libtest_depend": [],
+        "libtest_depend": ["!libtest_conflict"],
+        "libtest_conflict": [],
         "so:libtest.so.1": ["libtest_depend"],
     }
 
@@ -158,5 +159,6 @@ def test_recurse(args, monkeypatch):
     # Run
     func = pmb.parse.depends.recurse
     pkgnames = ["test", "so:libtest.so.1"]
-    result = ["test", "so:libtest.so.1", "libtest", "libtest_depend"]
+    result = ["test", "so:libtest.so.1", "libtest", "libtest_depend",
+              "!libtest_conflict"]
     assert func(args, pkgnames) == result

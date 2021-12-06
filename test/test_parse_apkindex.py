@@ -115,6 +115,34 @@ def test_parse_next_block_virtual():
     assert start == [31]
 
 
+def test_parse_next_block_conflict():
+    """
+    Test parsing a package that specifies a conflicting dependency from an
+    APKINDEX.
+    """
+    # Read the file
+    func = pmb.parse.apkindex.parse_next_block
+    path = pmb.config.pmb_src + "/test/testdata/apkindex/conflict"
+    with open(path, "r", encoding="utf-8") as handle:
+        lines = handle.readlines()
+
+    # First block
+    start = [0]
+    block = {'arch': 'x86_64',
+             'depends': ['!conflict', 'so:libc.musl-x86_64.so.1'],
+             'origin': 'hello-world',
+             'pkgname': 'hello-world',
+             'provides': ['cmd:hello-world'],
+             'timestamp': '1500000000',
+             'version': '2-r0'}
+    assert func(path, lines, start) == block
+    assert start == [20]
+
+    # No more blocks
+    assert func(path, lines, start) is None
+    assert start == [20]
+
+
 def test_parse_add_block(args):
     func = pmb.parse.apkindex.parse_add_block
     multiple_providers = False

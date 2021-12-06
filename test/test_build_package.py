@@ -140,16 +140,18 @@ def test_get_depends(monkeypatch):
 def test_build_depends(args, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.build_depends
-    apkbuild = {"pkgname": "test", "depends": ["a"], "makedepends": ["b"],
-                "checkdepends": [], "subpackages": {"d": None}, "options": []}
+    apkbuild = {"pkgname": "test", "depends": ["a", "!c"],
+                "makedepends": ["b"], "checkdepends": [],
+                "subpackages": {"d": None}, "options": []}
 
     # No depends built (first makedepends + depends, then only makedepends)
     monkeypatch.setattr(pmb.build._package, "package", return_none)
-    assert func(args, apkbuild, "armhf", True) == (["a", "b"], [])
+    assert func(args, apkbuild, "armhf", True) == (["!c", "a", "b"], [])
 
     # All depends built (makedepends only)
     monkeypatch.setattr(pmb.build._package, "package", return_string)
-    assert func(args, apkbuild, "armhf", False) == (["a", "b"], ["a", "b"])
+    assert func(args, apkbuild, "armhf", False) == (["!c", "a", "b"],
+                                                    ["a", "b"])
 
 
 def test_build_depends_no_binary_error(args, monkeypatch):

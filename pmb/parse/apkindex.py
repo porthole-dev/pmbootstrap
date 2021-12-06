@@ -81,8 +81,6 @@ def parse_next_block(path, lines, start):
                 values = ret[key].split(" ")
                 ret[key] = []
                 for value in values:
-                    if value.startswith("!"):
-                        continue
                     for operator in [">", "=", "<", "~"]:
                         if operator in value:
                             value = value.split(operator)[0]

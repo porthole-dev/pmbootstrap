@@ -130,6 +130,9 @@ def build_depends(args, apkbuild, arch, strict):
     if "no_depends" in args and args.no_depends:
         pmb.helpers.repo.update(args, arch)
         for depend in depends:
+            # Ignore conflicting dependencies
+            if depend.startswith("!"):
+                continue
             # Check if binary package is missing
             if not pmb.parse.apkindex.package(args, depend, arch, False):
                 raise RuntimeError("Missing binary package for dependency '" +
@@ -147,6 +150,8 @@ def build_depends(args, apkbuild, arch, strict):
     else:
         # Build the dependencies
         for depend in depends:
+            if depend.startswith("!"):
+                continue
             if package(args, depend, arch, strict=strict):
                 depends_built += [depend]
         logging.verbose(pkgname + ": build dependencies: done, built: " +

@@ -116,7 +116,8 @@ def recurse(args, pkgnames, suffix="native"):
                    has multiple providers, we look at the installed packages in
                    the chroot to make a decision (see package_provider()).
     :returns: list of pkgnames: consists of the initial pkgnames plus all
-              depends
+              depends. Dependencies explicitly marked as conflicting are
+              prefixed with !.
     """
     logging.debug(f"({suffix}) calculate depends of {', '.join(pkgnames)} "
                   "(pmbootstrap -v for details)")
@@ -130,6 +131,10 @@ def recurse(args, pkgnames, suffix="native"):
         pkgname_depend = todo.pop(0)
         if pkgname_depend in ret:
             continue
+
+        # Check if the dependency is explicitly marked as conflicting
+        is_conflict = pkgname_depend.startswith("!")
+        pkgname_depend = pkgname_depend.lstrip("!")
 
         # Get depends and pkgname from aports
         pkgnames_install = list(ret) + todo
@@ -147,18 +152,23 @@ def recurse(args, pkgnames, suffix="native"):
                                f"Required by '{source}'. See: "
                                "https://postmarketos.org/depends")
 
-        # Append to todo/ret (unless it is a duplicate)
+        # Determine pkgname
         pkgname = package["pkgname"]
+        if is_conflict:
+            pkgname = f"!{pkgname}"
+
+        # Append to todo/ret (unless it is a duplicate)
         if pkgname in ret:
             logging.verbose(f"{pkgname}: already found")
         else:
-            depends = package["depends"]
-            logging.verbose(f"{pkgname}: depends on: {','.join(depends)}")
-            if depends:
-                todo += depends
-                for dep in depends:
-                    if dep not in required_by:
-                        required_by[dep] = set()
-                    required_by[dep].add(pkgname_depend)
+            if not is_conflict:
+                depends = package["depends"]
+                logging.verbose(f"{pkgname}: depends on: {','.join(depends)}")
+                if depends:
+                    todo += depends
+                    for dep in depends:
+                        if dep not in required_by:
+                            required_by[dep] = set()
+                        required_by[dep].add(pkgname_depend)
             ret.append(pkgname)
     return ret

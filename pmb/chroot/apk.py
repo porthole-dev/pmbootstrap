@@ -97,6 +97,10 @@ def install_is_necessary(args, build, arch, package, packages_installed):
     :returns: True if the package needs to be installed/updated,
               False otherwise.
     """
+    # For packages to be removed we can do the test immediately
+    if package.startswith("!"):
+        return package[1:] in packages_installed
+
     # User may have disabled buiding packages during "pmbootstrap install"
     build_disabled = False
     if args.action == "install" and not args.build_pkgs_on_install:
