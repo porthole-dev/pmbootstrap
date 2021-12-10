@@ -12,7 +12,9 @@ def list(args, arch):
     :param arch: device architecture, for which the UIs must be available
     :returns: [("none", "No graphical..."), ("weston", "Wayland reference...")]
     """
-    ret = [("none", "No graphical environment")]
+    ret = [("none", "Bare minimum OS image for testing and manual"
+                    " customization. The \"console\" UI should be selected if"
+                    " a graphical UI is not desired.")]
     for path in sorted(glob.glob(args.aports + "/main/postmarketos-ui-*")):
         apkbuild = pmb.parse.apkbuild(f"{path}/APKBUILD")
         ui = os.path.basename(path).split("-", 2)[2]

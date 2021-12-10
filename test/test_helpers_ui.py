@@ -27,6 +27,9 @@ def test_helpers_ui(args):
         so it must not be returned when querying the UI list for armhf. """
     args.aports = f"{pmb_test.const.testdata}/helpers_ui/pmaports"
     func = pmb.helpers.ui.list
-    assert func(args, "armhf") == [("none", "No graphical environment")]
-    assert func(args, "x86_64") == [("none", "No graphical environment"),
+    none_desc = "Bare minimum OS image for testing and manual" \
+                " customization. The \"console\" UI should be selected if" \
+                " a graphical UI is not desired."
+    assert func(args, "armhf") == [("none", none_desc)]
+    assert func(args, "x86_64") == [("none", none_desc),
                                     ("plasma-mobile", "cool pkgdesc")]
