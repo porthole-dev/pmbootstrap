@@ -107,6 +107,9 @@ def test_parse_attributes():
     assert func("pkgname", 'pkgname="test" # random comment\npkgrel=3') == \
         (True, "test", 0)
 
+    assert func("pkgver", 'pkgver=2.37 # random comment\npkgrel=3') == \
+           (True, "2.37", 0)
+
     assert func("depends", "depends='\nfirst\nsecond\nthird\n'#") == \
         (True, "first second third", 4)
 
