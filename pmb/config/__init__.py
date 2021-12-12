@@ -289,11 +289,9 @@ necessary_kconfig_options = {
             "EXT4_FS": True,
             "KINETO_GAN": False,
             "PFT": False,
-            "SAMSUNG_TUI": False,
             "SEC_RESTRICT_ROOTING": False,
             "SYSVIPC": True,
             "TMPFS_POSIX_ACL": True,
-            "TZDEV": False,
             "USE_VFB": False,
             "VT": True,
         }
@@ -307,6 +305,12 @@ necessary_kconfig_options = {
     "<4.7.0": {
         "all": {
             "DEVPTS_MULTIPLE_INSTANCES": True,
+        }
+    },
+    "<4.14.0": {
+        "all": {
+            "SAMSUNG_TUI": False,
+            "TZDEV": False,
         }
     },
     "<5.2.0": {
