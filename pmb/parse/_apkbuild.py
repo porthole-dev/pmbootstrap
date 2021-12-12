@@ -159,6 +159,7 @@ def parse_attribute(attribute, lines, i, path):
 
     # Single line
     if not end_char:
+        value = value.split("#")[0].rstrip()
         return (True, value, i)
     if end_char in value:
         value = value.split(end_char, 1)[0]
