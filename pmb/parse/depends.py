@@ -123,6 +123,7 @@ def recurse(args, pkgnames, suffix="native"):
 
     # Iterate over todo-list until is is empty
     todo = list(pkgnames)
+    required_by = {}
     ret = []
     while len(todo):
         # Skip already passed entries
@@ -138,9 +139,12 @@ def recurse(args, pkgnames, suffix="native"):
 
         # Nothing found
         if not package:
+            source = 'world'
+            if pkgname_depend in required_by:
+                source = ', '.join(required_by[pkgname_depend])
             raise RuntimeError(f"Could not find dependency '{pkgname_depend}' "
-                               "in any aports folder or APKINDEX. See:"
-                               " <https://postmarketos.org/depends>")
+                               f"in any aports folder or APKINDEX. Required by: {source}. "
+                               "See: <https://postmarketos.org/depends>")
 
         # Append to todo/ret (unless it is a duplicate)
         pkgname = package["pkgname"]
@@ -151,5 +155,9 @@ def recurse(args, pkgnames, suffix="native"):
             logging.verbose(f"{pkgname}: depends on: {','.join(depends)}")
             if depends:
                 todo += depends
+                for dep in depends:
+                    if dep not in required_by:
+                        required_by[dep] = set()
+                    required_by[dep].add(pkgname_depend)
             ret.append(pkgname)
     return ret
