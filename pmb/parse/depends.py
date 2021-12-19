@@ -143,8 +143,9 @@ def recurse(args, pkgnames, suffix="native"):
             if pkgname_depend in required_by:
                 source = ', '.join(required_by[pkgname_depend])
             raise RuntimeError(f"Could not find dependency '{pkgname_depend}' "
-                               f"in any aports folder or APKINDEX. Required by: {source}. "
-                               "See: <https://postmarketos.org/depends>")
+                               "in checked out pmaports dir or any APKINDEX. "
+                               f"Required by '{source}'. See: "
+                               "https://postmarketos.org/depends")
 
         # Append to todo/ret (unless it is a duplicate)
         pkgname = package["pkgname"]
