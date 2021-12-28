@@ -24,8 +24,15 @@ def previous_install(args, path):
         pmb.helpers.mount.bind_file(args, blockdevice_outside,
                                     args.work + '/chroot_native' +
                                     blockdevice_inside)
-        label = pmb.chroot.root(args, ["blkid", "-s", "LABEL", "-o", "value",
-                                       blockdevice_inside], output_return=True)
+        try:
+            label = pmb.chroot.root(args, ["blkid", "-s", "LABEL",
+                                           "-o", "value",
+                                           blockdevice_inside],
+                                    output_return=True)
+        except RuntimeError:
+            logging.info("WARNING: Could not get block device label,"
+                         " assume no previous installation on that partition")
+
         pmb.helpers.run.root(args, ["umount", args.work + "/chroot_native" +
                                     blockdevice_inside])
     return "pmOS_boot" in label
