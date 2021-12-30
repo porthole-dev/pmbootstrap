@@ -888,7 +888,12 @@ def create_device_rootfs(args, step, steps):
         # install it when the ondev installer is running.
         # Always install it when --fde is specified.
         if args.full_disk_encryption or args.on_device_installer:
-            install_packages += ["osk-sdl"]
+            # Pick the most suitable unlocker depending on the packages
+            # selected for installation
+            unlocker = pmb.parse.depends.package_provider(
+                args, "postmarketos-fde-unlocker", install_packages, suffix)
+            if unlocker["pkgname"] not in install_packages:
+                install_packages += [unlocker["pkgname"]]
         else:
             install_packages += ["postmarketos-base-nofde"]
 
