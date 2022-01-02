@@ -1,4 +1,4 @@
-# Copyright 2021 Anjandev Momi
+# Copyright 2022 Anjandev Momi
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import shutil

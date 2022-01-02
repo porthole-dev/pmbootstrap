@@ -1,5 +1,5 @@
-# Copyright 2021 Antoine Fontaine
-# Copyright 2021 Oliver Smith
+# Copyright 2022 Antoine Fontaine
+# Copyright 2022 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pytest
 import sys

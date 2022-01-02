@@ -1,4 +1,4 @@
-# Copyright 2021 Clayton Craft
+# Copyright 2022 Clayton Craft
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import glob

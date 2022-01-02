@@ -1,4 +1,4 @@
-# Copyright 2021 Oliver Smith
+# Copyright 2022 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
 Functions that work with binary package repos. See also:

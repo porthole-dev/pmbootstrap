@@ -1,4 +1,4 @@
-# Copyright 2021 Danct12 <danct12@disroot.org>
+# Copyright 2022 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os

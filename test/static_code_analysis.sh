@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright 2021 Oliver Smith
+# Copyright 2022 Oliver Smith
 # SPDX-License-Identifier: AGPL-3.0-or-later
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd -P)"
