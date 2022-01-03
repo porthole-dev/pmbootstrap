@@ -35,6 +35,9 @@ def format_and_mount_boot(args, boot_label):
     elif filesystem == "ext2":
         pmb.chroot.root(args, ["mkfs.ext2", "-F", "-q", "-L", boot_label,
                                device])
+    elif filesystem == "btrfs":
+        pmb.chroot.root(args, ["mkfs.btrfs", "-f", "-q", "-L", boot_label,
+                               device])
     else:
         raise RuntimeError("Filesystem " + filesystem + " is not supported!")
     pmb.chroot.root(args, ["mkdir", "-p", mountpoint])
@@ -106,6 +109,8 @@ def format_and_mount_root(args, device, root_label, sdcard):
                 mkfs_root_args = mkfs_root_args + ["-N", "100000"]
         elif filesystem == "f2fs":
             mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
+        elif filesystem == "btrfs":
+            mkfs_root_args = ["mkfs.btrfs", "-f", "-L", root_label]
         else:
             raise RuntimeError(f"Don't know how to format {filesystem}!")
 

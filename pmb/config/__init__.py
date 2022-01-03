@@ -164,7 +164,8 @@ locales = [
 ]
 
 # Supported filesystems and their fstools packages
-filesystems = {"ext2": "e2fsprogs",
+filesystems = {"btrfs": "btrfs-progs",
+               "ext2": "e2fsprogs",
                "ext4": "e2fsprogs",
                "f2fs": "f2fs-tools",
                "fat16": "dosfstools",

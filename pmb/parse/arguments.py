@@ -162,7 +162,7 @@ def arguments_install(subparser):
     # Other
     group = ret.add_argument_group("other optional arguments")
     group.add_argument("--filesystem", help="root filesystem type",
-                       choices=["ext4", "f2fs"])
+                       choices=["ext4", "f2fs", "btrfs"])
 
 
 def arguments_export(subparser):
