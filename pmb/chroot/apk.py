@@ -202,17 +202,22 @@ def install(args, packages, suffix="native", build=True):
 
     # Filter outdated packages (build them if required)
     packages_installed = installed(args, suffix)
-    packages_todo = []
+    packages_toadd = []
+    packages_todel = []
     for package in packages_with_depends:
-        if install_is_necessary(
+        if not install_is_necessary(
                 args, build, arch, package, packages_installed):
-            packages_todo.append(package)
-    if not len(packages_todo):
+            continue
+        if package.startswith("!"):
+            packages_todel.append(package.lstrip("!"))
+        else:
+            packages_toadd.append(package)
+    if not len(packages_toadd) and not len(packages_todel):
         return
 
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
-    for package in packages_todo:
+    for package in packages_toadd + packages_todel:
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
@@ -225,16 +230,23 @@ def install(args, packages, suffix="native", build=True):
 
     # Local packages: Using the path instead of pkgname makes apk update
     # packages of the same version if the build date is different
-    packages_todo = replace_aports_packages_with_path(args, packages_todo,
-                                                      suffix, arch)
+    packages_toadd = replace_aports_packages_with_path(args, packages_toadd,
+                                                       suffix, arch)
+
+    # Split off conflicts
+    packages_without_conflicts = list(
+        filter(lambda p: not p.startswith("!"), packages))
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not their dependencies or specific paths (#1212)
-    commands = [["add"] + packages]
-    if packages != packages_todo:
-        commands = [["add", "-u", "--virtual", ".pmbootstrap"] + packages_todo,
-                    ["add"] + packages,
+    commands = [["add"] + packages_without_conflicts]
+    if len(packages_toadd) and packages_without_conflicts != packages_toadd:
+        commands = [["add", "-u", "--virtual", ".pmbootstrap"] +
+                    packages_toadd,
+                    ["add"] + packages_without_conflicts,
                     ["del", ".pmbootstrap"]]
+    if len(packages_todel):
+        commands.append(["del"] + packages_todel)
     for (i, command) in enumerate(commands):
         if args.offline:
             command = ["--no-network"] + command
