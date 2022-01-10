@@ -189,8 +189,9 @@ def set_user(args):
     """
     Create user with UID 10000 if it doesn't exist.
     Usually the ID for the first user created is 1000, but higher ID is
-    chosen here to avoid conflict with Android UIDs/GIDs.
-
+    chosen here to not cause issues with existing installations. Historically,
+    this was done to avoid conflict with Android UIDs/GIDs, but pmOS has since
+    dropped support for hybris/Halium.
     """
     suffix = "rootfs_" + args.device
     if not pmb.chroot.user_exists(args, args.user, suffix):
