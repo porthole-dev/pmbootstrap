@@ -263,7 +263,6 @@ def setup_login(args, suffix):
                 except RuntimeError:
                     logging.info("WARNING: Failed to set the password. Try it"
                                  " one more time.")
-                    pass
 
     # Disable root login
     if is_root_locked(args, suffix):
