@@ -707,6 +707,7 @@ deviceinfo_attributes = [
     "sd_embed_firmware_step_size",
     "partition_blacklist",
     "boot_part_start",
+    "partition_type",
     "root_filesystem",
     "flash_kernel_on_update",
 

@@ -71,8 +71,10 @@ def partition(args, size_boot, size_reserve):
     # will stop there (see #463).
     boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
 
+    partition_type = args.deviceinfo["partition_type"] or "msdos"
+
     commands = [
-        ["mktable", "msdos"],
+        ["mktable", partition_type],
         ["mkpart", "primary", filesystem, boot_part_start + 's', mb_boot],
     ]
 
