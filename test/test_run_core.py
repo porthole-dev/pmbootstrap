@@ -1,6 +1,7 @@
 # Copyright 2022 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb.helpers.run_core """
+import re
 import sys
 import subprocess
 import pytest
@@ -146,13 +147,13 @@ def test_core(args):
     # Check the return code
     with pytest.raises(RuntimeError) as e:
         func(args, msg, ["false"], output="log")
-    assert str(e.value).startswith("Command failed:")
+    assert re.search(r"^Command failed \(exit code -?\d*\): ", str(e.value))
 
     # Kill with timeout
     args.timeout = 0.2
     with pytest.raises(RuntimeError) as e:
         func(args, msg, ["sleep", "1"], output="log")
-    assert str(e.value).startswith("Command failed:")
+    assert re.search(r"^Command failed \(exit code -?\d*\): ", str(e.value))
 
 
 @pytest.mark.skip_ci

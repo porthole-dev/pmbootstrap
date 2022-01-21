@@ -216,7 +216,8 @@ def check_return_code(args, code, log_message):
         logging.debug("^" * 70)
         logging.info("NOTE: The failed command's output is above the ^^^ line"
                      " in the log file: " + args.log)
-        raise RuntimeError("Command failed: " + log_message)
+        raise RuntimeError(f"Command failed (exit code {str(code)}): " +
+                           log_message)
 
 
 def sudo_timer_iterate():
