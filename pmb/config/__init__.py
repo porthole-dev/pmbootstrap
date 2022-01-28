@@ -715,6 +715,9 @@ deviceinfo_attributes = [
     "partition_type",
     "root_filesystem",
     "flash_kernel_on_update",
+    "cgpt_kpart",
+    "cgpt_kpart_start",
+    "cgpt_kpart_size",
 
     # weston
     "weston_pixman_type",

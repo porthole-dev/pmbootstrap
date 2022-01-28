@@ -553,6 +553,22 @@ def embed_firmware(args, suffix):
                                "bs=" + str(step), "seek=" + str(offset)])
 
 
+def write_cgpt_kpart(args, layout, suffix):
+    """
+    Write the kernel to the ChromeOS kernel partition.
+
+    :param layout: partition layout from get_partition_layout()
+    :param suffix: of the chroot, which holds the image file to be flashed
+    """
+    if not args.deviceinfo["cgpt_kpart"]:
+        return
+
+    device_rootfs = mount_device_rootfs(args, suffix)
+    filename = f"{device_rootfs}{args.deviceinfo['cgpt_kpart']}"
+    pmb.chroot.root(
+        args, ["dd", f"if={filename}", f"of=/dev/installp{layout['kernel']}"])
+
+
 def sanity_check_sdcard(args):
     device = args.sdcard
     device_name = os.path.basename(device)
@@ -607,16 +623,24 @@ def sanity_check_ondev_version(args):
                            f" / in the binary packages has version {ver_pkg}.")
 
 
-def get_partition_layout(reserve):
+def get_partition_layout(reserve, kernel):
     """
     :param reserve: create an empty partition between root and boot (pma#463)
+    :param kernel: create a separate kernel partition before all other
+                   partitions, e.g. for the ChromeOS devices with cgpt
     :returns: the partition layout, e.g. without reserve and kernel:
-              {"boot": 1, "reserve": None, "root": 2}
+              {"kernel": None, "boot": 1, "reserve": None, "root": 2}
     """
     ret = {}
+    ret["kernel"] = None
     ret["boot"] = 1
     ret["reserve"] = None
     ret["root"] = 2
+
+    if kernel:
+        ret["kernel"] = 1
+        ret["boot"] += 1
+        ret["root"] += 1
 
     if reserve:
         ret["reserve"] = ret["root"]
@@ -642,12 +666,16 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.chroot.shutdown(args, True)
     (size_boot, size_root) = get_subpartitions_size(args, suffix)
-    layout = get_partition_layout(size_reserve)
+    layout = get_partition_layout(size_reserve, args.deviceinfo["cgpt_kpart"])
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root,
                                        size_reserve, split, sdcard)
         if not split:
-            pmb.install.partition(args, layout, size_boot, size_reserve)
+            if args.deviceinfo["cgpt_kpart"]:
+                pmb.install.partition_cgpt(
+                    args, layout, size_boot, size_reserve)
+            else:
+                pmb.install.partition(args, layout, size_boot, size_reserve)
     if not split:
         pmb.install.partitions_mount(args, layout, sdcard)
 
@@ -660,10 +688,11 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     configure_apk(args)
     copy_ssh_keys(args)
 
-    # Don't try to embed firmware on split images since there's no
+    # Don't try to embed firmware and cgpt on split images since there's no
     # place to put it and it will end up in /dev of the chroot instead
     if not split:
         embed_firmware(args, suffix)
+        write_cgpt_kpart(args, layout, suffix)
 
     if sdcard:
         logging.info("Unmounting SD card (this may take a while "

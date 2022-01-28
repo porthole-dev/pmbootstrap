@@ -37,7 +37,12 @@ def partitions_mount(args, layout, sdcard):
                            prefix + " to be located at " + prefix +
                            "1 or " + prefix + "p1!")
 
-    for i in [1, layout["root"]]:
+    partitions = [layout["boot"], layout["root"]]
+
+    if layout["kernel"]:
+        partitions += [layout["kernel"]]
+
+    for i in partitions:
         source = prefix + partition_prefix + str(i)
         target = args.work + "/chroot_native/dev/installp" + str(i)
         pmb.helpers.mount.bind_file(args, source, target)
@@ -91,3 +96,93 @@ def partition(args, layout, size_boot, size_reserve):
     for command in commands:
         pmb.chroot.root(args, ["parted", "-s", "/dev/install"] +
                         command, check=False)
+
+
+def partition_cgpt(args, layout, size_boot, size_reserve):
+    """
+    This function does similar functionality to partition(), but this
+    one is for ChromeOS devices which use special GPT.
+
+    :param layout: partition layout from get_partition_layout()
+    :param size_boot: size of the boot partition in MiB
+    :param size_reserve: empty partition between root and boot in MiB (pma#463)
+    """
+
+    pmb.chroot.root(args, ["apk", "add", "cgpt"])
+
+    cgpt = {
+        'kpart_start': args.deviceinfo["cgpt_kpart_start"],
+        'kpart_size': args.deviceinfo["cgpt_kpart_size"],
+    }
+
+    # Convert to MB and print info
+    mb_boot = f"{round(size_boot)}M"
+    mb_reserved = f"{round(size_reserve)}M"
+    logging.info(f"(native) partition /dev/install (boot: {mb_boot},"
+                 f" reserved: {mb_reserved}, root: the rest)")
+
+    boot_part_start = str(int(cgpt['kpart_start']) + int(cgpt['kpart_size']))
+
+    # Convert to sectors
+    s_boot = str(int(size_boot * 1024 * 1024 / 512))
+    s_root_start = str(int(
+        int(boot_part_start) + int(s_boot) + size_reserve * 1024 * 1024 / 512
+    ))
+
+    commands = [
+        ["parted", "-s", "/dev/install", "mktable", "gpt"],
+        ["cgpt", "create", "/dev/install"],
+        [
+            "cgpt", "add",
+            # pmOS_boot is second partition, the first will be ChromeOS kernel
+            # partition
+            "-i", str(layout["boot"]),  # Partition number
+            "-t", "data",
+            "-b", boot_part_start,
+            "-s", s_boot,
+            "-l", "pmOS_boot",
+            "/dev/install"
+        ],
+        # Mark this partition as bootable for u-boot
+        [
+            "parted",
+            "-s", "/dev/install",
+            "set", str(layout["boot"]),
+            "boot", "on"
+        ],
+        # For some reason cgpt switches all flags to 0 after marking
+        # any partition as bootable, so create ChromeOS kernel partition
+        # only after pmOS_boot is created and marked as bootable
+        [
+            "cgpt", "add",
+            "-i", str(layout["kernel"]),
+            "-t", "kernel",
+            "-b", cgpt['kpart_start'],
+            "-s", cgpt['kpart_size'],
+            "-l", "Kernel",
+            "-S", "1",  # Successful flag
+            "-T", "5",  # Tries flag
+            "-P", "10",  # Priority flag
+            "/dev/install"
+        ],
+    ]
+
+    dev_size = pmb.chroot.root(
+        args, ["blockdev", "--getsz", "/dev/install"], output_return=True)
+    root_size = str(int(dev_size) - int(s_root_start) - 1024)
+
+    commands += [
+        [
+            "cgpt", "add",
+            "-i", str(layout["root"]),
+            "-t", "data",
+            "-b", s_root_start,
+            "-s", root_size,
+            "-l", "pmOS_root",
+            "/dev/install"
+        ],
+        ["partx", "-a", "/dev/install"]
+    ]
+
+    for command in commands:
+        pmb.chroot.root(args, command, check=False)
