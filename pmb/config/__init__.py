@@ -761,7 +761,7 @@ flash_methods = [
     "0xffff",
     "fastboot",
     "heimdall",
-    "none"
+    "none",
     "rkdeveloptool",
     "uuu",
 ]
