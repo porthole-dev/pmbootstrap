@@ -899,11 +899,17 @@ flashers = {
         },
     },
     "rkdeveloptool": {
+        "split": True,
         "depends": ["rkdeveloptool"],
         "actions": {
-            "list_devices": [["rkdeveloptool", "ld"]],
+            "list_devices": [["rkdeveloptool", "list"]],
             "flash_rootfs": [
-                ["rkdeveloptool", "wl", "0", "$IMAGE"]
+                ["rkdeveloptool", "write-partition", "$PARTITION_SYSTEM",
+                    "$IMAGE_SPLIT_ROOT"]
+            ],
+            "flash_kernel": [
+                ["rkdeveloptool", "write-partition", "$PARTITION_KERNEL",
+                    "$IMAGE_SPLIT_BOOT"]
             ],
         },
     }
