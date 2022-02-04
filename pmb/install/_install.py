@@ -607,6 +607,23 @@ def sanity_check_ondev_version(args):
                            f" / in the binary packages has version {ver_pkg}.")
 
 
+def get_partition_layout(reserve):
+    """
+    :param reserve: create an empty partition between root and boot (pma#463)
+    :returns: the partition layout, e.g. without reserve and kernel:
+              {"boot": 1, "reserve": None, "root": 2}
+    """
+    ret = {}
+    ret["boot"] = 1
+    ret["reserve"] = None
+    ret["root"] = 2
+
+    if reserve:
+        ret["reserve"] = ret["root"]
+        ret["root"] += 1
+    return ret
+
+
 def install_system_image(args, size_reserve, suffix, step, steps,
                          boot_label="pmOS_boot", root_label="pmOS_root",
                          split=False, sdcard=None):
@@ -625,16 +642,16 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.chroot.shutdown(args, True)
     (size_boot, size_root) = get_subpartitions_size(args, suffix)
+    layout = get_partition_layout(size_reserve)
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root,
                                        size_reserve, split, sdcard)
         if not split:
-            pmb.install.partition(args, size_boot, size_reserve)
+            pmb.install.partition(args, layout, size_boot, size_reserve)
     if not split:
-        root_id = 3 if size_reserve else 2
-        pmb.install.partitions_mount(args, root_id, sdcard)
+        pmb.install.partitions_mount(args, layout, sdcard)
 
-    pmb.install.format(args, size_reserve, boot_label, root_label, sdcard)
+    pmb.install.format(args, layout, boot_label, root_label, sdcard)
 
     # Just copy all the files
     logging.info(f"*** ({step + 1}/{steps}) FILL INSTALL BLOCKDEVICE ***")
