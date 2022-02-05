@@ -81,6 +81,10 @@ def auto_apkindex_package(args, arch, aport, apk, dry=False):
                                                       ", ".join(depends)))
     missing = []
     for depend in depends:
+        if depend.startswith("!"):
+            # Ignore conflict-dependencies
+            continue
+
         providers = pmb.parse.apkindex.providers(args, depend, arch,
                                                  must_exist=False)
         if providers == {}:
