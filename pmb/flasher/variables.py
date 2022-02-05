@@ -19,6 +19,14 @@ def variables(args, flavor, method):
             or None
         _partition_dtbo = args.deviceinfo["flash_fastboot_partition_dtbo"]\
             or None
+    # Require that the partitions are specified in deviceinfo for now
+    elif method.startswith("rkdeveloptool"):
+        _partition_kernel = args.deviceinfo["flash_rk_partition_kernel"]\
+            or None
+        _partition_system = args.deviceinfo["flash_rk_partition_system"]\
+            or None
+        _partition_vbmeta = None
+        _partition_dtbo = None
     else:
         _partition_kernel = args.deviceinfo["flash_heimdall_partition_kernel"]\
             or "KERNEL"
