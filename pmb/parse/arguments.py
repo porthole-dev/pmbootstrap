@@ -23,6 +23,26 @@ import pmb.helpers.pmaports
     See pmb/helpers/args.py for more information about the args variable. """
 
 
+def toggle_other_boolean_flags(*other_destinations, value=True):
+    """ Helper function to group several argparse flags to one. Sets multiple
+        other_destination to value.
+
+        :param other_destinations: 'the other argument names' str
+        :param value 'the value to set the other_destinations to' bool
+        :returns custom Action"""
+
+    class SetOtherDestinationsAction(argparse.Action):
+        def __init__(self, option_strings, dest, **kwargs):
+            super().__init__(option_strings, dest, nargs=0, const=value,
+                             default=value, **kwargs)
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            for destination in other_destinations:
+                setattr(namespace, destination, value)
+
+    return SetOtherDestinationsAction
+
+
 def type_ondev_cp(val):
     """ Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
 
@@ -706,6 +726,16 @@ def arguments():
                      " (that have been downloaded to the apk cache)")
     zap.add_argument("-r", "--rust", action="store_true",
                      help="also delete rust related caches")
+
+    zap_all_delete_args = ["http", "distfiles", "pkgs_local",
+                           "pkgs_local_mismatch", "netboot", "pkgs_online_mismatch",
+                           "rust"]
+    zap_all_delete_args_print = [arg.replace("_", "-")
+                                 for arg in zap_all_delete_args]
+    zap.add_argument("-a", "--all",
+                     action=toggle_other_boolean_flags(*zap_all_delete_args),
+                     help="delete everything, equivalent to: "
+                     f"--{' --'.join(zap_all_delete_args_print)}")
 
     # Action: stats
     stats = sub.add_parser("stats", help="show ccache stats")
