@@ -72,6 +72,9 @@ def mount_dev_tmpfs(args, suffix="native"):
                                 "tmpfs", dev + "/shm"])
     create_device_nodes(args, suffix)
 
+    # Setup /dev/fd as a symlink
+    pmb.helpers.run.root(args, ["ln", "-sf", "/proc/self/fd", f"{dev}/"])
+
 
 def mount(args, suffix="native"):
     # Mount tmpfs as the chroot's /dev
