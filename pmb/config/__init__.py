@@ -422,7 +422,6 @@ necessary_kconfig_options_nftables = {
             "NF_TABLES": True,
             "NF_TABLES_INET": True,
             "NFT_CT": True,
-            "NFT_COUNTER": True,
             "NFT_LOG": True,
             "NFT_LIMIT": True,
             "NFT_MASQ": True,
@@ -441,6 +440,11 @@ necessary_kconfig_options_nftables = {
             "IP6_NF_TARGET_REJECT": True,
             "IP6_NF_NAT": True,
         }
+    },
+    ">=3.13.0 <5.17_rc1": {  # option has been dropped
+        "all": {  # all arches
+            "NFT_COUNTER": True,
+        },
     },
 }
 
