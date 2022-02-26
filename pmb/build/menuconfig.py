@@ -158,4 +158,5 @@ def menuconfig(args, pkgname, use_oldconfig):
                             force_containers_check=False,
                             force_zram_check=False,
                             force_netboot_check=False,
+                            force_uefi_check=False,
                             details=True)

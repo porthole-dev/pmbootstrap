@@ -384,6 +384,7 @@ def kconfig(args):
                                             containers=args.containers,
                                             zram=args.zram,
                                             netboot=args.netboot,
+                                            uefi=args.uefi,
                                             details=True):
                 logging.info("kconfig check succeeded!")
                 return
@@ -420,6 +421,7 @@ def kconfig(args):
                     force_containers_check=args.containers,
                     force_zram_check=args.zram,
                     force_netboot_check=args.netboot,
+                    force_uefi_check=args.uefi,
                     details=True):
                 error = True
 

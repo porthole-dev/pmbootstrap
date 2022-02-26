@@ -581,6 +581,22 @@ necessary_kconfig_options_netboot = {
     },
 }
 
+# Necessary UEFI boot config options
+necessary_kconfig_options_uefi = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "EFI_STUB": True,
+            "EFI": True,
+            "DMI": True,
+            "EFI_ESRT": True,
+            "EFI_VARS_PSTORE": True,
+            "EFI_PARAMS_FROM_FDT": True,
+            "EFI_RUNTIME_WRAPPERS": True,
+            "EFI_GENERIC_STUB": True,
+        }
+    },
+}
+
 #
 # PARSE
 #
