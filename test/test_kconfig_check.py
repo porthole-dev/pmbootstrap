@@ -40,6 +40,9 @@ def test_kconfig_check(args):
                                         zram=True)
 
     # tests on real devices
+    # *** do not add more of these! ***
+    # moving forward, tests in pmbootstrap.git should become more/completely
+    # independent of the currently checked out pmaports.git (#2105)
 
     # it's a postmarketOS device, it will have the required options, and
     # supports nftables (with pmb:kconfigcheck-nftables)
