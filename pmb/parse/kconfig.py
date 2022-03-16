@@ -254,7 +254,7 @@ def check_file(config_file, anbox=False, nftables=False,
     arch = extract_arch(config_file)
     version = extract_version(config_file)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
-                  "file: {config_file}")
+                  f"file: {config_file}")
     return check_config(config_file, config_file, arch, version,
                         anbox=anbox,
                         nftables=nftables,
