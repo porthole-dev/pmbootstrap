@@ -203,7 +203,18 @@ def check(args, pkgname,
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
-        config_arch = os.path.basename(config_path).split(".")[1]
+        config_name = os.path.basename(config_path)
+        config_name_split = config_name.split(".")
+
+        if len(config_name_split) != 2:
+            raise RuntimeError(f"{config_name} is not a valid kernel config "
+                               "name. Ensure that the _config property in your "
+                               "kernel APKBUILD has a . before the "
+                               "architecture name, e.g. .aarch64 or .armv7, "
+                               "and that there is no excess punctuation "
+                               "elsewhere in the name.")
+
+        config_arch = config_name_split[1]
         config_path_pretty = f"linux-{flavor}/{os.path.basename(config_path)}"
         ret &= check_config(config_path, config_path_pretty, config_arch,
                             pkgver,
