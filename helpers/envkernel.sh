@@ -260,7 +260,7 @@ set_alias_pmbroot_kernelroot() {
 
 cross_compiler_version() {
 	if [ "$need_cross_compiler" = 1 ]; then
-		pmbootstrap chroot --user -- "${cross_compiler}gcc"  --version \
+		"$pmbootstrap" chroot --user -- "${cross_compiler}gcc"  --version \
 			2> /dev/null | grep "^.*gcc " | \
 			awk -F'[()]' '{ print $1 "("$2")" }'
 	else
