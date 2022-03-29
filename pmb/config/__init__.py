@@ -897,7 +897,10 @@ flashers = {
                     "--padding_size", "$FLASH_PAGESIZE",
                     "--output", "/vbmeta.img"],
                 ["heimdall", "flash", "--$PARTITION_VBMETA", "/vbmeta.img"],
-                ["rm", "-f", "/vbmeta.img"]]
+                ["rm", "-f", "/vbmeta.img"]],
+            "flash_lk2nd": [
+                ["heimdall_wait_for_device.sh"],
+                ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/lk2nd.img"]]
         },
     },
     "adb": {
