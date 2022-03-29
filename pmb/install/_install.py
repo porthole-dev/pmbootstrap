@@ -790,7 +790,7 @@ def print_flash_info(args):
     if "flash_lk2nd" in flasher_actions and \
             os.path.exists(args.work + "/chroot_rootfs_" + args.device +
                            "/boot/lk2nd.img"):
-        logging.info(" * Your device supports and may even require"
+        logging.info("* Your device supports and may even require"
                      " flashing lk2nd. You should flash it before"
                      " flashing anything else. Use 'pmbootstrap flasher"
                      " flash_lk2nd' to do that.")
