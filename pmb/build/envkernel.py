@@ -104,6 +104,23 @@ def modify_apkbuild(args, pkgname, aport):
     pmb.aportgen.core.rewrite(args, pkgname, apkbuild_path, fields=fields)
 
 
+def host_build_bindmount(args, chroot, flag_file, mount=False):
+    """
+    Check if the bind mount already exists and unmount it.
+    Then bindmount the current directory into the chroot as
+    /mnt/linux so it can be used by the envkernel abuild wrapper
+    """
+    flag_path = f"{chroot}/{flag_file}"
+    if os.path.exists(flag_path):
+        logging.info("Cleaning up kernel sources bind-mount")
+        pmb.helpers.run.root(args, ["umount", chroot + "/mnt/linux"], check=False)
+        pmb.helpers.run.root(args, ["rm", flag_path])
+
+    if mount:
+        pmb.helpers.mount.bind(args, ".", f"{chroot}/mnt/linux")
+        pmb.helpers.run.root(args, ["touch", flag_path])
+
+
 def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     """
     Prepare build environment and run abuild.
@@ -117,10 +134,30 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     build_path = "/home/pmos/build"
     kbuild_out_source = "/mnt/linux/.output"
 
+    # If the kernel was cross-compiled on the host rather than with the envkernel
+    # helper, we can still use the envkernel logic to package the artifacts for
+    # development, making it easy to quickly sideload a new kernel or pmbootstrap
+    # to create a boot image
+    # This handles bind mounting the current directory (assumed to be kernel sources)
+    # into the chroot so we can run abuild against it for the currently selected
+    # devices kernel package.
+    flag_file = "envkernel-bind-mounted"
+    host_build = False
+
+    if not os.path.ismount(chroot + "/mnt/linux"):
+        logging.info("envkernel.sh hasn't run, assuming the kernel was cross compiled"
+                     "on host and using current dir as source")
+        host_build = True
+
+    host_build_bindmount(args, chroot, flag_file, mount=host_build)
+
     if not os.path.exists(chroot + kbuild_out_source):
-        raise RuntimeError("No '.output' dir found in your kernel source dir."
-                           "Compile the " + args.device + " kernel with "
-                           "envkernel.sh first, then try again.")
+        raise RuntimeError("No '.output' dir found in your kernel source dir. "
+                           "Compile the " + args.device + " kernel first and "
+                           "then try again. See https://postmarketos.org/envkernel"
+                           "for details. If building on your host and only using "
+                           "--envkernel for packaging, make sure you have O=.output "
+                           "as an argument to make.")
 
     # Create working directory for abuild
     pmb.build.copy_to_buildpath(args, pkgname)
@@ -146,6 +183,9 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "rootpkg"]
     pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
+
+    # Clean up bindmount if needed
+    host_build_bindmount(args, chroot, flag_file)
 
     # Clean up symlinks
     if build_output != "":
@@ -183,6 +223,8 @@ def package_kernel(args):
     depends, _ = pmb.build._package.build_depends(
         args, apkbuild, pmb.config.arch_native, strict=False)
     pmb.build.init(args, suffix)
+    if pmb.parse.arch.cpu_emulation_required(arch):
+        depends.append("binutils-" + arch)
     pmb.chroot.apk.install(args, depends, suffix)
 
     output = (arch + "/" + apkbuild["pkgname"] + "-" + apkbuild["pkgver"] +
