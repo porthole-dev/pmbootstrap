@@ -336,7 +336,6 @@ necessary_kconfig_options_anbox = {
             "SQUASHFS_XZ": True,
             "SQUASHFS_XATTR": True,
             "TMPFS_XATTR": True,
-            "ASHMEM": True,
             "ANDROID_BINDER_IPC": True,
             "ANDROID_BINDERFS": False,
             "ANDROID_BINDER_DEVICES": ["binder", "hwbinder"],
@@ -361,6 +360,11 @@ necessary_kconfig_options_anbox = {
         "all": {
             "PSI": True,  # required by userspace OOM killer in Waydroid
             "PSI_DEFAULT_DISABLED": False,
+        }
+    },
+    "<5.18_rc1": {  # option has been dropped
+        "all": {
+            "ASHMEM": True,
         }
     }
 }
