@@ -714,6 +714,19 @@ def install_system_image(args, size_reserve, suffix, step, steps,
         pmb.chroot.user(args, ["mv", "-f", sys_image_sparse, sys_image],
                         working_dir="/home/pmos/rootfs/")
 
+        # patch sparse image for Samsung devices if specified
+        samsungify_strategy = args.deviceinfo["flash_sparse_samsung_format"]
+        if samsungify_strategy is not None:
+            logging.info("(native) convert sparse image into Samsung's sparse image format")
+            pmb.chroot.apk.install(args, ["sm-sparse-image-tool"])
+            sys_image = f"{args.device}.img"
+            sys_image_patched = f"{args.device}-patched.img"
+            pmb.chroot.user(args, ["sm_sparse_image_tool", "samsungify", "--strategy",
+                                   samsungify_strategy, sys_image, sys_image_patched],
+                            working_dir="/home/pmos/rootfs/")
+            pmb.chroot.user(args, ["mv", "-f", sys_image_patched, sys_image],
+                            working_dir="/home/pmos/rootfs/")
+
 
 def print_flash_info(args):
     """ Print flashing information, based on the deviceinfo data and the

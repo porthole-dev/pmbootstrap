@@ -731,6 +731,7 @@ deviceinfo_attributes = [
     "flash_pagesize",
     "flash_fastboot_max_size",
     "flash_sparse",
+    "flash_sparse_samsung_format",
     "rootfs_image_sector_size",
     "sd_embed_firmware",
     "sd_embed_firmware_step_size",
