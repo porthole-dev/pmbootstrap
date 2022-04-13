@@ -716,7 +716,7 @@ def install_system_image(args, size_reserve, suffix, step, steps,
 
         # patch sparse image for Samsung devices if specified
         samsungify_strategy = args.deviceinfo["flash_sparse_samsung_format"]
-        if samsungify_strategy is not None:
+        if samsungify_strategy:
             logging.info("(native) convert sparse image into Samsung's sparse image format")
             pmb.chroot.apk.install(args, ["sm-sparse-image-tool"])
             sys_image = f"{args.device}.img"
