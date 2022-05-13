@@ -146,13 +146,16 @@ def test_recurse(args, monkeypatch):
     depends = {
         "test": ["libtest", "so:libtest.so.1"],
         "libtest": ["libtest_depend"],
-        "libtest_depend": ["!libtest_conflict"],
+        "libtest_depend": ["!libtest_conflict", "!libtest_conflict_missing"],
         "libtest_conflict": [],
         "so:libtest.so.1": ["libtest_depend"],
     }
 
     def package_from_index(args, pkgname, install, aport, suffix):
-        return {"pkgname": pkgname, "depends": depends[pkgname]}
+        if pkgname in depends:
+            return {"pkgname": pkgname, "depends": depends[pkgname]}
+        else:
+            return None
     monkeypatch.setattr(pmb.parse.depends, "package_from_index",
                         package_from_index)
 

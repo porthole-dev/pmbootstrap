@@ -144,6 +144,11 @@ def recurse(args, pkgnames, suffix="native"):
 
         # Nothing found
         if not package:
+            if is_conflict:
+                # This package was probably dropped from the repos, so we don't
+                # care if it doesn't exist since it's a conflicting depend that
+                # wouldn't be installed anyways.
+                continue
             source = 'world'
             if pkgname_depend in required_by:
                 source = ', '.join(required_by[pkgname_depend])
