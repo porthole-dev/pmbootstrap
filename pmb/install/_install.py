@@ -995,7 +995,14 @@ def create_device_rootfs(args, step, steps):
     setup_keymap(args)
 
     # Set timezone
-    pmb.chroot.root(args, ["setup-timezone", "-z", args.timezone], suffix)
+    arch = args.deviceinfo["arch"]
+    package = pmb.helpers.package.get(args, "alpine-conf", arch)
+    version = package["version"].split("-r")[0]
+
+    if not pmb.parse.version.check_string(version, ">=3.14.0"):
+        pmb.chroot.root(args, ["setup-timezone", "-z", args.timezone], suffix)
+    else:
+        pmb.chroot.root(args, ["setup-timezone", args.timezone], suffix)
 
     # Set locale
     if locale_is_set:
