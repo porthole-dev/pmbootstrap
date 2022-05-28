@@ -21,6 +21,10 @@ def args(tmpdir, request):
 
 
 def test_kconfig_check(args):
+    # non-existing package
+    assert pmb.parse.kconfig.check(args, "non-existing-kernel-package",
+                                   must_exist=False) is None
+
     # basic checks, from easiers to hard-ish
     dir = f"{pmb_test.const.testdata}/kconfig_check/"
     assert not pmb.parse.kconfig.check_file(dir +

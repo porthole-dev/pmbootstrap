@@ -20,7 +20,7 @@ def kernel(args):
         pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
 
     # Check kernel config
-    pmb.parse.kconfig.check(args, flavor)
+    pmb.parse.kconfig.check(args, flavor, must_exist=False)
 
     # Generate the paths and run the flasher
     if args.action_flasher == "boot":
