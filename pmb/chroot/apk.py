@@ -187,10 +187,16 @@ def replace_aports_packages_with_path(args, packages, suffix, arch):
 
 def install(args, packages, suffix="native", build=True):
     """
+    Install packages from pmbootstrap's local package index or the pmOS/Alpine
+    binary package mirrors. Iterate over all dependencies recursively, and
+    build missing packages as necessary.
+
+    :param packages: list of pkgnames to be installed
+    :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     :param build: automatically build the package, when it does not exist yet
-                  or needs to be updated, and it is inside the pm-aports
-                  folder. Checking this is expensive - if you know that all
-                  packages are provides by upstream repos, set this to False!
+                  or needs to be updated, and it is inside pmaports. For the
+                  special case that all packages are expected to be in Alpine's
+                  repositories, set this to False for performance optimization.
     """
     # Initialize chroot
     check_min_version(args, suffix)
