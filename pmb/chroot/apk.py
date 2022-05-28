@@ -87,74 +87,30 @@ def check_min_version(args, suffix="native"):
     pmb.helpers.other.cache["apk_min_version_checked"].append(suffix)
 
 
-def install_is_necessary(args, build, arch, package, packages_installed):
+def install_build(args, package, arch):
     """
-    This function optionally builds an out of date package, and checks if the
-    version installed inside a chroot is up to date.
-    :param build: Set to true to build the package, if the binary packages are
-                  out of date, and it is in the aports folder.
-    :param packages_installed: Return value from installed().
-    :returns: True if the package needs to be installed/updated,
-              False otherwise.
-    """
-    # For packages to be removed we can do the test immediately
-    if package.startswith("!"):
-        return package[1:] in packages_installed
+    Build an outdated package unless pmbootstrap was invoked with
+    "pmbootstrap install" and the option to build packages during pmb install
+    is disabled.
 
-    # User may have disabled buiding packages during "pmbootstrap install"
-    build_disabled = False
+    :param package: name of the package to build
+    :param arch: architecture of the package to build
+    """
+    # User may have disabled building packages during "pmbootstrap install"
     if args.action == "install" and not args.build_pkgs_on_install:
-        build_disabled = True
-
-    # Build package
-    if build and not build_disabled:
-        pmb.build.package(args, package, arch)
-
-    # No further checks when not installed
-    if package not in packages_installed:
-        return True
-
-    # Make sure that we really have a binary package
-    data_repo = pmb.parse.apkindex.package(args, package, arch, False)
-    if not data_repo:
-        if build_disabled:
+        if not pmb.parse.apkindex.package(args, package, arch, False):
             raise RuntimeError(f"{package}: no binary package found for"
                                f" {arch}, and compiling packages during"
                                " 'pmbootstrap install' has been disabled."
                                " Consider changing this option in"
                                " 'pmbootstrap init'.")
-        logging.warning("WARNING: Internal error in pmbootstrap,"
-                        f" package '{package}' for {arch}"
-                        " has not been built yet, but it should have"
-                        " been. Rebuilding it with force. Please "
-                        " report this, if there is no ticket about this"
-                        " yet!")
-        pmb.build.package(args, package, arch, True)
-        return install_is_necessary(args, build, arch, package,
-                                    packages_installed)
+        # Use the existing binary package
+        return
 
-    # Compare the installed version vs. the version in the repos
-    data_installed = packages_installed[package]
-    compare = pmb.parse.version.compare(data_installed["version"],
-                                        data_repo["version"])
-    # a) Installed newer (should not happen normally)
-    if compare == 1:
-        logging.info(f"WARNING: {arch} package '{package}'"
-                     f" installed version {data_installed['version']}"
-                     " is newer, than the version in the repositories:"
-                     f" {data_repo['version']}"
-                     " See also: <https://postmarketos.org/warning-repo>")
-        return False
-
-    # b) Repo newer
-    elif compare == -1:
-        return True
-
-    # c) Same version, look at last modified
-    elif compare == 0:
-        time_installed = float(data_installed["timestamp"])
-        time_repo = float(data_repo["timestamp"])
-        return time_repo > time_installed
+    # Build the package if it's in pmaports and there is no binary package
+    # with the same pkgver and pkgrel. This check is done in
+    # pmb.build.is_necessary, which gets called in pmb.build.package.
+    return pmb.build.package(args, package, arch)
 
 
 def replace_aports_packages_with_path(args, packages, suffix, arch):
@@ -211,13 +167,12 @@ def install(args, packages, suffix="native", build=True):
     to_add = []
     to_del = []
     for package in packages_with_depends:
-        if not install_is_necessary(
-                args, build, arch, package, packages_installed):
-            continue
         if package.startswith("!"):
             to_del.append(package.lstrip("!"))
-        else:
-            to_add.append(package)
+            continue
+        if build:
+            install_build(args, package, arch)
+        to_add.append(package)
     if not len(to_add) and not len(to_del):
         return
 
