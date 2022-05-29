@@ -143,3 +143,12 @@ def test_install_run_apk(monkeypatch, args):
     func(args, to_add, to_add_local, to_del, suffix)
     assert cmds_progress == [["apk", "--no-network", "add", "hello-world"]]
     assert cmds == []
+
+    # Package name starting with '-'
+    reset_cmds()
+    to_add = ["hello-world", "--allow-untrusted"]
+    to_add_local = []
+    to_del = []
+    with pytest.raises(ValueError) as e:
+        func(args, to_add, to_add_local, to_del, suffix)
+    assert "Invalid package name" in str(e.value)

@@ -174,6 +174,12 @@ def install_run_apk(args, to_add, to_add_local, to_del, suffix):
                    installed or their dependencies (e.g. ["osk-sdl"])
     :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
+    # Sanitize packages: don't allow '--allow-untrusted' and other options
+    # to be passed to apk!
+    for package in to_add + to_add_local + to_del:
+        if package.startswith("-"):
+            raise ValueError(f"Invalid package name: {package}")
+
     commands = [["add"] + to_add]
 
     # Use a virtual package to mark only the explicitly requested packages as
@@ -229,12 +235,6 @@ def install(args, packages, suffix="native", build=True):
     if build:
         for package in to_add:
             install_build(args, package, arch)
-
-    # Sanitize packages: don't allow '--allow-untrusted' and other options
-    # to be passed to apk!
-    for package in to_add + to_del:
-        if package.startswith("-"):
-            raise ValueError(f"Invalid package name: {package}")
 
     to_add_local = packages_get_locally_built_apks(args, to_add, arch)
     to_add_no_deps, _ = packages_split_to_add_del(packages)
