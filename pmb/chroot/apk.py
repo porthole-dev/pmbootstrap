@@ -236,17 +236,10 @@ def install(args, packages, suffix="native", build=True):
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    # Readable install message without dependencies
-    packages_installed = installed(args, suffix)
-    message = f"({suffix}) install"
-    for pkgname in packages:
-        if pkgname not in packages_installed:
-            message += f" {pkgname}"
-    logging.info(message)
-
     to_add_local = packages_get_locally_built_apks(args, to_add, arch)
     to_add_no_deps, _ = packages_split_to_add_del(packages)
 
+    logging.info(f"({suffix}) install {' '.join(to_add_no_deps)}")
     install_run_apk(args, to_add_no_deps, to_add_local, to_del, suffix)
 
 
