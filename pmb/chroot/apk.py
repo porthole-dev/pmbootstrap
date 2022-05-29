@@ -154,6 +154,11 @@ def install(args, packages, suffix="native", build=True):
                   special case that all packages are expected to be in Alpine's
                   repositories, set this to False for performance optimization.
     """
+    if not packages:
+        logging.verbose("pmb.chroot.apk.install called with empty packages list,"
+                        " ignoring")
+        return
+
     # Initialize chroot
     check_min_version(args, suffix)
     pmb.chroot.init(args, suffix)
@@ -173,8 +178,6 @@ def install(args, packages, suffix="native", build=True):
         if build:
             install_build(args, package, arch)
         to_add.append(package)
-    if not len(to_add) and not len(to_del):
-        return
 
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
