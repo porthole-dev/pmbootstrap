@@ -55,3 +55,11 @@ def test_install_build(monkeypatch, args):
     args.action = "chroot"
     args.build_pkgs_on_install = False
     assert func(args, package, arch) == "build-pkg"
+
+
+def test_packages_split_to_add_del():
+    packages = ["hello", "!test", "hello2", "test2", "!test3"]
+
+    to_add, to_del = pmb.chroot.apk.packages_split_to_add_del(packages)
+    assert to_add == ["hello", "hello2", "test2"]
+    assert to_del == ["test", "test3"]

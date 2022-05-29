@@ -113,6 +113,27 @@ def install_build(args, package, arch):
     return pmb.build.package(args, package, arch)
 
 
+def packages_split_to_add_del(packages):
+    """
+    Sort packages into "to_add" and "to_del" lists depending on their pkgname
+    starting with an exclamation mark.
+
+    :param packages: list of pkgnames
+    :returns: (to_add, to_del) - tuple of lists of pkgnames, e.g.
+              (["hello-world", ...], ["some-conflict-pkg", ...])
+    """
+    to_add = []
+    to_del = []
+
+    for package in packages:
+        if package.startswith("!"):
+            to_del.append(package.lstrip("!"))
+        else:
+            to_add.append(package)
+
+    return (to_add, to_del)
+
+
 def replace_aports_packages_with_path(args, packages, suffix, arch):
     """
     apk will only re-install packages with the same pkgname,
@@ -187,6 +208,8 @@ def install(args, packages, suffix="native", build=True):
                   special case that all packages are expected to be in Alpine's
                   repositories, set this to False for performance optimization.
     """
+    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+
     if not packages:
         logging.verbose("pmb.chroot.apk.install called with empty packages list,"
                         " ignoring")
@@ -196,21 +219,12 @@ def install(args, packages, suffix="native", build=True):
     check_min_version(args, suffix)
     pmb.chroot.init(args, suffix)
 
-    # Add depends to packages
-    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
     packages_with_depends = pmb.parse.depends.recurse(args, packages, suffix)
+    to_add, to_del = packages_split_to_add_del(packages_with_depends)
 
-    # Filter outdated packages (build them if required)
-    packages_installed = installed(args, suffix)
-    to_add = []
-    to_del = []
-    for package in packages_with_depends:
-        if package.startswith("!"):
-            to_del.append(package.lstrip("!"))
-            continue
-        if build:
+    if build:
+        for package in to_add:
             install_build(args, package, arch)
-        to_add.append(package)
 
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
@@ -219,6 +233,7 @@ def install(args, packages, suffix="native", build=True):
             raise ValueError(f"Invalid package name: {package}")
 
     # Readable install message without dependencies
+    packages_installed = installed(args, suffix)
     message = f"({suffix}) install"
     for pkgname in packages:
         if pkgname not in packages_installed:
