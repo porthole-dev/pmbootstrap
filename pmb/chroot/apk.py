@@ -141,6 +141,39 @@ def replace_aports_packages_with_path(args, packages, suffix, arch):
     return ret
 
 
+def install_run_apk(args, packages, to_add, to_del, suffix):
+    """
+    Run apk to add packages, and ensure only the desired packages get
+    explicitly marked as installed.
+    """
+    # Split off conflicts
+    packages_without_conflicts = list(
+        filter(lambda p: not p.startswith("!"), packages))
+
+    # Use a virtual package to mark only the explicitly requested packages as
+    # explicitly installed, not their dependencies or specific paths (#1212)
+    commands = [["add"] + packages_without_conflicts]
+    if len(to_add) and packages_without_conflicts != to_add:
+        commands = [["add", "-u", "--virtual", ".pmbootstrap"] +
+                    to_add,
+                    ["add"] + packages_without_conflicts,
+                    ["del", ".pmbootstrap"]]
+    if len(to_del):
+        commands.append(["del"] + to_del)
+    for (i, command) in enumerate(commands):
+        if args.offline:
+            command = ["--no-network"] + command
+        if i == 0:
+            pmb.helpers.apk.apk_with_progress(args, ["apk"] + command,
+                                              chroot=True, suffix=suffix)
+        else:
+            # Virtual package related commands don't actually install or remove
+            # packages, but only mark the right ones as explicitly installed.
+            # They finish up almost instantly, so don't display a progress bar.
+            pmb.chroot.root(args, ["apk", "--no-progress"] + command,
+                            suffix=suffix)
+
+
 def install(args, packages, suffix="native", build=True):
     """
     Install packages from pmbootstrap's local package index or the pmOS/Alpine
@@ -197,32 +230,7 @@ def install(args, packages, suffix="native", build=True):
     to_add = replace_aports_packages_with_path(args, to_add,
                                                        suffix, arch)
 
-    # Split off conflicts
-    packages_without_conflicts = list(
-        filter(lambda p: not p.startswith("!"), packages))
-
-    # Use a virtual package to mark only the explicitly requested packages as
-    # explicitly installed, not their dependencies or specific paths (#1212)
-    commands = [["add"] + packages_without_conflicts]
-    if len(to_add) and packages_without_conflicts != to_add:
-        commands = [["add", "-u", "--virtual", ".pmbootstrap"] +
-                    to_add,
-                    ["add"] + packages_without_conflicts,
-                    ["del", ".pmbootstrap"]]
-    if len(to_del):
-        commands.append(["del"] + to_del)
-    for (i, command) in enumerate(commands):
-        if args.offline:
-            command = ["--no-network"] + command
-        if i == 0:
-            pmb.helpers.apk.apk_with_progress(args, ["apk"] + command,
-                                              chroot=True, suffix=suffix)
-        else:
-            # Virtual package related commands don't actually install or remove
-            # packages, but only mark the right ones as explicitly installed.
-            # They finish up almost instantly, so don't display a progress bar.
-            pmb.chroot.root(args, ["apk", "--no-progress"] + command,
-                            suffix=suffix)
+    install_run_apk(args, packages, to_add, to_del, suffix)
 
 
 def installed(args, suffix="native"):
