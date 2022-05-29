@@ -134,53 +134,57 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def replace_aports_packages_with_path(args, packages, suffix, arch):
+def packages_get_locally_built_apks(args, packages, arch):
     """
-    apk will only re-install packages with the same pkgname,
-    pkgver and pkgrel, when you give it the absolute path to the package.
-    This function replaces all packages that were built locally,
-    with the absolute path to the package.
+    Iterate over packages and if existing, get paths to locally built packages.
+    This is used to force apk to upgrade packages to newer local versions, even
+    if the pkgver and pkgrel did not change.
+
+    :param packages: list of pkgnames
+    :param arch: architecture that the locally built packages should have
+    :returns: list of apk file paths that are valid inside the chroots, e.g.
+              ["/mnt/pmbootstrap-packages/x86_64/hello-world-1-r6.apk", ...]
     """
+    channel = pmb.config.pmaports.read_config(args)["channel"]
     ret = []
+
     for package in packages:
-        aport = pmb.helpers.pmaports.find(args, package, False)
-        if aport:
-            data_repo = pmb.parse.apkindex.package(args, package, arch, False)
-            if not data_repo:
-                raise RuntimeError(f"{package}: could not find binary"
-                                   " package, although it should exist for"
-                                   " sure at this point in the code."
-                                   " Probably an APKBUILD subpackage parsing"
-                                   " bug. Related: https://gitlab.com/"
-                                   "postmarketOS/build.postmarketos.org/"
-                                   "issues/61")
-            apk_path = (f"/mnt/pmbootstrap-packages/{arch}/"
-                        f"{package}-{data_repo['version']}.apk")
-            if os.path.exists(f"{args.work}/chroot_{suffix}{apk_path}"):
-                package = apk_path
-        ret.append(package)
+        data_repo = pmb.parse.apkindex.package(args, package, arch, False)
+        if not data_repo:
+            continue
+
+        apk_file = f"{package}-{data_repo['version']}.apk"
+        if not os.path.exists(f"{args.work}/packages/{channel}/{arch}/{apk_file}"):
+            continue
+
+        ret.append(f"/mnt/pmbootstrap-packages/{arch}/{apk_file}")
+
     return ret
 
 
-def install_run_apk(args, packages, to_add, to_del, suffix):
+def install_run_apk(args, to_add, to_add_local, to_del, suffix):
     """
     Run apk to add packages, and ensure only the desired packages get
     explicitly marked as installed.
+
+    :param to_add: list of pkgnames to install, without their dependencies
+    :param to_add_local: return of packages_get_locally_built_apks()
+    :param to_del: list of pkgnames to be deleted, this should be set to
+                   conflicting dependencies in any of the packages to be
+                   installed or their dependencies (e.g. ["osk-sdl"])
+    :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
-    # Split off conflicts
-    packages_without_conflicts = list(
-        filter(lambda p: not p.startswith("!"), packages))
+    commands = [["add"] + to_add]
 
     # Use a virtual package to mark only the explicitly requested packages as
-    # explicitly installed, not their dependencies or specific paths (#1212)
-    commands = [["add"] + packages_without_conflicts]
-    if len(to_add) and packages_without_conflicts != to_add:
-        commands = [["add", "-u", "--virtual", ".pmbootstrap"] +
-                    to_add,
-                    ["add"] + packages_without_conflicts,
-                    ["del", ".pmbootstrap"]]
-    if len(to_del):
-        commands.append(["del"] + to_del)
+    # explicitly installed, not the ones in to_add_local
+    if to_add_local:
+        commands += [["add", "-u", "--virtual", ".pmbootstrap"] + to_add_local,
+                     ["del", ".pmbootstrap"]]
+
+    if to_del:
+        commands += [["del"] + to_del]
+
     for (i, command) in enumerate(commands):
         if args.offline:
             command = ["--no-network"] + command
@@ -240,12 +244,10 @@ def install(args, packages, suffix="native", build=True):
             message += f" {pkgname}"
     logging.info(message)
 
-    # Local packages: Using the path instead of pkgname makes apk update
-    # packages of the same version if the build date is different
-    to_add = replace_aports_packages_with_path(args, to_add,
-                                                       suffix, arch)
+    to_add_local = packages_get_locally_built_apks(args, to_add, arch)
+    to_add_no_deps, _ = packages_split_to_add_del(packages)
 
-    install_run_apk(args, packages, to_add, to_del, suffix)
+    install_run_apk(args, to_add_no_deps, to_add_local, to_del, suffix)
 
 
 def installed(args, suffix="native"):
