@@ -158,6 +158,7 @@ initialize_chroot() {
 		findutils \
 		flex \
 		g++ \
+		gawk \
 		"$gcc_pkgname" \
 		gmp-dev \
 		linux-headers \
