@@ -163,7 +163,7 @@ def partition_cgpt(args, layout, size_boot, size_reserve):
             "-t", "kernel",
             "-b", cgpt['kpart_start'],
             "-s", cgpt['kpart_size'],
-            "-l", "Kernel",
+            "-l", "pmOS_kernel",
             "-S", "1",  # Successful flag
             "-T", "5",  # Tries flag
             "-P", "10",  # Priority flag
