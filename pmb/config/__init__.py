@@ -339,7 +339,7 @@ necessary_kconfig_options_anbox = {
             "TMPFS_XATTR": True,
             "ANDROID_BINDER_IPC": True,
             "ANDROID_BINDERFS": False,
-            "ANDROID_BINDER_DEVICES": ["binder", "hwbinder"],
+            "ANDROID_BINDER_DEVICES": ["binder", "hwbinder", "vndbinder"],
             "NETFILTER_XTABLES": True,
             "NETFILTER_XT_MATCH_COMMENT": True,
             "IP_NF_MANGLE": True,
