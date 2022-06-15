@@ -220,6 +220,7 @@ set_alias_make() {
 	# Build make command
 	cmd="echo '*** pmbootstrap envkernel.sh active for $PWD! ***';"
 	cmd="$cmd pmbootstrap -q chroot --user --"
+	cmd="$cmd CCACHE_DISABLE=1"
 	cmd="$cmd ARCH=$arch"
 	if [ "$need_cross_compiler" = 1 ]; then
 		cmd="$cmd CROSS_COMPILE=$cross_compiler"
