@@ -19,6 +19,12 @@ def odin(args, flavor, folder):
     pmb.flasher.init(args)
     suffix = "rootfs_" + args.device
 
+    # Backwards compatibility with old mkinitfs (pma#660)
+    suffix_flavor = f"-{flavor}"
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
+        suffix_flavor = ""
+
     # Validate method
     method = args.deviceinfo["flash_method"]
     if not method.startswith("heimdall-"):
@@ -54,16 +60,16 @@ def odin(args, flavor, folder):
         if method == "heimdall-isorec":
             handle.write(
                 # Kernel: copy and append md5
-                f"cp /boot/vmlinuz-{flavor} {odin_kernel_md5}\n"
+                f"cp /boot/vmlinuz{suffix_flavor} {odin_kernel_md5}\n"
                 f"md5sum -t {odin_kernel_md5} >> {odin_kernel_md5}\n"
                 # Initramfs: recompress with lzop, append md5
-                f"gunzip -c /boot/initramfs-{flavor}"
+                f"gunzip -c /boot/initramfs{suffix_flavor}"
                 f" | lzop > {odin_initfs_md5}\n"
                 f"md5sum -t {odin_initfs_md5} >> {odin_initfs_md5}\n")
         elif method == "heimdall-bootimg":
             handle.write(
                 # boot.img: copy and append md5
-                f"cp /boot/boot.img-{flavor} {odin_kernel_md5}\n"
+                f"cp /boot/boot.img{suffix_flavor} {odin_kernel_md5}\n"
                 f"md5sum -t {odin_kernel_md5} >> {odin_kernel_md5}\n")
         handle.write(
             # Create tar, remove included files and append md5
