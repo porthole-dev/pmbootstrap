@@ -64,10 +64,12 @@ def ask_for_work_path(args):
             if not exists:
                 os.makedirs(work, 0o700, True)
 
-            if not os.listdir(work):
-                # Directory is empty, either because we just created it or
-                # because user created it before running pmbootstrap init
-                with open(f"{work}/version", "w") as handle:
+            # If the version file doesn't exists yet because we either just
+            # created the work directory or the user has deleted it for
+            # whatever reason then we need to write initialize it.
+            work_version_file = f"{work}/version"
+            if not os.path.isfile(work_version_file):
+                with open(work_version_file, "w") as handle:
                     handle.write(f"{pmb.config.work_version}\n")
 
             # Create cache_git dir, so it is owned by the host system's user
