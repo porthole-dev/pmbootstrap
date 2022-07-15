@@ -22,6 +22,12 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
                 "$_flavor" "$_outdir\""""
 
+    if deviceinfo.get("header_version") == "2":
+        package += """
+
+            make dtbs_install O="$_outdir" ARCH="$_carch" \\
+                INSTALL_DTBS_PATH="$pkgdir\"/boot/dtbs"""
+
     if deviceinfo["bootimg_qcdt"] == "true":
         build += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)"""
