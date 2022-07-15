@@ -142,7 +142,14 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
         content += f"""\
         deviceinfo_header_version="{bootimg["header_version"]}"
         """
-    else:
+
+        if bootimg["header_version"] == "2":
+            content += """\
+            deviceinfo_append_dtb="false"
+            deviceinfo_flash_offset_dtb="{bootimg["dtb_offset"]}"
+            """
+
+    if "base" in bootimg.keys():
         content += f"""\
         deviceinfo_flash_offset_base="{bootimg["base"]}"
         deviceinfo_flash_offset_kernel="{bootimg["kernel_offset"]}"
