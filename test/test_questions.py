@@ -91,7 +91,8 @@ def test_questions_bootimg(args, monkeypatch):
 
     bootimg_path = pmb_test.const.testdata + "/bootimg/normal-boot.img"
     fake_answers(monkeypatch, [bootimg_path])
-    output = {"base": "0x80000000",
+    output = {"header_version": "0",
+              "base": "0x80000000",
               "kernel_offset": "0x00008000",
               "ramdisk_offset": "0x04000000",
               "second_offset": "0x00f00000",
