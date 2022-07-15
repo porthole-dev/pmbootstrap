@@ -120,6 +120,23 @@ def test_bootimg_dtb_second(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
+def test_bootimg_v2(args):
+    path = pmb_test.const.testdata + "/bootimg/boot-header-v2.img"
+    output = {"header_version": "2",
+              "base": "0x40078000",
+              "kernel_offset": "0x00008000",
+              "ramdisk_offset": "0x07c08000",
+              "second_offset": "0x00e10000",
+              "tags_offset": "0x0bc08000",
+              "pagesize": "2048",
+              "dtb_offset": "0x0bc08000",
+              "cmdline": "bootopt=64S3,32N2,64N2 systempart=/dev/mapper/system",
+              "qcdt": "false",
+              "mtk_mkimage": "false",
+              "dtb_second": "false"}
+    assert pmb.parse.bootimg(args, path) == output
+
+
 def test_bootimg_v3(args):
     path = pmb_test.const.testdata + "/bootimg/boot-header-v3.img"
     output = {"header_version": "3",
