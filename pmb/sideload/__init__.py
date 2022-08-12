@@ -56,7 +56,7 @@ def ssh_install_apks(args, user, host, port, paths):
     add_cmd = pmb.helpers.run.flat_cmd(add_cmd)
     clean_cmd = pmb.helpers.run.flat_cmd(['rm'] + remote_paths)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',
-               f'{add_cmd}; {clean_cmd}']
+               f'{add_cmd}; rc=$?; {clean_cmd}; exit $rc']
     pmb.helpers.run.user(args, command, output="tui")
 
 
