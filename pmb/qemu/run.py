@@ -277,7 +277,6 @@ def install_depends(args, arch):
     Install any necessary qemu dependencies in native chroot
     """
     depends = [
-        "mesa-dri-classic",
         "mesa-dri-gallium",
         "mesa-egl",
         "mesa-gl",
