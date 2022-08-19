@@ -144,7 +144,7 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
         """
 
         if bootimg["header_version"] == "2":
-            content += """\
+            content += f"""\
             deviceinfo_append_dtb="false"
             deviceinfo_flash_offset_dtb="{bootimg["dtb_offset"]}"
             """
