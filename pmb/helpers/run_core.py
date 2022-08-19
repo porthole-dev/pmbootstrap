@@ -46,6 +46,7 @@ def background(cmd, working_dir=None):
 def pipe(cmd, working_dir=None):
     """ Run a subprocess in background and redirect its output to a pipe. """
     ret = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                           stdin=subprocess.DEVNULL,
                            stderr=pmb.helpers.logging.logfd, cwd=working_dir)
     logging.verbose(f"New background process: pid={ret.pid}, output=pipe")
     return ret
@@ -125,7 +126,7 @@ def kill_command(args, pid, sudo):
 
 def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
                     output_return=False, output_timeout=True,
-                    sudo=False):
+                    sudo=False, stdin=None):
     """
     Run a subprocess in foreground with redirected output and optionally kill
     it after being silent for too long.
@@ -145,7 +146,8 @@ def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
     """
     # Start process in background (stdout and stderr combined)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, cwd=working_dir)
+                               stderr=subprocess.STDOUT, cwd=working_dir,
+                               stdin=stdin)
 
     # Make process.stdout non-blocking
     handle = process.stdout.fileno()
@@ -283,14 +285,14 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                    their properties. "wait" indicates that we wait for the
                    process to complete.
 
-                   output value  | timeout | out to log | out to stdout | wait
-                   -----------------------------------------------------------
-                   "log"         | x       | x          |               | x
-                   "stdout"      | x       | x          | x             | x
-                   "interactive" |         | x          | x             | x
-                   "tui"         |         |            | x             | x
-                   "background"  |         | x          |               |
-                   "pipe"        |         |            |               |
+                   output value  | timeout | out to log | out to stdout | wait | pass stdin
+                   ------------------------------------------------------------------------
+                   "log"         | x       | x          |               | x    |
+                   "stdout"      | x       | x          | x             | x    | x
+                   "interactive" |         | x          | x             | x    | x
+                   "tui"         |         |            | x             | x    | x
+                   "background"  |         | x          |               |      |
+                   "pipe"        |         |            |               |      |
 
     :param output_return: in addition to writing the program's output to the
                           destinations above in real time, write to a buffer
@@ -336,11 +338,13 @@ def core(args, log_message, cmd, working_dir=None, output="log",
 
         output_timeout = output in ["log", "stdout"] and not disable_timeout
 
+        stdin = subprocess.DEVNULL if output == "log" else None
+
         (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,
                                                    output_timeout,
-                                                   sudo)
+                                                   sudo, stdin)
 
     # Check the return code
     if check is not False:
