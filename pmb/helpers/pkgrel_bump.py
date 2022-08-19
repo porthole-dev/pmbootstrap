@@ -34,7 +34,7 @@ def package(args, pkgname, reason="", dry=False):
     pmb.helpers.file.replace(path, old, new)
 
     # Verify
-    del(pmb.helpers.other.cache["apkbuild"][path])
+    del pmb.helpers.other.cache["apkbuild"][path]
     apkbuild = pmb.parse.apkbuild(path)
     if int(apkbuild["pkgrel"]) != pkgrel_new:
         raise RuntimeError("Failed to bump pkgrel for package '" + pkgname +

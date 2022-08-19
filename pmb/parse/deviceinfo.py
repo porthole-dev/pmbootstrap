@@ -106,7 +106,7 @@ def parse_kernel_suffix(args, info, device, kernel):
         # Move ret[key_kernel] to ret[key]
         logging.verbose(f"parse_kernel_suffix: {key_kernel} => {key}")
         ret[key] = ret[key_kernel]
-        del(ret[key_kernel])
+        del ret[key_kernel]
 
     return ret
 

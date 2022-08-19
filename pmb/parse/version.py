@@ -177,7 +177,7 @@ def get_token(previous, rest):
         value = -1
 
     # Get the next token (for non-leading zeros)
-    if(not len(rest)):
+    if not len(rest):
         next = "end"
     elif next == "invalid" and not invalid_suffix:
         (next, rest) = next_token(previous, rest)
