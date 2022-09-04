@@ -153,7 +153,8 @@ def menuconfig(args, pkgname, use_oldconfig):
     pmb.build.checksum.update(args, pkgname)
 
     # Check config
-    pmb.parse.kconfig.check(args, apkbuild["_flavor"], force_anbox_check=False,
+    pmb.parse.kconfig.check(args, apkbuild["_flavor"],
+                            force_waydroid_check=False,
                             force_nftables_check=False,
                             force_containers_check=False,
                             force_zram_check=False,

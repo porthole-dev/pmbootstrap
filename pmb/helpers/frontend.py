@@ -379,7 +379,7 @@ def kconfig(args):
         # Handle passing a file directly
         if args.file:
             if pmb.parse.kconfig.check_file(args.package,
-                                            anbox=args.anbox,
+                                            waydroid=args.waydroid,
                                             nftables=args.nftables,
                                             containers=args.containers,
                                             zram=args.zram,
@@ -415,7 +415,7 @@ def kconfig(args):
                     continue
             if not pmb.parse.kconfig.check(
                     args, package,
-                    force_anbox_check=args.anbox,
+                    force_waydroid_check=args.waydroid,
                     force_iwd_check=args.iwd,
                     force_nftables_check=args.nftables,
                     force_containers_check=args.containers,

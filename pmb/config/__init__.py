@@ -329,8 +329,8 @@ necessary_kconfig_options = {
     }
 }
 
-# Necessary anbox/waydroid kernel config options (android app support)
-necessary_kconfig_options_anbox = {
+# Necessary waydroid kernel config options (android app support)
+necessary_kconfig_options_waydroid = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "SQUASHFS": True,
@@ -354,12 +354,12 @@ necessary_kconfig_options_anbox = {
     },
     ">=3.5": {
         "all": {
-            "CROSS_MEMORY_ATTACH": True,  # required by Waydroid
+            "CROSS_MEMORY_ATTACH": True,
         }
     },
     ">=4.20.0": {
         "all": {
-            "PSI": True,  # required by userspace OOM killer in Waydroid
+            "PSI": True,  # required by userspace OOM killer
             "PSI_DEFAULT_DISABLED": False,
         }
     },
@@ -450,7 +450,7 @@ necessary_kconfig_options_containers = {
             "CPUSETS": True,
             "KEYS": True,
             "VETH": True,
-            "BRIDGE": True,  # (also needed for anbox)
+            "BRIDGE": True,  # (also needed for waydroid)
             "BRIDGE_NETFILTER": True,
             "IP_NF_FILTER": True,
             "IP_NF_TARGET_MASQUERADE": True,
@@ -517,7 +517,7 @@ necessary_kconfig_options_containers = {
     },
     ">=3.9": {
         "all": {  # all arches
-            "BRIDGE_VLAN_FILTERING": True,  # Network Drivers (also for anbox)
+            "BRIDGE_VLAN_FILTERING": True,  # Network Drivers (also for waydroid)
             "MACVLAN": True,  # Network Drivers
         }
     },
@@ -655,7 +655,7 @@ apkbuild_attributes = {
 apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
     "!pmb:kconfig-check",
-    "pmb:kconfigcheck-anbox",
+    "pmb:kconfigcheck-waydroid",
     "pmb:kconfigcheck-containers",
     "pmb:kconfigcheck-nftables",
     "pmb:cross-native",

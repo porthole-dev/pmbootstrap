@@ -31,11 +31,11 @@ def test_kconfig_check(args):
                                             "bad-missing-required-option")
     assert pmb.parse.kconfig.check_file(dir + "good")
     assert not pmb.parse.kconfig.check_file(dir + "bad-wrong-option-set")
-    assert pmb.parse.kconfig.check_file(dir + "good-anbox",
-                                        anbox=True)
+    assert pmb.parse.kconfig.check_file(dir + "good-waydroid",
+                                        waydroid=True)
     assert not pmb.parse.kconfig.check_file(dir +
                                             "bad-array-missing-some-options",
-                                            anbox=True)
+                                            waydroid=True)
     assert pmb.parse.kconfig.check_file(dir + "good-nftables",
                                         nftables=True)
     assert not pmb.parse.kconfig.check_file(dir + "bad-nftables",
@@ -56,12 +56,12 @@ def test_kconfig_check(args):
     # supports nftables (with pmb:kconfigcheck-nftables)
     assert pmb.parse.kconfig.check(args, "nokia-n900")
 
-    # supports Anbox (with pmb:kconfigcheck-anbox)
+    # supports Waydroid (with pmb:kconfigcheck-waydroid)
     assert pmb.parse.kconfig.check(args, "postmarketos-allwinner")
 
-    # testing the force param: nokia-n900 will never have anbox support
+    # testing the force param: nokia-n900 will never have waydroid support
     assert not pmb.parse.kconfig.check(args, "nokia-n900",
-                                       force_anbox_check=True)
+                                       force_waydroid_check=True)
 
     # supports zram (with pmb:kconfigcheck-zram), nftables
     assert pmb.parse.kconfig.check(args, "linux-purism-librem5")
