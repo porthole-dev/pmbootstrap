@@ -86,7 +86,6 @@ def check_option(component, details, config, config_path_pretty, option,
 
 def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  anbox=False,
-                 apparmor=False,
                  iwd=False,
                  nftables=False,
                  containers=False,
@@ -101,8 +100,6 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     components = {"postmarketOS": pmb.config.necessary_kconfig_options}
     if anbox:
         components["anbox"] = pmb.config.necessary_kconfig_options_anbox
-    if apparmor:
-        components["apparmor"] = pmb.config.necessary_kconfig_options_apparmor
     if iwd:
         components["iwd"] = pmb.config.necessary_kconfig_options_iwd
     if nftables:
@@ -160,7 +157,6 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
 
 def check(args, pkgname,
           force_anbox_check=False,
-          force_apparmor_check=False,
           force_iwd_check=False,
           force_nftables_check=False,
           force_containers_check=False,
@@ -190,8 +186,6 @@ def check(args, pkgname,
     pkgver = apkbuild["pkgver"]
     check_anbox = force_anbox_check or (
         "pmb:kconfigcheck-anbox" in apkbuild["options"])
-    check_apparmor = force_apparmor_check or (
-        "pmb:kconfigcheck-apparmor" in apkbuild["options"])
     check_iwd = force_iwd_check or (
         "pmb:kconfigcheck-iwd" in apkbuild["options"])
     check_nftables = force_nftables_check or (
@@ -223,7 +217,6 @@ def check(args, pkgname,
         ret &= check_config(config_path, config_path_pretty, config_arch,
                             pkgver,
                             anbox=check_anbox,
-                            apparmor=check_apparmor,
                             iwd=check_iwd,
                             nftables=check_nftables,
                             containers=check_containers,

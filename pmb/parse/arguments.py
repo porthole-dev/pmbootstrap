@@ -466,8 +466,6 @@ def arguments_kconfig(subparser):
                        " directly instead of a config in a package")
     check.add_argument("--anbox", action="store_true", help="check"
                        " options needed for anbox too")
-    check.add_argument("--apparmor", action="store_true", help="check"
-                       " options needed for apparmor too")
     check.add_argument("--iwd", action="store_true", help="check"
                        " options needed for iwd too")
     check.add_argument("--nftables", action="store_true", help="check"
