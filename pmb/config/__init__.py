@@ -499,7 +499,7 @@ necessary_kconfig_options_containers = {
             "DM_THIN_PROVISIONING": True,  # Storage Drivers
         },
         "x86 x86_64": {  # only for x86, x86_64 (and sparc64, ia64)
-            "CONFIG_HUGETLB_PAGE": True,
+            "HUGETLB_PAGE": True,
             "CGROUP_HUGETLB": True,  # Optional section
         }
     },
