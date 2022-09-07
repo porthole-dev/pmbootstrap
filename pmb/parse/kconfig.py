@@ -91,6 +91,7 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  containers=False,
                  zram=False,
                  netboot=False,
+                 community=False,
                  uefi=False,
                  details=False):
     logging.debug(f"Check kconfig: {config_path}")
@@ -110,6 +111,14 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     if zram:
         components["zram"] = pmb.config.necessary_kconfig_options_zram
     if netboot:
+        components["netboot"] = pmb.config.necessary_kconfig_options_netboot
+    if community:
+        components["anbox"] = pmb.config.necessary_kconfig_options_anbox
+        components["iwd"] = pmb.config.necessary_kconfig_options_iwd
+        components["nftables"] = pmb.config.necessary_kconfig_options_nftables
+        components["containers"] = \
+            pmb.config.necessary_kconfig_options_containers
+        components["zram"] = pmb.config.necessary_kconfig_options_zram
         components["netboot"] = pmb.config.necessary_kconfig_options_netboot
     if uefi:
         components["uefi"] = pmb.config.necessary_kconfig_options_uefi
@@ -162,6 +171,7 @@ def check(args, pkgname,
           force_containers_check=False,
           force_zram_check=False,
           force_netboot_check=False,
+          force_community_check=False,
           force_uefi_check=False,
           details=False,
           must_exist=True):
@@ -196,6 +206,8 @@ def check(args, pkgname,
         "pmb:kconfigcheck-zram" in apkbuild["options"])
     check_netboot = force_netboot_check or (
         "pmb:kconfigcheck-netboot" in apkbuild["options"])
+    check_community = force_community_check or (
+        "pmb:kconfigcheck-community" in apkbuild["options"])
     check_uefi = force_uefi_check or (
         "pmb:kconfigcheck-uefi" in apkbuild["options"])
     for config_path in glob.glob(aport + "/config-*"):
@@ -222,6 +234,7 @@ def check(args, pkgname,
                             containers=check_containers,
                             zram=check_zram,
                             netboot=check_netboot,
+                            community=check_community,
                             uefi=check_uefi,
                             details=details)
     return ret
@@ -260,8 +273,8 @@ def extract_version(config_file):
 
 
 def check_file(config_file, anbox=False, nftables=False,
-               containers=False, zram=False, netboot=False, uefi=False,
-               details=False):
+               containers=False, zram=False, netboot=False,
+               community=False, uefi=False, details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
@@ -277,5 +290,6 @@ def check_file(config_file, anbox=False, nftables=False,
                         containers=containers,
                         zram=zram,
                         netboot=netboot,
+                        community=community,
                         uefi=uefi,
                         details=details)
