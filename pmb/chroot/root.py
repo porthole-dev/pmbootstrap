@@ -64,6 +64,12 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
     for key, value in env.items():
         env_all[key] = value
 
+    # Preserve proxy environment variables
+    for var in ["FTP_PROXY", "ftp_proxy", "HTTP_PROXY", "http_proxy",
+                "HTTPS_PROXY", "https_proxy", "HTTP_PROXY_AUTH"]:
+        if var in os.environ:
+            env_all[var] = os.environ[var]
+
     # Build the command in steps and run it, e.g.:
     # cmd: ["echo", "test"]
     # cmd_chroot: ["/sbin/chroot", "/..._native", "/bin/sh", "-c", "echo test"]
