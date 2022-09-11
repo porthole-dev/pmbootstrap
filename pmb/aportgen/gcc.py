@@ -78,6 +78,9 @@ def generate(args, pkgname):
         # use CBUILDROOT as sysroot. In the original APKBUILD this is a local
         # variable, but we make it a global one.
         '*_cross_configure=*': None,
+
+        # Do not build foreign arch libgcc, we use the one from Alpine (#2168)
+        '_libgcc=true*': '_libgcc=false',
     }
 
     pmb.aportgen.core.rewrite(args, pkgname, based_on, fields,

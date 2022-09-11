@@ -53,7 +53,7 @@ replaces="libstdc++ binutils"
 : "${LANG_JIT:=true}"
 
 _libgomp=true
-_libgcc=true
+_libgcc=false
 _libatomic=true
 _libitm=true
 
