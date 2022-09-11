@@ -59,9 +59,9 @@ def test_kconfig_check(args):
     # supports Waydroid (with pmb:kconfigcheck-waydroid)
     assert pmb.parse.kconfig.check(args, "postmarketos-allwinner")
 
-    # testing the force param: nokia-n900 will never have waydroid support
+    # testing the force param: nokia-n900 will never need the uefi options
     assert not pmb.parse.kconfig.check(args, "nokia-n900",
-                                       force_waydroid_check=True)
+                                       force_uefi_check=True)
 
     # supports zram (with pmb:kconfigcheck-zram), nftables
     assert pmb.parse.kconfig.check(args, "linux-purism-librem5")
