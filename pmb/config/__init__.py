@@ -593,6 +593,7 @@ apkbuild_package_attributes = {
     "provides": {"array": True},
     "provider_priority": {"int": True},
     "install": {"array": True},
+    "triggers": {"array": True},
 
     # UI meta-packages can specify apps in "_pmb_recommends" to be explicitly
     # installed by default, and not implicitly as dependency of the UI meta-
