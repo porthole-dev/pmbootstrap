@@ -841,7 +841,7 @@ def arguments():
                        dest="no_depends")
     build.add_argument("--envkernel", action="store_true",
                        help="Create an apk package from the build output of"
-                       " a kernel compiled with envkernel.sh.")
+                       " a kernel compiled locally on the host or with envkernel.sh.")
     add_packages_arg(build, nargs="+")
 
     # Action: deviceinfo_parse
