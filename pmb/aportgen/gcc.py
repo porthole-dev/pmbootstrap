@@ -34,7 +34,7 @@ def generate(args, pkgname):
                              " gmp-dev mpfr-dev mpc1-dev zlib-dev",
         "makedepends_host": "linux-headers gmp-dev mpfr-dev mpc1-dev isl-dev"
                             f" zlib-dev musl-dev-{arch} binutils-{arch}",
-        "subpackages": f"g++-{arch}:gpp" if prefix == "gcc" else "",
+        "subpackages": "",
 
         # gcc6: options is already there, so we need to replace it and not only
         # set it below the header like done below.
@@ -45,6 +45,11 @@ def generate(args, pkgname):
         "LIBATOMIC": "false",
         "LIBITM": "false",
     }
+
+    # Latest gcc only, not gcc4 and gcc6
+    if prefix == "gcc":
+        fields["subpackages"] = f"g++-{arch}:gpp" \
+                                f" libstdc++-dev-{arch}:libcxx_dev"
 
     below_header = "CTARGET_ARCH=" + arch + """
         CTARGET="$(arch_to_hostspec ${CTARGET_ARCH})"
