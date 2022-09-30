@@ -649,6 +649,10 @@ apkbuild_attributes = {
     # git commit
     "_commit": {},
     "source": {"array": True},
+
+    # gcc
+    "_pkgbase": {},
+    "_pkgsnap": {}
 }
 
 # Reference: https://postmarketos.org/apkbuild-options
