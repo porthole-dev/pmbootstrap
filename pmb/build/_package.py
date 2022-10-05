@@ -227,6 +227,14 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
         pmb.chroot.distccd.start(args, arch)
     if cross == "crossdirect":
         pmb.chroot.mount_native_into_foreign(args, suffix)
+        # Workaround: this specific version currently in pmaports.git master
+        # was built with !tracedeps, so it doesn't pull in the isl dependency
+        # and we need to install it manually. Doing this is easier than bumping
+        # the pkgrel and going out of sync with Alpine's gcc package. This
+        # workaround can be removed once a newer gcc is in Alpine and we
+        # rebuild our cross gcc based on the new APKBUILD. See pmaports#1732.
+        if get_gcc_version(args, arch) == "12.2.1_git20220924-r2":
+            pmb.chroot.apk.install(args, ["isl25"], build=False)
 
     return True
 
