@@ -59,6 +59,7 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
                "HOME": "/root",
                "LANG": "UTF-8",
                "PATH": pmb.config.chroot_path,
+               "PYTHONUNBUFFERED": "1",
                "SHELL": "/bin/ash",
                "TERM": "xterm"}
     for key, value in env.items():
