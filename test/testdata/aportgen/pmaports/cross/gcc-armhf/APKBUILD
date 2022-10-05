@@ -10,7 +10,7 @@ LANG_JAVA=false
 LANG_GO=false
 LANG_FORTRAN=false
 LANG_ADA=false
-options="!strip !tracedeps"
+options="!strip"
 
 # abuild doesn't try to tries to install "build-base-$CTARGET_ARCH"
 # when this variable matches "no*"

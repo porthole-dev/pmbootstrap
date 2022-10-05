@@ -38,7 +38,7 @@ def generate(args, pkgname):
 
         # gcc6: options is already there, so we need to replace it and not only
         # set it below the header like done below.
-        "options": "!strip !tracedeps",
+        "options": "!strip",
 
         "LIBGOMP": "false",
         "LIBGCC": "false",
@@ -59,7 +59,7 @@ def generate(args, pkgname):
         LANG_GO=false
         LANG_FORTRAN=false
         LANG_ADA=false
-        options="!strip !tracedeps"
+        options="!strip"
 
         # abuild doesn't try to tries to install "build-base-$CTARGET_ARCH"
         # when this variable matches "no*"
