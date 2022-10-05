@@ -55,9 +55,9 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
 
     # Merge env with defaults into env_all
     env_all = {"CHARSET": "UTF-8",
-               "LANG": "UTF-8",
                "HISTFILE": "~/.ash_history",
                "HOME": "/root",
+               "LANG": "UTF-8",
                "PATH": pmb.config.chroot_path,
                "SHELL": "/bin/ash",
                "TERM": "xterm"}
