@@ -239,7 +239,6 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         depends.append("mkbootimg")
     if flash_method == "0xffff":
         depends.append("uboot-tools")
-    depends.append("mesa-dri-gallium")
 
     # Whole APKBUILD
     depends.sort()

@@ -129,7 +129,6 @@ def test_aportgen_device_wizard(args, monkeypatch):
     assert apkbuild["pkgname"] == "device-testsuite-testdevice"
     assert apkbuild["pkgdesc"] == "Testsuite Testdevice"
     assert apkbuild["depends"] == ["linux-testsuite-testdevice",
-                                   "mesa-dri-gallium",
                                    "postmarketos-base"]
 
     assert apkbuild_linux["pkgname"] == "linux-testsuite-testdevice"
@@ -166,7 +165,6 @@ def test_aportgen_device_wizard(args, monkeypatch):
     answers["Path"] = ""
     deviceinfo, apkbuild, apkbuild_linux = generate(args, monkeypatch, answers)
     assert apkbuild["depends"] == ["linux-testsuite-testdevice",
-                                   "mesa-dri-gallium",
                                    "mkbootimg",
                                    "postmarketos-base"]
 
@@ -177,7 +175,6 @@ def test_aportgen_device_wizard(args, monkeypatch):
     answers["Flash method"] = "0xffff"
     deviceinfo, apkbuild, apkbuild_linux = generate(args, monkeypatch, answers)
     assert apkbuild["depends"] == ["linux-testsuite-testdevice",
-                                   "mesa-dri-gallium",
                                    "postmarketos-base",
                                    "uboot-tools"]
 
