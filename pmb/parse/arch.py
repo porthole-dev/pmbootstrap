@@ -36,6 +36,7 @@ def from_chroot_suffix(args, suffix):
 def alpine_to_qemu(arch):
     """
     Convert the architecture to the string used in the QEMU packaging.
+    This corresponds to the package name of e.g. qemu-system-aarch64.
     """
 
     mapping = {
@@ -44,6 +45,7 @@ def alpine_to_qemu(arch):
         "armhf": "arm",
         "armv7": "arm",
         "aarch64": "aarch64",
+        "riscv64": "riscv64",
     }
     for pattern, arch_qemu in mapping.items():
         if fnmatch.fnmatch(arch, pattern):
@@ -78,6 +80,9 @@ def alpine_to_hostspec(arch):
         "armel": "armv5-alpine-linux-musleabi",
         "armhf": "armv6-alpine-linux-musleabihf",
         "armv7": "armv7-alpine-linux-musleabihf",
+        "loongarch32": "loongarch32-alpine-linux-musl",
+        "loongarchx32": "loongarchx32-alpine-linux-musl",
+        "loongarch64": "loongarch64-alpine-linux-musl",
         "mips": "mips-alpine-linux-musl",
         "mips64": "mips64-alpine-linux-musl",
         "mipsel": "mipsel-alpine-linux-musl",
@@ -85,6 +90,8 @@ def alpine_to_hostspec(arch):
         "ppc": "powerpc-alpine-linux-musl",
         "ppc64": "powerpc64-alpine-linux-musl",
         "ppc64le": "powerpc64le-alpine-linux-musl",
+        "riscv32": "riscv32-alpine-linux-musl",
+        "riscv64": "riscv64-alpine-linux-musl",
         "s390x": "s390x-alpine-linux-musl",
         "x86": "i586-alpine-linux-musl",
         "x86_64": "x86_64-alpine-linux-musl",

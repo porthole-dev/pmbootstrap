@@ -262,7 +262,7 @@ chroot_outdated = 3600 * 24 * 2
 # specify architectures supported by Alpine here. For cross-compiling,
 # we need to generate the "musl-$ARCH", "binutils-$ARCH" and "gcc-$ARCH"
 # packages (use "pmbootstrap aportgen musl-armhf" etc.).
-build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86"]
+build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86", "riscv64"]
 
 # Packages that will be installed in a chroot before it builds packages
 # for the first time
@@ -1004,7 +1004,7 @@ newapkbuild_arguments_switches_other = [
 # Patterns of package names to ignore for automatic pmaport upgrading
 # ("pmbootstrap aportupgrade --all")
 upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*",
-                  "*-aarch64", "*-armhf", "*-armv7"]
+                  "*-aarch64", "*-armhf", "*-armv7", "*-riscv64"]
 
 #
 # SIDELOAD
