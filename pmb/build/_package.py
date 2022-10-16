@@ -233,7 +233,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
         # the pkgrel and going out of sync with Alpine's gcc package. This
         # workaround can be removed once a newer gcc is in Alpine and we
         # rebuild our cross gcc based on the new APKBUILD. See pmaports#1732.
-        if get_gcc_version(args, arch) == "12.2.1_git20220924-r2":
+        if get_gcc_version(args, arch) == "12.2.1_git20220924-r3":
             pmb.chroot.apk.install(args, ["isl25"], build=False)
 
     return True
