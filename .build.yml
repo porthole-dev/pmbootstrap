@@ -1,0 +1,19 @@
+image: alpine/edge
+packages:
+  - sudo
+tasks:
+  - shellcheck: |
+      cd pmbootstrap
+      sudo .ci/shellcheck.sh
+  - flake8: |
+      cd pmbootstrap
+      sudo .ci/flake8.sh
+  - vermin: |
+      cd pmbootstrap
+      sudo .ci/vermin.sh
+  - pytest: |
+      cd pmbootstrap
+      sudo .ci/pytest.sh
+artifacts:
+  - ".local/var/pmbootstrap/log.txt"
+  - ".local/var/pmbootstrap/log_testsuite.txt"
