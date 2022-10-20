@@ -546,6 +546,19 @@ def arguments_netboot(subparser):
     return ret
 
 
+def arguments_ci(subparser):
+    ret = subparser.add_parser("ci", help="run continuous integration scripts"
+                                          " locally of git repo in current"
+                                          " directory")
+    ret.add_argument("-a", "--all", action="store_true",
+                     help="name of the CI script to run, depending on the git"
+                          " repository")
+    ret.add_argument("scripts", nargs="*", metavar="script",
+                     help="name of the CI script to run, depending on the git"
+                          " repository")
+    return ret
+
+
 def package_completer(prefix, action, parser=None, parsed_args=None):
     args = parsed_args
     pmb.config.merge_with_args(args)
@@ -693,6 +706,7 @@ def arguments():
     arguments_newapkbuild(sub)
     arguments_lint(sub)
     arguments_status(sub)
+    arguments_ci(sub)
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")

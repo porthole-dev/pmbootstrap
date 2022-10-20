@@ -246,3 +246,10 @@ def is_outdated(path):
 
     date_outdated = time.time() - pmb.config.git_repo_outdated
     return date_head <= date_outdated
+
+
+def get_topdir(args, path):
+    """ :returns: a string with the top dir of the git repository, or an
+                  empty string if it's not a git repository. """
+    return pmb.helpers.run.user(args, ["git", "rev-parse", "--show-toplevel"],
+                                path, output_return=True, check=False).rstrip()

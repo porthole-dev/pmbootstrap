@@ -12,6 +12,7 @@ import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.initfs
 import pmb.chroot.other
+import pmb.ci
 import pmb.config
 import pmb.export
 import pmb.flasher
@@ -623,3 +624,39 @@ def lint(args):
 def status(args):
     if not pmb.helpers.status.print_status(args, args.details):
         sys.exit(1)
+
+
+def ci(args):
+    topdir = pmb.helpers.git.get_topdir(args, os.getcwd())
+    if not os.path.exists(topdir):
+        logging.error("ERROR: change your current directory to a git"
+                      " repository (e.g. pmbootstrap, pmaports) before running"
+                      " 'pmbootstrap ci'.")
+        exit(1)
+
+    scripts_available = pmb.ci.get_ci_scripts(topdir)
+    scripts_available = pmb.ci.sort_scripts_by_speed(scripts_available)
+    if not scripts_available:
+        logging.error("ERROR: no supported CI scripts found in current git"
+                      " repository, see https://postmarketos.org/pmb-ci")
+        exit(1)
+
+    scripts_selected = {}
+    if args.scripts:
+        for script in args.scripts:
+            if script not in scripts_available:
+                logging.error(f"ERROR: script '{script}' not found in git"
+                              " repository, found these:"
+                              f" {', '.join(scripts_available.keys())}")
+                exit(1)
+            scripts_selected[script] = scripts_available[script]
+    elif args.all:
+        scripts_selected = scripts_available
+
+    if not pmb.helpers.git.clean_worktree(args, topdir):
+        logging.warning("WARNING: this git repository has uncommitted changes")
+
+    if not scripts_selected:
+        scripts_selected = pmb.ci.ask_which_scripts_to_run(scripts_available)
+
+    pmb.ci.run_scripts(args, topdir, scripts_selected)
