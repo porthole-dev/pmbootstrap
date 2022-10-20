@@ -9,13 +9,13 @@ import sys
 import pmb.aportgen
 import pmb.build
 import pmb.build.autodetect
-import pmb.sideload
 import pmb.chroot
 import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.config
 import pmb.export
 import pmb.flasher
+import pmb.helpers.aportupgrade
 import pmb.helpers.devices
 import pmb.helpers.git
 import pmb.helpers.lint
@@ -25,13 +25,13 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.repo_missing
 import pmb.helpers.run
-import pmb.helpers.aportupgrade
 import pmb.helpers.status
 import pmb.install
 import pmb.install.blockdevice
 import pmb.netboot
 import pmb.parse
 import pmb.qemu
+import pmb.sideload
 
 
 def _parse_flavor(args, autoinstall=True):
