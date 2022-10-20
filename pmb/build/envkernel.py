@@ -144,7 +144,7 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     flag_file = "envkernel-bind-mounted"
     host_build = False
 
-    if not os.path.ismount(chroot + "/mnt/linux"):
+    if not pmb.helpers.mount.ismount(chroot + "/mnt/linux"):
         logging.info("envkernel.sh hasn't run, assuming the kernel was cross compiled"
                      "on host and using current dir as source")
         host_build = True
