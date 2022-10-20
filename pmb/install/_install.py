@@ -694,6 +694,74 @@ def get_partition_layout(reserve, kernel):
     return ret
 
 
+def get_uuid(args, partition):
+    """
+    Get UUID of a partition
+
+    :param partition: block device for getting UUID from
+    """
+    return pmb.chroot.root(
+        args,
+        [
+            "blkid",
+            "-s", "UUID",
+            "-o", "value",
+            partition,
+        ],
+        output_return=True
+    ).rstrip()
+
+
+def create_crypttab(args, layout, suffix):
+    """
+    Create /etc/crypttab config
+
+    :param layout: partition layout from get_partition_layout()
+    :param suffix: of the chroot, which crypttab will be created to
+    """
+
+    luks_uuid = get_uuid(args, f"/dev/installp{layout['root']}")
+
+    crypttab = f"root UUID={luks_uuid} none luks\n"
+
+    open(f"{args.work}/chroot_{suffix}/tmp/crypttab", "w").write(crypttab)
+    pmb.chroot.root(args, ["mv", "/tmp/crypttab", "/etc/crypttab"], suffix)
+
+
+def create_fstab(args, layout, suffix):
+    """
+    Create /etc/fstab config
+
+    :param layout: partition layout from get_partition_layout()
+    :param suffix: of the chroot, which fstab will be created to
+    """
+
+    # Do not install fstab into target rootfs when using on-device
+    # installer. Provide fstab only to installer suffix
+    if args.on_device_installer and "rootfs_" in suffix:
+        return
+
+    boot_dev = f"/dev/installp{layout['boot']}"
+    root_dev = f"/dev/installp{layout['root']}"
+
+    boot_mount_point = f"UUID={get_uuid(args, boot_dev)}"
+    root_mount_point = "/dev/mapper/root" if args.full_disk_encryption \
+        else f"UUID={get_uuid(args, root_dev)}"
+
+    boot_filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
+    root_filesystem = pmb.install.get_root_filesystem(args)
+
+    fstab = f"""
+# <file system> <mount point> <type> <options> <dump> <pass>
+{root_mount_point} / {root_filesystem} defaults 0 0
+{boot_mount_point} /boot {boot_filesystem} defaults 0 0
+""".lstrip()
+
+    with open(f"{args.work}/chroot_{suffix}/tmp/fstab", "w") as f:
+        f.write(fstab)
+    pmb.chroot.root(args, ["mv", "/tmp/fstab", "/etc/fstab"], suffix)
+
+
 def install_system_image(args, size_reserve, suffix, step, steps,
                          boot_label="pmOS_boot", root_label="pmOS_root",
                          split=False, sdcard=None):
@@ -727,6 +795,21 @@ def install_system_image(args, size_reserve, suffix, step, steps,
         pmb.install.partitions_mount(args, layout, sdcard)
 
     pmb.install.format(args, layout, boot_label, root_label, sdcard)
+
+    # Create /etc/fstab and /etc/crypttab
+    logging.info("(native) create /etc/fstab")
+    create_fstab(args, layout, suffix)
+    if args.full_disk_encryption:
+        logging.info("(native) create /etc/crypttab")
+        create_crypttab(args, layout, suffix)
+
+    # Run mkinitfs to pass UUIDs to cmdline
+    logging.info(f"({suffix}) mkinitfs")
+    pmb.chroot.root(args, ["mkinitfs"], suffix)
+
+    # Clean up after running mkinitfs in chroot
+    pmb.helpers.mount.umount_all(args, f"{args.work}/chroot_{suffix}")
+    pmb.helpers.run.root(args, ["rm", f"{args.work}/chroot_{suffix}/in-pmbootstrap"])
 
     # Just copy all the files
     logging.info(f"*** ({step + 1}/{steps}) FILL INSTALL BLOCKDEVICE ***")
