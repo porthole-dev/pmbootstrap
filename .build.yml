@@ -2,6 +2,8 @@ image: alpine/edge
 packages:
   - sudo
 tasks:
+  - note: |
+      pmbootstrap/.ci/note.sh
   - shellcheck: |
       cd pmbootstrap
       sudo .ci/shellcheck.sh
