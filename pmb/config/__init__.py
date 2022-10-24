@@ -495,12 +495,16 @@ necessary_kconfig_options_containers = {
     ">=3.6": {
         "all": {  # all arches
             "MEMCG": True,
-            "MEMCG_SWAP": True,
             "DM_THIN_PROVISIONING": True,  # Storage Drivers
         },
         "x86 x86_64": {  # only for x86, x86_64 (and sparc64, ia64)
             "HUGETLB_PAGE": True,
             "CGROUP_HUGETLB": True,  # Optional section
+        }
+    },
+    ">=3.6 <6.1": {  # option has been dropped
+        "all": {
+            "MEMCG_SWAP": True,
         }
     },
     ">=3.7 <5.0": {
