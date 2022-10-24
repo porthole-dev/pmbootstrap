@@ -363,7 +363,7 @@ necessary_kconfig_options_waydroid = {
             "PSI_DEFAULT_DISABLED": False,
         }
     },
-    "<5.18_rc1": {  # option has been dropped
+    "<5.18": {  # option has been dropped
         "all": {
             "ASHMEM": True,
         }
@@ -426,7 +426,7 @@ necessary_kconfig_options_nftables = {
             "IP6_NF_NAT": True,
         }
     },
-    ">=3.13.0 <5.17_rc1": {  # option has been dropped
+    ">=3.13.0 <5.17": {  # option has been dropped
         "all": {  # all arches
             "NFT_COUNTER": True,
         },
