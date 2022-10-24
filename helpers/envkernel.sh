@@ -405,7 +405,7 @@ main() {
 
 # Print fish alias syntax (when called from envkernel.fish)
 fish_compat() {
-	[ "$1" = "--fish" ] || return
+	[ "$1" = "--fish" ] || return 0
 	for name in make kernelroot pmbootstrap pmbroot; do
 		echo "alias $(alias $name | sed 's/=/ /')"
 	done
