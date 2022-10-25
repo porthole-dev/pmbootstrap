@@ -7,6 +7,7 @@ Sophisticated chroot/build/flash tool to develop and install
 
 pmbootstrap is being developed on SourceHut
 ([what](https://postmarketos.org/blog/2022/07/25/considering-sourcehut/)):
+
 https://git.sr.ht/~postmarketos/pmbootstrap
 
 Send patches via mail or web UI to
