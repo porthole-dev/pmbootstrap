@@ -26,6 +26,11 @@ Run a single test file:
 $ pytest -vv ./test/test_keys.py
 ```
 
+## Issues
+
+Issues are being tracked
+[here](https://gitlab.com/postmarketOS/pmbootstrap/-/issues).
+
 ## Requirements
 * Linux distribution on the host system (`x86`, `x86_64`, or `aarch64`)
   * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
