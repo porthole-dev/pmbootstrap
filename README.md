@@ -1,15 +1,10 @@
 # pmbootstrap
-[**Introduction**](https://postmarketos.org/blog/2017/05/26/intro/) | [**Security Warning**](https://ollieparanoid.github.io/post/security-warning/) | [**Devices**](https://wiki.postmarketos.org/wiki/Devices)
 
 Sophisticated chroot/build/flash tool to develop and install [postmarketOS](https://postmarketos.org).
 
-Package build scripts live in the [`pmaports`](https://gitlab.com/postmarketOS/pmaports) repository now.
-
 ## Requirements
-* 2 GB of RAM recommended for compiling
 * Linux distribution on the host system (`x86`, `x86_64`, or `aarch64`)
   * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) does **not** work! Please use [VirtualBox](https://www.virtualbox.org/) instead.
-  * Kernels based on the grsec patchset [do **not** work](https://github.com/postmarketOS/pmbootstrap/issues/107)
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
 * Python 3.6+
 * OpenSSL
