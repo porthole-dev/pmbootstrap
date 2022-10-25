@@ -1,17 +1,25 @@
 # pmbootstrap
 
-Sophisticated chroot/build/flash tool to develop and install [postmarketOS](https://postmarketos.org).
+Sophisticated chroot/build/flash tool to develop and install
+[postmarketOS](https://postmarketos.org).
 
 ## Requirements
 * Linux distribution on the host system (`x86`, `x86_64`, or `aarch64`)
-  * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) does **not** work! Please use [VirtualBox](https://www.virtualbox.org/) instead.
+  * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
+    does **not** work! Please use [VirtualBox](https://www.virtualbox.org/) instead.
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
 * Python 3.6+
 * OpenSSL
 * git
 
 ## Usage Examples
-Please refer to the [postmarketOS wiki](https://wiki.postmarketos.org) for in-depth coverage of topics such as [porting to a new device](https://wiki.postmarketos.org/wiki/Porting_to_a_new_device) or [installation](https://wiki.postmarketos.org/wiki/Installation_guide). The help output (`pmbootstrap -h`) has detailed usage instructions for every command. Read on for some generic examples of what can be done with `pmbootstrap`.
+Please refer to the [postmarketOS wiki](https://wiki.postmarketos.org) for
+in-depth coverage of topics such as
+[porting to a new device](https://wiki.postmarketos.org/wiki/Porting_to_a_new_device)
+or [installation](https://wiki.postmarketos.org/wiki/Installation_guide). The
+help output (`pmbootstrap -h`) has detailed usage instructions for every
+command. Read on for some generic examples of what can be done with
+`pmbootstrap`.
 
 ### Installing pmbootstrap
 <https://wiki.postmarketos.org/wiki/Installing_pmbootstrap>
@@ -75,7 +83,9 @@ $ pmbootstrap zap
 ```
 
 ### Device Porting Assistance
-Analyze Android [`boot.img`](https://wiki.postmarketos.org/wiki/Glossary#boot.img) files (also works with recovery OS images like TWRP):
+Analyze Android
+[`boot.img`](https://wiki.postmarketos.org/wiki/Glossary#boot.img) files (also
+works with recovery OS images like TWRP):
 ```
 $ pmbootstrap bootimg_analyze ~/Downloads/twrp-3.2.1-0-fp2.img
 ```
@@ -139,12 +149,14 @@ List pmaports that don't have a binary package:
 $ pmbootstrap repo_missing --arch=armhf --overview
 ```
 
-Increase the `pkgrel` for each aport where the binary package has outdated dependencies (e.g. after soname bumps):
+Increase the `pkgrel` for each aport where the binary package has outdated
+dependencies (e.g. after soname bumps):
 ```
 $ pmbootstrap pkgrel_bump --auto
 ```
 
-Generate cross-compiler aports based on the latest version from Alpine's aports:
+Generate cross-compiler aports based on the latest version from Alpine's
+aports:
 ```
 $ pmbootstrap aportgen binutils-armhf gcc-armhf
 ```
@@ -194,18 +206,20 @@ $ pmbootstrap log_distccd
 
 pmbootstrap supports `doas` and `sudo`.
 If multiple sudo implementations are installed, pmbootstrap will use `doas`.
-You can set the `PMB_SUDO` environmental variable to define the sudo implementation you want to use.
+You can set the `PMB_SUDO` environmental variable to define the sudo
+implementation you want to use.
 
 ### Select SSH keys to include and make authorized in new images
 
-If the config file option `ssh_keys` is set to `True` (it defaults to `False`), then all files
-matching the glob `~/.ssh/id_*.pub` will be placed in `~/.ssh/authorized_keys` in the user's
-home directory in newly-built images.
+If the config file option `ssh_keys` is set to `True` (it defaults to `False`),
+then all files matching the glob `~/.ssh/id_*.pub` will be placed in
+`~/.ssh/authorized_keys` in the user's home directory in newly-built images.
 
-Sometimes, for example if you have a large number of SSH keys, you may wish to select a
-different set of public keys to include in an image. To do this, set the `ssh_key_glob`
-configuration parameter in the pmbootstrap config file to a string containing a glob that is to
-match the file or files you wish to include.
+Sometimes, for example if you have a large number of SSH keys, you may wish to
+select a different set of public keys to include in an image. To do this, set
+the `ssh_key_glob` configuration parameter in the pmbootstrap config file to a
+string containing a glob that is to match the file or files you wish to
+include.
 
 For example, a `~/.config/pmbootstrap.cfg` may contain:
 
