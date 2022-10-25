@@ -496,6 +496,7 @@ necessary_kconfig_options_containers = {
         "all": {  # all arches
             "MEMCG": True,
             "DM_THIN_PROVISIONING": True,  # Storage Drivers
+            "SWAP": True,
         },
         "x86 x86_64": {  # only for x86, x86_64 (and sparc64, ia64)
             "HUGETLB_PAGE": True,
