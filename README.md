@@ -11,7 +11,8 @@ pmbootstrap is being developed on SourceHut
 https://git.sr.ht/~postmarketos/pmbootstrap
 
 Send patches via mail or web UI to
-[pmbootstrap-devel](https://lists.sr.ht/~postmarketos/pmbootstrap-devel):
+[pmbootstrap-devel](https://lists.sr.ht/~postmarketos/pmbootstrap-devel)
+([subscribe](mailto:~postmarketos/pmbootstrap-devel+subscribe@lists.sr.ht)):
 ```
 ~postmarketos/pmbootstrap-devel@lists.sr.ht
 ```
