@@ -3,6 +3,28 @@
 Sophisticated chroot/build/flash tool to develop and install
 [postmarketOS](https://postmarketos.org).
 
+## Development
+
+pmbootstrap is being developed on SourceHut
+([what](https://postmarketos.org/blog/2022/07/25/considering-sourcehut/)):
+https://git.sr.ht/~postmarketos/pmbootstrap
+
+Send patches via mail or web UI to
+[pmbootstrap-devel](https://lists.sr.ht/~postmarketos/pmbootstrap-devel):
+```
+~postmarketos/pmbootstrap-devel@lists.sr.ht
+```
+
+Run CI scripts locally with:
+```
+$ pmbootstrap ci
+```
+
+Run a single test file:
+```
+$ pytest -vv ./test/test_keys.py
+```
+
 ## Requirements
 * Linux distribution on the host system (`x86`, `x86_64`, or `aarch64`)
   * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
@@ -228,40 +250,6 @@ For example, a `~/.config/pmbootstrap.cfg` may contain:
     ssh_keys = True
     ssh_key_glob = ~/.ssh/postmarketos-dev.pub
     # ...
-
-## Development
-### Requirements for running tests
-* [Shellcheck](https://shellcheck.net/)
-
-You also need to install the following python packages (pip can be useful if you distribution hasn't got them packaged):
-* `pytest`
-* `pytest-cov`
-* `flake8`
-
-On Alpine Linux it can be done with:
-```shell
-$ sudo apk add grep shellcheck py3-pytest py3-pytest-cov py3-flake8
-```
-
-### Running linters
-The easiest way is to run the same script CI runs:
-```shell
-$ ./test/static_code_analysis.sh
-```
-
-### Running tests
-You can now run `pytest -vv` inside the pmbootstrap folder to run all available tests.
-
-CI runs slightly reduces set of tests (it skips tests that require running qemu) by this:
-```shell
-$ .ci/pytest.sh
-```
-This is the easiest way to do the same as CI.
-
-Alternatively you can run a single test file if you wish:
-```shell
-$ pytest -vv ./test/test_keys.py
-```
 
 ## License
 [GPLv3](LICENSE)
