@@ -17,6 +17,12 @@ Send patches via mail or web UI to
 ~postmarketos/pmbootstrap-devel@lists.sr.ht
 ```
 
+You can set the default values for sending email in the git checkout
+```
+$ git config sendemail.to "~postmarketos/pmbootstrap-devel@lists.sr.ht"
+$ git config format.subjectPrefix "PATCH pmbootstrap"
+```
+
 Run CI scripts locally with:
 ```
 $ pmbootstrap ci
