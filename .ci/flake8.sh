@@ -11,8 +11,7 @@ fi
 # E402: module import not on top of file, not possible for testcases
 # E722: do not use bare except
 # W504: line break occurred after a binary operator
-# W604: invalid escape sequence
-ign="E402,E722,W504,W605"
+ign="E402,E722,W504"
 
 set -x
 
