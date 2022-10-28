@@ -1,6 +1,8 @@
 image: alpine/edge
 packages:
   - sudo
+sources:
+  - https://git.sr.ht/~postmarketos/pmbootstrap
 tasks:
   - note: |
       pmbootstrap/.ci/note.sh
