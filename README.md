@@ -46,6 +46,8 @@ Issues are being tracked
 * Python 3.6+
 * OpenSSL
 * git
+* ps
+* tar
 
 ## Usage Examples
 Please refer to the [postmarketOS wiki](https://wiki.postmarketos.org) for
