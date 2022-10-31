@@ -111,10 +111,15 @@ def copy_git_repo_to_chroot(args, topdir):
                        pmb.helpers.git.get_topdir() """
     pmb.chroot.init(args)
     tarball_path = f"{args.work}/chroot_native/tmp/git.tar.gz"
+    files = pmb.helpers.git.get_files(args, topdir)
 
-    cmd = "(git ls-files && git ls-files --exclude-standard --other)"
-    cmd += f" | tar -cf {shlex.quote(tarball_path)} -T -"
-    pmb.helpers.run.user(args, ["sh", "-c", cmd], topdir)
+    with open(f"{tarball_path}.files", "w") as handle:
+        for file in files:
+            handle.write(file)
+            handle.write("\n")
+
+    pmb.helpers.run.user(args, ["tar", "-cf", tarball_path, "-T",
+                                f"{tarball_path}.files"], topdir)
 
     ci_dir = "/home/pmos/ci"
     pmb.chroot.user(args, ["rm", "-rf", ci_dir])

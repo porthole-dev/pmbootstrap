@@ -253,3 +253,22 @@ def get_topdir(args, path):
                   empty string if it's not a git repository. """
     return pmb.helpers.run.user(args, ["git", "rev-parse", "--show-toplevel"],
                                 path, output_return=True, check=False).rstrip()
+
+
+def get_files(args, path):
+    """ Get all files inside a git repository, that are either already in the
+        git tree or are not in gitignore. Do not list deleted files. To be used
+        for creating a tarball of the git repository.
+        :param path: top dir of the git repository
+        :returns: all files in a git repository as list, relative to path """
+    ret = []
+    files = pmb.helpers.run.user(args, ["git", "ls-files"], path,
+                                 output_return=True).split("\n")
+    files += pmb.helpers.run.user(args, ["git", "ls-files",
+                                  "--exclude-standard", "--other"], path,
+                                  output_return=True).split("\n")
+    for file in files:
+        if os.path.exists(f"{path}/{file}"):
+            ret += [file]
+
+    return ret
