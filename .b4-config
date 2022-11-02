@@ -3,7 +3,7 @@
 
 [b4]
   midmask = https://lists.sr.ht/~postmarketos/pmbootstrap-devel/%s
-  linkmask = https://lists.sr.ht/~postmarketos/pmbootstrap-devel/<%s>
+  linkmask = https://lists.sr.ht/~postmarketos/pmbootstrap-devel/%%3C%s%%3E
   send-series-to = ~postmarketos/pmbootstrap-devel@lists.sr.ht
   send-endpoint-web = NONE
   backend = sourcehut
