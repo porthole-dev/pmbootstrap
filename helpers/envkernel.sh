@@ -168,8 +168,10 @@ initialize_chroot() {
 		musl-dev \
 		ncurses-dev \
 		perl \
+		py3-dt-schema \
 		sed \
 		yaml-dev \
+		yaml-lint \
 		xz || return 1
 
 	# Create /mnt/linux
