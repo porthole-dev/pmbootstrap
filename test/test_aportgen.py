@@ -127,6 +127,4 @@ def test_aportgen_get_upstream_aport(args, monkeypatch):
     # APKBUILD > binary
     apkbuild = {"pkgver": "3.0", "pkgrel": "0"}
     package = {"version": "2.0-r0"}
-    with pytest.raises(RuntimeError) as e:
-        func(args, upstream)
-    assert str(e.value).startswith("You can force an update of your binary")
+    assert func(args, upstream) == upstream_full

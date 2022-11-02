@@ -205,16 +205,18 @@ def get_upstream_aport(args, pkgname, arch=None):
     if compare == 0:
         return aport_path
 
-    # Different version message
-    logging.error("ERROR: Package '" + pkgname + "' has a different version in"
+    # APKBUILD > binary: this is fine
+    if compare == 1:
+        logging.info(f"NOTE: {pkgname} {arch} binary package has a lower"
+                     f" version {package['version']} than the APKBUILD"
+                     f" {apkbuild_version}")
+        return aport_path
+
+    # APKBUILD < binary: aports.git is outdated
+    logging.error("ERROR: Package '" + pkgname + "' has a lower version in"
                   " local checkout of Alpine's aports (" + apkbuild_version +
                   ") compared to Alpine's binary package (" +
                   package["version"] + ")!")
 
-    # APKBUILD < binary
-    if compare == -1:
-        raise RuntimeError("You can update your local checkout with: "
-                           "'pmbootstrap pull'")
-    # APKBUILD > binary
-    raise RuntimeError("You can force an update of your binary package"
-                       " APKINDEX files with: 'pmbootstrap update'")
+    raise RuntimeError("You can update your local checkout with: "
+                       "'pmbootstrap pull'")
