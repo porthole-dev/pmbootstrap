@@ -576,6 +576,51 @@ necessary_kconfig_options_netboot = {
     },
 }
 
+# Necessary wireguard & wg-quick kernel config options
+# From https://gitweb.gentoo.org/repo/gentoo.git/tree/net-vpn/wireguard-tools/wireguard-tools-1.0.20210914.ebuild?id=76aaa1eeb6f001baaa68e6946f917ebb091bbd9d # noqa
+necessary_kconfig_options_wireguard = {
+    ">=5.6_rc1": {  # all versions
+        "all": {  # all arches
+            "WIREGUARD": True,
+            "IP_ADVANCED_ROUTER": True,
+            "IP_MULTIPLE_TABLES": True,
+            "IPV6_MULTIPLE_TABLES": True,
+            "NF_TABLES": True,
+            "NF_TABLES_IPV4": True,
+            "NF_TABLES_IPV6": True,
+            "NFT_CT": True,
+            "NFT_FIB": True,
+            "NFT_FIB_IPV4": True,
+            "NFT_FIB_IPV6": True,
+            "NF_CONNTRACK_MARK": True,
+        },
+    },
+}
+
+# Necessary file system config options
+necessary_kconfig_options_filesystems = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "BTRFS_FS": True,
+            "EXFAT_FS": True,
+            "EXT4_FS": True,
+            "F2FS_FS": True,
+        },
+    },
+}
+
+# Various other kernel config options
+necessary_kconfig_options_community = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            "INPUT_UINPUT": True,  # buffyboard
+            "LEDS_TRIGGER_TIMER": True,  # hfd-service
+            "NETFILTER_XT_MATCH_TCPMSS": True,  # change MTU, e.g. for Wireguard
+            "NETFILTER_XT_TARGET_TCPMSS": True,  # change MTU, e.g. for Wireguard
+        },
+    },
+}
+
 # Necessary UEFI boot config options
 necessary_kconfig_options_uefi = {
     ">=0.0.0": {  # all versions

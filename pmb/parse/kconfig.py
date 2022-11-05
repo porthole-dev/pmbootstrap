@@ -120,6 +120,9 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
             pmb.config.necessary_kconfig_options_containers
         components["zram"] = pmb.config.necessary_kconfig_options_zram
         components["netboot"] = pmb.config.necessary_kconfig_options_netboot
+        components["wireguard"] = pmb.config.necessary_kconfig_options_wireguard
+        components["filesystems"] = pmb.config.necessary_kconfig_options_filesystems
+        components["community"] = pmb.config.necessary_kconfig_options_community
     if uefi:
         components["uefi"] = pmb.config.necessary_kconfig_options_uefi
 
