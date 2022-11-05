@@ -170,8 +170,8 @@ initialize_chroot() {
 		perl \
 		py3-dt-schema \
 		sed \
+		yamllint \
 		yaml-dev \
-		yaml-lint \
 		xz || return 1
 
 	# Create /mnt/linux
