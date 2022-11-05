@@ -93,7 +93,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
                  netboot=False,
                  community=False,
                  uefi=False,
-                 details=False):
+                 details=False,
+                 enforce_check=True):
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
@@ -126,10 +127,16 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     if uefi:
         components["uefi"] = pmb.config.necessary_kconfig_options_uefi
 
-    results = [check_config_options_set(config, config_path_pretty,
-                                        config_arch, options, component,
-                                        pkgver, details)
-               for component, options in components.items()]
+    results = []
+    for component, options in components.items():
+        result = check_config_options_set(config, config_path_pretty,
+                                          config_arch, options, component,
+                                          pkgver, details)
+        # We always enforce "postmarketOS" component and when explicitly
+        # requested
+        if enforce_check or component == "postmarketOS":
+            results += [result]
+
     return all(results)
 
 
@@ -197,6 +204,10 @@ def check(args, pkgname,
         return None
     apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     pkgver = apkbuild["pkgver"]
+
+    # We only enforce optional checks for community & main devices
+    enforce_check = aport.split("/")[-2] in ["community", "main"]
+
     check_waydroid = force_waydroid_check or (
         "pmb:kconfigcheck-waydroid" in apkbuild["options"])
     check_iwd = force_iwd_check or (
@@ -239,7 +250,8 @@ def check(args, pkgname,
                             netboot=check_netboot,
                             community=check_community,
                             uefi=check_uefi,
-                            details=details)
+                            details=details,
+                            enforce_check=enforce_check)
     return ret
 
 
