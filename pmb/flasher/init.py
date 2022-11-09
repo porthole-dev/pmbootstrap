@@ -5,8 +5,7 @@ import pmb.chroot.apk
 import pmb.helpers.mount
 
 
-def init(args):
-    # Validate method
+def install_depends(args):
     if hasattr(args, 'flash_method'):
         method = args.flash_method or args.deviceinfo["flash_method"]
     else:
@@ -21,9 +20,11 @@ def init(args):
                            " package it yourself, and then add it to"
                            " pmb/config/__init__.py.")
     cfg = pmb.config.flashers[method]
-
-    # Install depends
     pmb.chroot.apk.install(args, cfg["depends"])
+
+
+def init(args):
+    install_depends(args)
 
     # Mount folders from host system
     for folder in pmb.config.flash_mount_bind:
