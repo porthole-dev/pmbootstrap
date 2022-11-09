@@ -1,7 +1,8 @@
 # Copyright 2022 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import pmb.config
 import pmb.chroot.apk
+import pmb.config
+import pmb.config.pmaports
 import pmb.helpers.mount
 
 
@@ -19,8 +20,16 @@ def install_depends(args):
                            "Make sure, it is packaged for Alpine Linux, or"
                            " package it yourself, and then add it to"
                            " pmb/config/__init__.py.")
-    cfg = pmb.config.flashers[method]
-    pmb.chroot.apk.install(args, cfg["depends"])
+    depends = pmb.config.flashers[method]["depends"]
+
+    # Depends for some flash methods may be different for various pmaports
+    # branches, so read them from pmaports.cfg.
+    if method == "fastboot":
+        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        depends = pmaports_cfg.get("supported_fastboot_depends",
+                                   "android-tools,avbtool").split(",")
+
+    pmb.chroot.apk.install(args, depends)
 
 
 def init(args):

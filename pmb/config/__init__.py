@@ -829,7 +829,7 @@ uuu specific: $UUU_SCRIPT
 """
 flashers = {
     "fastboot": {
-        "depends": ["android-tools", "avbtool"],
+        "depends": [],  # pmaports.cfg: supported_fastboot_depends
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
             "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
