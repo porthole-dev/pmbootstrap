@@ -551,8 +551,7 @@ def arguments_ci(subparser):
                                           " locally of git repo in current"
                                           " directory")
     ret.add_argument("-a", "--all", action="store_true",
-                     help="name of the CI script to run, depending on the git"
-                          " repository")
+                     help="run all scripts")
     ret.add_argument("scripts", nargs="*", metavar="script",
                      help="name of the CI script to run, depending on the git"
                           " repository")
