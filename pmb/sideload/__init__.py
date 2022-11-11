@@ -52,7 +52,7 @@ def ssh_install_apks(args, user, host, port, paths):
 
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
-               '-S', 'apk', 'add'] + remote_paths
+               '-S', 'apk', '--wait', '30', 'add'] + remote_paths
     add_cmd = pmb.helpers.run.flat_cmd(add_cmd)
     clean_cmd = pmb.helpers.run.flat_cmd(['rm'] + remote_paths)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',
