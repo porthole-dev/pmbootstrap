@@ -643,6 +643,9 @@ def ci(args):
 
     scripts_selected = {}
     if args.scripts:
+        if args.all:
+            raise RuntimeError("Combining --all with script names doesn't"
+                               " make sense")
         for script in args.scripts:
             if script not in scripts_available:
                 logging.error(f"ERROR: script '{script}' not found in git"
