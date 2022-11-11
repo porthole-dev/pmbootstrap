@@ -550,8 +550,11 @@ def arguments_ci(subparser):
     ret = subparser.add_parser("ci", help="run continuous integration scripts"
                                           " locally of git repo in current"
                                           " directory")
-    ret.add_argument("-a", "--all", action="store_true",
-                     help="run all scripts")
+    script_args = ret.add_mutually_exclusive_group()
+    script_args.add_argument("-a", "--all", action="store_true",
+                             help="run all scripts")
+    script_args.add_argument("-f", "--fast", action="store_true",
+                             help="run fast scripts only")
     ret.add_argument("scripts", nargs="*", metavar="script",
                      help="name of the CI script to run, depending on the git"
                           " repository")

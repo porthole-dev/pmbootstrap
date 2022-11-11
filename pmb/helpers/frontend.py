@@ -656,6 +656,11 @@ def ci(args):
     elif args.all:
         scripts_selected = scripts_available
 
+    if args.fast:
+        for script, script_data in scripts_available.items():
+            if "slow" not in script_data["options"]:
+                scripts_selected[script] = script_data
+
     if not pmb.helpers.git.clean_worktree(args, topdir):
         logging.warning("WARNING: this git repository has uncommitted changes")
 
