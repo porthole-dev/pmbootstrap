@@ -28,6 +28,10 @@ def install_depends(args):
         pmaports_cfg = pmb.config.pmaports.read_config(args)
         depends = pmaports_cfg.get("supported_fastboot_depends",
                                    "android-tools,avbtool").split(",")
+    elif method == "heimdall-bootimg":
+        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        depends = pmaports_cfg.get("supported_heimdall_depends",
+                                   "heimdall,avbtool").split(",")
 
     pmb.chroot.apk.install(args, depends)
 

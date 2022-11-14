@@ -936,7 +936,7 @@ flashers = {
     # Some Samsung devices need a 'boot.img' file, just like the one generated
     # fastboot compatible devices. Example: s7562, n7100
     "heimdall-bootimg": {
-        "depends": ["heimdall", "avbtool"],
+        "depends": [],  # pmaports.cfg: supported_heimdall_depends
         "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
