@@ -196,7 +196,6 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     elif arch == "riscv64":
         command += ["-M", "virt"]
         command += ["-device", "virtio-gpu-pci"]
-        command += ["-bios", f"{rootfs}/usr/share/opensbi/generic/firmware/fw_jump.elf"]
     else:
         raise RuntimeError(f"Architecture {arch} not supported by this command"
                            " yet.")
