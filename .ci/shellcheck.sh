@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # Description: lint all shell scripts
-# https://postmarktos.org/pmb-ci
+# https://postmarketos.org/pmb-ci
 
 if [ "$(id -u)" = 0 ]; then
 	set -x

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # Description: verify that we don't use too new python features
-# https://postmarktos.org/pmb-ci
+# https://postmarketos.org/pmb-ci
 
 if [ "$(id -u)" = 0 ]; then
 	set -x
