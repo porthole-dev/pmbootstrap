@@ -27,7 +27,7 @@ def get_ci_scripts(topdir):
 
         with open(script) as handle:
             for line in handle:
-                if line.startswith("# https://postmarktos.org/pmb-ci"):
+                if line.startswith("# https://postmarketos.org/pmb-ci"):
                     is_pmb_ci_script = True
                 elif line.startswith("# Description: "):
                     description = line.split(": ", 1)[1].rstrip()
