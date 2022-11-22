@@ -508,7 +508,7 @@ necessary_kconfig_options_containers = {
             "CGROUP_HUGETLB": True,  # Optional section
         }
     },
-    ">=3.6 <6.1": {  # option has been dropped
+    ">=3.6 <6.1_rc1": {  # option has been dropped
         "all": {
             "MEMCG_SWAP": True,
         }
