@@ -436,3 +436,54 @@ def test_build_local_source_high_level(args, tmpdir):
     # Clean up: update index, delete temp folder
     pmb.build.index_repo(args, pmb.config.arch_native)
     pmb.helpers.run.root(args, ["rm", "-r", tmpdir])
+
+
+def test_build_abuild_leftovers(args, tmpdir):
+    """
+    Test building a package with having abuild leftovers, that will error if
+    copied:
+        pmbootstrap build hello-world
+    """
+    # aports: Add deviceinfo (required by pmbootstrap to start)
+    tmpdir = str(tmpdir)
+    aports = f"{tmpdir}/aports"
+    aport = f"{aports}/device/testing/device-{args.device}"
+    os.makedirs(aport)
+    path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
+    shutil.copy(f"{path_original}/deviceinfo", aport)
+
+    # aports: Add modified hello-world aport (source="", uses $builddir)
+    test_aport = "main/hello-world"
+    aport = f"{aports}/{test_aport}"
+    shutil.copytree(f"{args.aports}/{test_aport}", aport)
+
+    # aports: Add pmaports.cfg, .git
+    shutil.copy(f"{args.aports}/pmaports.cfg", aports)
+    shutil.copytree(f"{args.aports}/.git", f"{aports}/.git")
+
+    # aport: create abuild dir with broken symlink
+    src = f"{aport}/src"
+    os.makedirs(src)
+    os.symlink("/var/cache/distfiles/non-existent.tar.gz",
+               f"{src}/broken-tarball-symlink.tar.gz")
+
+    # Delete all hello-world packages
+    channel = pmb.config.pmaports.read_config(args)["channel"]
+    pattern = f"{args.work}/packages/{channel}/*/hello-world-*_p*.apk"
+    for path in glob.glob(pattern):
+        pmb.helpers.run.root(args, ["rm", path])
+    assert len(glob.glob(pattern)) == 0
+
+    # Build hello-world package
+    pmb.helpers.run.user(args, [f"{pmb.config.pmb_src}/pmbootstrap.py",
+                                "--aports", aports, "build", "--src", src,
+                                "hello-world", "--arch", pmb.config.arch_native])
+
+    # Verify that the package has been built and delete it
+    paths = glob.glob(pattern)
+    assert len(paths) == 1
+    pmb.helpers.run.root(args, ["rm", paths[0]])
+
+    # Clean up: update index, delete temp folder
+    pmb.build.index_repo(args, pmb.config.arch_native)
+    pmb.helpers.run.root(args, ["rm", "-r", tmpdir])
