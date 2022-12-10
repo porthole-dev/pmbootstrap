@@ -188,7 +188,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     command += ["-device", "virtio-net-pci,netdev=net"]
 
     if arch == "x86_64":
-        command += ["-vga", "virtio"]
+        command += ["-device", "virtio-vga-gl"]
     elif arch == "aarch64":
         command += ["-M", "virt"]
         command += ["-cpu", "cortex-a57"]
@@ -286,8 +286,10 @@ def install_depends(args, arch):
         "qemu-audio-pa",
         "qemu-audio-sdl",
         "qemu-hw-display-virtio-gpu",
+        "qemu-hw-display-virtio-gpu-gl",
         "qemu-hw-display-virtio-gpu-pci",
         "qemu-hw-display-virtio-vga",
+        "qemu-hw-display-virtio-vga-gl",
         "qemu-system-" + arch,
         "qemu-ui-gtk",
         "qemu-ui-opengl",
