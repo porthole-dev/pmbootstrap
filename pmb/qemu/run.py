@@ -184,7 +184,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     else:
         command += ["-device", "virtio-mouse-pci"]
     command += ["-device", "virtio-keyboard-pci"]
-    command += ["-netdev", "user,id=net,hostfwd=tcp::" + port_ssh + "-:22"]
+    command += ["-netdev", f"user,id=net,hostfwd=tcp:127.0.0.1:{port_ssh}-:22"]
     command += ["-device", "virtio-net-pci,netdev=net"]
 
     if arch == "x86_64":
