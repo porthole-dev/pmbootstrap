@@ -1,4 +1,4 @@
-# Copyright 2022 Lary Gibaud
+# Copyright 2023 Lary Gibaud
 # SPDX-License-Identifier: GPL-3.0-or-later
 import re
 

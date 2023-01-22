@@ -1,4 +1,4 @@
-# Copyright 2022 Luca Weiss
+# Copyright 2023 Luca Weiss
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import fnmatch

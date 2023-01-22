@@ -1,4 +1,4 @@
-# Copyright 2022 Mark Hargreaves, Luca Weiss
+# Copyright 2023 Mark Hargreaves, Luca Weiss
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os

@@ -1,4 +1,4 @@
-# Copyright 2022 Nick Reitemeyer, Oliver Smith
+# Copyright 2023 Nick Reitemeyer, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 import pmb.build

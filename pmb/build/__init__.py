@@ -1,4 +1,4 @@
-# Copyright 2022 Oliver Smith
+# Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.build.init import init, init_compiler
 from pmb.build.envkernel import package_kernel

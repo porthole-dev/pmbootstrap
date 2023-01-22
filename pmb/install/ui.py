@@ -1,4 +1,4 @@
-# Copyright 2022 Dylan Van Assche
+# Copyright 2023 Dylan Van Assche
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 

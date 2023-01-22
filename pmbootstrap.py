@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- encoding: UTF-8 -*-
-# Copyright 2022 Oliver Smith
+# Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 # PYTHON_ARGCOMPLETE_OK
 import sys
