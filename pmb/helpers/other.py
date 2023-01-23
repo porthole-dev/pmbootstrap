@@ -54,9 +54,12 @@ def check_binfmt_misc(args):
     if os.path.exists(path):
         return
 
+    # check=False: this might be built-in instead of being a module
     pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"], check=False)
+
+    # check=False: we check it below and print a more helpful message on error
     pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none",
-                                "/proc/sys/fs/binfmt_misc"])
+                                "/proc/sys/fs/binfmt_misc"], check=False)
 
     if not os.path.exists(path):
         link = "https://postmarketos.org/binfmt_misc"
