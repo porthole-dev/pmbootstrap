@@ -33,6 +33,23 @@ def require_programs():
                            f" {', '.join(missing)}")
 
 
+def ask_for_username(args):
+    """
+    Ask for a reasonable username for the non-root user.
+
+    :returns: the username
+    """
+    while True:
+        ret = pmb.helpers.cli.ask("Username", None, args.user, False,
+                                  "[a-z_][a-z0-9_-]*")
+        if ret == "root":
+            logging.fatal("ERROR: don't put \"root\" here. This is about"
+                          " creating an additional non-root user. Don't worry,"
+                          " the root user will also be created ;)")
+            continue
+        return ret
+
+
 def ask_for_work_path(args):
     """
     Ask for the work path, until we can create it (when it does not exist) and
@@ -653,11 +670,7 @@ def frontend(args):
     if device_exists:
         cfg["pmbootstrap"]["keymap"] = ask_for_keymaps(args, info)
 
-    # Username
-    cfg["pmbootstrap"]["user"] = pmb.helpers.cli.ask("Username", None,
-                                                     args.user, False,
-                                                     "[a-z_][a-z0-9_-]*")
-
+    cfg["pmbootstrap"]["user"] = ask_for_username(args)
     ask_for_provider_select_pkg(args, "postmarketos-base", cfg["providers"])
 
     # UI and various build options
