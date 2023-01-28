@@ -318,6 +318,16 @@ necessary_kconfig_options = {
             "VT": True,
         }
     },
+    ">=2.6.0": {
+        "all": {
+            "BINFMT_ELF": True,
+        },
+    },
+    ">=3.10.0": {
+        "all": {
+            "BINFMT_SCRIPT": True,
+        },
+    },
     ">=4.0.0": {
         "all": {
             "UEVENT_HELPER": True,
