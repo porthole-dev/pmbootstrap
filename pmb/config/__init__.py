@@ -17,7 +17,7 @@ from pmb.config.sudo import which_sudo
 #
 # Exported variables (internal configuration)
 #
-version = "1.50.1"
+version = "1.51.0"
 pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
 apk_keys_path = pmb_src + "/pmb/data/keys"
 arch_native = pmb.parse.arch.alpine_native()
@@ -27,7 +27,7 @@ arch_native = pmb.parse.arch.alpine_native()
 # Update this frequently to prevent a MITM attack with an outdated version
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
-apk_tools_min_version = {"edge": "2.12.10-r1",
+apk_tools_min_version = {"edge": "2.12.11-r0",
                          "v3.17": "2.12.10-r1",
                          "v3.16": "2.12.9-r3",
                          "v3.15": "2.12.7-r3",
