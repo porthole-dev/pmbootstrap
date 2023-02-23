@@ -273,7 +273,9 @@ def test_run_abuild(args, monkeypatch):
 
     # Normal run
     output = "armhf/test-1-r2.apk"
-    env = {"CARCH": "armhf", "SUDO_APK": "abuild-apk --no-progress"}
+    env = {"CARCH": "armhf",
+           "GOCACHE": "/home/pmos/.cache/go-build",
+           "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "-D", "postmarketOS", "-d"]
     assert func(args, apkbuild, "armhf") == (output, cmd, env)
 
@@ -283,6 +285,7 @@ def test_run_abuild(args, monkeypatch):
 
     # cross=native
     env = {"CARCH": "armhf",
+           "GOCACHE": "/home/pmos/.cache/go-build",
            "SUDO_APK": "abuild-apk --no-progress",
            "CROSS_COMPILE": "armv6-alpine-linux-musleabihf-",
            "CC": "armv6-alpine-linux-musleabihf-gcc"}
@@ -293,6 +296,7 @@ def test_run_abuild(args, monkeypatch):
     (output, cmd, env) = func(args, apkbuild, "armhf", cross="distcc")
     assert output == "armhf/test-1-r2.apk"
     assert env["CARCH"] == "armhf"
+    assert env["GOCACHE"] == "/home/pmos/.cache/go-build"
     assert env["CCACHE_PREFIX"] == "distcc"
     assert env["CCACHE_PATH"] == "/usr/lib/arch-bin-masquerade/armhf:/usr/bin"
     assert env["CCACHE_COMPILERCHECK"].startswith("string:")

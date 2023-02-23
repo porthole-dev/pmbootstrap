@@ -855,6 +855,18 @@ def arguments():
     build.add_argument("-n", "--no-depends", action="store_true",
                        help="never build dependencies, abort instead",
                        dest="no_depends")
+    build.add_argument("--go-mod-cache", action="store_true", default=None,
+                       help="for go packages: Usually they should bundle the"
+                            " dependency sources instead of downloading them"
+                            " at build time. But if they don't (e.g. with"
+                            " pmbootstrap build --src), then this option can"
+                            " be used to let GOMODCACHE point into"
+                            " pmbootstrap's work dir to only download"
+                            " dependencies once. (default: true with --src,"
+                            " false otherwise)")
+    build.add_argument("--no-go-mod-cache",
+                       action="store_false", dest="go_mod_cache", default=None,
+                       help="don't set GOMODCACHE")
     build.add_argument("--envkernel", action="store_true",
                        help="Create an apk package from the build output of"
                        " a kernel compiled locally on the host or with envkernel.sh.")
@@ -909,4 +921,9 @@ def arguments():
     setattr(args, "from_argparse", copy.deepcopy(args))
     setattr(args.from_argparse, "from_argparse", args.from_argparse)
     pmb.helpers.args.init(args)
+
+    if getattr(args, "go_mod_cache", None) is None:
+        gomodcache = True if getattr(args, "src", None) else False
+        setattr(args, "go_mod_cache", gomodcache)
+
     return args

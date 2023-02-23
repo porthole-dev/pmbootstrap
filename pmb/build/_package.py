@@ -436,6 +436,18 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     if not args.ccache:
         env["CCACHE_DISABLE"] = "1"
 
+    # Cache binary objects from go in this path (like ccache)
+    env["GOCACHE"] = "/home/pmos/.cache/go-build"
+
+    # Cache go modules (git repositories). Usually these should be bundled and
+    # it should not be required to download them at build time, in that case
+    # the APKBUILD sets the GOPATH (and therefore indirectly GOMODCACHE). But
+    # e.g. when using --src they are not bundled, in that case it makes sense
+    # to point GOMODCACHE at pmbootstrap's work dir so the modules are only
+    # downloaded once.
+    if args.go_mod_cache:
+        env["GOMODCACHE"] = "/home/pmos/go/pkg/mod"
+
     # Build the abuild command
     cmd = ["abuild", "-D", "postmarketOS"]
     if strict or "pmb:strict" in apkbuild["options"]:
