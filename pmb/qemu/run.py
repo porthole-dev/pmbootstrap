@@ -340,7 +340,7 @@ def run(args):
         logging.info("NOTE: Run 'pmbootstrap qemu --image-size 2G' to set"
                      " the rootfs size when you run out of space!")
 
-    # SSH/serial hints
+    # SSH/serial/network hints
     logging.info("Connect to the VM:")
     logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
     logging.info("* (serial) in this console (stdout/stdin)")
@@ -350,6 +350,10 @@ def run(args):
                      "run: pmbootstrap config qemu_redir_stdio False")
         logging.info("NOTE: To quit QEMU with this option you can use "
                      "Ctrl-A, X.")
+
+    if args.ui == "none":
+        logging.warning("WARNING: With UI=none network doesn't work"
+                        " automatically: https://postmarketos.org/qemu-network")
 
     # Run QEMU and kill it together with pmbootstrap
     process = None
