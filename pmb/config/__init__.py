@@ -216,6 +216,7 @@ chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 chroot_mount_bind = {
     "/proc": "/proc",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",
+    "$WORK/cache_appstream/$ARCH/$CHANNEL": "/mnt/appstream-data",
     "$WORK/cache_ccache_$ARCH": "/mnt/pmbootstrap-ccache",
     "$WORK/cache_distfiles": "/var/cache/distfiles",
     "$WORK/cache_git": "/mnt/pmbootstrap-git",

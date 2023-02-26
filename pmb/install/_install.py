@@ -370,6 +370,25 @@ def setup_hostname(args):
     pmb.chroot.root(args, ["sed", "-i", "-e", regex, "/etc/hosts"], suffix)
 
 
+def setup_appstream(args):
+    """
+    If alpine-appstream-downloader has been downloaded, execute it to have
+    update AppStream data on new installs
+    """
+    suffix = "rootfs_" + args.device
+    installed_pkgs = pmb.chroot.apk.installed(args, suffix)
+
+    if "alpine-appstream-downloader" not in installed_pkgs or args.offline:
+        return
+
+    pmb.chroot.root(args, ["alpine-appstream-downloader",
+                           "/mnt/appstream-data"], suffix)
+    pmb.chroot.root(args, ["mkdir", "-p", "/var/lib/swcatalog"], suffix)
+    pmb.chroot.root(args, ["cp", "-r", "/mnt/appstream-data/icons",
+                           "/mnt/appstream-data/xml",
+                           "-t", "/var/lib/swcatalog"], suffix)
+
+
 def disable_sshd(args):
     if not args.no_sshd:
         return
@@ -1012,6 +1031,8 @@ def create_device_rootfs(args, step, steps):
 
     # Set the hostname as the device name
     setup_hostname(args)
+
+    setup_appstream(args)
 
     disable_sshd(args)
     disable_firewall(args)
