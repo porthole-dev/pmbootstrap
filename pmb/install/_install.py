@@ -164,8 +164,8 @@ def create_home_from_skel(args):
 def configure_apk(args):
     """
     Copy over all official keys, and the keys used to compile local packages
-    (unless --no-local-pkgs is set). Then disable the /mnt/pmbootstrap-packages
-    repository.
+    (unless --no-local-pkgs is set). Then copy the corresponding APKINDEX files
+    and remove the /mnt/pmbootstrap-packages repository.
     """
     # Official keys
     pattern = f"{pmb.config.apk_keys_path}/*.pub"
@@ -178,6 +178,13 @@ def configure_apk(args):
     rootfs = args.work + "/chroot_native/mnt/install"
     for key in glob.glob(pattern):
         pmb.helpers.run.root(args, ["cp", key, rootfs + "/etc/apk/keys/"])
+
+    # Copy over the corresponding APKINDEX files from cache
+    index_files = pmb.helpers.repo.apkindex_files(args,
+                                                  arch=args.deviceinfo["arch"],
+                                                  user_repository=False)
+    for f in index_files:
+        pmb.helpers.run.root(args, ["cp", f, rootfs + "/var/cache/apk/"])
 
     # Disable pmbootstrap repository
     pmb.helpers.run.root(args, ["sed", "-i", r"/\/mnt\/pmbootstrap-packages/d",
