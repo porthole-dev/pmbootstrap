@@ -54,6 +54,12 @@ if ! [ -e "$deviceinfo" ]; then
 	exit 1
 fi
 
+# Make sure pmaports is clean, some of the tests will fail otherwise
+if [ -n "$(git -C "$pmaports" status --porcelain)" ]; then
+	echo "ERROR: pmaports dir is not clean"
+	exit 1
+fi
+
 echo "Running pytest..."
 echo "NOTE: use 'pmbootstrap log' to see the detailed log if running locally."
 pytest \
