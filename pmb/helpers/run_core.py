@@ -288,7 +288,7 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                    output value  | timeout | out to log | out to stdout | wait | pass stdin
                    ------------------------------------------------------------------------
                    "log"         | x       | x          |               | x    |
-                   "stdout"      | x       | x          | x             | x    | x
+                   "stdout"      | x       | x          | x             | x    |
                    "interactive" |         | x          | x             | x    | x
                    "tui"         |         |            | x             | x    | x
                    "background"  |         | x          |               |      |
@@ -338,7 +338,7 @@ def core(args, log_message, cmd, working_dir=None, output="log",
 
         output_timeout = output in ["log", "stdout"] and not disable_timeout
 
-        stdin = subprocess.DEVNULL if output == "log" else None
+        stdin = subprocess.DEVNULL if output in ["log", "stdout"] else None
 
         (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
                                                    output_to_stdout,
