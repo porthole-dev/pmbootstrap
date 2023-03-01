@@ -112,7 +112,7 @@ def partition_cgpt(args, layout, size_boot, size_reserve):
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
 
-    pmb.chroot.root(args, ["apk", "add", "cgpt"])
+    pmb.chroot.apk.install(args, ["cgpt"], build=False)
 
     cgpt = {
         'kpart_start': args.deviceinfo["cgpt_kpart_start"],
