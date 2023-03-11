@@ -10,7 +10,7 @@ def generate_apkbuild(args, pkgname, deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
     carch = pmb.parse.arch.alpine_to_kernel(deviceinfo["arch"])
 
-    makedepends = ["bash", "bc", "bison", "devicepkg-dev", "flex",
+    makedepends = ["bash", "bc", "bison", "devicepkg-dev", "findutils", "flex",
                    "openssl-dev", "perl"]
 
     build = """
