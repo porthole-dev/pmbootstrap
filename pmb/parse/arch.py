@@ -64,7 +64,8 @@ def alpine_to_kernel(arch):
         "aarch64*": "arm64",
         "arm*": "arm",
         "ppc*": "powerpc",
-        "s390*": "s390"
+        "s390*": "s390",
+        "riscv64*": "riscv"
     }
     for pattern, arch_kernel in mapping.items():
         if fnmatch.fnmatch(arch, pattern):
