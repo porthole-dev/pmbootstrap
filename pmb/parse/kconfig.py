@@ -11,6 +11,23 @@ import pmb.parse
 import pmb.helpers.pmaports
 
 
+def get_all_component_names():
+    """
+    Get the component names from kconfig_options variables in
+    pmb/config/__init__.py. This does not include the base options.
+
+    :returns: a list of component names, e.g. ["waydroid", "iwd", "nftables"]
+    """
+    prefix = "necessary_kconfig_options_"
+    ret = []
+
+    for key in pmb.config.__dict__.keys():
+        if key.startswith(prefix):
+            ret += [key.split(prefix, 1)[1]]
+
+    return ret
+
+
 def is_set(config, option):
     """
     Check, whether a boolean or tristate option is enabled
@@ -74,48 +91,49 @@ def check_option(component, details, config, config_path, option,
     return True
 
 
-def check_config(config_path, config_arch, pkgver,
-                 waydroid=False,
-                 iwd=False,
-                 nftables=False,
-                 containers=False,
-                 zram=False,
-                 netboot=False,
-                 community=False,
-                 uefi=False,
-                 details=False,
-                 enforce_check=True):
+def check_config(config_path, config_arch, pkgver, components_list=[],
+                 details=False, enforce_check=True):
+    """
+    :param config_path: full path to kernel config file
+    :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
+    :param pkgver: kernel version
+    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param details: print all warnings if True, otherwise one generic warning
+    :param enforce_check: set to False to not fail kconfig check as long as
+                          everything in necessary_kconfig_options is set
+                          correctly, even if additional components are checked
+    :returns: True if the check passed, False otherwise
+    """
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
 
-    components = {"postmarketOS": pmb.config.necessary_kconfig_options}
-    if waydroid:
-        components["waydroid"] = pmb.config.necessary_kconfig_options_waydroid
-    if iwd:
-        components["iwd"] = pmb.config.necessary_kconfig_options_iwd
-    if nftables:
-        components["nftables"] = pmb.config.necessary_kconfig_options_nftables
-    if containers:
-        components["containers"] = \
-            pmb.config.necessary_kconfig_options_containers
-    if zram:
-        components["zram"] = pmb.config.necessary_kconfig_options_zram
-    if netboot:
-        components["netboot"] = pmb.config.necessary_kconfig_options_netboot
-    if community:
-        components["waydroid"] = pmb.config.necessary_kconfig_options_waydroid
-        components["iwd"] = pmb.config.necessary_kconfig_options_iwd
-        components["nftables"] = pmb.config.necessary_kconfig_options_nftables
-        components["containers"] = \
-            pmb.config.necessary_kconfig_options_containers
-        components["zram"] = pmb.config.necessary_kconfig_options_zram
-        components["netboot"] = pmb.config.necessary_kconfig_options_netboot
-        components["wireguard"] = pmb.config.necessary_kconfig_options_wireguard
-        components["filesystems"] = pmb.config.necessary_kconfig_options_filesystems
-        components["community"] = pmb.config.necessary_kconfig_options_community
-    if uefi:
-        components["uefi"] = pmb.config.necessary_kconfig_options_uefi
+    # Devices in all categories need basic options
+    # https://wiki.postmarketos.org/wiki/Device_categorization
+    components_list = ["postmarketOS"] + components_list
+
+    # Devices in "community" or "main" need additional options
+    if "community" in components_list:
+        components_list += [
+            "containers",
+            "filesystems",
+            "iwd",
+            "netboot",
+            "nftables",
+            "waydroid",
+            "wireguard",
+            "zram",
+        ]
+
+    components = {}
+    for name in components_list:
+        if name == "postmarketOS":
+            pmb_config_var = "necessary_kconfig_options"
+        else:
+            pmb_config_var = f"necessary_kconfig_options_{name}"
+
+        components[name] = getattr(pmb.config, pmb_config_var, None)
+        assert components[name], f"invalid kconfig component name: {name}"
 
     results = []
     for component, options in components.items():
@@ -163,20 +181,14 @@ def check_config_options_set(config, config_path, config_arch, options,
     return ret
 
 
-def check(args, pkgname,
-          force_waydroid_check=False,
-          force_iwd_check=False,
-          force_nftables_check=False,
-          force_containers_check=False,
-          force_zram_check=False,
-          force_netboot_check=False,
-          force_community_check=False,
-          force_uefi_check=False,
-          details=False,
-          must_exist=True):
+def check(args, pkgname, components_list=[], details=False, must_exist=True):
     """
     Check for necessary kernel config options in a package.
 
+    :param pkgname: the package to check for, optionally without "linux-"
+    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param details: print all warnings if True, otherwise one generic warning
+    :param must_exist: if False, just return if the package does not exist
     :returns: True when the check was successful, False otherwise
               None if the aport cannot be found (only if must_exist=False)
     """
@@ -197,22 +209,11 @@ def check(args, pkgname,
     # We only enforce optional checks for community & main devices
     enforce_check = aport.split("/")[-2] in ["community", "main"]
 
-    check_waydroid = force_waydroid_check or (
-        "pmb:kconfigcheck-waydroid" in apkbuild["options"])
-    check_iwd = force_iwd_check or (
-        "pmb:kconfigcheck-iwd" in apkbuild["options"])
-    check_nftables = force_nftables_check or (
-        "pmb:kconfigcheck-nftables" in apkbuild["options"])
-    check_containers = force_containers_check or (
-        "pmb:kconfigcheck-containers" in apkbuild["options"])
-    check_zram = force_zram_check or (
-        "pmb:kconfigcheck-zram" in apkbuild["options"])
-    check_netboot = force_netboot_check or (
-        "pmb:kconfigcheck-netboot" in apkbuild["options"])
-    check_community = force_community_check or (
-        "pmb:kconfigcheck-community" in apkbuild["options"])
-    check_uefi = force_uefi_check or (
-        "pmb:kconfigcheck-uefi" in apkbuild["options"])
+    for name in get_all_component_names():
+        if f"pmb:kconfigcheck-{name}" in apkbuild["options"] and \
+                name not in components_list:
+            components_list += [name]
+
     for config_path in glob.glob(aport + "/config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
@@ -228,18 +229,8 @@ def check(args, pkgname,
                                "elsewhere in the name.")
 
         config_arch = config_name_split[1]
-        ret &= check_config(config_path, config_arch,
-                            pkgver,
-                            waydroid=check_waydroid,
-                            iwd=check_iwd,
-                            nftables=check_nftables,
-                            containers=check_containers,
-                            zram=check_zram,
-                            netboot=check_netboot,
-                            community=check_community,
-                            uefi=check_uefi,
-                            details=details,
-                            enforce_check=enforce_check)
+        ret &= check_config(config_path, config_arch, pkgver, components_list,
+                            details=details, enforce_check=enforce_check)
     return ret
 
 
@@ -275,24 +266,18 @@ def extract_version(config_file):
     return "unknown"
 
 
-def check_file(config_file, waydroid=False, nftables=False,
-               containers=False, zram=False, netboot=False,
-               community=False, uefi=False, details=False):
+def check_file(config_file, components_list=[], details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
+    :param config_file: full path to kernel config file
+    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param details: print all warnings if True, otherwise one generic warning
     :returns: True when the check was successful, False otherwise
     """
     arch = extract_arch(config_file)
     version = extract_version(config_file)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
                   f"file: {config_file}")
-    return check_config(config_file, arch, version,
-                        waydroid=waydroid,
-                        nftables=nftables,
-                        containers=containers,
-                        zram=zram,
-                        netboot=netboot,
-                        community=community,
-                        uefi=uefi,
+    return check_config(config_file, arch, version, components_list,
                         details=details)

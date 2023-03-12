@@ -31,21 +31,14 @@ def test_kconfig_check(args):
                                             "bad-missing-required-option")
     assert pmb.parse.kconfig.check_file(dir + "good")
     assert not pmb.parse.kconfig.check_file(dir + "bad-wrong-option-set")
-    assert pmb.parse.kconfig.check_file(dir + "good-waydroid",
-                                        waydroid=True)
-    assert not pmb.parse.kconfig.check_file(dir +
-                                            "bad-array-missing-some-options",
-                                            waydroid=True)
-    assert pmb.parse.kconfig.check_file(dir + "good-nftables",
-                                        nftables=True)
-    assert not pmb.parse.kconfig.check_file(dir + "bad-nftables",
-                                            nftables=True)
-    assert pmb.parse.kconfig.check_file(dir + "good-zram",
-                                        zram=True)
-    assert pmb.parse.kconfig.check_file(dir + "good-uefi",
-                                        uefi=True)
-    assert not pmb.parse.kconfig.check_file(dir + "bad-uefi",
-                                            uefi=True)
+    assert pmb.parse.kconfig.check_file(dir + "good-waydroid", ["waydroid"])
+    assert not pmb.parse.kconfig.check_file(f"{dir}/bad-array-missing-some-options",
+                                            ["waydroid"])
+    assert pmb.parse.kconfig.check_file(dir + "good-nftables", ["nftables"])
+    assert not pmb.parse.kconfig.check_file(dir + "bad-nftables", ["nftables"])
+    assert pmb.parse.kconfig.check_file(dir + "good-zram", ["zram"])
+    assert pmb.parse.kconfig.check_file(dir + "good-uefi", ["uefi"])
+    assert not pmb.parse.kconfig.check_file(dir + "bad-uefi", ["uefi"])
 
     # tests on real devices
     # *** do not add more of these! ***
@@ -60,8 +53,7 @@ def test_kconfig_check(args):
     assert pmb.parse.kconfig.check(args, "postmarketos-allwinner")
 
     # testing the force param: nokia-n900 will never need the uefi options
-    assert not pmb.parse.kconfig.check(args, "nokia-n900",
-                                       force_uefi_check=True)
+    assert not pmb.parse.kconfig.check(args, "nokia-n900", ["uefi"])
 
     # supports zram (with pmb:kconfigcheck-zram), nftables
     assert pmb.parse.kconfig.check(args, "linux-purism-librem5")

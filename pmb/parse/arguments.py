@@ -464,23 +464,10 @@ def arguments_kconfig(subparser):
     check.add_argument("--arch", choices=arch_choices, dest="arch")
     check.add_argument("--file", action="store_true", help="check a file"
                        " directly instead of a config in a package")
-    check.add_argument("--waydroid", action="store_true", help="check"
-                       " options needed for waydroid too")
-    check.add_argument("--iwd", action="store_true", help="check"
-                       " options needed for iwd too")
-    check.add_argument("--nftables", action="store_true", help="check"
-                       " options needed for nftables too")
-    check.add_argument("--containers", action="store_true",
-                       help="check options needed for containers too")
-    check.add_argument("--zram", action="store_true", help="check"
-                       " options needed for zram support too")
-    check.add_argument("--netboot", action="store_true", help="check"
-                       " options needed for netbooting too")
-    check.add_argument("--community", action="store_true", help="check"
-                       " options needed for various features, required for"
-                       " community/main devices")
-    check.add_argument("--uefi", action="store_true", help="check"
-                       " options needed for uefi too")
+    for name in pmb.parse.kconfig.get_all_component_names():
+        check.add_argument(f"--{name}", action="store_true",
+                           dest=f"kconfig_check_{name}",
+                           help=f"check options needed for {name} too")
     add_kernel_arg(check)
 
     # "pmbootstrap kconfig edit"

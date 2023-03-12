@@ -377,16 +377,15 @@ def newapkbuild(args):
 
 def kconfig(args):
     if args.action_kconfig == "check":
+        # Build the components list from cli arguments (--waydroid etc.)
+        components_list = []
+        for name in pmb.parse.kconfig.get_all_component_names():
+            if getattr(args, f"kconfig_check_{name}"):
+                components_list += [name]
+
         # Handle passing a file directly
         if args.file:
-            if pmb.parse.kconfig.check_file(args.package,
-                                            waydroid=args.waydroid,
-                                            nftables=args.nftables,
-                                            containers=args.containers,
-                                            zram=args.zram,
-                                            netboot=args.netboot,
-                                            community=args.community,
-                                            uefi=args.uefi,
+            if pmb.parse.kconfig.check_file(args.package, components_list,
                                             details=True):
                 logging.info("kconfig check succeeded!")
                 return
@@ -414,17 +413,8 @@ def kconfig(args):
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(
-                    args, package,
-                    force_waydroid_check=args.waydroid,
-                    force_iwd_check=args.iwd,
-                    force_nftables_check=args.nftables,
-                    force_containers_check=args.containers,
-                    force_zram_check=args.zram,
-                    force_netboot_check=args.netboot,
-                    force_community_check=args.community,
-                    force_uefi_check=args.uefi,
-                    details=True):
+            if not pmb.parse.kconfig.check(args, package, components_list,
+                                           details=True):
                 error = True
 
         # At least one failure
