@@ -32,6 +32,10 @@ def is_set(config, option):
     """
     Check, whether a boolean or tristate option is enabled
     either as builtin or module.
+
+    :param config: full kernel config as string
+    :param option: name of the option to check, e.g. EXT4_FS
+    :returns: True if the check passed, False otherwise
     """
     return re.search("^CONFIG_" + option + "=[ym]$", config, re.M) is not None
 
@@ -39,6 +43,11 @@ def is_set(config, option):
 def is_set_str(config, option, string):
     """
     Check, whether a config option contains a string as value.
+
+    :param config: full kernel config as string
+    :param option: name of the option to check, e.g. EXT4_FS
+    :param string: the expected string
+    :returns: True if the check passed, False otherwise
     """
     match = re.search("^CONFIG_" + option + "=\"(.*)\"$", config, re.M)
     if match:
@@ -50,6 +59,11 @@ def is_set_str(config, option, string):
 def is_in_array(config, option, string):
     """
     Check, whether a config option contains string as an array element
+
+    :param config: full kernel config as string
+    :param option: name of the option to check, e.g. EXT4_FS
+    :param string: the string expected to be an element of the array
+    :returns: True if the check passed, False otherwise
     """
     match = re.search("^CONFIG_" + option + "=\"(.*)\"$", config, re.M)
     if match:
@@ -61,6 +75,17 @@ def is_in_array(config, option, string):
 
 def check_option(component, details, config, config_path, option,
                  option_value):
+    """
+    Check, whether one kernel config option has a given value.
+
+    :param component: name of the component to test (postmarketOS, waydroid, …)
+    :param details: print all warnings if True, otherwise one generic warning
+    :param config: full kernel config as string
+    :param config_path: full path to kernel config file
+    :param option: name of the option to check, e.g. EXT4_FS
+    :param option_value: expected value, e.g. True, "str", ["str1", "str2"]
+    :returns: True if the check passed, False otherwise
+    """
     def warn_ret_false(should_str):
         config_name = os.path.basename(config_path)
         if details:
@@ -93,8 +118,25 @@ def check_option(component, details, config, config_path, option,
 
 def check_config_options_set(config, config_path, config_arch, options,
                              component, pkgver, details=False):
-    # Loop through necessary config options, and print a warning,
-    # if any is missing
+    """
+    Check, whether all the kernel config passes all rules of one component.
+    Print a warning if any is missing.
+
+    :param config: full kernel config as string
+    :param config_path: full path to kernel config file
+    :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
+    :param options: kconfig_options* var passed from pmb/config/__init__.py:
+                    kconfig_options_example = {
+                        ">=0.0.0": {  # all versions
+                            "all": {  # all arches
+                                "ANDROID_PARANOID_NETWORK": False,
+                            },
+                    }
+    :param component: name of the component to test (postmarketOS, waydroid, …)
+    :param pkgver: kernel version
+    :param details: print all warnings if True, otherwise one generic warning
+    :returns: True if the check passed, False otherwise
+    """
     ret = True
     for rules, archs_options in options.items():
         # Skip options irrelevant for the current kernel's version
@@ -128,6 +170,8 @@ def check_config_options_set(config, config_path, config_arch, options,
 def check_config(config_path, config_arch, pkgver, components_list=[],
                  details=False, enforce_check=True):
     """
+    Check, whether one kernel config passes the rules of multiple components.
+
     :param config_path: full path to kernel config file
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
     :param pkgver: kernel version
