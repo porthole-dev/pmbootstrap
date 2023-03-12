@@ -287,6 +287,8 @@ def extract_arch(config_path):
         return "armv7"
     elif is_set(config, "ARM64"):
         return "aarch64"
+    elif is_set(config, "RISCV"):
+        return "riscv64"
     elif is_set(config, "X86_32"):
         return "x86"
     elif is_set(config, "X86_64"):
