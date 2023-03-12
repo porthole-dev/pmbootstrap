@@ -234,9 +234,9 @@ def check(args, pkgname, components_list=[], details=False, must_exist=True):
     return ret
 
 
-def extract_arch(config_file):
+def extract_arch(config_path):
     # Extract the architecture out of the config
-    with open(config_file) as f:
+    with open(config_path) as f:
         config = f.read()
     if is_set(config, "ARM"):
         return "armv7"
@@ -252,9 +252,9 @@ def extract_arch(config_file):
     return "unknown"
 
 
-def extract_version(config_file):
+def extract_version(config_path):
     # Try to extract the version string out of the comment header
-    with open(config_file) as f:
+    with open(config_path) as f:
         # Read the first 3 lines of the file and get the third line only
         text = [next(f) for x in range(3)][2]
     ver_match = re.match(r"# Linux/\S+ (\S+) Kernel Configuration", text)
@@ -266,18 +266,18 @@ def extract_version(config_file):
     return "unknown"
 
 
-def check_file(config_file, components_list=[], details=False):
+def check_file(config_path, components_list=[], details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 
-    :param config_file: full path to kernel config file
+    :param config_path: full path to kernel config file
     :param components_list: what to check for, e.g. ["waydroid", "iwd"]
     :param details: print all warnings if True, otherwise one generic warning
     :returns: True when the check was successful, False otherwise
     """
-    arch = extract_arch(config_file)
-    version = extract_version(config_file)
+    arch = extract_arch(config_path)
+    version = extract_version(config_path)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
-                  f"file: {config_file}")
-    return check_config(config_file, arch, version, components_list,
+                  f"file: {config_path}")
+    return check_config(config_path, arch, version, components_list,
                         details=details)
