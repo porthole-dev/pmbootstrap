@@ -357,23 +357,23 @@ kconfig_options = {
 kconfig_options_waydroid = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
-            "SQUASHFS": True,
-            "SQUASHFS_XZ": True,
-            "SQUASHFS_XATTR": True,
-            "TMPFS_XATTR": True,
-            "ANDROID_BINDER_IPC": True,
             "ANDROID_BINDERFS": False,
             "ANDROID_BINDER_DEVICES": ["binder", "hwbinder", "vndbinder"],
+            "ANDROID_BINDER_IPC": True,
+            "BLK_DEV_LOOP": True,
+            "BRIDGE": True,
+            "BRIDGE_VLAN_FILTERING": True,
+            "FUSE_FS": True,
+            "IP_NF_MANGLE": True,
             "NETFILTER_XTABLES": True,
             "NETFILTER_XT_MATCH_COMMENT": True,
-            "IP_NF_MANGLE": True,
-            "FUSE_FS": True,
-            "BLK_DEV_LOOP": True,
+            "SQUASHFS": True,
+            "SQUASHFS_XATTR": True,
+            "SQUASHFS_XZ": True,
+            "TMPFS_XATTR": True,
             "TUN": True,
             "VETH": True,
             "VLAN_8021Q": True,  # prerequisite for bridge
-            "BRIDGE": True,
-            "BRIDGE_VLAN_FILTERING": True,
         }
     },
     ">=3.5": {
