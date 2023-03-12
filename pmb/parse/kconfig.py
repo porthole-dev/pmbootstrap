@@ -79,7 +79,7 @@ def check_option(component, details, config, config_path, option,
     Check, whether one kernel config option has a given value.
 
     :param component: name of the component to test (postmarketOS, waydroid, …)
-    :param details: print all warnings if True, otherwise one generic warning
+    :param details: print all warnings if True, otherwise one per component
     :param config: full kernel config as string
     :param config_path: full path to kernel config file
     :param option: name of the option to check, e.g. EXT4_FS
@@ -134,7 +134,7 @@ def check_config_options_set(config, config_path, config_arch, options,
                     }
     :param component: name of the component to test (postmarketOS, waydroid, …)
     :param pkgver: kernel version
-    :param details: print all warnings if True, otherwise one generic warning
+    :param details: print all warnings if True, otherwise one per component
     :returns: True if the check passed, False otherwise
     """
     ret = True
@@ -162,8 +162,9 @@ def check_config_options_set(config, config_path, config_arch, options,
                 if not check_option(component, details, config, config_path,
                                     option, option_value):
                     ret = False
+                    # Stop after one non-detailed error
                     if not details:
-                        break  # do not give too much error messages
+                        return False
     return ret
 
 
@@ -176,7 +177,7 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
     :param pkgver: kernel version
     :param components_list: what to check for, e.g. ["waydroid", "iwd"]
-    :param details: print all warnings if True, otherwise one generic warning
+    :param details: print all warnings if True, otherwise one per component
     :param enforce_check: set to False to not fail kconfig check as long as
                           everything in kconfig_options is set correctly, even
                           if additional components are checked
