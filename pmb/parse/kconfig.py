@@ -91,6 +91,40 @@ def check_option(component, details, config, config_path, option,
     return True
 
 
+def check_config_options_set(config, config_path, config_arch, options,
+                             component, pkgver, details=False):
+    # Loop through necessary config options, and print a warning,
+    # if any is missing
+    ret = True
+    for rules, archs_options in options.items():
+        # Skip options irrelevant for the current kernel's version
+        # Example rules: ">=4.0 <5.0"
+        skip = False
+        for rule in rules.split(" "):
+            if not pmb.parse.version.check_string(pkgver, rule):
+                skip = True
+                break
+        if skip:
+            continue
+
+        for archs, options in archs_options.items():
+            if archs != "all":
+                # Split and check if the device's architecture architecture has
+                # special config options. If option does not contain the
+                # architecture of the device kernel, then just skip the option.
+                architectures = archs.split(" ")
+                if config_arch not in architectures:
+                    continue
+
+            for option, option_value in options.items():
+                if not check_option(component, details, config, config_path,
+                                    option, option_value):
+                    ret = False
+                    if not details:
+                        break  # do not give too much error messages
+    return ret
+
+
 def check_config(config_path, config_arch, pkgver, components_list=[],
                  details=False, enforce_check=True):
     """
@@ -145,40 +179,6 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
             results += [result]
 
     return all(results)
-
-
-def check_config_options_set(config, config_path, config_arch, options,
-                             component, pkgver, details=False):
-    # Loop through necessary config options, and print a warning,
-    # if any is missing
-    ret = True
-    for rules, archs_options in options.items():
-        # Skip options irrelevant for the current kernel's version
-        # Example rules: ">=4.0 <5.0"
-        skip = False
-        for rule in rules.split(" "):
-            if not pmb.parse.version.check_string(pkgver, rule):
-                skip = True
-                break
-        if skip:
-            continue
-
-        for archs, options in archs_options.items():
-            if archs != "all":
-                # Split and check if the device's architecture architecture has
-                # special config options. If option does not contain the
-                # architecture of the device kernel, then just skip the option.
-                architectures = archs.split(" ")
-                if config_arch not in architectures:
-                    continue
-
-            for option, option_value in options.items():
-                if not check_option(component, details, config, config_path,
-                                    option, option_value):
-                    ret = False
-                    if not details:
-                        break  # do not give too much error messages
-    return ret
 
 
 def check(args, pkgname, components_list=[], details=False, must_exist=True):
