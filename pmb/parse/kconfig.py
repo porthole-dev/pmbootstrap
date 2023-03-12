@@ -304,7 +304,7 @@ def extract_version(config_path):
         text = [next(f) for x in range(3)][2]
     ver_match = re.match(r"# Linux/\S+ (\S+) Kernel Configuration", text)
     if ver_match:
-        return ver_match.group(1)
+        return ver_match.group(1).replace("-", "_")
 
     # No match
     logging.info("WARNING: failed to extract version from kernel config")
