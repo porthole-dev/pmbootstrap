@@ -78,6 +78,16 @@ def get_outputdir(args, pkgname, apkbuild):
                        " template with: pmbootstrap aportgen " + pkgname)
 
 
+def extract_and_patch_sources(args, pkgname, arch):
+    pmb.build.copy_to_buildpath(args, pkgname)
+    logging.info("(native) extract kernel source")
+    pmb.chroot.user(args, ["abuild", "unpack"], "native", "/home/pmos/build")
+    logging.info("(native) apply patches")
+    pmb.chroot.user(args, ["abuild", "prepare"], "native",
+                    "/home/pmos/build", output="interactive",
+                    env={"CARCH": arch})
+
+
 def menuconfig(args, pkgname, use_oldconfig):
     # Pkgname: allow omitting "linux-" prefix
     if not pkgname.startswith("linux-"):
@@ -119,14 +129,7 @@ def menuconfig(args, pkgname, use_oldconfig):
     if copy_xauth:
         pmb.chroot.other.copy_xauthority(args)
 
-    # Patch and extract sources
-    pmb.build.copy_to_buildpath(args, pkgname)
-    logging.info("(native) extract kernel source")
-    pmb.chroot.user(args, ["abuild", "unpack"], "native", "/home/pmos/build")
-    logging.info("(native) apply patches")
-    pmb.chroot.user(args, ["abuild", "prepare"], "native",
-                    "/home/pmos/build", output="interactive",
-                    env={"CARCH": arch})
+    extract_and_patch_sources(args, pkgname, arch)
 
     # Run make menuconfig
     outputdir = get_outputdir(args, pkgname, apkbuild)
