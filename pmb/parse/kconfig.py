@@ -42,18 +42,18 @@ def is_in_array(config, option, string):
         return False
 
 
-def check_option(component, details, config, config_path_pretty, option,
+def check_option(component, details, config, config_path, option,
                  option_value):
-
     def warn_ret_false(should_str):
+        config_name = os.path.basename(config_path)
         if details:
-            logging.warning(f"WARNING: {config_path_pretty}: CONFIG_{option}"
-                            f" should {should_str} ({component}):"
+            logging.warning(f"WARNING: {config_name}: CONFIG_{option} should"
+                            f" {should_str} ({component}):"
                             f" https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}")
         else:
-            logging.warning(f"WARNING: {config_path_pretty} isn't"
-                            f" configured properly ({component}), run"
-                            f" 'pmbootstrap kconfig check' for details!")
+            logging.warning(f"WARNING: {config_name} isn't configured properly"
+                            f" ({component}), run 'pmbootstrap kconfig check'"
+                            " for details!")
         return False
 
     if isinstance(option_value, list):
@@ -74,7 +74,7 @@ def check_option(component, details, config, config_path_pretty, option,
     return True
 
 
-def check_config(config_path, config_path_pretty, config_arch, pkgver,
+def check_config(config_path, config_arch, pkgver,
                  waydroid=False,
                  iwd=False,
                  nftables=False,
@@ -119,9 +119,8 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
 
     results = []
     for component, options in components.items():
-        result = check_config_options_set(config, config_path_pretty,
-                                          config_arch, options, component,
-                                          pkgver, details)
+        result = check_config_options_set(config, config_path, config_arch,
+                                          options, component, pkgver, details)
         # We always enforce "postmarketOS" component and when explicitly
         # requested
         if enforce_check or component == "postmarketOS":
@@ -130,7 +129,7 @@ def check_config(config_path, config_path_pretty, config_arch, pkgver,
     return all(results)
 
 
-def check_config_options_set(config, config_path_pretty, config_arch, options,
+def check_config_options_set(config, config_path, config_arch, options,
                              component, pkgver, details=False):
     # Loop through necessary config options, and print a warning,
     # if any is missing
@@ -156,8 +155,8 @@ def check_config_options_set(config, config_path_pretty, config_arch, options,
                     continue
 
             for option, option_value in options.items():
-                if not check_option(component, details, config,
-                                    config_path_pretty, option, option_value):
+                if not check_option(component, details, config, config_path,
+                                    option, option_value):
                     ret = False
                     if not details:
                         break  # do not give too much error messages
@@ -229,8 +228,7 @@ def check(args, pkgname,
                                "elsewhere in the name.")
 
         config_arch = config_name_split[1]
-        config_path_pretty = f"linux-{flavor}/{os.path.basename(config_path)}"
-        ret &= check_config(config_path, config_path_pretty, config_arch,
+        ret &= check_config(config_path, config_arch,
                             pkgver,
                             waydroid=check_waydroid,
                             iwd=check_iwd,
@@ -289,7 +287,7 @@ def check_file(config_file, waydroid=False, nftables=False,
     version = extract_version(config_file)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
                   f"file: {config_file}")
-    return check_config(config_file, config_file, arch, version,
+    return check_config(config_file, arch, version,
                         waydroid=waydroid,
                         nftables=nftables,
                         containers=containers,
