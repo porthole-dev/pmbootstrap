@@ -713,6 +713,9 @@ apkbuild_attributes = {
     "_outdir": {},
     "_config": {},
 
+    # linux-edge
+    "_depends_dev": {"array": True},
+
     # mesa
     "_llvmver": {},
 
