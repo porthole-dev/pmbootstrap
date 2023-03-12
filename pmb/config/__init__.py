@@ -369,6 +369,8 @@ kconfig_options_waydroid = {
             "IP_NF_MANGLE": True,
             "NETFILTER_XTABLES": True,
             "NETFILTER_XT_MATCH_COMMENT": True,
+            "PSI": True,
+            "PSI_DEFAULT_DISABLED": False,
             "SQUASHFS": True,
             "SQUASHFS_XATTR": True,
             "SQUASHFS_XZ": True,
