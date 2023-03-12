@@ -464,6 +464,10 @@ def arguments_kconfig(subparser):
     check.add_argument("--arch", choices=arch_choices, dest="arch")
     check.add_argument("--file", action="store_true", help="check a file"
                        " directly instead of a config in a package")
+    check.add_argument("--no-details", action="store_false",
+                       dest="kconfig_check_details",
+                       help="print one generic error per component instead of"
+                            " listing each option that needs to be adjusted")
     for name in pmb.parse.kconfig.get_all_component_names():
         check.add_argument(f"--{name}", action="store_true",
                            dest=f"kconfig_check_{name}",

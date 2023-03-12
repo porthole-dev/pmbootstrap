@@ -377,6 +377,7 @@ def newapkbuild(args):
 
 def kconfig(args):
     if args.action_kconfig == "check":
+        details = args.kconfig_check_details
         # Build the components list from cli arguments (--waydroid etc.)
         components_list = []
         for name in pmb.parse.kconfig.get_all_component_names():
@@ -386,7 +387,7 @@ def kconfig(args):
         # Handle passing a file directly
         if args.file:
             if pmb.parse.kconfig.check_file(args.package, components_list,
-                                            details=True):
+                                            details=details):
                 logging.info("kconfig check succeeded!")
                 return
             raise RuntimeError("kconfig check failed!")
@@ -414,7 +415,7 @@ def kconfig(args):
                     skipped += 1
                     continue
             if not pmb.parse.kconfig.check(args, package, components_list,
-                                           details=True):
+                                           details=details):
                 error = True
 
         # At least one failure
