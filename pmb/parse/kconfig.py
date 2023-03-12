@@ -18,7 +18,7 @@ def get_all_component_names():
 
     :returns: a list of component names, e.g. ["waydroid", "iwd", "nftables"]
     """
-    prefix = "necessary_kconfig_options_"
+    prefix = "kconfig_options_"
     ret = []
 
     for key in pmb.config.__dict__.keys():
@@ -100,8 +100,8 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
     :param components_list: what to check for, e.g. ["waydroid", "iwd"]
     :param details: print all warnings if True, otherwise one generic warning
     :param enforce_check: set to False to not fail kconfig check as long as
-                          everything in necessary_kconfig_options is set
-                          correctly, even if additional components are checked
+                          everything in kconfig_options is set correctly, even
+                          if additional components are checked
     :returns: True if the check passed, False otherwise
     """
     logging.debug(f"Check kconfig: {config_path}")
@@ -128,9 +128,9 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
     components = {}
     for name in components_list:
         if name == "postmarketOS":
-            pmb_config_var = "necessary_kconfig_options"
+            pmb_config_var = "kconfig_options"
         else:
-            pmb_config_var = f"necessary_kconfig_options_{name}"
+            pmb_config_var = f"kconfig_options_{name}"
 
         components[name] = getattr(pmb.config, pmb_config_var, None)
         assert components[name], f"invalid kconfig component name: {name}"

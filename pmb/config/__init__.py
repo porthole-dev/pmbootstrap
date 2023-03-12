@@ -298,7 +298,7 @@ build_packages = ["abuild", "build-base", "ccache", "git"]
 #     this e.g. if the order of the elements is important.
 
 # Necessary kernel config options
-necessary_kconfig_options = {
+kconfig_options = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "ANDROID_PARANOID_NETWORK": False,
@@ -354,7 +354,7 @@ necessary_kconfig_options = {
 }
 
 # Necessary waydroid kernel config options (android app support)
-necessary_kconfig_options_waydroid = {
+kconfig_options_waydroid = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "SQUASHFS": True,
@@ -396,7 +396,7 @@ necessary_kconfig_options_waydroid = {
 
 # Necessary iwd kernel config options (inet wireless daemon)
 # Obtained from 'grep ADD_MISSING src/main.c' in iwd.git
-necessary_kconfig_options_iwd = {
+kconfig_options_iwd = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "ASYMMETRIC_KEY_TYPE": True,
@@ -423,7 +423,7 @@ necessary_kconfig_options_iwd = {
 }
 
 # Necessary nftables kernel config options (firewall)
-necessary_kconfig_options_nftables = {
+kconfig_options_nftables = {
     ">=3.13.0": {  # nftables support introduced here
         "all": {  # all arches
             "NETFILTER": True,
@@ -458,7 +458,7 @@ necessary_kconfig_options_nftables = {
 }
 
 # Necessary kernel config options for containers (lxc, Docker)
-necessary_kconfig_options_containers = {
+kconfig_options_containers = {
     ">=0.0.0": {  # all versions, more specifically - since >=2.5~2.6
         "all": {  # all arches
             "NAMESPACES": True,
@@ -574,7 +574,7 @@ necessary_kconfig_options_containers = {
 }
 
 # Necessary zram kernel config options (RAM disk with on-the-fly compression)
-necessary_kconfig_options_zram = {
+kconfig_options_zram = {
     ">=3.14.0": {  # zram support introduced here
         "all": {  # all arches
             "ZRAM": True,
@@ -587,7 +587,7 @@ necessary_kconfig_options_zram = {
 }
 
 # Necessary netboot kernel config options
-necessary_kconfig_options_netboot = {
+kconfig_options_netboot = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "BLK_DEV_NBD": True,
@@ -597,7 +597,7 @@ necessary_kconfig_options_netboot = {
 
 # Necessary wireguard & wg-quick kernel config options
 # From https://gitweb.gentoo.org/repo/gentoo.git/tree/net-vpn/wireguard-tools/wireguard-tools-1.0.20210914.ebuild?id=76aaa1eeb6f001baaa68e6946f917ebb091bbd9d # noqa
-necessary_kconfig_options_wireguard = {
+kconfig_options_wireguard = {
     ">=5.6_rc1": {  # all versions
         "all": {  # all arches
             "WIREGUARD": True,
@@ -617,7 +617,7 @@ necessary_kconfig_options_wireguard = {
 }
 
 # Necessary file system config options
-necessary_kconfig_options_filesystems = {
+kconfig_options_filesystems = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "BTRFS_FS": True,
@@ -629,7 +629,7 @@ necessary_kconfig_options_filesystems = {
 }
 
 # Various other kernel config options
-necessary_kconfig_options_community = {
+kconfig_options_community = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "INPUT_UINPUT": True,  # buffyboard
@@ -641,7 +641,7 @@ necessary_kconfig_options_community = {
 }
 
 # Necessary UEFI boot config options
-necessary_kconfig_options_uefi = {
+kconfig_options_uefi = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
             "EFI_STUB": True,
