@@ -586,8 +586,8 @@ def add_packages_arg(subparser, name="packages", *args, **kwargs):
         arg.completer = package_completer
 
 
-def add_kernel_arg(subparser, name="package", *args, **kwargs):
-    arg = subparser.add_argument("package", nargs='?', help="kernel package"
+def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
+    arg = subparser.add_argument("package", nargs=nargs, help="kernel package"
                                  " (e.g. linux-postmarketos-allwinner)")
     if argcomplete:
         arg.completer = kernel_completer
