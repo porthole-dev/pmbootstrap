@@ -44,38 +44,28 @@ def is_in_array(config, option, string):
 
 def check_option(component, details, config, config_path_pretty, option,
                  option_value):
-    link = (f"https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}")
-    warning_no_details = (f"WARNING: {config_path_pretty} isn't"
-                          f" configured properly for {component}, run"
-                          f" 'pmbootstrap kconfig check' for details!")
+
+    def warn_ret_false(should_str):
+        if details:
+            logging.warning(f"WARNING: {config_path_pretty}: CONFIG_{option}"
+                            f" should {should_str} ({component}):"
+                            f" https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}")
+        else:
+            logging.warning(f"WARNING: {config_path_pretty} isn't"
+                            f" configured properly ({component}), run"
+                            f" 'pmbootstrap kconfig check' for details!")
+        return False
+
     if isinstance(option_value, list):
         for string in option_value:
             if not is_in_array(config, option, string):
-                if details:
-                    logging.info(f"WARNING: {config_path_pretty}:"
-                                 f' CONFIG_{option} should contain "{string}".'
-                                 f" See <{link}> for details.")
-                else:
-                    logging.warning(warning_no_details)
-                return False
+                return warn_ret_false(f'contain "{string}"')
     elif isinstance(option_value, str):
         if not is_set_str(config, option, option_value):
-            if details:
-                logging.info(f"WARNING: {config_path_pretty}: CONFIG_{option}"
-                             f' should be set to "{option_value}".'
-                             f" See <{link}> for details.")
-            else:
-                logging.warning(warning_no_details)
-            return False
+            return warn_ret_false(f'be set to "{option_value}"')
     elif option_value in [True, False]:
         if option_value != is_set(config, option):
-            if details:
-                should = "should" if option_value else "should *not*"
-                logging.info(f"WARNING: {config_path_pretty}: CONFIG_{option}"
-                             f" {should} be set. See <{link}> for details.")
-            else:
-                logging.warning(warning_no_details)
-            return False
+            return warn_ret_false("be set" if option_value else "*not* be set")
     else:
         raise RuntimeError("kconfig check code can only handle booleans,"
                            f" strings and arrays. Given value {option_value}"
