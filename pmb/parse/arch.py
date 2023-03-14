@@ -14,7 +14,7 @@ def alpine_native():
         "aarch64": "aarch64",
         "arm64": "aarch64",
         "armv6l": "armhf",
-        "armv7l": "armv7"
+        "armv7l": "armv7",
     }
     if machine in mapping:
         return mapping[machine]
@@ -65,7 +65,7 @@ def alpine_to_kernel(arch):
         "arm*": "arm",
         "ppc*": "powerpc",
         "s390*": "s390",
-        "riscv64*": "riscv"
+        "riscv64*": "riscv",
     }
     for pattern, arch_kernel in mapping.items():
         if fnmatch.fnmatch(arch, pattern):
