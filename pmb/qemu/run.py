@@ -161,9 +161,13 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         command += ["-L", rootfs_native + "/usr/share/qemu/"]
 
     command += ["-nodefaults"]
-    command += ["-kernel", kernel]
-    command += ["-initrd", rootfs + "/boot/initramfs" + flavor_suffix]
-    command += ["-append", shlex.quote(cmdline)]
+    # Only boot a kernel/initramfs directly when not doing EFI boot. This
+    # allows us to load/execute an EFI application on boot, and support
+    # a wide variety of boot loaders.
+    if not args.efi:
+        command += ["-kernel", kernel]
+        command += ["-initrd", rootfs + "/boot/initramfs" + flavor_suffix]
+        command += ["-append", shlex.quote(cmdline)]
 
     command += ["-smp", str(ncpus)]
 
@@ -199,6 +203,10 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     else:
         raise RuntimeError(f"Architecture {arch} not supported by this command"
                            " yet.")
+
+    if args.efi:
+        command += ["-drive",
+                    "if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF.fd"]
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.config.arch_native == args.deviceinfo["arch"]
@@ -303,6 +311,9 @@ def install_depends(args, arch):
         depends.remove("qemu-hw-display-virtio-gpu-pci")
         depends.remove("qemu-hw-display-virtio-vga")
         depends.remove("qemu-ui-opengl")
+
+    if args.efi:
+        depends.append("ovmf")
 
     pmb.chroot.apk.install(args, depends)
 
