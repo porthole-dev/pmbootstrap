@@ -366,6 +366,8 @@ def arguments_qemu(subparser):
     ret.add_argument("--host-qemu", dest="host_qemu", action='store_true',
                      help="Use the host system's qemu")
 
+    ret.add_argument("--efi", action=argparse.BooleanOptionalAction,
+                     help="Use EFI boot (default: direct kernel image boot)")
     return ret
 
 
