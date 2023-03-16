@@ -97,6 +97,15 @@ def partition(args, layout, size_boot, size_reserve):
         ["set", str(layout["boot"]), "boot", "on"]
     ]
 
+    # Not strictly necessary if the device doesn't use EFI boot, but marking
+    # it as an ESP will cover all situations where the device does use EFI
+    # boot. Marking it as ESP is helpful for EFI fw when it's looking for EFI
+    # system partitions. It's assumed that setting this bit is unlikely to
+    # cause problems for other situations, like when using Legacy BIOS boot
+    # or u-boot.
+    if partition_type.lower() == "gpt":
+        commands += [["set", str(layout["boot"]), "esp", "on"]]
+
     for command in commands:
         pmb.chroot.root(args, ["parted", "-s", "/dev/install"] +
                         command, check=False)
