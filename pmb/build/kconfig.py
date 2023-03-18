@@ -131,6 +131,9 @@ def menuconfig(args, pkgname, use_oldconfig):
 
     extract_and_patch_sources(args, pkgname, arch)
 
+    # Check for background color variable
+    color = os.environ.get("MENUCONFIG_COLOR")
+
     # Run make menuconfig
     outputdir = get_outputdir(args, pkgname, apkbuild)
     logging.info("(native) make " + kopt)
@@ -140,6 +143,8 @@ def menuconfig(args, pkgname, use_oldconfig):
     if cross:
         env["CROSS_COMPILE"] = f"{hostspec}-"
         env["CC"] = f"{hostspec}-gcc"
+    if color:
+        env["MENUCONFIG_COLOR"] = color
     pmb.chroot.user(args, ["make", kopt], "native",
                     outputdir, output="tui", env=env)
 
