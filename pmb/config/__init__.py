@@ -360,6 +360,7 @@ kconfig_options_waydroid = {
             "ANDROID_BINDERFS": False,
             "ANDROID_BINDER_DEVICES": ["binder", "hwbinder", "vndbinder"],
             "ANDROID_BINDER_IPC": True,
+            "ANDROID_BINDER_IPC_SELFTEST": False,
             "BLK_DEV_LOOP": True,
             "BPF_SYSCALL": True,
             "BRIDGE": True,
