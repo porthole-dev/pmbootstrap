@@ -1,5 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+# This file has a _zzz_ prefix so it runs last, because it tends to fail on
+# sourcehut currently. Related to some CDN caching issue probably.
 import os
 import sys
 import pytest
