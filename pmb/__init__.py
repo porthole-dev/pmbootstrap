@@ -23,6 +23,9 @@ def main():
         args = parse.arguments()
         os.umask(0o22)
 
+        # Store script invocation command
+        os.environ["PMBOOTSTRAP_CMD"] = sys.argv[0]
+
         # Sanity checks
         other.check_grsec()
         if not args.as_root and os.geteuid() == 0:
