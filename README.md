@@ -43,7 +43,7 @@ Issues are being tracked
   * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
     does **not** work! Please use [VirtualBox](https://www.virtualbox.org/) instead.
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
-* Python 3.6+
+* Python 3.7+
 * OpenSSL
 * git
 * ps

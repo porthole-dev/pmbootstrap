@@ -10,7 +10,7 @@ fi
 
 # shellcheck disable=SC2046
 vermin \
-	-t=3.6- \
+	-t=3.7- \
 	--backport argparse \
 	--backport configparser \
 	--backport enum \
