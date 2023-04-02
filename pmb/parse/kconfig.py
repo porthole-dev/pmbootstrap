@@ -237,6 +237,10 @@ def check(args, pkgname, components_list=[], details=False, must_exist=True):
     :returns: True when the check was successful, False otherwise
               None if the aport cannot be found (only if must_exist=False)
     """
+    # Don't modify the original component_list (arguments are passed as
+    # reference, a list is not immutable)
+    components_list = components_list.copy()
+
     # Pkgname: allow omitting "linux-" prefix
     if pkgname.startswith("linux-"):
         flavor = pkgname.split("linux-")[1]
