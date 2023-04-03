@@ -73,7 +73,8 @@ def ask_for_flash_method():
         logging.info("Which flash method does the device support?")
         method = pmb.helpers.cli.ask("Flash method",
                                      pmb.config.flash_methods,
-                                     pmb.config.flash_methods[0])
+                                     pmb.config.flash_methods[0],
+                                     complete=pmb.config.flash_methods)
 
         if method in pmb.config.flash_methods:
             if method == "heimdall":
