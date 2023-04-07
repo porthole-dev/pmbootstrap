@@ -5,8 +5,8 @@
 # PYTHON_ARGCOMPLETE_OK
 import sys
 version = sys.version_info
-if version < (3, 6):
-    print("You need at least Python 3.6 to run pmbootstrap")
+if version < (3, 7):
+    print("You need at least Python 3.7 to run pmbootstrap")
     print("(You are running it with Python " + str(version.major) +
           "." + str(version.minor) + ")")
     sys.exit()
