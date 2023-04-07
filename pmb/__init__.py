@@ -14,6 +14,13 @@ from .helpers import logging as pmb_logging
 from .helpers import mount
 from .helpers import other
 
+version = sys.version_info
+if version < (3, 7):
+    print("You need at least Python 3.7 to run pmbootstrap")
+    print("(You are running it with Python " + str(version.major) +
+          "." + str(version.minor) + ")")
+    sys.exit()
+
 
 def main():
     # Wrap everything to display nice error messages
@@ -58,6 +65,10 @@ def main():
             logging.info("NOTE: chroot is still active (use 'pmbootstrap"
                          " shutdown' as necessary)")
         logging.info("DONE!")
+
+    except KeyboardInterrupt:
+        print("\nCaught KeyboardInterrupt, exiting …")
+        sys.exit(130)  # SIGINT(2) + 128
 
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed

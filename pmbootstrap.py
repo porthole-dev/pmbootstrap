@@ -4,17 +4,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # PYTHON_ARGCOMPLETE_OK
 import sys
-version = sys.version_info
-if version < (3, 7):
-    print("You need at least Python 3.7 to run pmbootstrap")
-    print("(You are running it with Python " + str(version.major) +
-          "." + str(version.minor) + ")")
-    sys.exit()
 import pmb
 
+# A convenience wrapper for running pmbootstrap from the git repository. This
+# script is not part of the python packaging, so don't add more logic here!
 if __name__ == "__main__":
-    try:
-        sys.exit(pmb.main())
-    except KeyboardInterrupt:
-        print("\nCaught KeyboardInterrupt, exiting …")
-        sys.exit(130)  # SIGINT(2) + 128
+    sys.exit(pmb.main())
