@@ -34,7 +34,7 @@ def init_req_headers() -> None:
         return
     # Generic request headers
     req_headers = {
-        'User-Agent': f'pmbootstrap/{pmb.config.version} aportupgrade'}
+        'User-Agent': f'pmbootstrap/{pmb.__version__} aportupgrade'}
 
     # Request headers specific to GitHub
     req_headers_github = dict(req_headers)

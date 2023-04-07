@@ -14,6 +14,10 @@ from .helpers import logging as pmb_logging
 from .helpers import mount
 from .helpers import other
 
+# pmbootstrap version
+__version__ = "1.51.0"
+
+# Python version check
 version = sys.version_info
 if version < (3, 7):
     print("You need at least Python 3.7 to run pmbootstrap")

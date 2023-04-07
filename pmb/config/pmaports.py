@@ -59,7 +59,7 @@ def check_version_pmaports(real):
 
 def check_version_pmbootstrap(min):
     # Compare versions
-    real = pmb.config.version
+    real = pmb.__version__
     if pmb.parse.version.compare(real, min) >= 0:
         return
 

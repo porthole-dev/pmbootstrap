@@ -603,7 +603,7 @@ def arguments():
 
     # Other
     parser.add_argument("-V", "--version", action="version",
-                        version=pmb.config.version)
+                        version=pmb.__version__)
     parser.add_argument("-c", "--config", dest="config",
                         default=pmb.config.defaults["config"],
                         help="path to pmbootstrap.cfg file (default in"
