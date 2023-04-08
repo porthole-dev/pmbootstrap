@@ -3,6 +3,7 @@
 import configparser
 import logging
 import os
+import sys
 
 import pmb.config
 import pmb.helpers.git
@@ -89,9 +90,9 @@ def read_config(args):
 
     # Migration message
     if not os.path.exists(args.aports):
-        raise RuntimeError("We have split the aports repository from the"
-                           " pmbootstrap repository (#383). Please run"
-                           " 'pmbootstrap init' again to clone it.")
+        logging.error(f"ERROR: pmaports dir not found: {args.aports}")
+        logging.error("Did you run 'pmbootstrap init'?")
+        sys.exit(1)
 
     # Require the config
     path_cfg = args.aports + "/pmaports.cfg"
