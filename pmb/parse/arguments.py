@@ -79,6 +79,8 @@ def arguments_install(subparser):
                      " installation - will be handled in PLAIN TEXT during"
                      " install and may be logged to the logfile, do not use an"
                      " important password!")
+    ret.add_argument("--no-cgpt", help="do not use cgpt partition table",
+                     dest="install_cgpt", action="store_false", default=True)
 
     # Image type
     group_desc = ret.add_argument_group(

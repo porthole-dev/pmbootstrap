@@ -606,7 +606,7 @@ def write_cgpt_kpart(args, layout, suffix):
     :param layout: partition layout from get_partition_layout()
     :param suffix: of the chroot, which holds the image file to be flashed
     """
-    if not args.deviceinfo["cgpt_kpart"]:
+    if not args.deviceinfo["cgpt_kpart"] or not args.install_cgpt:
         return
 
     device_rootfs = mount_device_rootfs(args, suffix)
@@ -712,12 +712,13 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.chroot.shutdown(args, True)
     (size_boot, size_root) = get_subpartitions_size(args, suffix)
-    layout = get_partition_layout(size_reserve, args.deviceinfo["cgpt_kpart"])
+    layout = get_partition_layout(size_reserve, args.deviceinfo["cgpt_kpart"] \
+             and args.install_cgpt)
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root,
                                        size_reserve, split, sdcard)
         if not split:
-            if args.deviceinfo["cgpt_kpart"]:
+            if args.deviceinfo["cgpt_kpart"] and args.install_cgpt:
                 pmb.install.partition_cgpt(
                     args, layout, size_boot, size_reserve)
             else:
