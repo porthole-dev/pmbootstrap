@@ -267,16 +267,17 @@ def validate_hostname(hostname):
         return False
 
     # Check that it only contains valid chars
-    if not re.match("^[0-9a-z-]*$", hostname):
+    if not re.match(r"^[0-9a-z-\.]*$", hostname):
         logging.fatal("ERROR: Hostname must only contain letters (a-z),"
-                      " digits (0-9) or minus signs (-)")
+                      " digits (0-9), minus signs (-), or periods (.)")
         return False
 
-    # Check that doesn't begin or end with a minus sign
-    if hostname[:1] == "-" or hostname[-1:] == "-":
+    # Check that doesn't begin or end with a minus sign or period
+    if re.search(r"^-|^\.|-$|\.$", hostname):
         logging.fatal("ERROR: Hostname must not begin or end with a minus"
-                      " sign")
+                      " sign or period")
         return False
+
     return True
 
 
