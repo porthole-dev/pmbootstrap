@@ -11,6 +11,7 @@ import pmb.config
 import pmb.config.pmaports
 import pmb.helpers.cli
 import pmb.helpers.devices
+import pmb.helpers.git
 import pmb.helpers.http
 import pmb.helpers.logging
 import pmb.helpers.other
@@ -652,6 +653,15 @@ def frontend(args):
     channel = ask_for_channel(args)
     pmb.config.pmaports.switch_to_channel_branch(args, channel)
     cfg["pmbootstrap"]["is_default_channel"] = "False"
+
+    # Copy the git hooks if master was checked out. (Don't symlink them and
+    # only do it on master, so the git hooks don't change unexpectedly when
+    # having a random branch checked out.)
+    branch_current = pmb.helpers.git.rev_parse(args, args.aports,
+                                               extra_args=["--abbrev-ref"])
+    if branch_current == "master":
+        logging.info("NOTE: pmaports is on master branch, copying git hooks.")
+        pmb.config.pmaports.install_githooks(args)
 
     # Device
     device, device_exists, kernel, nonfree = ask_for_device(args)

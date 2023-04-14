@@ -191,3 +191,17 @@ def switch_to_channel_branch(args, channel_new):
     # Verify pmaports.cfg on new branch
     read_config(args)
     return True
+
+
+def install_githooks(args):
+    hooks_dir = os.path.join(args.aports, ".githooks")
+    if not os.path.exists(hooks_dir):
+        logging.info("No .githooks dir found")
+        return
+    for h in os.listdir(hooks_dir):
+        src = os.path.join(hooks_dir, h)
+        # Use git default hooks dir so users can ignore our hooks
+        # if they dislike them by setting "core.hooksPath" git config
+        dst = os.path.join(args.aports, ".git", "hooks", h)
+        if pmb.helpers.run.user(args, ["cp", src, dst], check=False):
+            logging.warning(f"WARNING: Copying git hook failed: {dst}")
