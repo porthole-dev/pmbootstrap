@@ -121,7 +121,8 @@ initialize_chroot() {
 	arch_substr="${host_arch:0:3}"
 	if [ "$arch" = "$host_arch" ] || \
 		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; } || \
-		{ [ "$arch" = "arm64" ] && [ "$host_arch" = "aarch64" ]; }; then
+		{ [ "$arch" = "arm64" ] && [ "$host_arch" = "aarch64" ]; } || \
+		{ [ "$arch" = "x86" ] && [ "$host_arch" = "x86_64" ]; }; then
 		need_cross_compiler=0
 	fi
 
@@ -216,6 +217,10 @@ set_alias_make() {
 		cc="${prefix}-gcc"
 		hostcc="gcc"
 		cross_compiler="/usr/bin/$prefix-"
+	fi
+
+	if [ "$arch" = "x86" ] && [ "$host_arch" = "x86_64" ]; then
+		cc=$hostcc
 	fi
 
 	# Build make command
