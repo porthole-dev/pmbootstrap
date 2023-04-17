@@ -26,9 +26,9 @@ class PyTest(TestCommand):
 
 
 here = path.abspath(path.dirname(__file__))
-_version_re = re.compile(r'version\s+=\s+(.*)')
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
 
-with open(path.join(here, 'pmb/config/__init__.py'), 'rb') as f:
+with open(path.join(here, 'pmb/__init__.py'), 'rb') as f:
     version = str(ast.literal_eval(_version_re.search(
         f.read().decode('utf-8')).group(1)))
 
