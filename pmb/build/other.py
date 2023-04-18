@@ -152,7 +152,7 @@ def configure_abuild(args, suffix, verify=False):
                                 suffix)
                 configure_abuild(args, suffix, True)
             return
-    raise RuntimeError("Could not find " + prefix + " line in " + path)
+    pmb.chroot.root(args, ["sed", "-i", f"$ a\\{prefix}{args.jobs}", "/etc/abuild.conf"], suffix)
 
 
 def configure_ccache(args, suffix="native", verify=False):
