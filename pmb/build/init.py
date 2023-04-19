@@ -1,8 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
-import logging
 import glob
+import logging
+import os
+import pathlib
 
 import pmb.build
 import pmb.config
@@ -12,9 +13,8 @@ import pmb.helpers.run
 
 
 def init(args, suffix="native"):
-    # Check if already initialized
-    marker = "/var/local/pmbootstrap_chroot_build_init_done"
-    if os.path.exists(args.work + "/chroot_" + suffix + marker):
+    marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_build_init_done"
+    if os.path.exists(marker):
         return
 
     # Initialize chroot, install packages
@@ -77,8 +77,7 @@ def init(args, suffix="native"):
                            "s/^ERROR_CLEANUP=.*/ERROR_CLEANUP=''/",
                            "/etc/abuild.conf"], suffix)
 
-    # Mark the chroot as initialized
-    pmb.chroot.root(args, ["touch", marker], suffix)
+    pathlib.Path(marker).touch()
 
 
 def init_compiler(args, depends, cross, arch):
