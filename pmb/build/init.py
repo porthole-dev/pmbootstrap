@@ -12,20 +12,38 @@ import pmb.chroot.apk
 import pmb.helpers.run
 
 
-def init(args, suffix="native"):
-    marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_build_init_done"
+def init_abuild_minimal(args, suffix="native"):
+    """ Initialize a minimal chroot with abuild where one can do
+        'abuild checksum'. """
+    marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):
         return
 
-    # Initialize chroot, install packages
-    pmb.chroot.apk.install(args, pmb.config.build_packages, suffix,
-                           build=False)
+    pmb.chroot.apk.install(args, ["abuild"], suffix, build=False)
 
     # Fix permissions
     pmb.chroot.root(args, ["chown", "root:abuild",
                            "/var/cache/distfiles"], suffix)
     pmb.chroot.root(args, ["chmod", "g+w",
                            "/var/cache/distfiles"], suffix)
+
+    # Add user to group abuild
+    pmb.chroot.root(args, ["adduser", "pmos", "abuild"], suffix)
+
+    pathlib.Path(marker).touch()
+
+
+def init(args, suffix="native"):
+    """ Initialize a chroot for building packages with abuild. """
+    marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_build_init_done"
+    if os.path.exists(marker):
+        return
+
+    init_abuild_minimal(args, suffix)
+
+    # Initialize chroot, install packages
+    pmb.chroot.apk.install(args, pmb.config.build_packages, suffix,
+                           build=False)
 
     # Generate package signing keys
     chroot = args.work + "/chroot_" + suffix
@@ -62,9 +80,6 @@ def init(args, suffix="native"):
         pmb.chroot.root(args, ["cp", "/tmp/gzip_wrapper.sh",
                                "/usr/local/bin/gzip"], suffix)
         pmb.chroot.root(args, ["chmod", "+x", "/usr/local/bin/gzip"], suffix)
-
-    # Add user to group abuild
-    pmb.chroot.root(args, ["adduser", "pmos", "abuild"], suffix)
 
     # abuild.conf: Don't clean the build folder after building, so we can
     # inspect it afterwards for debugging

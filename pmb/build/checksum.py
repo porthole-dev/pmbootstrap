@@ -10,7 +10,7 @@ import pmb.helpers.pmaports
 
 def update(args, pkgname):
     """ Fetch all sources and update the checksums in the APKBUILD. """
-    pmb.build.init(args)
+    pmb.build.init_abuild_minimal(args)
     pmb.build.copy_to_buildpath(args, pkgname)
     logging.info("(native) generate checksums for " + pkgname)
     pmb.chroot.user(args, ["abuild", "checksum"],
@@ -24,7 +24,7 @@ def update(args, pkgname):
 
 def verify(args, pkgname):
     """ Fetch all sources and verify their checksums. """
-    pmb.build.init(args)
+    pmb.build.init_abuild_minimal(args)
     pmb.build.copy_to_buildpath(args, pkgname)
     logging.info("(native) verify checksums for " + pkgname)
 
