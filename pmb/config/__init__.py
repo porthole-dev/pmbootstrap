@@ -636,6 +636,20 @@ kconfig_options_filesystems = {
     },
 }
 
+kconfig_options_usb_gadgets = {
+    ">=0.0.0": {  # all versions
+        "all": {  # all arches
+            # disable legacy gadgets
+            "USB_ETH": False,
+            "USB_FUNCTIONFS": False,
+            "USB_MASS_STORAGE": False,
+            "USB_G_SERIAL": False,
+            # enable configfs gadgets
+            "USB_CONFIGFS_RNDIS": True,  # USB networking via RNDIS
+        },
+    },
+}
+
 # Various other kernel config options
 kconfig_options_community = {
     ">=0.0.0": {  # all versions
