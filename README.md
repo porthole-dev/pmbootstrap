@@ -103,6 +103,27 @@ Generate a template for a new package:
 $ pmbootstrap newapkbuild "https://gitlab.com/postmarketOS/osk-sdl/-/archive/0.52/osk-sdl-0.52.tar.bz2"
 ```
 
+#### Default architecture
+
+Packages will be compiled for the architecture of the device running
+pmbootstrap by default. For example, if your `x86_64` PC runs pmbootstrap, it
+would build a package for `x86_64` with this command:
+```
+$ pmbootstrap build hello-world
+```
+
+If you would rather build for the target device selected in `pmbootstrap init`
+by default, then use the `build_default_device_arch` option:
+```
+$ pmbootstrap config build_default_device_arch True
+```
+
+If your target device is `pine64-pinephone` for example, pmbootstrap will now
+build this package for `aarch64`:
+```
+$ pmbootstrap build hello-world
+```
+
 ### Chroots
 Enter the `armhf` building chroot:
 ```

@@ -63,6 +63,7 @@ sudo = which_sudo()
 config_keys = [
     "aports",
     "boot_size",
+    "build_default_device_arch",
     "build_pkgs_on_install",
     "ccache_size",
     "device",
@@ -130,7 +131,8 @@ defaults = {
     "boot_size": "256",
     "extra_space": "0",
     "sudo_timer": False,
-    "qemu_redir_stdio": False
+    "qemu_redir_stdio": False,
+    "build_default_device_arch": False,
 }
 
 

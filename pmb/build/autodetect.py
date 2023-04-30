@@ -40,7 +40,7 @@ def arch(args, pkgname):
     :returns: arch string like "x86_64" or "armhf". Preferred order, depending
               on what is supported by the APKBUILD:
               * native arch
-              * device arch
+              * device arch (this will be preferred instead if build_default_device_arch is true)
               * first arch in the APKBUILD
     """
     aport = pmb.helpers.pmaports.find(args, pkgname)
@@ -50,14 +50,19 @@ def arch(args, pkgname):
 
     apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     arches = apkbuild["arch"]
-    if ("noarch" in arches or
-            "all" in arches or
-            pmb.config.arch_native in arches):
-        return pmb.config.arch_native
 
-    arch_device = args.deviceinfo["arch"]
-    if arch_device in arches:
-        return arch_device
+    if args.build_default_device_arch:
+        preferred_arch = args.deviceinfo["arch"]
+        preferred_arch_2nd = pmb.config.arch_native
+    else:
+        preferred_arch = pmb.config.arch_native
+        preferred_arch_2nd = args.deviceinfo["arch"]
+
+    if "noarch" in arches or "all" in arches or preferred_arch in arches:
+        return preferred_arch
+
+    if preferred_arch_2nd in arches:
+        return preferred_arch_2nd
 
     try:
         return apkbuild["arch"][0]
