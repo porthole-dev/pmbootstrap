@@ -1032,9 +1032,12 @@ def create_device_rootfs(args, step, steps):
 
     # Set locale
     if locale_is_set:
-        pmb.chroot.root(args, ["sed", "-i",
-                               f"s/LANG=C.UTF-8/LANG={args.locale}/",
-                               "/etc/profile.d/locale.sh"], suffix)
+        # 10locale-pmos.sh gets sourced before 20locale.sh from
+        # alpine-baselayout by /etc/profile. Since they don't override the
+        # locale if it exists, it warranties we have preference
+        line = f"export LANG=${{LANG:-{shlex.quote(args.locale)}}}"
+        pmb.chroot.root(args, ["sh", "-c", f"echo {shlex.quote(line)}"
+                               " > /etc/profile.d/10locale-pmos.sh"], suffix)
 
     # Set the hostname as the device name
     setup_hostname(args)
