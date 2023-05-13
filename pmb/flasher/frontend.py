@@ -137,17 +137,17 @@ def frontend(args):
 
     if action in ["boot", "flash_kernel"]:
         kernel(args)
-    if action == "flash_rootfs":
+    elif action == "flash_rootfs":
         rootfs(args)
-    if action == "flash_vbmeta":
+    elif action == "flash_vbmeta":
         flash_vbmeta(args)
-    if action == "flash_dtbo":
+    elif action == "flash_dtbo":
         flash_dtbo(args)
-    if action == "list_flavors":
+    elif action == "list_flavors":
         list_flavors(args)
-    if action == "list_devices":
+    elif action == "list_devices":
         list_devices(args)
-    if action == "sideload":
+    elif action == "sideload":
         sideload(args)
-    if action in ["flash_lk2nd"]:
+    elif action in ["flash_lk2nd"]:
         flash_lk2nd(args)
