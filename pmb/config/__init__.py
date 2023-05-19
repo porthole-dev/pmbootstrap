@@ -113,7 +113,7 @@ defaults = {
     "jobs": str(multiprocessing.cpu_count() + 1),
     "kernel": "stable",
     "keymap": "",
-    "locale": "C.UTF-8",
+    "locale": "en_US.UTF-8",
     "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
     # NOTE: mirrors_postmarketos variable type is supposed to be
