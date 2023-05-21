@@ -89,7 +89,14 @@ def main():
             log_hint += (" Alternatively you can use '--details-to-stdout' to"
                          " get more output, e.g. 'pmbootstrap"
                          " --details-to-stdout init'.")
+        print()
         print(log_hint)
+        print()
+        print("Before you report this error, ensure that pmbootstrap is "
+              "up to date.")
+        print("Find the latest version here:"
+              " https://git.sr.ht/~postmarketos/pmbootstrap/refs")
+        print(f"Your version: {__version__}")
         return 1
 
 
