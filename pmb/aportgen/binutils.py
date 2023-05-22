@@ -14,6 +14,7 @@ def generate(args, pkgname):
     # Rewrite APKBUILD
     fields = {
         "arch": pmb.config.arch_native,
+        "makedepends_host": "zlib-dev jansson-dev zstd-dev",
         "pkgdesc": f"Tools necessary to build programs for {arch} targets",
         "pkgname": pkgname,
     }
