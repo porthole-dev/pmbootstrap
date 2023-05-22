@@ -19,10 +19,15 @@ def generate(args, pkgname):
         "pkgname": pkgname,
     }
 
+    replace_simple = {
+        "*--with-bugurl=*": "\t\t--with-bugurl=\"https://postmarketos.org/issues\" \\"
+    }
+
     below_header = """
         CTARGET_ARCH=""" + arch + """
         CTARGET="$(arch_to_hostspec $CTARGET_ARCH)"
     """
 
     pmb.aportgen.core.rewrite(args, pkgname, "main/binutils", fields,
-                              "binutils", below_header=below_header)
+                              "binutils", replace_simple=replace_simple,
+                              below_header=below_header)
