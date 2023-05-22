@@ -13,9 +13,9 @@ def generate(args, pkgname):
 
     # Rewrite APKBUILD
     fields = {
-        "pkgname": pkgname,
-        "pkgdesc": f"Tools necessary to build programs for {arch} targets",
         "arch": pmb.config.arch_native,
+        "pkgdesc": f"Tools necessary to build programs for {arch} targets",
+        "pkgname": pkgname,
     }
 
     below_header = """
