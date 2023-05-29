@@ -9,9 +9,9 @@ tasks:
   - shellcheck: |
       cd pmbootstrap
       sudo .ci/shellcheck.sh
-  - flake8: |
+  - ruff: |
       cd pmbootstrap
-      sudo .ci/flake8.sh
+      sudo .ci/ruff.sh
   - vermin: |
       cd pmbootstrap
       sudo .ci/vermin.sh

@@ -16,7 +16,7 @@ def get_ci_scripts(topdir):
         :param topdir: top directory of the git repository, get it with:
                        pmb.helpers.git.get_topdir()
         :returns: a dict of CI scripts found in the git repository, e.g.
-                  {"flake8": {"description": "lint all python scripts",
+                  {"ruff": {"description": "lint all python scripts",
                               "options": []},
                    ...} """
     ret = {}
