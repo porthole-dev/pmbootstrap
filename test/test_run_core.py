@@ -83,7 +83,7 @@ def test_foreground_pipe(args):
     assert ret == (-9, "first\n")
 
     # Kill with output timeout as root
-    cmd = [pmb.config.sudo, "sh", "-c", "printf first; sleep 2; printf second"]
+    cmd = pmb.config.sudo(["sh", "-c", "printf first; sleep 2; printf second"])
     args.timeout = 0.3
     ret = func(args, cmd, output_return=True, output_timeout=True,
                sudo=True)
@@ -99,9 +99,11 @@ def test_foreground_pipe(args):
     # Check if all child processes are killed after timeout.
     # The first command uses ps to get its process group id (pgid) and echo it
     # to stdout. All of the test commands will be running under that pgid.
-    cmd = [pmb.config.sudo, "sh", "-c",
-           "pgid=$(ps -o pgid= | grep ^${1:-$$});echo $pgid | tr -d '\n';" +
-           "sleep 10 | sleep 20 | sleep 30"]
+    cmd = pmb.config.sudo([
+        "sh", "-c",
+        "pgid=$(ps -o pgid= | grep ^${1:-$$});echo $pgid | tr -d '\n';"
+        "sleep 10 | sleep 20 | sleep 30"
+    ])
     args.timeout = 0.3
     ret = func(args, cmd, output_return=True, output_timeout=True,
                sudo=True)

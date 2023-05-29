@@ -72,7 +72,7 @@ def root(args, cmd, working_dir=None, output="log", output_return=False,
     """
     if env:
         cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
-    cmd = [pmb.config.sudo] + cmd
+    cmd = pmb.config.sudo(cmd)
 
     return user(args, cmd, working_dir, output, output_return, check, env,
                 True)

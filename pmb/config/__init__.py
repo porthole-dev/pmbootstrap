@@ -58,7 +58,16 @@ required_programs = [
     "ps",
     "tar",
 ]
-sudo = which_sudo()
+
+
+def sudo(cmd: list[str]) -> list[str]:
+    """Adapt a command to run as root."""
+    sudo = which_sudo()
+    if sudo:
+        return [sudo, *cmd]
+    else:
+        return cmd
+
 
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = [

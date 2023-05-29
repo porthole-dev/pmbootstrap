@@ -2,13 +2,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import shutil
+from functools import lru_cache
 
 
-def which_sudo():
-    """
+@lru_cache()
+def which_sudo() -> str | None:
+    """Returns a command required to run commands as root, if any.
+
     Find whether sudo or doas is installed for commands that require root.
     Allows user to override preferred sudo with PMB_SUDO env variable.
     """
+
+    if os.getuid() == 0:
+        return None
+
     supported_sudos = ['doas', 'sudo']
 
     user_set_sudo = os.getenv("PMB_SUDO")
