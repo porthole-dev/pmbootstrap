@@ -531,14 +531,16 @@ def work_migrate(args):
 
 
 def log(args):
+    log_testsuite = f"{args.work}/log_testsuite.txt"
+
     if args.clear_log:
         pmb.helpers.run.user(args, ["truncate", "-s", "0", args.log])
+        pmb.helpers.run.user(args, ["truncate", "-s", "0", log_testsuite])
 
     cmd = ["tail", "-n", args.lines, "-F"]
 
     # Follow the testsuite's log file too if it exists. It will be created when
     # starting a test case that writes to it (git -C test grep log_testsuite).
-    log_testsuite = f"{args.work}/log_testsuite.txt"
     if os.path.exists(log_testsuite):
         cmd += [log_testsuite]
 
