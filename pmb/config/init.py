@@ -620,15 +620,36 @@ def ask_build_pkgs_on_install(args):
                                    default=args.build_pkgs_on_install)
 
 
+def get_locales():
+    ret = []
+    list_path = f"{pmb.config.pmb_src}/pmb/data/locales"
+    with open(list_path, "r") as handle:
+        for line in handle:
+            ret += [line.rstrip()]
+    return ret
+
+
 def ask_for_locale(args):
-    locales = pmb.config.locales
-    logging.info(f"Available locales ({len(locales)}): {', '.join(locales)}")
-    return pmb.helpers.cli.ask("Choose default locale for installation",
-                               choices=None,
-                               default=args.locale,
-                               lowercase_answer=False,
-                               validation_regex="|".join(locales),
-                               complete=locales)
+    locales = get_locales()
+    logging.info("Choose your preferred locale, like e.g. en_US. Only UTF-8"
+                 " is supported, it gets appended automatically. Use"
+                 " tab-completion if needed.")
+
+    while True:
+        ret = pmb.helpers.cli.ask("Locale",
+                                  choices=None,
+                                  default=args.locale.replace(".UTF-8", ""),
+                                  lowercase_answer=False,
+                                  complete=locales)
+        ret = ret.replace(".UTF-8", "")
+        if ret not in locales:
+            logging.info("WARNING: this locale is not in the list of known"
+                         " valid locales.")
+            if pmb.helpers.cli.ask() != "y":
+                # Ask again
+                continue
+
+        return f"{ret}.UTF-8"
 
 
 def frontend(args):

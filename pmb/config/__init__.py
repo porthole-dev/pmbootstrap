@@ -167,26 +167,6 @@ if "NO_COLOR" in os.environ:
     for style in styles.keys():
         styles[style] = ""
 
-
-# List of available locales taken from musl-locales package; see
-# https://pkgs.alpinelinux.org/contents?name=musl-locales
-locales = [
-    "C.UTF-8",
-    "ch_DE.UTF-8",
-    "de_CH.UTF-8",
-    "de_DE.UTF-8",
-    "en_GB.UTF-8",
-    "en_US.UTF-8",
-    "es_ES.UTF-8",
-    "fr_FR.UTF-8",
-    "it_IT.UTF-8",
-    "nb_NO.UTF-8",
-    "nl_NL.UTF-8",
-    "pt_BR.UTF-8",
-    "ru_RU.UTF-8",
-    "sv_SE.UTF-8"
-]
-
 # Supported filesystems and their fstools packages
 filesystems = {"btrfs": "btrfs-progs",
                "ext2": "e2fsprogs",
