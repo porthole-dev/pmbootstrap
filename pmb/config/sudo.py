@@ -3,10 +3,11 @@
 import os
 import shutil
 from functools import lru_cache
+from typing import Optional
 
 
 @lru_cache()
-def which_sudo() -> str | None:
+def which_sudo() -> Optional[str]:
     """Returns a command required to run commands as root, if any.
 
     Find whether sudo or doas is installed for commands that require root.
