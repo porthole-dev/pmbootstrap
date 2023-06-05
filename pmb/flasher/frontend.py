@@ -137,7 +137,6 @@ def flash_lk2nd(args):
     if not lk2nd_pkg:
         raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
 
-    # Install device package since that should also install lk2nd package
     suffix = "rootfs_" + args.device
     pmb.chroot.apk.install(args, [lk2nd_pkg], suffix)
 
