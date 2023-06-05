@@ -797,6 +797,8 @@ deviceinfo_attributes = [
     "flash_fastboot_partition_system",
     "flash_fastboot_partition_vbmeta",
     "flash_fastboot_partition_dtbo",
+    "flash_rk_partition_kernel",
+    "flash_rk_partition_system",
     "generate_legacy_uboot_initfs",
     "kernel_cmdline",
     "generate_bootimg",
