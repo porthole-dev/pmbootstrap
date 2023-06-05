@@ -110,15 +110,38 @@ def sideload(args):
 
 
 def flash_lk2nd(args):
-    chroot_path = args.work + "/chroot_rootfs_" + args.device
-    lk2nd_path = "/boot/lk2nd.img"
-    if not os.path.exists(chroot_path + lk2nd_path):
-        raise RuntimeError(f"{chroot_path+lk2nd_path} doesn't exist. Your"
-                           " device may not support lk2nd.")
+    method = args.flash_method or args.deviceinfo["flash_method"]
+    if method == "fastboot":
+        # In the future this could be expanded to use "fastboot flash lk2nd $img"
+        # which reflashes/updates lk2nd from itself. For now let the user handle this
+        # manually since supporting the codepath with heimdall requires more effort.
+        pmb.flasher.init(args)
+        logging.info("(native) checking current fastboot product")
+        output = pmb.chroot.root(args, ["fastboot", "getvar", "product"],
+                                 output="interactive", output_return=True)
+        # Variable "product" is e.g. "LK2ND_MSM8974" or "lk2nd-msm8226" depending
+        # on the lk2nd version.
+        if "lk2nd" in output.lower():
+            raise RuntimeError("You are currently running lk2nd. Please reboot into the regular"
+                               " bootloader mode to re-flash lk2nd.")
 
-    logging.info(lk2nd_path)
-    logging.info("It's normal if fastboot warns"
-                 " \"Image not signed or corrupt\" or a similar warning")
+    # Get the lk2nd package (which is a dependency of the device package)
+    device_pkg = f"device-{args.device}"
+    apkbuild = pmb.helpers.pmaports.get(args, device_pkg)
+    lk2nd_pkg = None
+    for dep in apkbuild["depends"]:
+        if dep.startswith("lk2nd"):
+            lk2nd_pkg = dep
+            break
+
+    if not lk2nd_pkg:
+        raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
+
+    # Install device package since that should also install lk2nd package
+    suffix = "rootfs_" + args.device
+    pmb.chroot.apk.install(args, [lk2nd_pkg], suffix)
+
+    logging.info("(native) flash lk2nd image")
     pmb.flasher.run(args, "flash_lk2nd")
 
 
@@ -143,11 +166,11 @@ def frontend(args):
         flash_vbmeta(args)
     elif action == "flash_dtbo":
         flash_dtbo(args)
+    elif action == "flash_lk2nd":
+        flash_lk2nd(args)
     elif action == "list_flavors":
         list_flavors(args)
     elif action == "list_devices":
         list_devices(args)
     elif action == "sideload":
         sideload(args)
-    elif action in ["flash_lk2nd"]:
-        flash_lk2nd(args)
