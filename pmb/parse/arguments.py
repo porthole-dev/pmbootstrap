@@ -256,7 +256,7 @@ def arguments_flasher(subparser):
                                   " changed)")
     flash_rootfs.add_argument("--partition", default=None,
                               help="partition to flash the rootfs to (defaults"
-                                   " to deviceinfo_flash_*_partition_system,"
+                                   " to deviceinfo_flash_*_partition_rootfs,"
                                    " 'userdata' on Android may have more"
                                    " space)")
 

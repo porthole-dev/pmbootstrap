@@ -10,11 +10,15 @@ def variables(args, flavor, method):
 
     flash_pagesize = args.deviceinfo['flash_pagesize']
 
+    # TODO Remove _partition_system deviceinfo support once pmaports has been
+    # updated and minimum pmbootstrap version bumped.
+    # See also https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2243
+
     if method.startswith("fastboot"):
         _partition_kernel = args.deviceinfo["flash_fastboot_partition_kernel"]\
             or "boot"
-        _partition_system = args.deviceinfo["flash_fastboot_partition_system"]\
-            or "userdata"
+        _partition_rootfs = args.deviceinfo["flash_fastboot_partition_rootfs"]\
+            or args.deviceinfo["flash_fastboot_partition_system"] or "userdata"
         _partition_vbmeta = args.deviceinfo["flash_fastboot_partition_vbmeta"]\
             or None
         _partition_dtbo = args.deviceinfo["flash_fastboot_partition_dtbo"]\
@@ -23,15 +27,15 @@ def variables(args, flavor, method):
     elif method.startswith("rkdeveloptool"):
         _partition_kernel = args.deviceinfo["flash_rk_partition_kernel"]\
             or None
-        _partition_system = args.deviceinfo["flash_rk_partition_system"]\
-            or None
+        _partition_rootfs = args.deviceinfo["flash_rk_partition_rootfs"]\
+            or args.deviceinfo["flash_rk_partition_system"] or None
         _partition_vbmeta = None
         _partition_dtbo = None
     else:
         _partition_kernel = args.deviceinfo["flash_heimdall_partition_kernel"]\
             or "KERNEL"
-        _partition_system = args.deviceinfo["flash_heimdall_partition_system"]\
-            or "SYSTEM"
+        _partition_rootfs = args.deviceinfo["flash_heimdall_partition_rootfs"]\
+            or args.deviceinfo["flash_heimdall_partition_system"] or "SYSTEM"
         _partition_vbmeta = args.deviceinfo["flash_heimdall_partition_vbmeta"]\
             or None
         _partition_dtbo = args.deviceinfo["flash_heimdall_partition_dtbo"]\
@@ -41,7 +45,7 @@ def variables(args, flavor, method):
         # Only one operation is done at same time so it doesn't matter
         # sharing the arg
         _partition_kernel = args.partition
-        _partition_system = args.partition
+        _partition_rootfs = args.partition
         _partition_vbmeta = args.partition
         _partition_dtbo = args.partition
 
@@ -59,7 +63,7 @@ def variables(args, flavor, method):
         "$PARTITION_KERNEL": _partition_kernel,
         "$PARTITION_INITFS": args.deviceinfo[
             "flash_heimdall_partition_initfs"] or "RECOVERY",
-        "$PARTITION_SYSTEM": _partition_system,
+        "$PARTITION_ROOTFS": _partition_rootfs,
         "$PARTITION_VBMETA": _partition_vbmeta,
         "$PARTITION_DTBO": _partition_dtbo,
         "$FLASH_PAGESIZE": flash_pagesize,

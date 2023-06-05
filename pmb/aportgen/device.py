@@ -195,13 +195,13 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
 
     content_heimdall_bootimg = """\
         deviceinfo_flash_heimdall_partition_kernel=""
-        deviceinfo_flash_heimdall_partition_system=""
+        deviceinfo_flash_heimdall_partition_rootfs=""
         """
 
     content_heimdall_isorec = """\
         deviceinfo_flash_heimdall_partition_kernel=""
         deviceinfo_flash_heimdall_partition_initfs=""
-        deviceinfo_flash_heimdall_partition_system=""
+        deviceinfo_flash_heimdall_partition_rootfs=""
         """
 
     content_0xffff = """\

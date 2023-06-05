@@ -790,15 +790,18 @@ deviceinfo_attributes = [
     # flash
     "flash_heimdall_partition_kernel",
     "flash_heimdall_partition_initfs",
-    "flash_heimdall_partition_system",
+    "flash_heimdall_partition_rootfs",
+    "flash_heimdall_partition_system", # deprecated
     "flash_heimdall_partition_vbmeta",
     "flash_heimdall_partition_dtbo",
     "flash_fastboot_partition_kernel",
-    "flash_fastboot_partition_system",
+    "flash_fastboot_partition_rootfs",
+    "flash_fastboot_partition_system", # deprecated
     "flash_fastboot_partition_vbmeta",
     "flash_fastboot_partition_dtbo",
     "flash_rk_partition_kernel",
-    "flash_rk_partition_system",
+    "flash_rk_partition_rootfs",
+    "flash_rk_partition_system", # deprecated
     "generate_legacy_uboot_initfs",
     "kernel_cmdline",
     "generate_bootimg",
@@ -902,7 +905,7 @@ $IMAGE: Path to the combined boot/rootfs image
 $IMAGE_SPLIT_BOOT: Path to the (split) boot image
 $IMAGE_SPLIT_ROOT: Path to the (split) rootfs image
 $PARTITION_KERNEL: Partition to flash the kernel/boot.img to
-$PARTITION_SYSTEM: Partition to flash the rootfs to
+$PARTITION_ROOTFS: Partition to flash the rootfs to
 
 Fastboot specific: $KERNEL_CMDLINE
 Heimdall specific: $PARTITION_INITFS
@@ -913,7 +916,7 @@ flashers = {
         "depends": [],  # pmaports.cfg: supported_fastboot_depends
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
-            "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS",
                               "$IMAGE"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
                               "$BOOT/boot.img$FLAVOR"]],
@@ -944,7 +947,7 @@ flashers = {
         "depends": ["android-tools"],
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
-            "flash_rootfs": [["fastboot", "flash", "$PARTITION_SYSTEM",
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS",
                               "$IMAGE_SPLIT_ROOT"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
                               "$IMAGE_SPLIT_BOOT"]],
@@ -962,7 +965,7 @@ flashers = {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_SYSTEM", "$IMAGE"]],
+                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"]],
             "flash_kernel": [["heimdall_flash_kernel.sh",
                               "$BOOT/initramfs$FLAVOR", "$PARTITION_INITFS",
                               "$BOOT/vmlinuz$FLAVOR$DTB",
@@ -977,7 +980,7 @@ flashers = {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_SYSTEM", "$IMAGE"]],
+                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"]],
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
                 ["heimdall", "flash", "--$PARTITION_KERNEL",
@@ -1020,7 +1023,7 @@ flashers = {
         "actions": {
             "list_devices": [["rkdeveloptool", "list"]],
             "flash_rootfs": [
-                ["rkdeveloptool", "write-partition", "$PARTITION_SYSTEM",
+                ["rkdeveloptool", "write-partition", "$PARTITION_ROOTFS",
                     "$IMAGE_SPLIT_ROOT"]
             ],
             "flash_kernel": [

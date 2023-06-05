@@ -35,7 +35,8 @@ def create_zip(args, suffix):
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": vars["$PARTITION_KERNEL"],
         "INITFS_PARTLABEL": vars["$PARTITION_INITFS"],
-        "SYSTEM_PARTLABEL": vars["$PARTITION_SYSTEM"],
+        # Name is still "SYSTEM", not "ROOTFS" in the recovery installer
+        "SYSTEM_PARTLABEL": vars["$PARTITION_ROOTFS"],
         "INSTALL_PARTITION": args.recovery_install_partition,
         "CIPHER": args.cipher,
         "FDE": args.full_disk_encryption,
