@@ -250,7 +250,7 @@ def arguments_flasher(subparser):
                              " default boot image partition ")
 
     # Flash rootfs
-    flash_rootfs = sub.add_parser("flash_rootfs", aliases=["flash_system"],
+    flash_rootfs = sub.add_parser("flash_rootfs",
                                   help="flash the rootfs to a partition on the"
                                   " device (partition layout does not get"
                                   " changed)")

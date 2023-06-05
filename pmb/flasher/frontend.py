@@ -148,10 +148,6 @@ def frontend(args):
     action = args.action_flasher
     method = args.flash_method or args.deviceinfo["flash_method"]
 
-    # Legacy alias
-    if action == "flash_system":
-        action = "flash_rootfs"
-
     if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs",
                                        "flash_lk2nd"]:
         logging.info("This device doesn't support any flash method.")
