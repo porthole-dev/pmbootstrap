@@ -14,7 +14,7 @@ def variables(args, flavor, method):
         _partition_kernel = args.deviceinfo["flash_fastboot_partition_kernel"]\
             or "boot"
         _partition_system = args.deviceinfo["flash_fastboot_partition_system"]\
-            or "system"
+            or "userdata"
         _partition_vbmeta = args.deviceinfo["flash_fastboot_partition_vbmeta"]\
             or None
         _partition_dtbo = args.deviceinfo["flash_fastboot_partition_dtbo"]\
