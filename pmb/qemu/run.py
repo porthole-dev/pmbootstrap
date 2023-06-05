@@ -229,8 +229,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
     # Audio support
     if args.qemu_audio:
-        command += ["-audiodev", args.qemu_audio + ",id=audio"]
-        command += ["-soundhw", "hda"]
+        command += ["-audio", f"{args.qemu_audio},model=hda"]
 
     return (command, env)
 
