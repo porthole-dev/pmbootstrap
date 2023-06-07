@@ -134,7 +134,7 @@ defaults = {
     "ssh_keys": False,
     "ssh_key_glob": "~/.ssh/id_*.pub",
     "timezone": "GMT",
-    "ui": "weston",
+    "ui": "console",
     "ui_extras": False,
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
