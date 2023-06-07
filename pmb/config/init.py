@@ -146,6 +146,11 @@ def ask_for_ui(args, info):
                 ui_list.pop(i)
                 hidden_ui_count += 1
 
+    # Get default
+    default = args.ui
+    if default not in dict(ui_list).keys():
+        default = pmb.config.defaults["ui"]
+
     logging.info(f"Available user interfaces ({len(ui_list) - 1}): ")
     ui_completion_list = []
     for ui in ui_list:
@@ -158,7 +163,7 @@ def ask_for_ui(args, info):
                      " available. See: <https://wiki.postmarketos.org/wiki/"
                      "Deviceinfo_reference")
     while True:
-        ret = pmb.helpers.cli.ask("User interface", None, args.ui, True,
+        ret = pmb.helpers.cli.ask("User interface", None, default, True,
                                   complete=ui_completion_list)
         if ret in dict(ui_list).keys():
             return ret
