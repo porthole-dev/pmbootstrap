@@ -110,7 +110,10 @@ def ask_for_channel(args):
     # List channels
     logging.info("Choose the postmarketOS release channel.")
     logging.info(f"Available ({count}):")
-    for channel, channel_data in channels_cfg["channels"].items():
+    # Only show the first 3 releases. This includes edge, the latest supported
+    # release plus one. Should be a good solution until new needs arrive when
+    # we might want to have a custom channels.cfg attribute.
+    for channel, channel_data in list(channels_cfg["channels"].items())[:3]:
         logging.info(f"* {channel}: {channel_data['description']}")
 
     # Default for first run: "recommended" from channels.cfg
