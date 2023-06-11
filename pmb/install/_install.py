@@ -362,6 +362,12 @@ def setup_timezone(args):
     version = alpine_conf["version"].split("-r")[0]
 
     setup_tz_cmd = ["setup-timezone"]
+    # setup-timezone will, by default, copy the timezone to /etc/zoneinfo
+    # and disregard tzdata, to save space. If we actually have tzdata
+    # installed, make sure that setup-timezone makes use of it, since
+    # there's no space to be saved.
+    if "tzdata" in pmb.chroot.apk.installed(args, suffix):
+        setup_tz_cmd += ["-i"]
     if not pmb.parse.version.check_string(version, ">=3.14.0"):
         setup_tz_cmd += ["-z"]
     setup_tz_cmd += [args.timezone]
