@@ -354,6 +354,20 @@ def setup_keymap(args):
         logging.info("NOTE: No valid keymap specified for device")
 
 
+def setup_timezone(args):
+    suffix = f"rootfs_{args.device}"
+
+    arch = args.deviceinfo["arch"]
+    alpine_conf = pmb.helpers.package.get(args, "alpine-conf", arch)
+    version = alpine_conf["version"].split("-r")[0]
+
+    setup_tz_cmd = ["setup-timezone"]
+    if not pmb.parse.version.check_string(version, ">=3.14.0"):
+        setup_tz_cmd += ["-z"]
+    setup_tz_cmd += [args.timezone]
+    pmb.chroot.root(args, setup_tz_cmd, suffix)
+
+
 def setup_hostname(args):
     """
     Set the hostname and update localhost address in /etc/hosts
@@ -1021,14 +1035,7 @@ def create_device_rootfs(args, step, steps):
     setup_keymap(args)
 
     # Set timezone
-    arch = args.deviceinfo["arch"]
-    package = pmb.helpers.package.get(args, "alpine-conf", arch)
-    version = package["version"].split("-r")[0]
-
-    if not pmb.parse.version.check_string(version, ">=3.14.0"):
-        pmb.chroot.root(args, ["setup-timezone", "-z", args.timezone], suffix)
-    else:
-        pmb.chroot.root(args, ["setup-timezone", args.timezone], suffix)
+    setup_timezone(args)
 
     # Set locale
     if locale_is_set:
