@@ -230,7 +230,7 @@ def sudo_timer_iterate():
     if pmb.config.which_sudo() == "sudo":
         subprocess.Popen(["sudo", "-v"]).wait()
     else:
-        subprocess.Popen(pmb.config.sudo("true")).wait()
+        subprocess.Popen(pmb.config.sudo(["true"])).wait()
 
     timer = threading.Timer(interval=60, function=sudo_timer_iterate)
     timer.daemon = True
