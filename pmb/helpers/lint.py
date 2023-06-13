@@ -17,7 +17,6 @@ def check(args, pkgnames):
     :param pkgnames: Names of the packages to lint
     """
     pmb.chroot.apk.install(args, ["atools"])
-    pmb.build.init(args)
 
     # Mount pmaports.git inside the chroot so that we don't have to copy the
     # package folders
