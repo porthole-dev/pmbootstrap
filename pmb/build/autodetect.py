@@ -90,6 +90,6 @@ def crosscompile(args, apkbuild, arch, suffix):
         return None
     if suffix == "native":
         return "native"
-    if args.no_crossdirect or "!pmb:crossdirect" in apkbuild["options"]:
+    if "!pmb:crossdirect" in apkbuild["options"]:
         return "distcc"
     return "crossdirect"
