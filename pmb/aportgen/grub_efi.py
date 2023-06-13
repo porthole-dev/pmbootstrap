@@ -57,7 +57,7 @@ def generate(args, pkgname):
             handle.write(line[12:].replace(" " * 4, "\t") + "\n")
 
     # Generate checksums
-    pmb.build.init(args)
+    pmb.build.init_abuild_minimal(args)
     pmb.chroot.root(args, ["chown", "-R", "pmos:pmos", tempdir])
     pmb.chroot.user(args, ["abuild", "checksum"], working_dir=tempdir)
     pmb.helpers.run.user(args, ["cp", apkbuild_path, f"{args.work}/aportgen"])
