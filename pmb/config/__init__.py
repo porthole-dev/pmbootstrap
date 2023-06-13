@@ -130,7 +130,6 @@ defaults = {
     "mirrors_postmarketos": "http://mirror.postmarketos.org/postmarketos/",
     "nonfree_firmware": True,
     "nonfree_userland": False,
-    "port_distccd": "33632",
     "ssh_keys": False,
     "ssh_key_glob": "~/.ssh/id_*.pub",
     "timezone": "GMT",

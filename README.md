@@ -255,11 +255,6 @@ $ pmbootstrap apkindex_parse $WORK/cache_apk_x86_64/APKINDEX.8b865e19.tar.gz hel
 $ pmbootstrap stats --arch=armhf
 ```
 
-`distccd` log:
-```
-$ pmbootstrap log_distccd
-```
-
 ### Use alternative sudo
 
 pmbootstrap supports `doas` and `sudo`.

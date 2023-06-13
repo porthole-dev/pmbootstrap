@@ -233,7 +233,6 @@ def test_init_buildenv(args, monkeypatch):
     monkeypatch.setattr(pmb.build._package, "is_necessary_warn_depends",
                         return_true)
     monkeypatch.setattr(pmb.chroot.apk, "install", return_none)
-    monkeypatch.setattr(pmb.chroot.distccd, "start", return_none)
 
     # Shortcut and fake apkbuild
     func = pmb.build._package.init_buildenv
@@ -243,7 +242,6 @@ def test_init_buildenv(args, monkeypatch):
     # Build is necessary (various code paths)
     assert func(args, apkbuild, "armhf", strict=True) is True
     assert func(args, apkbuild, "armhf", cross="native") is True
-    assert func(args, apkbuild, "armhf", cross="distcc") is True
 
     # Build is not necessary (only builds dependencies)
     monkeypatch.setattr(pmb.build._package, "is_necessary_warn_depends",
@@ -291,17 +289,6 @@ def test_run_abuild(args, monkeypatch):
            "CC": "armv6-alpine-linux-musleabihf-gcc"}
     cmd = ["abuild", "-D", "postmarketOS", "-d"]
     assert func(args, apkbuild, "armhf", cross="native") == (output, cmd, env)
-
-    # cross=distcc
-    (output, cmd, env) = func(args, apkbuild, "armhf", cross="distcc")
-    assert output == "armhf/test-1-r2.apk"
-    assert env["CARCH"] == "armhf"
-    assert env["GOCACHE"] == "/home/pmos/.cache/go-build"
-    assert env["CCACHE_PREFIX"] == "distcc"
-    assert env["CCACHE_PATH"] == "/usr/lib/arch-bin-masquerade/armhf:/usr/bin"
-    assert env["CCACHE_COMPILERCHECK"].startswith("string:")
-    assert env["DISTCC_HOSTS"] == "@127.0.0.1:/home/pmos/.distcc-sshd/distccd"
-    assert env["DISTCC_BACKOFF_PERIOD"] == "0"
 
 
 def test_finish(args, monkeypatch):

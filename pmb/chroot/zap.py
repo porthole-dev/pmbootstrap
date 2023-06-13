@@ -17,7 +17,7 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
         pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False,
         rust=False, netboot=False):
     """
-    Shutdown everything inside the chroots (e.g. distccd, adb), umount
+    Shutdown everything inside the chroots (e.g. adb), umount
     everything and then safely remove folders from the work-directory.
 
     :param dry: Only show what would be deleted, do not delete for real

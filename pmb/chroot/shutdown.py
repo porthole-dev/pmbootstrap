@@ -7,7 +7,6 @@ import socket
 from contextlib import closing
 
 import pmb.chroot
-import pmb.chroot.distccd
 import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.parse.arch
@@ -49,8 +48,6 @@ def shutdown_cryptsetup_device(args, name):
 
 
 def shutdown(args, only_install_related=False):
-    pmb.chroot.distccd.stop(args)
-
     # Stop adb server
     kill_adb(args)
 

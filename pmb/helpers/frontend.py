@@ -552,14 +552,6 @@ def log(args):
     pmb.helpers.run.user(args, cmd, output="tui")
 
 
-def log_distccd(args):
-    logpath = "/home/pmos/distccd.log"
-    if args.clear_log:
-        pmb.chroot.user(args, ["truncate", "-s", "0", logpath])
-    pmb.chroot.user(args, ["tail", "-n", args.lines, "-f", logpath],
-                    output="tui")
-
-
 def zap(args):
     pmb.chroot.zap(args, dry=args.dry, http=args.http,
                    distfiles=args.distfiles, pkgs_local=args.pkgs_local,

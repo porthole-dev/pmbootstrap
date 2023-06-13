@@ -8,7 +8,6 @@ import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.chroot.distccd
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse
@@ -190,7 +189,7 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
     just initialized the build environment for nothing) and then setup the
     whole build environment (abuild, gcc, dependencies, cross-compiler).
 
-    :param cross: None, "native", "distcc", or "crossdirect"
+    :param cross: None, "native", or "crossdirect"
     :param skip_init_buildenv: can be set to False to avoid initializing the
                                build environment. Use this when building
                                something during initialization of the build
@@ -223,25 +222,10 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
     # Cross-compiler init
     if cross:
         pmb.build.init_compiler(args, depends, cross, arch)
-    if cross == "distcc":
-        pmb.chroot.distccd.start(args, arch)
     if cross == "crossdirect":
         pmb.chroot.mount_native_into_foreign(args, suffix)
 
     return True
-
-
-def get_gcc_version(args, arch):
-    """
-    Get the GCC version for a specific arch from parsing the right APKINDEX.
-    We feed this to ccache, so it knows the right GCC version, when
-    cross-compiling in a foreign arch chroot with distcc. See the "using
-    ccache with other compiler wrappers" section of their man page:
-    <https://linux.die.net/man/1/ccache>
-    :returns: a string like "6.4.0-r5"
-    """
-    return pmb.parse.apkindex.package(args, "gcc-" + arch,
-                                      pmb.config.arch_native)["version"]
 
 
 def get_pkgver(original_pkgver, original_source=False, now=None):
@@ -381,7 +365,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     depending on the cross-compiler method and target architecture), copy
     the aport to the chroot and execute abuild.
 
-    :param cross: None, "native", "distcc", or "crossdirect"
+    :param cross: None, "native", or "crossdirect"
     :param src: override source used to build the package with a local folder
     :returns: (output, cmd, env), output is the destination apk path relative
               to the package folder ("x86_64/hello-1-r2.apk"). cmd and env are
@@ -410,18 +394,6 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
         hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
         env["CROSS_COMPILE"] = hostspec + "-"
         env["CC"] = hostspec + "-gcc"
-    if cross == "distcc":
-        env["CCACHE_PREFIX"] = "distcc"
-        env["CCACHE_PATH"] = f"/usr/lib/arch-bin-masquerade/{arch}:/usr/bin"
-        env["CCACHE_COMPILERCHECK"] = "string:" + get_gcc_version(args, arch)
-        env["DISTCC_HOSTS"] = "@127.0.0.1:/home/pmos/.distcc-sshd/distccd"
-        env["DISTCC_SSH"] = ("ssh -o StrictHostKeyChecking=no -p" +
-                             args.port_distccd)
-        env["DISTCC_BACKOFF_PERIOD"] = "0"
-        if not args.distcc_fallback:
-            env["DISTCC_FALLBACK"] = "0"
-        if args.verbose:
-            env["DISTCC_VERBOSE"] = "1"
     if cross == "crossdirect":
         env["PATH"] = ":".join(["/native/usr/lib/crossdirect/" + arch,
                                 pmb.config.chroot_path])

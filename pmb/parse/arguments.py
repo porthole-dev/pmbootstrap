@@ -611,7 +611,6 @@ def arguments():
     parser.add_argument("--config-channels",
                         help="path to channels.cfg (which is by default"
                              " read from pmaports.git, origin/master branch)")
-    parser.add_argument("-d", "--port-distccd", dest="port_distccd")
     parser.add_argument("-mp", "--mirror-pmOS", dest="mirrors_postmarketos",
                         help="postmarketOS mirror, disable with: -mp='',"
                              " specify multiple with: -mp='one' -mp='two',"
@@ -652,10 +651,6 @@ def arguments():
     # Compiler
     parser.add_argument("--no-ccache", action="store_false",
                         dest="ccache", help="do not cache the compiled output")
-    parser.add_argument("--distcc-nofallback", action="store_false",
-                        help="when using the cross compiler via distcc fails,"
-                             "do not fall back to compiling slowly with QEMU",
-                        dest="distcc_fallback")
     parser.add_argument("--no-cross", action="store_false", dest="cross",
                         help="disable cross compiler, build only with QEMU and"
                              " gcc (slow!)")
@@ -699,14 +694,10 @@ def arguments():
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")
-    log_distccd = sub.add_parser(
-        "log_distccd",
-        help="follow the distccd logfile")
-    for action in [log, log_distccd]:
-        action.add_argument("-n", "--lines", default="60",
-                            help="count of initial output lines")
-        action.add_argument("-c", "--clear", help="clear the log",
-                            action="store_true", dest="clear_log")
+    log.add_argument("-n", "--lines", default="60",
+                     help="count of initial output lines")
+    log.add_argument("-c", "--clear", help="clear the log",
+                     action="store_true", dest="clear_log")
 
     # Action: zap
     zap = sub.add_parser("zap", help="safely delete chroot folders")
