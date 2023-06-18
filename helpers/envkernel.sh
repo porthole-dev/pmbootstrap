@@ -49,7 +49,7 @@ export_pmbootstrap_dir() {
 	# See also: <https://stackoverflow.com/a/29835459>
 	# shellcheck disable=SC3054
 	if [ -n "${BASH_SOURCE[0]}" ]; then
-		script_dir="$(dirname "${BASH_SOURCE[0]}")"
+		script_dir="$(dirname "$(realpath "$BASH_SOURCE")")"
 	else
 		script_dir="$(dirname "$1")"
 	fi
@@ -324,9 +324,7 @@ check_and_deactivate() {
 print_usage() {
 	# shellcheck disable=SC3054
 	if [ -n "${BASH_SOURCE[0]}" ]; then
-		echo "usage: source $(basename "${BASH_SOURCE[0]}")"
-	else
-		echo "usage: source $(basename "$1")"
+		echo "usage: source $(basename "$(realpath "$BASH_SOURCE")")"
 	fi
 	echo "optional arguments:"
 	echo "    --fish        Print fish alias syntax (internally used)"
