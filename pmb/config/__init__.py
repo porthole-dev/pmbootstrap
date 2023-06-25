@@ -4,6 +4,7 @@ import multiprocessing
 import os
 import pmb.parse.arch
 import sys
+from typing import List
 
 #
 # Exported functions
@@ -60,7 +61,7 @@ required_programs = [
 ]
 
 
-def sudo(cmd: list[str]) -> list[str]:
+def sudo(cmd: List[str]) -> List[str]:
     """Adapt a command to run as root."""
     sudo = which_sudo()
     if sudo:
