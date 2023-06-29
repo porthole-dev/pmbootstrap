@@ -12,6 +12,7 @@ import pmb.config
 import pmb.config.init
 import pmb.helpers.logging
 import pmb.install._install
+from pmb.core import Suffix, SuffixType
 
 
 @pytest.fixture
@@ -99,10 +100,10 @@ def test_get_groups(args):
 
 
 def test_generate_binary_list(args):
-    suffix = "mysuffix"
+    suffix = Suffix(SuffixType.ROOTFS, "mysuffix")
     args.work = "/tmp"
     func = pmb.install._install.generate_binary_list
-    binary_dir = os.path.join(args.work, f"chroot_{suffix}", "usr/share")
+    binary_dir = os.path.join(args.work, f"{suffix.chroot()}", "usr/share")
     os.makedirs(binary_dir, exist_ok=True)
     step = 1024
     binaries = [f"{pmb_test.const.testdata}/pmb_install/small.bin",

@@ -11,6 +11,7 @@ See also:
 import copy
 import logging
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 

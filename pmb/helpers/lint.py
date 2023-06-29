@@ -6,6 +6,7 @@ import os
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.build
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 

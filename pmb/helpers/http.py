@@ -7,10 +7,11 @@ import os
 import shutil
 import urllib.request
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 
 
-def download(args, url, prefix, cache=True, loglevel=logging.INFO,
+def download(args: PmbArgs, url, prefix, cache=True, loglevel=logging.INFO,
              allow_404=False):
     """Download a file to disk.
 
@@ -28,12 +29,12 @@ def download(args, url, prefix, cache=True, loglevel=logging.INFO,
     :returns: path to the downloaded file in the cache or None on 404
     """
     # Create cache folder
-    if not os.path.exists(args.work + "/cache_http"):
-        pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/cache_http"])
+    if not os.path.exists(pmb.config.work / "cache_http"):
+        pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "cache_http"])
 
     # Check if file exists in cache
     prefix = prefix.replace("/", "_")
-    path = (args.work + "/cache_http/" + prefix + "_" +
+    path = (pmb.config.work / "cache_http/" + prefix + "_" +
             hashlib.sha256(url.encode("utf-8")).hexdigest())
     if os.path.exists(path):
         if cache:

@@ -1,10 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.types import PmbArgs
 import pmb.flasher
 import pmb.chroot.initfs
 
 
-def check_partition_blacklist(args, key, value):
+def check_partition_blacklist(args: PmbArgs, key, value):
     if not key.startswith("$PARTITION_"):
         return
 
@@ -15,7 +16,7 @@ def check_partition_blacklist(args, key, value):
                            "wiki page for more information.")
 
 
-def run(args, action, flavor=None):
+def run(args: PmbArgs, action, flavor=None):
     pmb.flasher.init(args)
 
     # Verify action

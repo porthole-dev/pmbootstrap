@@ -6,6 +6,7 @@ import os
 import sys
 
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.pmaports
 
@@ -24,7 +25,7 @@ def check_legacy_folder():
                            " set up the symlink.")
 
 
-def clone(args):
+def clone(args: PmbArgs):
     logging.info("Setting up the native chroot and cloning the package build"
                  " recipes (pmaports)...")
 
@@ -32,17 +33,17 @@ def clone(args):
     pmb.helpers.git.clone(args, "pmaports")
 
 
-def symlink(args):
+def symlink(args: PmbArgs):
     # Create the symlink
     # This won't work when pmbootstrap was installed system wide, but that's
     # okay since the symlink is only intended to make the migration to the
     # pmaports repository easier.
-    link = pmb.config.pmb_src + "/aports"
+    link = pmb.config.pmb_src / "aports"
     try:
         os.symlink(args.aports, link)
-        logging.info("NOTE: pmaports path: " + link)
+        logging.info(f"NOTE: pmaports path: {link}")
     except:
-        logging.info("NOTE: pmaports path: " + args.aports)
+        logging.info(f"NOTE: pmaports path: {args.aports}")
 
 
 def check_version_pmaports(real):
@@ -81,7 +82,7 @@ def check_version_pmbootstrap(min):
                        " of pmbootstrap from git.")
 
 
-def read_config_repos(args):
+def read_config_repos(args: PmbArgs):
     """ Read the sections starting with "repo:" from pmaports.cfg. """
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config_repos"
@@ -103,7 +104,7 @@ def read_config_repos(args):
     return ret
 
 
-def read_config(args):
+def read_config(args: PmbArgs):
     """Read and verify pmaports.cfg."""
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config"
@@ -117,7 +118,7 @@ def read_config(args):
         sys.exit(1)
 
     # Require the config
-    path_cfg = args.aports + "/pmaports.cfg"
+    path_cfg = args.aports / "pmaports.cfg"
     if not os.path.exists(path_cfg):
         raise RuntimeError("Invalid pmaports repository, could not find the"
                            " config: " + path_cfg)
@@ -139,7 +140,7 @@ def read_config(args):
     return ret
 
 
-def read_config_channel(args):
+def read_config_channel(args: PmbArgs):
     """Get the properties of the currently active channel in pmaports.git.
 
     As specified in channels.cfg (https://postmarketos.org/channels.cfg).
@@ -174,7 +175,7 @@ def read_config_channel(args):
                        " branch). Looks like a very old branch.")
 
 
-def init(args):
+def init(args: PmbArgs):
     check_legacy_folder()
     if not os.path.exists(args.aports):
         clone(args)
@@ -182,7 +183,7 @@ def init(args):
     read_config(args)
 
 
-def switch_to_channel_branch(args, channel_new):
+def switch_to_channel_branch(args: PmbArgs, channel_new):
     """Checkout the channel's branch in pmaports.git.
 
     :channel_new: channel name (e.g. "edge", "v21.03")
@@ -223,7 +224,7 @@ def switch_to_channel_branch(args, channel_new):
     return True
 
 
-def install_githooks(args):
+def install_githooks(args: PmbArgs):
     hooks_dir = os.path.join(args.aports, ".githooks")
     if not os.path.exists(hooks_dir):
         logging.info("No .githooks dir found")

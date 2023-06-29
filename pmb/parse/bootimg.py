@@ -2,7 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import logging
-import pmb
+from pathlib import Path
+from pmb.core.types import PmbArgs
+import pmb.helpers.run
+import pmb.chroot.root
+import pmb.chroot.user
+import pmb.chroot.other
+from pmb.core import Chroot
 
 
 def is_dtb(path):
@@ -66,17 +72,17 @@ def get_qcdt_type(path):
             return None
 
 
-def bootimg(args, path):
-    if not os.path.exists(path):
-        raise RuntimeError("Could not find file '" + path + "'")
+def bootimg(args: PmbArgs, path: Path):
+    if not path.exists():
+        raise RuntimeError(f"Could not find file '{path}'")
 
     logging.info("NOTE: You will be prompted for your sudo/doas password, so"
                  " we can set up a chroot to extract and analyze your"
                  " boot.img file")
     pmb.chroot.apk.install(args, ["file", "unpackbootimg"])
 
-    temp_path = pmb.chroot.other.tempfolder(args, "/tmp/bootimg_parser")
-    bootimg_path = f"{args.work}/chroot_native{temp_path}/boot.img"
+    temp_path = pmb.chroot.other.tempfolder(args, Path("/tmp/bootimg_parser"))
+    bootimg_path = Chroot.native() / temp_path / "boot.img"
 
     # Copy the boot.img into the chroot temporary folder
     # and make it world readable
@@ -93,8 +99,7 @@ def bootimg(args, path):
         else:
             logging.info("NOTE: If you are sure that your file is a valid"
                          " boot.img file, you could force the analysis"
-                         " with: 'pmbootstrap bootimg_analyze " + path +
-                         " -f'")
+                        f" with: 'pmbootstrap bootimg_analyze {path} -f'")
             if ("linux kernel" in file_output.lower() or
                     "ARM OpenFirmware FORTH Dictionary" in file_output):
                 raise RuntimeError("File is a Kernel image, you might need the"

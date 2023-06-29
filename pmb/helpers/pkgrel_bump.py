@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse
+import pmb.parse.apkindex
 
 
 def package(args, pkgname, reason="", dry=False):

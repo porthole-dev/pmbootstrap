@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
 import os
+from pathlib import Path
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.helpers.git
 
 """This file constructs the args variable, which is passed to almost all
@@ -29,7 +31,7 @@ import pmb.helpers.git
        Examples:
        args.aports ("$WORK/cache_git/pmaports", override with --aports)
        args.device ("samsung-i9100", "qemu-amd64" etc.)
-       args.work ("/home/user/.local/var/pmbootstrap", override with --work)
+       pmb.config.work ("/home/user/.local/var/pmbootstrap", override with --work)
 
     3. Parsed configs
        Similar to the cache above, specific config files get parsed and added
@@ -43,7 +45,7 @@ import pmb.helpers.git
 """
 
 
-def fix_mirrors_postmarketos(args):
+def fix_mirrors_postmarketos(args: PmbArgs):
     """Fix args.mirrors_postmarketos when it is supposed to be empty or the default value.
 
     In pmb/parse/arguments.py, we set the -mp/--mirror-pmOS argument to
@@ -65,7 +67,7 @@ def fix_mirrors_postmarketos(args):
         args.mirrors_postmarketos = []
 
 
-def check_pmaports_path(args):
+def check_pmaports_path(args: PmbArgs):
     """Make sure that args.aports exists when it was overridden by --aports.
 
     Without this check, 'pmbootstrap init' would start cloning the
@@ -76,7 +78,7 @@ def check_pmaports_path(args):
                          " not exist: " + args.aports)
 
 
-def replace_placeholders(args):
+def replace_placeholders(args: PmbArgs):
     """Replace $WORK and ~ (for path variables) in variables from any config.
 
     (user's config file, default config settings or config parameters specified on commandline)
@@ -87,15 +89,15 @@ def replace_placeholders(args):
             continue
         old = getattr(args, key)
         if isinstance(old, str):
-            setattr(args, key, old.replace("$WORK", args.work))
+            setattr(args, key, old.replace("$WORK", str(pmb.config.work)))
 
     # Replace ~ (path variables only)
     for key in ["aports", "config", "log", "work"]:
         if key in args:
-            setattr(args, key, os.path.expanduser(getattr(args, key)))
+            setattr(args, key, Path(getattr(args, key)).expanduser())
 
 
-def add_deviceinfo(args):
+def add_deviceinfo(args: PmbArgs):
     """Add and verify the deviceinfo (only after initialization)"""
     setattr(args, "deviceinfo", pmb.parse.deviceinfo(args))
     arch = args.deviceinfo["arch"]
@@ -106,7 +108,7 @@ def add_deviceinfo(args):
                          " <https://postmarketos.org/newarch>")
 
 
-def init(args):
+def init(args: PmbArgs):
     # Basic initialization
     fix_mirrors_postmarketos(args)
     pmb.config.merge_with_args(args)
@@ -127,7 +129,7 @@ def init(args):
     return args
 
 
-def update_work(args, work):
+def update_work(args: PmbArgs, work):
     """Update the work path in args.work and wherever $WORK was used."""
     # Start with the unmodified args from argparse
     args_new = copy.deepcopy(args.from_argparse)

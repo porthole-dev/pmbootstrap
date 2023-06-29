@@ -1,17 +1,18 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import glob
 import logging
 import os
+from pathlib import Path
 import re
 import pmb.chroot
 import pmb.config
 import pmb.config.init
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 
 
-def folder_size(args, path):
+def folder_size(args: PmbArgs, path: Path):
     """Run `du` to calculate the size of a folder.
 
     (this is less code and faster than doing the same task in pure Python)
@@ -67,16 +68,16 @@ def check_binfmt_misc(args):
         raise RuntimeError(f"Failed to set up binfmt_misc, see: {link}")
 
 
-def migrate_success(args, version):
+def migrate_success(args: PmbArgs, version):
     logging.info("Migration to version " + str(version) + " done")
-    with open(args.work + "/version", "w") as handle:
+    with open(pmb.config.work / "version", "w") as handle:
         handle.write(str(version) + "\n")
 
 
-def migrate_work_folder(args):
+def migrate_work_folder(args: PmbArgs):
     # Read current version
     current = 0
-    path = args.work + "/version"
+    path = pmb.config.work / "version"
     if os.path.exists(path):
         with open(path, "r") as f:
             current = int(f.read().rstrip())
@@ -96,13 +97,13 @@ def migrate_work_folder(args):
         logging.info("* Building chroots have a different username (#709)")
         logging.info("Migration will do the following:")
         logging.info("* Zap your chroots")
-        logging.info("* Adjust '" + args.work + "/config_abuild/abuild.conf'")
+        logging.info("* Adjust '" + pmb.config.work / "config_abuild/abuild.conf'")
         if not pmb.helpers.cli.confirm(args):
             raise RuntimeError("Aborted.")
 
         # Zap and update abuild.conf
         pmb.chroot.zap(args, False)
-        conf = args.work + "/config_abuild/abuild.conf"
+        conf = pmb.config.work / "config_abuild/abuild.conf"
         if os.path.exists(conf):
             pmb.helpers.run.root(args, ["sed", "-i",
                                         "s./home/user/./home/pmos/.g", conf])
@@ -116,7 +117,7 @@ def migrate_work_folder(args):
         logging.info("Changelog:")
         logging.info("* Fix: cache_distfiles was writable for everyone")
         logging.info("Migration will do the following:")
-        logging.info("* Fix permissions of '" + args.work +
+        logging.info("* Fix permissions of '" + pmb.config.work +
                      "/cache_distfiles'")
         if not pmb.helpers.cli.confirm(args):
             raise RuntimeError("Aborted.")
@@ -148,7 +149,7 @@ def migrate_work_folder(args):
 
     if current == 3:
         # Ask for confirmation
-        path = args.work + "/cache_git"
+        path = pmb.config.work / "cache_git"
         logging.info("Changelog:")
         logging.info("* pmbootstrap clones repositories with host system's")
         logging.info("  'git' instead of using it from an Alpine chroot")
@@ -184,17 +185,17 @@ def migrate_work_folder(args):
         pmb.chroot.zap(args, False)
 
         # Move packages to edge subdir
-        edge_path = f"{args.work}/packages/edge"
+        edge_path = pmb.config.work / "packages/edge"
         pmb.helpers.run.root(args, ["mkdir", "-p", edge_path])
         for arch in pmb.config.build_device_architectures:
-            old_path = f"{args.work}/packages/{arch}"
-            new_path = f"{edge_path}/{arch}"
-            if os.path.exists(old_path):
-                if os.path.exists(new_path):
+            old_path = pmb.config.work / "packages" / arch
+            new_path = edge_path / arch
+            if old_path.exists():
+                if new_path.exists():
                     raise RuntimeError(f"Won't move '{old_path}' to"
                                        f" '{new_path}', destination already"
                                        " exists! Consider 'pmbootstrap zap -p'"
-                                       f" to delete '{args.work}/packages'.")
+                                       f" to delete '{pmb.config.work}/packages'.")
                 pmb.helpers.run.root(args, ["mv", old_path, new_path])
         pmb.helpers.run.root(args, ["chown", pmb.config.chroot_uid_user,
                                     edge_path])
@@ -211,7 +212,7 @@ def migrate_work_folder(args):
         logging.info("Migration will do the following:")
         logging.info("* Zap your chroots")
         logging.info("* Adjust subdirs of your locally built packages dir:")
-        logging.info(f"  {args.work}/packages")
+        logging.info(f"  {pmb.config.work}/packages")
         logging.info("  stable => v20.05")
         logging.info("  stable-next => v21.03")
         if not pmb.helpers.cli.confirm(args):
@@ -222,7 +223,7 @@ def migrate_work_folder(args):
         pmb.chroot.zap(args, False)
 
         # Migrate
-        packages_dir = f"{args.work}/packages"
+        packages_dir = f"{pmb.config.work}/packages"
         for old, new in pmb.config.pmaports_channels_legacy.items():
             if os.path.exists(f"{packages_dir}/{old}"):
                 pmb.helpers.run.root(args, ["mv", old, new], packages_dir)
@@ -236,7 +237,7 @@ def migrate_work_folder(args):
         raise RuntimeError("Sorry, we can't migrate that automatically. Please"
                            " run 'pmbootstrap shutdown', then delete your"
                            " current work folder manually ('sudo rm -rf " +
-                           args.work + "') and start over with 'pmbootstrap"
+                           pmb.config.work + "') and start over with 'pmbootstrap"
                            " init'. All your binary packages and caches will"
                            " be lost.")
 

@@ -1,9 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 import pmb.config
+from pmb.core.types import PmbArgs
 
 
-def merge_with_args(args):
+def merge_with_args(args: PmbArgs):
     """We have the internal config (pmb/config/__init__.py) and the user config
     (usually ~/.config/pmbootstrap.cfg, can be changed with the '-c'
     parameter).
@@ -34,3 +36,11 @@ def merge_with_args(args):
     for key, value in pmb.config.defaults.items():
         if key not in args or getattr(args, key) is None:
             setattr(args, key, value)
+
+    pmb.config.work_dir(Path(cfg["pmbootstrap"]["work"]))
+
+    # Make sure args.aports is a Path object
+    setattr(args, "aports", Path(args.aports))
+
+    # args.work is deprecated!
+    delattr(args, "work")

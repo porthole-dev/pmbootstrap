@@ -6,22 +6,23 @@ import logging
 import os
 import time
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.mount
 import pmb.helpers.run
 import pmb.chroot
+from pmb.core import Chroot
 
 
-def init(args):
+def init(args: PmbArgs):
     if not os.path.isdir("/sys/module/loop"):
         pmb.helpers.run.root(args, ["modprobe", "loop"])
     for loopdevice in glob.glob("/dev/loop*"):
         if os.path.isdir(loopdevice):
             continue
-        pmb.helpers.mount.bind_file(args, loopdevice,
-                                    args.work + "/chroot_native/" + loopdevice)
+        pmb.helpers.mount.bind_file(args, loopdevice, Chroot.native() / loopdevice)
 
 
-def mount(args, img_path):
+def mount(args: PmbArgs, img_path):
     """
     :param img_path: Path to the img file inside native chroot.
     """
@@ -51,7 +52,7 @@ def mount(args, img_path):
     raise RuntimeError("Failed to mount loop device: " + img_path)
 
 
-def device_by_back_file(args, back_file, auto_init=True):
+def device_by_back_file(args: PmbArgs, back_file, auto_init=True):
     """
     Get the /dev/loopX device that points to a specific image file.
     """
@@ -70,7 +71,7 @@ def device_by_back_file(args, back_file, auto_init=True):
     return None
 
 
-def umount(args, img_path, auto_init=True):
+def umount(args: PmbArgs, img_path, auto_init=True):
     """
     :param img_path: Path to the img file inside native chroot.
     """

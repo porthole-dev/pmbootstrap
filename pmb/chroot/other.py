@@ -1,13 +1,15 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-import glob
 import logging
+from pathlib import Path
 import pmb.chroot.apk
+from pmb.core.types import PmbArgs
 import pmb.install
+from pmb.core import Chroot
 
 
-def kernel_flavor_installed(args, suffix, autoinstall=True):
+def kernel_flavor_installed(args: PmbArgs, chroot: Chroot, autoinstall=True):
     """
     Get installed kernel flavor. Optionally install the device's kernel
     beforehand.
@@ -22,16 +24,15 @@ def kernel_flavor_installed(args, suffix, autoinstall=True):
     if autoinstall:
         packages = ([f"device-{args.device}"] +
                     pmb.install.get_kernel_package(args, args.device))
-        pmb.chroot.apk.install(args, packages, suffix)
+        pmb.chroot.apk.install(args, packages, chroot)
 
-    pattern = f"{args.work}/chroot_{suffix}/usr/share/kernel/*"
-    glob_result = glob.glob(pattern)
+    glob_result = list((chroot / "usr/share/kernel").glob("*"))
 
     # There should be only one directory here
-    return os.path.basename(glob_result[0]) if glob_result else None
+    return glob_result[0].name if glob_result else None
 
 
-def tempfolder(args, path, suffix="native"):
+def tempfolder(args: PmbArgs, path: Path, chroot: Chroot=Chroot.native()):
     """
     Create a temporary folder inside the chroot that belongs to "user".
     The folder gets deleted, if it already exists.
@@ -39,13 +40,13 @@ def tempfolder(args, path, suffix="native"):
     :param path: of the temporary folder inside the chroot
     :returns: the path
     """
-    if os.path.exists(args.work + "/chroot_" + suffix + path):
+    if chroot / path:
         pmb.chroot.root(args, ["rm", "-r", path])
     pmb.chroot.user(args, ["mkdir", "-p", path])
     return path
 
 
-def copy_xauthority(args):
+def copy_xauthority(args: PmbArgs):
     """
     Copy the host system's Xauthority file to the pmos user inside the chroot,
     so we can start X11 applications from there.
@@ -68,7 +69,7 @@ def copy_xauthority(args):
                            original)
 
     # Copy to chroot and chown
-    copy = args.work + "/chroot_native/home/pmos/.Xauthority"
+    copy = Chroot.native() / "home/pmos/.Xauthority"
     if os.path.exists(copy):
         pmb.helpers.run.root(args, ["rm", copy])
     pmb.helpers.run.root(args, ["cp", original, copy])

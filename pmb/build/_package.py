@@ -3,18 +3,22 @@
 import datetime
 import enum
 import logging
-import os
+from pathlib import Path
 
 import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.apk
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.repo
+import pmb.helpers.mount
 import pmb.parse
 import pmb.parse.arch
+import pmb.parse.apkindex
 from pmb.helpers.exceptions import BuildFailedError
 
+from pmb.core import Chroot
 
 class BootstrapStage(enum.IntEnum):
     """
@@ -44,7 +48,7 @@ def skip_already_built(pkgname, arch):
     return False
 
 
-def get_apkbuild(args, pkgname, arch):
+def get_apkbuild(args: PmbArgs, pkgname, arch):
     """Parse the APKBUILD path for pkgname.
 
     When there is none, try to find it in the binary package APKINDEX files or raise an exception.
@@ -65,7 +69,7 @@ def get_apkbuild(args, pkgname, arch):
                        " could not find this package in any APKINDEX!")
 
 
-def check_build_for_arch(args, pkgname, arch):
+def check_build_for_arch(args: PmbArgs, pkgname, arch):
     """Check if pmaport can be built or exists as binary for a specific arch.
 
     :returns: * True when it can be built
@@ -99,7 +103,7 @@ def check_build_for_arch(args, pkgname, arch):
                        arch)
 
 
-def get_depends(args, apkbuild):
+def get_depends(args: PmbArgs, apkbuild):
     """Alpine's abuild always builds/installs the "depends" and "makedepends" of a package
     before building it.
 
@@ -126,7 +130,7 @@ def get_depends(args, apkbuild):
     return ret
 
 
-def build_depends(args, apkbuild, arch, strict):
+def build_depends(args: PmbArgs, apkbuild, arch, strict):
     """Get and build dependencies with verbose logging messages.
 
     :returns: (depends, depends_built)
@@ -172,7 +176,7 @@ def build_depends(args, apkbuild, arch, strict):
     return (depends, depends_built)
 
 
-def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
+def is_necessary_warn_depends(args: PmbArgs, apkbuild, arch, force, depends_built):
     """Check if a build is necessary, and warn if it is not, but there were dependencies built.
 
     :returns: True or False
@@ -193,8 +197,8 @@ def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
     return ret
 
 
-def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
-                  suffix="native", skip_init_buildenv=False, src=None):
+def init_buildenv(args: PmbArgs, apkbuild, arch, strict=False, force=False, cross=None,
+                  suffix: Chroot = Chroot.native(), skip_init_buildenv=False, src=None):
     """Build all dependencies.
 
     Check if we need to build at all (otherwise we've
@@ -266,7 +270,7 @@ def get_pkgver(original_pkgver, original_source=False, now=None):
     return no_suffix + new_suffix
 
 
-def override_source(args, apkbuild, pkgver, src, suffix="native"):
+def override_source(args: PmbArgs, apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
     """Mount local source inside chroot and append new functions (prepare() etc.)
     to the APKBUILD to make it use the local source.
     """
@@ -275,14 +279,14 @@ def override_source(args, apkbuild, pkgver, src, suffix="native"):
 
     # Mount source in chroot
     mount_path = "/mnt/pmbootstrap/source-override/"
-    mount_path_outside = args.work + "/chroot_" + suffix + mount_path
+    mount_path_outside = chroot / mount_path
     pmb.helpers.mount.bind(args, src, mount_path_outside, umount=True)
 
     # Delete existing append file
     append_path = "/tmp/APKBUILD.append"
-    append_path_outside = args.work + "/chroot_" + suffix + append_path
-    if os.path.exists(append_path_outside):
-        pmb.chroot.root(args, ["rm", append_path], suffix)
+    append_path_outside = chroot / append_path
+    if append_path_outside.exists():
+        pmb.chroot.root(args, ["rm", append_path], chroot)
 
     # Add src path to pkgdesc, cut it off after max length
     pkgdesc = ("[" + src + "] " + apkbuild["pkgdesc"])[:127]
@@ -323,27 +327,27 @@ def override_source(args, apkbuild, pkgver, src, suffix="native"):
     with open(append_path_outside, "w", encoding="utf-8") as handle:
         for line in append.split("\n"):
             handle.write(line[13:].replace(" " * 4, "\t") + "\n")
-    pmb.chroot.user(args, ["cat", append_path], suffix)
+    pmb.chroot.user(args, ["cat", append_path], chroot)
 
     # Append it to the APKBUILD
     apkbuild_path = "/home/pmos/build/APKBUILD"
     shell_cmd = ("cat " + apkbuild_path + " " + append_path + " > " +
                  append_path + "_")
-    pmb.chroot.user(args, ["sh", "-c", shell_cmd], suffix)
-    pmb.chroot.user(args, ["mv", append_path + "_", apkbuild_path], suffix)
+    pmb.chroot.user(args, ["sh", "-c", shell_cmd], chroot)
+    pmb.chroot.user(args, ["mv", append_path + "_", apkbuild_path], chroot)
 
 
-def mount_pmaports(args, destination, suffix="native"):
+def mount_pmaports(args: PmbArgs, destination, chroot: Chroot=Chroot.native()):
     """
     Mount pmaports.git in chroot.
 
     :param destination: mount point inside the chroot
     """
-    outside_destination = args.work + "/chroot_" + suffix + destination
+    outside_destination = chroot / destination
     pmb.helpers.mount.bind(args, args.aports, outside_destination, umount=True)
 
 
-def link_to_git_dir(args, suffix):
+def link_to_git_dir(args: PmbArgs, suffix):
     """ Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
     symlink so abuild does not fail (#1841).
 
@@ -371,8 +375,8 @@ def link_to_git_dir(args, suffix):
                            "/home/pmos/build/.git"], suffix)
 
 
-def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
-               suffix="native", src=None, bootstrap_stage=BootstrapStage.NONE):
+def run_abuild(args: PmbArgs, apkbuild, arch, strict=False, force=False, cross=None,
+               suffix: Chroot=Chroot.native(), src=None, bootstrap_stage=BootstrapStage.NONE):
     """
     Set up all environment variables and construct the abuild command (all
     depending on the cross-compiler method and target architecture), copy
@@ -396,7 +400,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     pkgver = get_pkgver(apkbuild["pkgver"], src is None)
     output = (arch + "/" + apkbuild["pkgname"] + "-" + pkgver +
               "-r" + apkbuild["pkgrel"] + ".apk")
-    message = "(" + suffix + ") build " + output
+    message = f"({suffix}) build " + output
     if src:
         message += " (source: " + src + ")"
     logging.info(message)
@@ -449,35 +453,34 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     pmb.build.copy_to_buildpath(args, apkbuild["pkgname"], suffix)
     override_source(args, apkbuild, pkgver, src, suffix)
     link_to_git_dir(args, suffix)
-    pmb.chroot.user(args, cmd, suffix, "/home/pmos/build", env=env)
+    pmb.chroot.user(args, cmd, suffix, Path("/home/pmos/build"), env=env)
     return (output, cmd, env)
 
 
-def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
+def finish(args: PmbArgs, apkbuild, arch, output: str, chroot: Chroot, strict=False):
     """Various finishing tasks that need to be done after a build."""
     # Verify output file
-    channel = pmb.config.pmaports.read_config(args)["channel"]
-    path = f"{args.work}/packages/{channel}/{output}"
-    if not os.path.exists(path):
-        raise RuntimeError("Package not found after build: " + path)
+    channel: str = pmb.config.pmaports.read_config(args)["channel"]
+    out_dir = (pmb.config.work / "packages" / channel)
+    if not (out_dir / output).exists():
+        raise RuntimeError(f"Package not found after build: {(out_dir / output)}")
 
     # Clear APKINDEX cache (we only parse APKINDEX files once per session and
     # cache the result for faster dependency resolving, but after we built a
     # package we need to parse it again)
-    pmb.parse.apkindex.clear_cache(f"{args.work}/packages/{channel}"
-                                   f"/{arch}/APKINDEX.tar.gz")
+    pmb.parse.apkindex.clear_cache(out_dir / arch / "APKINDEX.tar.gz")
 
     # Uninstall build dependencies (strict mode)
     if strict or "pmb:strict" in apkbuild["options"]:
-        logging.info("(" + suffix + ") uninstall build dependencies")
-        pmb.chroot.user(args, ["abuild", "undeps"], suffix, "/home/pmos/build",
+        logging.info(f"({chroot}) uninstall build dependencies")
+        pmb.chroot.user(args, ["abuild", "undeps"], chroot, Path("/home/pmos/build"),
                         env={"SUDO_APK": "abuild-apk --no-progress"})
         # If the build depends contain postmarketos-keys or postmarketos-base,
         # abuild will have removed the postmarketOS repository key (pma#1230)
         pmb.chroot.init_keys(args)
 
 
-def package(args, pkgname, arch=None, force=False, strict=False,
+def package(args: PmbArgs, pkgname, arch=None, force=False, strict=False,
             skip_init_buildenv=False, src=None,
             bootstrap_stage=BootstrapStage.NONE):
     """
@@ -519,17 +522,17 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     # Detect the build environment (skip unnecessary builds)
     if not check_build_for_arch(args, pkgname, arch):
         return
-    suffix = pmb.build.autodetect.suffix(apkbuild, arch)
-    cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
-    if not init_buildenv(args, apkbuild, arch, strict, force, cross, suffix,
+    chroot = pmb.build.autodetect.chroot(apkbuild, arch)
+    cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, chroot)
+    if not init_buildenv(args, apkbuild, arch, strict, force, cross, chroot,
                          skip_init_buildenv, src):
         return
 
+    # Build and finish up
     try:
-        # Build and finish up
         (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
-                                        suffix, src, bootstrap_stage)
+                                        chroot, src, bootstrap_stage)
     except RuntimeError:
         raise BuildFailedError(f"Build for {arch}/{pkgname} failed!")
-    finish(args, apkbuild, arch, output, strict, suffix)
+    finish(args, apkbuild, arch, output, chroot, strict)
     return output

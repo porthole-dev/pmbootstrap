@@ -5,10 +5,12 @@ import os
 import time
 import pmb.chroot
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.install.losetup
+from pmb.core import Chroot
 
 
-def partitions_mount(args, layout, disk):
+def partitions_mount(args: PmbArgs, layout, disk):
     """
     Mount blockdevices of partitions inside native chroot
     :param layout: partition layout from get_partition_layout()
@@ -48,11 +50,11 @@ def partitions_mount(args, layout, disk):
 
     for i in partitions:
         source = f"{partition_prefix}{i}"
-        target = args.work + "/chroot_native/dev/installp" + str(i)
+        target = Chroot.native() / "dev" / f"installp{i}"
         pmb.helpers.mount.bind_file(args, source, target)
 
 
-def partition(args, layout, size_boot, size_reserve):
+def partition(args: PmbArgs, layout, size_boot, size_reserve):
     """
     Partition /dev/install and create /dev/install{p1,p2,p3}:
     * /dev/installp1: boot
@@ -111,7 +113,7 @@ def partition(args, layout, size_boot, size_reserve):
                         command, check=False)
 
 
-def partition_cgpt(args, layout, size_boot, size_reserve):
+def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     """
     This function does similar functionality to partition(), but this
     one is for ChromeOS devices which use special GPT.

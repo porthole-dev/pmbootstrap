@@ -1,23 +1,25 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
 
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.flasher
 import pmb.install
 import pmb.chroot.apk
 import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.helpers.frontend
+import pmb.helpers.mount
 import pmb.parse.kconfig
+from pmb.core import Chroot, ChrootType
 
 
-def kernel(args):
+def kernel(args: PmbArgs):
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
     if args.autoinstall:
-        pmb.chroot.initfs.build(args, flavor, "rootfs_" + args.device)
+        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.device))
 
     # Check kernel config
     pmb.parse.kconfig.check(args, flavor, must_exist=False)
@@ -39,13 +41,13 @@ def kernel(args):
                  " device")
 
 
-def list_flavors(args):
-    suffix = "rootfs_" + args.device
-    logging.info("(" + suffix + ") installed kernel flavors:")
+def list_flavors(args: PmbArgs):
+    suffix = Chroot(ChrootType.ROOTFS, args.device)
+    logging.info(f"({suffix}) installed kernel flavors:")
     logging.info("* " + pmb.chroot.other.kernel_flavor_installed(args, suffix))
 
 
-def rootfs(args):
+def rootfs(args: PmbArgs):
     method = args.flash_method or args.deviceinfo["flash_method"]
 
     # Generate rootfs, install flasher
@@ -53,16 +55,15 @@ def rootfs(args):
     if pmb.config.flashers.get(method, {}).get("split", False):
         suffix = "-root.img"
 
-    img_path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}"\
-               f"{suffix}"
-    if not os.path.exists(img_path):
+    img_path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}{suffix}"
+    if not img_path.exists():
         raise RuntimeError("The rootfs has not been generated yet, please run"
                            " 'pmbootstrap install' first.")
 
     # Do not flash if using fastboot & image is too large
     if method.startswith("fastboot") \
             and args.deviceinfo["flash_fastboot_max_size"]:
-        img_size = os.path.getsize(img_path) / 1024**2
+        img_size = img_path.stat().st_size / 1024**2
         max_size = int(args.deviceinfo["flash_fastboot_max_size"])
         if img_size > max_size:
             raise RuntimeError("The rootfs is too large for fastboot to"
@@ -73,35 +74,33 @@ def rootfs(args):
     pmb.flasher.run(args, "flash_rootfs")
 
 
-def flash_vbmeta(args):
+def flash_vbmeta(args: PmbArgs):
     logging.info("(native) flash vbmeta.img with verity disabled flag")
     pmb.flasher.run(args, "flash_vbmeta")
 
 
-def flash_dtbo(args):
+def flash_dtbo(args: PmbArgs):
     logging.info("(native) flash dtbo image")
     pmb.flasher.run(args, "flash_dtbo")
 
 
-def list_devices(args):
+def list_devices(args: PmbArgs):
     pmb.flasher.run(args, "list_devices")
 
 
-def sideload(args):
+def sideload(args: PmbArgs):
     # Install depends
     pmb.flasher.install_depends(args)
 
     # Mount the buildroot
-    suffix = "buildroot_" + args.deviceinfo["arch"]
-    mountpoint = "/mnt/" + suffix
-    pmb.helpers.mount.bind(args, args.work + "/chroot_" + suffix,
-                           args.work + "/chroot_native/" + mountpoint)
+    chroot = Chroot(ChrootType.BUILDROOT, args.deviceinfo["arch"])
+    mountpoint = "/mnt/" / chroot
+    pmb.helpers.mount.bind(args, chroot.path,
+                           Chroot.native().path / mountpoint)
 
     # Missing recovery zip error
-    zip_path = ("/var/lib/postmarketos-android-recovery-installer/pmos-" +
-                args.device + ".zip")
-    if not os.path.exists(args.work + "/chroot_native" + mountpoint +
-                          zip_path):
+    if not (Chroot.native() / mountpoint / "/var/lib/postmarketos-android-recovery-installer"
+            / f"pmos-{args.device}.zip").exists():
         raise RuntimeError("The recovery zip has not been generated yet,"
                            " please run 'pmbootstrap install' with the"
                            " '--android-recovery-zip' parameter first!")
@@ -109,7 +108,7 @@ def sideload(args):
     pmb.flasher.run(args, "sideload")
 
 
-def flash_lk2nd(args):
+def flash_lk2nd(args: PmbArgs):
     method = args.flash_method or args.deviceinfo["flash_method"]
     if method == "fastboot":
         # In the future this could be expanded to use "fastboot flash lk2nd $img"
@@ -137,14 +136,14 @@ def flash_lk2nd(args):
     if not lk2nd_pkg:
         raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
 
-    suffix = "rootfs_" + args.device
+    suffix = Chroot(ChrootType.ROOTFS, args.device)
     pmb.chroot.apk.install(args, [lk2nd_pkg], suffix)
 
     logging.info("(native) flash lk2nd image")
     pmb.flasher.run(args, "flash_lk2nd")
 
 
-def frontend(args):
+def frontend(args: PmbArgs):
     action = args.action_flasher
     method = args.flash_method or args.deviceinfo["flash_method"]
 

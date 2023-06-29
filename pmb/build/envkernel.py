@@ -2,14 +2,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+from pathlib import Path
 import re
 
 import pmb.aportgen
 import pmb.build
+import pmb.build.autodetect
 import pmb.chroot
+from pmb.core.types import PmbArgs
 import pmb.helpers
+import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.parse
+from pmb.core import Chroot
 
 
 def match_kbuild_out(word):
@@ -88,12 +93,12 @@ def modify_apkbuild(args, pkgname, aport):
     """Modify kernel APKBUILD to package build output from envkernel.sh."""
     apkbuild_path = aport + "/APKBUILD"
     apkbuild = pmb.parse.apkbuild(apkbuild_path)
-    if os.path.exists(args.work + "/aportgen"):
-        pmb.helpers.run.user(args, ["rm", "-r", args.work + "/aportgen"])
+    if os.path.exists(pmb.config.work / "aportgen"):
+        pmb.helpers.run.user(args, ["rm", "-r", pmb.config.work / "aportgen"])
 
-    pmb.helpers.run.user(args, ["mkdir", args.work + "/aportgen"])
+    pmb.helpers.run.user(args, ["mkdir", pmb.config.work / "aportgen"])
     pmb.helpers.run.user(args, ["cp", "-r", apkbuild_path,
-                         args.work + "/aportgen"])
+                         pmb.config.work / "aportgen"])
 
     pkgver = pmb.build._package.get_pkgver(apkbuild["pkgver"],
                                            original_source=False)
@@ -105,7 +110,7 @@ def modify_apkbuild(args, pkgname, aport):
     pmb.aportgen.core.rewrite(args, pkgname, apkbuild_path, fields=fields)
 
 
-def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
+def run_abuild(args: PmbArgs, pkgname, arch, apkbuild_path, kbuild_out):
     """
     Prepare build environment and run abuild.
 
@@ -114,8 +119,8 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     :param apkbuild_path: path to APKBUILD of the kernel aport
     :param kbuild_out: kernel build system output sub-directory
     """
-    chroot = args.work + "/chroot_native"
-    build_path = "/home/pmos/build"
+    chroot = Chroot.native()
+    build_path = Path("/home/pmos/build")
     kbuild_out_source = "/mnt/linux/.output"
 
     # If the kernel was cross-compiled on the host rather than with the envkernel
@@ -123,9 +128,9 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     # development, making it easy to quickly sideload a new kernel or pmbootstrap
     # to create a boot image.
 
-    pmb.helpers.mount.bind(args, ".", f"{chroot}/mnt/linux")
+    pmb.helpers.mount.bind(args, Path("."), chroot / "mnt/linux")
 
-    if not os.path.exists(chroot + kbuild_out_source):
+    if not os.path.exists(chroot / kbuild_out_source):
         raise RuntimeError("No '.output' dir found in your kernel source dir. "
                            "Compile the " + args.device + " kernel first and "
                            "then try again. See https://postmarketos.org/envkernel"
@@ -137,17 +142,17 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     pmb.build.copy_to_buildpath(args, pkgname)
 
     # Create symlink from abuild working directory to envkernel build directory
-    build_output = "" if kbuild_out == "" else "/" + kbuild_out
-    if build_output != "":
-        if os.path.islink(chroot + "/mnt/linux/" + build_output) and \
-                os.path.lexists(chroot + "/mnt/linux/" + build_output):
-            pmb.chroot.root(args, ["rm", "/mnt/linux/" + build_output])
+    build_output = Path("" if kbuild_out == "" else "/" + kbuild_out)
+    if False or build_output != "":
+        if os.path.islink(chroot / "mnt/linux" / build_output) and \
+                os.path.lexists(chroot / "mnt/linux" / build_output):
+            pmb.chroot.root(args, ["rm", "/mnt/linux" / build_output])
         pmb.chroot.root(args, ["ln", "-s", "/mnt/linux",
-                        build_path + "/src"])
+                        build_path / "src"])
     pmb.chroot.root(args, ["ln", "-s", kbuild_out_source,
-                    build_path + "/src" + build_output])
+                    build_path / "src" / build_output])
 
-    cmd = ["cp", apkbuild_path, chroot + build_path + "/APKBUILD"]
+    cmd = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
     pmb.helpers.run.root(args, cmd)
 
     # Create the apk package
@@ -159,17 +164,17 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
     pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
 
     # Clean up bindmount
-    pmb.helpers.mount.umount_all(args, f"{chroot}/mnt/linux")
+    pmb.helpers.mount.umount_all(args, chroot / "mnt/linux")
 
     # Clean up symlinks
     if build_output != "":
-        if os.path.islink(chroot + "/mnt/linux/" + build_output) and \
-                os.path.lexists(chroot + "/mnt/linux/" + build_output):
-            pmb.chroot.root(args, ["rm", "/mnt/linux/" + build_output])
-    pmb.chroot.root(args, ["rm", build_path + "/src"])
+        if os.path.islink(chroot / "mnt/linux" / build_output) and \
+                os.path.lexists(chroot / "mnt/linux" / build_output):
+            pmb.chroot.root(args, ["rm", "/mnt/linux" / build_output])
+    pmb.chroot.root(args, ["rm", build_path / "src"])
 
 
-def package_kernel(args):
+def package_kernel(args: PmbArgs):
     """Frontend for 'pmbootstrap build --envkernel': creates a package from envkernel output."""
     pkgname = args.packages[0]
     if len(args.packages) > 1 or not pkgname.startswith("linux-"):
@@ -179,33 +184,33 @@ def package_kernel(args):
     aport = pmb.helpers.pmaports.find(args, pkgname)
 
     modify_apkbuild(args, pkgname, aport)
-    apkbuild_path = args.work + "/aportgen/APKBUILD"
+    apkbuild_path = pmb.config.work / "aportgen/APKBUILD"
 
     arch = args.deviceinfo["arch"]
     apkbuild = pmb.parse.apkbuild(apkbuild_path, check_pkgname=False)
     if apkbuild["_outdir"]:
         kbuild_out = apkbuild["_outdir"]
     else:
-        function_body = pmb.parse.function_body(aport + "/APKBUILD", "package")
+        function_body = pmb.parse.function_body(aport / "APKBUILD", "package")
         kbuild_out = find_kbuild_output_dir(function_body)
-    suffix = pmb.build.autodetect.suffix(apkbuild, arch)
+    chroot = pmb.build.autodetect.chroot(apkbuild, arch)
 
     # Install package dependencies
     depends, _ = pmb.build._package.build_depends(
         args, apkbuild, pmb.config.arch_native, strict=False)
-    pmb.build.init(args, suffix)
+    pmb.build.init(args, chroot)
     if pmb.parse.arch.cpu_emulation_required(arch):
         depends.append("binutils-" + arch)
-    pmb.chroot.apk.install(args, depends, suffix)
+    pmb.chroot.apk.install(args, depends, chroot)
 
     output = (arch + "/" + apkbuild["pkgname"] + "-" + apkbuild["pkgver"] +
               "-r" + apkbuild["pkgrel"] + ".apk")
-    message = "(" + suffix + ") build " + output
+    message = f"({chroot}) build " + output
     logging.info(message)
 
     try:
         run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out)
     except Exception as e:
-        pmb.helpers.mount.umount_all(args, f"{args.work}/chroot_native/mnt/linux")
+        pmb.helpers.mount.umount_all(args, Chroot.native() / "mnt/linux")
         raise e
     pmb.build.other.index_repo(args, arch)

@@ -1,11 +1,15 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
+import os
+from pathlib import Path
 
 import pmb.chroot
 import pmb.build
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
+from pmb.core import Chroot
 
 
 def update(args, pkgname):
@@ -14,11 +18,11 @@ def update(args, pkgname):
     pmb.build.copy_to_buildpath(args, pkgname)
     logging.info("(native) generate checksums for " + pkgname)
     pmb.chroot.user(args, ["abuild", "checksum"],
-                    working_dir="/home/pmos/build")
+                    working_dir=Path("/home/pmos/build"))
 
     # Copy modified APKBUILD back
-    source = args.work + "/chroot_native/home/pmos/build/APKBUILD"
-    target = pmb.helpers.pmaports.find(args, pkgname) + "/"
+    source = Chroot.native() / "home/pmos/build/APKBUILD"
+    target = f"{os.fspath(pmb.helpers.pmaports.find(args, pkgname))}/"
     pmb.helpers.run.user(args, ["cp", source, target])
 
 
@@ -31,4 +35,4 @@ def verify(args, pkgname):
     # Fetch and verify sources, "fetch" alone does not verify them:
     # https://github.com/alpinelinux/abuild/pull/86
     pmb.chroot.user(args, ["abuild", "fetch", "verify"],
-                    working_dir="/home/pmos/build")
+                    working_dir=Path("/home/pmos/build"))

@@ -3,7 +3,10 @@
 import fnmatch
 import platform
 import pmb.config
+import pmb.parse.arch
 
+from pmb.core.types import PmbArgs
+from pmb.core import Chroot, ChrootType
 
 def alpine_native():
     machine = platform.machine()
@@ -11,15 +14,15 @@ def alpine_native():
     return machine_type_to_alpine(machine)
 
 
-def from_chroot_suffix(args, suffix):
-    if suffix == "native":
+def from_chroot_suffix(args: PmbArgs, chroot: Chroot) -> str:
+    if chroot == Chroot.native():
         return pmb.config.arch_native
-    if suffix in [f"rootfs_{args.device}", f"installer_{args.device}"]:
+    if chroot.name() == args.device:
         return args.deviceinfo["arch"]
-    if suffix.startswith("buildroot_"):
-        return suffix.split("_", 1)[1]
+    if chroot.type() == ChrootType.BUILDROOT:
+        return chroot.name()
 
-    raise ValueError("Invalid chroot suffix: " + suffix +
+    raise ValueError(f"Invalid chroot suffix: {chroot}"
                      " (wrong device chosen in 'init' step?)")
 
 

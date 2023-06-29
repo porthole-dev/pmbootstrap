@@ -3,10 +3,12 @@
 # mypy: disable-error-code="attr-defined"
 import logging
 import os
+from pathlib import Path
 import re
 from collections import OrderedDict
 
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.helpers.devices
 import pmb.parse.version
 
@@ -86,7 +88,7 @@ def replace_variable(apkbuild, value: str) -> str:
     return value
 
 
-def function_body(path, func):
+def function_body(path: Path, func: str):
     """
     Get the body of a function in an APKBUILD.
 
@@ -111,14 +113,14 @@ def function_body(path, func):
     return func_body
 
 
-def read_file(path):
+def read_file(path: Path):
     """
     Read an APKBUILD file
 
     :param path: full path to the APKBUILD
     :returns: contents of an APKBUILD as a list of strings
     """
-    with open(path, encoding="utf-8") as handle:
+    with path.open(encoding="utf-8") as handle:
         lines = handle.readlines()
         if handle.newlines != '\n':
             raise RuntimeError(f"Wrong line endings in APKBUILD: {path}")
@@ -310,7 +312,7 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     subpackages[subpkgname] = ret
 
 
-def apkbuild(path, check_pkgver=True, check_pkgname=True):
+def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
     """
     Parse relevant information out of the APKBUILD file. This is not meant
     to be perfect and catch every edge case (for that, a full shell parser
@@ -324,6 +326,8 @@ def apkbuild(path, check_pkgver=True, check_pkgname=True):
     :returns: relevant variables from the APKBUILD. Arrays get returned as
               arrays.
     """
+    if path.is_dir():
+        path = path / "APKBUILD"
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     if path in pmb.helpers.other.cache["apkbuild"]:
@@ -359,7 +363,7 @@ def apkbuild(path, check_pkgver=True, check_pkgname=True):
     return ret
 
 
-def kernels(args, device):
+def kernels(args: PmbArgs, device):
     """
     Get the possible kernels from a device-* APKBUILD.
 

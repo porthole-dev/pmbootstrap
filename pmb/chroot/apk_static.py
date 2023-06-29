@@ -7,6 +7,7 @@ import tarfile
 import tempfile
 import stat
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.apk
 import pmb.helpers.run
 import pmb.config
@@ -76,7 +77,7 @@ def extract_temp(tar, sigfilename):
     return ret
 
 
-def verify_signature(args, files, sigkey_path):
+def verify_signature(args: PmbArgs, files, sigkey_path):
     """
     Verify the signature with openssl.
 
@@ -98,7 +99,7 @@ def verify_signature(args, files, sigkey_path):
                            " delete the download and try again.")
 
 
-def extract(args, version, apk_path):
+def extract(args: PmbArgs, version, apk_path):
     """
     Extract everything to temporary locations, verify signatures and reported
     versions. When everything is right, move the extracted apk.static to the
@@ -131,11 +132,11 @@ def extract(args, version, apk_path):
                            " and try again.")
 
     # Move it to the right path
-    target_path = f"{args.work}/apk.static"
+    target_path = pmb.config.work / "apk.static"
     shutil.move(temp_path, target_path)
 
 
-def download(args, file):
+def download(args: PmbArgs, file):
     """
     Download a single file from an Alpine mirror.
     """
@@ -145,7 +146,7 @@ def download(args, file):
     return pmb.helpers.http.download(args, f"{base_url}/{file}", file)
 
 
-def init(args):
+def init(args: PmbArgs):
     """
     Download, verify, extract $WORK/apk.static.
     """
@@ -165,7 +166,7 @@ def init(args):
     extract(args, version, apk_static)
 
 
-def run(args, parameters):
+def run(args: PmbArgs, parameters):
     # --no-interactive is a parameter to `add`, so it must be appended or apk
     # gets confused
     parameters += ["--no-interactive"]
@@ -173,4 +174,4 @@ def run(args, parameters):
     if args.offline:
         parameters = ["--no-network"] + parameters
     pmb.helpers.apk.apk_with_progress(
-        args, [f"{args.work}/apk.static"] + parameters, chroot=False)
+        args, [pmb.config.work / "apk.static"] + parameters, chroot=False)

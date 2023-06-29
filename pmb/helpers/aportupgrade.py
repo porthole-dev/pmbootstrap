@@ -8,6 +8,7 @@ import re
 import urllib.parse
 from typing import Optional
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
@@ -95,7 +96,7 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
     }
 
 
-def upgrade_git_package(args, pkgname: str, package) -> None:
+def upgrade_git_package(args: PmbArgs, pkgname: str, package) -> None:
     """Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if args.dry is set).
 
     :param pkgname: the package name
@@ -170,7 +171,7 @@ def upgrade_git_package(args, pkgname: str, package) -> None:
     return
 
 
-def upgrade_stable_package(args, pkgname: str, package) -> None:
+def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
     """
     Update _commit/pkgver/pkgrel in an APKBUILD (or pretend to do it if
     args.dry is set).
@@ -252,7 +253,7 @@ def upgrade_stable_package(args, pkgname: str, package) -> None:
     return
 
 
-def upgrade(args, pkgname, git=True, stable=True) -> None:
+def upgrade(args: PmbArgs, pkgname, git=True, stable=True) -> None:
     """Find new versions of a single package and upgrade it.
 
     :param pkgname: the name of the package
@@ -271,8 +272,9 @@ def upgrade(args, pkgname, git=True, stable=True) -> None:
         if stable:
             upgrade_stable_package(args, pkgname, package)
 
+    return False
 
-def upgrade_all(args) -> None:
+def upgrade_all(args: PmbArgs) -> None:
     """Upgrade all packages, based on args.all, args.all_git and args.all_stable."""
     for pkgname in pmb.helpers.pmaports.get_list(args):
         # Always ignore postmarketOS-specific packages that have no upstream

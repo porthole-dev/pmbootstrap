@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import multiprocessing
 import os
+from pathlib import Path
+from pmb.core.types import PathString
 import pmb.parse.arch
 import sys
-from typing import List
+from typing import Sequence
 
 #
 # Exported functions
@@ -19,9 +21,10 @@ from pmb.config.other import is_systemd_selected
 #
 # Exported variables (internal configuration)
 #
-pmb_src = os.path.normpath(os.path.realpath(__file__) + "/../../..")
-apk_keys_path = pmb_src + "/pmb/data/keys"
+pmb_src: Path = Path(Path(__file__) / "../../..").resolve()
+apk_keys_path: Path = (pmb_src / "pmb/data/keys")
 arch_native = pmb.parse.arch.alpine_native()
+work: Path = Path("/unitialised/pmbootstrap/work/dir")
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge
@@ -64,7 +67,7 @@ required_programs = [
 ]
 
 
-def sudo(cmd: List[str]) -> List[str]:
+def sudo(cmd: Sequence[PathString]) -> Sequence[str]:
     """Adapt a command to run as root."""
     sudo = which_sudo()
     if sudo:
@@ -72,6 +75,15 @@ def sudo(cmd: List[str]) -> List[str]:
     else:
         return cmd
 
+
+def work_dir(_work: Path) -> None:
+    """Set the work directory. This is used in the main program to set the
+    work directory before any other code is run. It is not meant to be used
+    anywhere else."""
+    global work
+    if work:
+        raise RuntimeError("work_dir() called multiple times!")
+    work = _work
 
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = [
@@ -104,7 +116,7 @@ config_keys = [
 ]
 
 # Config file/commandline default values
-# $WORK gets replaced with the actual value for args.work (which may be
+# $WORK gets replaced with the actual value for pmb.config.work (which may be
 # overridden on the commandline)
 defaults = {
     # This first chunk matches config_keys
@@ -211,7 +223,7 @@ chroot_path = ":".join([
 chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 
 # Folders that get mounted inside the chroot
-# $WORK gets replaced with args.work
+# $WORK gets replaced with pmb.config.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
 # $CHANNEL gets replaced with the release channel (e.g. edge, v21.03)
 # Use no more than one dir after /mnt/pmbootstrap, see remove_mnt_pmbootstrap.
@@ -935,10 +947,10 @@ flash_methods = [
 # These folders will be mounted at the same location into the native
 # chroot, before the flash programs get started.
 flash_mount_bind = [
-    "/sys/bus/usb/devices/",
-    "/sys/dev/",
-    "/sys/devices/",
-    "/dev/bus/usb/"
+    "sys/bus/usb/devices/",
+    "sys/dev/",
+    "sys/devices/",
+    "dev/bus/usb/"
 ]
 
 """

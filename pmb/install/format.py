@@ -1,11 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
 import logging
 import pmb.chroot
+from pmb.core import Chroot
+from pmb.core.types import PmbArgs
 
 
-def install_fsprogs(args, filesystem):
+def install_fsprogs(args: PmbArgs, filesystem):
     """ Install the package required to format a specific filesystem. """
     fsprogs = pmb.config.filesystems.get(filesystem)
     if not fsprogs:
@@ -13,7 +14,7 @@ def install_fsprogs(args, filesystem):
     pmb.chroot.apk.install(args, [fsprogs])
 
 
-def format_and_mount_boot(args, device, boot_label):
+def format_and_mount_boot(args: PmbArgs, device, boot_label):
     """
     :param device: boot partition on install block device (e.g. /dev/installp1)
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
@@ -44,7 +45,7 @@ def format_and_mount_boot(args, device, boot_label):
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
 
-def format_luks_root(args, device):
+def format_luks_root(args: PmbArgs, device):
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
     """
@@ -66,11 +67,11 @@ def format_luks_root(args, device):
     pmb.chroot.root(args, ["cryptsetup", "luksOpen", device, "pm_crypt"],
                     output="interactive")
 
-    if not os.path.exists(f"{args.work}/chroot_native/{mountpoint}"):
+    if not (Chroot.native() / mountpoint).exists():
         raise RuntimeError("Failed to open cryptdevice!")
 
 
-def get_root_filesystem(args):
+def get_root_filesystem(args: PmbArgs):
     ret = args.filesystem or args.deviceinfo["root_filesystem"] or "ext4"
     pmaports_cfg = pmb.config.pmaports.read_config(args)
 
@@ -86,7 +87,7 @@ def get_root_filesystem(args):
     return ret
 
 
-def prepare_btrfs_subvolumes(args, device, mountpoint):
+def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     """
     Create separate subvolumes if root filesystem is btrfs.
     This lets us do snapshots and rollbacks of relevant parts
@@ -151,7 +152,7 @@ def prepare_btrfs_subvolumes(args, device, mountpoint):
     pmb.chroot.root(args, ["chattr", "+C", f"{mountpoint}/var"])
 
 
-def format_and_mount_root(args, device, root_label, disk):
+def format_and_mount_root(args: PmbArgs, device, root_label, disk):
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
     :param root_label: label of the root partition (e.g. "pmOS_root")
@@ -194,7 +195,7 @@ def format_and_mount_root(args, device, root_label, disk):
         prepare_btrfs_subvolumes(args, device, mountpoint)
 
 
-def format(args, layout, boot_label, root_label, disk):
+def format(args: PmbArgs, layout, boot_label, root_label, disk):
     """
     :param layout: partition layout from get_partition_layout()
     :param boot_label: label of the boot partition (e.g. "pmOS_boot")

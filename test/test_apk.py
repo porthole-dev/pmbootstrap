@@ -7,6 +7,7 @@ import sys
 import pmb_test  # noqa
 import pmb.build
 import pmb.chroot.apk
+from pmb.core import Suffix
 
 
 @pytest.fixture
@@ -88,7 +89,7 @@ def test_install_run_apk(monkeypatch, args):
     global cmds
 
     func = pmb.chroot.apk.install_run_apk
-    suffix = "chroot_native"
+    suffix = Suffix.native()
 
     def fake_chroot_root(args, command, suffix):
         global cmds

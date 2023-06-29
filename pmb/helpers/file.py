@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
+from pathlib import Path
 import time
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 
 
@@ -87,15 +89,15 @@ def is_older_than(path, seconds):
     return lastmod + seconds < time.time()
 
 
-def symlink(args, file, link):
+def symlink(args: PmbArgs, file: Path, link: Path):
     """Check if the symlink is already present, otherwise create it."""
     if os.path.exists(link):
         if (os.path.islink(link) and
                 os.path.realpath(os.readlink(link)) == os.path.realpath(file)):
             return
         raise RuntimeError("File exists: " + link)
-    elif os.path.islink(link):
-        os.unlink(link)
+    elif link.is_symlink():
+        link.unlink()
 
     # Create the symlink
     pmb.helpers.run.user(args, ["ln", "-s", file, link])

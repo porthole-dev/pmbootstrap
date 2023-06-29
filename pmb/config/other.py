@@ -1,10 +1,11 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.types import PmbArgs
 import pmb.helpers.ui
 import pmb.config.pmaports
 
 
-def is_systemd_selected(args):
+def is_systemd_selected(args: PmbArgs):
     if "systemd" not in pmb.config.pmaports.read_config_repos(args):
         return False
     if pmb.helpers.ui.check_option(args, args.ui, "pmb:systemd-never"):

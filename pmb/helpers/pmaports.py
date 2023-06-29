@@ -9,11 +9,13 @@ See also:
 import glob
 import logging
 import os
+from pathlib import Path
+from typing import Optional, Sequence, Dict
 
+from pmb.core.types import PmbArgs
 import pmb.parse
 
-
-def _find_apkbuilds(args):
+def _find_apkbuilds(args: PmbArgs) -> Dict[str, Path]:
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
@@ -22,11 +24,11 @@ def _find_apkbuilds(args):
 
     apkbuilds = {}
     for apkbuild in glob.iglob(f"{args.aports}/**/*/APKBUILD", recursive=True):
-        package = os.path.basename(os.path.dirname(apkbuild))
+        package = Path(apkbuild).parent.name
         if package in apkbuilds:
             raise RuntimeError(f"Package {package} found in multiple aports "
                                "subfolders. Please put it only in one folder.")
-        apkbuilds[package] = apkbuild
+        apkbuilds[package] = Path(apkbuild)
 
     # Sort dictionary so we don't need to do it over and over again in
     # get_list()
@@ -37,7 +39,7 @@ def _find_apkbuilds(args):
     return apkbuilds
 
 
-def get_list(args):
+def get_list(args: PmbArgs) -> Sequence[str]:
     """ :returns: list of all pmaport pkgnames (["hello-world", ...]) """
     return list(_find_apkbuilds(args).keys())
 
@@ -63,7 +65,7 @@ def guess_main_dev(args, subpkgname):
     return None
 
 
-def guess_main(args, subpkgname):
+def guess_main(args: PmbArgs, subpkgname) -> Optional[Path]:
     """Find the main package by assuming it is a prefix of the subpkgname.
 
     We do that, because in some APKBUILDs the subpkgname="" variable gets
@@ -97,10 +99,11 @@ def guess_main(args, subpkgname):
         if path:
             logging.verbose(subpkgname + ": guessed to be a subpackage of " +
                             pkgname)
-            return os.path.dirname(path)
+            return path.parent
 
+    return None
 
-def _find_package_in_apkbuild(package, path):
+def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     """Look through subpackages and all provides to see if the APKBUILD at the specified path
     contains (or provides) the specified package.
 
@@ -134,7 +137,7 @@ def _find_package_in_apkbuild(package, path):
     return False
 
 
-def find(args, package, must_exist=True):
+def find(args: PmbArgs, package: str, must_exist=True) -> Path:
     """Find the aport path that provides a certain subpackage.
 
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
@@ -144,7 +147,7 @@ def find(args, package, must_exist=True):
     """
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
-    ret = None
+    ret = Path()
     if package in pmb.helpers.other.cache["find_aport"]:
         ret = pmb.helpers.other.cache["find_aport"][package]
     else:
@@ -155,7 +158,7 @@ def find(args, package, must_exist=True):
         # Try to find an APKBUILD with the exact pkgname we are looking for
         path = _find_apkbuilds(args).get(package)
         if path:
-            ret = os.path.dirname(path)
+            ret = path.parent
         else:
             # No luck, take a guess what APKBUILD could have the package we are
             # looking for as subpackage
@@ -169,7 +172,7 @@ def find(args, package, must_exist=True):
                     # package we are looking for a subpackage of any of those?
                     for path_current in _find_apkbuilds(args).values():
                         if _find_package_in_apkbuild(package, path_current):
-                            ret = os.path.dirname(path_current)
+                            ret = path_current.parent
                             break
 
                 # If we still didn't find anything, as last resort: assume our
@@ -189,7 +192,7 @@ def find(args, package, must_exist=True):
     return ret
 
 
-def get(args, pkgname, must_exist=True, subpackages=True):
+def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.

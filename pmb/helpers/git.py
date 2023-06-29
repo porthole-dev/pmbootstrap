@@ -3,10 +3,12 @@
 import configparser
 import logging
 import os
+from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 
@@ -20,7 +22,7 @@ def get_path(args, name_repo):
     """
     if name_repo == "pmaports":
         return args.aports
-    return args.work + "/cache_git/" + name_repo
+    return pmb.config.work / "cache_git/" + name_repo
 
 
 def clone(args, name_repo):
@@ -44,7 +46,7 @@ def clone(args, name_repo):
 
         # Create parent dir and clone
         logging.info("Clone git repository: " + url)
-        os.makedirs(args.work + "/cache_git", exist_ok=True)
+        os.makedirs(pmb.config.work / "cache_git", exist_ok=True)
         pmb.helpers.run.user(args, command, output="stdout")
 
     # FETCH_HEAD does not exist after initial clone. Create it, so
@@ -68,7 +70,7 @@ def rev_parse(args, path, revision="HEAD", extra_args: list = []):
     return rev.rstrip()
 
 
-def can_fast_forward(args, path, branch_upstream, branch="HEAD"):
+def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
     command = ["git", "merge-base", "--is-ancestor", branch, branch_upstream]
     ret = pmb.helpers.run.user(args, command, path, check=False)
     if ret == 0:
@@ -239,7 +241,7 @@ def pull(args, name_repo):
     return 0
 
 
-def get_topdir(args, path):
+def get_topdir(args: PmbArgs, path: Path):
     """Get top-dir of git repo.
 
     :returns: a string with the top dir of the git repository,

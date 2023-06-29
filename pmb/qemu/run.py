@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+from pathlib import Path
 import re
 import signal
 import shlex
@@ -14,32 +15,34 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.arch
 import pmb.parse.cpuinfo
+from pmb.core import Chroot, ChrootType
 
 
-def system_image(args):
+def system_image(args: PmbArgs):
     """
     Returns path to rootfs for specified device. In case that it doesn't
     exist, raise and exception explaining how to generate it.
     """
-    path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}.img"
-    if not os.path.exists(path):
+    path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}.img"
+    if not path.exists():
         logging.debug("Could not find rootfs: " + path)
         raise RuntimeError("The rootfs has not been generated yet, please "
                            "run 'pmbootstrap install' first.")
     return path
 
 
-def create_second_storage(args):
+def create_second_storage(args: PmbArgs):
     """
     Generate a second storage image if it does not exist.
 
     :returns: path to the image or None
 
     """
-    path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}-2nd.img"
+    path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}-2nd.img"
     pmb.helpers.run.root(args, ["touch", path])
     pmb.helpers.run.root(args, ["chmod", "a+w", path])
     resize_image(args, args.second_storage, path)
@@ -59,30 +62,30 @@ def which_qemu(arch):
                            " run qemu.")
 
 
-def create_gdk_loader_cache(args):
+def create_gdk_loader_cache(args: PmbArgs) -> Path:
     """
     Create a gdk loader cache that can be used for running GTK UIs outside of
     the chroot.
     """
-    gdk_cache_dir = "/usr/lib/gdk-pixbuf-2.0/2.10.0/"
-    custom_cache_path = gdk_cache_dir + "loaders-pmos-chroot.cache"
-    rootfs_native = args.work + "/chroot_native"
-    if os.path.isfile(rootfs_native + custom_cache_path):
-        return rootfs_native + custom_cache_path
+    gdk_cache_dir = Path("/usr/lib/gdk-pixbuf-2.0/2.10.0/")
+    custom_cache_path = gdk_cache_dir / "loaders-pmos-chroot.cache"
+    chroot_native = Chroot.native()
+    if (chroot_native / custom_cache_path).is_file():
+        return chroot_native / custom_cache_path
 
-    cache_path = gdk_cache_dir + "loaders.cache"
-    if not os.path.isfile(rootfs_native + cache_path):
+    cache_path = gdk_cache_dir / "loaders.cache"
+    if not (chroot_native / cache_path).is_file():
         raise RuntimeError("gdk pixbuf cache file not found: " + cache_path)
 
     pmb.chroot.root(args, ["cp", cache_path, custom_cache_path])
     cmd = ["sed", "-i", "-e",
-           f"s@\"{gdk_cache_dir}@\"{rootfs_native}{gdk_cache_dir}@",
+           f"s@\"{gdk_cache_dir}@\"{chroot_native / gdk_cache_dir}@",
            custom_cache_path]
     pmb.chroot.root(args, cmd)
-    return rootfs_native + custom_cache_path
+    return chroot_native / custom_cache_path
 
 
-def command_qemu(args, arch, img_path, img_path_2nd=None):
+def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
@@ -97,9 +100,9 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
     port_ssh = str(args.port)
 
-    suffix = "rootfs_" + args.device
-    rootfs = args.work + "/chroot_" + suffix
-    flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
+    chroot = Chroot(ChrootType.ROOTFS, args.device)
+    chroot_native = Chroot.native()
+    flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
     flavor_suffix = f"-{flavor}"
     # Backwards compatibility with old mkinitfs (pma#660)
     pmaports_cfg = pmb.config.pmaports.read_config(args)
@@ -107,9 +110,9 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         flavor_suffix = ""
 
     # Alpine kernels always have the flavor appended to /boot/vmlinuz
-    kernel = f"{rootfs}/boot/vmlinuz{flavor_suffix}"
-    if not os.path.exists(kernel):
-        kernel = f"{kernel}-{flavor}"
+    kernel = chroot / "boot" / f"vmlinuz{flavor_suffix}"
+    if not kernel.exists():
+        kernel = kernel.with_name(f"{kernel.name}-{flavor}")
         if not os.path.exists(kernel):
             raise RuntimeError("failed to find the proper vmlinuz path")
 
@@ -125,18 +128,18 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
         env = {}
         command = [qemu_bin]
     else:
-        rootfs_native = args.work + "/chroot_native"
-        env = {"QEMU_MODULE_DIR": f"{rootfs_native}/usr/lib/qemu",
-               "GBM_DRIVERS_PATH": f"{rootfs_native}/usr/lib/xorg/modules/dri",
-               "LIBGL_DRIVERS_PATH": f"{rootfs_native}"
-                                     "/usr/lib/xorg/modules/dri"}
+        env = {"QEMU_MODULE_DIR": chroot_native / "usr/lib/qemu",
+               "GBM_DRIVERS_PATH": chroot_native / "usr/lib/xorg/modules/dri",
+               "LIBGL_DRIVERS_PATH": chroot_native / "usr/lib/xorg/modules/dri"}
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
             env.update({"GTK_THEME": "Default",
                         "GDK_PIXBUF_MODULE_FILE": gdk_cache,
-                        "XDG_DATA_DIRS": rootfs_native + "/usr/local/share:" +
-                        rootfs_native + "/usr/share"})
+                        "XDG_DATA_DIRS": ":".join([
+                            chroot_native / "usr/local/share",
+                            chroot_native / "usr/share"
+                        ])})
 
         command = []
         if pmb.config.arch_native in ["aarch64", "armv7"]:
@@ -149,18 +152,18 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
                 ncpus = ncpus_bl
                 logging.info("QEMU will run on big/little architecture on the"
                              f" first {ncpus} cores (from /proc/cpuinfo)")
-                command += [rootfs_native + "/lib/ld-musl-" +
-                            pmb.config.arch_native + ".so.1"]
-                command += [rootfs_native + "/usr/bin/taskset"]
+                command += [chroot_native / "lib" / f"ld-musl-{pmb.config.arch_native}.so.1"]
+                command += [chroot_native / "usr/bin/taskset"]
                 command += ["-c", "0-" + str(ncpus - 1)]
 
-        command += [rootfs_native + "/lib/ld-musl-" +
-                    pmb.config.arch_native + ".so.1"]
-        command += ["--library-path=" + rootfs_native + "/lib:" +
-                    rootfs_native + "/usr/lib:" +
-                    rootfs_native + "/usr/lib/pulseaudio"]
-        command += [rootfs_native + "/usr/bin/qemu-system-" + arch]
-        command += ["-L", rootfs_native + "/usr/share/qemu/"]
+        command += [chroot_native / "lib" / f"ld-musl-{pmb.config.arch_native}.so.1"]
+        command += ["--library-path=" + ":".join([
+                        chroot_native / "lib",
+                        chroot_native / "usr/lib" +
+                        chroot_native / "usr/lib/pulseaudio"
+                    ])]
+        command += [chroot_native / "usr/bin" / f"qemu-system-{arch}"]
+        command += ["-L", chroot_native / "usr/share/qemu/"]
 
     command += ["-nodefaults"]
     # Only boot a kernel/initramfs directly when not doing EFI boot. This
@@ -168,7 +171,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     # a wide variety of boot loaders.
     if not args.efi:
         command += ["-kernel", kernel]
-        command += ["-initrd", rootfs + "/boot/initramfs" + flavor_suffix]
+        command += ["-initrd", chroot / "boot" / f"initramfs{flavor_suffix}"]
         command += ["-append", shlex.quote(cmdline)]
 
     command += ["-smp", str(ncpus)]
@@ -236,7 +239,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
     return (command, env)
 
 
-def resize_image(args, img_size_new, img_path):
+def resize_image(args: PmbArgs, img_size_new, img_path):
     """
     Truncates an image to a specific size. The value must be larger than the
     current image size, and it must be specified in MiB or GiB units (powers of
@@ -282,7 +285,7 @@ def sigterm_handler(number, frame):
                        " and killed the QEMU VM it was running.")
 
 
-def install_depends(args, arch):
+def install_depends(args: PmbArgs, arch):
     """
     Install any necessary qemu dependencies in native chroot
     """
@@ -319,7 +322,7 @@ def install_depends(args, arch):
     pmb.chroot.apk.install(args, depends)
 
 
-def run(args):
+def run(args: PmbArgs):
     """
     Run a postmarketOS image in qemu
     """

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import glob
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.parse
 
@@ -23,7 +24,7 @@ def list(args, arch):
     return ret
 
 
-def check_option(args, ui, option):
+def check_option(args: PmbArgs, ui, option):
     """
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
     """

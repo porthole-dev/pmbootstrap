@@ -4,6 +4,7 @@ import copy
 import logging
 import os
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.helpers.devices
 
 
@@ -70,7 +71,7 @@ def sanity_check(info, path):
                            f" and try again: {path}")
 
 
-def _parse_kernel_suffix(args, info, device, kernel):
+def _parse_kernel_suffix(args: PmbArgs, info, device, kernel):
     """
     Remove the kernel suffix (as selected in 'pmbootstrap init') from
     deviceinfo variables. Related:
@@ -111,7 +112,7 @@ def _parse_kernel_suffix(args, info, device, kernel):
     return ret
 
 
-def deviceinfo(args, device=None, kernel=None):
+def deviceinfo(args: PmbArgs, device=None, kernel=None):
     """
     :param device: defaults to args.device
     :param kernel: defaults to args.kernel

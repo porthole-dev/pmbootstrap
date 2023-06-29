@@ -1,11 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
+from pmb.core.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
 
 
-def generate(args, pkgname):
+def generate(args: PmbArgs, pkgname):
     # Copy original aport
     prefix = pkgname.split("-")[0]
     arch = pkgname.split("-")[1]
@@ -21,7 +22,7 @@ def generate(args, pkgname):
     else:
         raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or"
                          " gcc6.")
-    pmb.helpers.run.user(args, ["cp", "-r", upstream, f"{args.work}/aportgen"])
+    pmb.helpers.run.user(args, ["cp", "-r", upstream, pmb.config.work / "aportgen"])
 
     # Rewrite APKBUILD
     fields = {

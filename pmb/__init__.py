@@ -16,6 +16,7 @@ from .helpers import frontend
 from .helpers import logging as pmb_logging
 from .helpers import mount
 from .helpers import other
+from .core import Chroot
 
 # pmbootstrap version
 __version__ = "2.3.1"
@@ -61,7 +62,7 @@ def main():
         elif not os.path.exists(args.config):
             raise RuntimeError("Please specify a config file, or run"
                                " 'pmbootstrap init' to generate one.")
-        elif not os.path.exists(args.work):
+        elif not os.path.exists(config.work):
             raise RuntimeError("Work path not found, please run 'pmbootstrap"
                                " init' to create it.")
 
@@ -78,7 +79,7 @@ def main():
             logging.info("Run pmbootstrap -h for usage information.")
 
         # Still active notice
-        if mount.ismount(args.work + "/chroot_native/dev"):
+        if mount.ismount(Chroot.native() / "dev"):
             logging.info("NOTE: chroot is still active (use 'pmbootstrap"
                          " shutdown' as necessary)")
         logging.info("DONE!")

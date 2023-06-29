@@ -1,24 +1,25 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import glob
 import logging
 import os
+from pathlib import Path
+from typing import Dict
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.parse
 import pmb.helpers.mount
+from pmb.core import Chroot
 
 
-def create_device_nodes(args, suffix):
+def create_device_nodes(args: PmbArgs, chroot: Chroot):
     """
     Create device nodes for null, zero, full, random, urandom in the chroot.
     """
     try:
-        chroot = args.work + "/chroot_" + suffix
-
         # Create all device nodes as specified in the config
         for dev in pmb.config.chroot_device_nodes:
-            path = chroot + "/dev/" + str(dev[4])
-            if not os.path.exists(path):
+            path = chroot / "dev" / str(dev[4])
+            if not path.exists():
                 pmb.helpers.run.root(args, ["mknod",
                                             "-m", str(dev[0]),  # permissions
                                             path,  # name
@@ -29,33 +30,32 @@ def create_device_nodes(args, suffix):
 
         # Verify major and minor numbers of created nodes
         for dev in pmb.config.chroot_device_nodes:
-            path = chroot + "/dev/" + str(dev[4])
-            stat_result = os.stat(path)
+            path = chroot / "dev" / str(dev[4])
+            stat_result = path.stat()
             rdev = stat_result.st_rdev
-            assert os.major(rdev) == dev[2], "Wrong major in " + path
-            assert os.minor(rdev) == dev[3], "Wrong minor in " + path
+            assert os.major(rdev) == dev[2], f"Wrong major in {path}"
+            assert os.minor(rdev) == dev[3], f"Wrong minor in {path}"
 
         # Verify /dev/zero reading and writing
-        path = chroot + "/dev/zero"
+        path = chroot / "dev/zero"
         with open(path, "r+b", 0) as handle:
-            assert handle.write(bytes([0xff])), "Write failed for " + path
-            assert handle.read(1) == bytes([0x00]), "Read failed for " + path
+            assert handle.write(bytes([0xff])), f"Write failed for {path}"
+            assert handle.read(1) == bytes([0x00]), f"Read failed for {path}"
 
     # On failure: Show filesystem-related error
     except Exception as e:
         logging.info(str(e) + "!")
-        raise RuntimeError("Failed to create device nodes in the '" +
-                           suffix + "' chroot.")
+        raise RuntimeError(f"Failed to create device nodes in the '{chroot}' chroot.")
 
 
-def mount_dev_tmpfs(args, suffix="native"):
+def mount_dev_tmpfs(args: PmbArgs, chroot: Chroot=Chroot.native()):
     """
     Mount tmpfs inside the chroot's dev folder to make sure we can create
     device nodes, even if the filesystem of the work folder does not support
     it.
     """
     # Do nothing when it is already mounted
-    dev = args.work + "/chroot_" + suffix + "/dev"
+    dev = chroot / "dev"
     if pmb.helpers.mount.ismount(dev):
         return
 
@@ -66,59 +66,59 @@ def mount_dev_tmpfs(args, suffix="native"):
                                 "tmpfs", dev])
 
     # Create pts, shm folders and device nodes
-    pmb.helpers.run.root(args, ["mkdir", "-p", dev + "/pts", dev + "/shm"])
+    pmb.helpers.run.root(args, ["mkdir", "-p", dev / "pts", dev / "shm"])
     pmb.helpers.run.root(args, ["mount", "-t", "tmpfs",
                                 "-o", "nodev,nosuid,noexec",
-                                "tmpfs", dev + "/shm"])
-    create_device_nodes(args, suffix)
+                                "tmpfs", dev / "shm"])
+    create_device_nodes(args, chroot)
 
     # Setup /dev/fd as a symlink
     pmb.helpers.run.root(args, ["ln", "-sf", "/proc/self/fd", f"{dev}/"])
 
 
-def mount(args, suffix="native"):
+def mount(args: PmbArgs, chroot: Chroot=Chroot.native()):
     # Mount tmpfs as the chroot's /dev
-    mount_dev_tmpfs(args, suffix)
+    mount_dev_tmpfs(args, chroot)
 
     # Get all mountpoints
-    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
     channel = pmb.config.pmaports.read_config(args)["channel"]
-    mountpoints = {}
-    for source, target in pmb.config.chroot_mount_bind.items():
-        source = source.replace("$WORK", args.work)
-        source = source.replace("$ARCH", arch)
-        source = source.replace("$CHANNEL", channel)
-        mountpoints[source] = target
+    mountpoints: Dict[Path, Path] = {}
+    for src_template, target_template in pmb.config.chroot_mount_bind.items():
+        src_template = src_template.replace("$WORK", os.fspath(pmb.config.work))
+        src_template = src_template.replace("$ARCH", arch)
+        src_template = src_template.replace("$CHANNEL", channel)
+        mountpoints[Path(src_template)] = Path(target_template)
 
     # Mount if necessary
     for source, target in mountpoints.items():
-        target_full = args.work + "/chroot_" + suffix + target
-        pmb.helpers.mount.bind(args, source, target_full)
+        target_outer = chroot / target
+        pmb.helpers.mount.bind(args, source, target_outer)
 
 
-def mount_native_into_foreign(args, suffix):
-    source = args.work + "/chroot_native"
-    target = args.work + "/chroot_" + suffix + "/native"
+def mount_native_into_foreign(args: PmbArgs, chroot: Chroot):
+    source = Chroot.native().path
+    target = chroot / "native"
     pmb.helpers.mount.bind(args, source, target)
 
-    musl = os.path.basename(glob.glob(source + "/lib/ld-musl-*.so.1")[0])
-    musl_link = args.work + "/chroot_" + suffix + "/lib/" + musl
-    if not os.path.lexists(musl_link):
+    musl = next(source.glob("/lib/ld-musl-*.so.1")).name
+    musl_link = (chroot / "lib" / musl)
+    if not musl_link.is_symlink():
         pmb.helpers.run.root(args, ["ln", "-s", "/native/lib/" + musl,
                                     musl_link])
         pmb.helpers.run.root(args, ["ln", "-sf", "/native/bin/busybox", "/usr/local/bin/gzip"])
 
-def remove_mnt_pmbootstrap(args, suffix):
+def remove_mnt_pmbootstrap(args: PmbArgs, chroot: Chroot):
     """ Safely remove /mnt/pmbootstrap directories from the chroot, without
         running rm -r as root and potentially removing data inside the
         mountpoint in case it was still mounted (bug in pmbootstrap, or user
         ran pmbootstrap 2x in parallel). This is similar to running 'rm -r -d',
         but we don't assume that the host's rm has the -d flag (busybox does
         not). """
-    mnt_dir = f"{args.work}/chroot_{suffix}/mnt/pmbootstrap"
+    mnt_dir = chroot / "mnt/pmbootstrap"
 
-    if not os.path.exists(mnt_dir):
+    if not mnt_dir.exists():
         return
 
-    for path in glob.glob(f"{mnt_dir}/*") + [mnt_dir]:
+    for path in list(mnt_dir.glob("*")) + [mnt_dir]:
         pmb.helpers.run.root(args, ["rmdir", path])

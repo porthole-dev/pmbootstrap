@@ -1,11 +1,11 @@
 # Copyright 2023 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
-import glob
 import os
 import logging
 import shlex
 from argparse import Namespace
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
@@ -14,14 +14,14 @@ import pmb.config.pmaports
 import pmb.build
 
 
-def scp_abuild_key(args, user, host, port):
+def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
     """ Copy the building key of the local installation to the target device,
         so it trusts the apks that were signed here.
         :param user: target device ssh username
         :param host: target device ssh hostname
         :param port: target device ssh port """
 
-    keys = glob.glob(os.path.join(args.work, "config_abuild", "*.pub"))
+    keys = (pmb.config.work / "config_abuild").glob("*.pub")
     key = keys[0]
     key_name = os.path.basename(key)
 
@@ -38,7 +38,7 @@ def scp_abuild_key(args, user, host, port):
     pmb.helpers.run.user(args, command, output="tui")
 
 
-def ssh_find_arch(args: Namespace, user: str, host: str, port: str) -> str:
+def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> str:
     """Connect to a device via ssh and query the architecture."""
     logging.info(f"Querying architecture of {user}@{host}")
     command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
@@ -80,7 +80,7 @@ def ssh_install_apks(args, user, host, port, paths):
     pmb.helpers.run.user(args, command, output="tui")
 
 
-def sideload(args, user, host, port, arch, copy_key, pkgnames):
+def sideload(args: PmbArgs, user: str, host: str, port: str, arch: str, copy_key: bool, pkgnames):
     """ Build packages if necessary and install them via SSH.
 
         :param user: target device ssh username
@@ -91,7 +91,7 @@ def sideload(args, user, host, port, arch, copy_key, pkgnames):
         :param pkgnames: list of pkgnames to be built """
 
     paths = []
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel: str = pmb.config.pmaports.read_config(args)["channel"]
 
     if arch is None:
         arch = ssh_find_arch(args, user, host, port)
@@ -99,12 +99,11 @@ def sideload(args, user, host, port, arch, copy_key, pkgnames):
     for pkgname in pkgnames:
         data_repo = pmb.parse.apkindex.package(args, pkgname, arch, True)
         apk_file = f"{pkgname}-{data_repo['version']}.apk"
-        host_path = os.path.join(args.work, "packages", channel, arch,
-                                 apk_file)
-        if not os.path.isfile(host_path):
+        host_path = pmb.config.work / "packages" / channel / arch / apk_file
+        if not host_path.is_file():
             pmb.build.package(args, pkgname, arch, force=True)
 
-        if not os.path.isfile(host_path):
+        if not host_path.is_file():
             raise RuntimeError(f"The package '{pkgname}' could not be built")
 
         paths.append(host_path)

@@ -1,18 +1,18 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import glob
-import os
 import socket
 from contextlib import closing
 
 import pmb.chroot
+from pmb.core.types import PmbArgs
 import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.parse.arch
+from pmb.core import Chroot, ChrootType
 
 
-def kill_adb(args):
+def kill_adb(args: PmbArgs):
     """
     Kill adb daemon if it's running.
     """
@@ -22,7 +22,7 @@ def kill_adb(args):
             pmb.chroot.root(args, ["adb", "-P", str(port), "kill-server"])
 
 
-def kill_sccache(args):
+def kill_sccache(args: PmbArgs):
     """
     Kill sccache daemon if it's running. Unlike ccache it automatically spawns
     a daemon when you call it and exits after some time of inactivity.
@@ -33,11 +33,11 @@ def kill_sccache(args):
             pmb.chroot.root(args, ["sccache", "--stop-server"])
 
 
-def shutdown_cryptsetup_device(args, name):
+def shutdown_cryptsetup_device(args: PmbArgs, name: str):
     """
     :param name: cryptsetup device name, usually "pm_crypt" in pmbootstrap
     """
-    if not os.path.exists(args.work + "/chroot_native/dev/mapper/" + name):
+    if not (Chroot.native() / "dev/mapper" / name).exists():
         return
     pmb.chroot.apk.install(args, ["cryptsetup"])
     status = pmb.chroot.root(args, ["cryptsetup", "status", name],
@@ -58,43 +58,42 @@ def shutdown_cryptsetup_device(args, name):
         raise RuntimeError("Failed to parse 'cryptsetup status' output!")
 
 
-def shutdown(args, only_install_related=False):
+def shutdown(args: PmbArgs, only_install_related=False):
     # Stop daemons
     kill_adb(args)
     kill_sccache(args)
 
+    chroot = Chroot.native()
+
     # Umount installation-related paths (order is important!)
-    pmb.helpers.mount.umount_all(args, args.work +
-                                 "/chroot_native/mnt/install")
+    pmb.helpers.mount.umount_all(args, chroot / "mnt/install")
     shutdown_cryptsetup_device(args, "pm_crypt")
 
     # Umount all losetup mounted images
-    chroot = args.work + "/chroot_native"
-    if pmb.helpers.mount.ismount(chroot + "/dev/loop-control"):
-        pattern = chroot + "/home/pmos/rootfs/*.img"
-        for path_outside in glob.glob(pattern):
-            path = path_outside[len(chroot):]
+    if pmb.helpers.mount.ismount(chroot / "dev/loop-control"):
+        for path_outside in (chroot / "/home/pmos/rootfs").glob("*.img"):
+            path = path_outside.relative_to(chroot.path)
             pmb.install.losetup.umount(args, path, auto_init=False)
 
     # Umount device rootfs and installer chroots
-    for prefix in ["rootfs", "installer"]:
-        path = f"{args.work}/chroot_{prefix}_{args.device}"
-        if os.path.exists(path):
-            pmb.helpers.mount.umount_all(args, path)
+    for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
+        chroot = Chroot(chroot_type, args.device)
+        if chroot.path.exists():
+            pmb.helpers.mount.umount_all(args, chroot.path)
 
     # Remove "in-pmbootstrap" marker from all chroots. This marker indicates
     # that pmbootstrap has set up all mount points etc. to run programs inside
     # the chroots, but we want it gone afterwards (e.g. when the chroot
     # contents get copied to a rootfs / installer image, or if creating an
     # android recovery zip from its contents).
-    for marker in glob.glob(f"{args.work}/chroot_*/in-pmbootstrap"):
+    for marker in pmb.config.work.glob("chroot_*/in-pmbootstrap"):
         pmb.helpers.run.root(args, ["rm", marker])
 
     if not only_install_related:
-        # Umount all folders inside args.work
+        # Umount all folders inside work dir
         # The folders are explicitly iterated over, so folders symlinked inside
-        # args.work get umounted as well (used in test_pkgrel_bump.py, #1595)
-        for path in glob.glob(args.work + "/*"):
+        # work dir get umounted as well (used in test_pkgrel_bump.py, #1595)
+        for path in pmb.config.work.glob("*"):
             pmb.helpers.mount.umount_all(args, path)
 
         # Clean up the rest

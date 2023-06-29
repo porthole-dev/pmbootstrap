@@ -1,18 +1,20 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
-import glob
+from pathlib import Path
+from typing import List
 
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
+from pmb.core.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
+from pmb.core import Chroot, ChrootType
 
 
-def symlinks(args, flavor, folder):
+def symlinks(args: PmbArgs, flavor, folder: Path):
     """
     Create convenience symlinks to the rootfs and boot files.
     """
@@ -41,31 +43,29 @@ def symlinks(args, flavor, folder):
     }
 
     # Generate a list of patterns
-    path_native = args.work + "/chroot_native"
-    path_boot = args.work + "/chroot_rootfs_" + args.device + "/boot"
-    path_buildroot = args.work + "/chroot_buildroot_" + args.deviceinfo["arch"]
-    patterns = [f"{path_boot}/boot.img{suffix}",
-                f"{path_boot}/initramfs{suffix}*",
-                f"{path_boot}/uInitrd{suffix}",
-                f"{path_boot}/uImage{suffix}",
-                f"{path_boot}/vmlinuz{suffix}",
-                f"{path_boot}/dtbo.img",
-                f"{path_native}/home/pmos/rootfs/{args.device}.img",
-                f"{path_native}/home/pmos/rootfs/{args.device}-boot.img",
-                f"{path_native}/home/pmos/rootfs/{args.device}-root.img",
-                f"{path_buildroot}/var/lib/postmarketos-android-recovery-" +
-                f"installer/pmos-{args.device}.zip",
-                f"{path_boot}/lk2nd.img"]
+    chroot_native = Chroot.native()
+    path_boot = Chroot(ChrootType.ROOTFS, args.device) / "boot"
+    chroot_buildroot = Chroot(ChrootType.BUILDROOT, args.deviceinfo['arch'])
+    files: List[Path] = [
+        path_boot / f"boot.img{suffix}",
+        path_boot / f"uInitrd{suffix}",
+        path_boot / f"uImage{suffix}",
+        path_boot / f"vmlinuz{suffix}",
+        path_boot /  "dtbo.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.device}.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.device}-boot.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.device}-root.img",
+        chroot_buildroot / "var/libpostmarketos-android-recovery-installer" /
+            f"pmos-{args.device}.zip",
+        path_boot / "lk2nd.img"
+    ]
 
-    # Generate a list of files from the patterns
-    files = []
-    for pattern in patterns:
-        files += glob.glob(pattern)
+    files += list(path_boot.glob(f"initramfs{suffix}*"))
 
     # Iterate through all files
     for file in files:
-        basename = os.path.basename(file)
-        link = folder + "/" + basename
+        basename = file.name
+        link = folder / basename
 
         # Display a readable message
         msg = " * " + basename

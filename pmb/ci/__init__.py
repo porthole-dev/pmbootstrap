@@ -4,9 +4,11 @@ import collections
 import glob
 import logging
 import os
-import shlex
+from pathlib import Path
 import pmb.chroot
+from pmb.core.types import PmbArgs
 import pmb.helpers.cli
+from pmb.core import Chroot
 
 
 def get_ci_scripts(topdir):
@@ -112,7 +114,7 @@ def ask_which_scripts_to_run(scripts_available):
     return ret
 
 
-def copy_git_repo_to_chroot(args, topdir):
+def copy_git_repo_to_chroot(args: PmbArgs, topdir):
     """ Create a tarball of the git repo (including unstaged changes and new
         files) and extract it in chroot_native.
         
@@ -121,7 +123,7 @@ def copy_git_repo_to_chroot(args, topdir):
 
 	"""
     pmb.chroot.init(args)
-    tarball_path = f"{args.work}/chroot_native/tmp/git.tar.gz"
+    tarball_path = Chroot.native() / "tmp/git.tar.gz"
     files = pmb.helpers.git.get_files(args, topdir)
 
     with open(f"{tarball_path}.files", "w") as handle:
@@ -132,14 +134,14 @@ def copy_git_repo_to_chroot(args, topdir):
     pmb.helpers.run.user(args, ["tar", "-cf", tarball_path, "-T",
                                 f"{tarball_path}.files"], topdir)
 
-    ci_dir = "/home/pmos/ci"
+    ci_dir = Path("/home/pmos/ci")
     pmb.chroot.user(args, ["rm", "-rf", ci_dir])
     pmb.chroot.user(args, ["mkdir", ci_dir])
     pmb.chroot.user(args, ["tar", "-xf", "/tmp/git.tar.gz"],
                     working_dir=ci_dir)
 
 
-def run_scripts(args, topdir, scripts):
+def run_scripts(args: PmbArgs, topdir, scripts):
     """ Run one of the given scripts after another, either natively or in a
         chroot. Display a progress message and stop on error (without printing
         a python stack trace).
@@ -177,7 +179,7 @@ def run_scripts(args, topdir, scripts):
 
             env = {"TESTUSER": "pmos"}
             rc = pmb.chroot.root(args, [script_path], check=False, env=env,
-                                 working_dir="/home/pmos/ci",
+                                 working_dir=Path("/home/pmos/ci"),
                                  output="tui")
         if rc:
             logging.error(f"ERROR: CI script failed: {script_name}")

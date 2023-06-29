@@ -7,6 +7,7 @@ import os
 
 import pmb.build
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.parse
 import pmb.helpers.pmaports
 from pmb.helpers.exceptions import NonBugError
@@ -229,7 +230,7 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
     return all(results)
 
 
-def check(args, pkgname, components_list=[], details=False, must_exist=True):
+def check(args: PmbArgs, pkgname, components_list=[], details=False, must_exist=True):
     """
     Check for necessary kernel config options in a package.
 

@@ -2,14 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+from typing import Dict
 
 import pmb.config
 import pmb.chroot.apk
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.parse.arch
+from pmb.core import Chroot, ChrootType
 
 
-def arch_from_deviceinfo(args, pkgname, aport):
+def arch_from_deviceinfo(args: PmbArgs, pkgname, aport):
     """
     The device- packages are noarch packages. But it only makes sense to build
     them for the device's architecture, which is specified in the deviceinfo
@@ -32,7 +35,7 @@ def arch_from_deviceinfo(args, pkgname, aport):
     return arch
 
 
-def arch(args, pkgname):
+def arch(args: PmbArgs, pkgname):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
@@ -48,7 +51,7 @@ def arch(args, pkgname):
     if ret:
         return ret
 
-    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(aport)
     arches = apkbuild["arch"]
 
     if args.build_default_device_arch:
@@ -70,17 +73,17 @@ def arch(args, pkgname):
         return None
 
 
-def suffix(apkbuild, arch):
+def chroot(apkbuild: Dict[str, str], arch: str) -> Chroot:
     if arch == pmb.config.arch_native:
-        return "native"
+        return Chroot.native()
 
     if "pmb:cross-native" in apkbuild["options"]:
-        return "native"
+        return Chroot.native()
 
-    return "buildroot_" + arch
+    return Chroot(ChrootType.BUILDROOT, arch)
 
 
-def crosscompile(args, apkbuild, arch, suffix):
+def crosscompile(args: PmbArgs, apkbuild, arch, suffix: Chroot):
     """
         :returns: None, "native", "crossdirect"
     """
@@ -88,7 +91,7 @@ def crosscompile(args, apkbuild, arch, suffix):
         return None
     if not pmb.parse.arch.cpu_emulation_required(arch):
         return None
-    if suffix == "native":
+    if suffix.type() == ChrootType.NATIVE:
         return "native"
     if "!pmb:crossdirect" in apkbuild["options"]:
         return None

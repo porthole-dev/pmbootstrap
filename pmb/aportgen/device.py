@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+from pmb.core.types import PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.aportgen.core
@@ -58,12 +59,12 @@ def ask_for_chassis():
                                complete=types)
 
 
-def ask_for_keyboard(args):
+def ask_for_keyboard(args: PmbArgs):
     return pmb.helpers.cli.confirm(args, "Does the device have a hardware"
                                    " keyboard?")
 
 
-def ask_for_external_storage(args):
+def ask_for_external_storage(args: PmbArgs):
     return pmb.helpers.cli.confirm(args, "Does the device have a sdcard or"
                                    " other external storage medium?")
 
@@ -99,7 +100,7 @@ def ask_for_flash_method():
                       " pmb/config/__init__.py.")
 
 
-def ask_for_bootimg(args):
+def ask_for_bootimg(args: PmbArgs):
     logging.info("You can analyze a known working boot.img file to"
                  " automatically fill out the flasher information for your"
                  " deviceinfo file. Either specify the path to an image or"
@@ -176,7 +177,7 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
     return content
 
 
-def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
+def generate_deviceinfo(args: PmbArgs, pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
@@ -236,14 +237,14 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
         content += content_uuu
 
     # Write to file
-    pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    path = args.work + "/aportgen/deviceinfo"
+    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    path = pmb.config.work / "aportgen/deviceinfo"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
 
 
-def generate_modules_initfs(args):
+def generate_modules_initfs(args: PmbArgs):
     content = """\
     # Remove this file if unnecessary (CHANGEME!)
     # This file shall contain a list of modules to be included in the initramfs,
@@ -257,14 +258,14 @@ def generate_modules_initfs(args):
     """
 
     # Write to file
-    pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    path = args.work + "/aportgen/modules-initfs"
+    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    path = pmb.config.work / "aportgen/modules-initfs"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
 
 
-def generate_apkbuild(args, pkgname, name, arch, flash_method):
+def generate_apkbuild(args: PmbArgs, pkgname, name, arch, flash_method):
     # Dependencies
     depends = ["postmarketos-base",
                "linux-" + "-".join(pkgname.split("-")[1:])]
@@ -275,7 +276,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
 
     # Whole APKBUILD
     depends.sort()
-    depends = ("\n" + " " * 12).join(depends)
+    depends_fmt = ("\n" + " " * 12).join(depends)
     content = f"""\
         # Reference: <https://postmarketos.org/devicepkg>
         pkgname={pkgname}
@@ -287,7 +288,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         arch="{arch}"
         options="!check !archcheck"
         depends="
-            {depends}
+            {depends_fmt}
         "
         makedepends="devicepkg-dev"
         source="
@@ -307,14 +308,14 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         """
 
     # Write the file
-    pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    path = args.work + "/aportgen/APKBUILD"
+    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    path = pmb.config.work / "aportgen/APKBUILD"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
-def generate(args, pkgname):
+def generate(args: PmbArgs, pkgname):
     arch = ask_for_architecture()
     manufacturer = ask_for_manufacturer()
     name = ask_for_name(manufacturer)

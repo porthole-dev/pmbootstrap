@@ -8,6 +8,7 @@ import readline
 import sys
 
 import pmb.config
+from pmb.core.types import PmbArgs
 
 
 class ReadlineTabCompleter:

@@ -1,35 +1,36 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
 import logging
+from pathlib import Path
 import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
 import pmb.config.pmaports
+from pmb.core.types import PmbArgs
 import pmb.helpers.cli
+from pmb.core import Chroot
 
 
-def build(args, flavor, suffix):
+def build(args: PmbArgs, flavor, chroot: Chroot):
     # Update mkinitfs and hooks
-    pmb.chroot.apk.install(args, ["postmarketos-mkinitfs"], suffix)
-    pmb.chroot.initfs_hooks.update(args, suffix)
+    pmb.chroot.apk.install(args, ["postmarketos-mkinitfs"], chroot)
+    pmb.chroot.initfs_hooks.update(args, chroot)
     pmaports_cfg = pmb.config.pmaports.read_config(args)
 
     # Call mkinitfs
-    logging.info(f"({suffix}) mkinitfs {flavor}")
+    logging.info(f"({chroot}) mkinitfs {flavor}")
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        pmb.chroot.root(args, ["mkinitfs"], suffix)
+        pmb.chroot.root(args, ["mkinitfs"], chroot)
     else:
-        release_file = (f"{args.work}/chroot_{suffix}/usr/share/kernel/"
-                        f"{flavor}/kernel.release")
-        with open(release_file, "r") as handle:
+        release_file = (chroot / "usr/share/kernel" / flavor / "kernel.release")
+        with release_file.open() as handle:
             release = handle.read().rstrip()
             pmb.chroot.root(args, ["mkinitfs", "-o",
                                    f"/boot/initramfs-{flavor}", release],
-                            suffix)
+                            chroot)
 
 
-def extract(args, flavor, suffix, extra=False):
+def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
     """
     Extract the initramfs to /tmp/initfs-extracted or the initramfs-extra to
     /tmp/initfs-extra-extracted and return the outside extraction path.
@@ -46,17 +47,17 @@ def extract(args, flavor, suffix, extra=False):
         inside = "/tmp/initfs-extra-extracted"
         initfs_file += "-extra"
 
-    outside = f"{args.work}/chroot_{suffix}{inside}"
-    if os.path.exists(outside):
+    outside = chroot / inside
+    if outside.exists():
         if not pmb.helpers.cli.confirm(args, f"Extraction folder {outside}"
                                        " already exists."
                                        " Do you want to overwrite it?"):
             raise RuntimeError("Aborted!")
-        pmb.chroot.root(args, ["rm", "-r", inside], suffix)
+        pmb.chroot.root(args, ["rm", "-r", inside], chroot)
 
     # Extraction script (because passing a file to stdin is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    with open(f"{args.work}/chroot_{suffix}/tmp/_extract.sh", "w") as handle:
+    with (chroot / "tmp/_extract.sh").open("w") as handle:
         handle.write(
             "#!/bin/sh\n"
             f"cd {inside} && cpio -i < _initfs\n")
@@ -70,52 +71,52 @@ def extract(args, flavor, suffix, extra=False):
                 ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"]
                 ]
     for command in commands:
-        pmb.chroot.root(args, command, suffix)
+        pmb.chroot.root(args, command, chroot)
 
     # Return outside path for logging
     return outside
 
 
-def ls(args, flavor, suffix, extra=False):
+def ls(args: PmbArgs, flavor, suffix, extra=False):
     tmp = "/tmp/initfs-extracted"
     if extra:
         tmp = "/tmp/initfs-extra-extracted"
     extract(args, flavor, suffix, extra)
-    pmb.chroot.root(args, ["ls", "-lahR", "."], suffix, tmp, "stdout")
+    pmb.chroot.root(args, ["ls", "-lahR", "."], suffix, Path(tmp), "stdout")
     pmb.chroot.root(args, ["rm", "-r", tmp], suffix)
 
 
-def frontend(args):
+def frontend(args: PmbArgs):
     # Find the appropriate kernel flavor
-    suffix = f"rootfs_{args.device}"
-    flavor = pmb.chroot.other.kernel_flavor_installed(args, suffix)
+    chroot = Chroot.rootfs(args.device)
+    flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
 
     # Handle initfs actions
     action = args.action_initfs
     if action == "build":
-        build(args, flavor, suffix)
+        build(args, flavor, chroot)
     elif action == "extract":
-        dir = extract(args, flavor, suffix)
+        dir = extract(args, flavor, chroot)
         logging.info(f"Successfully extracted initramfs to: {dir}")
-        dir_extra = extract(args, flavor, suffix, True)
+        dir_extra = extract(args, flavor, chroot, True)
         logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
     elif action == "ls":
         logging.info("*** initramfs ***")
-        ls(args, flavor, suffix)
+        ls(args, flavor, chroot)
         logging.info("*** initramfs-extra ***")
-        ls(args, flavor, suffix, True)
+        ls(args, flavor, chroot, True)
 
     # Handle hook actions
     elif action == "hook_ls":
-        pmb.chroot.initfs_hooks.ls(args, suffix)
+        pmb.chroot.initfs_hooks.ls(args, chroot)
     else:
         if action == "hook_add":
-            pmb.chroot.initfs_hooks.add(args, args.hook, suffix)
+            pmb.chroot.initfs_hooks.add(args, args.hook, chroot)
         elif action == "hook_del":
-            pmb.chroot.initfs_hooks.delete(args, args.hook, suffix)
+            pmb.chroot.initfs_hooks.delete(args, args.hook, chroot)
 
         # Rebuild the initfs after adding/removing a hook
-        build(args, flavor, suffix)
+        build(args, flavor, chroot)
 
     if action in ["ls", "extract"]:
         link = "https://wiki.postmarketos.org/wiki/Initramfs_development"

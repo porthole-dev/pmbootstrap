@@ -1,15 +1,17 @@
 # Copyright 2023 Mark Hargreaves, Luca Weiss
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
+from pathlib import Path
 import socket
 import time
 
 import pmb.chroot.root
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
+from pmb.core import Chroot
 
 
-def start_nbd_server(args, ip="172.16.42.2", port=9999):
+def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
     """
     Start nbd server in chroot_native with pmOS rootfs.
     :param ip: IP address to serve nbd server for
@@ -18,12 +20,12 @@ def start_nbd_server(args, ip="172.16.42.2", port=9999):
 
     pmb.chroot.apk.install(args, ['nbd'])
 
-    chroot = f"{args.work}/chroot_native"
+    chroot = Chroot.native()
 
-    rootfs_path = f"/mnt/pmbootstrap/netboot/{args.device}.img"
-    if not os.path.exists(chroot + rootfs_path) or args.replace:
-        rootfs_path2 = f"/home/pmos/rootfs/{args.device}.img"
-        if not os.path.exists(chroot + rootfs_path2):
+    rootfs_path = Path("/mnt/pmbootstrap/netboot") / f"{args.device}.img"
+    if not (chroot / rootfs_path).exists() or args.replace:
+        rootfs_path2 = Path("/home/pmos/rootfs") / f"{args.device}.img"
+        if not (chroot / rootfs_path2).exists():
             raise RuntimeError("The rootfs has not been generated yet, please "
                                "run 'pmbootstrap install' first.")
         if args.replace and not \
@@ -32,7 +34,7 @@ def start_nbd_server(args, ip="172.16.42.2", port=9999):
                                               f"{args.device}?"):
             return
         pmb.chroot.root(args, ["cp", rootfs_path2, rootfs_path])
-        logging.info(f"NOTE: Copied device image to {args.work}"
+        logging.info(f"NOTE: Copied device image to {pmb.config.work}"
                      f"/images_netboot/. The image will persist \"pmbootstrap "
                      f"zap\" for your convenience. Use \"pmbootstrap netboot "
                      f"serve --help\" for more options.")

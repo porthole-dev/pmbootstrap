@@ -5,9 +5,10 @@ import configparser
 import os
 import sys
 import pmb.config
+from pmb.core.types import PmbArgs
 
 
-def sanity_check(args, cfg, key, allowed, print_path):
+def sanity_check(args: PmbArgs, cfg, key, allowed, print_path):
     value = cfg["pmbootstrap"][key]
 
     if value in allowed:
@@ -22,12 +23,12 @@ def sanity_check(args, cfg, key, allowed, print_path):
     sys.exit(1)
 
 
-def sanity_checks(args, cfg, print_path=True):
+def sanity_checks(args: PmbArgs, cfg, print_path=True):
     for key, allowed in pmb.config.allowed_values.items():
         sanity_check(args, cfg, key, allowed, print_path)
 
 
-def load(args):
+def load(args: PmbArgs):
     cfg = configparser.ConfigParser()
     if os.path.isfile(args.config):
         cfg.read(args.config)

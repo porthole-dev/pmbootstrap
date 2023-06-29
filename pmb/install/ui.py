@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 
 
-def get_groups(args):
+def get_groups(args: PmbArgs):
     """ Get all groups to which the user additionally must be added.
         The list of groups are listed in _pmb_groups of the UI and
         UI-extras package.

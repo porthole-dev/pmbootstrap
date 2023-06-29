@@ -3,6 +3,7 @@
 import os
 import logging
 
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.other
 import pmb.parse
@@ -13,7 +14,7 @@ def is_registered(arch_qemu):
     return os.path.exists("/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu)
 
 
-def register(args, arch):
+def register(args: PmbArgs, arch):
     """
     Get arch, magic, mask.
     """
@@ -55,7 +56,7 @@ def register(args, arch):
         args, ["sh", "-c", 'echo "' + code + '" > ' + register])
 
 
-def unregister(args, arch):
+def unregister(args: PmbArgs, arch):
     arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
     binfmt_file = "/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu
     if not os.path.exists(binfmt_file):

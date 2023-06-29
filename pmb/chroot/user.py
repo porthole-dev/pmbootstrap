@@ -1,11 +1,14 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import pmb.chroot.root
+from pathlib import Path
+import pmb.chroot
 import pmb.helpers.run
 import pmb.helpers.run_core
+from pmb.core import Chroot
+from pmb.core.types import PathString, PmbArgs
 
 
-def user(args, cmd, suffix="native", working_dir="/", output="log",
+def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
          output_return=False, check=None, env={}, auto_init=True):
     """
     Run a command inside a chroot as "user". We always use the BusyBox
@@ -27,12 +30,12 @@ def user(args, cmd, suffix="native", working_dir="/", output="log",
 
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
-    return pmb.chroot.root(args, cmd, suffix, working_dir, output,
+    return pmb.chroot.root(args, cmd, chroot, working_dir, output,
                            output_return, check, {}, auto_init,
                            add_proxy_env_vars=False)
 
 
-def exists(args, username, suffix="native"):
+def exists(args: PmbArgs, username, chroot: Chroot=Chroot.native()):
     """
     Checks if username exists in the system
 
@@ -40,5 +43,5 @@ def exists(args, username, suffix="native"):
     :returns: bool
     """
     output = pmb.chroot.root(args, ["getent", "passwd", username],
-                             suffix, output_return=True, check=False)
+                             chroot, output_return=True, check=False)
     return len(output) > 0

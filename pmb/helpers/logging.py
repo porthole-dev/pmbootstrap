@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import pmb.config
+from pmb.core.types import PmbArgs
 
 logfd = None
 
@@ -88,7 +89,7 @@ def add_verbose_log_level():
                                                                **kwargs)
 
 
-def init(args):
+def init(args: PmbArgs):
     """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
     # Set log file descriptor (logfd)

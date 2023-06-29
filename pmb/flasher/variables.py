@@ -1,9 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.config.pmaports
+from pmb.core.types import PmbArgs
 
 
-def variables(args, flavor, method):
+def variables(args: PmbArgs, flavor, method):
     _cmdline = args.deviceinfo["kernel_cmdline"] or ""
     if "cmdline" in args and args.cmdline:
         _cmdline = args.cmdline

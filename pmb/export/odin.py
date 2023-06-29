@@ -1,23 +1,25 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
+from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
+from pmb.core.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
+from pmb.core import Chroot, ChrootType
 
 
-def odin(args, flavor, folder):
+def odin(args: PmbArgs, flavor, folder: Path):
     """
     Create Odin flashable tar file with kernel and initramfs
     for devices configured with the flasher method 'heimdall-isorec'
     and with boot.img for devices with 'heimdall-bootimg'
     """
     pmb.flasher.init(args)
-    suffix = "rootfs_" + args.device
+    suffix = Chroot(ChrootType.ROOTFS, args.device)
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix_flavor = f"-{flavor}"
@@ -41,14 +43,14 @@ def odin(args, flavor, folder):
 
     # Temporary folder
     temp_folder = "/tmp/odin-flashable-tar"
-    if os.path.exists(f"{args.work}/chroot_native{temp_folder}"):
+    if (Chroot.native() / temp_folder).exists():
         pmb.chroot.root(args, ["rm", "-rf", temp_folder])
 
     # Odin flashable tar generation script
     # (because redirecting stdin/stdout is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    odin_script = f"{args.work}/chroot_rootfs_{args.device}/tmp/_odin.sh"
-    with open(odin_script, "w") as handle:
+    odin_script = Chroot(ChrootType.ROOTFS, args.device) / "tmp/_odin.sh"
+    with odin_script.open("w") as handle:
         odin_kernel_md5 = f"{partition_kernel}.bin.md5"
         odin_initfs_md5 = f"{partition_initfs}.bin.md5"
         odin_device_tar = f"{args.device}.tar"
@@ -95,8 +97,8 @@ def odin(args, flavor, folder):
     pmb.chroot.root(args, ["rmdir", temp_folder], suffix)
 
     # Create the symlink
-    file = f"{args.work}/chroot_native/home/pmos/rootfs/{odin_device_tar_md5}"
-    link = f"{folder}/{odin_device_tar_md5}"
+    file = Chroot.native() / "home/pmos/rootfs" / odin_device_tar_md5
+    link = folder / odin_device_tar_md5
     pmb.helpers.file.symlink(args, file, link)
 
     # Display a readable message

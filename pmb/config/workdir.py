@@ -7,16 +7,19 @@
 import configparser
 import os
 import time
+from typing import Optional
 
 import pmb.config
 import pmb.config.pmaports
+from pmb.core import Chroot
+from pmb.core.types import PmbArgs
 
 
-def chroot_save_init(args, suffix):
+def chroot_save_init(args: PmbArgs, suffix: Chroot):
     """Save the chroot initialization data in $WORK/workdir.cfg."""
     # Read existing cfg
     cfg = configparser.ConfigParser()
-    path = args.work + "/workdir.cfg"
+    path = pmb.config.work / "workdir.cfg"
     if os.path.isfile(path):
         cfg.read(path)
 
@@ -27,15 +30,15 @@ def chroot_save_init(args, suffix):
 
     # Update sections
     channel = pmb.config.pmaports.read_config(args)["channel"]
-    cfg["chroot-channels"][suffix] = channel
-    cfg["chroot-init-dates"][suffix] = str(int(time.time()))
+    cfg["chroot-channels"][str(suffix)] = channel
+    cfg["chroot-init-dates"][str(suffix)] = str(int(time.time()))
 
     # Write back
     with open(path, "w") as handle:
         cfg.write(handle)
 
 
-def chroots_outdated(args, suffix=None):
+def chroots_outdated(args: PmbArgs, chroot: Optional[Chroot]=None):
     """Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 
@@ -45,7 +48,7 @@ def chroots_outdated(args, suffix=None):
               False otherwise
     """
     # Skip if workdir.cfg doesn't exist
-    path = args.work + "/workdir.cfg"
+    path = pmb.config.work / "workdir.cfg"
     if not os.path.exists(path):
         return False
 
@@ -57,7 +60,7 @@ def chroots_outdated(args, suffix=None):
 
     date_outdated = time.time() - pmb.config.chroot_outdated
     for cfg_suffix in cfg[key]:
-        if suffix and cfg_suffix != suffix:
+        if chroot and cfg_suffix != str(chroot):
             continue
         date_init = int(cfg[key][cfg_suffix])
         if date_init <= date_outdated:
@@ -65,29 +68,29 @@ def chroots_outdated(args, suffix=None):
     return False
 
 
-def chroot_check_channel(args, suffix):
-    path = args.work + "/workdir.cfg"
+def chroot_check_channel(args: PmbArgs, chroot: Chroot):
+    path = pmb.config.work / "workdir.cfg"
     msg_again = "Run 'pmbootstrap zap' to delete your chroots and try again."
     msg_unknown = ("Could not figure out on which release channel the"
-                   f" '{suffix}' chroot is.")
+                   f" '{chroot}' chroot is.")
     if not os.path.exists(path):
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
     cfg = configparser.ConfigParser()
     cfg.read(path)
     key = "chroot-channels"
-    if key not in cfg or suffix not in cfg[key]:
+    if key not in cfg or str(chroot) not in cfg[key]:
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
     channel = pmb.config.pmaports.read_config(args)["channel"]
-    channel_cfg = cfg[key][suffix]
+    channel_cfg = cfg[key][str(chroot)]
     if channel != channel_cfg:
-        raise RuntimeError(f"Chroot '{suffix}' was created for the"
+        raise RuntimeError(f"Chroot '{chroot}' was created for the"
                            f" '{channel_cfg}' channel, but you are on the"
                            f" '{channel}' channel now. {msg_again}")
 
 
-def clean(args):
+def clean(args: PmbArgs):
     """Remove obsolete data data from workdir.cfg.
 
     :returns: None if workdir does not exist,
@@ -95,7 +98,7 @@ def clean(args):
         False if config did not change
     """
     # Skip if workdir.cfg doesn't exist
-    path = args.work + "/workdir.cfg"
+    path = pmb.config.work / "workdir.cfg"
     if not os.path.exists(path):
         return None
 
@@ -108,16 +111,16 @@ def clean(args):
     for key in ["chroot-init-dates", "chroot-channels"]:
         if key not in cfg:
             continue
-        for suffix in cfg[key]:
-            path_suffix = args.work + "/chroot_" + suffix
-            if os.path.exists(path_suffix):
+        for suffix_str in cfg[key]:
+            suffix = Chroot.from_str(suffix_str)
+            if suffix.path.exists():
                 continue
             changed = True
-            del cfg[key][suffix]
+            del cfg[key][suffix_str]
 
     # Write back
     if changed:
-        with open(path, "w") as handle:
+        with path.open("w") as handle:
             cfg.write(handle)
 
     return changed

@@ -4,13 +4,15 @@ import os
 
 import pmb.chroot.root
 import pmb.config.pmaports
+from pmb.core.types import PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.version
+from pmb.core import Chroot
 
 
-def _run(args, command, chroot=False, suffix="native", output="log"):
+def _run(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroot.native(), output="log"):
     """Run a command.
 
     :param command: command in list form
@@ -27,7 +29,7 @@ def _run(args, command, chroot=False, suffix="native", output="log"):
     return pmb.helpers.run.root(args, command, output=output)
 
 
-def _prepare_fifo(args, chroot=False, suffix="native"):
+def _prepare_fifo(args: PmbArgs, run_in_chroot=False, chroot: Chroot=Chroot.native()):
     """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
@@ -38,12 +40,12 @@ def _prepare_fifo(args, chroot=False, suffix="native"):
               path of the fifo as needed by cat to read from it (always
               relative to the host)
     """
-    if chroot:
+    if run_in_chroot:
         fifo = "/tmp/apk_progress_fifo"
-        fifo_outside = f"{args.work}/chroot_{suffix}{fifo}"
+        fifo_outside = chroot / fifo
     else:
-        _run(args, ["mkdir", "-p", f"{args.work}/tmp"])
-        fifo = fifo_outside = f"{args.work}/tmp/apk_progress_fifo"
+        _run(args, ["mkdir", "-p", pmb.config.work / "tmp"])
+        fifo = fifo_outside = pmb.config.work / "tmp/apk_progress_fifo"
     if os.path.exists(fifo_outside):
         _run(args, ["rm", "-f", fifo_outside])
     _run(args, ["mkfifo", fifo_outside])
@@ -80,7 +82,7 @@ def _compute_progress(line):
     return cur / tot if tot > 0 else 0
 
 
-def apk_with_progress(args, command, chroot=False, suffix="native"):
+def apk_with_progress(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroot.native()):
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
@@ -105,7 +107,7 @@ def apk_with_progress(args, command, chroot=False, suffix="native"):
                                                    log_msg)
 
 
-def check_outdated(args, version_installed, action_msg):
+def check_outdated(args: PmbArgs, version_installed, action_msg):
     """Check if the provided alpine version is outdated.
 
     This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out

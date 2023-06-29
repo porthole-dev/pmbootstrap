@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
 import logging
-import os
+from pathlib import Path
 import tarfile
 import pmb.chroot.apk
+from pmb.core.types import PmbArgs
 import pmb.helpers.package
 import pmb.helpers.repo
 import pmb.parse.version
 
 
-def parse_next_block(path, lines, start):
+def parse_next_block(path: Path, lines, start):
     """Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
@@ -136,7 +137,7 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
         ret[alias] = block
 
 
-def parse(path, multiple_providers=True):
+def parse(path: Path, multiple_providers=True):
     r"""Parse an APKINDEX.tar.gz file, and return its content as dictionary.
 
     :param path: path to an APKINDEX.tar.gz file or apk package database
@@ -165,13 +166,13 @@ def parse(path, multiple_providers=True):
 
     """
     # Require the file to exist
-    if not os.path.isfile(path):
+    if not path.is_file():
         logging.verbose("NOTE: APKINDEX not found, assuming no binary packages"
                         " exist for that architecture: " + path)
         return {}
 
     # Try to get a cached result first
-    lastmod = os.path.getmtime(path)
+    lastmod = path.lstat().st_mtime
     cache_key = "multiple" if multiple_providers else "single"
     if path in pmb.helpers.other.cache["apkindex"]:
         cache = pmb.helpers.other.cache["apkindex"][path]
@@ -187,7 +188,7 @@ def parse(path, multiple_providers=True):
             with tar.extractfile(tar.getmember("APKINDEX")) as handle:
                 lines = handle.readlines()
     else:
-        with open(path, "r", encoding="utf-8") as handle:
+        with path.open("r", encoding="utf-8") as handle:
             lines = handle.readlines()
 
     # Parse the whole APKINDEX file
@@ -217,7 +218,7 @@ def parse(path, multiple_providers=True):
     return ret
 
 
-def parse_blocks(path):
+def parse_blocks(path: Path):
     """
     Read all blocks from an APKINDEX.tar.gz into a list.
 
@@ -244,7 +245,7 @@ def parse_blocks(path):
         ret.append(block)
 
 
-def clear_cache(path):
+def clear_cache(path: Path):
     """
     Clear the APKINDEX parsing cache.
 
@@ -260,7 +261,7 @@ def clear_cache(path):
         return False
 
 
-def providers(args, package, arch=None, must_exist=True, indexes=None):
+def providers(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
     """
     Get all packages, which provide one package.
 
@@ -301,8 +302,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
                     continue
 
             # Add the provider to ret
-            logging.verbose(package + ": provided by: " + provider_pkgname +
-                            "-" + version + " in " + path)
+            logging.verbose(f"{package}: provided by: {provider_pkgname}-{version} in {path}")
             ret[provider_pkgname] = provider
 
     if ret == {} and must_exist:
@@ -354,7 +354,7 @@ def provider_shortest(providers, pkgname):
     return providers[ret]
 
 
-def package(args, package, arch=None, must_exist=True, indexes=None):
+def package(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
 

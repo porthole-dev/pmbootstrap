@@ -1,14 +1,17 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
+from pmb.core.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
+from pmb.core import Chroot
 
 
-def generate(args, pkgname):
+def generate(args: PmbArgs, pkgname):
     arch = pkgname.split("-")[2]
 
     # Parse version from APKINDEX
@@ -18,15 +21,16 @@ def generate(args, pkgname):
     pkgrel = version.split("-r")[1]
 
     # Prepare aportgen tempdir inside and outside of chroot
-    tempdir = "/tmp/aportgen"
+    tempdir = Path("/tmp/aportgen")
+    aportgen = pmb.config.work / "aportgen"
     pmb.chroot.root(args, ["rm", "-rf", tempdir])
-    pmb.helpers.run.user(args, ["mkdir", "-p", f"{args.work}/aportgen",
-                                f"{args.work}/chroot_native/{tempdir}"])
+    pmb.helpers.run.user(args, ["mkdir", "-p", aportgen,
+                                Chroot.native() / tempdir])
 
     # Write the APKBUILD
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     mirrordir = channel_cfg["mirrordir_alpine"]
-    apkbuild_path = f"{args.work}/chroot_native/{tempdir}/APKBUILD"
+    apkbuild_path = Chroot.native() / tempdir / "APKBUILD"
     apk_name = f"busybox-static-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk"
     with open(apkbuild_path, "w", encoding="utf-8") as handle:
         apkbuild = f"""\
@@ -70,4 +74,4 @@ def generate(args, pkgname):
     pmb.build.init_abuild_minimal(args)
     pmb.chroot.root(args, ["chown", "-R", "pmos:pmos", tempdir])
     pmb.chroot.user(args, ["abuild", "checksum"], working_dir=tempdir)
-    pmb.helpers.run.user(args, ["cp", apkbuild_path, f"{args.work}/aportgen"])
+    pmb.helpers.run.user(args, ["cp", apkbuild_path, aportgen])
