@@ -147,20 +147,6 @@ def partition_cgpt(args, layout, size_boot, size_reserve):
         ["cgpt", "create", "/dev/install"],
         [
             "cgpt", "add",
-            # pmOS_boot is second partition, the first will be ChromeOS kernel
-            # partition
-            "-i", str(layout["boot"]),  # Partition number
-            "-t", "efi", # Mark this partition as bootable for u-boot
-            "-b", boot_part_start,
-            "-s", s_boot,
-            "-l", "pmOS_boot",
-            "/dev/install"
-        ],
-        # For some reason cgpt switches all flags to 0 after marking
-        # any partition as bootable, so create ChromeOS kernel partition
-        # only after pmOS_boot is created and marked as bootable
-        [
-            "cgpt", "add",
             "-i", str(layout["kernel"]),
             "-t", "kernel",
             "-b", cgpt['kpart_start'],
@@ -169,6 +155,17 @@ def partition_cgpt(args, layout, size_boot, size_reserve):
             "-S", "1",  # Successful flag
             "-T", "5",  # Tries flag
             "-P", "10",  # Priority flag
+            "/dev/install"
+        ],
+        [
+            "cgpt", "add",
+            # pmOS_boot is second partition, the first will be ChromeOS kernel
+            # partition
+            "-i", str(layout["boot"]),  # Partition number
+            "-t", "efi", # Mark this partition as bootable for u-boot
+            "-b", boot_part_start,
+            "-s", s_boot,
+            "-l", "pmOS_boot",
             "/dev/install"
         ],
     ]
