@@ -839,7 +839,7 @@ deviceinfo_attributes = [
     "keymaps",
 ]
 
-# Valid types for the 'chassis' atribute in deviceinfo
+# Valid types for the 'chassis' attribute in deviceinfo
 # See https://www.freedesktop.org/software/systemd/man/machine-info.html
 deviceinfo_chassis_types = [
     "desktop",

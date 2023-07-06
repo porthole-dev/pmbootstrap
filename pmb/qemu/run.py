@@ -138,7 +138,7 @@ def command_qemu(args, arch, img_path, img_path_2nd=None):
 
         command = []
         if pmb.config.arch_native in ["aarch64", "armv7"]:
-            # Workaround for QEMU failing on aarch64 asymetric multiprocessor
+            # Workaround for QEMU failing on aarch64 asymmetric multiprocessor
             # arch (big/little architecture
             # https://en.wikipedia.org/wiki/ARM_big.LITTLE) see
             # https://bugs.linaro.org/show_bug.cgi?id=1443

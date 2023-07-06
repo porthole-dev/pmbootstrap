@@ -103,7 +103,7 @@ def format_and_mount_root(args, device, root_label, sdcard):
             mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F",
                               "-q", "-L", root_label]
             # When we don't know the file system size before hand like
-            # with non-block devices, we need to explicitely set a number of
+            # with non-block devices, we need to explicitly set a number of
             # inodes. See #1717 and #1845 for details
             if not sdcard:
                 mkfs_root_args = mkfs_root_args + ["-N", "100000"]

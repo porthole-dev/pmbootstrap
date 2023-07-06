@@ -60,7 +60,7 @@ def test_crossdirect_rust(args):
                                "mv", "/usr/bin/rustc", "/usr/bin/rustc_"])
         pmbootstrap_run(args, ["build", "hello-world-rust", "--arch=armv7",
                                "--force"])
-        # Make /native/usr/bin/rustc unusuable too, to make the build fail
+        # Make /native/usr/bin/rustc unusable too, to make the build fail
         pmbootstrap_run(args, ["chroot", "--", "rm", "/usr/bin/rustc"])
         assert pmbootstrap_run(args, ["build", "hello-world-rust",
                                       "--arch=armv7", "--force"],

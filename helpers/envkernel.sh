@@ -315,7 +315,7 @@ set_reactivate() {
 
 check_and_deactivate() {
 	if [ "$POSTMARKETOS_ENVKERNEL_ENABLED" = 1 ]; then
-		# we already are runnning in envkernel
+		# we already are running in envkernel
 		deactivate
 	fi
 }

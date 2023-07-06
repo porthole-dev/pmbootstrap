@@ -339,7 +339,7 @@ def provider_highest_priority(providers, pkgname):
 
     if priority_providers:
         logging.debug(
-            f"{pkgname}: picked provider(s) with higest priority "
+            f"{pkgname}: picked provider(s) with highest priority "
             f"{max_priority}: {', '.join(priority_providers.keys())}")
         return priority_providers
 
