@@ -108,6 +108,6 @@ def init_compiler(args, depends, cross, arch):
     if cross == "crossdirect":
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:
-            cross_pkgs += ["rust"]
+            cross_pkgs += depends
 
     pmb.chroot.apk.install(args, cross_pkgs)
