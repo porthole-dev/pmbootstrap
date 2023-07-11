@@ -242,21 +242,6 @@ def migrate_work_folder(args: PmbArgs):
                            " be lost.")
 
 
-def check_old_devices(args):
-    """Check if there are any device ports in device/\\*/APKBUILD.
-
-    Devices should be in device/\\*/\\*/APKBUILD (e.g. device/testing/...).
-    """
-    g = glob.glob(args.aports + "/device/*/APKBUILD")
-    if not g:
-        return
-
-    raise RuntimeError("Found device ports outside device/testing/... "
-                       "Please run 'pmbootstrap pull' and/or move the "
-                       "following device ports to device/testing:\n - " +
-                       '\n - '.join(g))
-
-
 def validate_hostname(hostname):
     """Check whether the string is a valid hostname.
 
