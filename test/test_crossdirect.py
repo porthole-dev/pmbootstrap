@@ -53,7 +53,7 @@ def test_crossdirect_rust(args):
         # likely to have the same rustc version across various architectures.
         # If armv7/x86_64 have a different rustc version, this test will fail:
         # 'found crate `std` compiled by an incompatible version of rustc'
-        pmb.config.pmaports.switch_to_channel_branch(args, "v21.03")
+        pmb.config.pmaports.switch_to_channel_branch(args, "v23.06")
 
         pmbootstrap_run(args, ["build_init", "-barmv7"])
         pmbootstrap_run(args, ["chroot", "--add=rust", "-barmv7", "--",
