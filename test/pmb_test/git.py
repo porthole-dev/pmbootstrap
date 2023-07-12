@@ -35,16 +35,16 @@ def prepare_tmpdir(args, monkeypatch, tmpdir):
 
     def run_git(git_args, repo="local"):
         path = tmpdir + "/" + repo
-        pmb.helpers.run.user(args, ["git"] + git_args, path, "stdout")
+        pmb.helpers.run.user(args, ["git"] + git_args, path, "stdout", output_return=True)
 
     # Remote repos
-    run_git(["init", "."], "remote")
+    run_git(["init", "-b", "master", "."], "remote")
     run_git(["commit", "--allow-empty", "-m", "commit: remote"], "remote")
-    run_git(["init", "."], "remote2")
+    run_git(["init", "-b", "master", "."], "remote2")
     run_git(["commit", "--allow-empty", "-m", "commit: remote2"], "remote2")
 
     # Local repo (with master -> origin2/master)
-    run_git(["init", "."])
+    run_git(["init", "-b", "master", "."])
     run_git(["remote", "add", "-f", "origin", path_remote])
     run_git(["remote", "add", "-f", "origin2", path_remote2])
     run_git(["checkout", "-b", "master", "--track", "origin2/master"])

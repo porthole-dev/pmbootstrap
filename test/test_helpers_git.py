@@ -44,7 +44,7 @@ def test_can_fast_forward(args, tmpdir):
         pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
 
     # Create test git repo
-    run_git(["init", "."])
+    run_git(["init", "-b", "master", "."])
     run_git(["commit", "--allow-empty", "-m", "commit on master"])
     run_git(["checkout", "-b", branch_origin])
     run_git(["commit", "--allow-empty", "-m", "commit on branch_origin"])
@@ -71,7 +71,7 @@ def test_clean_worktree(args, tmpdir):
         pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
 
     # Create test git repo
-    run_git(["init", "."])
+    run_git(["init", "-b", "master", "."])
     run_git(["commit", "--allow-empty", "-m", "commit on master"])
 
     assert func(args, tmpdir) is True
@@ -98,7 +98,7 @@ def test_get_upstream_remote(args, monkeypatch, tmpdir):
         pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
 
     # Create git repo
-    run_git(["init", "."])
+    run_git(["init", "-b", "master", "."])
     run_git(["commit", "--allow-empty", "-m", "commit on master"])
 
     # No upstream remote
