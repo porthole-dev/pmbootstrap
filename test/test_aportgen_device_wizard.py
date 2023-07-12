@@ -6,6 +6,7 @@ import sys
 import shutil
 
 import pmb_test  # noqa
+import pmb_test.git
 import pmb_test.const
 import pmb.aportgen
 import pmb.config
@@ -25,7 +26,7 @@ def args(tmpdir, request):
 
     # Fake aports folder:
     tmpdir = str(tmpdir)
-    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    pmb_test.git.copy_dotgit(args, tmpdir)
     setattr(args, "_aports_real", args.aports)
     args.aports = tmpdir
 

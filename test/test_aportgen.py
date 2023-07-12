@@ -7,6 +7,7 @@ import shutil
 import filecmp
 
 import pmb_test
+import pmb_test.git
 import pmb_test.const
 import pmb.aportgen
 import pmb.aportgen.core
@@ -30,7 +31,7 @@ def args(tmpdir, request):
 def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
     tmpdir = str(tmpdir)
-    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    pmb_test.git.copy_dotgit(args, tmpdir)
     args.aports = tmpdir
     os.mkdir(tmpdir + "/cross")
     testdata = pmb_test.const.testdata + "/aportgen"
@@ -53,7 +54,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
 def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
     tmpdir = str(tmpdir)
-    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    pmb_test.git.copy_dotgit(args, tmpdir)
     args.aports = tmpdir
     os.mkdir(tmpdir + "/temp")
     testdata = pmb_test.const.testdata + "/aportgen"
@@ -77,7 +78,7 @@ def test_aportgen(args, tmpdir):
     # Fake aports folder in tmpdir
     testdata = pmb_test.const.testdata
     tmpdir = str(tmpdir)
-    shutil.copytree(args.aports + "/.git", tmpdir + "/.git")
+    pmb_test.git.copy_dotgit(args, tmpdir)
     args.aports = tmpdir
     shutil.copy(f"{testdata}/pmaports.cfg", args.aports)
     os.mkdir(tmpdir + "/cross")

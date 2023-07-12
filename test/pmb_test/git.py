@@ -5,6 +5,7 @@ import os
 
 import pmb.helpers.git
 import pmb.helpers.run
+import shutil
 
 
 def prepare_tmpdir(args, monkeypatch, tmpdir):
@@ -59,3 +60,6 @@ def prepare_tmpdir(args, monkeypatch, tmpdir):
     monkeypatch.setattr(pmb.helpers.git, "get_upstream_remote", get_u_r)
 
     return path_local, run_git
+
+def copy_dotgit(args, tmpdir):
+    shutil.copytree(args.aports + "/.git", tmpdir + "/.git", ignore_dangling_symlinks=True)

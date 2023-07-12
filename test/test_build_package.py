@@ -9,6 +9,7 @@ import shutil
 import sys
 
 import pmb_test  # noqa
+import pmb_test.git
 import pmb.build
 import pmb.build._package
 import pmb.config
@@ -391,7 +392,7 @@ def test_build_local_source_high_level(args, tmpdir):
 
     # aports: Add pmaports.cfg, .git
     shutil.copy(args.aports + "/pmaports.cfg", aports)
-    shutil.copytree(args.aports + "/.git", aports + "/.git")
+    pmb_test.git.copy_dotgit(args, tmpdir)
 
     # src: Copy hello-world source files
     src = tmpdir + "/src"
@@ -450,7 +451,7 @@ def test_build_abuild_leftovers(args, tmpdir):
 
     # aports: Add pmaports.cfg, .git
     shutil.copy(f"{args.aports}/pmaports.cfg", aports)
-    shutil.copytree(f"{args.aports}/.git", f"{aports}/.git")
+    pmb_test.git.copy_dotgit(args, aports)
 
     # aport: create abuild dir with broken symlink
     src = f"{aport}/src"
