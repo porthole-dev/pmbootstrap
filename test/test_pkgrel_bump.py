@@ -128,6 +128,9 @@ def test_pkgrel_bump_high_level(args, tmpdir):
     tmpdir = str(tmpdir)
     setup_work(args, tmpdir)
 
+    # Make sure we don't try and cross compile
+    pmbootstrap(args, tmpdir, ["config", "build_default_device_arch", "False"])
+
     # Let pkgrel_bump exit normally
     pmbootstrap(args, tmpdir, ["build", "testlib", "testapp", "testsubpkg"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"])
