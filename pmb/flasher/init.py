@@ -32,6 +32,10 @@ def install_depends(args):
         pmaports_cfg = pmb.config.pmaports.read_config(args)
         depends = pmaports_cfg.get("supported_heimdall_depends",
                                    "heimdall,avbtool").split(",")
+    elif method == "mtkclient":
+        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        depends = pmaports_cfg.get("supported_mtkclient_depends",
+                                   "mtkclient,android-tools").split(",")
 
     pmb.chroot.apk.install(args, depends)
 

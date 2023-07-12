@@ -802,6 +802,10 @@ deviceinfo_attributes = [
     "flash_rk_partition_kernel",
     "flash_rk_partition_rootfs",
     "flash_rk_partition_system", # deprecated
+    "flash_mtkclient_partition_kernel",
+    "flash_mtkclient_partition_rootfs",
+    "flash_mtkclient_partition_vbmeta",
+    "flash_mtkclient_partition_dtbo",
     "generate_legacy_uboot_initfs",
     "kernel_cmdline",
     "generate_bootimg",
@@ -881,6 +885,7 @@ flash_methods = [
     "0xffff",
     "fastboot",
     "heimdall",
+    "mtkclient",
     "none",
     "rkdeveloptool",
     "uuu",
@@ -1031,6 +1036,27 @@ flashers = {
                     "$IMAGE_SPLIT_BOOT"]
             ],
         },
+    },
+    "mtkclient": {
+        "depends": ["mtkclient"],
+        "actions": {
+            "flash_rootfs": [["mtk", "w", "$PARTITION_ROOTFS",
+                              "$IMAGE"]],
+            "flash_kernel": [["mtk", "w", "$PARTITION_KERNEL",
+                              "$BOOT/boot.img$FLAVOR"]],
+            "flash_vbmeta": [
+                # Generate vbmeta image with "disable verification" flag
+                ["avbtool", "make_vbmeta_image", "--flags", "2",
+                    "--padding_size", "$FLASH_PAGESIZE",
+                    "--output", "/vbmeta.img"],
+                ["mtk", "w", "$PARTITION_VBMETA", "/vbmeta.img"],
+                ["rm", "-f", "/vbmeta.img"]
+            ],
+            "flash_dtbo": [["mtk", "w", "$PARTITION_DTBO",
+                            "$BOOT/dtbo.img"]],
+            "flash_lk2nd": [["mtk", "w", "$PARTITION_KERNEL",
+                             "$BOOT/lk2nd.img"]]
+        }
     }
 }
 

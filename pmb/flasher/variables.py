@@ -31,6 +31,15 @@ def variables(args, flavor, method):
             or args.deviceinfo["flash_rk_partition_system"] or None
         _partition_vbmeta = None
         _partition_dtbo = None
+    elif method.startswith("mtkclient"):
+        _partition_kernel = args.deviceinfo["flash_mtkclient_partition_kernel"]\
+            or "boot"
+        _partition_rootfs = args.deviceinfo["flash_mtkclient_partition_rootfs"]\
+            or "userdata"
+        _partition_vbmeta = args.deviceinfo["flash_mtkclient_partition_vbmeta"]\
+            or None
+        _partition_dtbo = args.deviceinfo["flash_mtkclient_partition_dtbo"]\
+            or None
     else:
         _partition_kernel = args.deviceinfo["flash_heimdall_partition_kernel"]\
             or "KERNEL"
