@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.chroot.root
 import pmb.helpers.run
+import pmb.helpers.run_core
 
 
 def user(args, cmd, suffix="native", working_dir="/", output="log",
@@ -21,7 +22,7 @@ def user(args, cmd, suffix="native", working_dir="/", output="log",
     if "HOME" not in env:
         env["HOME"] = "/home/pmos"
 
-    flat_cmd = pmb.helpers.run.flat_cmd(cmd, env=env)
+    flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
     return pmb.chroot.root(args, cmd, suffix, working_dir, output,
                            output_return, check, {}, auto_init)

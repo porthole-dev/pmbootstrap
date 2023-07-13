@@ -7,6 +7,7 @@ import pmb_test  # noqa
 import pmb.chroot.root
 import pmb.chroot.user
 import pmb.helpers.run
+import pmb.helpers.run_core
 import pmb.helpers.logging
 
 
@@ -79,7 +80,7 @@ def test_shell_escape_env(args):
 
 
 def test_flat_cmd_simple():
-    func = pmb.helpers.run.flat_cmd
+    func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
     working_dir = None
     ret = "echo test"
@@ -88,7 +89,7 @@ def test_flat_cmd_simple():
 
 
 def test_flat_cmd_wrap_shell_string_with_spaces():
-    func = pmb.helpers.run.flat_cmd
+    func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "string with spaces"]
     working_dir = None
     ret = "echo 'string with spaces'"
@@ -97,7 +98,7 @@ def test_flat_cmd_wrap_shell_string_with_spaces():
 
 
 def test_flat_cmd_wrap_env_simple():
-    func = pmb.helpers.run.flat_cmd
+    func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
     working_dir = None
     ret = "JOBS=5 echo test"
@@ -106,7 +107,7 @@ def test_flat_cmd_wrap_env_simple():
 
 
 def test_flat_cmd_wrap_env_spaces():
-    func = pmb.helpers.run.flat_cmd
+    func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
     working_dir = None
     ret = "JOBS=5 TEST='spaces string' echo test"

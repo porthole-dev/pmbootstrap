@@ -2,17 +2,47 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
 import logging
+import os
 import selectors
+import shlex
 import subprocess
 import sys
 import threading
 import time
-import os
 import pmb.helpers.run
 
 """ For a detailed description of all output modes, read the description of
     core() at the bottom. All other functions in this file get (indirectly)
     called by core(). """
+
+
+def flat_cmd(cmd, working_dir=None, env={}):
+    """
+    Convert a shell command passed as list into a flat shell string with
+    proper escaping.
+
+    :param cmd: command as list, e.g. ["echo", "string with spaces"]
+    :param working_dir: when set, prepend "cd ...;" to execute the command
+                        in the given working directory
+    :param env: dict of environment variables to be passed to the command, e.g.
+                {"JOBS": "5"}
+    :returns: the flat string, e.g.
+              echo 'string with spaces'
+              cd /home/pmos;echo 'string with spaces'
+    """
+    # Merge env and cmd into escaped list
+    escaped = []
+    for key, value in env.items():
+        escaped.append(key + "=" + shlex.quote(value))
+    for i in range(len(cmd)):
+        escaped.append(shlex.quote(cmd[i]))
+
+    # Prepend working dir
+    ret = " ".join(escaped)
+    if working_dir:
+        ret = "cd " + shlex.quote(working_dir) + ";" + ret
+
+    return ret
 
 
 def sanity_checks(output="log", output_return=False, check=None):

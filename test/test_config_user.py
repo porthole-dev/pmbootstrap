@@ -9,6 +9,7 @@ import pmb.config
 import pmb.helpers.frontend
 import pmb.helpers.logging
 import pmb.helpers.run
+import pmb.helpers.run_core
 
 
 @pytest.fixture
@@ -40,11 +41,11 @@ def test_config_user(args, tmpdir, monkeypatch):
     path_config = tmpdir + "/pmbootstrap.cfg"
 
     # Generate default config (only uses tmpdir)
-    cmd = pmb.helpers.run.flat_cmd(["./pmbootstrap.py",
-                                    "-c", path_config,
-                                    "-w", path_work,
-                                    "--aports", args.aports,
-                                    "init"])
+    cmd = pmb.helpers.run_core.flat_cmd(["./pmbootstrap.py",
+                                         "-c", path_config,
+                                         "-w", path_work,
+                                         "--aports", args.aports,
+                                         "init"])
     pmb.helpers.run.user(args, ["sh", "-c", "yes '' | " + cmd],
                          pmb.config.pmb_src)
 

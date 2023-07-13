@@ -5,6 +5,7 @@ import os
 import logging
 
 import pmb.helpers.run
+import pmb.helpers.run_core
 import pmb.parse.apkindex
 import pmb.config.pmaports
 import pmb.build
@@ -29,7 +30,7 @@ def scp_abuild_key(args, user, host, port):
     keyname = os.path.join("/tmp", os.path.basename(key))
     remote_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
                   '-S', 'mv', '-n', keyname, "/etc/apk/keys/"]
-    remote_cmd = pmb.helpers.run.flat_cmd(remote_cmd)
+    remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
     pmb.helpers.run.user(args, command, output="tui")
 
@@ -53,8 +54,8 @@ def ssh_install_apks(args, user, host, port, paths):
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
                '-S', 'apk', '--wait', '30', 'add'] + remote_paths
-    add_cmd = pmb.helpers.run.flat_cmd(add_cmd)
-    clean_cmd = pmb.helpers.run.flat_cmd(['rm'] + remote_paths)
+    add_cmd = pmb.helpers.run_core.flat_cmd(add_cmd)
+    clean_cmd = pmb.helpers.run_core.flat_cmd(['rm'] + remote_paths)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',
                f'{add_cmd}; rc=$?; {clean_cmd}; exit $rc']
     pmb.helpers.run.user(args, command, output="tui")
