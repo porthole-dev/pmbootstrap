@@ -341,11 +341,13 @@ def core(args, log_message, cmd, working_dir=None, output="log",
     sanity_checks(output, output_return, check)
 
     # Preserve proxy environment variables
+    env = {}
     for var in ["FTP_PROXY", "ftp_proxy", "HTTP_PROXY", "http_proxy",
                 "HTTPS_PROXY", "https_proxy", "HTTP_PROXY_AUTH"]:
         if var in os.environ:
-            # Prepend setting var to cmd string
-            cmd = f"{var}={os.environ[var]} {cmd}"
+            env[var] = os.environ[var]
+    if env:
+        cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
 
     if args.sudo_timer and sudo:
         sudo_timer_start()

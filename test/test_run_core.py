@@ -1,10 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb.helpers.run_core """
-import re
-import sys
-import subprocess
+import os
 import pytest
+import re
+import subprocess
+import sys
 import time
 
 import pmb_test  # noqa
@@ -127,7 +128,7 @@ def test_foreground_tui():
     assert func(["echo", "test"]) == 0
 
 
-def test_core(args):
+def test_core(args, monkeypatch):
     # Background
     func = pmb.helpers.run_core.core
     msg = "test"
@@ -156,6 +157,11 @@ def test_core(args):
     with pytest.raises(RuntimeError) as e:
         func(args, msg, ["sleep", "1"], output="log")
     assert re.search(r"^Command failed \(exit code -?\d*\): ", str(e.value))
+
+    # Preserve proxy environment variables
+    monkeypatch.setattr(os, "environ", {"FTP_PROXY": "testproxy"})
+    ret = func(args, msg, ["sh", "-c", 'echo "$FTP_PROXY"'], output_return=True)
+    assert ret == "testproxy\n"
 
 
 @pytest.mark.skip_ci
