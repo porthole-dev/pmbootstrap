@@ -494,7 +494,9 @@ def package(args, pkgname, arch=None, force=False, strict=False,
 
     # Once per session is enough
     arch = arch or pmb.config.arch_native
-    if skip_already_built(pkgname, arch):
+    # the order of checks here is intentional,
+    # skip_already_built() has side effects!
+    if skip_already_built(pkgname, arch) and not force:
         return
 
     # Only build when APKBUILD exists
