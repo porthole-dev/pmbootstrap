@@ -172,7 +172,8 @@ def partition_cgpt(args, layout, size_boot, size_reserve):
 
     dev_size = pmb.chroot.root(
         args, ["blockdev", "--getsz", "/dev/install"], output_return=True)
-    root_size = str(int(dev_size) - int(s_root_start) - 1024)
+    # 33: Sec GPT table (32) + Sec GPT header (1)
+    root_size = str(int(dev_size) - int(s_root_start) - 33)
 
     commands += [
         [
