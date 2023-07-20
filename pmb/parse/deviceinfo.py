@@ -70,7 +70,7 @@ def sanity_check(info, path):
                            f" and try again: {path}")
 
 
-def parse_kernel_suffix(args, info, device, kernel):
+def _parse_kernel_suffix(args, info, device, kernel):
     """
     Remove the kernel suffix (as selected in 'pmbootstrap init') from
     deviceinfo variables. Related:
@@ -151,6 +151,6 @@ def deviceinfo(args, device=None, kernel=None):
         if key not in ret:
             ret[key] = ""
 
-    ret = parse_kernel_suffix(args, ret, device, kernel)
+    ret = _parse_kernel_suffix(args, ret, device, kernel)
     sanity_check(ret, path)
     return ret
