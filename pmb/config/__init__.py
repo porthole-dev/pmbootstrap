@@ -770,7 +770,6 @@ deviceinfo_attributes = [
     "codename",
     "year",
     "dtb",
-    "modules_initfs",
     "arch",
 
     # device
