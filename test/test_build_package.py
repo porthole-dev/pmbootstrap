@@ -178,16 +178,16 @@ def test_build_depends_no_binary_error(args, monkeypatch):
 def test_build_depends_binary_outdated(args, monkeypatch):
     """ pmbootstrap runs with --no-depends and dependency binary package is
         outdated (#1895) """
-    # Override pmb.parse.apkindex.package(): pretend hello-world is missing
-    # and binutils-aarch64 is outdated
+    # Override pmb.parse.apkindex.package(): pretend hello-world-wrapper is
+    # missing and hello-world is outdated
     func_orig = pmb.parse.apkindex.package
 
     def func_patch(args, package, *args2, **kwargs):
         print(f"func_patch: called for package: {package}")
-        if package == "hello-world":
+        if package == "hello-world-wrapper":
             print("pretending that it does not exist")
             return None
-        if package == "binutils-aarch64":
+        if package == "hello-world":
             print("pretending that it is outdated")
             ret = func_orig(args, package, *args2, **kwargs)
             ret["version"] = "0-r0"
@@ -195,15 +195,15 @@ def test_build_depends_binary_outdated(args, monkeypatch):
         return func_orig(args, package, *args2, **kwargs)
     monkeypatch.setattr(pmb.parse.apkindex, "package", func_patch)
 
-    # Build hello-world with --no-depends and expect failure
+    # Build hello-world-wrapper with --no-depends and expect failure
     args.no_depends = True
-    pkgname = "hello-world"
-    arch = "aarch64"
+    pkgname = "hello-world-wrapper"
+    arch = "x86_64"
     force = False
     strict = True
     with pytest.raises(RuntimeError) as e:
         pmb.build.package(args, pkgname, arch, force, strict)
-    assert "'binutils-aarch64' of 'gcc-aarch64' is outdated" in str(e.value)
+    assert "'hello-world' of 'hello-world-wrapper' is outdated" in str(e.value)
 
 
 def test_is_necessary_warn_depends(args, monkeypatch):
