@@ -57,7 +57,7 @@ def args_patched(monkeypatch, argv):
     return pmb.parse.arguments()
 
 
-def test_skip_already_built():
+def test_skip_already_built(args):
     func = pmb.build._package.skip_already_built
     assert pmb.helpers.other.cache["built"] == {}
     assert func("test-package", "armhf") is False
