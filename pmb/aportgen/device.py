@@ -231,19 +231,19 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
             handle.write(line.lstrip() + "\n")
 
 
-def generate_modules(args):
+def generate_modules_initfs(args):
     content = """\
     # Remove this comment after reading, or the file if unnecessary (CHANGEME!)
     # This file can contain a list of modules to be included in the initramfs,
     # so that they are available in early boot stages. It should have one
     # module name per line. If there are multiple kernel variants with different
-    # requirements for modules into the initramfs, one modules.$variant file
-    # should be created for each of them.
+    # requirements for modules into the initramfs, one modules-initfs.$variant
+    # file should be created for each of them.
     """
 
     # Write to file
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
-    path = args.work + "/aportgen/modules"
+    path = args.work + "/aportgen/modules-initfs"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
@@ -277,7 +277,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         makedepends="devicepkg-dev"
         source="
             deviceinfo
-            modules
+            modules-initfs
         "
 
         build() {{
@@ -315,5 +315,5 @@ def generate(args, pkgname):
     generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg)
-    generate_modules(args)
+    generate_modules_initfs(args)
     generate_apkbuild(args, pkgname, name, arch, flash_method)
