@@ -160,11 +160,9 @@ def ask_for_ui(args, info):
         logging.info(f"* {ui[0]}: {ui[1]}")
         ui_completion_list.append(ui[0])
     if hidden_ui_count > 0:
-        logging.info(f"NOTE: {hidden_ui_count} user interfaces are not"
-                     " available. If device supports GPU acceleration,"
-                     " set \"deviceinfo_gpu_accelerated\" to make UIs"
-                     " available. See: <https://wiki.postmarketos.org/wiki/"
-                     "Deviceinfo_reference")
+        logging.info(f"NOTE: {hidden_ui_count} UIs are hidden because"
+                     " \"deviceinfo_gpu_accelerated\" is not set (see"
+                     " https://postmarketos.org/deviceinfo).")
     while True:
         ret = pmb.helpers.cli.ask("User interface", None, default, True,
                                   complete=ui_completion_list)
