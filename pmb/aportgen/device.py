@@ -16,7 +16,7 @@ def ask_for_architecture():
         architectures.remove("armhf")
     while True:
         ret = pmb.helpers.cli.ask("Device architecture", architectures,
-                                  architectures[0], complete=architectures)
+                                  "aarch64", complete=architectures)
         if ret in architectures:
             return ret
         logging.fatal("ERROR: Invalid architecture specified. If you want to"
@@ -73,7 +73,7 @@ def ask_for_flash_method():
         logging.info("Which flash method does the device support?")
         method = pmb.helpers.cli.ask("Flash method",
                                      pmb.config.flash_methods,
-                                     pmb.config.flash_methods[0],
+                                     "none",
                                      complete=pmb.config.flash_methods)
 
         if method in pmb.config.flash_methods:
