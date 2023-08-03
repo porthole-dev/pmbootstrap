@@ -204,7 +204,13 @@ def set_user(args):
     if not pmb.chroot.user_exists(args, args.user, suffix):
         pmb.chroot.root(args, ["adduser", "-D", "-u", "10000", args.user],
                         suffix)
-    groups = pmb.install.ui.get_groups(args) + pmb.config.install_user_groups
+
+    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    groups = []
+    groups += pmaports_cfg.get("install_user_groups",
+                               "audio,input,netdev,plugdev,video,wheel").split(",")
+    groups += pmb.install.ui.get_groups(args)
+
     for group in groups:
         pmb.chroot.root(args, ["addgroup", "-S", group], suffix,
                         check=False)
