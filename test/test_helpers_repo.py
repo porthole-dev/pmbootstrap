@@ -51,7 +51,7 @@ def test_urls(args, monkeypatch):
     monkeypatch.setattr(pmb.config.pmaports, "read_config", read_config)
 
     # Channel: v20.05
-    assert func(args) == ["/mnt/pmbootstrap-packages",
+    assert func(args) == ["/mnt/pmbootstrap/packages",
                           "http://localhost/pmos1/v20.05",
                           "http://localhost/pmos2/v20.05",
                           "http://localhost/alpine/v3.11/main",
@@ -59,7 +59,7 @@ def test_urls(args, monkeypatch):
 
     # Channel: edge (has Alpine's testing)
     channel = "edge"
-    assert func(args) == ["/mnt/pmbootstrap-packages",
+    assert func(args) == ["/mnt/pmbootstrap/packages",
                           "http://localhost/pmos1/master",
                           "http://localhost/pmos2/master",
                           "http://localhost/alpine/edge/main",

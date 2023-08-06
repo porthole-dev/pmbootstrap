@@ -43,10 +43,10 @@ def hash(url, length=8):
 def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
     """
     Get a list of repository URLs, as they are in /etc/apk/repositories.
-    :param user_repository: add /mnt/pmbootstrap-packages
+    :param user_repository: add /mnt/pmbootstrap/packages
     :param postmarketos_mirror: add postmarketos mirror URLs
     :param alpine: add alpine mirror URLs
-    :returns: list of mirror strings, like ["/mnt/pmbootstrap-packages",
+    :returns: list of mirror strings, like ["/mnt/pmbootstrap/packages",
                                             "http://...", ...]
     """
     ret = []
@@ -59,7 +59,7 @@ def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        ret.append("/mnt/pmbootstrap-packages")
+        ret.append("/mnt/pmbootstrap/packages")
 
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:

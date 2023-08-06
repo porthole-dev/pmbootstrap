@@ -260,7 +260,7 @@ def override_source(args, apkbuild, pkgver, src, suffix="native"):
         return
 
     # Mount source in chroot
-    mount_path = "/mnt/pmbootstrap-source-override/"
+    mount_path = "/mnt/pmbootstrap/source-override/"
     mount_path_outside = args.work + "/chroot_" + suffix + mount_path
     pmb.helpers.mount.bind(args, src, mount_path_outside, umount=True)
 

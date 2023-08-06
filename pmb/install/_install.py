@@ -165,7 +165,7 @@ def configure_apk(args):
     """
     Copy over all official keys, and the keys used to compile local packages
     (unless --no-local-pkgs is set). Then copy the corresponding APKINDEX files
-    and remove the /mnt/pmbootstrap-packages repository.
+    and remove the /mnt/pmbootstrap/packages repository.
     """
     # Official keys
     pattern = f"{pmb.config.apk_keys_path}/*.pub"
@@ -187,7 +187,7 @@ def configure_apk(args):
         pmb.helpers.run.root(args, ["cp", f, rootfs + "/var/cache/apk/"])
 
     # Disable pmbootstrap repository
-    pmb.helpers.run.root(args, ["sed", "-i", r"/\/mnt\/pmbootstrap-packages/d",
+    pmb.helpers.run.root(args, ["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d",
                                 rootfs + "/etc/apk/repositories"])
     pmb.helpers.run.user(args, ["cat", rootfs + "/etc/apk/repositories"])
 

@@ -210,15 +210,15 @@ chroot_mount_bind = {
     "/proc": "/proc",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",
     "$WORK/cache_appstream/$ARCH/$CHANNEL": "/mnt/appstream-data",
-    "$WORK/cache_ccache_$ARCH": "/mnt/pmbootstrap-ccache",
+    "$WORK/cache_ccache_$ARCH": "/mnt/pmbootstrap/ccache",
     "$WORK/cache_distfiles": "/var/cache/distfiles",
-    "$WORK/cache_git": "/mnt/pmbootstrap-git",
-    "$WORK/cache_go": "/mnt/pmbootstrap-go",
-    "$WORK/cache_rust": "/mnt/pmbootstrap-rust",
-    "$WORK/config_abuild": "/mnt/pmbootstrap-abuild-config",
+    "$WORK/cache_git": "/mnt/pmbootstrap/git",
+    "$WORK/cache_go": "/mnt/pmbootstrap/go",
+    "$WORK/cache_rust": "/mnt/pmbootstrap/rust",
+    "$WORK/config_abuild": "/mnt/pmbootstrap/abuild-config",
     "$WORK/config_apk_keys": "/etc/apk/keys",
-    "$WORK/images_netboot": "/mnt/pmbootstrap-netboot",
-    "$WORK/packages/$CHANNEL": "/mnt/pmbootstrap-packages",
+    "$WORK/images_netboot": "/mnt/pmbootstrap/netboot",
+    "$WORK/packages/$CHANNEL": "/mnt/pmbootstrap/packages",
 }
 
 # Building chroots (all chroots, except for the rootfs_ chroot) get symlinks in
@@ -234,14 +234,14 @@ chroot_mount_bind = {
 # rust depends caching described above) and to cache build artifacts (GOCACHE,
 # similar to ccache).
 chroot_home_symlinks = {
-    "/mnt/pmbootstrap-abuild-config": "/home/pmos/.abuild",
-    "/mnt/pmbootstrap-ccache": "/home/pmos/.ccache",
-    "/mnt/pmbootstrap-packages": "/home/pmos/packages/pmos",
-    "/mnt/pmbootstrap-go/gocache": "/home/pmos/.cache/go-build",
-    "/mnt/pmbootstrap-go/gomodcache": "/home/pmos/go/pkg/mod",
-    "/mnt/pmbootstrap-rust/registry/index": "/home/pmos/.cargo/registry/index",
-    "/mnt/pmbootstrap-rust/registry/cache": "/home/pmos/.cargo/registry/cache",
-    "/mnt/pmbootstrap-rust/git/db": "/home/pmos/.cargo/git/db",
+    "/mnt/pmbootstrap/abuild-config": "/home/pmos/.abuild",
+    "/mnt/pmbootstrap/ccache": "/home/pmos/.ccache",
+    "/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
+    "/mnt/pmbootstrap/go/gocache": "/home/pmos/.cache/go-build",
+    "/mnt/pmbootstrap/go/gomodcache": "/home/pmos/go/pkg/mod",
+    "/mnt/pmbootstrap/rust/registry/index": "/home/pmos/.cargo/registry/index",
+    "/mnt/pmbootstrap/rust/registry/cache": "/home/pmos/.cargo/registry/cache",
+    "/mnt/pmbootstrap/rust/git/db": "/home/pmos/.cargo/git/db",
 }
 
 # Device nodes to be created in each chroot. Syntax for each entry:

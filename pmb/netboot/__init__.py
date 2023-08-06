@@ -20,7 +20,7 @@ def start_nbd_server(args, ip="172.16.42.2", port=9999):
 
     chroot = f"{args.work}/chroot_native"
 
-    rootfs_path = f"/mnt/pmbootstrap-netboot/{args.device}.img"
+    rootfs_path = f"/mnt/pmbootstrap/netboot/{args.device}.img"
     if not os.path.exists(chroot + rootfs_path) or args.replace:
         rootfs_path2 = f"/home/pmos/rootfs/{args.device}.img"
         if not os.path.exists(chroot + rootfs_path2):

@@ -143,7 +143,7 @@ def packages_get_locally_built_apks(args, packages, arch):
     :param packages: list of pkgnames
     :param arch: architecture that the locally built packages should have
     :returns: list of apk file paths that are valid inside the chroots, e.g.
-              ["/mnt/pmbootstrap-packages/x86_64/hello-world-1-r6.apk", ...]
+              ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
     """
     channel = pmb.config.pmaports.read_config(args)["channel"]
     ret = []
@@ -157,7 +157,7 @@ def packages_get_locally_built_apks(args, packages, arch):
         if not os.path.exists(f"{args.work}/packages/{channel}/{arch}/{apk_file}"):
             continue
 
-        ret.append(f"/mnt/pmbootstrap-packages/{arch}/{apk_file}")
+        ret.append(f"/mnt/pmbootstrap/packages/{arch}/{apk_file}")
 
     return ret
 

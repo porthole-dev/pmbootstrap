@@ -54,7 +54,7 @@ def init(args, suffix="native"):
 
         # Copy package signing key to /etc/apk/keys
         for key in glob.glob(chroot +
-                             "/mnt/pmbootstrap-abuild-config/*.pub"):
+                             "/mnt/pmbootstrap/abuild-config/*.pub"):
             key = key[len(chroot):]
             pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], suffix)
 
