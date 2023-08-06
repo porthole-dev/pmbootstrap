@@ -218,6 +218,7 @@ chroot_mount_bind = {
     "$WORK/cache_rust": "/mnt/pmbootstrap/rust",
     "$WORK/config_abuild": "/mnt/pmbootstrap/abuild-config",
     "$WORK/config_apk_keys": "/etc/apk/keys",
+    "$WORK/cache_sccache": "/mnt/pmbootstrap/sccache",
     "$WORK/images_netboot": "/mnt/pmbootstrap/netboot",
     "$WORK/packages/$CHANNEL": "/mnt/pmbootstrap/packages",
 }
@@ -237,12 +238,13 @@ chroot_mount_bind = {
 chroot_home_symlinks = {
     "/mnt/pmbootstrap/abuild-config": "/home/pmos/.abuild",
     "/mnt/pmbootstrap/ccache": "/home/pmos/.ccache",
-    "/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
     "/mnt/pmbootstrap/go/gocache": "/home/pmos/.cache/go-build",
     "/mnt/pmbootstrap/go/gomodcache": "/home/pmos/go/pkg/mod",
-    "/mnt/pmbootstrap/rust/registry/index": "/home/pmos/.cargo/registry/index",
-    "/mnt/pmbootstrap/rust/registry/cache": "/home/pmos/.cargo/registry/cache",
+    "/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
     "/mnt/pmbootstrap/rust/git/db": "/home/pmos/.cargo/git/db",
+    "/mnt/pmbootstrap/rust/registry/cache": "/home/pmos/.cargo/registry/cache",
+    "/mnt/pmbootstrap/rust/registry/index": "/home/pmos/.cargo/registry/index",
+    "/mnt/pmbootstrap/sccache": "/home/pmos/.cache/sccache",
 }
 
 # Device nodes to be created in each chroot. Syntax for each entry:

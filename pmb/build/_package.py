@@ -213,7 +213,10 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
     if not skip_init_buildenv:
         pmb.build.init(args, suffix)
         pmb.build.other.configure_abuild(args, suffix)
-        pmb.build.other.configure_ccache(args, suffix)
+        if args.ccache:
+            pmb.build.other.configure_ccache(args, suffix)
+            if "rust" in depends or "cargo" in depends:
+                pmb.chroot.apk.install(args, ["sccache"], suffix)
     if not strict and "pmb:strict" not in apkbuild["options"] and len(depends):
         pmb.chroot.apk.install(args, depends, suffix)
     if src:
@@ -399,6 +402,10 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
                                 pmb.config.chroot_path])
     if not args.ccache:
         env["CCACHE_DISABLE"] = "1"
+
+    # Use sccache without crossdirect (crossdirect uses it via rustc.sh)
+    if args.ccache and cross != "crossdirect":
+        env["RUSTC_WRAPPER"] = "/usr/bin/sccache"
 
     # Cache binary objects from go in this path (like ccache)
     env["GOCACHE"] = "/home/pmos/.cache/go-build"

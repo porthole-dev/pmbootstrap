@@ -274,6 +274,7 @@ def test_run_abuild(args, monkeypatch):
     output = "armhf/test-1-r2.apk"
     env = {"CARCH": "armhf",
            "GOCACHE": "/home/pmos/.cache/go-build",
+           "RUSTC_WRAPPER": "/usr/bin/sccache",
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "-D", "postmarketOS", "-d"]
     assert func(args, apkbuild, "armhf") == (output, cmd, env)
@@ -285,6 +286,7 @@ def test_run_abuild(args, monkeypatch):
     # cross=native
     env = {"CARCH": "armhf",
            "GOCACHE": "/home/pmos/.cache/go-build",
+           "RUSTC_WRAPPER": "/usr/bin/sccache",
            "SUDO_APK": "abuild-apk --no-progress",
            "CROSS_COMPILE": "armv6-alpine-linux-musleabihf-",
            "CC": "armv6-alpine-linux-musleabihf-gcc"}

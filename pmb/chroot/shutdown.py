@@ -22,6 +22,17 @@ def kill_adb(args):
             pmb.chroot.root(args, ["adb", "-P", str(port), "kill-server"])
 
 
+def kill_sccache(args):
+    """
+    Kill sccache daemon if it's running. Unlike ccache it automatically spawns
+    a daemon when you call it and exits after some time of inactivity.
+    """
+    port = 4226
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex(("127.0.0.1", port)) == 0:
+            pmb.chroot.root(args, ["sccache", "--stop-server"])
+
+
 def shutdown_cryptsetup_device(args, name):
     """
     :param name: cryptsetup device name, usually "pm_crypt" in pmbootstrap
@@ -48,8 +59,9 @@ def shutdown_cryptsetup_device(args, name):
 
 
 def shutdown(args, only_install_related=False):
-    # Stop adb server
+    # Stop daemons
     kill_adb(args)
+    kill_sccache(args)
 
     # Umount installation-related paths (order is important!)
     pmb.helpers.mount.umount_all(args, args.work +

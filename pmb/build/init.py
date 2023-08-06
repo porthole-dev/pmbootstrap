@@ -108,6 +108,8 @@ def init_compiler(args, depends, cross, arch):
     if cross == "crossdirect":
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:
+            if args.ccache:
+                cross_pkgs += ["sccache"]
             # crossdirect for rust installs all build dependencies in the
             # native chroot too, as some of them can be required for building
             # native macros / build scripts
