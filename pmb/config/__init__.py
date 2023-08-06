@@ -206,6 +206,7 @@ chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 # $WORK gets replaced with args.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
 # $CHANNEL gets replaced with the release channel (e.g. edge, v21.03)
+# Use no more than one dir after /mnt/pmbootstrap, see remove_mnt_pmbootstrap.
 chroot_mount_bind = {
     "/proc": "/proc",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",

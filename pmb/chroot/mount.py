@@ -106,3 +106,18 @@ def mount_native_into_foreign(args, suffix):
     if not os.path.lexists(musl_link):
         pmb.helpers.run.root(args, ["ln", "-s", "/native/lib/" + musl,
                                     musl_link])
+
+def remove_mnt_pmbootstrap(args, suffix):
+    """ Safely remove /mnt/pmbootstrap directories from the chroot, without
+        running rm -r as root and potentially removing data inside the
+        mountpoint in case it was still mounted (bug in pmbootstrap, or user
+        ran pmbootstrap 2x in parallel). This is similar to running 'rm -r -d',
+        but we don't assume that the host's rm has the -d flag (busybox does
+        not). """
+    mnt_dir = f"{args.work}/chroot_{suffix}/mnt/pmbootstrap"
+
+    if not os.path.exists(mnt_dir):
+        return
+
+    for path in glob.glob(f"{mnt_dir}/*") + [mnt_dir]:
+        pmb.helpers.run.root(args, ["rmdir", path])
