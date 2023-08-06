@@ -108,6 +108,9 @@ def init_compiler(args, depends, cross, arch):
     if cross == "crossdirect":
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:
+            # crossdirect for rust installs all build dependencies in the
+            # native chroot too, as some of them can be required for building
+            # native macros / build scripts
             cross_pkgs += depends
 
     pmb.chroot.apk.install(args, cross_pkgs)
