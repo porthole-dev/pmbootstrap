@@ -320,8 +320,7 @@ def apkbuild(path, check_pkgver=True, check_pkgname=True):
 
     # Sanity check: pkgver
     if check_pkgver:
-        if ("-r" in ret["pkgver"] or not
-           pmb.parse.version.validate(ret["pkgver"])):
+        if not pmb.parse.version.validate(ret["pkgver"]):
             logging.info(
                 "NOTE: Valid pkgvers are described here: "
                 "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver")

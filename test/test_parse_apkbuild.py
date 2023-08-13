@@ -154,3 +154,10 @@ def test_parse_unmaintained():
     path = (f"{pmb_test.const.testdata}/apkbuild"
             "/APKBUILD.missing-pkgdesc-in-subpackage")
     assert pmb.parse._apkbuild.unmaintained(path) == "This is broken!"
+
+
+def test_weird_pkgver():
+    path = (f"{pmb_test.const.testdata}/apkbuild"
+        "/APKBUILD.weird-pkgver")
+    apkbuild = pmb.parse.apkbuild(path, check_pkgname=False, check_pkgver=True)
+    assert apkbuild["pkgver"] == "3.0.0_alpha369-r0"
