@@ -18,7 +18,7 @@ options="!check"
 
 package() {
 	install -D -m644 "$srcdir/deviceinfo" \
-		"$pkgdir/etc/deviceinfo"
+		"$pkgdir/usr/share/deviceinfo"
 	install -D -m644 "$srcdir"/90-android-touch-dev.rules \
 		"$pkgdir"/etc/udev/rules.d/90-android-touch-dev.rules
 }
