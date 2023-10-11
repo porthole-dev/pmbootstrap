@@ -669,6 +669,12 @@ kconfig_options_uefi = {
             "EFI_GENERIC_STUB": True,
         }
     },
+    ">=6.1.0": {
+        "aarch64": {
+            # Required EFI booting compressed kernels on this arch
+            "EFI_ZBOOT": True,
+        },
+    },
 }
 
 #
