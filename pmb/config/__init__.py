@@ -667,7 +667,10 @@ kconfig_options_uefi = {
             "EFI_PARAMS_FROM_FDT": True,
             "EFI_RUNTIME_WRAPPERS": True,
             "EFI_GENERIC_STUB": True,
-        }
+        },
+        "x86_64": {
+            "EFI_MIXED": True,
+        },
     },
     ">=6.1.0": {
         "aarch64": {
