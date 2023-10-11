@@ -308,7 +308,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
                                     " higher)")
                     continue
 
-            # Add the provier to ret
+            # Add the provider to ret
             logging.verbose(package + ": provided by: " + provider_pkgname +
                             "-" + version + " in " + path)
             ret[provider_pkgname] = provider
