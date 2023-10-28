@@ -393,10 +393,8 @@ def kconfig(args):
             raise RuntimeError("kconfig check failed!")
 
         # Default to all kernel packages
-        packages = []
-        if args.package:
-            packages = [args.package]
-        else:
+        packages = args.package
+        if not args.package:
             for aport in pmb.helpers.pmaports.get_list(args):
                 if aport.startswith("linux-"):
                     packages.append(aport.split("linux-")[1])

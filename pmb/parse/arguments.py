@@ -476,7 +476,7 @@ def arguments_kconfig(subparser):
         check.add_argument(f"--{name}", action="store_true",
                            dest=f"kconfig_check_{name}",
                            help=f"check options needed for {name} too")
-    add_kernel_arg(check)
+    add_kernel_arg(check, nargs="*")
 
     # "pmbootstrap kconfig edit"
     edit = sub.add_parser("edit", help="edit kernel aport config")
