@@ -638,7 +638,8 @@ kconfig_options_usb_gadgets = {
             "USB_MASS_STORAGE": False,
             "USB_G_SERIAL": False,
             # enable configfs gadgets
-            "USB_CONFIGFS_RNDIS": True,  # USB networking via RNDIS
+            "USB_CONFIGFS_NCM": True,  # USB networking via NCM
+            "USB_CONFIGFS_RNDIS": True,  # USB networking via RNDIS (legacy)
         },
     },
 }
