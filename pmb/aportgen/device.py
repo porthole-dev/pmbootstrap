@@ -233,11 +233,14 @@ def generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
 
 def generate_modules_initfs(args):
     content = """\
-    # Remove this comment after reading, or the file if unnecessary (CHANGEME!)
-    # This file can contain a list of modules to be included in the initramfs,
-    # so that they are available in early boot stages. It should have one
-    # module name per line. If there are multiple kernel variants with different
-    # requirements for modules into the initramfs, one modules-initfs.$variant
+    # Remove this file if unnecessary (CHANGEME!)
+    # This file shall contain a list of modules to be included in the initramfs,
+    # so that they are available in early boot stages. In general, it should
+    # include modules to support unlocking FDE (touchscreen, panel, etc),
+    # USB networking, and telnet in the debug-shell.
+    # The format is one module name per line. Lines starting with the character
+    # '#', and empty lines are ignored. If there are multiple kernel variants
+    # with different initramfs module requirements, one modules-initfs.$variant
     # file should be created for each of them.
     """
 
