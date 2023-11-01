@@ -43,9 +43,6 @@ def mount_sdcard(args, path):
     :param path: path to sdcard device (e.g. /dev/mmcblk0)
     """
     # Sanity checks
-    if args.deviceinfo["external_storage"] != "true":
-        raise RuntimeError("According to the deviceinfo, this device does"
-                           " not support a sdcard installation.")
     if not os.path.exists(path):
         raise RuntimeError(f"The sdcard device does not exist: {path}")
     for path_mount in glob.glob(f"{path}*"):
