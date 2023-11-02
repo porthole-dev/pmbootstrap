@@ -14,12 +14,11 @@ def is_dtb(path):
 
 
 def get_mtk_label(path):
-    """ Read the label of a mediatek header of kernel or ramdisk inside an
-        extracted boot.img.
-        :param path: to either the kernel or ramdisk file extracted from
-                     boot.img
-        :returns: * None: file does not exist or does not have Mediatek header
-                  * Label string (e.g. "ROOTFS", "RECOVERY", "KERNEL") """
+    """ Read the label from the MediaTek header of the kernel or ramdisk inside
+        an extracted boot.img.
+        :param path: to either the kernel or ramdisk extracted from boot.img
+        :returns: * None: file does not exist or does not have MediaTek header
+                  * Label string (e.g. "ROOTFS", "KERNEL") """
     if not os.path.exists(path):
         return None
 
@@ -29,50 +28,20 @@ def get_mtk_label(path):
             return None
         f.seek(8)
         label = f.read(32).decode("utf-8").rstrip('\0')
-        return label
 
-
-def check_mtk_bootimg(bootimg_path):
-    """ Check if a boot.img contains a kernel and ramdisk with Mediatek
-        headers, and verify that these headers have labels we expect in
-        boot-deploy.
-        :param bootimg_path: path to boot.img, with extracted files in the same
-                             directory
-        :returns: * True: has Mediatek headers
-                  * False: has no Mediatek headers """
-    label_kernel = get_mtk_label(f"{bootimg_path}-kernel")
-    label_ramdisk = get_mtk_label(f"{bootimg_path}-ramdisk")
-
-    # Doesn't have Mediatek headers
-    if label_kernel is None and label_ramdisk is None:
-        return False
-
-    # Verify that the kernel and ramdisk have the labels we expect and have
-    # hardcoded in boot-deploy.git's add_mtk_header() function. We don't know
-    # if there are devices out there with different labels, but if there are,
-    # our code in boot-deploy needs to be adjusted to use the proper labels
-    # (store the label in deviceinfo and use it).
-    err_start = "This boot.img has Mediatek headers."
-    err_end = ("Please create an issue and attach your boot.img:"
-               " https://postmarketos.org/issues")
-    if label_kernel != "KERNEL":
-        raise RuntimeError(f"{err_start} Expected the kernel inside the"
-                           " boot.img to have a 'KERNEL' label instead of"
-                           f" '{label_kernel}'. {err_end}")
-    if label_ramdisk == "RECOVERY":
-        logging.warning(
-            f"WARNING: {err_start} But since you apparently passed a recovery"
-            " image instead of a regular boot.img, we can't tell if it has the"
-            " expected label 'ROOTFS' inside the ramdisk (found 'RECOVERY')."
-            " So there is a slight chance that it may not boot, in that case"
-            " run bootimg_analyze again with a regular boot.img. It will fail"
-            " if the label is different from 'ROOTFS'.")
-    elif label_ramdisk != "ROOTFS":
-        raise RuntimeError(f"{err_start} Expected the ramdisk inside the"
-                           " boot.img to have a 'ROOTFS' label instead of"
-                           f" '{label_ramdisk}'. {err_end}")
-
-    return True
+        if label == "RECOVERY":
+            logging.warning(
+                "WARNING: This boot.img has MediaTek headers. Since you passed a"
+                " recovery image instead of a regular boot.img, we can't tell what"
+                " the ramdisk signature label is supposed to be, so we assume that"
+                " it's the most common value, ROOTFS. There is a chance that this"
+                " is wrong and it may not boot; in that case, run bootimg_analyze"
+                " again with a regular boot.img. If this *is* a regular boot.img,"
+                " replace the value of deviceinfo_bootimg_mtk_label_ramdisk with"
+                " 'RECOVERY'.")
+            return "ROOTFS"
+        else:
+            return label
 
 
 def bootimg(args, path):
@@ -152,10 +121,14 @@ def bootimg(args, path):
                 output["dtb_offset"] = ("0x%08x"
                                         % int(f.read().replace('\n', ''), 16))
 
+    if get_mtk_label(f"{bootimg_path}-kernel") is not None:
+        output["mtk_label_kernel"] = get_mtk_label(f"{bootimg_path}-kernel")
+    if get_mtk_label(f"{bootimg_path}-ramdisk") is not None:
+        output["mtk_label_ramdisk"] = get_mtk_label(f"{bootimg_path}-ramdisk")
+
     output["qcdt"] = ("true" if os.path.isfile(f"{bootimg_path}-dt") and
                       os.path.getsize(f"{bootimg_path}-dt") > 0 else "false")
-    output["mtk_mkimage"] = ("true" if check_mtk_bootimg(bootimg_path)
-                             else "false")
+
     output["dtb_second"] = ("true" if is_dtb(f"{bootimg_path}-second")
                             else "false")
 

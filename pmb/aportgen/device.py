@@ -121,22 +121,31 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
     if bootimg is None:
         bootimg = {"cmdline": "",
                    "qcdt": "false",
-                   "mtk_mkimage": "false",
                    "dtb_second": "false",
                    "base": "",
                    "kernel_offset": "",
                    "ramdisk_offset": "",
                    "second_offset": "",
                    "tags_offset": "",
-                   "pagesize": "2048"}
+                   "pagesize": "2048",
+                   "mtk_label_kernel": "",
+                   "mtk_label_ramdisk": ""}
 
     content = f"""\
         deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"
         deviceinfo_generate_bootimg="true"
         deviceinfo_bootimg_qcdt="{bootimg["qcdt"]}"
-        deviceinfo_bootimg_mtk_mkimage="{bootimg["mtk_mkimage"]}"
         deviceinfo_bootimg_dtb_second="{bootimg["dtb_second"]}"
         deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
+        """
+
+    if "mtk_label_kernel" in bootimg.keys():
+        content += f"""\
+        deviceinfo_mtk_label_kernel="{bootimg["mtk_label_kernel"]}"
+        """
+    if "mtk_label_ramdisk" in bootimg.keys():
+        content += f"""\
+        deviceinfo_mtk_label_ramdisk="{bootimg["mtk_label_ramdisk"]}"
         """
 
     if "header_version" in bootimg.keys():

@@ -52,7 +52,6 @@ def test_bootimg_normal(args):
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
               "qcdt": "false",
-              "mtk_mkimage": "false",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
@@ -67,13 +66,12 @@ def test_bootimg_qcdt(args):
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
               "qcdt": "true",
-              "mtk_mkimage": "false",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_mtk_mkimage(args):
-    path = pmb_test.const.testdata + "/bootimg/mtk_mkimage-boot.img"
+def test_bootimg_mtk(args):
+    path = pmb_test.const.testdata + "/bootimg/mtk-boot.img"
     output = {"header_version": "0",
               "base": "0x10000000",
               "kernel_offset": "0x00008000",
@@ -81,15 +79,16 @@ def test_bootimg_mtk_mkimage(args):
               "second_offset": "0x00f00000",
               "tags_offset": "0x00000100",
               "pagesize": "2048",
+              "mtk_label_kernel": "KERNEL",
+              "mtk_label_ramdisk": "ROOTFS",
               "cmdline": "",
               "qcdt": "false",
-              "mtk_mkimage": "true",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_mtk_mkimage_recovery(args):
-    path = pmb_test.const.testdata + "/bootimg/mtk_mkimage-boot-recovery.img"
+def test_bootimg_mtk_recovery(args):
+    path = pmb_test.const.testdata + "/bootimg/mtk-boot-recovery.img"
     output = {"header_version": "0",
               "base": "0x80000000",
               "kernel_offset": "0x00008000",
@@ -97,9 +96,26 @@ def test_bootimg_mtk_mkimage_recovery(args):
               "second_offset": "0x00f00000",
               "tags_offset": "0x00000100",
               "pagesize": "2048",
+              "mtk_label_kernel": "KERNEL",
+              "mtk_label_ramdisk": "ROOTFS",
               "cmdline": "",
               "qcdt": "false",
-              "mtk_mkimage": "true",
+              "dtb_second": "false"}
+    assert pmb.parse.bootimg(args, path) == output
+
+
+def test_bootimg_mtk_kernelonly(args):
+    path = pmb_test.const.testdata + "/bootimg/mtk-boot-kernel-only.img"
+    output = {"header_version": "0",
+              "base": "0x10000000",
+              "kernel_offset": "0x00008000",
+              "ramdisk_offset": "0x01000000",
+              "second_offset": "0xf0000000",
+              "tags_offset": "0x00000100",
+              "pagesize": "2048",
+              "mtk_label_kernel": "KERNEL",
+              "cmdline": "",
+              "qcdt": "false",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
@@ -115,7 +131,6 @@ def test_bootimg_dtb_second(args):
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
               "qcdt": "false",
-              "mtk_mkimage": "false",
               "dtb_second": "true"}
     assert pmb.parse.bootimg(args, path) == output
 
@@ -132,7 +147,6 @@ def test_bootimg_v2(args):
               "dtb_offset": "0x0bc08000",
               "cmdline": "bootopt=64S3,32N2,64N2 systempart=/dev/mapper/system",
               "qcdt": "false",
-              "mtk_mkimage": "false",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output
 
@@ -143,6 +157,5 @@ def test_bootimg_v3(args):
               "pagesize": "4096",
               "cmdline": "twrpfastboot=1",
               "qcdt": "false",
-              "mtk_mkimage": "false",
               "dtb_second": "false"}
     assert pmb.parse.bootimg(args, path) == output

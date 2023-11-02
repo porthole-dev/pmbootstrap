@@ -100,7 +100,6 @@ def test_questions_bootimg(args, monkeypatch):
               "pagesize": "2048",
               "cmdline": "bootopt=64S3,32S1,32S1",
               "qcdt": "false",
-              "mtk_mkimage": "false",
               "dtb_second": "false"}
     assert func(args) == output
 

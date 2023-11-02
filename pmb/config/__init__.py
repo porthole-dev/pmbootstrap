@@ -823,7 +823,9 @@ deviceinfo_attributes = [
     "generate_bootimg",
     "header_version",
     "bootimg_qcdt",
-    "bootimg_mtk_mkimage",
+    "bootimg_mtk_mkimage", # deprecated
+    "bootimg_mtk_label_kernel",
+    "bootimg_mtk_label_ramdisk",
     "bootimg_dtb_second",
     "bootimg_custom_args",
     "flash_offset_base",
