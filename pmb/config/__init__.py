@@ -419,6 +419,7 @@ kconfig_options_iwd = {
             "PKCS7_MESSAGE_PARSER": True,
             "PKCS8_PRIVATE_KEY_PARSER": True,
             "X509_CERTIFICATE_PARSER": True,
+            "RFKILL": True,
         },
     },
 }
