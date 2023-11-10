@@ -111,7 +111,8 @@ def test_install_run_apk(monkeypatch, args):
     to_add_local = []
     to_del = []
     func(args, to_add, to_add_local, to_del, suffix)
-    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp"]]
+    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp",
+                              "--no-interactive"]]
     assert cmds == []
 
     # Add and delete
@@ -120,8 +121,10 @@ def test_install_run_apk(monkeypatch, args):
     to_add_local = []
     to_del = ["osk-sdl"]
     func(args, to_add, to_add_local, to_del, suffix)
-    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp"]]
-    assert cmds == [["apk", "--no-progress", "del", "osk-sdl"]]
+    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp",
+                              "--no-interactive"]]
+    assert cmds == [["apk", "--no-progress", "del", "osk-sdl",
+                     "--no-interactive"]]
 
     # Add with local package
     reset_cmds()
@@ -129,10 +132,12 @@ def test_install_run_apk(monkeypatch, args):
     to_add_local = ["/tmp/device-ppp.apk"]
     to_del = []
     func(args, to_add, to_add_local, to_del, suffix)
-    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp"]]
+    assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp",
+                              "--no-interactive"]]
     assert cmds == [["apk", "--no-progress", "add", "-u", "--virtual",
-                     ".pmbootstrap", "/tmp/device-ppp.apk"],
-                    ["apk", "--no-progress", "del", ".pmbootstrap"]]
+                     ".pmbootstrap", "/tmp/device-ppp.apk", "--no-interactive"],
+                    ["apk", "--no-progress", "del", ".pmbootstrap",
+                     "--no-interactive"]]
 
     # Add with --no-network
     reset_cmds()
@@ -141,7 +146,8 @@ def test_install_run_apk(monkeypatch, args):
     to_add_local = []
     to_del = []
     func(args, to_add, to_add_local, to_del, suffix)
-    assert cmds_progress == [["apk", "--no-network", "add", "hello-world"]]
+    assert cmds_progress == [["apk", "--no-network", "add", "hello-world",
+                              "--no-interactive"]]
     assert cmds == []
 
     # Package name starting with '-'

@@ -166,6 +166,10 @@ def init(args):
 
 
 def run(args, parameters):
+    # --no-interactive is a parameter to `add`, so it must be appended or apk
+    # gets confused
+    parameters += ["--no-interactive"]
+
     if args.offline:
         parameters = ["--no-network"] + parameters
     pmb.helpers.apk.apk_with_progress(

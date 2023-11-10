@@ -192,6 +192,10 @@ def install_run_apk(args, to_add, to_add_local, to_del, suffix):
         commands += [["del"] + to_del]
 
     for (i, command) in enumerate(commands):
+        # --no-interactive is a parameter to `add`, so it must be appended or apk
+        # gets confused
+        command += ["--no-interactive"]
+
         if args.offline:
             command = ["--no-network"] + command
         if i == 0:
