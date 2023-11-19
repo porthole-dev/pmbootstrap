@@ -761,7 +761,7 @@ apkbuild_attributes = {
 # Reference: https://postmarketos.org/apkbuild-options
 apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
-    "!pmb:kconfig-check",
+    "!pmb:kconfigcheck",
     "pmb:kconfigcheck-community",
     "pmb:kconfigcheck-containers",
     "pmb:kconfigcheck-iwd",
