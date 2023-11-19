@@ -96,9 +96,11 @@ def arguments_install(subparser):
                        default=None)
     group.add_argument("--split", help="create separate boot and root image"
                        " files", action="store_true")
-    group.add_argument("--sdcard", help="do not create an image file, instead"
-                       " write to the given SD card device (e.g."
-                       " '/dev/mmcblk0')", metavar="BLOCKDEV")
+    group.add_argument("--disk", "--sdcard",
+                       help="do not create an image file, instead"
+                            " write to the given block device (SD card, USB"
+                            " stick, etc.), for example: '/dev/mmcblk0'",
+                       metavar="BLOCKDEV")
     group.add_argument("--android-recovery-zip",
                        help="generate TWRP flashable zip (recommended read:"
                             " https://postmarketos.org/recoveryzip)",
@@ -106,9 +108,9 @@ def arguments_install(subparser):
     group.add_argument("--no-image", help="do not generate an image",
                        action="store_true", dest="no_image")
 
-    # Image type "--sdcard" related
-    group = ret.add_argument_group("optional image type 'sdcard' arguments")
-    group.add_argument("--rsync", help="update the SD card using rsync",
+    # Image type "--disk" related
+    group = ret.add_argument_group("optional image type 'disk' arguments")
+    group.add_argument("--rsync", help="update the disk using rsync",
                        action="store_true")
 
     # Image type "--android-recovery-zip" related

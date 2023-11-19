@@ -238,12 +238,12 @@ def install(args):
     if args.rsync and args.full_disk_encryption:
         raise ValueError("Installation using rsync is not compatible with full"
                          " disk encryption.")
-    if args.rsync and not args.sdcard:
-        raise ValueError("Installation using rsync only works on sdcard.")
+    if args.rsync and not args.disk:
+        raise ValueError("Installation using rsync only works with --disk.")
 
     # On-device installer checks
     # Note that this can't be in the mutually exclusive group that has most of
-    # the conflicting options, because then it would not work with --sdcard.
+    # the conflicting options, because then it would not work with --disk.
     if args.on_device_installer:
         if args.full_disk_encryption:
             raise ValueError("--on-device-installer cannot be combined with"
@@ -287,7 +287,7 @@ def install(args):
                             " installer.")
             args.user = "user"
 
-    if not args.sdcard and args.split is None:
+    if not args.disk and args.split is None:
         # Default to split if the flash method requires it
         flasher = pmb.config.flashers.get(args.deviceinfo["flash_method"], {})
         if flasher.get("split", False):

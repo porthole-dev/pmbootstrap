@@ -171,7 +171,7 @@ $ pmbootstrap install --fde
 
 Update existing installation on SD card:
 ```
-$ pmbootstrap install --sdcard=/dev/mmcblk0 --rsync
+$ pmbootstrap install --disk=/dev/mmcblk0 --rsync
 ```
 
 Run the image in QEMU:

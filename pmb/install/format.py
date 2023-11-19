@@ -86,11 +86,11 @@ def get_root_filesystem(args):
     return ret
 
 
-def format_and_mount_root(args, device, root_label, sdcard):
+def format_and_mount_root(args, device, root_label, disk):
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
     :param root_label: label of the root partition (e.g. "pmOS_root")
-    :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
+    :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     # Format
     if not args.rsync:
@@ -105,7 +105,7 @@ def format_and_mount_root(args, device, root_label, sdcard):
             # When we don't know the file system size before hand like
             # with non-block devices, we need to explicitly set a number of
             # inodes. See #1717 and #1845 for details
-            if not sdcard:
+            if not disk:
                 mkfs_root_args = mkfs_root_args + ["-N", "100000"]
         elif filesystem == "f2fs":
             mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
@@ -125,12 +125,12 @@ def format_and_mount_root(args, device, root_label, sdcard):
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
 
-def format(args, layout, boot_label, root_label, sdcard):
+def format(args, layout, boot_label, root_label, disk):
     """
     :param layout: partition layout from get_partition_layout()
     :param boot_label: label of the boot partition (e.g. "pmOS_boot")
     :param root_label: label of the root partition (e.g. "pmOS_root")
-    :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
+    :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     root_dev = f"/dev/installp{layout['root']}"
     boot_dev = f"/dev/installp{layout['boot']}"
@@ -139,5 +139,5 @@ def format(args, layout, boot_label, root_label, sdcard):
         format_luks_root(args, root_dev)
         root_dev = "/dev/mapper/pm_crypt"
 
-    format_and_mount_root(args, root_dev, root_label, sdcard)
+    format_and_mount_root(args, root_dev, root_label, disk)
     format_and_mount_boot(args, boot_dev, boot_label)

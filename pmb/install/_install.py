@@ -621,20 +621,20 @@ def write_cgpt_kpart(args, layout, suffix):
         args, ["dd", f"if={filename}", f"of=/dev/installp{layout['kernel']}"])
 
 
-def sanity_check_sdcard(args):
-    device = args.sdcard
+def sanity_check_disk(args):
+    device = args.disk
     device_name = os.path.basename(device)
     if not os.path.exists(device):
-        raise RuntimeError(f"{device} doesn't exist, is the sdcard plugged?")
+        raise RuntimeError(f"{device} doesn't exist, is the disk plugged?")
     if os.path.isdir('/sys/class/block/{}'.format(device_name)):
         with open('/sys/class/block/{}/ro'.format(device_name), 'r') as handle:
             ro = handle.read()
         if ro == '1\n':
-            raise RuntimeError(f"{device} is read-only, is the sdcard locked?")
+            raise RuntimeError(f"{device} is read-only, maybe a locked SD card?")
 
 
-def sanity_check_sdcard_size(args):
-    device = args.sdcard
+def sanity_check_disk_size(args):
+    device = args.disk
     devpath = os.path.realpath(device)
     sysfs = '/sys/class/block/{}/size'.format(devpath.replace('/dev/', ''))
     if not os.path.isfile(sysfs):
@@ -770,7 +770,7 @@ def create_fstab(args, layout, suffix):
 
 def install_system_image(args, size_reserve, suffix, step, steps,
                          boot_label="pmOS_boot", root_label="pmOS_root",
-                         split=False, sdcard=None):
+                         split=False, disk=None):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param suffix: the chroot suffix, where the rootfs that will be installed
@@ -780,9 +780,9 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     :param boot_label: label of the boot partition (e.g. "pmOS_boot")
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param split: create separate images for boot and root partitions
-    :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
+    :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
-    # Partition and fill image/sdcard
+    # Partition and fill image file/disk block device
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.chroot.shutdown(args, True)
     (size_boot, size_root) = get_subpartitions_size(args, suffix)
@@ -790,7 +790,7 @@ def install_system_image(args, size_reserve, suffix, step, steps,
              and args.install_cgpt)
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root,
-                                       size_reserve, split, sdcard)
+                                       size_reserve, split, disk)
         if not split:
             if args.deviceinfo["cgpt_kpart"] and args.install_cgpt:
                 pmb.install.partition_cgpt(
@@ -798,9 +798,9 @@ def install_system_image(args, size_reserve, suffix, step, steps,
             else:
                 pmb.install.partition(args, layout, size_boot, size_reserve)
     if not split:
-        pmb.install.partitions_mount(args, layout, sdcard)
+        pmb.install.partitions_mount(args, layout, disk)
 
-    pmb.install.format(args, layout, boot_label, root_label, sdcard)
+    pmb.install.format(args, layout, boot_label, root_label, disk)
 
     # Create /etc/fstab and /etc/crypttab
     logging.info("(native) create /etc/fstab")
@@ -831,8 +831,8 @@ def install_system_image(args, size_reserve, suffix, step, steps,
         embed_firmware(args, suffix)
         write_cgpt_kpart(args, layout, suffix)
 
-    if sdcard:
-        logging.info("Unmounting SD card (this may take a while "
+    if disk:
+        logging.info(f"Unmounting disk {disk} (this may take a while "
                      "to sync, please wait)")
     pmb.chroot.shutdown(args, True)
 
@@ -841,7 +841,7 @@ def install_system_image(args, size_reserve, suffix, step, steps,
     if sparse is None:
         sparse = args.deviceinfo["flash_sparse"] == "true"
 
-    if sparse and not split and not sdcard:
+    if sparse and not split and not disk:
         logging.info("(native) make sparse rootfs")
         pmb.chroot.apk.install(args, ["android-tools"])
         sys_image = args.device + ".img"
@@ -887,7 +887,7 @@ def print_flash_info(args):
     logging.info("Run the following to flash your installation to the"
                  " target device:")
 
-    if "flash_rootfs" in flasher_actions and not args.sdcard and \
+    if "flash_rootfs" in flasher_actions and not args.disk and \
             bool(args.split) == requires_split:
         logging.info("* pmbootstrap flasher flash_rootfs")
         logging.info("  Flashes the generated rootfs image to your device:")
@@ -920,8 +920,8 @@ def print_flash_info(args):
 
     # Most flash methods operate independently of the boot partition.
     # (e.g. an Android boot image is generated). In that case, "flash_kernel"
-    # works even when partitions are split or installing for sdcard.
-    # This is not possible if the flash method requires split partitions.
+    # works even when partitions are split or installing to disk. This is not
+    # possible if the flash method requires split partitions.
     if "flash_kernel" in flasher_actions and \
             (not requires_split or args.split):
         logging.info("* pmbootstrap flasher flash_kernel")
@@ -1033,7 +1033,7 @@ def install_on_device_installer(args, step, steps):
     boot_label = pmaports_cfg.get("supported_install_boot_label",
                                   "pmOS_inst_boot")
     install_system_image(args, size_reserve, suffix_installer, step, steps,
-                         boot_label, "pmOS_install", args.split, args.sdcard)
+                         boot_label, "pmOS_install", args.split, args.disk)
 
 
 def get_selected_providers(args, packages):
@@ -1154,9 +1154,9 @@ def create_device_rootfs(args, step, steps):
 
 def install(args):
     # Sanity checks
-    if not args.android_recovery_zip and args.sdcard:
-        sanity_check_sdcard(args)
-        sanity_check_sdcard_size(args)
+    if not args.android_recovery_zip and args.disk:
+        sanity_check_disk(args)
+        sanity_check_disk_size(args)
     if args.on_device_installer:
         sanity_check_ondev_version(args)
 
@@ -1191,7 +1191,7 @@ def install(args):
         install_on_device_installer(args, step, steps)
     else:
         install_system_image(args, 0, f"rootfs_{args.device}", step, steps,
-                             split=args.split, sdcard=args.sdcard)
+                             split=args.split, disk=args.disk)
 
     print_flash_info(args)
     print_sshd_info(args)

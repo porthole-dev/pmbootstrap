@@ -11,16 +11,16 @@ import pmb.config
 
 def previous_install(args, path):
     """
-    Search the sdcard for possible existence of a previous installation of
+    Search the disk for possible existence of a previous installation of
     pmOS. We temporarily mount the possible pmOS_boot partition as
-    /dev/sdcardp1 inside the native chroot to check the label from there.
-    :param path: path to sdcard device (e.g. /dev/mmcblk0)
+    /dev/diskp1 inside the native chroot to check the label from there.
+    :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
     label = ""
     for blockdevice_outside in [f"{path}1", f"{path}p1"]:
         if not os.path.exists(blockdevice_outside):
             continue
-        blockdevice_inside = "/dev/sdcardp1"
+        blockdevice_inside = "/dev/diskp1"
         pmb.helpers.mount.bind_file(args, blockdevice_outside,
                                     args.work + '/chroot_native' +
                                     blockdevice_inside)
@@ -38,13 +38,13 @@ def previous_install(args, path):
     return "pmOS_boot" in label
 
 
-def mount_sdcard(args, path):
+def mount_disk(args, path):
     """
-    :param path: path to sdcard device (e.g. /dev/mmcblk0)
+    :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
     # Sanity checks
     if not os.path.exists(path):
-        raise RuntimeError(f"The sdcard device does not exist: {path}")
+        raise RuntimeError(f"The disk block device does not exist: {path}")
     for path_mount in glob.glob(f"{path}*"):
         if pmb.helpers.mount.ismount(path_mount):
             raise RuntimeError(f"{path_mount} is mounted! Will not attempt to"
@@ -126,7 +126,7 @@ def create_and_mount_image(args, size_boot, size_root, size_reserve,
                                     args.work + "/chroot_native" + mount_point)
 
 
-def create(args, size_boot, size_root, size_reserve, split, sdcard):
+def create(args, size_boot, size_root, size_reserve, split, disk):
     """
     Create /dev/install (the "install blockdevice").
 
@@ -134,12 +134,12 @@ def create(args, size_boot, size_root, size_reserve, split, sdcard):
     :param size_root: size of the root partition in MiB
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param split: create separate images for boot and root partitions
-    :param sdcard: path to sdcard device (e.g. /dev/mmcblk0) or None
+    :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     pmb.helpers.mount.umount_all(
         args, args.work + "/chroot_native/dev/install")
-    if sdcard:
-        mount_sdcard(args, sdcard)
+    if disk:
+        mount_disk(args, disk)
     else:
         create_and_mount_image(args, size_boot, size_root, size_reserve,
                                split)
