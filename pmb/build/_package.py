@@ -27,6 +27,8 @@ def skip_already_built(pkgname, arch):
         logging.verbose(pkgname + ": already checked this session,"
                         " no need to build it or its dependencies")
         return True
+
+    logging.verbose(f"{pkgname}: marking as already built")
     pmb.helpers.other.cache["built"][arch].append(pkgname)
     return False
 
@@ -488,6 +490,8 @@ def package(args, pkgname, arch=None, force=False, strict=False,
     :returns: None if the build was not necessary
               output path relative to the packages folder ("armhf/ab-1-r2.apk")
     """
+    logging.verbose(f"{pkgname}: running pmb.build._package.package")
+
     # Once per session is enough
     arch = arch or pmb.config.arch_native
     if skip_already_built(pkgname, arch):
