@@ -153,28 +153,32 @@ def find(args, package, must_exist=True):
         if "*" in package:
             raise RuntimeError("Invalid pkgname: " + package)
 
-        # Search in packages
+        # Try to find an APKBUILD with the exact pkgname we are looking for
         path = _find_apkbuilds(args).get(package)
         if path:
             ret = os.path.dirname(path)
+        else:
+            # No luck, take a guess what APKBUILD could have the package we are
+            # looking for as subpackage
+            guess = guess_main(args, package)
+            if guess:
+                # Parse the APKBUILD and verify if the guess was right
+                if _find_package_in_apkbuild(package, f'{guess}/APKBUILD'):
+                    ret = guess
+                else:
+                    # Otherwise parse all APKBUILDs (takes time!), is the
+                    # package we are looking for a subpackage of any of those?
+                    for path_current in _find_apkbuilds(args).values():
+                        if _find_package_in_apkbuild(package, path_current):
+                            ret = os.path.dirname(path_current)
+                            break
 
-        # Try to guess based on the subpackage name
-        guess = guess_main(args, package)
-        if guess:
-            # ... but see if we were right
-            if _find_package_in_apkbuild(package, f'{guess}/APKBUILD'):
-                ret = guess
-
-        # Search in subpackages and provides
-        if not ret:
-            for path_current in _find_apkbuilds(args).values():
-                if _find_package_in_apkbuild(package, path_current):
-                    ret = os.path.dirname(path_current)
-                    break
-
-        # Use the guess otherwise
-        if not ret:
-            ret = guess
+                # If we still didn't find anything, as last resort: assume our
+                # initial guess was right and the APKBUILD parser just didn't
+                # find the subpackage in there because it is behind shell logic
+                # that we don't parse.
+                if not ret:
+                    ret = guess
 
     # Crash when necessary
     if ret is None and must_exist:
