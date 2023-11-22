@@ -72,13 +72,20 @@ def package_provider(args, pkgname, pkgnames_install, suffix="native"):
                             "chroot already")
             return provider
 
-    # 5. Pick the provider(s) with the highest priority
+    # 5. Pick an explicitly selected provider
+    provider_pkgname = args.selected_providers.get(pkgname, "")
+    if provider_pkgname in providers:
+        logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}', "
+                        "because it was explicitly selected.")
+        return providers[provider_pkgname]
+
+    # 6. Pick the provider(s) with the highest priority
     providers = pmb.parse.apkindex.provider_highest_priority(
         providers, pkgname)
     if len(providers) == 1:
         return list(providers.values())[0]
 
-    # 6. Pick the shortest provider. (Note: Normally apk would fail here!)
+    # 7. Pick the shortest provider. (Note: Normally apk would fail here!)
     return pmb.parse.apkindex.provider_shortest(providers, pkgname)
 
 
