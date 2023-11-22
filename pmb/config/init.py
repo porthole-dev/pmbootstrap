@@ -709,6 +709,7 @@ def frontend(args):
 
     cfg["pmbootstrap"]["user"] = ask_for_username(args)
     ask_for_provider_select_pkg(args, "postmarketos-base", cfg["providers"])
+    ask_for_provider_select_pkg(args, "postmarketos-base-ui", cfg["providers"])
 
     # UI and various build options
     ui = ask_for_ui(args, info)
