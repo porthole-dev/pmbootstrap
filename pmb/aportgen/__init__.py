@@ -13,6 +13,18 @@ import pmb.config
 import pmb.helpers.cli
 
 
+def get_cross_package_arches(pkgname):
+    """
+    Get the arches for which we want to build cross packages.
+    :param pkgname: package name, e.g. "gcc-aarch64", "gcc-x86_64"
+    :returns: string of architecture(s) (space separated)
+    """
+    if pkgname.endswith("-x86_64"):
+        return "aarch64"
+    else:
+        return "x86_64"
+
+
 def properties(pkgname):
     """
     Get the `pmb.config.aportgen` properties for the aport generator, based on

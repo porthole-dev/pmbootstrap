@@ -42,7 +42,7 @@ def generate(args, pkgname):
             pkgname={pkgname}
             pkgver={pkgver}
             pkgrel={pkgrel}
-            arch="{pmb.config.arch_native}"
+            arch="{pmb.aportgen.get_cross_package_arches(pkgname)}"
             subpackages="musl-dev-{arch}:package_dev"
 
             _arch="{arch}"

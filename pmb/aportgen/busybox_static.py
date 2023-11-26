@@ -47,7 +47,7 @@ def generate(args, pkgname):
 
             url="http://busybox.net"
             license="GPL2"
-            arch="{pmb.config.arch_native}"
+            arch="{pmb.aportgen.get_cross_package_arches(pkgname)}"
             options="!check !strip"
             pkgdesc="Statically linked Busybox for $_arch"
             _target="$(arch_to_hostspec $_arch)"
