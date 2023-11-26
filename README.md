@@ -216,7 +216,7 @@ $ pmbootstrap pkgrel_bump --auto
 Generate cross-compiler aports based on the latest version from Alpine's
 aports:
 ```
-$ pmbootstrap aportgen binutils-armhf gcc-armhf
+$ pmbootstrap aportgen gcc-armhf
 ```
 
 Manually rebuild package index:

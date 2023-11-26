@@ -42,7 +42,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 
     # Run aportgen and compare output
-    pkgnames = ["binutils-armhf", "gcc-armhf"]
+    pkgnames = ["gcc-armhf"]
     for pkgname in pkgnames:
         pmb.aportgen.generate(args, pkgname)
         path_new = args.aports + "/cross/" + pkgname + "/APKBUILD"
@@ -87,8 +87,10 @@ def test_aportgen(args, tmpdir):
     pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
 
     # Generate all valid packages (gcc twice -> different code path)
-    pkgnames = ["binutils-armv7", "musl-armv7", "busybox-static-armv7",
-                "gcc-armv7", "gcc-armv7"]
+    pkgnames = ["musl-armv7",
+                "busybox-static-armv7",
+                "gcc-armv7",
+                "gcc-armv7"]
     for pkgname in pkgnames:
         pmb.aportgen.generate(args, pkgname)
 

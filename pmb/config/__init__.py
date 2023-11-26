@@ -271,8 +271,8 @@ chroot_outdated = 3600 * 24 * 2
 #
 # Officially supported host/target architectures for postmarketOS. Only
 # specify architectures supported by Alpine here. For cross-compiling,
-# we need to generate the "musl-$ARCH", "binutils-$ARCH" and "gcc-$ARCH"
-# packages (use "pmbootstrap aportgen musl-armhf" etc.).
+# we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use
+# "pmbootstrap aportgen musl-armhf" etc.).
 build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86", "riscv64"]
 
 # Packages that will be installed in a chroot before it builds packages
@@ -1090,7 +1090,7 @@ git_repo_outdated = 3600 * 24 * 2
 #
 aportgen = {
     "cross": {
-        "prefixes": ["binutils", "busybox-static", "gcc", "musl", "grub-efi"],
+        "prefixes": ["busybox-static", "gcc", "musl", "grub-efi"],
         "confirm_overwrite": False,
     },
     "device/testing": {

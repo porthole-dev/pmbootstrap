@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import logging
-import pmb.aportgen.binutils
 import pmb.aportgen.busybox_static
 import pmb.aportgen.device
 import pmb.aportgen.gcc
