@@ -204,6 +204,7 @@ def get(args, pkgname, must_exist=True, subpackages=True):
                     "options": [],
                     ... }
     """
+    pkgname = pmb.helpers.package.remove_operators(pkgname)
     if subpackages:
         aport = find(args, pkgname, must_exist)
         if aport:

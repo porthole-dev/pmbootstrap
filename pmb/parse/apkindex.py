@@ -5,6 +5,7 @@ import logging
 import os
 import tarfile
 import pmb.chroot.apk
+import pmb.helpers.package
 import pmb.helpers.repo
 import pmb.parse.version
 
@@ -283,10 +284,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
         arch = arch or pmb.config.arch_native
         indexes = pmb.helpers.repo.apkindex_files(args, arch)
 
-    for operator in [">", ">=", "=", "<=", "<", "~"]:
-        if operator in package:
-            package = package.split(operator)[0]
-            break
+    package = pmb.helpers.package.remove_operators(package)
 
     ret = collections.OrderedDict()
     for path in indexes:

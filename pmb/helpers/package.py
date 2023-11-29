@@ -12,6 +12,14 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 
 
+def remove_operators(package):
+    for operator in [">", ">=", "<=", "=", "<", "~"]:
+        if operator in package:
+            package = package.split(operator)[0]
+            break
+    return package
+
+
 def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
     """ Find a package in pmaports, and as fallback in the APKINDEXes of the
         binary packages.
