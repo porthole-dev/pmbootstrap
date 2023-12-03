@@ -386,7 +386,7 @@ def kconfig(args):
 
         # Handle passing a file directly
         if args.file:
-            if pmb.parse.kconfig.check_file(args.package, components_list,
+            if pmb.parse.kconfig.check_file(args.file, components_list,
                                             details=details):
                 logging.info("kconfig check succeeded!")
                 return

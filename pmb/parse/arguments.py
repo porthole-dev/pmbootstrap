@@ -468,8 +468,8 @@ def arguments_kconfig(subparser):
                        " kernels, even the ones that would be ignored by"
                        " default")
     check.add_argument("--arch", choices=arch_choices, dest="arch")
-    check.add_argument("--file", action="store_true", help="check a file"
-                       " directly instead of a config in a package")
+    check.add_argument("--file", help="check a file directly instead of a"
+                       " config in a package")
     check.add_argument("--no-details", action="store_false",
                        dest="kconfig_check_details",
                        help="print one generic error per component instead of"
