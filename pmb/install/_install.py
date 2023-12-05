@@ -414,12 +414,12 @@ def setup_appstream(args):
     if "alpine-appstream-downloader" not in installed_pkgs or args.offline:
         return
 
-    pmb.chroot.root(args, ["alpine-appstream-downloader",
-                           "/mnt/appstream-data"], suffix)
-    pmb.chroot.root(args, ["mkdir", "-p", "/var/lib/swcatalog"], suffix)
-    pmb.chroot.root(args, ["cp", "-r", "/mnt/appstream-data/icons",
-                           "/mnt/appstream-data/xml",
-                           "-t", "/var/lib/swcatalog"], suffix)
+    if not pmb.chroot.root(args, ["alpine-appstream-downloader",
+                                  "/mnt/appstream-data"], suffix, check=False):
+        pmb.chroot.root(args, ["mkdir", "-p", "/var/lib/swcatalog"], suffix)
+        pmb.chroot.root(args, ["cp", "-r", "/mnt/appstream-data/icons",
+                               "/mnt/appstream-data/xml",
+                               "-t", "/var/lib/swcatalog"], suffix)
 
 
 def disable_sshd(args):
