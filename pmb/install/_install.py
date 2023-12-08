@@ -5,6 +5,7 @@ import os
 import re
 import glob
 import shlex
+import sys
 
 import pmb.chroot
 import pmb.chroot.apk
@@ -621,6 +622,19 @@ def write_cgpt_kpart(args, layout, suffix):
         args, ["dd", f"if={filename}", f"of=/dev/installp{layout['kernel']}"])
 
 
+def sanity_check_boot_size(args):
+    default = pmb.config.defaults["boot_size"]
+    if int(args.boot_size) >= int(default):
+        return
+    logging.error("ERROR: your pmbootstrap has a small boot_size of"
+                  f" {args.boot_size} configured, probably because the config"
+                  " has been created with an old version.")
+    logging.error("This can lead to problems later on, we recommend setting it"
+                  f" to {default} MiB.")
+    logging.error(f"Run 'pmbootstrap config boot_size {default}' and try again.")
+    sys.exit(1)
+
+
 def sanity_check_disk(args):
     device = args.disk
     device_name = os.path.basename(device)
@@ -1154,6 +1168,7 @@ def create_device_rootfs(args, step, steps):
 
 def install(args):
     # Sanity checks
+    sanity_check_boot_size(args)
     if not args.android_recovery_zip and args.disk:
         sanity_check_disk(args)
         sanity_check_disk_size(args)
