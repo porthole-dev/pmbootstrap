@@ -81,6 +81,8 @@ def arguments_install(subparser):
                      " important password!")
     ret.add_argument("--no-cgpt", help="do not use cgpt partition table",
                      dest="install_cgpt", action="store_false", default=True)
+    ret.add_argument("--zap", help="zap chroots before installing",
+                     action="store_true")
 
     # Image type
     group_desc = ret.add_argument_group(

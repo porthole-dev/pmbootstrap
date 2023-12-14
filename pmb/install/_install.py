@@ -1227,6 +1227,9 @@ def install(args):
     else:
         steps = 4
 
+    if args.zap:
+        pmb.chroot.zap(args, False)
+
     # Install required programs in native chroot
     step = 1
     logging.info(f"*** ({step}/{steps}) PREPARE NATIVE CHROOT ***")
