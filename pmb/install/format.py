@@ -124,6 +124,13 @@ def format_and_mount_root(args, device, root_label, disk):
     pmb.chroot.root(args, ["mkdir", "-p", mountpoint])
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
+    # Create separate subvolumes if root filesystem is btrfs
+    if filesystem == "btrfs":
+        pmb.chroot.root(args,
+            ["btrfs", "subvol", "create", mountpoint + "/root"])
+        pmb.chroot.root(args,
+            ["btrfs", "subvol", "create", mountpoint + "/var"])
+
 
 def format(args, layout, boot_label, root_label, disk):
     """

@@ -153,8 +153,12 @@ def create_home_from_skel(args):
     Create /home/{user} from /etc/skel
     """
     rootfs = args.work + "/chroot_native/mnt/install"
+    if args.filesystem == "btrfs":
+        pmb.helpers.run.root(args,
+        ["btrfs", "subvol", "create", rootfs + "/home"])
+    else:
+        pmb.helpers.run.root(args, ["mkdir", rootfs + "/home"])
     homedir = rootfs + "/home/" + args.user
-    pmb.helpers.run.root(args, ["mkdir", rootfs + "/home"])
     if os.path.exists(f"{rootfs}/etc/skel"):
         pmb.helpers.run.root(args, ["cp", "-a", f"{rootfs}/etc/skel", homedir])
     else:
@@ -771,7 +775,19 @@ def create_fstab(args, layout, suffix):
     boot_filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
     root_filesystem = pmb.install.get_root_filesystem(args)
 
-    fstab = f"""
+    if root_filesystem == "btrfs":
+        # btrfs gets separate subvolumes for root, var and home
+        fstab = f"""
+# <file system> <mount point> <type> <options> <dump> <pass>
+{root_mount_point} / {root_filesystem} subvol=root,compress=zstd:2,ssd 0 0
+{root_mount_point} /home {root_filesystem} subvol=home,compress=zstd:2,ssd 0 0
+{root_mount_point} /var {root_filesystem} subvol=var,compress=zstd:2,ssd 0 0
+
+{boot_mount_point} /boot {boot_filesystem} defaults 0 0
+""".lstrip()
+
+    else:
+        fstab = f"""
 # <file system> <mount point> <type> <options> <dump> <pass>
 {root_mount_point} / {root_filesystem} defaults 0 0
 {boot_mount_point} /boot {boot_filesystem} defaults 0 0
