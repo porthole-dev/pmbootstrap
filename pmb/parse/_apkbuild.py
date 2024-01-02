@@ -271,6 +271,12 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     # Copy variables
     apkbuild = apkbuild.copy()
     apkbuild["subpkgname"] = subpkgname
+    # Don't inherit pmb_recommends from the top-level package.
+    # There are two reasons for this:
+    # 1) the subpackage may specify its own pmb_recommends
+    # 2) the top-level package may list the subpackage as a pmb_recommends,
+    #    thereby creating a circular dependency
+    apkbuild["_pmb_recommends"] = ""
 
     # Parse relevant attributes for the subpackage
     _parse_attributes(
