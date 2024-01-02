@@ -696,9 +696,9 @@ apkbuild_package_attributes = {
     "install": {"array": True},
     "triggers": {"array": True},
 
-    # UI meta-packages can specify apps in "_pmb_recommends" to be explicitly
-    # installed by default, and not implicitly as dependency of the UI meta-
-    # package ("depends"). This makes these apps uninstallable, without
+    # Packages can specify soft dependencies in "_pmb_recommends" to be
+    # explicitly installed by default, and not implicitly as a hard dependency
+    # of the package ("depends"). This makes these apps uninstallable, without
     # removing the meta-package. (#1933). To disable this feature, use:
     # "pmbootstrap install --no-recommends".
     "_pmb_recommends": {"array": True},

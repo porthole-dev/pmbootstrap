@@ -50,37 +50,33 @@ def test_get_nonfree_packages(args):
 
 def test_get_recommends(args):
     args.aports = pmb_test.const.testdata + "/pmb_recommends"
-    func = pmb.install.ui.get_recommends
+    func = pmb.install._install.get_recommends
 
     # UI: none
     args.install_recommends = True
-    args.ui = "none"
-    assert func(args) == []
+    assert func(args, ["postmarketos-ui-none"]) == []
 
     # UI: test, --no-recommends
     args.install_recommends = False
-    args.ui = "test"
-    assert func(args) == []
+    assert func(args, ["postmarketos-ui-test"]) == []
 
-    # UI: test, without -extras
+    # UI: test
     args.install_recommends = True
-    args.ui = "test"
+    assert func(args, ["postmarketos-ui-test"]) == ["plasma-camera",
+                                                    "plasma-angelfish"]
+
+    # UI: test + test-extras
+    args.install_recommends = True
+    assert func(args, ["postmarketos-ui-test",
+                       "postmarketos-ui-test-extras"]) == ["plasma-camera",
+                                                           "plasma-angelfish",
+                                                           "buho", "kaidan",
+                                                           "test-app", "foot",
+                                                           "htop"]
+    # Non-UI package
+    args.install_recommends = True
     args.ui_extras = False
-    assert func(args) == ["plasma-camera", "plasma-angelfish"]
-
-    # UI: test, with -extras
-    args.install_recommends = True
-    args.ui = "test"
-    args.ui_extras = True
-    assert func(args) == ["plasma-camera", "plasma-angelfish", "buho",
-                          "kaidan"]
-
-    # UI: invalid
-    args.install_recommends = True
-    args.ui = "invalid"
-    with pytest.raises(RuntimeError) as e:
-        func(args)
-    assert str(e.value).startswith("Could not find aport for package")
+    assert func(args, ["test-app"]) == ["foot", "htop"]
 
 
 def test_get_groups(args):

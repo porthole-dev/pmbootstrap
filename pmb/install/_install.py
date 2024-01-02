@@ -1068,6 +1068,50 @@ def get_selected_providers(args, packages):
     return providers
 
 
+def get_recommends(args, packages):
+    """
+        Look through the specified packages and collect additional packages
+        specified under _pmb_recommends in them. This is recursive, so it will
+        dive into packages that are listed under recommends to collect any
+        packages they might also have listed under their own _pmb_recommends.
+
+        If unable to find a given package in aports, it is skipped and no error
+        is raised. This is because the given package might be in a different
+        aports than the one searched by this function. This function makes no
+        attempt to validate that a given package is in *any* available aports
+        repos at installation time.
+
+        If running with pmbootstrap install --no-recommends, this function
+        returns an empty list.
+
+        :returns: list of pkgnames, e.g. ["chatty", "gnome-contacts"] """
+    ret = []
+    if not args.install_recommends:
+        return ret
+
+    for package in packages:
+        # Note that this ignores packages that don't exist. This means they
+        # aren't in pmaports. This is fine, with the assumption that
+        # installation will fail later in some other method if they truly don't
+        # exist in any repo.
+        apkbuild = pmb.helpers.pmaports.get(args, package, must_exist=False)
+        if not apkbuild:
+            continue
+        if package in apkbuild["subpackages"]:
+            # Just focus on the subpackage
+            apkbuild = apkbuild["subpackages"][package]
+        recommends = apkbuild["_pmb_recommends"]
+        if recommends:
+            logging.debug(f"{package}: install _pmb_recommends:"
+                          f" {', '.join(recommends)}")
+            ret += recommends
+            # Call recursively in case recommends have pmb_recommends of their
+            # own.
+            ret += get_recommends(args, recommends)
+
+    return ret
+
+
 def create_device_rootfs(args, step, steps):
     # List all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
@@ -1096,8 +1140,6 @@ def create_device_rootfs(args, step, steps):
     if args.ui.lower() != "none":
         if args.ui_extras:
             install_packages += ["postmarketos-ui-" + args.ui + "-extras"]
-        if args.install_recommends:
-            install_packages += pmb.install.ui.get_recommends(args)
     if args.extra_packages.lower() != "none":
         install_packages += args.extra_packages.split(",")
     if args.add:
@@ -1125,6 +1167,9 @@ def create_device_rootfs(args, step, steps):
             install_packages += ["postmarketos-base-nofde"]
 
     pmb.helpers.repo.update(args, args.deviceinfo["arch"])
+
+    # Install uninstallable "dependencies" by default
+    install_packages += get_recommends(args, install_packages)
 
     # Explicitly call build on the install packages, to re-build them or any
     # dependency, in case the version increased

@@ -9,5 +9,5 @@ arch="all"
 _pmb_recommends="plasma-camera plasma-angelfish"
 
 extras() {
-	_pmb_recommends="buho kaidan"
+	_pmb_recommends="buho kaidan test-app"
 }
