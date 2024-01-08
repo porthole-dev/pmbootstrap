@@ -1125,6 +1125,8 @@ newapkbuild_arguments_switches_pkgtypes = [
     ["-m", "meson", "create meson package (assume meson.build is there)"],
     ["-p", "perl", "create perl package (assume Makefile.PL is there)"],
     ["-y", "python", "create python package (assume setup.py is there)"],
+    ["-e", "python_gpep517", "create python package (assume pyproject.toml is there)"],
+    ["-r", "rust", "create rust package (assume Cargo.toml is there)"],
 ]
 newapkbuild_arguments_switches_other = [
     ["-s", "sourceforge", "use sourceforge source URL"],
