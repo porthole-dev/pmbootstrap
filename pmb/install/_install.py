@@ -1070,21 +1070,18 @@ def get_selected_providers(args, packages):
 
 def get_recommends(args, packages):
     """
-        Look through the specified packages and collect additional packages
-        specified under _pmb_recommends in them. This is recursive, so it will
-        dive into packages that are listed under recommends to collect any
-        packages they might also have listed under their own _pmb_recommends.
+    Look through the specified packages and collect additional packages
+    specified under _pmb_recommends in them. This is recursive, so it will dive
+    into packages that are listed under recommends to collect any packages they
+    might also have listed under their own _pmb_recommends.
 
-        If unable to find a given package in aports, it is skipped and no error
-        is raised. This is because the given package might be in a different
-        aports than the one searched by this function. This function makes no
-        attempt to validate that a given package is in *any* available aports
-        repos at installation time.
+    Recursion is only done into packages found in pmaports.
 
-        If running with pmbootstrap install --no-recommends, this function
-        returns an empty list.
+    If running with pmbootstrap install --no-recommends, this function returns
+    an empty list.
 
-        :returns: list of pkgnames, e.g. ["chatty", "gnome-contacts"] """
+    :returns: list of pkgnames, e.g. ["chatty", "gnome-contacts"]
+    """
     ret = []
     if not args.install_recommends:
         return ret
