@@ -40,3 +40,17 @@ if test -z "$ENVKERNEL_DISABLE_PROMPT"
         _old_fish_prompt
     end
 end
+
+# Deactivate
+function deactivate
+	if functions -q _old_fish_prompt
+		functions -e fish_prompt
+		functions -c _old_fish_prompt fish_prompt
+		functions -e _old_fish_prompt
+	end
+	functions -e make kernelroot pmbootstrap pmbroot
+	functions -e deactivate reactivate
+end
+
+# Reactivate
+alias reactivate "deactivate; pushd '$PWD'; . '$pmbootstrap_dir'/helpers/envkernel.fish; popd"
