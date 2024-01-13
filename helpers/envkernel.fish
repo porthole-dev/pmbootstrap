@@ -17,6 +17,7 @@ end
 # Fish compatibility code from envkernel.sh
 set script_dir (dirname (status filename))
 sh "$script_dir/envkernel.sh" $argv --fish 1>| read -z fishcode
+set pmbootstrap_dir (realpath "$script_dir/..")
 
 # Verbose output (enable with: 'set ENVKERNEL_FISH_VERBOSE 1')
 if [ "$ENVKERNEL_FISH_VERBOSE" = "1" ]
