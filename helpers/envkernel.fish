@@ -28,3 +28,15 @@ end
 
 # Execute generated code
 echo -e "$fishcode" | source -
+
+# Set prompt
+if test -z "$ENVKERNEL_DISABLE_PROMPT"
+    functions -c fish_prompt _old_fish_prompt
+
+    function fish_prompt
+        set -l old_status $status
+        printf "[envkernel] "
+        echo "exit $old_status" | .
+        _old_fish_prompt
+    end
+end
