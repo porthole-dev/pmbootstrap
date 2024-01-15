@@ -50,6 +50,14 @@ def run(args, action, flavor=None):
                            " in deviceinfo file. See also:"
                            " <https://wiki.postmarketos.org/wiki/"
                            "Deviceinfo_reference>")
+    
+    if args.no_reboot and ("flash" not in action or method != "heimdall-bootimg"):
+        raise RuntimeError("The '--no-reboot' option is only"
+                           " supported when flashing with heimall-bootimg.")
+    
+    if args.resume and ("flash" not in action or method != "heimdall-bootimg"):
+        raise RuntimeError("The '--resume' option is only"
+                           " supported when flashing with heimall-bootimg.")
 
     # Run the commands of each action
     for command in cfg["actions"][action]:
@@ -66,5 +74,7 @@ def run(args, action, flavor=None):
                     check_partition_blacklist(args, key, value)
                     command[i] = command[i].replace(key, value)
 
+        # Remove empty strings
+        command = [x for x in command if x != '']
         # Run the action
         pmb.chroot.root(args, command, output="interactive")

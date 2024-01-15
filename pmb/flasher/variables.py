@@ -61,6 +61,14 @@ def variables(args, flavor, method):
     _dtb = ""
     if args.deviceinfo["append_dtb"] == "true":
         _dtb = "-dtb"
+    
+    _no_reboot = ""
+    if args.no_reboot:
+        _no_reboot = "--no-reboot"
+
+    _resume = ""
+    if args.resume:
+        _resume = "--resume"
 
     vars = {
         "$BOOT": "/mnt/rootfs_" + args.device + "/boot",
@@ -80,7 +88,9 @@ def variables(args, flavor, method):
                          "/var/lib/postmarketos-android-recovery-installer"
                          "/pmos-" + args.device + ".zip",
         "$UUU_SCRIPT": "/mnt/rootfs_" + args.deviceinfo["codename"] +
-                       "/usr/share/uuu/flash_script.lst"
+                       "/usr/share/uuu/flash_script.lst",
+        "$NO_REBOOT": _no_reboot,
+        "$RESUME": _resume
     }
 
     # Backwards compatibility with old mkinitfs (pma#660)

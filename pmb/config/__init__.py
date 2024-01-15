@@ -998,20 +998,23 @@ flashers = {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"]],
+                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE",
+                 "$NO_REBOOT", "$RESUME"]],
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
                 ["heimdall", "flash", "--$PARTITION_KERNEL",
-                 "$BOOT/boot.img$FLAVOR"]],
+                 "$BOOT/boot.img$FLAVOR", "$NO_REBOOT", "$RESUME"]],
             "flash_vbmeta": [
                 ["avbtool", "make_vbmeta_image", "--flags", "2",
                     "--padding_size", "$FLASH_PAGESIZE",
                     "--output", "/vbmeta.img"],
-                ["heimdall", "flash", "--$PARTITION_VBMETA", "/vbmeta.img"],
+                ["heimdall", "flash", "--$PARTITION_VBMETA", "/vbmeta.img",
+                 "$NO_REBOOT", "$RESUME"],
                 ["rm", "-f", "/vbmeta.img"]],
             "flash_lk2nd": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/lk2nd.img"]]
+                ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/lk2nd.img",
+                 "$NO_REBOOT", "$RESUME"]]
         },
     },
     "adb": {

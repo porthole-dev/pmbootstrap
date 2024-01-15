@@ -289,6 +289,19 @@ def arguments_flasher(subparser):
                    " inside the device rootfs chroot on this computer")
     sub.add_parser("list_devices", help="show connected devices")
 
+    group = ret.add_argument_group("heimdall options", \
+                                   "With heimdall as"
+                                   " flash method, the device automatically"
+                                   " reboots after each flash command. Use"
+                                   " --no-reboot and --resume for multiple"
+                                   " flash actions without reboot.")
+    group.add_argument("--no-reboot", dest="no_reboot",
+                       help="don't automatically reboot after flashing",
+                       action="store_true")
+    group.add_argument("--resume", dest="resume",
+                       help="resume flashing after using --no-reboot",
+                       action="store_true")
+
     return ret
 
 
