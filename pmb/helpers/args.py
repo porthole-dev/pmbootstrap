@@ -116,7 +116,7 @@ def init(args):
 
     # Initialization code which may raise errors
     check_pmaports_path(args)
-    if args.action not in ["init", "config", "bootimg_analyze", "log",
+    if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config(args)
         add_deviceinfo(args)
