@@ -5,23 +5,8 @@ Sophisticated chroot/build/flash tool to develop and install
 
 ## Development
 
-pmbootstrap is being developed on SourceHut
-([what](https://postmarketos.org/blog/2022/07/25/considering-sourcehut/)):
-
-https://git.sr.ht/~postmarketos/pmbootstrap
-
-Send patches via mail or web UI to
-[pmbootstrap-devel](https://lists.sr.ht/~postmarketos/pmbootstrap-devel)
-([subscribe](mailto:~postmarketos/pmbootstrap-devel+subscribe@lists.sr.ht)):
-```
-~postmarketos/pmbootstrap-devel@lists.sr.ht
-```
-
-You can set the default values for sending email in the git checkout
-```
-$ git config sendemail.to "~postmarketos/pmbootstrap-devel@lists.sr.ht"
-$ git config format.subjectPrefix "PATCH pmbootstrap"
-```
+Find the location of the upstream repository for pmbootstrap on the
+[postmarketOS homepage](https://postmarketos.org/source-code/).
 
 Run CI scripts locally with:
 ```
