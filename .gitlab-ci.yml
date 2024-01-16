@@ -1,0 +1,39 @@
+image: alpine:edge
+
+before_script:
+  - ".ci/note.sh"
+  - "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories"
+  - "adduser -D build"
+
+stages:
+  - lint
+  - test
+
+codespell:
+  stage: lint
+  script:
+    - ".ci/codespell.sh"
+
+pytest:
+  stage: test
+  script:
+    - "apk -q add git"
+    - "su build -c 'git config --global user.email ci@ci'"
+    - "su build -c 'git config --global user.name CI'"
+    - "echo 'build ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+    - ".ci/pytest.sh"
+
+ruff:
+  stage: lint
+  script:
+    - ".ci/ruff.sh"
+
+shellcheck:
+  stage: lint
+  script:
+    - ".ci/shellcheck.sh"
+
+vermin:
+  stage: lint
+  script:
+    - ".ci/vermin.sh"
