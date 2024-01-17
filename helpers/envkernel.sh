@@ -40,37 +40,51 @@ clean_kernel_src_dir() {
 }
 
 
+export_envkernel_sh() {
+	# Get script location
+	# See also: <https://stackoverflow.com/a/29835459>
+	# shellcheck disable=SC3054
+	if [ -n "${BASH_SOURCE[0]}" ]; then
+		envkernel_sh="$(realpath "$BASH_SOURCE")"
+	else
+		envkernel_sh="$1"
+	fi
+	export envkernel_sh
+}
+
+
 export_pmbootstrap_dir() {
 	if [ -n "$pmbootstrap_dir" ]; then
 		return 0;
 	fi
 
-	# Get pmbootstrap dir based on this script's location
-	# See also: <https://stackoverflow.com/a/29835459>
-	# shellcheck disable=SC3054
-	if [ -n "${BASH_SOURCE[0]}" ]; then
-		script_dir="$(dirname "$(realpath "$BASH_SOURCE")")"
+	# Get pmbootstrap dir based on this script's location, if it's
+	# in a pmbootstrap source tree
+	pmbootstrap_dir="$(realpath "$(dirname "${envkernel_sh}")/..")"
+	if [ -e "$pmbootstrap_dir/pmbootstrap.py" ]; then
+		export pmbootstrap_dir
 	else
-		script_dir="$(dirname "$1")"
-	fi
-
-	# Fail with debug information
-	# shellcheck disable=SC2155
-	export pmbootstrap_dir="$(realpath "$script_dir/..")"
-	if ! [ -e "$pmbootstrap_dir/pmbootstrap.py" ]; then
-		echo "ERROR: Failed to get the script's location with your shell."
-		echo "Please adjust export_pmbootstrap_dir in envkernel.sh. Debug info:"
-		echo "\$1: $1"
-		echo "\$pmbootstrap_dir: $pmbootstrap_dir"
-		return 1
+		unset pmbootstrap_dir
 	fi
 }
 
 
 set_alias_pmbootstrap() {
-	pmbootstrap="$pmbootstrap_dir"/pmbootstrap.py
-	# shellcheck disable=SC2139
-	alias pmbootstrap="\"$pmbootstrap\""
+	if [ -n "$pmbootstrap_dir" ] \
+			&& [ -e "$pmbootstrap_dir/pmbootstrap.py" ]; then
+		pmbootstrap="$pmbootstrap_dir"/pmbootstrap.py
+		# shellcheck disable=SC2139
+		alias pmbootstrap="\"$pmbootstrap\""
+	elif [ -n "$(command -v pmbootstrap)" ]; then
+		pmbootstrap="$(command -v pmbootstrap)"
+	else
+		echo "ERROR: pmbootstrap not found!"
+		echo "If you're loading envkernel.sh from a pmbootstrap source tree,"
+		echo "please check export_pmbootstrap_dir in envkernel.sh. Otherwise "
+		echo "please make sure 'pmbootstrap' is on your PATH."
+		return 1
+	fi
+
 	if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}"/pmbootstrap.cfg ]; then
 		"$pmbootstrap" work_migrate
 	else
@@ -259,8 +273,10 @@ set_alias_make() {
 
 
 set_alias_pmbroot_kernelroot() {
-	# shellcheck disable=SC2139
-	alias pmbroot="cd '$pmbootstrap_dir'"
+	if [ -n "$pmbootstrap_dir" ]; then
+		# shellcheck disable=SC2139
+		alias pmbroot="cd '$pmbootstrap_dir'"
+	fi
 	# shellcheck disable=SC2139
 	alias kernelroot="cd '$PWD'"
 }
@@ -292,8 +308,12 @@ update_prompt() {
 set_deactivate() {
 	cmd="_deactivate() {"
 	cmd="$cmd unset POSTMARKETOS_ENVKERNEL_ENABLED;"
-	cmd="$cmd unalias make kernelroot pmbootstrap pmbroot run-script;"
+	if [ -n "$pmbootstrap_dir" ]; then
+		cmd="$cmd unalias pmbootstrap pmbroot;"
+	fi
+	cmd="$cmd unalias make kernelroot run-script;"
 	cmd="$cmd unalias deactivate reactivate;"
+	cmd="$cmd unset pmbootstrap pmbootstrap_dir;"
 	cmd="$cmd if [ -n \"\$_OLD_PS1\" ]; then"
 	cmd="$cmd   export PS1=\"\$_OLD_PS1\";"
 	cmd="$cmd   unset _OLD_PS1;"
@@ -310,7 +330,7 @@ set_deactivate() {
 
 set_reactivate() {
 	# shellcheck disable=SC2139
-	alias reactivate="deactivate; pushd '$PWD'; . '$pmbootstrap_dir'/helpers/envkernel.sh; popd"
+	alias reactivate="deactivate; pushd '$PWD'; . '$envkernel_sh'; popd"
 }
 
 check_and_deactivate() {
@@ -375,7 +395,8 @@ main() {
 	if check_and_deactivate \
 		&& check_kernel_folder \
 		&& clean_kernel_src_dir \
-		&& export_pmbootstrap_dir "$1" \
+		&& export_envkernel_sh "$1" \
+		&& export_pmbootstrap_dir \
 		&& set_alias_pmbootstrap \
 		&& export_chroot_device_deviceinfo \
 		&& check_device \
@@ -397,8 +418,13 @@ main() {
 		echo " * output folder:  $PWD/.output"
 		echo " * architecture:   $arch ($device is $deviceinfo_arch)"
 		echo " * cross compile:  $(cross_compiler_version)"
-		echo " * aliases: make, kernelroot, pmbootstrap, pmbroot," \
-			"run-script (see 'type make' etc.)"
+		if [ -n "$pmbootstrap_dir" ]; then
+			echo " * aliases: make, kernelroot, pmbootstrap, pmbroot," \
+				"run-script (see 'type make' etc.)"
+		else
+			echo " * aliases: make, kernelroot, run-script"\
+				"(see 'type make' etc.)"
+		fi
 		echo " * run 'deactivate' to revert all env changes"
 	else
 		# Failure
