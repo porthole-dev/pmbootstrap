@@ -72,4 +72,5 @@ setup(
         ],
     },
     include_package_data=True,
+    data_files=[('share/pmbootstrap/helpers/', ['helpers/envkernel.sh'])],
 )
