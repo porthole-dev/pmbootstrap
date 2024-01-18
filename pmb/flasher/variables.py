@@ -63,11 +63,11 @@ def variables(args, flavor, method):
         _dtb = "-dtb"
     
     _no_reboot = ""
-    if args.no_reboot:
+    if hasattr(args,'no_reboot') and args.no_reboot:
         _no_reboot = "--no-reboot"
 
     _resume = ""
-    if args.resume:
+    if hasattr(args,'resume') and args.resume:
         _resume = "--resume"
 
     vars = {
