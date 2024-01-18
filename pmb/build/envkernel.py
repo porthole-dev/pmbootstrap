@@ -61,6 +61,11 @@ def find_kbuild_output_dir(function_body):
     guesses = []
     for line in function_body:
         for item in line.split():
+            # Guess that any APKBUILD using downstreamkernel_package
+            # uses the default kbuild out directory.
+            if item == "downstreamkernel_package":
+                guesses.append("")
+                break
             kbuild_out = match_kbuild_out(item)
             if kbuild_out is not None:
                 guesses.append(kbuild_out)
