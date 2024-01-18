@@ -153,10 +153,8 @@ def create_home_from_skel(args):
     Create /home/{user} from /etc/skel
     """
     rootfs = args.work + "/chroot_native/mnt/install"
-    if args.filesystem == "btrfs":
-        pmb.helpers.run.root(args,
-        ["btrfs", "subvol", "create", rootfs + "/home"])
-    else:
+    # In btrfs, home subvol & home dir is created in format.py
+    if args.filesystem != "btrfs":
         pmb.helpers.run.root(args, ["mkdir", rootfs + "/home"])
     homedir = rootfs + "/home/" + args.user
     if os.path.exists(f"{rootfs}/etc/skel"):
@@ -779,9 +777,12 @@ def create_fstab(args, layout, suffix):
         # btrfs gets separate subvolumes for root, var and home
         fstab = f"""
 # <file system> <mount point> <type> <options> <dump> <pass>
-{root_mount_point} / {root_filesystem} subvol=root,compress=zstd:2,ssd 0 0
-{root_mount_point} /home {root_filesystem} subvol=home,compress=zstd:2,ssd 0 0
-{root_mount_point} /var {root_filesystem} subvol=var,compress=zstd:2,ssd 0 0
+{root_mount_point} / btrfs subvol=@,compress=zstd:2,ssd 0 0
+{root_mount_point} /home btrfs subvol=@home,compress=zstd:2,ssd 0 0
+{root_mount_point} /root btrfs subvol=@root,compress=zstd:2,ssd 0 0
+{root_mount_point} /srv btrfs subvol=@srv,compress=zstd:2,ssd 0 0
+{root_mount_point} /var btrfs subvol=@var,ssd 0 0
+{root_mount_point} /.snapshots btrfs subvol=@snapshots,compress=zstd:2,ssd 0 0
 
 {boot_mount_point} /boot {boot_filesystem} defaults 0 0
 """.lstrip()

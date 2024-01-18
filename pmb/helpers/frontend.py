@@ -241,6 +241,10 @@ def install(args):
     if args.rsync and not args.disk:
         raise ValueError("Installation using rsync only works with --disk.")
 
+    if args.rsync and args.filesystem == "btrfs":
+        raise ValueError("Installation using rsync"
+                        " is not currently supported on btrfs filesystem.")
+
     # On-device installer checks
     # Note that this can't be in the mutually exclusive group that has most of
     # the conflicting options, because then it would not work with --disk.

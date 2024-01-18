@@ -86,6 +86,71 @@ def get_root_filesystem(args):
     return ret
 
 
+def prepare_btrfs_subvolumes(args, device, mountpoint):
+    """
+    Create separate subvolumes if root filesystem is btrfs.
+    This lets us do snapshots and rollbacks of relevant parts
+    of the filesystem.
+    /var contains logs, VMs, containers, flatpaks; and shouldn't roll back,
+    /root is root's home directory and shouldn't roll back,
+    /tmp has temporary files, snapshotting them is unnecessary,
+    /srv contains data for web and FTP servers, and shouldn't roll back,
+    /snapshots should be a separate subvol so that changing the root subvol
+    doesn't affect snapshots
+    """
+    pmb.chroot.root(args,
+                    ["btrfs", "subvol", "create",
+                        f"{mountpoint}/@",
+                        f"{mountpoint}/@home",
+                        f"{mountpoint}/@root",
+                        f"{mountpoint}/@snapshots",
+                        f"{mountpoint}/@srv",
+                        f"{mountpoint}/@tmp",
+                        f"{mountpoint}/@var"])
+
+    # Set the default root subvolume to be separate from top level btrfs
+    # subvol. This lets us easily swap out current root subvol with an
+    # earlier snapshot.
+    pmb.chroot.root(args,
+        ["btrfs", "subvol", "set-default",  f"{mountpoint}/@"])
+
+    # Make directories to mount subvols onto
+    pmb.chroot.root(args, ["umount", mountpoint])
+    pmb.chroot.root(args, ["mount", device, mountpoint])
+    pmb.chroot.root(args, ["mkdir",
+                            f"{mountpoint}/home",
+                            f"{mountpoint}/root",
+                            f"{mountpoint}/.snapshots",
+                            f"{mountpoint}/srv",
+                            f"{mountpoint}/var"])
+
+    # snapshots contain sensitive information,
+    # and should only be readable by root.
+    pmb.chroot.root(args, ["chmod", "700", f"{mountpoint}/root"])
+    pmb.chroot.root(args, ["chmod", "700", f"{mountpoint}/.snapshots"])
+
+    # Mount subvols
+    pmb.chroot.root(args,
+                    ["mount", "-o", "subvol=@var",
+                        device, f"{mountpoint}/var"])
+    pmb.chroot.root(args,
+                    ["mount", "-o", "subvol=@home",
+                        device, f"{mountpoint}/home"])
+    pmb.chroot.root(args,
+                    ["mount", "-o", "subvol=@root",
+                        device, f"{mountpoint}/root"])
+    pmb.chroot.root(args,
+                    ["mount", "-o", "subvol=@srv",
+                        device, f"{mountpoint}/srv"])
+    pmb.chroot.root(args,
+                    ["mount", "-o", "subvol=@snapshots",
+                        device, f"{mountpoint}/.snapshots"])
+
+    # Disable CoW for /var, to avoid write multiplication
+    # and slowdown on databases, containers and VM images.
+    pmb.chroot.root(args, ["chattr", "+C", f"{mountpoint}/var"])
+
+
 def format_and_mount_root(args, device, root_label, disk):
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
@@ -124,12 +189,9 @@ def format_and_mount_root(args, device, root_label, disk):
     pmb.chroot.root(args, ["mkdir", "-p", mountpoint])
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
-    # Create separate subvolumes if root filesystem is btrfs
     if filesystem == "btrfs":
-        pmb.chroot.root(args,
-            ["btrfs", "subvol", "create", mountpoint + "/root"])
-        pmb.chroot.root(args,
-            ["btrfs", "subvol", "create", mountpoint + "/var"])
+        # Make flat btrfs subvolume layout
+        prepare_btrfs_subvolumes(args, device, mountpoint)
 
 
 def format(args, layout, boot_label, root_label, disk):
