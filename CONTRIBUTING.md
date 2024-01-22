@@ -1,26 +1,26 @@
-## Reporting issues
-* Consider joining the [chat](https://wiki.postmarketos.org/wiki/Matrix_and_IRC) for instant help.
-* Maybe your question is answered in the [wiki](https://wiki.postmarketos.org/) somewhere. [Search](https://wiki.postmarketos.org/index.php?search=&title=Special%3ASearch&go=Go) first!
-* Otherwise, just ask what you want to know. We're happy if we can help you and glad that you're using `pmbootstrap`!
+## Contributing
+pmbootstrap development is being discussed in
+[#postmarketOS-devel](https://wiki.postmarketos.org/wiki/Matrix_and_IRC).
 
-## Development
+### CI scripts
+Use `pmbootstrap ci` inside your `pmbootstrap.git` dir, to run all CI scripts
+locally.
 
-See pmbootstrap's [Development Guide](https://wiki.postmarketos.org/wiki/Development_guide).
+### Coding style
+A lot of the coding style is enforced by the CI scripts.
 
-### Contributing code changes
-* [Fork](https://docs.gitlab.com/ee/gitlab-basics/fork-project.html) this repository, commit your changes and then make a [Merge Request](https://docs.gitlab.com/ee/workflow/merge_requests.html).
-* Please test your code before submitting a Merge Request.
+#### Python
+* Use [PEP8](https://www.python.org/dev/peps/pep-0008/).
+* Max line length: 80-100 characters (use 80 for comments and most code lines
+  except when 100 makes much more sense; try to keep it consistent with
+  existing code).
+* Use [f-strings](https://peps.python.org/pep-0498/) for any new or modified
+  code, instead of any of the other string formatting methods.
+* pmbootstrap should run on any Linux distribution, so we support all active
+  Python versions (see [here](https://www.python.org/downloads/)).
+* Docstrings below functions are formatted in `reST` style:
 
-### Shell scripting
-* We don't write scripts for `bash`, but for `busybox`'s `ash` shell, which is POSIX compliant (plus very few features from `bash`).
-* Use `shellcheck` to test your changes for issues before submitting. There is even an [online](https://www.shellcheck.net) version.
-* We're looking into automatizing this more, some files already get checked automatically by the [static code analysis script](test/static_code_analysis.sh).
-
-### Python
-* We use the [PEP8](https://www.python.org/dev/peps/pep-0008/) standard for Python code. Don't worry, you don't need to read all that, just run the `autopep8` program on your changed code, and confirm with the [static code analysis script](test/static_code_analysis.sh) that everything is PEP8 compliant. *This script will run automatically on Travis CI when you make a Merge Request, and it must pass for your code to get accepted.*
-* We use the `reST` style for `docstrings` below functions (to comment what individual functions are doing, you'll see those when browsing through the code). Please stick to this format, and try to describe the important parameters and return values at least. Example from [here](https://stackoverflow.com/a/24385103):
-
-```Python
+```python
 """
 This is a reST style.
 
@@ -31,7 +31,123 @@ This is a reST style.
 """
 ```
 
-* If it is feasible for you, try to run the testsuite on code that you have changed. The `test/test_build.py` case will build full cross-compilers for `aarch64` and `armhf`, so it may take a long time. Testcases can be started with `pytest` and it's planned to run that automatically when making a new Merge Request (see #64).
+#### Shell scripts
+* Must be POSIX compliant, so busybox ash can interpret them. (Exception: the
+  `local` keyword can also be used, to give variables a local scope inside
+  functions).
 
+### Code patterns
 
-**If you need any help, don't hesitate to open an [issue](https://gitlab.com/postmarketOS/pmbootstrap/issues) and ask!**
+#### The `args` variable
+This contains the arguments passed to pmbootstrap, and some additional data.
+See `pmb/helpers/args.py` for details. This is a legacy construct, see
+[#1879](https://gitlab.com/postmarketOS/pmbootstrap/-/issues/1879).
+
+#### Executing commands
+Use one of the following functions instead of Python's built-in `subprocess`:
+
+* `pmb.helpers.run.user()`
+* `pmb.helpers.run.root()`
+* `pmb.chroot.user()`
+* `pmb.chroot.root()`
+
+These functions call `pmb.helpers.run_core.core()` internally to write to the
+log file (that you can read with `pmbootstrap log`) and timeout when there is
+no output. A lot of function parameters are passed through to `core()` as well,
+see its docstring for a detailed description of what these parameters do.
+
+##### Using shell syntax
+The passed commands do not run inside a shell. If you need to use shell syntax,
+wrap your command with `sh -c` and use `shutil.quote` on the parameters (if
+they contain untrusted input):
+
+```py
+# Does not work, the command does not run in a shell!
+pmb.chroot.root(args, ["echo", "test", ">", "/tmp/test"])
+
+# Use this instead (assuming untrusted input for text, dest)
+text = "test"
+dest = "/tmp/test"
+shell_cmd = f"echo {shutil.quote(text)} > {shutil.quote(dest)}"
+pmb.chroot.root(args, ["sh", "-c", shell_cmd])
+```
+
+If you need to run many commands in a shell at once, write them into a
+temporary shell script and execute that with one of the `pmb` command
+functions.
+
+#### Writing files to the chroot
+The users in the chroots (`root` and `pmos`) have different user IDs than the
+user of the host system. Therefore we can't just write a file to anywhere in
+the chroot. Use one of the following methods.
+
+##### Short files
+```py
+pmb.chroot.user(args, ["sh", "-c", f"echo {shlex.quote(hostname)}"
+                       " > /etc/hostname"], suffix)
+```
+
+##### Long files
+Write to a temp dir first with python code, then move and chown the file.
+
+```py
+with open("tmp/somefile", "w") as handle:
+    handle.write("Some long file")
+    handle.write("with multiple")
+    handle.write("lines here")
+pmb.chroot.root(args, ["mv", "/tmp/somefile", "/etc/somefile"])
+pmb.chroot.root(args, ["chown", "root:root", "/etc/somefile"], suffix)
+```
+
+### Manual testing
+
+#### APKBUILD parser
+Besides the python tests, it's a good idea to let the APKBUILD parsing code run
+over all APKBUILDs that we have in pmaports.git, before and after making
+changes. This makes it easy to spot regressions.
+
+```
+$ pmbootstrap apkbuild_parse > /tmp/new
+$ git checkout master
+$ pmbootstrap apkbuild_parse > /tmp/old
+$ colordiff /tmp/old /tmp/new | less -R
+```
+
+### Debugging
+
+#### Tab completion
+When tab completion breaks, commands-line `pmbootstrap build <TAB>` will simply
+not return the expected list of packages anymore. Exceptions are not printed.
+To change this behavior and get the exceptions, adjust the
+`eval "$(register-python-argcomplete pmbootstrap)"` line in your shell's rc
+file.
+
+```
+$ register-python-argcomplete3 pmbootstrap
+
+_python_argcomplete() {
+    local IFS=$'\013'
+    local SUPPRESS_SPACE=0
+    if compopt +o nospace 2> /dev/null; then
+        SUPPRESS_SPACE=1
+    fi
+    COMPREPLY=( $(IFS="$IFS" \
+                  COMP_LINE="$COMP_LINE" \
+                  COMP_POINT="$COMP_POINT" \
+                  COMP_TYPE="$COMP_TYPE" \
+                  _ARGCOMPLETE_COMP_WORDBREAKS="$COMP_WORDBREAKS" \
+                  _ARGCOMPLETE=1 \
+                  _ARGCOMPLETE_SUPPRESS_SPACE=$SUPPRESS_SPACE \
+                  "$1" 8>&1 9>&2 1>/dev/null 2>/dev/null) )
+    if [[ $? != 0 ]]; then
+        unset COMPREPLY
+    elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "$COMPREPLY" =~ [=/:]$ ]]; then
+        compopt -o nospace
+    fi
+}
+complete -o nospace -o default -F _python_argcomplete "pmbootstrap"
+```
+
+Copy the whole output of the command to your shell's rc file instead of the
+eval line, but remove `1>/dev/null 2>/dev/null`. Then it will print exceptions
+to the shell.
