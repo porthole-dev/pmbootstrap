@@ -280,6 +280,28 @@ def sudo_timer_start():
     sudo_timer_iterate()
 
 
+def add_proxy_env_vars(env):
+    """
+    Add proxy environment variables present on the host to the environment of
+    the command we are running.
+    :param env: dict of environment variables, it will be extended with all of
+                the proxy env vars that are set on the host
+    """
+    proxy_env_vars = [
+        "FTP_PROXY",
+        "HTTPS_PROXY",
+        "HTTP_PROXY",
+        "HTTP_PROXY_AUTH"
+        "ftp_proxy",
+        "http_proxy",
+        "https_proxy",
+    ]
+
+    for var in proxy_env_vars:
+        if var in os.environ:
+            env[var] = os.environ[var]
+
+
 def core(args, log_message, cmd, working_dir=None, output="log",
          output_return=False, check=None, sudo=False, disable_timeout=False):
     """
@@ -339,15 +361,6 @@ def core(args, log_message, cmd, working_dir=None, output="log",
               * the program's entire output (output_return is True)
     """
     sanity_checks(output, output_return, check)
-
-    # Preserve proxy environment variables
-    env = {}
-    for var in ["FTP_PROXY", "ftp_proxy", "HTTP_PROXY", "http_proxy",
-                "HTTPS_PROXY", "https_proxy", "HTTP_PROXY_AUTH"]:
-        if var in os.environ:
-            env[var] = os.environ[var]
-    if env:
-        cmd = ["sh", "-c", flat_cmd(cmd, env=env)]
 
     if args.sudo_timer and sudo:
         sudo_timer_start()

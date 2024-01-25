@@ -19,13 +19,17 @@ def user(args, cmd, suffix="native", working_dir="/", output="log",
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
+    env = env.copy()
+    pmb.helpers.run_core.add_proxy_env_vars(env)
+
     if "HOME" not in env:
         env["HOME"] = "/home/pmos"
 
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
     return pmb.chroot.root(args, cmd, suffix, working_dir, output,
-                           output_return, check, {}, auto_init)
+                           output_return, check, {}, auto_init,
+                           add_proxy_env_vars=False)
 
 
 def exists(args, username, suffix="native"):

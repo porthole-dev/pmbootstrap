@@ -23,6 +23,8 @@ def user(args, cmd, working_dir=None, output="log", output_return=False,
     msg += " ".join(cmd)
 
     # Add environment variables and run
+    env = env.copy()
+    pmb.helpers.run_core.add_proxy_env_vars(env)
     if env:
         cmd = ["sh", "-c", pmb.helpers.run_core.flat_cmd(cmd, env=env)]
     return pmb.helpers.run_core.core(args, msg, cmd, working_dir, output,
@@ -40,6 +42,9 @@ def root(args, cmd, working_dir=None, output="log", output_return=False,
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
+    env = env.copy()
+    pmb.helpers.run_core.add_proxy_env_vars(env)
+
     if env:
         cmd = ["sh", "-c", pmb.helpers.run_core.flat_cmd(cmd, env=env)]
     cmd = pmb.config.sudo(cmd)

@@ -27,13 +27,17 @@ def executables_absolute_path():
 
 def root(args, cmd, suffix="native", working_dir="/", output="log",
          output_return=False, check=None, env={}, auto_init=True,
-         disable_timeout=False):
+         disable_timeout=False, add_proxy_env_vars=True):
     """
     Run a command inside a chroot as root.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
     :param auto_init: automatically initialize the chroot
+    :param add_proxy_env_vars: if True, preserve HTTP_PROXY etc. vars from host
+                               environment. pmb.chroot.user sets this to False
+                               when calling pmb.chroot.root, because it already
+                               makes the variables part of the cmd argument.
 
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
@@ -64,6 +68,8 @@ def root(args, cmd, suffix="native", working_dir="/", output="log",
                "TERM": "xterm"}
     for key, value in env.items():
         env_all[key] = value
+    if add_proxy_env_vars:
+        pmb.helpers.run_core.add_proxy_env_vars(env_all)
 
     # Build the command in steps and run it, e.g.:
     # cmd: ["echo", "test"]
