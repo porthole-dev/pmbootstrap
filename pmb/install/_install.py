@@ -1113,6 +1113,11 @@ def get_recommends(args, packages):
         if package in apkbuild["subpackages"]:
             # Just focus on the subpackage
             apkbuild = apkbuild["subpackages"][package]
+            # The subpackage is None if the subpackage does not have a function
+            # in the APKBUILD (uses the default function), e.g. for most openrc
+            # subpackages. See pmb.parse._apkbuild._parse_subpackage().
+            if not apkbuild:
+                continue
         recommends = apkbuild["_pmb_recommends"]
         if recommends:
             logging.debug(f"{package}: install _pmb_recommends:"
