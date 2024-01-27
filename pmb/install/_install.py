@@ -1126,6 +1126,10 @@ def get_recommends(args, packages):
             # Call recursively in case recommends have pmb_recommends of their
             # own.
             ret += get_recommends(args, recommends)
+        # Also iterate through dependencies to collect any recommends they have
+        depends = apkbuild["depends"]
+        if depends:
+            ret += get_recommends(args, depends)
 
     return ret
 
