@@ -667,7 +667,7 @@ def sanity_check_disk_size(args):
     human = "{:.2f} GiB".format(size / 2 / 1024 / 1024)
 
     # Warn if the size is larger than 100GiB
-    if size > (100 * 2 * 1024 * 1024):
+    if not args.assume_yes and size > (100 * 2 * 1024 * 1024):
         if not pmb.helpers.cli.confirm(args,
                                        f"WARNING: The target disk ({devpath}) "
                                        "is larger than a usual SD card "
