@@ -553,6 +553,11 @@ kconfig_options_containers = {
             "MACVLAN": True,  # Network Drivers
         }
     },
+    ">=3.13": {
+        "all": { # needed for iptables-nft (used by docker,tailscale)
+            "NFT_COMPAT": True,
+        }
+    },
     ">=3.14": {
         "all": {  # all arches
             "CGROUP_NET_PRIO": True,  # Optional section
