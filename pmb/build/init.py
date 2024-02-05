@@ -58,6 +58,32 @@ def init(args, suffix="native"):
             key = key[len(chroot):]
             pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], suffix)
 
+    apk_arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+
+    # Add apk wrapper that runs native apk and lies about arch
+    if not os.path.exists(chroot + "/usr/local/bin/abuild-apk"):
+        with open(chroot + "/tmp/apk_wrapper.sh", "w") as handle:
+            content = f"""
+                #!/bin/sh
+                export LD_PRELOAD_PATH=/native/usr/lib:/native/lib
+                args=""
+                for arg in "$@"; do
+                    if [ "$arg" == "--print-arch" ]; then
+                        echo "{apk_arch}"
+                        exit 0
+                    fi
+                    args="$args $arg"
+                done
+                /native/usr/bin/abuild-apk $args
+            """
+            lines = content.split("\n")[1:]
+            for i in range(len(lines)):
+                lines[i] = lines[i][16:]
+            handle.write("\n".join(lines))
+        pmb.chroot.root(args, ["cp", "/tmp/apk_wrapper.sh",
+                               "/usr/local/bin/abuild-apk"], suffix)
+        pmb.chroot.root(args, ["chmod", "+x", "/usr/local/bin/abuild-apk"], suffix)
+
     # abuild.conf: Don't clean the build folder after building, so we can
     # inspect it afterwards for debugging
     pmb.chroot.root(args, ["sed", "-i", "-e", "s/^CLEANUP=.*/CLEANUP=''/",
@@ -73,7 +99,7 @@ def init(args, suffix="native"):
 
 
 def init_compiler(args, depends, cross, arch):
-    cross_pkgs = ["ccache-cross-symlinks"]
+    cross_pkgs = ["ccache-cross-symlinks", "abuild"]
     if "gcc4" in depends:
         cross_pkgs += ["gcc4-" + arch]
     elif "gcc6" in depends:
