@@ -58,29 +58,6 @@ def init(args, suffix="native"):
             key = key[len(chroot):]
             pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], suffix)
 
-    # Add gzip wrapper that converts '-9' to '-1'
-    if not os.path.exists(chroot + "/usr/local/bin/gzip"):
-        with open(chroot + "/tmp/gzip_wrapper.sh", "w") as handle:
-            content = """
-                #!/bin/sh
-                # Simple wrapper that converts -9 flag for gzip to -1 for
-                # speed improvement with abuild. FIXME: upstream to abuild
-                # with a flag!
-                args=""
-                for arg in "$@"; do
-                    [ "$arg" == "-9" ] && arg="-1"
-                    args="$args $arg"
-                done
-                /bin/gzip $args
-            """
-            lines = content.split("\n")[1:]
-            for i in range(len(lines)):
-                lines[i] = lines[i][16:]
-            handle.write("\n".join(lines))
-        pmb.chroot.root(args, ["cp", "/tmp/gzip_wrapper.sh",
-                               "/usr/local/bin/gzip"], suffix)
-        pmb.chroot.root(args, ["chmod", "+x", "/usr/local/bin/gzip"], suffix)
-
     # abuild.conf: Don't clean the build folder after building, so we can
     # inspect it afterwards for debugging
     pmb.chroot.root(args, ["sed", "-i", "-e", "s/^CLEANUP=.*/CLEANUP=''/",

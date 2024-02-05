@@ -106,6 +106,7 @@ def mount_native_into_foreign(args, suffix):
     if not os.path.lexists(musl_link):
         pmb.helpers.run.root(args, ["ln", "-s", "/native/lib/" + musl,
                                     musl_link])
+        pmb.helpers.run.root(args, ["ln", "-sf", "/native/bin/busybox", "/usr/local/bin/gzip"])
 
 def remove_mnt_pmbootstrap(args, suffix):
     """ Safely remove /mnt/pmbootstrap directories from the chroot, without
