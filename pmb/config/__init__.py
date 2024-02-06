@@ -655,10 +655,20 @@ kconfig_options_usb_gadgets = {
 kconfig_options_community = {
     ">=0.0.0": {  # all versions
         "all": {  # all arches
+            "BINFMT_MISC": True,  # register binary formats
+            "CIFS": True,  # mount SMB shares
             "INPUT_UINPUT": True,  # buffyboard
+            "LEDS_TRIGGER_PATTERN": True,  # feedbackd
             "LEDS_TRIGGER_TIMER": True,  # hfd-service
+            "NETFILTER_XT_MATCH_STATISTIC": True,  # kube-proxy
             "NETFILTER_XT_MATCH_TCPMSS": True,  # change MTU, e.g. for Wireguard
             "NETFILTER_XT_TARGET_TCPMSS": True,  # change MTU, e.g. for Wireguard
+            # TODO: Depends on SUSPEND which is not enabled for some devices
+            # "PM_WAKELOCKS": True,  # Sxmo
+            "SND_USB_AUDIO": True,  # USB audio devices
+            "UCLAMP_TASK": True,  # Scheduler hints
+            "UCLAMP_TASK_GROUP": True,  # Scheduler hints
+            "UHID": True,  # e.g. Bluetooth input devices
         },
     },
 }
