@@ -10,6 +10,7 @@ import pmb.config
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.helpers.run
+import pmb.parse.arch
 
 
 def init_abuild_minimal(args, suffix="native"):
@@ -61,7 +62,8 @@ def init(args, suffix="native"):
     apk_arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
 
     # Add apk wrapper that runs native apk and lies about arch
-    if suffix.startswith("buildroot_") and not os.path.exists(chroot + "/usr/local/bin/abuild-apk"):
+    if pmb.parse.arch.cpu_emulation_required(apk_arch) and \
+            not os.path.exists(chroot + "/usr/local/bin/abuild-apk"):
         with open(chroot + "/tmp/apk_wrapper.sh", "w") as handle:
             content = f"""
                 #!/bin/sh
