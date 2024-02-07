@@ -15,9 +15,13 @@ for arg in $argv
 end
 
 # Fish compatibility code from envkernel.sh
-set script_dir (dirname (status filename))
+set envkernel_fish (status filename)
+set script_dir (dirname "$envkernel_fish")
 sh "$script_dir/envkernel.sh" $argv --fish 1>| read -z fishcode
 set pmbootstrap_dir (realpath "$script_dir/..")
+if not test -e "$pmbootstrap_dir/pmbootstrap.py"
+	set -e pmbootstrap_dir
+end
 
 # Verbose output (enable with: 'set ENVKERNEL_FISH_VERBOSE 1')
 if [ "$ENVKERNEL_FISH_VERBOSE" = "1" ]
@@ -50,7 +54,8 @@ function deactivate
 	end
 	functions -e make kernelroot pmbootstrap pmbroot
 	functions -e deactivate reactivate
+	set -e envkernel_fish script_dir pmbootstrap_dir
 end
 
 # Reactivate
-alias reactivate "deactivate; pushd '$PWD'; . '$pmbootstrap_dir'/helpers/envkernel.fish; popd"
+alias reactivate "deactivate; pushd '$PWD'; . '$envkernel_fish'; popd"
