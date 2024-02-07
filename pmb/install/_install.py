@@ -20,6 +20,10 @@ import pmb.install.recovery
 import pmb.install.ui
 import pmb.install
 
+# Keep track of the packages we already visited in get_recommends() to avoid
+# infinite recursion
+get_recommends_visited = []
+
 
 def mount_device_rootfs(args, suffix_rootfs, suffix_mount="native"):
     """
@@ -1085,7 +1089,7 @@ def get_selected_providers(args, packages):
     return providers
 
 
-def get_recommends(args, packages):
+def get_recommends(args, packages, initial=True):
     """
     Look through the specified packages and collect additional packages
     specified under _pmb_recommends in them. This is recursive, so it will dive
@@ -1097,13 +1101,25 @@ def get_recommends(args, packages):
     If running with pmbootstrap install --no-recommends, this function returns
     an empty list.
 
+    :param packages: list of packages of which we want to get the recommends
+    :param initial: used internally when the function calls itself
     :returns: list of pkgnames, e.g. ["chatty", "gnome-contacts"]
     """
+    global get_recommends_visited
+
     ret = []
     if not args.install_recommends:
         return ret
 
+    if initial:
+        get_recommends_visited = []
+
     for package in packages:
+        if package in get_recommends_visited:
+            logging.debug(f"get_recommends: {package}: already visited")
+            continue
+        get_recommends_visited += [package]
+
         # Note that this ignores packages that don't exist. This means they
         # aren't in pmaports. This is fine, with the assumption that
         # installation will fail later in some other method if they truly don't
@@ -1126,11 +1142,11 @@ def get_recommends(args, packages):
             ret += recommends
             # Call recursively in case recommends have pmb_recommends of their
             # own.
-            ret += get_recommends(args, recommends)
+            ret += get_recommends(args, recommends, False)
         # Also iterate through dependencies to collect any recommends they have
         depends = apkbuild["depends"]
         if depends:
-            ret += get_recommends(args, depends)
+            ret += get_recommends(args, depends, False)
 
     return ret
 
