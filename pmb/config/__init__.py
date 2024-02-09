@@ -806,8 +806,6 @@ deviceinfo_attributes = [
     "chassis",
     "keyboard",
     "external_storage",
-    "screen_width",
-    "screen_height",
     "dev_touchscreen",
     "dev_touchscreen_calibration",
     "append_dtb",
