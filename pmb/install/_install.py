@@ -62,8 +62,8 @@ def get_subpartitions_size(args, suffix):
 
 def get_nonfree_packages(args, device):
     """
-    Get the non-free packages based on user's choice in "pmbootstrap init" and
-    based on whether there are non-free packages in the APKBUILD or not.
+    Get any legacy non-free subpackages in the APKBUILD.
+    Also see: https://postmarketos.org/edge/2024/02/15/default-nonfree-fw/
 
     :returns: list of non-free packages to be installed. Example:
               ["device-nokia-n900-nonfree-firmware"]
@@ -76,9 +76,9 @@ def get_nonfree_packages(args, device):
     # Check for firmware and userland
     ret = []
     prefix = "device-" + device + "-nonfree-"
-    if args.nonfree_firmware and prefix + "firmware" in subpackages:
+    if prefix + "firmware" in subpackages:
         ret += [prefix + "firmware"]
-    if args.nonfree_userland and prefix + "userland" in subpackages:
+    if prefix + "userland" in subpackages:
         ret += [prefix + "userland"]
     return ret
 

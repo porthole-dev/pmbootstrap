@@ -89,8 +89,6 @@ config_keys = [
     "locale",
     "mirror_alpine",
     "mirrors_postmarketos",
-    "nonfree_firmware",
-    "nonfree_userland",
     "qemu_redir_stdio",
     "ssh_key_glob",
     "ssh_keys",
@@ -126,8 +124,6 @@ defaults = {
     # NOTE: mirrors_postmarketos variable type is supposed to be
     #       comma-separated string, not a python list or any other type!
     "mirrors_postmarketos": "http://mirror.postmarketos.org/postmarketos/",
-    "nonfree_firmware": True,
-    "nonfree_userland": False,
     "qemu_redir_stdio": False,
     "ssh_key_glob": "~/.ssh/id_*.pub",
     "ssh_keys": False,

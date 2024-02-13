@@ -108,8 +108,6 @@ def test_questions_device(args, monkeypatch):
     # Prepare args
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     args.device = "lg-mako"
-    args.nonfree_firmware = True
-    args.nonfree_userland = False
     args.kernel = "downstream"
 
     # Do not generate aports
@@ -119,26 +117,25 @@ def test_questions_device(args, monkeypatch):
 
     # Existing device (without non-free components so we have defaults there)
     func = pmb.config.init.ask_for_device
-    nonfree = {"firmware": True, "userland": False}
     fake_answers(monkeypatch, ["lg", "mako"])
     kernel = args.kernel
-    assert func(args) == ("lg-mako", True, kernel, nonfree)
+    assert func(args) == ("lg-mako", True, kernel)
 
     # Non-existing vendor, go back, existing vendor+device
     fake_answers(monkeypatch, ["whoops", "n", "lg", "mako"])
-    assert func(args) == ("lg-mako", True, kernel, nonfree)
+    assert func(args) == ("lg-mako", True, kernel)
 
     # Existing vendor, new device, go back, existing vendor+device
     fake_answers(monkeypatch, ["lg", "nonexistent", "n", "lg", "mako"])
-    assert func(args) == ("lg-mako", True, kernel, nonfree)
+    assert func(args) == ("lg-mako", True, kernel)
 
     # New vendor and new device (new port)
     fake_answers(monkeypatch, ["new", "y", "device", "y"])
-    assert func(args) == ("new-device", False, kernel, nonfree)
+    assert func(args) == ("new-device", False, kernel)
 
     # Existing vendor, new device (new port)
     fake_answers(monkeypatch, ["lg", "nonexistent", "y"])
-    assert func(args) == ("lg-nonexistent", False, kernel, nonfree)
+    assert func(args) == ("lg-nonexistent", False, kernel)
 
 
 def test_questions_device_kernel(args, monkeypatch):
@@ -159,39 +156,6 @@ def test_questions_device_kernel(args, monkeypatch):
     # Choose "downstream"
     fake_answers(monkeypatch, ["downstream"])
     assert func(args, device) == "downstream"
-
-
-def test_questions_device_nonfree(args, monkeypatch):
-    # Prepare args
-    args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
-    args.nonfree_firmware = False
-    args.nonfree_userland = False
-
-    # APKBUILD with firmware and userland (all yes)
-    func = pmb.config.init.ask_for_device_nonfree
-    device = "nonfree-firmware-and-userland"
-    fake_answers(monkeypatch, ["y", "y"])
-    nonfree = {"firmware": True, "userland": True}
-    assert func(args, device) == nonfree
-
-    # APKBUILD with firmware and userland (all no)
-    fake_answers(monkeypatch, ["n", "n"])
-    nonfree = {"firmware": False, "userland": False}
-    assert func(args, device) == nonfree
-
-    # APKBUILD with firmware only
-    func = pmb.config.init.ask_for_device_nonfree
-    device = "nonfree-firmware"
-    fake_answers(monkeypatch, ["y"])
-    nonfree = {"firmware": True, "userland": False}
-    assert func(args, device) == nonfree
-
-    # APKBUILD with userland only
-    func = pmb.config.init.ask_for_device_nonfree
-    device = "nonfree-userland"
-    fake_answers(monkeypatch, ["y"])
-    nonfree = {"firmware": False, "userland": True}
-    assert func(args, device) == nonfree
 
 
 def test_questions_flash_methods(args, monkeypatch):

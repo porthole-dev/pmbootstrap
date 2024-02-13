@@ -349,54 +349,15 @@ def ask_for_device_kernel(args, device):
     return ret
 
 
-def ask_for_device_nonfree(args, device):
-    """
-    Ask the user about enabling proprietary firmware (e.g. Wifi) and userland
-    (e.g. GPU drivers). All proprietary components are in subpackages
-    $pkgname-nonfree-firmware and $pkgname-nonfree-userland, and we show the
-    description of these subpackages (so they can indicate which peripherals
-    are affected).
-
-    :returns: answers as dict, e.g. {"firmware": True, "userland": False}
-    """
-    # Parse existing APKBUILD or return defaults (when called from test case)
-    apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
-    ret = {"firmware": args.nonfree_firmware,
-           "userland": args.nonfree_userland}
-    if not apkbuild_path:
-        return ret
-    apkbuild = pmb.parse.apkbuild(apkbuild_path)
-
-    # Only run when there is a "nonfree" subpackage
-    nonfree_found = False
-    for subpackage in apkbuild["subpackages"].keys():
-        if subpackage.startswith(f"device-{device}-nonfree"):
-            nonfree_found = True
-    if not nonfree_found:
-        return ret
-
-    # Short explanation
-    logging.info("This device has proprietary components, which trade some of"
-                 " your freedom with making more peripherals work.")
-    logging.info("We would like to offer full functionality without hurting"
-                 " your freedom, but this is currently not possible for your"
-                 " device.")
-
-    # Ask for firmware and userland individually
-    for type in ["firmware", "userland"]:
-        subpkgname = f"device-{device}-nonfree-{type}"
-        subpkg = apkbuild["subpackages"].get(subpkgname, {})
-        if subpkg is None:
-            raise RuntimeError("Cannot find subpackage function for "
-                               f"{subpkgname}")
-        if subpkg:
-            logging.info(f"{subpkgname}: {subpkg['pkgdesc']}")
-            ret[type] = pmb.helpers.cli.confirm(args, "Enable this package?",
-                                                default=ret[type])
-    return ret
-
-
 def ask_for_device(args):
+    """
+    Prompt for the device vendor, model, and kernel.
+
+    :returns: Tuple consisting of: (device, device_exists, kernel)
+        * device: "<vendor>-<codename>" string for device
+        * device_exists: bool indicating if device port exists in repo
+        * kernel: type of kernel (downstream, etc)
+    """
     vendors = sorted(pmb.helpers.devices.list_vendors(args))
     logging.info("Choose your target device vendor (either an "
                  "existing one, or a new one for porting).")
@@ -463,8 +424,7 @@ def ask_for_device(args):
         break
 
     kernel = ask_for_device_kernel(args, device)
-    nonfree = ask_for_device_nonfree(args, device)
-    return (device, device_exists, kernel, nonfree)
+    return (device, device_exists, kernel)
 
 
 def ask_for_additional_options(args, cfg):
@@ -691,11 +651,9 @@ def frontend(args):
         pmb.config.pmaports.install_githooks(args)
 
     # Device
-    device, device_exists, kernel, nonfree = ask_for_device(args)
+    device, device_exists, kernel = ask_for_device(args)
     cfg["pmbootstrap"]["device"] = device
     cfg["pmbootstrap"]["kernel"] = kernel
-    cfg["pmbootstrap"]["nonfree_firmware"] = str(nonfree["firmware"])
-    cfg["pmbootstrap"]["nonfree_userland"] = str(nonfree["userland"])
 
     info = pmb.parse.deviceinfo(args, device)
     apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')

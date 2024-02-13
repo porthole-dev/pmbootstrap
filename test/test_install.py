@@ -30,8 +30,6 @@ def test_get_nonfree_packages(args):
     func = pmb.install._install.get_nonfree_packages
 
     # Device without any non-free subpackages
-    args.nonfree_firmware = True
-    args.nonfree_userland = True
     assert func(args, "lg-mako") == []
 
     # Device with non-free firmware and userland
@@ -42,10 +40,6 @@ def test_get_nonfree_packages(args):
     # Device with non-free userland
     device = "nonfree-userland"
     assert func(args, device) == ["device-" + device + "-nonfree-userland"]
-
-    # Device with non-free userland (but user disabled it init)
-    args.nonfree_userland = False
-    assert func(args, device) == []
 
 
 def test_get_recommends(args):
