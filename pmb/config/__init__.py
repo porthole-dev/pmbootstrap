@@ -106,44 +106,47 @@ config_keys = [
 # $WORK gets replaced with the actual value for args.work (which may be
 # overridden on the commandline)
 defaults = {
+    # This first chunk matches config_keys
     "aports": "$WORK/cache_git/pmaports",
+    "boot_size": "256",
+    "build_default_device_arch": False,
+    "build_pkgs_on_install": True,
     "ccache_size": "5G",
-    "is_default_channel": True,
-    "cipher": "aes-xts-plain64",
-    "config": (os.environ.get('XDG_CONFIG_HOME') or
-               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
     "device": "qemu-amd64",
     "extra_packages": "none",
-    "fork_alpine": False,
+    "extra_space": "0",
     "hostname": "",
-    "build_pkgs_on_install": True,
-    # A higher value is typically desired, but this can lead to VERY long open
-    # times on slower devices due to host systems being MUCH faster than the
-    # target device (see issue #429).
-    "iter_time": "200",
+    "is_default_channel": True,
     "jobs": str(multiprocessing.cpu_count() + 1),
     "kernel": "stable",
     "keymap": "",
     "locale": "en_US.UTF-8",
-    "log": "$WORK/log.txt",
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
     # NOTE: mirrors_postmarketos variable type is supposed to be
     #       comma-separated string, not a python list or any other type!
     "mirrors_postmarketos": "http://mirror.postmarketos.org/postmarketos/",
     "nonfree_firmware": True,
     "nonfree_userland": False,
-    "ssh_keys": False,
+    "qemu_redir_stdio": False,
     "ssh_key_glob": "~/.ssh/id_*.pub",
+    "ssh_keys": False,
+    "sudo_timer": False,
     "timezone": "GMT",
     "ui": "console",
     "ui_extras": False,
     "user": "user",
     "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
-    "boot_size": "256",
-    "extra_space": "0",
-    "sudo_timer": False,
-    "qemu_redir_stdio": False,
-    "build_default_device_arch": False,
+
+    # These values are not part of config_keys
+    "cipher": "aes-xts-plain64",
+    "config": (os.environ.get('XDG_CONFIG_HOME') or
+               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
+    "fork_alpine": False,
+    # A higher value is typically desired, but this can lead to VERY long open
+    # times on slower devices due to host systems being MUCH faster than the
+    # target device (see issue #429).
+    "iter_time": "200",
+    "log": "$WORK/log.txt",
 }
 
 
