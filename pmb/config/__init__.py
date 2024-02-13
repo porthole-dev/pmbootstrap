@@ -121,6 +121,7 @@ defaults = {
     "kernel": "stable",
     "keymap": "",
     "locale": "en_US.UTF-8",
+    # NOTE: mirrors use http by default to leverage caching
     "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
     # NOTE: mirrors_postmarketos variable type is supposed to be
     #       comma-separated string, not a python list or any other type!
