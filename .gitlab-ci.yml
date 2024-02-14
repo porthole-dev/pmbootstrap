@@ -56,3 +56,10 @@ mr-settings:
     - "wget -q 'https://gitlab.com/postmarketOS/ci-common/-/raw/master/check_mr_settings.py'"
   script:
     - "python3 ./check_mr_settings.py"
+
+mypy:
+  stage: lint
+  before_script:
+    - apk add py3-argcomplete py3-mypy
+  script:
+    - mypy pmbootstrap.py
