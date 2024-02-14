@@ -95,13 +95,12 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
     }
 
 
-def upgrade_git_package(args, pkgname: str, package) -> bool:
+def upgrade_git_package(args, pkgname: str, package) -> None:
     """
     Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if
     args.dry is set).
     :param pkgname: the package name
     :param package: a dict containing package information
-    :returns: if something (would have) been changed
     """
     # Get the wanted source line
     source = package["source"][0]
@@ -128,7 +127,7 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
     if verinfo is None:
         # ignore for now
         logging.warning("{}: source not handled: {}".format(pkgname, source))
-        return False
+        return
 
     # Get the new commit sha
     sha = package["_commit"]
@@ -154,14 +153,14 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
 
     if sha == sha_new:
         logging.info("{}: up-to-date".format(pkgname))
-        return False
+        return
 
     logging.info("{}: upgrading pmaport".format(pkgname))
     if args.dry:
         logging.info(f"  Would change _commit from {sha} to {sha_new}")
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
-        return True
+        return
 
     if package["pkgver"] == "9999":
         pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
@@ -169,17 +168,16 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
         pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
     pmb.helpers.file.replace_apkbuild(args, pkgname, "_commit", sha_new, True)
-    return True
+    return
 
 
-def upgrade_stable_package(args, pkgname: str, package) -> bool:
+def upgrade_stable_package(args, pkgname: str, package) -> None:
     """
     Update _commit/pkgver/pkgrel in an APKBUILD (or pretend to do it if
     args.dry is set).
 
     :param pkgname: the package name
     :param package: a dict containing package information
-    :returns: if something (would have) been changed
     """
 
     # Looking up if there's a custom mapping from postmarketOS package name
@@ -192,7 +190,7 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
             f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
         if projects["total_items"] < 1:
             logging.warning(f"{pkgname}: failed to get Anitya project")
-            return False
+            return
     else:
         project_name = mappings["items"][0]["project"]
         ecosystem = mappings["items"][0]["ecosystem"]
@@ -203,12 +201,12 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
 
     if projects["total_items"] < 1:
         logging.warning(f"{pkgname}: didn't find any projects, can't upgrade!")
-        return False
+        return
     if projects["total_items"] > 1:
         logging.warning(f"{pkgname}: found more than one project, can't "
                         f"upgrade! Please create an explicit mapping of "
                         f"\"project\" to the package name.")
-        return False
+        return
 
     # Get the first, best-matching item
     project = projects["items"][0]
@@ -216,14 +214,14 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     # Check that we got a version number
     if len(project["stable_versions"]) < 1:
         logging.warning("{}: got no version number, ignoring".format(pkgname))
-        return False
+        return
 
     version = project["stable_versions"][0]
 
     # Compare the pmaports version with the project version
     if package["pkgver"] == version:
         logging.info("{}: up-to-date".format(pkgname))
-        return False
+        return
 
     if package["pkgver"] == "9999":
         pkgver = package["_pkgver"]
@@ -238,13 +236,13 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     if not pmb.parse.version.validate(pkgver_new):
         logging.warning(f"{pkgname}: would upgrade to invalid pkgver:"
                         f" {pkgver_new}, ignoring")
-        return False
+        return
 
     logging.info("{}: upgrading pmaport".format(pkgname))
     if args.dry:
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
-        return True
+        return
 
     if package["pkgver"] == "9999":
         pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
@@ -252,7 +250,7 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
         pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
 
     pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
-    return True
+    return
 
 
 def upgrade(args, pkgname, git=True, stable=True) -> None:
