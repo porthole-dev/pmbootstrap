@@ -5,7 +5,7 @@ import fnmatch
 import logging
 import os
 import re
-import urllib
+import urllib.parse
 from typing import Optional
 
 import pmb.helpers.file
