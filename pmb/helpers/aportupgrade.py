@@ -255,14 +255,13 @@ def upgrade_stable_package(args, pkgname: str, package) -> bool:
     return True
 
 
-def upgrade(args, pkgname, git=True, stable=True) -> bool:
+def upgrade(args, pkgname, git=True, stable=True) -> None:
     """
     Find new versions of a single package and upgrade it.
 
     :param pkgname: the name of the package
     :param git: True if git packages should be upgraded
     :param stable: True if stable packages should be upgraded
-    :returns: if something (would have) been changed
     """
     # Initialize request headers
     init_req_headers()
@@ -271,10 +270,10 @@ def upgrade(args, pkgname, git=True, stable=True) -> bool:
     # Run the correct function
     if "_git" in package["pkgver"]:
         if git:
-            return upgrade_git_package(args, pkgname, package)
+            upgrade_git_package(args, pkgname, package)
     else:
         if stable:
-            return upgrade_stable_package(args, pkgname, package)
+            upgrade_stable_package(args, pkgname, package)
 
 
 def upgrade_all(args) -> None:
