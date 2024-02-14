@@ -3,11 +3,12 @@
 import argparse
 import copy
 import os
+import sys
 
 try:
     import argcomplete
 except ImportError:
-    argcomplete = False
+    pass
 
 import pmb.config
 import pmb.parse.arch
@@ -520,7 +521,7 @@ def arguments_repo_missing(subparser):
     ret = subparser.add_parser("repo_missing")
     package = ret.add_argument("package", nargs="?", help="only look at a"
                                " specific package and its dependencies")
-    if argcomplete:
+    if "argcomplete" in sys.modules:
         package.completer = package_completer
     ret.add_argument("--arch", choices=pmb.config.build_device_architectures,
                      default=pmb.config.arch_native)
@@ -603,14 +604,14 @@ def kernel_completer(prefix, action, parser=None, parsed_args=None):
 
 def add_packages_arg(subparser, name="packages", *args, **kwargs):
     arg = subparser.add_argument(name, *args, **kwargs)
-    if argcomplete:
+    if "argcomplete" in sys.modules:
         arg.completer = package_completer
 
 
 def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
     arg = subparser.add_argument("package", nargs=nargs, help="kernel package"
                                  " (e.g. linux-postmarketos-allwinner)")
-    if argcomplete:
+    if "argcomplete" in sys.modules:
         arg.completer = kernel_completer
 
 
@@ -910,7 +911,7 @@ def arguments():
     sub.add_parser("pull", help="update all git repositories that pmbootstrap"
                    " cloned (pmaports, etc.)")
 
-    if argcomplete:
+    if "argcomplete" in sys.modules:
         argcomplete.autocomplete(parser, always_complete_options="long")
 
     # Parse and extend arguments (also backup unmodified result from argparse)
