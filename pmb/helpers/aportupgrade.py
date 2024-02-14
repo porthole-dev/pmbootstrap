@@ -141,6 +141,10 @@ def upgrade_git_package(args, pkgname: str, package) -> bool:
         pkgver = package["pkgver"]
 
     pkgver_match = re.match(r"([\d.]+)_git", pkgver)
+    if pkgver_match is None:
+        msg = "pkgver did not match the expected pattern!"
+        raise RuntimeError(msg)
+
     date_pkgver = verinfo["date"].strftime("%Y%m%d")
     pkgver_new = f"{pkgver_match.group(1)}_git{date_pkgver}"
 
