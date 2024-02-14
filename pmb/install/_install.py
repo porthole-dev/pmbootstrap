@@ -391,12 +391,18 @@ def setup_hostname(args):
     """
     Set the hostname and update localhost address in /etc/hosts
     """
-    # Default to device name
+    # Default to device name. If device name is not a valid hostname then
+    # default to a static default.
     hostname = args.hostname
     if not hostname:
         hostname = args.device
-
-    if not pmb.helpers.other.validate_hostname(hostname):
+        if not pmb.helpers.other.validate_hostname(hostname):
+            # A valid host name, see:
+            # https://datatracker.ietf.org/doc/html/rfc1035#section-2.3.1
+            hostname = "postmarketos-device"
+    elif not pmb.helpers.other.validate_hostname(hostname):
+        # Invalid hostname set by the user e.g., via pmb init, this should
+        # fail so they can fix it
         raise RuntimeError("Hostname '" + hostname + "' is not valid, please"
                            " run 'pmbootstrap init' to configure it.")
 
