@@ -59,7 +59,5 @@ mr-settings:
 
 mypy:
   stage: lint
-  before_script:
-    - apk add py3-argcomplete py3-mypy
   script:
-    - mypy pmbootstrap.py
+    - ".ci/mypy.sh"
