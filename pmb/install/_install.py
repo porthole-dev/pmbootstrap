@@ -1079,6 +1079,7 @@ def get_selected_providers(args, packages, initial=True):
     dependencies of the given packages.
 
     :param packages: the packages that have selectable providers (_pmb_select)
+    :param initial: used internally when the function calls itself
     :return: additional provider packages to install
     """
     global get_selected_providers_visited
