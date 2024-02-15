@@ -1071,22 +1071,47 @@ def install_on_device_installer(args, step, steps):
                          boot_label, "pmOS_install", args.split, args.disk)
 
 
-def get_selected_providers(args, packages):
+def get_selected_providers(args, packages, initial=True):
     """
     Look through the specified packages and see which providers were selected
     in "pmbootstrap init". Install those as extra packages to select them
-    instead of the default provider.
+    instead of the default provider. This function is called recursively on the
+    dependencies of the given packages.
 
     :param packages: the packages that have selectable providers (_pmb_select)
     :return: additional provider packages to install
     """
-    providers = []
-    for p in packages:
-        apkbuild = pmb.helpers.pmaports.get(args, p, subpackages=False)
+    global get_selected_providers_visited
+
+    ret = []
+
+    if initial:
+        get_selected_providers_visited = []
+
+    for package in packages:
+        if package in get_selected_providers_visited:
+            logging.debug(f"get_selected_providers: {package}: already visited")
+            continue
+        get_selected_providers_visited += [package]
+
+        # Note that this ignores packages that don't exist. This means they
+        # aren't in pmaports. This is fine, with the assumption that
+        # installation will fail later in some other method if they truly don't
+        # exist in any repo.
+        apkbuild = pmb.helpers.pmaports.get(args, package, subpackages=False, must_exist=False)
+        if not apkbuild:
+            continue
         for select in apkbuild['_pmb_select']:
             if select in args.selected_providers:
-                providers.append(args.selected_providers[select])
-    return providers
+                ret += [args.selected_providers[select]]
+                logging.debug(f"{package}: install selected_providers:"
+                              f" {', '.join(ret)}")
+        # Also iterate through dependencies to collect any providers they have
+        depends = apkbuild["depends"]
+        if depends:
+            ret += get_selected_providers(args, depends, False)
+
+    return ret
 
 
 def get_recommends(args, packages, initial=True):
