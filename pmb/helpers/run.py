@@ -1,10 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.helpers.run_core
+from argparse import Namespace
+from typing import Any, Dict, List, Optional
 
 
-def user(args, cmd, working_dir=None, output="log", output_return=False,
-         check=None, env={}, sudo=False):
+def user(args: Namespace, cmd: List[str], working_dir: Optional[str]=None, output: str="log", output_return: bool=False,
+         check: Optional[bool]=None, env: Dict[Any, Any]={}, sudo: bool=False) -> str:
     """
     Run a command on the host system as user.
 
