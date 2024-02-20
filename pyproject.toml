@@ -31,5 +31,5 @@ exclude = ["aports", "keys", "test", "test.pmb_test"]
 [tool.ruff]
 # E402: module import not on top of file, not possible for testcases
 # E722: do not use bare except
-ignore=["E402", "E722"]
+lint.ignore=["E402", "E722"]
 line-length=100
