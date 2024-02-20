@@ -6,9 +6,11 @@ import logging
 import pmb.config
 import pmb.config.workdir
 import pmb.helpers.git
+from argparse import Namespace
+from typing import List, Tuple
 
 
-def print_config(args):
+def print_config(args: Namespace) -> None:
     """ Print an overview of what was set in "pmbootstrap init". """
     logging.info("*** CONFIG ***")
     info = args.deviceinfo
@@ -24,7 +26,7 @@ def print_config(args):
     logging.info("User Interface: {}".format(args.ui))
 
 
-def print_git_repos(args):
+def print_git_repos(args: Namespace) -> None:
     logging.info("*** GIT REPOS ***")
     logging.info("Path: {}/cache_git".format(args.work))
     for repo in pmb.config.git_repos.keys():
@@ -41,7 +43,7 @@ def print_git_repos(args):
         logging.info("- {} ({})".format(repo, ref))
 
 
-def print_checks_git_repo(args, repo, details=True):
+def print_checks_git_repo(args: Namespace, repo: str, details: bool=True) -> Tuple[int, str]:
     """ Perform various checks on one checked out git repo.
         :param details: if True, print each passing check (this is True by
                        default for the testsuite)
@@ -100,7 +102,7 @@ def print_checks_git_repo(args, repo, details=True):
     return (0, "")
 
 
-def print_checks_git_repos(args, details):
+def print_checks_git_repos(args: Namespace, details: bool) -> List[str]:
     """ Perform various checks on the checked out git repos.
         :param details: if True, print each passing check
         :returns: list of unresolved checklist items """
@@ -115,7 +117,7 @@ def print_checks_git_repos(args, details):
     return ret
 
 
-def print_checks_chroots_outdated(args, details):
+def print_checks_chroots_outdated(args: Namespace, details: bool) -> List[str]:
     """ Check if chroots were zapped recently.
         :param details: if True, print each passing check instead of a summary
         :returns: list of unresolved checklist items """
@@ -127,7 +129,7 @@ def print_checks_chroots_outdated(args, details):
     return []
 
 
-def print_checks(args, details):
+def print_checks(args: Namespace, details: bool) -> bool:
     """ :param details: if True, print each passing check instead of a summary
         :returns: True if all checks passed, False otherwise """
     logging.info("*** CHECKS ***")
@@ -151,7 +153,7 @@ def print_checks(args, details):
     return False
 
 
-def print_status(args, details=False):
+def print_status(args: Namespace, details: bool=False) -> bool:
     """ :param details: if True, print each passing check instead of a summary
         :returns: True if all checks passed, False otherwise """
     print_config(args)
