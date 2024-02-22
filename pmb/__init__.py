@@ -19,8 +19,8 @@ __version__ = "2.2.1"
 
 # Python version check
 version = sys.version_info
-if version < (3, 7):
-    print("You need at least Python 3.7 to run pmbootstrap")
+if version < (3, 9):
+    print("You need at least Python 3.9 to run pmbootstrap")
     print("(You are running it with Python " + str(version.major) +
           "." + str(version.minor) + ")")
     sys.exit()
