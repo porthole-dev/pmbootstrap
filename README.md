@@ -28,6 +28,8 @@ Issues are being tracked
   * [Windows subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
     does **not** work! Please use [VirtualBox](https://www.virtualbox.org/) instead.
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
+  * Note: kernel versions between 5.8.8 and 6.0 might 
+    [have issues with parted](https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2309).
 * Python 3.7+
 * OpenSSL
 * git
