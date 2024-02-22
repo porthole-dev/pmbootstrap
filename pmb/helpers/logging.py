@@ -47,6 +47,16 @@ class log_handler(logging.StreamHandler):
                         f"{styles['GREEN']}DONE!{styles['END']}",
                         1,
                     )
+                    .replace(
+                        "*** ",
+                        f"{styles['GREEN']}*** ",
+                        1,
+                    )
+                    .replace(
+                        " ***",
+                        f" ***{styles['END']}",
+                        1,
+                    )
                 )
 
                 stream.write(msg_col)
