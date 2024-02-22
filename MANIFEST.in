@@ -1,4 +1,2 @@
 include LICENSE
-include helpers/envkernel.sh
-include helpers/envkernel.fish
 recursive-include pmb/data *
