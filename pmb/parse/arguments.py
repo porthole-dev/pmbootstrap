@@ -517,6 +517,17 @@ def arguments_kconfig(subparser):
     add_kernel_arg(migrate)
 
 
+def arguments_repo_bootstrap(subparser):
+    arch_native = pmb.config.arch_native
+    arch_choices = set(pmb.config.build_device_architectures + [arch_native])
+
+    ret = subparser.add_parser("repo_bootstrap")
+    ret.add_argument("repository",
+                     help="which repository to bootstrap (e.g. systemd)")
+    ret.add_argument("--arch", choices=arch_choices, dest="arch")
+    return ret
+
+
 def arguments_repo_missing(subparser):
     ret = subparser.add_parser("repo_missing")
     package = ret.add_argument("package", nargs="?", help="only look at a"
@@ -697,6 +708,7 @@ def arguments():
     sub.add_parser("work_migrate", help="run this before using pmbootstrap"
                                         " non-interactively to migrate the"
                                         " work folder version on demand")
+    arguments_repo_bootstrap(sub)
     arguments_repo_missing(sub)
     arguments_kconfig(sub)
     arguments_export(sub)

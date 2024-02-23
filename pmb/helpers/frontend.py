@@ -24,6 +24,7 @@ import pmb.helpers.logging
 import pmb.helpers.pkgrel_bump
 import pmb.helpers.pmaports
 import pmb.helpers.repo
+import pmb.helpers.repo_bootstrap
 import pmb.helpers.repo_missing
 import pmb.helpers.run
 import pmb.helpers.status
@@ -216,6 +217,10 @@ def config(args):
 
     # Don't write the "Done" message
     pmb.helpers.logging.disable()
+
+
+def repo_bootstrap(args):
+    pmb.helpers.repo_bootstrap.main(args)
 
 
 def repo_missing(args):

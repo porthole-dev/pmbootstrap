@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import enum
 import logging
 import os
 
@@ -12,6 +13,15 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse
 import pmb.parse.arch
+
+
+class BootstrapStage(enum.IntEnum):
+    """
+    Pass a BOOTSTRAP= environment variable with the given value to abuild. See
+    bootstrap_1 etc. at https://postmarketos.org/pmaports.cfg for details.
+    """
+    NONE = 0
+    # We don't need explicit representations of the other numbers.
 
 
 def skip_already_built(pkgname, arch):
@@ -364,7 +374,7 @@ def link_to_git_dir(args, suffix):
 
 
 def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
-               suffix="native", src=None):
+               suffix="native", src=None, bootstrap_stage=BootstrapStage.NONE):
     """
     Set up all environment variables and construct the abuild command (all
     depending on the cross-compiler method and target architecture), copy
@@ -372,6 +382,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
 
     :param cross: None, "native", or "crossdirect"
     :param src: override source used to build the package with a local folder
+    :param bootstrap_stage: pass a BOOTSTRAP= env var with the value to abuild
     :returns: (output, cmd, env), output is the destination apk path relative
               to the package folder ("x86_64/hello-1-r2.apk"). cmd and env are
               used by the test case, and they are the full abuild command and
@@ -421,6 +432,9 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
     if args.go_mod_cache:
         env["GOMODCACHE"] = "/home/pmos/go/pkg/mod"
 
+    if bootstrap_stage:
+        env["BOOTSTRAP"] = str(bootstrap_stage)
+
     # Build the abuild command
     cmd = ["abuild", "-D", "postmarketOS"]
     if strict or "pmb:strict" in apkbuild["options"]:
@@ -468,7 +482,8 @@ def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
 
 
 def package(args, pkgname, arch=None, force=False, strict=False,
-            skip_init_buildenv=False, src=None):
+            skip_init_buildenv=False, src=None,
+            bootstrap_stage=BootstrapStage.NONE):
     """
     Build a package and its dependencies with Alpine Linux' abuild.
 
@@ -487,6 +502,7 @@ def package(args, pkgname, arch=None, force=False, strict=False,
                                something during initialization of the build
                                environment (e.g. qemu aarch64 bug workaround)
     :param src: override source used to build the package with a local folder
+    :param bootstrap_stage: pass a BOOTSTRAP= env var with the value to abuild
     :returns: None if the build was not necessary
               output path relative to the packages folder ("armhf/ab-1-r2.apk")
     """
@@ -515,6 +531,6 @@ def package(args, pkgname, arch=None, force=False, strict=False,
 
     # Build and finish up
     (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
-                                    suffix, src)
+                                    suffix, src, bootstrap_stage)
     finish(args, apkbuild, arch, output, strict, suffix)
     return output
