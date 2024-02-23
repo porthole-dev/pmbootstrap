@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import glob
+import pmb.helpers.pmaports
 import pmb.parse
 
 
@@ -21,3 +22,12 @@ def list(args, arch):
         if pmb.helpers.package.check_arch(args, apkbuild["pkgname"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))
     return ret
+
+
+def check_option(args, ui, option):
+    """
+    Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
+    """
+    pkgname = f"postmarketos-ui-{ui}"
+    apkbuild = pmb.helpers.pmaports.get(args, pkgname, subpackages=False)
+    return option in apkbuild["options"]

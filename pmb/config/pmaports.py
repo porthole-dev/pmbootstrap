@@ -81,6 +81,28 @@ def check_version_pmbootstrap(min):
                        " of pmbootstrap from git.")
 
 
+def read_config_repos(args):
+    """ Read the sections starting with "repo:" from pmaports.cfg. """
+    # Try cache first
+    cache_key = "pmb.config.pmaports.read_config_repos"
+    if pmb.helpers.other.cache[cache_key]:
+        return pmb.helpers.other.cache[cache_key]
+
+    cfg = configparser.ConfigParser()
+    cfg.read(f"{args.aports}/pmaports.cfg")
+
+    ret = {}
+    for section in cfg.keys():
+        if not section.startswith("repo:"):
+            continue
+        repo = section.split("repo:", 1)[1]
+        ret[repo] = cfg[section]
+
+    # Cache and return
+    pmb.helpers.other.cache[cache_key] = ret
+    return ret
+
+
 def read_config(args):
     """ Read and verify pmaports.cfg. """
     # Try cache first

@@ -312,4 +312,5 @@ def init_cache():
              "pmb.helpers.package.get": {},
              "pmb.helpers.repo.update": repo_update,
              "pmb.helpers.git.parse_channels_cfg": {},
-             "pmb.config.pmaports.read_config": None}
+             "pmb.config.pmaports.read_config": None,
+             "pmb.config.pmaports.read_config_repos": None}

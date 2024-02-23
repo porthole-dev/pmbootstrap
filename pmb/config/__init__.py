@@ -93,6 +93,7 @@ config_keys = [
     "ssh_key_glob",
     "ssh_keys",
     "sudo_timer",
+    "systemd",
     "timezone",
     "ui",
     "ui_extras",
@@ -128,6 +129,7 @@ defaults = {
     "ssh_key_glob": "~/.ssh/id_*.pub",
     "ssh_keys": False,
     "sudo_timer": False,
+    "systemd": "default",
     "timezone": "GMT",
     "ui": "console",
     "ui_extras": False,
@@ -792,6 +794,7 @@ apkbuild_custom_valid_options = [
     "pmb:cross-native",
     "pmb:gpu-accel",
     "pmb:strict",
+    "pmb:systemd",
 ]
 
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>

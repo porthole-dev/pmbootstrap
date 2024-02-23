@@ -189,6 +189,24 @@ def ask_for_ui_extras(args, ui):
                                    default=args.ui_extras)
 
 
+def ask_for_systemd(args, ui):
+    if "systemd" not in pmb.config.pmaports.read_config_repos(args):
+        return args.systemd
+
+    default_is_systemd = pmb.helpers.ui.check_option(args, ui, "pmb:systemd")
+    not_str = " " if default_is_systemd else " not "
+    logging.info("Based on your UI selection, 'default' will result"
+                 f" in{not_str}installing systemd.")
+
+    choices = ["default", "always", "never"]
+    answer = pmb.helpers.cli.ask("Install systemd?",
+                                 choices,
+                                 args.systemd,
+                                 validation_regex=f"^({'|'.join(choices)})$",
+                                 complete=choices)
+    return answer
+
+
 def ask_for_keymaps(args, info):
     if "keymaps" not in info or info["keymaps"].strip() == "":
         return ""
@@ -673,6 +691,10 @@ def frontend(args):
     ui = ask_for_ui(args, info)
     cfg["pmbootstrap"]["ui"] = ui
     cfg["pmbootstrap"]["ui_extras"] = str(ask_for_ui_extras(args, ui))
+
+    # systemd
+    cfg["pmbootstrap"]["systemd"] = ask_for_systemd(args, ui)
+
     ask_for_provider_select_pkg(args, f"postmarketos-ui-{ui}",
                                 cfg["providers"])
     ask_for_additional_options(args, cfg)
