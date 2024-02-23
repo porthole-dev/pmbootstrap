@@ -1,9 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import enum
+import filecmp
+import glob
 import logging
 import os
-import glob
-import filecmp
 
 import pmb.chroot
 import pmb.chroot.apk_static
@@ -12,6 +13,16 @@ import pmb.config.workdir
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.arch
+
+
+class UsrMerge(enum.Enum):
+    """
+    Merge /usr while initializing chroot.
+    https://systemd.io/THE_CASE_FOR_THE_USR_MERGE/
+    """
+    AUTO = 0
+    ON = 1
+    OFF = 2
 
 
 def copy_resolv_conf(args, suffix="native"):
@@ -74,7 +85,23 @@ def init_keys(args):
             pmb.helpers.run.root(args, ["cp", key, target])
 
 
-def init(args, suffix="native"):
+def init_usr_merge(args, suffix):
+    logging.info(f"({suffix}) merge /usr")
+    script = f"{pmb.config.pmb_src}/pmb/data/merge-usr.sh"
+    pmb.helpers.run.root(args, ["sh", "-e", script, "CALLED_FROM_PMB",
+                                f"{args.work}/chroot_{suffix}"])
+
+
+def init(args, suffix="native", usr_merge=UsrMerge.AUTO):
+    """
+    Initialize a chroot by copying the resolv.conf and updating
+    /etc/apk/repositories. If /bin/sh is missing, create the chroot from
+    scratch.
+
+    :param usr_merge: set to ON to force having a merged /usr. With AUTO it is
+                      only done if the user chose to install systemd in
+                      pmbootstrap init.
+    """
     # When already initialized: just prepare the chroot
     chroot = f"{args.work}/chroot_{suffix}"
     arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
@@ -127,3 +154,9 @@ def init(args, suffix="native"):
                 pmb.chroot.root(args, ["mkdir", "-p", target], suffix)
             pmb.chroot.user(args, ["ln", "-s", target, link_name], suffix)
             pmb.chroot.root(args, ["chown", "pmos:pmos", target], suffix)
+
+    # Merge /usr
+    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(args):
+        usr_merge = UsrMerge.ON
+    if usr_merge is UsrMerge.ON:
+        init_usr_merge(args, suffix)

@@ -13,6 +13,7 @@ from pmb.config.load import load
 from pmb.config.save import save
 from pmb.config.merge_with_args import merge_with_args
 from pmb.config.sudo import which_sudo
+from pmb.config.other import is_systemd_selected
 
 
 #
