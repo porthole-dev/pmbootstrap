@@ -33,6 +33,7 @@ import pmb.netboot
 import pmb.parse
 import pmb.qemu
 import pmb.sideload
+from argparse import Namespace
 
 
 def _parse_flavor(args, autoinstall=True):
@@ -608,7 +609,7 @@ def lint(args):
     pmb.helpers.lint.check(args, packages)
 
 
-def status(args):
+def status(args: Namespace) -> None:
     if not pmb.helpers.status.print_status(args, args.details):
         sys.exit(1)
 
