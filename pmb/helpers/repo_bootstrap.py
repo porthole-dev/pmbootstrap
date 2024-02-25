@@ -155,3 +155,33 @@ def main(args):
 
     set_progress_total(args, steps, arch)
     run_steps(args, steps, arch, suffix)
+
+
+def require_bootstrap_error(repo, arch, trigger_str):
+    """
+    Tell the user that they need to do repo_bootstrap, with some context.
+
+    :param repo: which repository
+    :param arch: for which architecture
+    :param trigger_str: message for the user to understand what caused this
+    """
+    logging.info(f"ERROR: Trying to {trigger_str} with {repo} enabled, but the"
+                 f" {repo} repo needs to be bootstrapped first.")
+    raise RuntimeError(f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}'"
+                       " and then try again.")
+
+
+def require_bootstrap(args, arch, trigger_str):
+    """
+    Check if repo_bootstrap was done, if any is needed.
+
+    :param arch: for which architecture
+    :param trigger_str: message for the user to understand what caused this
+    """
+    cfg = pmb.config.pmaports.read_config_repos(args)
+
+    if "systemd" in cfg and pmb.config.other.is_systemd_selected(args):
+        pkg = pmb.parse.apkindex.package(args, "postmarketos-base-systemd",
+                                         arch, False)
+        if not pkg:
+            require_bootstrap_error("systemd", arch, trigger_str)
