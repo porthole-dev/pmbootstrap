@@ -1203,6 +1203,9 @@ def create_device_rootfs(args, step, steps):
     if args.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + args.ui]
 
+    if pmb.config.other.is_systemd_selected(args):
+        install_packages += ["postmarketos-base-systemd"]
+
     # Add additional providers of base/device/UI package
     install_packages += get_selected_providers(args, install_packages)
 
