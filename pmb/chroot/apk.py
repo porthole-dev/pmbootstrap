@@ -14,11 +14,13 @@ import pmb.parse.depends
 import pmb.parse.version
 
 
-def update_repository_list(args, suffix="native", check=False):
+def update_repository_list(args, suffix="native", postmarketos_mirror=True,
+                           check=False):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
     --mirror-alpine or --mirror-pmOS parameters).
 
+    :param postmarketos_mirror: add postmarketos mirror URLs
     :param check: This function calls it self after updating the
                   /etc/apk/repositories file, to check if it was successful.
                   Only for this purpose, the "check" parameter should be set to
@@ -41,7 +43,7 @@ def update_repository_list(args, suffix="native", check=False):
         pmb.helpers.run.root(args, ["mkdir", "-p", os.path.dirname(path)])
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(args)
+    lines_new = pmb.helpers.repo.urls(args, postmarketos_mirror=postmarketos_mirror)
     if lines_old == lines_new:
         pmb.helpers.other.cache["apk_repository_list_updated"].append(suffix)
         return
@@ -57,7 +59,7 @@ def update_repository_list(args, suffix="native", check=False):
     for line in lines_new:
         pmb.helpers.run.root(args, ["sh", "-c", "echo "
                                     f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(args, suffix, True)
+    update_repository_list(args, suffix, postmarketos_mirror, True)
 
 
 def check_min_version(args, suffix="native"):
