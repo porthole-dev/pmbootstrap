@@ -234,7 +234,18 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     subpkgparts = subpkg.split(":")
     subpkgname = subpkgparts[0]
     subpkgsplit = subpkgname[subpkgname.rfind("-") + 1:]
-    if len(subpkgparts) > 1:
+    # If there are multiple sections to the subpackage, the middle one (item 1 in the
+    # sequence in this case) is the custom function name which we should use instead of
+    # the deduced one. For example:
+    #
+    #   "$pkgname-something-subpkg:something_subpkg:noarch"
+    #
+    # But only actually use it if the custom function is not an empty string, as in
+    # those cases it is not meant to be set here. For example:
+    #
+    #   "$pkgname-something::noarch"
+    #
+    if len(subpkgparts) > 1 and subpkgparts[1] != "":
         subpkgsplit = subpkgparts[1]
 
     # Find start and end of package function
