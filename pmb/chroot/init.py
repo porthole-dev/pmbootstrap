@@ -162,3 +162,7 @@ def init(args, suffix="native", usr_merge=UsrMerge.AUTO,
         usr_merge = UsrMerge.ON
     if usr_merge is UsrMerge.ON:
         init_usr_merge(args, suffix)
+
+    # Upgrade packages in the chroot, in case alpine-base, apk, etc. have been
+    # built from source with pmbootstrap
+    pmb.chroot.root(args, ["apk", "--no-network", "upgrade", "-a"], suffix)
