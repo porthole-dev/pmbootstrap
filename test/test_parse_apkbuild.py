@@ -33,6 +33,9 @@ def test_subpackages():
     assert subpkg["pkgdesc"] == "This is one of the custom subpackages"
     assert subpkg["depends"] == ["postmarketos-base", "glibc"]
 
+    subpkg = apkbuild["subpackages"]["different_arch"]
+    assert subpkg["pkgdesc"] == "This has a different architecture than the other subpackages"
+
     # Successful extraction
     path = (testdata + "/init_questions_device/aports/device/testing/"
             "device-nonfree-firmware/APKBUILD")
