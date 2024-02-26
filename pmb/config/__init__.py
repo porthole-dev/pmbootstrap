@@ -1165,5 +1165,5 @@ sideload_sudo_prompt = "[sudo] password for %u@%h: "
 #
 # CI
 #
-# Valid options für 'pmbootstrap ci', see https://postmarketos.org/pmb-ci
+# Valid options for 'pmbootstrap ci', see https://postmarketos.org/pmb-ci
 ci_valid_options = ["native", "slow"]
