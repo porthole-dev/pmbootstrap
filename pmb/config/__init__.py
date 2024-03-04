@@ -682,12 +682,14 @@ kconfig_options_uefi = {
             "DMI": True,
             "EFI_ESRT": True,
             "EFI_VARS_PSTORE": True,
-            "EFI_PARAMS_FROM_FDT": True,
             "EFI_RUNTIME_WRAPPERS": True,
-            "EFI_GENERIC_STUB": True,
         },
         "x86_64": {
             "EFI_MIXED": True,
+        },
+        "aarch64 armv7": {
+            "EFI_GENERIC_STUB": True,
+            "EFI_PARAMS_FROM_FDT": True,
         },
     },
     ">=6.1.0": {
