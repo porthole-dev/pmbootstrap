@@ -683,6 +683,7 @@ kconfig_options_uefi = {
             "EFI_ESRT": True,
             "EFI_VARS_PSTORE": True,
             "EFI_RUNTIME_WRAPPERS": True,
+            "VFAT_FS": True,
         },
         "x86_64": {
             "EFI_MIXED": True,
