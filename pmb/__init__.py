@@ -95,7 +95,7 @@ def main():
         print("Before you report this error, ensure that pmbootstrap is "
               "up to date.")
         print("Find the latest version here:"
-              " https://git.sr.ht/~postmarketos/pmbootstrap/refs")
+              " https://gitlab.com/postmarketOS/pmbootstrap/-/tags")
         print(f"Your version: {__version__}")
         return 1
 
