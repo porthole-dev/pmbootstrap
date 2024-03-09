@@ -832,9 +832,15 @@ def arguments():
     aportgen = sub.add_parser("aportgen", help="generate a postmarketOS"
                               " specific package build recipe"
                               " (aport/APKBUILD)")
-    aportgen.add_argument("--fork-alpine", help="fork the alpine upstream"
-                          " package", action="store_true",
-                          dest="fork_alpine")
+    aportgen_fork_alpine = aportgen.add_mutually_exclusive_group()
+    aportgen_fork_alpine.add_argument("--fork-alpine", help="fork the alpine upstream"
+                                      " package", action="store_true",
+                                      dest="fork_alpine")
+    aportgen_fork_alpine.add_argument("--fork-alpine-retain-branch",
+                                      help="fork the alpine upstream, but don't change "
+                                      "branch to match the current channel",
+                                      action="store_true",
+                                      dest="fork_alpine_retain_branch")
     add_packages_arg(aportgen, nargs="+")
 
     # Action: build
@@ -930,6 +936,12 @@ def arguments():
     args = parser.parse_args()
     setattr(args, "from_argparse", copy.deepcopy(args))
     setattr(args.from_argparse, "from_argparse", args.from_argparse)
+
+    if hasattr(args, "fork_alpine_retain_branch") and args.fork_alpine_retain_branch:
+        # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so
+        # just set fork_alpine here to reduce repetition.
+        args.fork_alpine = args.fork_alpine_retain_branch
+
     pmb.helpers.args.init(args)
 
     if getattr(args, "go_mod_cache", None) is None:
