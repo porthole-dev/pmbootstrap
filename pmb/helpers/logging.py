@@ -52,12 +52,9 @@ class log_handler(logging.StreamHandler):
                         f"{styles['GREEN']}*** ",
                         1,
                     )
-                    .replace(
-                        " ***",
-                        f" ***{styles['END']}",
-                        1,
-                    )
                 )
+
+                msg_col += styles["END"]
 
                 stream.write(msg_col)
                 stream.write(self.terminator)
