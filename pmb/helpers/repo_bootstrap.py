@@ -178,9 +178,7 @@ def require_bootstrap(args, arch, trigger_str):
     :param arch: for which architecture
     :param trigger_str: message for the user to understand what caused this
     """
-    cfg = pmb.config.pmaports.read_config_repos(args)
-
-    if "systemd" in cfg and pmb.config.other.is_systemd_selected(args):
+    if pmb.config.other.is_systemd_selected(args):
         pkg = pmb.parse.apkindex.package(args, "postmarketos-base-systemd",
                                          arch, False)
         if not pkg:
