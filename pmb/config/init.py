@@ -193,6 +193,11 @@ def ask_for_systemd(args, ui):
     if "systemd" not in pmb.config.pmaports.read_config_repos(args):
         return args.systemd
 
+    if pmb.helpers.ui.check_option(args, ui, "pmb:systemd-never"):
+        logging.info("Based on your UI selection, OpenRC will be used as init"
+                     " system. This UI does not support systemd.")
+        return args.systemd
+
     default_is_systemd = pmb.helpers.ui.check_option(args, ui, "pmb:systemd")
     not_str = " " if default_is_systemd else " not "
     logging.info("Based on your UI selection, 'default' will result"

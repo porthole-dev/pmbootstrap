@@ -4,6 +4,8 @@ import pmb.helpers.ui
 
 
 def is_systemd_selected(args):
+    if pmb.helpers.ui.check_option(args, args.ui, "pmb:systemd-never"):
+        return False
     if args.systemd == "always":
         return True
     if args.systemd == "never":

@@ -796,6 +796,7 @@ apkbuild_custom_valid_options = [
     "pmb:gpu-accel",
     "pmb:strict",
     "pmb:systemd",
+    "pmb:systemd-never",
 ]
 
 # Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
