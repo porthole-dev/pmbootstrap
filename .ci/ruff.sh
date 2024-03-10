@@ -13,7 +13,7 @@ set -x
 # __init__.py with additional ignore:
 # F401: imported, but not used
 # shellcheck disable=SC2046
-ruff --ignore "F401" $(find . -not -path '*/venv/*' -name '__init__.py')
+ruff check --ignore "F401" $(find . -not -path '*/venv/*' -name '__init__.py')
 
 # Check all other files
-ruff  --exclude=__init__.py .
+ruff check --exclude=__init__.py .
