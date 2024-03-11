@@ -203,7 +203,7 @@ def ask_for_systemd(args, ui):
     logging.info("Based on your UI selection, 'default' will result"
                  f" in{not_str}installing systemd.")
 
-    choices = ["default", "always", "never"]
+    choices = pmb.config.allowed_values["systemd"]
     answer = pmb.helpers.cli.ask("Install systemd?",
                                  choices,
                                  args.systemd,

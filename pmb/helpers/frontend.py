@@ -213,6 +213,7 @@ def config(args):
         pmb.config.save(args, cfg)
     elif args.value is not None:
         cfg["pmbootstrap"][args.name] = args.value
+        pmb.config.sanity_checks(args, cfg, False)
         logging.info("Config changed: " + args.name + "='" + args.value + "'")
         pmb.config.save(args, cfg)
     elif args.name:

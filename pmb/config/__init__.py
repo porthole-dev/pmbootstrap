@@ -9,7 +9,7 @@ from typing import List
 #
 # Exported functions
 #
-from pmb.config.load import load
+from pmb.config.load import load, sanity_checks
 from pmb.config.save import save
 from pmb.config.merge_with_args import merge_with_args
 from pmb.config.sudo import which_sudo
@@ -149,6 +149,9 @@ defaults = {
     "log": "$WORK/log.txt",
 }
 
+allowed_values = {
+    "systemd": ["default", "always", "never"],
+}
 
 # Whether we're connected to a TTY (which allows things like e.g. printing
 # progress bars)

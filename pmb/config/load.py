@@ -3,7 +3,28 @@
 import logging
 import configparser
 import os
+import sys
 import pmb.config
+
+
+def sanity_check(args, cfg, key, allowed, print_path):
+    value = cfg["pmbootstrap"][key]
+
+    if value in allowed:
+        return
+
+    logging.error(f"pmbootstrap.cfg: invalid value for {key}: '{value}'")
+    logging.error(f"Allowed: {', '.join(allowed)}")
+
+    if print_path:
+        logging.error(f"Fix it here and try again: {args.config}")
+
+    sys.exit(1)
+
+
+def sanity_checks(args, cfg, print_path=True):
+    for key, allowed in pmb.config.allowed_values.items():
+        sanity_check(args, cfg, key, allowed, print_path)
 
 
 def load(args):
@@ -30,5 +51,7 @@ def load(args):
                           " default value from config:"
                           f" {cfg['pmbootstrap'][key]}")
             del cfg["pmbootstrap"][key]
+
+    sanity_checks(args, cfg)
 
     return cfg
