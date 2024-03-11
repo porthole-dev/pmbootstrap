@@ -139,6 +139,11 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
         deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
         """
 
+    if "qcdt_type" in bootimg.keys():
+        content += f"""\
+        deviceinfo_bootimg_qcdt_type="{bootimg["qcdt_type"]}"
+        """
+
     if "mtk_label_kernel" in bootimg.keys():
         content += f"""\
         deviceinfo_mtk_label_kernel="{bootimg["mtk_label_kernel"]}"
