@@ -833,10 +833,10 @@ def arguments():
                               " specific package build recipe"
                               " (aport/APKBUILD)")
     aportgen_fork_alpine = aportgen.add_mutually_exclusive_group()
-    aportgen_fork_alpine.add_argument("--fork-alpine", help="fork the alpine upstream"
-                                      " package", action="store_true",
-                                      dest="fork_alpine")
-    aportgen_fork_alpine.add_argument("--fork-alpine-retain-branch",
+    aportgen_fork_alpine.add_argument("-a", "--fork-alpine",
+                                      help="fork the alpine upstream package",
+                                      action="store_true", dest="fork_alpine")
+    aportgen_fork_alpine.add_argument("-r", "--fork-alpine-retain-branch",
                                       help="fork the alpine upstream, but don't change "
                                       "branch to match the current channel",
                                       action="store_true",
