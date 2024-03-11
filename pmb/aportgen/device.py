@@ -275,7 +275,7 @@ def generate_apkbuild(args, pkgname, name, arch, flash_method):
         # Reference: <https://postmarketos.org/devicepkg>
         pkgname={pkgname}
         pkgdesc="{name}"
-        pkgver=0.1
+        pkgver=1
         pkgrel=0
         url="https://postmarketos.org"
         license="MIT"
