@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb.helpers.repo """
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 
@@ -15,7 +16,7 @@ def args(tmpdir, request):
     cfg = f"{pmb_test.const.testdata}/channels.cfg"
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -27,10 +28,10 @@ def test_hash():
     assert pmb.helpers.repo.hash(url, 8) == hash
 
 
-def test_alpine_apkindex_path(args):
+def test_alpine_apkindex_path(args: PmbArgs):
     func = pmb.helpers.repo.alpine_apkindex_path
     args.mirror_alpine = "http://dl-cdn.alpinelinux.org/alpine/"
-    ret = args.work + "/cache_apk_armhf/APKINDEX.30e6f5af.tar.gz"
+    ret = pmb.config.work / "cache_apk_armhf/APKINDEX.30e6f5af.tar.gz"
     assert func(args, "testing", "armhf") == ret
 
 

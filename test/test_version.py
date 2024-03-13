@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 
 import pmb_test
@@ -15,13 +16,13 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_version(args):
+def test_version(args: PmbArgs):
     # Fail after the first error or print a grand total of failures
     keep_going = False
 

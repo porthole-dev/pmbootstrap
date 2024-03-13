@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 
@@ -13,7 +14,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -55,7 +56,7 @@ def test_subpackages(args):
     assert apkbuild["subpackages"]["invalid-function"] is None
 
 
-def test_kernels(args):
+def test_kernels(args: PmbArgs):
     # Kernel hardcoded in depends
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     func = pmb.parse._apkbuild.kernels

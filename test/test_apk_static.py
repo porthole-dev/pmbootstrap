@@ -12,6 +12,7 @@ import pmb.chroot.apk_static
 import pmb.config
 import pmb.parse.apkindex
 import pmb.helpers.logging
+from pmb.core.types import PmbArgs
 
 
 @pytest.fixture
@@ -19,16 +20,16 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_read_signature_info(args):
+def test_read_signature_info(args: PmbArgs):
     # Tempfolder inside chroot for fake apk files
     tmp_path = "/tmp/test_read_signature_info"
-    tmp_path_outside = args.work + "/chroot_native" + tmp_path
+    tmp_path_outside = pmb.config.work / "chroot_native" + tmp_path
     if os.path.exists(tmp_path_outside):
         pmb.chroot.root(args, ["rm", "-r", tmp_path])
     pmb.chroot.user(args, ["mkdir", "-p", tmp_path])
@@ -74,17 +75,17 @@ def test_read_signature_info(args):
 
 
 def test_successful_extraction(args: PmbArgs, tmpdir):
-    if os.path.exists(args.work + "/apk.static"):
-        os.remove(args.work + "/apk.static")
+    if os.path.exists(pmb.config.work / "apk.static"):
+        os.remove(pmb.config.work / "apk.static")
 
     pmb.chroot.apk_static.init(args)
-    assert os.path.exists(args.work + "/apk.static")
-    os.remove(args.work + "/apk.static")
+    assert os.path.exists(pmb.config.work / "apk.static")
+    os.remove(pmb.config.work / "apk.static")
 
 
 def test_signature_verification(args: PmbArgs, tmpdir):
-    if os.path.exists(args.work + "/apk.static"):
-        os.remove(args.work + "/apk.static")
+    if os.path.exists(pmb.config.work / "apk.static"):
+        os.remove(pmb.config.work / "apk.static")
 
     version = pmb.parse.apkindex.package(args, "apk-tools-static")["version"]
     apk_path = pmb.chroot.apk_static.download(
@@ -117,8 +118,8 @@ def test_signature_verification(args: PmbArgs, tmpdir):
 
 
 def test_outdated_version(args: PmbArgs, monkeypatch):
-    if os.path.exists(args.work + "/apk.static"):
-        os.remove(args.work + "/apk.static")
+    if os.path.exists(pmb.config.work / "apk.static"):
+        os.remove(pmb.config.work / "apk.static")
 
     # Change min version for all branches
     min_copy = copy.copy(pmb.config.apk_tools_min_version)

@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 
@@ -15,13 +16,13 @@ def args(tmpdir, request):
     cfg = f"{pmb_test.const.testdata}/channels.cfg"
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_helpers_ui(args):
+def test_helpers_ui(args: PmbArgs):
     """ Test the UIs returned by pmb.helpers.ui.list() with a testdata pmaports
         dir. That test dir has a plasma-mobile UI, which is disabled for armhf,
         so it must not be returned when querying the UI list for armhf. """

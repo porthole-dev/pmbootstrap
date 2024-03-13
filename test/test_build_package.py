@@ -4,6 +4,7 @@
 import datetime
 import glob
 import os
+from pmb.core.types import PmbArgs
 import pytest
 import shutil
 import sys
@@ -22,7 +23,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -57,7 +58,7 @@ def args_patched(monkeypatch, argv):
     return pmb.parse.arguments()
 
 
-def test_skip_already_built(args):
+def test_skip_already_built(args: PmbArgs):
     func = pmb.build._package.skip_already_built
     assert pmb.helpers.other.cache["built"] == {}
     assert func("test-package", "armhf") is False
@@ -65,7 +66,7 @@ def test_skip_already_built(args):
     assert func("test-package", "armhf") is True
 
 
-def test_get_apkbuild(args):
+def test_get_apkbuild(args: PmbArgs):
     func = pmb.build._package.get_apkbuild
 
     # Valid aport
@@ -314,7 +315,7 @@ def test_finish(args: PmbArgs, monkeypatch):
     func(args, apkbuild, pmb.config.arch_native, output)
 
 
-def test_package(args):
+def test_package(args: PmbArgs):
     # First build
     assert pmb.build.package(args, "hello-world", force=True)
 
@@ -352,8 +353,8 @@ def test_build_depends_high_level(args: PmbArgs, monkeypatch):
     # Build hello-world to get its full output path
     channel = pmb.config.pmaports.read_config(args)["channel"]
     output_hello = pmb.build.package(args, "hello-world")
-    output_hello_outside = f"{args.work}/packages/{channel}/{output_hello}"
-    assert os.path.exists(output_hello_outside)
+    output_hello_outside = pmb.config.work / "packages" / channel / output_hello
+    assert output_hello_outside.exists()
 
     # Make sure the wrapper exists
     pmb.build.package(args, "hello-world-wrapper")

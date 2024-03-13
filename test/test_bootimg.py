@@ -16,32 +16,32 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_bootimg_invalid_path(args):
+def test_bootimg_invalid_path(args: PmbArgs):
     with pytest.raises(RuntimeError) as e:
         pmb.parse.bootimg(args, "/invalid-path")
     assert "Could not find file" in str(e.value)
 
 
-def test_bootimg_kernel(args):
+def test_bootimg_kernel(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/kernel-boot.img"
     with pytest.raises(RuntimeError) as e:
         pmb.parse.bootimg(args, path)
     assert "heimdall-isorec" in str(e.value)
 
 
-def test_bootimg_invalid_file(args):
+def test_bootimg_invalid_file(args: PmbArgs):
     with pytest.raises(RuntimeError) as e:
         pmb.parse.bootimg(args, __file__)
     assert "File is not an Android boot.img" in str(e.value)
 
 
-def test_bootimg_normal(args):
+def test_bootimg_normal(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/normal-boot.img"
     output = {"header_version": "0",
               "base": "0x80000000",
@@ -56,7 +56,7 @@ def test_bootimg_normal(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_qcdt(args):
+def test_bootimg_qcdt(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/qcdt-boot.img"
     output = {"base": "0x80000000",
               "kernel_offset": "0x00008000",
@@ -70,7 +70,7 @@ def test_bootimg_qcdt(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_mtk(args):
+def test_bootimg_mtk(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/mtk-boot.img"
     output = {"header_version": "0",
               "base": "0x10000000",
@@ -87,7 +87,7 @@ def test_bootimg_mtk(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_mtk_recovery(args):
+def test_bootimg_mtk_recovery(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/mtk-boot-recovery.img"
     output = {"header_version": "0",
               "base": "0x80000000",
@@ -104,7 +104,7 @@ def test_bootimg_mtk_recovery(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_mtk_kernelonly(args):
+def test_bootimg_mtk_kernelonly(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/mtk-boot-kernel-only.img"
     output = {"header_version": "0",
               "base": "0x10000000",
@@ -120,7 +120,7 @@ def test_bootimg_mtk_kernelonly(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_dtb_second(args):
+def test_bootimg_dtb_second(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/dtb-second-boot.img"
     output = {"header_version": "0",
               "base": "0x00000000",
@@ -135,7 +135,7 @@ def test_bootimg_dtb_second(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_v2(args):
+def test_bootimg_v2(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/boot-header-v2.img"
     output = {"header_version": "2",
               "base": "0x40078000",
@@ -151,7 +151,7 @@ def test_bootimg_v2(args):
     assert pmb.parse.bootimg(args, path) == output
 
 
-def test_bootimg_v3(args):
+def test_bootimg_v3(args: PmbArgs):
     path = pmb_test.const.testdata + "/bootimg/boot-header-v3.img"
     output = {"header_version": "3",
               "pagesize": "4096",

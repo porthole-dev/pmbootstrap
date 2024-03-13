@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 import pmb_test  # noqa
 import pmb.helpers.mount
 
@@ -14,12 +15,12 @@ def test_umount_all_list(tmpdir):
         handle.write("source /test/proc\n")
         handle.write("source /test/dev/loop0p2\\040(deleted)\n")
 
-    ret = pmb.helpers.mount.umount_all_list("/no/match", fake_mounts)
+    ret = pmb.helpers.mount.umount_all_list(Path("/no/match"), fake_mounts)
     assert ret == []
 
-    ret = pmb.helpers.mount.umount_all_list("/test/var/cache", fake_mounts)
+    ret = pmb.helpers.mount.umount_all_list(Path("/test/var/cache"), fake_mounts)
     assert ret == ["/test/var/cache"]
 
-    ret = pmb.helpers.mount.umount_all_list("/test", fake_mounts)
+    ret = pmb.helpers.mount.umount_all_list(Path("/test"), fake_mounts)
     assert ret == ["/test/var/cache", "/test/proc", "/test/home/pmos/packages",
                    "/test/dev/loop0p2", "/test"]

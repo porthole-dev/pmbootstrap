@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 import shutil
 import filecmp
@@ -21,7 +22,7 @@ def args(tmpdir, request):
     cfg = f"{pmb_test.const.testdata}/channels.cfg"
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     args.fork_alpine = False
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
@@ -84,7 +85,7 @@ def test_aportgen(args: PmbArgs, tmpdir):
     os.mkdir(tmpdir + "/cross")
 
     # Create aportgen folder -> code path where it still exists
-    pmb.helpers.run.user(args, ["mkdir", "-p", args.work + "/aportgen"])
+    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
 
     # Generate all valid packages (gcc twice -> different code path)
     pkgnames = ["musl-armv7",
@@ -95,7 +96,7 @@ def test_aportgen(args: PmbArgs, tmpdir):
         pmb.aportgen.generate(args, pkgname)
 
 
-def test_aportgen_invalid_generator(args):
+def test_aportgen_invalid_generator(args: PmbArgs):
     with pytest.raises(ValueError) as e:
         pmb.aportgen.generate(args, "pkgname-with-no-generator")
     assert "No generator available" in str(e.value)
@@ -115,7 +116,7 @@ def test_aportgen_get_upstream_aport(args: PmbArgs, monkeypatch):
     # Equal version
     func = pmb.aportgen.core.get_upstream_aport
     upstream = "gcc"
-    upstream_full = args.work + "/cache_git/aports_upstream/main/" + upstream
+    upstream_full = pmb.config.work / "cache_git/aports_upstream/main/" + upstream
     apkbuild = {"pkgver": "2.0", "pkgrel": "0"}
     package = {"version": "2.0-r0"}
     assert func(args, upstream) == upstream_full

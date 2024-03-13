@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 import shutil
@@ -20,7 +21,7 @@ def args(tmpdir, request):
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "build", "-i",
                 "device-testsuite-testdevice"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
 

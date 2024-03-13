@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 
 import pmb_test  # noqa
@@ -13,7 +14,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -78,7 +79,7 @@ def test_helpers_package_get_apkindex(args: PmbArgs, monkeypatch):
     assert func(args, "testpkgname", "x86_64") == package
 
 
-def test_helpers_package_depends_recurse(args):
+def test_helpers_package_depends_recurse(args: PmbArgs):
     """ Test pmb.helpers.package.depends_recurse() """
 
     # Put fake data into the pmb.helpers.package.get() cache
@@ -98,7 +99,7 @@ def test_helpers_package_depends_recurse(args):
     assert func(args, "d", "armhf") == ["b", "d"]
 
 
-def test_helpers_package_check_arch_package(args):
+def test_helpers_package_check_arch_package(args: PmbArgs):
     """ Test pmb.helpers.package.check_arch(): binary = True """
     # Put fake data into the pmb.helpers.package.get() cache
     func = pmb.helpers.package.check_arch

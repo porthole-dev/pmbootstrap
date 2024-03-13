@@ -7,6 +7,7 @@ via SSH if expected processes are running.
 We use an extra config file (based on ~/.config/pmbootstrap.cfg), because we
 need to change it a lot (e.g. UI, username, ...).
 """
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 import shutil
@@ -26,15 +27,15 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def ssh_create_askpass_script(args):
+def ssh_create_askpass_script(args: PmbArgs):
     """Create /tmp/y.sh, which we need to automatically login via SSH."""
-    with open(args.work + "/chroot_native/tmp/y.sh", "w") as handle:
+    with open(pmb.config.work / "chroot_native/tmp/y.sh", "w") as handle:
         handle.write("#!/bin/sh\necho y\n")
     pmb.chroot.root(args, ["chmod", "+x", "/tmp/y.sh"])
 

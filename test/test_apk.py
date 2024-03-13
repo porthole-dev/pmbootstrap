@@ -7,7 +7,7 @@ import sys
 import pmb_test  # noqa
 import pmb.build
 import pmb.chroot.apk
-from pmb.core import Suffix
+from pmb.core import Chroot
 
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -89,7 +89,7 @@ def test_install_run_apk(monkeypatch, args):
     global cmds
 
     func = pmb.chroot.apk.install_run_apk
-    suffix = Suffix.native()
+    suffix = Chroot.native()
 
     def fake_chroot_root(args: PmbArgs, command, suffix):
         global cmds

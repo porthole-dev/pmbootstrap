@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 
 import pmb_test  # noqa
@@ -16,13 +17,13 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_shell_escape(args):
+def test_shell_escape(args: PmbArgs):
     cmds = {"test\n": ["echo", "test"],
             "test && test\n": ["echo", "test", "&&", "test"],
             "test ; test\n": ["echo", "test", ";", "test"],
@@ -54,7 +55,7 @@ def test_shell_escape(args):
         assert cmd == copy
 
 
-def test_shell_escape_env(args):
+def test_shell_escape_env(args: PmbArgs):
     key = "PMBOOTSTRAP_TEST_ENVIRONMENT_VARIABLE"
     value = "long value with spaces and special characters: '\"\\!$test"
     env = {key: value}

@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 import os
@@ -12,7 +13,7 @@ import pmb.config
 import pmb.config.init
 import pmb.helpers.logging
 import pmb.install._install
-from pmb.core import Suffix, SuffixType
+from pmb.core import Chroot, ChrootType
 
 
 @pytest.fixture
@@ -20,13 +21,13 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_get_nonfree_packages(args):
+def test_get_nonfree_packages(args: PmbArgs):
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
     func = pmb.install._install.get_nonfree_packages
 
@@ -43,7 +44,7 @@ def test_get_nonfree_packages(args):
     assert func(args, device) == ["device-" + device + "-nonfree-userland"]
 
 
-def test_get_recommends(args):
+def test_get_recommends(args: PmbArgs):
     args.aports = pmb_test.const.testdata + "/pmb_recommends"
     func = pmb.install._install.get_recommends
 
@@ -74,7 +75,7 @@ def test_get_recommends(args):
     assert func(args, ["test-app"]) == ["foot", "htop"]
 
 
-def test_get_groups(args):
+def test_get_groups(args: PmbArgs):
     args.aports = f"{pmb_test.const.testdata}/pmb_groups"
     func = pmb.install.ui.get_groups
 
@@ -99,11 +100,11 @@ def test_get_groups(args):
     assert str(e.value).startswith("Could not find aport for package")
 
 
-def test_generate_binary_list(args):
-    suffix = Suffix(SuffixType.ROOTFS, "mysuffix")
+def test_generate_binary_list(args: PmbArgs):
+    suffix = Chroot(ChrootType.ROOTFS, "mysuffix")
     args.work = "/tmp"
     func = pmb.install._install.generate_binary_list
-    binary_dir = os.path.join(args.work, f"{suffix.chroot()}", "usr/share")
+    binary_dir = suffix / "usr/share"
     os.makedirs(binary_dir, exist_ok=True)
     step = 1024
     binaries = [f"{pmb_test.const.testdata}/pmb_install/small.bin",

@@ -3,6 +3,7 @@
 """ Test pmb.helper.pkgrel_bump """
 import glob
 import os
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 
@@ -17,7 +18,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -72,7 +73,7 @@ def setup_work(args: PmbArgs, tmpdir):
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "shutdown"])
 
     # Link everything from work (except for "packages") to the tmpdir
-    for path in glob.glob(args.work + "/*"):
+    for path in glob.glob(pmb.config.work / "*"):
         if os.path.basename(path) != "packages":
             pmb.helpers.run.user(args, ["ln", "-s", path, tmpdir + "/"])
 

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 import shutil
 
@@ -19,13 +20,13 @@ def args(request):
     cfg = f"{pmb_test.const.testdata}/channels.cfg"
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_get_path(args):
+def test_get_path(args: PmbArgs):
     func = pmb.helpers.git.get_path
     args.work = "/wrk"
     args.aports = "/tmp/pmaports"
@@ -109,7 +110,7 @@ def test_get_upstream_remote(args: PmbArgs, monkeypatch, tmpdir):
     assert func(args, name_repo) == "hello"
 
 
-def test_parse_channels_cfg(args):
+def test_parse_channels_cfg(args: PmbArgs):
     exp = {"meta": {"recommended": "edge"},
            "channels": {"edge": {"description": "Rolling release channel",
                                  "branch_pmaports": "master",
@@ -126,7 +127,7 @@ def test_parse_channels_cfg(args):
     assert pmb.helpers.git.parse_channels_cfg(args) == exp
 
 
-def test_pull_non_existing(args):
+def test_pull_non_existing(args: PmbArgs):
     assert pmb.helpers.git.pull(args, "non-existing-repo-name") == 1
 
 

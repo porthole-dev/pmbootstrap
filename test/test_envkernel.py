@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
+from pmb.core.types import PmbArgs
 import pytest
 
 import pmb_test
@@ -18,13 +19,13 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
 
 
-def test_package_kernel_args(args):
+def test_package_kernel_args(args: PmbArgs):
     args.packages = ["package-one", "package-two"]
     with pytest.raises(RuntimeError) as e:
         pmb.build.envkernel.package_kernel(args)

@@ -3,6 +3,7 @@
 """ Test pmb.parse.apkindex """
 import collections
 import os
+from pmb.core.types import PmbArgs
 import pytest
 import sys
 
@@ -17,7 +18,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = args.work + "/log_testsuite.txt"
+    args.log = pmb.config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -143,7 +144,7 @@ def test_parse_next_block_conflict():
     assert start == [20]
 
 
-def test_parse_add_block(args):
+def test_parse_add_block(args: PmbArgs):
     func = pmb.parse.apkindex.parse_add_block
     multiple_providers = False
 
@@ -170,7 +171,7 @@ def test_parse_add_block(args):
     assert ret == {"test": block_new, "test_alias": block_new}
 
 
-def test_parse_add_block_multiple_providers(args):
+def test_parse_add_block_multiple_providers(args: PmbArgs):
     func = pmb.parse.apkindex.parse_add_block
 
     # One package without alias
