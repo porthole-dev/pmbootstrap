@@ -7,6 +7,7 @@ import os
 
 import pmb_test  # noqa
 import pmb.parse.kconfig
+from pmb.helpers.exceptions import NonBugError
 
 test_options_checked_count = None
 
@@ -345,7 +346,7 @@ def test_check(args, monkeypatch, tmpdir):
         handle.write('CONFIG_BOOL=m\n')
     must_exist = True
     pkgname = "linux-nokia-n900"
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(NonBugError) as e:
         func(args, pkgname, components_list, details, must_exist)
     assert "is not a valid kernel config" in str(e.value)
     os.unlink(path_kconfig)

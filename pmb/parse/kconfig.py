@@ -9,6 +9,7 @@ import pmb.build
 import pmb.config
 import pmb.parse
 import pmb.helpers.pmaports
+from pmb.helpers.exceptions import NonBugError
 
 
 def get_all_component_names():
@@ -271,12 +272,12 @@ def check(args, pkgname, components_list=[], details=False, must_exist=True):
         config_name_split = config_name.split(".")
 
         if len(config_name_split) != 2:
-            raise RuntimeError(f"{config_name} is not a valid kernel config "
-                               "name. Ensure that the _config property in your "
-                               "kernel APKBUILD has a . before the "
-                               "architecture name, e.g. .aarch64 or .armv7, "
-                               "and that there is no excess punctuation "
-                               "elsewhere in the name.")
+            raise NonBugError(f"ERROR: {config_name} is not a valid kernel config "
+                              "name. Ensure that the _config property in your "
+                              "kernel APKBUILD has a . before the "
+                              "architecture name, e.g. .aarch64 or .armv7, "
+                              "and that there is no excess punctuation "
+                              "elsewhere in the name.")
 
         config_arch = config_name_split[1]
         ret &= check_config(config_path, config_arch, pkgver, components_list,
