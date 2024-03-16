@@ -44,6 +44,27 @@ def get_mtk_label(path):
             return label
 
 
+def get_qcdt_type(path):
+    """ Get the dt.img type by reading the first four bytes of the file.
+        :param path: to the qcdt image extracted from boot.img
+        :returns: * None: dt.img is of unknown type
+                  * Type string (e.g. "qcom", "sprd", "exynos") """
+    if not os.path.exists(path):
+        return None
+
+    with open(path, 'rb') as f:
+        fourcc = f.read(4)
+
+        if fourcc == b'QCDT':
+            return "qcom"
+        elif fourcc == b'SPRD':
+            return "sprd"
+        elif fourcc == b'DTBH':
+            return "exynos"
+        else:
+            return None
+
+
 def bootimg(args, path):
     if not os.path.exists(path):
         raise RuntimeError("Could not find file '" + path + "'")
@@ -128,6 +149,9 @@ def bootimg(args, path):
 
     output["qcdt"] = ("true" if os.path.isfile(f"{bootimg_path}-dt") and
                       os.path.getsize(f"{bootimg_path}-dt") > 0 else "false")
+
+    if get_qcdt_type(f"{bootimg_path}-dt") is not None:
+        output["qcdt_type"] = get_qcdt_type(f"{bootimg_path}-dt")
 
     output["dtb_second"] = ("true" if is_dtb(f"{bootimg_path}-second")
                             else "false")
