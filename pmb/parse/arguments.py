@@ -937,7 +937,7 @@ def arguments():
     setattr(args, "from_argparse", copy.deepcopy(args))
     setattr(args.from_argparse, "from_argparse", args.from_argparse)
 
-    if hasattr(args, "fork_alpine_retain_branch") and args.fork_alpine_retain_branch:
+    if getattr(args, "fork_alpine_retain_branch", False):
         # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so
         # just set fork_alpine here to reduce repetition.
         args.fork_alpine = args.fork_alpine_retain_branch

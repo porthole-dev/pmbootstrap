@@ -165,7 +165,7 @@ def get_upstream_aport(args, pkgname, arch=None):
     pmb.helpers.git.clone(args, "aports_upstream")
     aports_upstream_path = args.work + "/cache_git/aports_upstream"
 
-    if hasattr(args, "fork_alpine_retain_branch") and args.fork_alpine_retain_branch:
+    if getattr(args, "fork_alpine_retain_branch", False):
         logging.info("Not changing aports branch as --fork-alpine-retain-branch was "
                      "used.")
     else:
