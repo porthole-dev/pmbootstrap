@@ -61,7 +61,7 @@ def variables(args, flavor, method):
     _dtb = ""
     if args.deviceinfo["append_dtb"] == "true":
         _dtb = "-dtb"
-    
+
     _no_reboot = ""
     if getattr(args, 'no_reboot', False):
         _no_reboot = "--no-reboot"

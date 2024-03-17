@@ -50,11 +50,11 @@ def run(args, action, flavor=None):
                            " in deviceinfo file. See also:"
                            " <https://wiki.postmarketos.org/wiki/"
                            "Deviceinfo_reference>")
-    
+
     if args.no_reboot and ("flash" not in action or method != "heimdall-bootimg"):
         raise RuntimeError("The '--no-reboot' option is only"
                            " supported when flashing with heimall-bootimg.")
-    
+
     if args.resume and ("flash" not in action or method != "heimdall-bootimg"):
         raise RuntimeError("The '--resume' option is only"
                            " supported when flashing with heimall-bootimg.")
