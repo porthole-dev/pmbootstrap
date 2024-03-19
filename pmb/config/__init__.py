@@ -675,6 +675,7 @@ kconfig_options_community = {
             "UCLAMP_TASK": True,  # Scheduler hints
             "UCLAMP_TASK_GROUP": True,  # Scheduler hints
             "UHID": True,  # e.g. Bluetooth input devices
+            "USB_STORAGE": True,  # USB mass storage devices
         },
     },
 }
