@@ -6,6 +6,8 @@ import logging
 import os
 import traceback
 
+from pmb.helpers.exceptions import NonBugError
+
 from . import config
 from . import parse
 from .config import init as config_init
@@ -73,6 +75,10 @@ def main():
     except KeyboardInterrupt:
         print("\nCaught KeyboardInterrupt, exiting …")
         sys.exit(130)  # SIGINT(2) + 128
+
+    except NonBugError as exception:
+        logging.error(exception)
+        return 2
 
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed
