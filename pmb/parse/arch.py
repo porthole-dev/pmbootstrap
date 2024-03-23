@@ -8,19 +8,7 @@ import pmb.parse.arch
 def alpine_native():
     machine = platform.machine()
 
-    mapping = {
-        "i686": "x86",
-        "x86_64": "x86_64",
-        "aarch64": "aarch64",
-        "arm64": "aarch64",
-        "armv6l": "armhf",
-        "armv7l": "armv7",
-        "armv8l": "armv7",
-    }
-    if machine in mapping:
-        return mapping[machine]
-    raise ValueError("Can not map platform.machine '" + machine + "'"
-                     " to the right Alpine Linux architecture")
+    return machine_type_to_alpine(machine)
 
 
 def from_chroot_suffix(args, suffix):
@@ -123,3 +111,21 @@ def cpu_emulation_required(arch):
 
     # No match: then it's required
     return True
+
+
+def machine_type_to_alpine(machine_type: str) -> str:
+    """Translate a machine type to an Alpine architecture. A machine type can come from
+    for example `$ uname -m` or platform.machine() from Python's standard library."""
+    mapping = {
+        "i686": "x86",
+        "x86_64": "x86_64",
+        "aarch64": "aarch64",
+        "arm64": "aarch64",
+        "armv6l": "armhf",
+        "armv7l": "armv7",
+        "armv8l": "armv7",
+    }
+    if machine_type in mapping:
+        return mapping[machine_type]
+    raise ValueError(f"Can not map machine type '{machine_type}'"
+                     " to the right Alpine Linux architecture")
