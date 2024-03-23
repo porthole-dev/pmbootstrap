@@ -3,10 +3,12 @@
 import glob
 import os
 import logging
+from argparse import Namespace
 
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
+import pmb.parse.arch
 import pmb.config.pmaports
 import pmb.build
 
@@ -33,6 +35,16 @@ def scp_abuild_key(args, user, host, port):
     remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
     pmb.helpers.run.user(args, command, output="tui")
+
+
+def ssh_find_arch(args: Namespace, user: str, host: str, port: str) -> str:
+    """Connect to a device via ssh and query the architecture."""
+    logging.info(f"Querying architecture of {user}@{host}")
+    command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
+    output = pmb.helpers.run.user(args, command, output_return=True)
+    foreign_machine_type = output.strip()  # Remove newline from output
+    alpine_architecture = pmb.parse.arch.machine_type_to_alpine(foreign_machine_type)
+    return alpine_architecture
 
 
 def ssh_install_apks(args, user, host, port, paths):
@@ -73,6 +85,9 @@ def sideload(args, user, host, port, arch, copy_key, pkgnames):
 
     paths = []
     channel = pmb.config.pmaports.read_config(args)["channel"]
+
+    if arch is None:
+        arch = ssh_find_arch(args, user, host, port)
 
     for pkgname in pkgnames:
         data_repo = pmb.parse.apkindex.package(args, pkgname, arch, True)

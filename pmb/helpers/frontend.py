@@ -141,9 +141,7 @@ def checksum(args):
 
 
 def sideload(args):
-    arch = args.deviceinfo["arch"]
-    if args.arch:
-        arch = args.arch
+    arch = args.arch
     user = args.user
     host = args.host
     pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key,

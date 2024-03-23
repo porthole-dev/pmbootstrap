@@ -220,8 +220,8 @@ def arguments_sideload(subparser):
                      default="22")
     ret.add_argument("--user", help="use a different username than the"
                      " one set in init")
-    ret.add_argument("--arch", help="use a different architecture than the one"
-                                    " set in init")
+    ret.add_argument("--arch", help="skip automatic architecture deduction and use the"
+                                    " given value")
     ret.add_argument("--install-key", help="install the apk key from this"
                      " machine if needed",
                      action="store_true", dest="install_key")
