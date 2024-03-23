@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fnmatch
 import platform
-import pmb.parse.arch
+import pmb.config
 
 
 def alpine_native():
