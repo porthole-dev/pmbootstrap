@@ -103,7 +103,7 @@ def cpu_emulation_required(arch):
     not_required = {
         "x86_64": ["x86"],
         "armv7": ["armel", "armhf"],
-        "aarch64": ["armel", "armhf", "armv7"],
+        "aarch64": ["armv7"],
     }
     if pmb.config.arch_native in not_required:
         if arch in not_required[pmb.config.arch_native]:
