@@ -43,7 +43,11 @@ def ssh_find_arch(args: Namespace, user: str, host: str, port: str) -> str:
     logging.info(f"Querying architecture of {user}@{host}")
     command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
     output = pmb.helpers.run.user(args, command, output_return=True)
-    foreign_machine_type = output.strip()  # Remove newline from output
+    # Split by newlines so we can pick out any irrelevant output, e.g. the "permanently
+    # added to list of known hosts" warnings.
+    output_lines = output.strip().splitlines()
+    # Pick out last line which should contain the foreign device's architecture
+    foreign_machine_type = output_lines[-1]
     alpine_architecture = pmb.parse.arch.machine_type_to_alpine(foreign_machine_type)
     return alpine_architecture
 
