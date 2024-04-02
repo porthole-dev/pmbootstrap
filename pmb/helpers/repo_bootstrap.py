@@ -4,6 +4,7 @@ import logging
 import glob
 
 import pmb.config.pmaports
+import pmb.helpers.repo
 
 
 progress_done = 0
@@ -179,6 +180,7 @@ def require_bootstrap(args, arch, trigger_str):
     :param trigger_str: message for the user to understand what caused this
     """
     if pmb.config.other.is_systemd_selected(args):
+        pmb.helpers.repo.update(args, arch)
         pkg = pmb.parse.apkindex.package(args, "postmarketos-base-systemd",
                                          arch, False)
         if not pkg:
