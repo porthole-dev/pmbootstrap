@@ -5,8 +5,9 @@ import sys
 import logging
 import os
 import traceback
+from argparse import Namespace
 
-from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.exceptions import BuildFailedError, NonBugError
 
 from . import config
 from . import parse
@@ -26,6 +27,16 @@ if version < (3, 9):
     print("(You are running it with Python " + str(version.major) +
           "." + str(version.minor) + ")")
     sys.exit()
+
+
+def print_log_hint(args: Namespace) -> None:
+    # Hints about the log file (print to stdout only)
+    log_hint = "Run 'pmbootstrap log' for details."
+    if not args or not os.path.exists(args.log):
+        log_hint += (" Alternatively you can use '--details-to-stdout' to get more"
+                     " output, e.g. 'pmbootstrap --details-to-stdout init'.")
+    print()
+    print(log_hint)
 
 
 def main():
@@ -80,6 +91,11 @@ def main():
         logging.error(exception)
         return 2
 
+    except BuildFailedError as exception:
+        logging.error(exception)
+        print_log_hint(args)
+        return 3
+
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed
         if not args:
@@ -89,14 +105,7 @@ def main():
         logging.info("See also: <https://postmarketos.org/troubleshooting>")
         logging.debug(traceback.format_exc())
 
-        # Hints about the log file (print to stdout only)
-        log_hint = "Run 'pmbootstrap log' for details."
-        if not args or not os.path.exists(args.log):
-            log_hint += (" Alternatively you can use '--details-to-stdout' to"
-                         " get more output, e.g. 'pmbootstrap"
-                         " --details-to-stdout init'.")
-        print()
-        print(log_hint)
+        print_log_hint(args)
         print()
         print("Before you report this error, ensure that pmbootstrap is "
               "up to date.")
