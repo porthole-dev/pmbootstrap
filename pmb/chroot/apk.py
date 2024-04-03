@@ -173,7 +173,7 @@ def install_run_apk(args, to_add, to_add_local, to_del, suffix):
     :param to_add_local: return of packages_get_locally_built_apks()
     :param to_del: list of pkgnames to be deleted, this should be set to
                    conflicting dependencies in any of the packages to be
-                   installed or their dependencies (e.g. ["osk-sdl"])
+                   installed or their dependencies (e.g. ["unl0kr"])
     :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
     # Sanitize packages: don't allow '--allow-untrusted' and other options
