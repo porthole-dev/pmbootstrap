@@ -1223,7 +1223,7 @@ def create_device_rootfs(args, step, steps):
         install_packages += ["lang", "musl-locales"]
 
     pmaports_cfg = pmb.config.pmaports.read_config(args)
-    # postmarketos-base supports a dummy package for blocking osk-sdl install
+    # postmarketos-base supports a dummy package for blocking unl0kr install
     # when not required
     if pmaports_cfg.get("supported_base_nofde", None):
         # The ondev installer *could* enable fde at runtime, so include it
