@@ -13,6 +13,7 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse
 import pmb.parse.arch
+from pmb.helpers.exceptions import BuildFailedError
 
 
 class BootstrapStage(enum.IntEnum):
@@ -529,8 +530,11 @@ def package(args, pkgname, arch=None, force=False, strict=False,
                          skip_init_buildenv, src):
         return
 
-    # Build and finish up
-    (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
-                                    suffix, src, bootstrap_stage)
+    try:
+        # Build and finish up
+        (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
+                                        suffix, src, bootstrap_stage)
+    except RuntimeError:
+        raise BuildFailedError(f"ERROR: Build for {arch}/{pkgname} failed!")
     finish(args, apkbuild, arch, output, strict, suffix)
     return output
