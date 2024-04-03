@@ -119,11 +119,11 @@ def test_install_run_apk(monkeypatch, args):
     reset_cmds()
     to_add = ["postmarketos-base", "device-ppp"]
     to_add_local = []
-    to_del = ["osk-sdl"]
+    to_del = ["unl0kr"]
     func(args, to_add, to_add_local, to_del, suffix)
     assert cmds_progress == [["apk", "add", "postmarketos-base", "device-ppp",
                               "--no-interactive"]]
-    assert cmds == [["apk", "--no-progress", "del", "osk-sdl",
+    assert cmds == [["apk", "--no-progress", "del", "unl0kr",
                      "--no-interactive"]]
 
     # Add with local package
