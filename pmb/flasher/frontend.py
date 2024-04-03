@@ -35,7 +35,7 @@ def kernel(args):
                  " booted:")
     logging.info("ssh {}@{}".format(args.user, pmb.config.default_ip))
     logging.info("NOTE: If you enabled full disk encryption, you should make"
-                 " sure that osk-sdl has been properly configured for your"
+                 " sure that Unl0kr has been properly configured for your"
                  " device")
 
 
