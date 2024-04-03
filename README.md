@@ -87,7 +87,7 @@ $ pmbootstrap checksum hello-world
 
 Generate a template for a new package:
 ```
-$ pmbootstrap newapkbuild "https://gitlab.com/postmarketOS/osk-sdl/-/archive/0.52/osk-sdl-0.52.tar.bz2"
+$ pmbootstrap newapkbuild "https://gitlab.com/postmarketOS/tinydm/-/archive/1.2.0/tinydm-1.2.0.tar.gz"
 ```
 
 #### Default architecture
