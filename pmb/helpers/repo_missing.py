@@ -57,7 +57,7 @@ def get_relevant_packages(args, arch, pkgname=None, built=False):
         :param pkgname: only look at a specific package (and its dependencies)
         :param built: include packages that have already been built
         :returns: an alphabetically sorted list of pkgnames, e.g.:
-                  ["devicepkg-dev", "hello-world", "osk-sdl"] """
+                  ["devicepkg-dev", "hello-world", "unl0kr"] """
     if pkgname:
         if not pmb.helpers.package.check_arch(args, pkgname, arch, False):
             raise RuntimeError(pkgname + " can't be built for " + arch + ".")
