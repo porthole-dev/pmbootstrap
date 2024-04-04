@@ -9,7 +9,7 @@ See also:
 """
 import os
 import hashlib
-import logging
+from pmb.helpers import logging
 from pathlib import Path
 from typing import List
 

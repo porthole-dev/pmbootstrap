@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
 import glob
-import logging
+from pmb.helpers import logging
 import os
 from pathlib import Path
 import pmb.chroot

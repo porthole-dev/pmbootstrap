@@ -1,6 +1,6 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+from pmb.helpers import logging
 import glob
 
 import pmb.config.pmaports

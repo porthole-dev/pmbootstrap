@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import glob
-import logging
+from pmb.helpers import logging
 
 import pmb.config
 import pmb.chroot.apk

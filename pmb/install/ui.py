@@ -1,6 +1,6 @@
 # Copyright 2023 Dylan Van Assche
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+from pmb.helpers import logging
 
 from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports

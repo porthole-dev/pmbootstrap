@@ -1,7 +1,8 @@
 # Copyright 2023 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-import logging
+from typing import List
+from pmb.helpers import logging
 import shlex
 from argparse import Namespace
 

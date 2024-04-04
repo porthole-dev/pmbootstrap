@@ -1,6 +1,7 @@
 # Copyright 2023 Pablo Castellano, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+from typing import Sequence
+from pmb.helpers import logging
 import os
 from pathlib import Path
 import re

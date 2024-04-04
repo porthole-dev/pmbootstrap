@@ -13,7 +13,7 @@ from . import config
 from . import parse
 from .config import init as config_init
 from .helpers import frontend
-from .helpers import logging as pmb_logging
+from .helpers import logging
 from .helpers import mount
 from .helpers import other
 from .core import Chroot
@@ -98,7 +98,8 @@ def main() -> int:
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed
         if not args:
-            logging.getLogger().setLevel(logging.DEBUG)
+            import logging as pylogging
+            pylogging.getLogger().setLevel(logging.DEBUG)
 
         logging.info("ERROR: " + str(e))
         logging.info("See also: <https://postmarketos.org/troubleshooting>")

@@ -130,3 +130,38 @@ def init(args: PmbArgs):
 def disable():
     logger = logging.getLogger()
     logger.disabled = True
+
+
+# We have our own logging wrappers so we can make mypy happy
+# by not calling the (undefined) logging.verbose() function.
+
+def critical(msg: object, *args, **kwargs):
+    logging.critical(msg, *args, **kwargs)
+
+
+def fatal(msg: object, *args, **kwargs):
+    logging.fatal(msg, *args, **kwargs)
+
+
+def error(msg: object, *args, **kwargs):
+    logging.error(msg, *args, **kwargs)
+
+
+def warning(msg: object, *args, **kwargs):
+    logging.warning(msg, *args, **kwargs)
+
+
+def info(msg: object, *args, **kwargs):
+    logging.info(msg, *args, **kwargs)
+
+
+def debug(msg: object, *args, **kwargs):
+    logging.debug(msg, *args, **kwargs)
+
+
+def verbose(msg: object, *args, **kwargs):
+    logging.verbose(msg, *args, **kwargs) # type: ignore[attr-defined]
+
+
+def log(level: int, msg: object, *args, **kwargs):
+    logging.log(level, msg, *args, **kwargs)

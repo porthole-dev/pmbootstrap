@@ -1,6 +1,6 @@
 # Copyright 2023 Mark Hargreaves, Luca Weiss
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+from pmb.helpers import logging
 from pathlib import Path
 import socket
 import time

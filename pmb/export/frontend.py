@@ -1,4 +1,4 @@
-import logging
+from pmb.helpers import logging
 import os
 
 from pmb.core.types import PmbArgs

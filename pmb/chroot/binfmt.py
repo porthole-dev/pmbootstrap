@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-import logging
+from pmb.helpers import logging
 
 from pmb.core.types import PmbArgs
 import pmb.helpers.run

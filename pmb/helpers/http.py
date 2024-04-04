@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import hashlib
 import json
-import logging
+from pmb.helpers import logging
 import os
 import shutil
 import urllib.request

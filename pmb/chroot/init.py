@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import enum
 import filecmp
-import glob
-import logging
+from typing import List
+from pmb.helpers import logging
 import os
 import filecmp
 

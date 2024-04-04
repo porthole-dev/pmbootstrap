@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import enum
-import logging
+from pmb.helpers import logging
 from pathlib import Path
 
 import pmb.build

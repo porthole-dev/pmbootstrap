@@ -9,7 +9,7 @@ See also:
     - pmb/helpers/repo.py (work with binary package repos)
 """
 import copy
-import logging
+from pmb.helpers import logging
 
 from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports

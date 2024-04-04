@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-import logging
+from pmb.helpers import logging
 import pmb.aportgen.busybox_static
 import pmb.aportgen.device
 import pmb.aportgen.gcc

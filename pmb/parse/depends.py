@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+from typing import Dict, List, Sequence, Set
+from pmb.helpers import logging
 import pmb.chroot
 import pmb.chroot.apk
 from pmb.core.types import PmbArgs

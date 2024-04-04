@@ -7,7 +7,7 @@ See also:
 - pmb/helpers/package.py (work with both)
 """
 import glob
-import logging
+from pmb.helpers import logging
 import os
 from pathlib import Path
 from typing import Optional, Sequence, Dict
