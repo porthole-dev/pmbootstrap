@@ -30,7 +30,7 @@ if version < (3, 9):
     sys.exit()
 
 
-def print_log_hint(args: Namespace) -> None:
+def print_log_hint(args: Any) -> None:
     # Hints about the log file (print to stdout only)
     log_hint = "Run 'pmbootstrap log' for details."
     if not args or not os.path.exists(args.log):
@@ -40,7 +40,7 @@ def print_log_hint(args: Namespace) -> None:
     print(log_hint)
 
 
-def main():
+def main() -> int:
     # Wrap everything to display nice error messages
     args = None
     try:
@@ -112,6 +112,8 @@ def main():
               " https://gitlab.com/postmarketOS/pmbootstrap/-/tags")
         print(f"Your version: {__version__}")
         return 1
+    
+    return 0
 
 
 if __name__ == "__main__":
