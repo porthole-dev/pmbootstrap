@@ -117,6 +117,9 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
             raise RuntimeError("failed to find the proper vmlinuz path")
 
     ncpus = os.cpu_count()
+    if not ncpus:
+        logging.warning("Couldn't get cpu count, defaulting to 4")
+        ncpus = 4
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
     # on systems with more than 8 CPUs
