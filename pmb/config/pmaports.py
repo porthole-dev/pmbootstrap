@@ -216,9 +216,6 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
                            " fix what git complained about, then try again: "
                            f"{args.aports}")
 
-    # Invalidate all caches
-    pmb.helpers.other.init_cache()
-
     # Verify pmaports.cfg on new branch
     read_config(args)
     return True

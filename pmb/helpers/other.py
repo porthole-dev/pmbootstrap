@@ -10,6 +10,7 @@ import pmb.config.init
 from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
+from typing import Dict, Any
 
 
 def folder_size(args: PmbArgs, path: Path):
@@ -97,7 +98,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("* Building chroots have a different username (#709)")
         logging.info("Migration will do the following:")
         logging.info("* Zap your chroots")
-        logging.info("* Adjust '" + pmb.config.work / "config_abuild/abuild.conf'")
+        logging.info(f"* Adjust '{pmb.config.work / 'config_abuild/abuild.conf'}'")
         if not pmb.helpers.cli.confirm(args):
             raise RuntimeError("Aborted.")
 
@@ -117,8 +118,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("Changelog:")
         logging.info("* Fix: cache_distfiles was writable for everyone")
         logging.info("Migration will do the following:")
-        logging.info("* Fix permissions of '" + pmb.config.work +
-                     "/cache_distfiles'")
+        logging.info(f"* Fix permissions of '{pmb.config.work / 'cache_distfiles'}'")
         if not pmb.helpers.cli.confirm(args):
             raise RuntimeError("Aborted.")
 
@@ -155,7 +155,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("  'git' instead of using it from an Alpine chroot")
         logging.info("Migration will do the following:")
         logging.info("* Check if 'git' is installed")
-        logging.info("* Change ownership to your user: " + path)
+        logging.info(f"* Change ownership to your user: {path}")
         if not pmb.helpers.cli.confirm(args):
             raise RuntimeError("Aborted.")
 
@@ -236,8 +236,8 @@ def migrate_work_folder(args: PmbArgs):
     if current != required:
         raise RuntimeError("Sorry, we can't migrate that automatically. Please"
                            " run 'pmbootstrap shutdown', then delete your"
-                           " current work folder manually ('sudo rm -rf " +
-                           pmb.config.work + "') and start over with 'pmbootstrap"
+                           " current work folder manually ('sudo rm -rf "
+                           f"{pmb.config.work}') and start over with 'pmbootstrap"
                            " init'. All your binary packages and caches will"
                            " be lost.")
 
@@ -281,22 +281,17 @@ def lookup(key):
     pmb.helpers.other.cache["mycache"][key] = ret
     return ret
 """
-cache = None
-
-
-def init_cache():
-    global cache
-    """Add a caching dict (caches parsing of files etc. for the current session)."""
-    repo_update = {"404": [], "offline_msg_shown": False}
-    cache = {"apkindex": {},
-             "apkbuild": {},
-             "apk_min_version_checked": [],
-             "apk_repository_list_updated": [],
-             "built": {},
-             "find_aport": {},
-             "pmb.helpers.package.depends_recurse": {},
-             "pmb.helpers.package.get": {},
-             "pmb.helpers.repo.update": repo_update,
-             "pmb.helpers.git.parse_channels_cfg": {},
-             "pmb.config.pmaports.read_config": None,
-             "pmb.config.pmaports.read_config_repos": None}
+cache: Dict[str, Any] = {
+    "apkindex": {},
+    "apkbuild": {},
+    "apk_min_version_checked": [],
+    "apk_repository_list_updated": [],
+    "built": {},
+    "find_aport": {},
+    "pmb.helpers.package.depends_recurse": {},
+    "pmb.helpers.package.get": {},
+    "pmb.helpers.repo.update": {"404": [], "offline_msg_shown": False},
+    "pmb.helpers.git.parse_channels_cfg": {},
+    "pmb.config.pmaports.read_config": None,
+    "pmb.config.pmaports.read_config_repos": None,
+}

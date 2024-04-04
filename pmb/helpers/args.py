@@ -113,7 +113,6 @@ def init(args: PmbArgs):
     fix_mirrors_postmarketos(args)
     pmb.config.merge_with_args(args)
     replace_placeholders(args)
-    pmb.helpers.other.init_cache()
 
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(args)
