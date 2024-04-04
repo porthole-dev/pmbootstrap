@@ -28,7 +28,8 @@ from pmb.core import Chroot, ChrootType
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion
-get_recommends_visited = []
+get_recommends_visited: List[str] = []
+get_selected_providers_visited: List[str] = []
 
 
 def get_subpartitions_size(args: PmbArgs, chroot: Chroot):
@@ -1072,7 +1073,7 @@ def install_on_device_installer(args: PmbArgs, step, steps):
                          boot_label, "pmOS_install", args.split, args.disk)
 
 
-def get_selected_providers(args: PmbArgs, packages, initial=True):
+def get_selected_providers(args: PmbArgs, packages):
     """
     Look through the specified packages and see which providers were selected
     in "pmbootstrap init". Install those as extra packages to select them
@@ -1086,9 +1087,6 @@ def get_selected_providers(args: PmbArgs, packages, initial=True):
     global get_selected_providers_visited
 
     ret = []
-
-    if initial:
-        get_selected_providers_visited = []
 
     for package in packages:
         if package in get_selected_providers_visited:
@@ -1111,12 +1109,12 @@ def get_selected_providers(args: PmbArgs, packages, initial=True):
         # Also iterate through dependencies to collect any providers they have
         depends = apkbuild["depends"]
         if depends:
-            ret += get_selected_providers(args, depends, False)
+            ret += get_selected_providers(args, depends)
 
     return ret
 
 
-def get_recommends(args: PmbArgs, packages, initial=True):
+def get_recommends(args: PmbArgs, packages) -> Sequence[str]:
     """
     Look through the specified packages and collect additional packages
     specified under _pmb_recommends in them. This is recursive, so it will dive
@@ -1137,9 +1135,6 @@ def get_recommends(args: PmbArgs, packages, initial=True):
     ret = []
     if not args.install_recommends:
         return ret
-
-    if initial:
-        get_recommends_visited = []
 
     for package in packages:
         if package in get_recommends_visited:
@@ -1169,11 +1164,11 @@ def get_recommends(args: PmbArgs, packages, initial=True):
             ret += recommends
             # Call recursively in case recommends have pmb_recommends of their
             # own.
-            ret += get_recommends(args, recommends, False)
+            ret += get_recommends(args, recommends)
         # Also iterate through dependencies to collect any recommends they have
         depends = apkbuild["depends"]
         if depends:
-            ret += get_recommends(args, depends, False)
+            ret += get_recommends(args, depends)
 
     return ret
 
