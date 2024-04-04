@@ -206,7 +206,7 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
         ret[attribute] = replace_variable(ret, value)
 
     if "subpackages" in apkbuild_attributes:
-        subpackages = OrderedDict()
+        subpackages: OrderedDict[str, str] = OrderedDict()
         for subpkg in ret["subpackages"].split(" "):
             if subpkg:
                 _parse_subpackage(path, lines, ret, subpackages, subpkg)
@@ -326,8 +326,12 @@ def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
     :returns: relevant variables from the APKBUILD. Arrays get returned as
               arrays.
     """
-    if path.is_dir():
+    if path.name != "APKBUILD":
         path = path / "APKBUILD"
+
+    if not path.exists():
+        raise FileNotFoundError(f"{path.relative_to(pmb.config.work)} not found!")
+
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     if path in pmb.helpers.other.cache["apkbuild"]:

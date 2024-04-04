@@ -22,6 +22,8 @@ def run(args: PmbArgs, action, flavor=None):
     # Verify action
     method = args.flash_method or args.deviceinfo["flash_method"]
     cfg = pmb.config.flashers[method]
+    if not isinstance(cfg["actions"], dict):
+        raise TypeError(f"Flashers misconfigured! {method} key 'actions' should be a dictionary")
     if action not in cfg["actions"]:
         raise RuntimeError("action " + action + " is not"
                            " configured for method " + method + "!"

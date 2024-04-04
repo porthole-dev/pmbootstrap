@@ -3,14 +3,16 @@
 import multiprocessing
 import os
 from pathlib import Path
-from pmb.core.types import PathString
+from pmb.core.types import AportGenEntry, PathString
 import pmb.parse.arch
 import sys
-from typing import Sequence
+from typing import Dict, List, Sequence, TypedDict
 
 #
 # Exported functions
 #
+# FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
+# this functions this way
 from pmb.config.load import load, sanity_checks
 from pmb.config.save import save
 from pmb.config.merge_with_args import merge_with_args
@@ -24,7 +26,7 @@ from pmb.config.other import is_systemd_selected
 pmb_src: Path = Path(Path(__file__) / "../../..").resolve()
 apk_keys_path: Path = (pmb_src / "pmb/data/keys")
 arch_native = pmb.parse.arch.alpine_native()
-work: Path = Path("/unitialised/pmbootstrap/work/dir")
+work: Path
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge
@@ -67,7 +69,7 @@ required_programs = [
 ]
 
 
-def sudo(cmd: Sequence[PathString]) -> Sequence[str]:
+def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
     """Adapt a command to run as root."""
     sudo = which_sudo()
     if sudo:
@@ -81,7 +83,7 @@ def work_dir(_work: Path) -> None:
     work directory before any other code is run. It is not meant to be used
     anywhere else."""
     global work
-    if work:
+    if "work" in globals():
         raise RuntimeError("work_dir() called multiple times!")
     work = _work
 
@@ -947,10 +949,10 @@ flash_methods = [
 # These folders will be mounted at the same location into the native
 # chroot, before the flash programs get started.
 flash_mount_bind = [
-    "sys/bus/usb/devices/",
-    "sys/dev/",
-    "sys/devices/",
-    "dev/bus/usb/"
+    Path("/sys/bus/usb/devices/"),
+    Path("/sys/dev/"),
+    Path("/sys/devices/"),
+    Path("/dev/bus/usb/"),
 ]
 
 """
@@ -969,7 +971,7 @@ Fastboot specific: $KERNEL_CMDLINE
 Heimdall specific: $PARTITION_INITFS
 uuu specific: $UUU_SCRIPT
 """
-flashers = {
+flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = {
     "fastboot": {
         "depends": [],  # pmaports.cfg: supported_fastboot_depends
         "actions": {
@@ -1129,7 +1131,7 @@ git_repos = {
 #
 # APORTGEN
 #
-aportgen = {
+aportgen: Dict[str, AportGenEntry] = {
     "cross": {
         "prefixes": ["busybox-static", "gcc", "musl", "grub-efi"],
         "confirm_overwrite": False,

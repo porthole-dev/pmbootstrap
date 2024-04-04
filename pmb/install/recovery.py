@@ -1,5 +1,6 @@
 # Copyright 2023 Attila Szollosi
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 from pmb.helpers import logging
 
 import pmb.chroot
@@ -13,7 +14,7 @@ def create_zip(args: PmbArgs, suffix):
     """
     Create android recovery compatible installer zip.
     """
-    zip_root = "/var/lib/postmarketos-android-recovery-installer/"
+    zip_root = Path("/var/lib/postmarketos-android-recovery-installer/")
     rootfs = "/mnt/rootfs_" + args.device
     flavor = pmb.helpers.frontend._parse_flavor(args)
     method = args.deviceinfo["flash_method"]
@@ -70,4 +71,4 @@ def create_zip(args: PmbArgs, suffix):
         ["gzip", "-f1", "rootfs.tar"],
         ["build-recovery-zip", args.device]]
     for command in commands:
-        pmb.chroot.root(args, command, suffix, zip_root)
+        pmb.chroot.root(args, command, suffix, working_dir=zip_root)

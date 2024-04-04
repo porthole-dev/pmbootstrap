@@ -168,7 +168,7 @@ def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str):
     return ret
 
 
-def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, suffix):
+def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot):
     """
     Run apk to add packages, and ensure only the desired packages get
     explicitly marked as installed.
@@ -178,7 +178,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, suffix):
     :param to_del: list of pkgnames to be deleted, this should be set to
                    conflicting dependencies in any of the packages to be
                    installed or their dependencies (e.g. ["unl0kr"])
-    :param suffix: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
+    :param chroot: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
@@ -210,16 +210,16 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, suffix):
             command = ["--no-network"] + command
         if i == 0:
             pmb.helpers.apk.apk_with_progress(args, ["apk"] + command,
-                                              chroot=True, suffix=suffix)
+                                              run_in_chroot=True, chroot=chroot)
         else:
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
             # They finish up almost instantly, so don't display a progress bar.
             pmb.chroot.root(args, ["apk", "--no-progress"] + command,
-                            chroot=suffix)
+                            chroot=chroot)
 
 
-def install(args: PmbArgs, packages, suffix: Chroot=Chroot.native(), build=True):
+def install(args: PmbArgs, packages, chroot: Chroot=Chroot.native(), build=True):
     """
     Install packages from pmbootstrap's local package index or the pmOS/Alpine
     binary package mirrors. Iterate over all dependencies recursively, and
@@ -232,7 +232,7 @@ def install(args: PmbArgs, packages, suffix: Chroot=Chroot.native(), build=True)
                   special case that all packages are expected to be in Alpine's
                   repositories, set this to False for performance optimization.
     """
-    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
 
     if not packages:
         logging.verbose("pmb.chroot.apk.install called with empty packages list,"
@@ -240,10 +240,10 @@ def install(args: PmbArgs, packages, suffix: Chroot=Chroot.native(), build=True)
         return
 
     # Initialize chroot
-    check_min_version(args, suffix)
-    pmb.chroot.init(args, suffix)
+    check_min_version(args, chroot)
+    pmb.chroot.init(args, chroot)
 
-    packages_with_depends = pmb.parse.depends.recurse(args, packages, suffix)
+    packages_with_depends = pmb.parse.depends.recurse(args, packages, chroot)
     to_add, to_del = packages_split_to_add_del(packages_with_depends)
 
     if build:
@@ -253,8 +253,8 @@ def install(args: PmbArgs, packages, suffix: Chroot=Chroot.native(), build=True)
     to_add_local = packages_get_locally_built_apks(args, to_add, arch)
     to_add_no_deps, _ = packages_split_to_add_del(packages)
 
-    logging.info(f"({suffix}) install {' '.join(to_add_no_deps)}")
-    install_run_apk(args, to_add_no_deps, to_add_local, to_del, suffix)
+    logging.info(f"({chroot}) install {' '.join(to_add_no_deps)}")
+    install_run_apk(args, to_add_no_deps, to_add_local, to_del, chroot)
 
 
 def installed(args: PmbArgs, suffix: Chroot=Chroot.native()):

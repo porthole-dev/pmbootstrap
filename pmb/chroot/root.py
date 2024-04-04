@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import shutil
 from typing import Sequence
 
@@ -11,7 +11,7 @@ import pmb.chroot.binfmt
 import pmb.helpers.run
 import pmb.helpers.run_core
 from pmb.core import Chroot
-from pmb.core.types import PathString, PmbArgs
+from pmb.core.types import Env, PathString, PmbArgs
 
 
 def executables_absolute_path():
@@ -29,7 +29,7 @@ def executables_absolute_path():
     return ret
 
 
-def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: Path=Path("/"), output="log",
+def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
          output_return=False, check=None, env={}, auto_init=True,
          disable_timeout=False, add_proxy_env_vars=True):
     """
@@ -38,6 +38,7 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
     :param auto_init: automatically initialize the chroot
+    :param working_dir: chroot-relative working directory
     :param add_proxy_env_vars: if True, preserve HTTP_PROXY etc. vars from host
                                environment. pmb.chroot.user sets this to False
                                when calling pmb.chroot.root, because it already
@@ -59,12 +60,12 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
     msg = f"({chroot}) % "
     for key, value in env.items():
         msg += f"{key}={value} "
-    if working_dir != Path("/"):
+    if working_dir != PurePath("/"):
         msg += f"cd {working_dir}; "
     msg += " ".join(cmd_str)
 
     # Merge env with defaults into env_all
-    env_all = {"CHARSET": "UTF-8",
+    env_all: Env = {"CHARSET": "UTF-8",
                "HISTFILE": "~/.ash_history",
                "HOME": "/root",
                "LANG": "UTF-8",
@@ -83,7 +84,7 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
     # cmd_sudo: ["sudo", "env", "-i", "sh", "-c", "PATH=... /sbin/chroot ..."]
     executables = executables_absolute_path()
     cmd_chroot = [executables["chroot"], chroot.path, "/bin/sh", "-c",
-                  pmb.helpers.run_core.flat_cmd(cmd_str, working_dir)]
+                  pmb.helpers.run_core.flat_cmd(cmd_str, Path(working_dir))]
     cmd_sudo = pmb.config.sudo([
         "env", "-i", executables["sh"], "-c",
         pmb.helpers.run_core.flat_cmd(cmd_chroot, env=env_all)]

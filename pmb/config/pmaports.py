@@ -9,13 +9,14 @@ import pmb.config
 from pmb.core.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.pmaports
+import pmb.parse.version
 
 
 def check_legacy_folder():
     # Existing pmbootstrap/aports must be a symlink
-    link = pmb.config.pmb_src + "/aports"
+    link = pmb.config.pmb_src / "aports"
     if os.path.exists(link) and not os.path.islink(link):
-        raise RuntimeError("The path '" + link + "' should be a"
+        raise RuntimeError(f"The path '{link}' should be a"
                            " symlink pointing to the new pmaports"
                            " repository, which was split from the"
                            " pmbootstrap repository (#383). Consider"
@@ -58,21 +59,21 @@ def check_version_pmaports(real):
     raise RuntimeError("Run 'pmbootstrap pull' to update your pmaports.")
 
 
-def check_version_pmbootstrap(min):
+def check_version_pmbootstrap(min_ver):
     # Compare versions
     real = pmb.__version__
-    if pmb.parse.version.compare(real, min) >= 0:
+    if pmb.parse.version.compare(real, min_ver) >= 0:
         return
 
     # Show versions
-    logging.info("NOTE: you are using pmbootstrap version " + real + ", but" +
-                 " version " + min + " is required.")
+    logging.info(f"NOTE: you are using pmbootstrap version {real}, but"
+                 f" version {min_ver} is required.")
 
     # Error for git clone
     pmb_src = pmb.config.pmb_src
-    if os.path.exists(pmb_src + "/.git"):
+    if os.path.exists(pmb_src / ".git"):
         raise RuntimeError("Please update your local pmbootstrap repository."
-                           " Usually with: 'git -C \"" + pmb_src + "\" pull'")
+                          f" Usually with: 'git -C \"{pmb_src}\" pull'")
 
     # Error for package manager installation
     raise RuntimeError("Please update your pmbootstrap version (with your"
@@ -121,7 +122,7 @@ def read_config(args: PmbArgs):
     path_cfg = args.aports / "pmaports.cfg"
     if not os.path.exists(path_cfg):
         raise RuntimeError("Invalid pmaports repository, could not find the"
-                           " config: " + path_cfg)
+                          f" config: {path_cfg}")
 
     # Load the config
     cfg = configparser.ConfigParser()

@@ -1,5 +1,6 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 import glob
 
@@ -10,7 +11,7 @@ from pmb.core.types import PmbArgs
 
 progress_done = 0
 progress_total = 0
-progress_step = None
+progress_step: str
 
 
 def get_arch(args: PmbArgs):
@@ -115,7 +116,7 @@ def log_progress(msg):
     progress_done += 1
 
 
-def run_steps(args: PmbArgs, steps, arch, suffix):
+def run_steps(args: PmbArgs, steps, arch, chroot: Chroot):
     global progress_step
 
     for step, bootstrap_line in steps.items():
@@ -128,14 +129,14 @@ def run_steps(args: PmbArgs, steps, arch, suffix):
         if "[usr_merge]" in bootstrap_line:
             usr_merge = pmb.chroot.UsrMerge.ON
 
-        if suffix != "native":
+        if chroot != Chroot.native():
             log_progress(f"initializing native chroot (merge /usr: {usr_merge.name})")
             # Native chroot needs pmOS binary package repo for cross compilers
-            pmb.chroot.init(args, "native", usr_merge)
+            pmb.chroot.init(args, Chroot.native(), usr_merge)
 
-        log_progress(f"initializing {suffix} chroot (merge /usr: {usr_merge.name})")
+        log_progress(f"initializing {chroot} chroot (merge /usr: {usr_merge.name})")
         # Initialize without pmOS binary package repo
-        pmb.chroot.init(args, suffix, usr_merge, postmarketos_mirror=False)
+        pmb.chroot.init(args, chroot, usr_merge, postmarketos_mirror=False)
 
         for package in get_packages(bootstrap_line):
             log_progress(f"building {package}")

@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # PYTHON_ARGCOMPLETE_OK
 import sys
-import logging
 import os
 import traceback
-from argparse import Namespace
+from typing import Any, Optional
 
 from pmb.helpers.exceptions import BuildFailedError, NonBugError
 
@@ -42,7 +41,9 @@ def print_log_hint(args: Any) -> None:
 
 def main() -> int:
     # Wrap everything to display nice error messages
-    args = None
+
+    # FIXME: can't use PmbArgs here because it creates a circular import
+    args: Any
     try:
         # Parse arguments, set up logging
         args = parse.arguments()

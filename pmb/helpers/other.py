@@ -12,6 +12,8 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 from typing import Dict, Any
 
+from typing import Any, Dict
+
 
 def folder_size(args: PmbArgs, path: Path):
     """Run `du` to calculate the size of a folder.

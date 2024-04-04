@@ -5,7 +5,6 @@ import filecmp
 from typing import List
 from pmb.helpers import logging
 import os
-import filecmp
 
 import pmb.chroot
 import pmb.chroot.apk_static
@@ -17,7 +16,7 @@ import pmb.helpers.run
 import pmb.parse.arch
 from pmb.core import Chroot, ChrootType
 
-cache_chroot_is_outdated = []
+cache_chroot_is_outdated: List[str] = []
 
 class UsrMerge(enum.Enum):
     """
@@ -98,7 +97,7 @@ def warn_if_chroot_is_outdated(args: PmbArgs, chroot: Chroot):
     global cache_chroot_is_outdated
 
     # Only check / display the warning once per session
-    if chroot in cache_chroot_is_outdated:
+    if str(chroot) in cache_chroot_is_outdated:
         return
 
     if pmb.config.workdir.chroots_outdated(args, chroot):
@@ -107,7 +106,7 @@ def warn_if_chroot_is_outdated(args: PmbArgs, chroot: Chroot):
                         f" {days_warn} days. Consider running"
                         " 'pmbootstrap zap'.")
 
-    cache_chroot_is_outdated += [chroot]
+    cache_chroot_is_outdated += [str(chroot)]
 
 
 def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,

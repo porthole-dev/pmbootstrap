@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Optional
 import pmb.config.pmaports
 from pmb.core.types import PmbArgs
 
@@ -14,6 +15,9 @@ def variables(args: PmbArgs, flavor, method):
     # TODO Remove _partition_system deviceinfo support once pmaports has been
     # updated and minimum pmbootstrap version bumped.
     # See also https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2243
+
+    _partition_kernel: Optional[str]
+    _partition_rootfs: Optional[str]
 
     if method.startswith("fastboot"):
         _partition_kernel = args.deviceinfo["flash_fastboot_partition_kernel"]\

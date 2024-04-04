@@ -75,9 +75,9 @@ def rewrite(args: PmbArgs, pkgname, path_original="", fields={}, replace_pkgname
     # Header
     if path_original:
         lines_new = [
-            "# Automatically generated aport, do not edit!\n",
-            "# Generator: pmbootstrap aportgen " + pkgname + "\n",
-            "# Based on: " + path_original + "\n",
+             "# Automatically generated aport, do not edit!\n",
+            f"# Generator: pmbootstrap aportgen {pkgname}\n",
+            f"# Based on: {path_original}\n",
             "\n",
         ]
     else:

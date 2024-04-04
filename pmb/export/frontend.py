@@ -28,7 +28,7 @@ def frontend(args: PmbArgs):
         pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.device))
 
     # Do the export, print all files
-    logging.info("Export symlinks to: " + target)
+    logging.info(f"Export symlinks to: {target}")
     if args.odin_flashable_tar:
         pmb.export.odin(args, flavor, target)
     pmb.export.symlinks(args, flavor, target)

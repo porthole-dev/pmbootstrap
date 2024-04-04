@@ -423,8 +423,7 @@ def ask_for_device(args: PmbArgs):
 
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(args, device, 'deviceinfo')
-        device_exists = device_path is not None
-        if not device_exists:
+        if device_path is None:
             if device == args.device:
                 raise RuntimeError(
                     "This device does not exist anymore, check"
@@ -449,7 +448,7 @@ def ask_for_device(args: PmbArgs):
         break
 
     kernel = ask_for_device_kernel(args, device)
-    return (device, device_exists, kernel)
+    return (device, device_path is not None, kernel)
 
 
 def ask_for_additional_options(args: PmbArgs, cfg):
@@ -739,7 +738,7 @@ def frontend(args: PmbArgs):
 
     # Zap existing chroots
     if (work_exists and device_exists and
-            len(glob.glob(pmb.config.work / "chroot_*")) and
+            len(list(Chroot.iter_patterns())) and
             pmb.helpers.cli.confirm(
                 args, "Zap existing chroots to apply configuration?",
                 default=True)):

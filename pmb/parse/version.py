@@ -108,12 +108,12 @@ def parse_suffix(rest):
     C equivalent: get_token(), case TOKEN_SUFFIX
     """
 
-    suffixes = collections.OrderedDict([
+    name_suffixes = collections.OrderedDict([
         ("pre", ["alpha", "beta", "pre", "rc"]),
         ("post", ["cvs", "svn", "git", "hg", "p"]),
     ])
 
-    for name, suffixes in suffixes.items():
+    for name, suffixes in name_suffixes.items():
         for i, suffix in enumerate(suffixes):
             if not rest.startswith(suffix):
                 continue
@@ -203,7 +203,7 @@ def validate(version):
     return True
 
 
-def compare(a_version, b_version, fuzzy=False):
+def compare(a_version: str, b_version: str, fuzzy=False):
     """
     Compare two versions A and B to find out which one is higher, or if
     both are equal.
@@ -307,4 +307,4 @@ def check_string(a_version, rule):
 
     # Compare
     result = compare(a_version, b_version)
-    return result in expected_results
+    return not expected_results or result in expected_results

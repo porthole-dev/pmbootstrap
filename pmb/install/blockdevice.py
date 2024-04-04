@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Optional
 from pmb.helpers import logging
 import os
 import glob
@@ -20,7 +21,7 @@ def previous_install(args: PmbArgs, path: Path):
     :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
     label = ""
-    for blockdevice_outside in [f"{path}1", f"{path}p1"]:
+    for blockdevice_outside in [path.with_stem(f"{path.name}1"), path.with_stem(f"{path.name}p1")]:
         if not os.path.exists(blockdevice_outside):
             continue
         blockdevice_inside = "/dev/diskp1"
@@ -39,14 +40,14 @@ def previous_install(args: PmbArgs, path: Path):
     return "pmOS_boot" in label
 
 
-def mount_disk(args: PmbArgs, path):
+def mount_disk(args: PmbArgs, path: Path):
     """
     :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
     # Sanity checks
     if not os.path.exists(path):
         raise RuntimeError(f"The disk block device does not exist: {path}")
-    for path_mount in glob.glob(f"{path}*"):
+    for path_mount in path.parent.glob(f"{path.name}*"):
         if pmb.helpers.mount.ismount(path_mount):
             raise RuntimeError(f"{path_mount} is mounted! Will not attempt to"
                                " format this!")
@@ -124,7 +125,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
         pmb.helpers.mount.bind_file(args, device, Chroot.native() / mount_point)
 
 
-def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk):
+def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Optional[Path]):
     """
     Create /dev/install (the "install blockdevice").
 

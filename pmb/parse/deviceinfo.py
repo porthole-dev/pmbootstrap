@@ -113,7 +113,8 @@ def _parse_kernel_suffix(args: PmbArgs, info, device, kernel):
     return ret
 
 
-def deviceinfo(args: PmbArgs, device=None, kernel=None):
+# FIXME (#2324): Make deviceinfo a type! (class!!!)
+def deviceinfo(args: PmbArgs, device=None, kernel=None) -> Dict[str, str]:
     """
     :param device: defaults to args.device
     :param kernel: defaults to args.kernel

@@ -17,12 +17,12 @@ def package_from_aports(args: PmbArgs, pkgname_depend):
               depends, version. The version is the combined pkgver and pkgrel.
     """
     # Get the aport
-    aport = pmb.helpers.pmaports.find(args, pkgname_depend, False)
+    aport = pmb.helpers.pmaports.find_optional(args, pkgname_depend)
     if not aport:
         return None
 
     # Parse its version
-    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     pkgname = apkbuild["pkgname"]
     version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 
@@ -118,7 +118,7 @@ def package_from_index(args: PmbArgs, pkgname_depend, pkgnames_install, package_
     return provider
 
 
-def recurse(args: PmbArgs, pkgnames, suffix: Chroot=Chroot.native()):
+def recurse(args: PmbArgs, pkgnames, suffix: Chroot=Chroot.native()) -> Sequence[str]:
     """
     Find all dependencies of the given pkgnames.
 
@@ -134,8 +134,8 @@ def recurse(args: PmbArgs, pkgnames, suffix: Chroot=Chroot.native()):
 
     # Iterate over todo-list until is is empty
     todo = list(pkgnames)
-    required_by = {}
-    ret = []
+    required_by: Dict[str, Set[str]] = {}
+    ret: List[str] = []
     while len(todo):
         # Skip already passed entries
         pkgname_depend = todo.pop(0)

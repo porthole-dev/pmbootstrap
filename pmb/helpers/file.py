@@ -7,16 +7,17 @@ import time
 
 from pmb.core.types import PmbArgs
 import pmb.helpers.run
+import pmb.helpers.pmaports
 
 
-def replace(path, old, new):
+def replace(path: Path, old: str, new: str):
     text = ""
-    with open(path, "r", encoding="utf-8") as handle:
+    with path.open("r", encoding="utf-8") as handle:
         text = handle.read()
 
     text = text.replace(old, new)
 
-    with open(path, "w", encoding="utf-8") as handle:
+    with path.open("w", encoding="utf-8") as handle:
         handle.write(text)
 
 
@@ -29,7 +30,7 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     :param in_quotes: expect the value to be in quotation marks ("")
     """
     # Read old value
-    path = pmb.helpers.pmaports.find(args, pkgname) + "/APKBUILD"
+    path = pmb.helpers.pmaports.find(args, pkgname) / "APKBUILD"
     apkbuild = pmb.parse.apkbuild(path)
     old = apkbuild[key]
 
@@ -95,7 +96,7 @@ def symlink(args: PmbArgs, file: Path, link: Path):
         if (os.path.islink(link) and
                 os.path.realpath(os.readlink(link)) == os.path.realpath(file)):
             return
-        raise RuntimeError("File exists: " + link)
+        raise RuntimeError(f"File exists: {link}")
     elif link.is_symlink():
         link.unlink()
 

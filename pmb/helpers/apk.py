@@ -1,10 +1,12 @@
 # Copyright 2023 Johannes Marbach, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pathlib import Path
+from typing import List, Sequence
 
 import pmb.chroot.root
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.core.types import PathString, PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.helpers.run_core
@@ -12,7 +14,7 @@ import pmb.parse.version
 from pmb.core import Chroot
 
 
-def _run(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroot.native(), output="log"):
+def _run(args: PmbArgs, command, run_in_chroot=False, chroot: Chroot=Chroot.native(), output="log"):
     """Run a command.
 
     :param command: command in list form
@@ -23,8 +25,8 @@ def _run(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroot.native(), o
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
-    if chroot:
-        return pmb.chroot.root(args, command, output=output, suffix=suffix,
+    if run_in_chroot:
+        return pmb.chroot.root(args, command, output=output, chroot=chroot,
                                disable_timeout=True)
     return pmb.helpers.run.root(args, command, output=output)
 
@@ -41,7 +43,7 @@ def _prepare_fifo(args: PmbArgs, run_in_chroot=False, chroot: Chroot=Chroot.nati
               relative to the host)
     """
     if run_in_chroot:
-        fifo = "/tmp/apk_progress_fifo"
+        fifo = Path("/tmp/apk_progress_fifo")
         fifo_outside = chroot / fifo
     else:
         _run(args, ["mkdir", "-p", pmb.config.work / "tmp"])
@@ -82,7 +84,7 @@ def _compute_progress(line):
     return cur / tot if tot > 0 else 0
 
 
-def apk_with_progress(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroot.native()):
+def apk_with_progress(args: PmbArgs, command: Sequence[PathString], run_in_chroot=False, chroot: Chroot=Chroot.native()):
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
@@ -91,12 +93,13 @@ def apk_with_progress(args: PmbArgs, command, chroot=False, suffix: Chroot=Chroo
                    set to True.
     :raises RuntimeError: when the apk command fails
     """
-    fifo, fifo_outside = _prepare_fifo(args, chroot, suffix)
-    command_with_progress = _create_command_with_progress(command, fifo)
-    log_msg = " ".join(command)
-    with _run(args, ['cat', fifo], chroot=chroot, suffix=suffix,
+    fifo, fifo_outside = _prepare_fifo(args, run_in_chroot, chroot)
+    _command: List[str] = [os.fspath(c) for c in command]
+    command_with_progress = _create_command_with_progress(_command, fifo)
+    log_msg = " ".join(_command)
+    with _run(args, ['cat', fifo], run_in_chroot=run_in_chroot, chroot=chroot,
               output="pipe") as p_cat:
-        with _run(args, command_with_progress, chroot=chroot, suffix=suffix,
+        with _run(args, command_with_progress, run_in_chroot=run_in_chroot, chroot=chroot,
                   output="background") as p_apk:
             while p_apk.poll() is None:
                 line = p_cat.stdout.readline().decode('utf-8')

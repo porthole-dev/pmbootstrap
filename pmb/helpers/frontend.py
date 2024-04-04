@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
+from typing import List, Sequence
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.core.types import PathString, PmbArgs
 import pmb.export
 import pmb.flasher
 import pmb.helpers.aportupgrade
@@ -35,7 +36,6 @@ import pmb.netboot
 import pmb.parse
 import pmb.qemu
 import pmb.sideload
-from argparse import Namespace
 from pmb.core import ChrootType, Chroot
 
 
@@ -48,13 +48,13 @@ def _parse_flavor(args: PmbArgs, autoinstall=True):
     # identifier that is typically in the form
     # "postmarketos-<manufacturer>-<device/chip>", e.g.
     # "postmarketos-qcom-sdm845"
-    suffix = Chroot(ChrootType.ROOTFS, args.device)
+    chroot = Chroot(ChrootType.ROOTFS, args.device)
     flavor = pmb.chroot.other.kernel_flavor_installed(
-        args, suffix, autoinstall)
+        args, chroot, autoinstall)
 
     if not flavor:
         raise RuntimeError(
-            "No kernel flavors installed in chroot " + suffix + "! Please let"
+           f"No kernel flavors installed in chroot '{chroot}'! Please let"
             " your device package depend on a package starting with 'linux-'.")
     return flavor
 
@@ -64,9 +64,9 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.ROOTFS, args.device)
     elif args.buildroot:
         if args.buildroot == "device":
-            return Chroot(ChrootType.BUILDROOT, args.deviceinfo["arch"])
+            return Chroot.buildroot(args.deviceinfo["arch"])
         else:
-            return Chroot(ChrootType.BUILDROOT, args.buildroot)
+            return Chroot.buildroot(args.buildroot)
     elif args.suffix:
         (_t, s) = args.suffix.split("_")
         t: ChrootType = ChrootType(_t)
@@ -416,11 +416,16 @@ def kconfig(args: PmbArgs):
             raise RuntimeError("kconfig check failed!")
 
         # Default to all kernel packages
-        packages = args.package
+        packages: List[str]
+        # FIXME (#2324): figure out the args.package vs args.packages situation
+        if isinstance(args.package, list):
+            packages = args.package
+        else:
+            packages = [args.package]
         if not args.package:
-            for aport in pmb.helpers.pmaports.get_list(args):
-                if aport.startswith("linux-"):
-                    packages.append(aport.split("linux-")[1])
+            for pkg in pmb.helpers.pmaports.get_list(args):
+                if pkg.startswith("linux-"):
+                    packages.append(pkg.split("linux-")[1])
 
         # Iterate over all kernels
         error = False
@@ -431,7 +436,7 @@ def kconfig(args: PmbArgs):
                 pkgname = package if package.startswith("linux-") \
                     else "linux-" + package
                 aport = pmb.helpers.pmaports.find(args, pkgname)
-                apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
+                apkbuild = pmb.parse.apkbuild(aport)
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
@@ -449,7 +454,7 @@ def kconfig(args: PmbArgs):
             logging.info("kconfig check succeeded!")
     elif args.action_kconfig in ["edit", "migrate"]:
         if args.package:
-            pkgname = args.package
+            pkgname = args.package if isinstance(args.package, str) else args.package[0]
         else:
             pkgname = args.deviceinfo["codename"]
         use_oldconfig = args.action_kconfig == "migrate"
@@ -472,7 +477,7 @@ def deviceinfo_parse(args: PmbArgs):
 
 def apkbuild_parse(args: PmbArgs):
     # Default to all packages
-    packages = args.packages
+    packages: Sequence[str] = args.packages
     if not packages:
         packages = pmb.helpers.pmaports.get_list(args)
 
@@ -480,8 +485,7 @@ def apkbuild_parse(args: PmbArgs):
     for package in packages:
         print(package + ":")
         aport = pmb.helpers.pmaports.find(args, package)
-        path = aport + "/APKBUILD"
-        print(json.dumps(pmb.parse.apkbuild(path), indent=4,
+        print(json.dumps(pmb.parse.apkbuild(aport), indent=4,
                          sort_keys=True))
 
 
@@ -489,8 +493,7 @@ def apkindex_parse(args: PmbArgs):
     result = pmb.parse.apkindex.parse(args.apkindex_path)
     if args.package:
         if args.package not in result:
-            raise RuntimeError("Package not found in the APKINDEX: " +
-                               args.package)
+            raise RuntimeError(f"Package not found in the APKINDEX: {args.package}")
         result = result[args.package]
     print(json.dumps(result, indent=4))
 
@@ -536,14 +539,14 @@ def shutdown(args: PmbArgs):
 
 def stats(args: PmbArgs):
     # Chroot suffix
-    suffix = "native"
+    chroot = Chroot.native()
     if args.arch != pmb.config.arch_native:
-        suffix = "buildroot_" + args.arch
+        chroot = Chroot.buildroot(args.arch)
 
     # Install ccache and display stats
-    pmb.chroot.apk.install(args, ["ccache"], suffix)
-    logging.info(f"({suffix}) % ccache -s")
-    pmb.chroot.user(args, ["ccache", "-s"], suffix, output="stdout")
+    pmb.chroot.apk.install(args, ["ccache"], chroot)
+    logging.info(f"({chroot}) % ccache -s")
+    pmb.chroot.user(args, ["ccache", "-s"], chroot, output="stdout")
 
 
 def work_migrate(args: PmbArgs):
@@ -558,7 +561,7 @@ def log(args: PmbArgs):
         pmb.helpers.run.user(args, ["truncate", "-s", "0", args.log])
         pmb.helpers.run.user(args, ["truncate", "-s", "0", log_testsuite])
 
-    cmd = ["tail", "-n", args.lines, "-F"]
+    cmd: List[PathString] = ["tail", "-n", args.lines, "-F"]
 
     # Follow the testsuite's log file too if it exists. It will be created when
     # starting a test case that writes to it (git -C test grep log_testsuite).
@@ -620,7 +623,7 @@ def pull(args: PmbArgs):
 
 
 def lint(args: PmbArgs):
-    packages = args.packages
+    packages: Sequence[str] = args.packages
     if not packages:
         packages = pmb.helpers.pmaports.get_list(args)
 

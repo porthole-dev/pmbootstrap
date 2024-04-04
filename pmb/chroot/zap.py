@@ -11,7 +11,7 @@ from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
-from pmb.core import Chroot, ChrootType
+from pmb.core import Chroot
 
 
 def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
@@ -65,6 +65,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
 
     # Delete everything matching the patterns
     for pattern in patterns:
+        logging.debug(f"Deleting {pattern}")
         pattern = os.path.realpath(f"{pmb.config.work}/{pattern}")
         matches = glob.glob(pattern)
         for match in matches:
@@ -114,7 +115,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
                 continue
 
             # Aport path
-            aport_path = pmb.helpers.pmaports.find(args, origin, False)
+            aport_path = pmb.helpers.pmaports.find_optional(args, origin)
             if not aport_path:
                 logging.info(f"% rm {apk_path_short}"
                              f" ({origin} aport not found)")
@@ -154,7 +155,7 @@ def zap_pkgs_online_mismatch(args: PmbArgs, confirm=True, dry=False):
             suffix = Chroot.native()
         else:
             try:
-                suffix = Chroot(ChrootType.BUILDROOT, arch)
+                suffix = Chroot.buildroot(arch)
             except ValueError:
                 continue # Ignore invalid directory name
 

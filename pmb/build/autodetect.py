@@ -12,7 +12,8 @@ import pmb.parse.arch
 from pmb.core import Chroot, ChrootType
 
 
-def arch_from_deviceinfo(args: PmbArgs, pkgname, aport):
+# FIXME (#2324): type hint Arch
+def arch_from_deviceinfo(args: PmbArgs, pkgname, aport: Path) -> Optional[str]:
     """
     The device- packages are noarch packages. But it only makes sense to build
     them for the device's architecture, which is specified in the deviceinfo
@@ -23,10 +24,10 @@ def arch_from_deviceinfo(args: PmbArgs, pkgname, aport):
     """
     # Require a deviceinfo file in the aport
     if not pkgname.startswith("device-"):
-        return
-    deviceinfo = aport + "/deviceinfo"
-    if not os.path.exists(deviceinfo):
-        return
+        return None
+    deviceinfo = aport / "deviceinfo"
+    if not deviceinfo.exists():
+        return None
 
     # Return its arch
     device = pkgname.split("-", 1)[1]
@@ -35,7 +36,7 @@ def arch_from_deviceinfo(args: PmbArgs, pkgname, aport):
     return arch
 
 
-def arch(args: PmbArgs, pkgname):
+def arch(args: PmbArgs, pkgname: str):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
@@ -47,6 +48,8 @@ def arch(args: PmbArgs, pkgname):
               * first arch in the APKBUILD
     """
     aport = pmb.helpers.pmaports.find(args, pkgname)
+    if not aport:
+        raise FileNotFoundError(f"APKBUILD not found for {pkgname}")
     ret = arch_from_deviceinfo(args, pkgname, aport)
     if ret:
         return ret
@@ -80,7 +83,7 @@ def chroot(apkbuild: Dict[str, str], arch: str) -> Chroot:
     if "pmb:cross-native" in apkbuild["options"]:
         return Chroot.native()
 
-    return Chroot(ChrootType.BUILDROOT, arch)
+    return Chroot.buildroot(arch)
 
 
 def crosscompile(args: PmbArgs, apkbuild, arch, suffix: Chroot):

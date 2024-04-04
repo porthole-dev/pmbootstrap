@@ -3,10 +3,13 @@
 import argparse
 import copy
 import os
+from pathlib import Path
 import sys
 
+from pmb.core.types import PmbArgs
+
 try:
-    import argcomplete
+    import argcomplete # type:ignore[import-untyped]
 except ImportError:
     pass
 
@@ -109,7 +112,7 @@ def arguments_install(subparser):
                        help="do not create an image file, instead"
                             " write to the given block device (SD card, USB"
                             " stick, etc.), for example: '/dev/mmcblk0'",
-                       metavar="BLOCKDEV")
+                       metavar="BLOCKDEV", type=lambda x: Path(x))
     group.add_argument("--android-recovery-zip",
                        help="generate TWRP flashable zip (recommended read:"
                             " https://postmarketos.org/recoveryzip)",
@@ -205,7 +208,8 @@ def arguments_export(subparser):
 
     ret.add_argument("export_folder", help="export folder, defaults to"
                                            " /tmp/postmarketOS-export",
-                     default="/tmp/postmarketOS-export", nargs="?")
+                     default=Path("/tmp/postmarketOS-export"), nargs="?",
+                     type=lambda x: Path(x))
     ret.add_argument("--odin", help="odin flashable tar"
                                     " (boot.img/kernel+initramfs only)",
                      action="store_true", dest="odin_flashable_tar")
@@ -651,8 +655,8 @@ def get_parser():
                              f" default: {mirrors_pmos_default}",
                         metavar="URL", action="append", default=[])
     parser.add_argument("-m", "--mirror-alpine", dest="mirror_alpine",
-                        help="Alpine Linux mirror, default: " +
-                             pmb.config.defaults["mirror_alpine"],
+                        help="Alpine Linux mirror, default: "
+                            f"{pmb.config.defaults['mirror_alpine']}",
                         metavar="URL")
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
     parser.add_argument("-E", "--extra-space",
@@ -923,7 +927,8 @@ def get_parser():
     # Action: bootimg_analyze
     bootimg_analyze = sub.add_parser("bootimg_analyze", help="Extract all the"
                                      " information from an existing boot.img")
-    bootimg_analyze.add_argument("path", help="path to the boot.img")
+    bootimg_analyze.add_argument("path", help="path to the boot.img",
+                                 type=lambda x: Path(x))
     bootimg_analyze.add_argument("--force", "-f", action="store_true",
                                  help="force even if the file seems to be"
                                       " invalid")
@@ -940,7 +945,7 @@ def get_parser():
 def arguments():
 
     # Parse and extend arguments (also backup unmodified result from argparse)
-    args = get_parser().parse_args()
+    args: PmbArgs = get_parser().parse_args() # type: ignore
 
     setattr(args, "from_argparse", copy.deepcopy(args))
     setattr(args.from_argparse, "from_argparse", args.from_argparse)

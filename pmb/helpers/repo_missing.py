@@ -34,7 +34,7 @@ def filter_aport_packages(args: PmbArgs, arch, pkgnames):
     """
     ret = []
     for pkgname in pkgnames:
-        if pmb.helpers.pmaports.find(args, pkgname, False):
+        if pmb.helpers.pmaports.find_optional(args, pkgname):
             ret += [pkgname]
     return ret
 

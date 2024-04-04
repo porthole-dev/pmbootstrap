@@ -10,8 +10,8 @@ import pmb.config
 def binfmt_info(arch_qemu):
     # Parse the info file
     full = {}
-    info = pmb.config.pmb_src + "/pmb/data/qemu-user-binfmt.txt"
-    logging.verbose("parsing: " + info)
+    info = pmb.config.pmb_src / "pmb/data/qemu-user-binfmt.txt"
+    logging.verbose(f"parsing: {info}")
     with open(info, "r") as handle:
         for line in handle:
             if line.startswith('#') or "=" not in line:

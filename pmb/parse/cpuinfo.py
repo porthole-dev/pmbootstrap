@@ -1,9 +1,10 @@
 # Copyright 2023 Lary Gibaud
 # SPDX-License-Identifier: GPL-3.0-or-later
 import re
+from typing import Optional
 
 
-def arm_big_little_first_group_ncpus():
+def arm_big_little_first_group_ncpus() -> Optional[int]:
     """
     Infer from /proc/cpuinfo on aarch64 if this is a big/little architecture
     (if there is different processor models) and the number of cores in the

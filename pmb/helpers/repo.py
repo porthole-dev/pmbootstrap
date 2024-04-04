@@ -17,9 +17,10 @@ import pmb.config.pmaports
 from pmb.core.types import PmbArgs
 import pmb.helpers.http
 import pmb.helpers.run
+import pmb.helpers.other
 
 
-def hash(url, length=8):
+def apkindex_hash(url: str, length: int=8) -> Path:
     r"""Generate the hash that APK adds to the APKINDEX and apk packages in its apk cache folder.
 
     It is the "12345678" part in this example:
@@ -43,7 +44,7 @@ def hash(url, length=8):
         ret += xd[(binary[i] >> 4) & 0xf]
         ret += xd[binary[i] & 0xf]
 
-    return ret
+    return Path(f"APKINDEX.{ret}.tar.gz")
 
 
 def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=True):
@@ -112,7 +113,7 @@ def apkindex_files(args: PmbArgs, arch=None, user_repository=True, pmos=True,
 
     # Resolve the APKINDEX.$HASH.tar.gz files
     for url in urls(args, False, pmos, alpine):
-        ret.append(pmb.config.work / f"cache_apk_{arch}" / f"APKINDEX.{hash(url)}.tar.gz")
+        ret.append(pmb.config.work / f"cache_apk_{arch}" / apkindex_hash(url))
 
     return ret
 
@@ -151,7 +152,7 @@ def update(args: PmbArgs, arch=None, force=False, existing_only=False):
             # APKINDEX file name from the URL
             url_full = url + "/" + arch + "/APKINDEX.tar.gz"
             cache_apk_outside = pmb.config.work / f"cache_apk_{arch}"
-            apkindex = cache_apk_outside / f"APKINDEX.{hash(url)}.tar.gz"
+            apkindex = cache_apk_outside / f"APKINDEX.{apkindex_hash(url)}.tar.gz"
 
             # Find update reason, possibly skip non-existing or known 404 files
             reason = None
@@ -217,5 +218,5 @@ def alpine_apkindex_path(args: PmbArgs, repo="main", arch=None):
     # Find it on disk
     channel_cfg = pmb.config.pmaports.read_config_channel(args)
     repo_link = f"{args.mirror_alpine}{channel_cfg['mirrordir_alpine']}/{repo}"
-    cache_folder = pmb.config.work / "cache_apk_" + arch
-    return cache_folder + "/APKINDEX." + hash(repo_link) + ".tar.gz"
+    cache_folder = pmb.config.work / (f"cache_apk_{arch}")
+    return cache_folder / apkindex_hash(repo_link)

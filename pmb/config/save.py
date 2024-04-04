@@ -7,7 +7,7 @@ from pmb.core.types import PmbArgs
 
 
 def save(args: PmbArgs, cfg):
-    logging.debug("Save config: " + args.config)
+    logging.debug(f"Save config: {args.config}")
     os.makedirs(os.path.dirname(args.config), 0o700, True)
     with open(args.config, "w") as handle:
         cfg.write(handle)

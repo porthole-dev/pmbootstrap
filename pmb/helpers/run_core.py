@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
+from pmb.core.types import PathString, Env
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -10,17 +11,17 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Sequence
-from pmb.core.chroot import Chroot
+from typing import Dict, Optional, Sequence
 import pmb.helpers.run
-from pmb.core.types import PathString, PmbArgs
+
+from pmb.core.types import Env, PathString, PmbArgs
 
 """For a detailed description of all output modes, read the description of
    core() at the bottom. All other functions in this file get (indirectly)
    called by core(). """
 
 
-def flat_cmd(cmd: Sequence[PathString], working_dir: Path=Path("/"), env={}):
+def flat_cmd(cmd: Sequence[PathString], working_dir: Optional[Path]=None, env: Env={}):
     """Convert a shell command passed as list into a flat shell string with proper escaping.
 
     :param cmd: command as list, e.g. ["echo", "string with spaces"]
@@ -35,14 +36,14 @@ def flat_cmd(cmd: Sequence[PathString], working_dir: Path=Path("/"), env={}):
     # Merge env and cmd into escaped list
     escaped = []
     for key, value in env.items():
-        escaped.append(key + "=" + shlex.quote(value))
+        escaped.append(key + "=" + shlex.quote(os.fspath(value)))
     for i in range(len(cmd)):
         escaped.append(shlex.quote(os.fspath(cmd[i])))
 
     # Prepend working dir
     ret = " ".join(escaped)
-    if working_dir != Path("/"):
-        ret = "cd " + shlex.quote(working_dir) + ";" + ret
+    if working_dir is not None:
+        ret = "cd " + shlex.quote(str(working_dir)) + ";" + ret
 
     return ret
 
@@ -84,6 +85,7 @@ def pipe(cmd, working_dir=None):
     return ret
 
 
+# FIXME (#2324): These types make no sense at all
 def pipe_read(process, output_to_stdout=False, output_return=False,
               output_return_buffer=False):
     """Read all output from a subprocess, copy it to the log and optionally stdout and a buffer variable.
@@ -179,17 +181,21 @@ def foreground_pipe(args: PmbArgs, cmd, working_dir=None, output_to_stdout=False
                                stdin=stdin)
 
     # Make process.stdout non-blocking
-    handle = process.stdout.fileno()
+    stdout = process.stdout or None
+    if not stdout:
+        raise RuntimeError("Process has no stdout?!")
+
+    handle = stdout.fileno()
     flags = fcntl.fcntl(handle, fcntl.F_GETFL)
     fcntl.fcntl(handle, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
     # While process exists wait for output (with timeout)
-    output_buffer = []
+    output_buffer: list[bytes] = []
     sel = selectors.DefaultSelector()
-    sel.register(process.stdout, selectors.EVENT_READ)
-    timeout = args.timeout if output_timeout else None
+    sel.register(stdout, selectors.EVENT_READ)
+    timeout = args.timeout
     while process.poll() is None:
-        wait_start = time.perf_counter() if output_timeout else None
+        wait_start = time.perf_counter()
         sel.select(timeout)
 
         # On timeout raise error (we need to measure time on our own, because

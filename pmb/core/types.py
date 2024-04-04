@@ -3,9 +3,24 @@
 
 from argparse import Namespace
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, List, Optional, Tuple, TypedDict, Union
 
 PathString = Union[Path, str]
+Env = Dict[str, PathString]
+
+# These types are not definitive / API, they exist to describe the current
+# state of things so that we can improve our type hinting coverage and make
+# future refactoring efforts easier.
+
+class PartitionLayout(TypedDict):
+    kernel: Optional[int]
+    boot: int
+    reserve: Optional[int]
+    root: int
+
+class AportGenEntry(TypedDict):
+    prefixes: List[str]
+    confirm_overwrite: bool
 
 # Property list generated with:
 # $ rg --vimgrep "((^|\s)args\.\w+)" --only-matching | cut -d"." -f3 | sort | uniq
@@ -28,7 +43,7 @@ class PmbArgs(Namespace):
     autoinstall: str
     boot_size: str
     build_default_device_arch: str
-    build_pkgs_on_install: str
+    build_pkgs_on_install: bool
     buildroot: str
     built: str
     ccache_size: str
@@ -38,17 +53,17 @@ class PmbArgs(Namespace):
     command: str
     config: Path
     config_channels: str
-    details: str
+    details: bool
     details_to_stdout: str
     device: str
     deviceinfo: Dict[str, str]
     deviceinfo_parse_kernel: str
     devices: str
-    disk: str
+    disk: Path
     dry: str
     efi: str
     envkernel: str
-    export_folder: str
+    export_folder: Path
     extra_packages: str
     extra_space: str
     fast: str
@@ -58,7 +73,8 @@ class PmbArgs(Namespace):
     folder: str
     force: str
     fork_alpine: str
-    from_argparse: str
+    # This is a filthy lie
+    from_argparse: "PmbArgs"
     full_disk_encryption: str
     hook: str
     host: str
@@ -68,7 +84,7 @@ class PmbArgs(Namespace):
     install_base: str
     install_blockdev: str
     install_cgpt: str
-    install_key: str
+    install_key: bool
     install_local_pkgs: str
     install_recommends: str
     is_default_channel: str
@@ -80,7 +96,7 @@ class PmbArgs(Namespace):
     lines: str
     log: Path
     mirror_alpine: str
-    mirrors_postmarketos: str
+    mirrors_postmarketos: List[str]
     name: str
     no_depends: str
     no_fde: str
@@ -91,15 +107,16 @@ class PmbArgs(Namespace):
     no_sshd: str
     odin_flashable_tar: str
     offline: str
-    ondev_cp: str
+    ondev_cp: List[Tuple[str, str]]
     on_device_installer: str
     ondev_no_rootfs: str
     overview: str
-    package: str
-    packages: str
+    # FIXME (#2324): figure out the args.package vs args.packages situation
+    package: str | List[str]
+    packages: List[str]
     partition: str
     password: str
-    path: str
+    path: Path
     pkgname: str
     pkgname_pkgver_srcurl: str
     port: str
@@ -122,7 +139,7 @@ class PmbArgs(Namespace):
     rsync: str
     scripts: str
     second_storage: str
-    selected_providers: str
+    selected_providers: Dict[str, str]
     sparse: str
     split: str
     src: str
@@ -131,7 +148,7 @@ class PmbArgs(Namespace):
     sudo_timer: str
     suffix: str
     systemd: str
-    timeout: str
+    timeout: float
     ui: str
     ui_extras: str
     user: str

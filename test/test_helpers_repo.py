@@ -25,7 +25,7 @@ def args(tmpdir, request):
 def test_hash():
     url = "https://nl.alpinelinux.org/alpine/edge/testing"
     hash = "865a153c"
-    assert pmb.helpers.repo.hash(url, 8) == hash
+    assert pmb.helpers.repo.apkindex_hash(url, 8) == hash
 
 
 def test_alpine_apkindex_path(args: PmbArgs):

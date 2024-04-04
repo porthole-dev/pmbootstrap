@@ -45,7 +45,7 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
     # Generate a list of patterns
     chroot_native = Chroot.native()
     path_boot = Chroot(ChrootType.ROOTFS, args.device) / "boot"
-    chroot_buildroot = Chroot(ChrootType.BUILDROOT, args.deviceinfo['arch'])
+    chroot_buildroot = Chroot.buildroot(args.deviceinfo['arch'])
     files: List[Path] = [
         path_boot / f"boot.img{suffix}",
         path_boot / f"uInitrd{suffix}",

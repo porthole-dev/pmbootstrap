@@ -67,8 +67,8 @@ def extract_temp(tar, sigfilename):
     for ftype in ret.keys():
         member = tar.getmember(ret[ftype]["filename"])
 
-        handle, path = tempfile.mkstemp(ftype, "pmbootstrap")
-        handle = open(handle, "wb")
+        fd, path = tempfile.mkstemp(ftype, "pmbootstrap")
+        handle = open(fd, "wb")
         ret[ftype]["temp_path"] = path
         shutil.copyfileobj(tar.extractfile(member), handle)
 
@@ -119,8 +119,7 @@ def extract(args: PmbArgs, version, apk_path):
     logging.debug("Verify the version reported by the apk.static binary"
                   f" (must match the package version {version})")
     os.chmod(temp_path, os.stat(temp_path).st_mode | stat.S_IEXEC)
-    version_bin = pmb.helpers.run.user(args, [temp_path, "--version"],
-                                       output_return=True)
+    version_bin = pmb.helpers.run.user_output(args, [temp_path, "--version"])
     version_bin = version_bin.split(" ")[1].split(",")[0]
     if not version.startswith(f"{version_bin}-r"):
         os.unlink(temp_path)
@@ -174,4 +173,4 @@ def run(args: PmbArgs, parameters):
     if args.offline:
         parameters = ["--no-network"] + parameters
     pmb.helpers.apk.apk_with_progress(
-        args, [pmb.config.work / "apk.static"] + parameters, chroot=False)
+        args, [pmb.config.work / "apk.static"] + parameters, run_in_chroot=False)

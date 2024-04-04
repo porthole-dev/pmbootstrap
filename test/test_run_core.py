@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb.helpers.run_core """
+from typing import Sequence
 from pmb.core.types import PmbArgs
 import pytest
 import re
@@ -69,7 +70,7 @@ def test_pipe(args: PmbArgs):
 
 def test_foreground_pipe(args: PmbArgs):
     func = pmb.helpers.run_core.foreground_pipe
-    cmd = ["echo", "test"]
+    cmd: Sequence[str] = ["echo", "test"]
 
     # Normal run
     assert func(args, cmd) == (0, "")

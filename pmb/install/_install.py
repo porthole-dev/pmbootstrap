@@ -6,8 +6,8 @@ import re
 import glob
 import shlex
 import sys
-from typing import Dict, List
-from pathlib import Path, PurePath
+from typing import Dict, List, Optional, Sequence, TypedDict
+from pathlib import Path
 
 import pmb.chroot
 import pmb.chroot.apk
@@ -15,7 +15,7 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.core.types import PartitionLayout, PmbArgs
 import pmb.helpers.devices
 from pmb.helpers.mount import mount_device_rootfs
 import pmb.helpers.run
@@ -60,8 +60,11 @@ def get_nonfree_packages(args: PmbArgs, device):
               ["device-nokia-n900-nonfree-firmware"]
     """
     # Read subpackages
-    apkbuild = pmb.parse.apkbuild(pmb.helpers.devices.find_path(args, device,
-                                                                'APKBUILD'))
+    device_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
+    if not device_path:
+        raise RuntimeError(f"Device package not found for {device}")
+
+    apkbuild = pmb.parse.apkbuild(device_path)
     subpackages = apkbuild["subpackages"]
 
     # Check for firmware and userland
@@ -123,7 +126,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
         pmb.helpers.run.root(args, ["rm", fifo])
 
     # Get all folders inside the device rootfs (except for home)
-    folders: List[PurePath] = []
+    folders: List[str] = []
     for path in mountpoint_outside.glob("*"):
         if path.name == "home":
             continue
@@ -150,7 +153,7 @@ def create_home_from_skel(args: PmbArgs):
     rootfs = (Chroot.native() / "mnt/install")
     # In btrfs, home subvol & home dir is created in format.py
     if args.filesystem != "btrfs":
-        pmb.helpers.run.root(args, ["mkdir", rootfs + "/home"])
+        pmb.helpers.run.root(args, ["mkdir", rootfs / "home"])
 
     home = (rootfs / "home" / args.user)
     if (rootfs / "etc/skel").exists():
@@ -310,8 +313,7 @@ def copy_ssh_keys(args: PmbArgs):
     target = Chroot.native() / "mnt/install/home/" / args.user / ".ssh"
     pmb.helpers.run.root(args, ["mkdir", target])
     pmb.helpers.run.root(args, ["chmod", "700", target])
-    pmb.helpers.run.root(args, ["cp", authorized_keys, target +
-                                "/authorized_keys"])
+    pmb.helpers.run.root(args, ["cp", authorized_keys, target / "authorized_keys"])
     pmb.helpers.run.root(args, ["rm", authorized_keys])
     pmb.helpers.run.root(args, ["chown", "-R", "10000:10000", target])
 
@@ -538,9 +540,9 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step):
     binaries = args.deviceinfo["sd_embed_firmware"].split(",")
 
     for binary_offset in binaries:
-        binary, offset = binary_offset.split(':')
+        binary, _offset = binary_offset.split(':')
         try:
-            offset = int(offset)
+            offset = int(_offset)
         except ValueError:
             raise RuntimeError("Value for firmware binary offset is "
                                f"not valid: {offset}")
@@ -627,9 +629,9 @@ def write_cgpt_kpart(args: PmbArgs, layout, suffix: Chroot):
 
 def sanity_check_boot_size(args: PmbArgs):
     default = pmb.config.defaults["boot_size"]
-    if int(args.boot_size) >= int(default):
+    if isinstance(default, str) and int(args.boot_size) >= int(default):
         return
-    logging.error("ERROR: your pmbootstrap has a small boot_size of"
+    logging.error("ERROR: your pmbootstrap has a small/invalid boot_size of"
                   f" {args.boot_size} configured, probably because the config"
                   " has been created with an old version.")
     logging.error("This can lead to problems later on, we recommend setting it"
@@ -700,11 +702,12 @@ def get_partition_layout(reserve, kernel):
     :returns: the partition layout, e.g. without reserve and kernel:
               {"kernel": None, "boot": 1, "reserve": None, "root": 2}
     """
-    ret = {}
-    ret["kernel"] = None
-    ret["boot"] = 1
-    ret["reserve"] = None
-    ret["root"] = 2
+    ret: PartitionLayout = {
+        "kernel": None,
+        "boot": 1,
+        "reserve": None,
+        "root": 2,
+    }
 
     if kernel:
         ret["kernel"] = 1
@@ -761,11 +764,11 @@ def create_fstab(args: PmbArgs, layout, chroot: Chroot):
 
     # Do not install fstab into target rootfs when using on-device
     # installer. Provide fstab only to installer suffix
-    if args.on_device_installer and "rootfs_" in chroot:
+    if args.on_device_installer and chroot.type == ChrootType.ROOTFS:
         return
 
-    boot_dev = f"/dev/installp{layout['boot']}"
-    root_dev = f"/dev/installp{layout['root']}"
+    boot_dev = Path(f"/dev/installp{layout['boot']}")
+    root_dev = Path(f"/dev/installp{layout['root']}")
 
     boot_mount_point = f"UUID={get_uuid(args, boot_dev)}"
     root_mount_point = "/dev/mapper/root" if args.full_disk_encryption \
@@ -806,7 +809,7 @@ def create_fstab(args: PmbArgs, layout, chroot: Chroot):
 
 def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, steps,
                          boot_label="pmOS_boot", root_label="pmOS_root",
-                         split=False, disk=None):
+                         split=False, disk: Optional[Path]=None):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param suffix: the chroot suffix, where the rootfs that will be installed
@@ -912,6 +915,8 @@ def print_flash_info(args: PmbArgs):
     method = args.deviceinfo["flash_method"]
     flasher = pmb.config.flashers.get(method, {})
     flasher_actions = flasher.get("actions", {})
+    if not isinstance(flasher_actions, dict):
+        raise TypeError(f"flasher actions must be a dictionary, got: {flasher_actions}")
     requires_split = flasher.get("split", False)
 
     if method == "none":
@@ -929,11 +934,9 @@ def print_flash_info(args: PmbArgs):
         logging.info("* pmbootstrap flasher flash_rootfs")
         logging.info("  Flashes the generated rootfs image to your device:")
         if args.split:
-            logging.info(f"  {Chroot.native()}/home/pmos/rootfs/"
-                         f"{args.device}-rootfs.img")
+            logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / args.device}-rootfs.img")
         else:
-            logging.info(f"  {Chroot.native()}/home/pmos/rootfs/"
-                         f"{args.device}.img")
+            logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / args.device}.img")
             logging.info("  (NOTE: This file has a partition table, which"
                          " contains /boot and / subpartitions. That way we"
                          " don't need to change the partition layout on your"
@@ -975,8 +978,7 @@ def print_flash_info(args: PmbArgs):
                      " Use 'pmbootstrap flasher boot' to do that.)")
 
     if "flash_lk2nd" in flasher_actions and \
-            os.path.exists(f"{Chroot(ChrootType.ROOTFS, args.device)}"
-                           "/boot/lk2nd.img"):
+            (Chroot(ChrootType.ROOTFS, args.device) / "/boot/lk2nd.img").exists():
         logging.info("* Your device supports and may even require"
                      " flashing lk2nd. You should flash it before"
                      " flashing anything else. Use 'pmbootstrap flasher"
@@ -991,7 +993,7 @@ def print_flash_info(args: PmbArgs):
 def install_recovery_zip(args: PmbArgs, steps):
     logging.info(f"*** ({steps}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     suffix = "buildroot_" + args.deviceinfo["arch"]
-    mount_device_rootfs(args, Chroot(ChrootType.ROOTFS, args.device), suffix)
+    mount_device_rootfs(args, Chroot.rootfs(args.device))
     pmb.install.recovery.create_zip(args, suffix)
 
     # Flash information
@@ -1003,7 +1005,7 @@ def install_recovery_zip(args: PmbArgs, steps):
 def install_on_device_installer(args: PmbArgs, step, steps):
     # Generate the rootfs image
     if not args.ondev_no_rootfs:
-        suffix_rootfs = Chroot(ChrootType.ROOTFS, args.device)
+        suffix_rootfs = Chroot.rootfs(args.device)
         install_system_image(args, 0, suffix_rootfs, step=step, steps=steps,
                              split=True)
         step += 2
@@ -1132,7 +1134,7 @@ def get_recommends(args: PmbArgs, packages) -> Sequence[str]:
     """
     global get_recommends_visited
 
-    ret = []
+    ret: List[str] = []
     if not args.install_recommends:
         return ret
 

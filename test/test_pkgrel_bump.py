@@ -73,7 +73,7 @@ def setup_work(args: PmbArgs, tmpdir):
     pmb.helpers.run.user(args, ["./pmbootstrap.py", "shutdown"])
 
     # Link everything from work (except for "packages") to the tmpdir
-    for path in glob.glob(pmb.config.work / "*"):
+    for path in pmb.config.work.glob("*"):
         if os.path.basename(path) != "packages":
             pmb.helpers.run.user(args, ["ln", "-s", path, tmpdir + "/"])
 
@@ -91,7 +91,7 @@ def setup_work(args: PmbArgs, tmpdir):
                                     f"{tmpdir}/_aports/main/{pkgname}"])
 
     # Copy pmaports.cfg
-    pmb.helpers.run.user(args, ["cp", args.aports + "/pmaports.cfg", tmpdir +
+    pmb.helpers.run.user(args, ["cp", args.aports / "pmaports.cfg", tmpdir +
                                 "/_aports"])
 
     # Empty packages folder

@@ -133,7 +133,7 @@ def is_running(args: PmbArgs, programs, timeout=300, sleep_before_retry=1):
     ssh_works = False
 
     end = time.monotonic() + timeout
-    last_try = 0
+    last_try = 0.0
 
     while last_try < end:
         # Sleep only when last try exited immediately

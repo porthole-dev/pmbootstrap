@@ -1,5 +1,6 @@
 # Copyright 2023 Pablo Castellano, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import subprocess
 from typing import Sequence
 from pmb.helpers import logging
 import os
@@ -16,7 +17,7 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.core.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.parse.arch
 import pmb.parse.cpuinfo
@@ -30,7 +31,7 @@ def system_image(args: PmbArgs):
     """
     path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}.img"
     if not path.exists():
-        logging.debug("Could not find rootfs: " + path)
+        logging.debug(f"Could not find rootfs: {path}")
         raise RuntimeError("The rootfs has not been generated yet, please "
                            "run 'pmbootstrap install' first.")
     return path
@@ -76,10 +77,10 @@ def create_gdk_loader_cache(args: PmbArgs) -> Path:
 
     cache_path = gdk_cache_dir / "loaders.cache"
     if not (chroot_native / cache_path).is_file():
-        raise RuntimeError("gdk pixbuf cache file not found: " + cache_path)
+        raise RuntimeError(f"gdk pixbuf cache file not found: {cache_path}")
 
     pmb.chroot.root(args, ["cp", cache_path, custom_cache_path])
-    cmd = ["sed", "-i", "-e",
+    cmd: Sequence[PathString] = ["sed", "-i", "-e",
            f"s@\"{gdk_cache_dir}@\"{chroot_native / gdk_cache_dir}@",
            custom_cache_path]
     pmb.chroot.root(args, cmd)
@@ -138,11 +139,12 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
-            env.update({"GTK_THEME": "Default",
-                        "GDK_PIXBUF_MODULE_FILE": gdk_cache,
-                        "XDG_DATA_DIRS": ":".join([
-                            chroot_native / "usr/local/share",
-                            chroot_native / "usr/share"
+            # FIXME: why does mypy think the values here should all be paths??
+            env.update({"GTK_THEME": "Default", # type: ignore[dict-item]
+                        "GDK_PIXBUF_MODULE_FILE": str(gdk_cache), # type: ignore[dict-item]
+                        "XDG_DATA_DIRS": ":".join([ # type: ignore[dict-item]
+                            str(chroot_native / "usr/local/share"),
+                            str(chroot_native / "usr/share"),
                         ])})
 
         command = []
@@ -162,9 +164,9 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
 
         command += [chroot_native / "lib" / f"ld-musl-{pmb.config.arch_native}.so.1"]
         command += ["--library-path=" + ":".join([
-                        chroot_native / "lib",
-                        chroot_native / "usr/lib" +
-                        chroot_native / "usr/lib/pulseaudio"
+                        str(chroot_native / "lib"),
+                        str(chroot_native / "usr/lib"),
+                        str(chroot_native / "usr/lib/pulseaudio"),
                     ])]
         command += [chroot_native / "usr/bin" / f"qemu-system-{arch}"]
         command += ["-L", chroot_native / "usr/share/qemu/"]
@@ -188,7 +190,7 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
     else:
         command += ["stdio"]
 
-    command += ["-drive", "file=" + img_path + ",format=raw,if=virtio"]
+    command += ["-drive", f"file={img_path},format=raw,if=virtio"]
     if img_path_2nd:
         command += ["-drive", "file=" + img_path_2nd + ",format=raw,if=virtio"]
 
@@ -387,5 +389,5 @@ def run(args: PmbArgs):
                      "send Ctrl+C to the VM, run:")
         logging.info("$ pmbootstrap config qemu_redir_stdio True")
     finally:
-        if process:
+        if isinstance(process, subprocess.Popen):
             process.terminate()

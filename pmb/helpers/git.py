@@ -1,6 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
+from pathlib import Path
+from typing import Dict
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -22,7 +24,7 @@ def get_path(args: PmbArgs, name_repo):
     """
     if name_repo == "pmaports":
         return args.aports
-    return pmb.config.work / "cache_git/" + name_repo
+    return pmb.config.work / "cache_git" / name_repo
 
 
 def clone(args: PmbArgs, name_repo):
@@ -66,7 +68,7 @@ def rev_parse(args: PmbArgs, path, revision="HEAD", extra_args: list = []):
         or (with ``--abbrev-ref``): the branch name, e.g. "master"
     """
     command = ["git", "rev-parse"] + extra_args + [revision]
-    rev = pmb.helpers.run.user(args, command, path, output_return=True)
+    rev = pmb.helpers.run.user_output(args, command, path)
     return rev.rstrip()
 
 
@@ -84,7 +86,7 @@ def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
 def clean_worktree(args: PmbArgs, path):
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
-    return pmb.helpers.run.user(args, command, path, output_return=True) == ""
+    return pmb.helpers.run.user_output(args, command, path) == ""
 
 
 def get_upstream_remote(args: PmbArgs, name_repo):
@@ -95,7 +97,7 @@ def get_upstream_remote(args: PmbArgs, name_repo):
     urls = pmb.config.git_repos[name_repo]
     path = get_path(args, name_repo)
     command = ["git", "remote", "-v"]
-    output = pmb.helpers.run.user(args, command, path, output_return=True)
+    output = pmb.helpers.run.user_output(args, command, path)
     for line in output.split("\n"):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
@@ -127,8 +129,8 @@ def parse_channels_cfg(args):
     else:
         remote = get_upstream_remote(args, "pmaports")
         command = ["git", "show", f"{remote}/master:channels.cfg"]
-        stdout = pmb.helpers.run.user(args, command, args.aports,
-                                      output_return=True, check=False)
+        stdout = pmb.helpers.run.user_output(args, command, args.aports,
+                                      check=False)
         try:
             cfg.read_string(stdout)
         except configparser.MissingSectionHeaderError:
@@ -139,7 +141,7 @@ def parse_channels_cfg(args):
                                " pmaports clone")
 
     # Meta section
-    ret = {"channels": {}}
+    ret: Dict[str, Dict[str, str | Dict[str, str]]] = {"channels": {}}
     ret["meta"] = {"recommended": cfg.get("channels.cfg", "recommended")}
 
     # Channels
@@ -153,7 +155,8 @@ def parse_channels_cfg(args):
         for key in ["description", "branch_pmaports", "branch_aports",
                     "mirrordir_alpine"]:
             value = cfg.get(channel, key)
-            ret["channels"][channel_new][key] = value
+            # FIXME: how to type this properly??
+            ret["channels"][channel_new][key] = value # type: ignore[index]
 
     pmb.helpers.other.cache[cache_key] = ret
     return ret
@@ -261,11 +264,10 @@ def get_files(args: PmbArgs, path):
     :returns: all files in a git repository as list, relative to path
     """
     ret = []
-    files = pmb.helpers.run.user(args, ["git", "ls-files"], path,
-                                 output_return=True).split("\n")
-    files += pmb.helpers.run.user(args, ["git", "ls-files",
-                                  "--exclude-standard", "--other"], path,
-                                  output_return=True).split("\n")
+    files = pmb.helpers.run.user_output(args, ["git", "ls-files"], path).split("\n")
+    files += pmb.helpers.run.user_output(args, ["git", "ls-files",
+                                                "--exclude-standard", "--other"],
+                                         path).split("\n")
     for file in files:
         if os.path.exists(f"{path}/{file}"):
             ret += [file]

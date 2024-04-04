@@ -4,7 +4,7 @@
 from __future__ import annotations
 import enum
 from typing import Generator, Optional
-from pathlib import Path, PosixPath
+from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
 
 class ChrootType(enum.Enum):
@@ -86,7 +86,7 @@ class Chroot:
 
 
     def __truediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath):
+        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
             # Convert the other path to a relative path
             # FIXME: we should avoid creating absolute paths that we actually want
             # to make relative to the chroot...
@@ -99,8 +99,8 @@ class Chroot:
 
 
     def __rtruediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath):
-            return other / self.path
+        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+            return Path(other) / self.path
         if isinstance(other, str):
             return other / self.path
 
@@ -118,6 +118,11 @@ class Chroot:
     @staticmethod
     def native() -> Chroot:
         return Chroot(ChrootType.NATIVE)
+
+
+    @staticmethod
+    def buildroot(arch: str) -> Chroot:
+        return Chroot(ChrootType.BUILDROOT, arch)
 
 
     @staticmethod

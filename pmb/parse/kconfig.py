@@ -253,21 +253,25 @@ def check(args: PmbArgs, pkgname, components_list=[], details=False, must_exist=
 
     # Read all kernel configs in the aport
     ret = True
-    aport = pmb.helpers.pmaports.find(args, "linux-" + flavor, must_exist=must_exist)
-    if aport is None:
+    aport: Path
+    try:
+        aport = pmb.helpers.pmaports.find(args, "linux-" + flavor)
+    except RuntimeError as e:
+        if must_exist:
+            raise e
         return None
-    apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
+    apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     pkgver = apkbuild["pkgver"]
 
     # We only enforce optional checks for community & main devices
-    enforce_check = aport.split("/")[-2] in ["community", "main"]
+    enforce_check = aport.parts[-2] in ["community", "main"]
 
     for name in get_all_component_names():
         if f"pmb:kconfigcheck-{name}" in apkbuild["options"] and \
                 name not in components_list:
             components_list += [name]
 
-    for config_path in glob.glob(aport + "/config-*"):
+    for config_path in aport.glob("config-*"):
         # The architecture of the config is in the name, so it just needs to be
         # extracted
         config_name = os.path.basename(config_path)

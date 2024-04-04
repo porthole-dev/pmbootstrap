@@ -9,6 +9,7 @@ See also:
     - pmb/helpers/repo.py (work with binary package repos)
 """
 import copy
+from typing import Any, Dict
 from pmb.helpers import logging
 
 from pmb.core.types import PmbArgs
@@ -57,7 +58,7 @@ def get(args: PmbArgs, pkgname, arch, replace_subpkgnames=False, must_exist=True
         ]
 
     # Find in pmaports
-    ret = None
+    ret: Dict[str, Any] = {}
     pmaport = pmb.helpers.pmaports.get(args, pkgname, False)
     if pmaport:
         ret = {"arch": pmaport["arch"],

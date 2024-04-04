@@ -8,7 +8,6 @@ See also:
 """
 import glob
 from pmb.helpers import logging
-import os
 from pathlib import Path
 from typing import Optional, Sequence, Dict
 
@@ -44,7 +43,7 @@ def get_list(args: PmbArgs) -> Sequence[str]:
     return list(_find_apkbuilds(args).keys())
 
 
-def guess_main_dev(args: PmbArgs, subpkgname):
+def guess_main_dev(args: PmbArgs, subpkgname) -> Optional[Path]:
     """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
@@ -57,7 +56,7 @@ def guess_main_dev(args: PmbArgs, subpkgname):
     if path:
         logging.verbose(subpkgname + ": guessed to be a subpackage of " +
                         pkgname + " (just removed '-dev')")
-        return os.path.dirname(path)
+        return path.parent
 
     logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname +
                     ", which we can't find in pmaports, so it's probably in"
@@ -147,7 +146,7 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
     """
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
-    ret = Path()
+    ret: Optional[Path] = None
     if package in pmb.helpers.other.cache["find_aport"]:
         ret = pmb.helpers.other.cache["find_aport"][package]
     else:
@@ -165,7 +164,7 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
             guess = guess_main(args, package)
             if guess:
                 # Parse the APKBUILD and verify if the guess was right
-                if _find_package_in_apkbuild(package, f'{guess}/APKBUILD'):
+                if _find_package_in_apkbuild(package, guess / "APKBUILD"):
                     ret = guess
                 else:
                     # Otherwise parse all APKBUILDs (takes time!), is the
@@ -183,13 +182,20 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
                     ret = guess
 
     # Crash when necessary
-    if ret is None and must_exist:
+    if ret is None:
         raise RuntimeError("Could not find aport for package: " +
                            package)
 
     # Save result in cache
     pmb.helpers.other.cache["find_aport"][package] = ret
     return ret
+
+
+def find_optional(args: PmbArgs, package: str) -> Optional[Path]:
+    try:
+        return find(args, package)
+    except RuntimeError:
+        return None
 
 
 def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
@@ -213,9 +219,12 @@ def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
     if subpackages:
-        aport = find(args, pkgname, must_exist)
+        aport = find_optional(args, pkgname)
         if aport:
-            return pmb.parse.apkbuild(f"{aport}/APKBUILD")
+            return pmb.parse.apkbuild(aport / "APKBUILD")
+        elif must_exist:
+            raise RuntimeError("Could not find APKBUILD for package:"
+                               f" {pkgname}")
     else:
         path = _find_apkbuilds(args).get(pkgname)
         if path:
@@ -251,7 +260,8 @@ def find_providers(args: PmbArgs, provide):
                   key=lambda p: p[1].get('provider_priority', 0))
 
 
-def get_repo(args: PmbArgs, pkgname, must_exist=True):
+# FIXME (#2324): split into an _optional variant or drop must_exist
+def get_repo(args: PmbArgs, pkgname, must_exist=True) -> Optional[str]:
     """Get the repository folder of an aport.
 
     :pkgname: package name
@@ -259,10 +269,14 @@ def get_repo(args: PmbArgs, pkgname, must_exist=True):
     :returns: a string like "main", "device", "cross", ...
                   or None when the aport could not be found
     """
-    aport = find(args, pkgname, must_exist)
+    aport: Optional[Path]
+    if must_exist:
+        aport = find(args, pkgname)
+    else:
+        aport = find_optional(args, pkgname)
     if not aport:
         return None
-    return os.path.basename(os.path.dirname(aport))
+    return aport.parent.name
 
 
 def check_arches(arches, arch):
@@ -284,7 +298,7 @@ def check_arches(arches, arch):
     return False
 
 
-def get_channel_new(channel):
+def get_channel_new(channel: str) -> str:
     """Translate legacy channel names to the new ones.
 
     Legacy names are still supported for compatibility with old branches (pmb#2015).

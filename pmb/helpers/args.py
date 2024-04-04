@@ -1,11 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
-import os
 from pathlib import Path
 import pmb.config
 from pmb.core.types import PmbArgs
 import pmb.helpers.git
+import pmb.helpers.args
 
 """This file constructs the args variable, which is passed to almost all
    functions in the pmbootstrap code base. Here's a listing of the kind of
@@ -75,7 +75,7 @@ def check_pmaports_path(args: PmbArgs):
     """
     if args.from_argparse.aports and not os.path.exists(args.aports):
         raise ValueError("pmaports path (specified with --aports) does"
-                         " not exist: " + args.aports)
+                        f" not exist: {args.aports}")
 
 
 def replace_placeholders(args: PmbArgs):
@@ -108,7 +108,7 @@ def add_deviceinfo(args: PmbArgs):
                          " <https://postmarketos.org/newarch>")
 
 
-def init(args: PmbArgs):
+def init(args: PmbArgs) -> PmbArgs:
     # Basic initialization
     fix_mirrors_postmarketos(args)
     pmb.config.merge_with_args(args)

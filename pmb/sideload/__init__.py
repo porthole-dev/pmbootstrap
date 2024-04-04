@@ -4,9 +4,8 @@ import os
 from typing import List
 from pmb.helpers import logging
 import shlex
-from argparse import Namespace
 
-from pmb.core.types import PmbArgs
+from pmb.core.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
@@ -22,19 +21,19 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
         :param host: target device ssh hostname
         :param port: target device ssh port """
 
-    keys = (pmb.config.work / "config_abuild").glob("*.pub")
+    keys = list((pmb.config.work / "config_abuild").glob("*.pub"))
     key = keys[0]
     key_name = os.path.basename(key)
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
-    command = ['scp', '-P', port, key, f'{user}@{host}:/tmp']
+    command: List[PathString] = ['scp', '-P', port, key, f'{user}@{host}:/tmp']
     pmb.helpers.run.user(args, command, output="interactive")
 
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
-    remote_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
+    remote_cmd_l: List[PathString] = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
                   '-S', 'mv', '-n', keyname, "/etc/apk/keys/"]
-    remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd)
+    remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd_l)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
     pmb.helpers.run.user(args, command, output="tui")
 
@@ -43,7 +42,7 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> str:
     """Connect to a device via ssh and query the architecture."""
     logging.info(f"Querying architecture of {user}@{host}")
     command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
-    output = pmb.helpers.run.user(args, command, output_return=True)
+    output = pmb.helpers.run.user_output(args, command)
     # Split by newlines so we can pick out any irrelevant output, e.g. the "permanently
     # added to list of known hosts" warnings.
     output_lines = output.strip().splitlines()
