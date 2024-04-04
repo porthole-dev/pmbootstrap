@@ -1,14 +1,18 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fnmatch
+from typing import List
 import pytest
 import sys
 
+from pmb.core.types import PathString
 import pmb_test  # noqa
 import pmb.build
 import pmb.chroot.apk
 from pmb.core import Chroot
 
+cmds_progress: List[PathString] = []
+cmds: List[PathString] = []
 
 @pytest.fixture
 def args(tmpdir, request):

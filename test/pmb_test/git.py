@@ -64,4 +64,4 @@ def prepare_tmpdir(args: PmbArgs, monkeypatch, tmpdir):
     return path_local, run_git
 
 def copy_dotgit(args: PmbArgs, tmpdir):
-    shutil.copytree(args.aports + "/.git", tmpdir + "/.git", ignore_dangling_symlinks=True)
+    shutil.copytree(args.aports / ".git", tmpdir + "/.git", ignore_dangling_symlinks=True)

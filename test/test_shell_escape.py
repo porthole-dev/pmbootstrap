@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
-from pmb.core.types import PmbArgs
+from typing import Any
+from pmb.core.types import Env, PmbArgs
 import pytest
 
 import pmb_test  # noqa
@@ -58,12 +59,12 @@ def test_shell_escape(args: PmbArgs):
 def test_shell_escape_env(args: PmbArgs):
     key = "PMBOOTSTRAP_TEST_ENVIRONMENT_VARIABLE"
     value = "long value with spaces and special characters: '\"\\!$test"
-    env = {key: value}
+    env: Env = {key: value}
     cmd = ["sh", "-c", "env | grep " + key + " | grep -v SUDO_COMMAND"]
     ret = key + "=" + value + "\n"
 
     copy = list(cmd)
-    func = pmb.helpers.run.user
+    func: Any = pmb.helpers.run.user
     assert func(args, cmd, output_return=True, env=env) == ret
     assert cmd == copy
 
@@ -83,34 +84,30 @@ def test_shell_escape_env(args: PmbArgs):
 def test_flat_cmd_simple():
     func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
-    working_dir = None
     ret = "echo test"
-    env = {}
-    assert func(cmd, working_dir, env) == ret
+    env: Env = {}
+    assert func(cmd, env=env) == ret
 
 
 def test_flat_cmd_wrap_shell_string_with_spaces():
     func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "string with spaces"]
-    working_dir = None
     ret = "echo 'string with spaces'"
-    env = {}
-    assert func(cmd, working_dir, env) == ret
+    env: Env = {}
+    assert func(cmd, env=env) == ret
 
 
 def test_flat_cmd_wrap_env_simple():
     func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
-    working_dir = None
     ret = "JOBS=5 echo test"
-    env = {"JOBS": "5"}
-    assert func(cmd, working_dir, env) == ret
+    env: Env = {"JOBS": "5"}
+    assert func(cmd, env=env) == ret
 
 
 def test_flat_cmd_wrap_env_spaces():
     func = pmb.helpers.run_core.flat_cmd
     cmd = ["echo", "test"]
-    working_dir = None
     ret = "JOBS=5 TEST='spaces string' echo test"
-    env = {"JOBS": "5", "TEST": "spaces string"}
-    assert func(cmd, working_dir, env) == ret
+    env: Env = {"JOBS": "5", "TEST": "spaces string"}
+    assert func(cmd, env=env) == ret

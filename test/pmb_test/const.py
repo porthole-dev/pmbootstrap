@@ -3,4 +3,4 @@
 import pmb.config
 
 
-testdata = pmb.config.pmb_src + "/test/testdata"
+testdata = pmb.config.pmb_src / "test/testdata"

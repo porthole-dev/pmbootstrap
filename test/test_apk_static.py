@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import copy
+from pathlib import Path
 import sys
 import tarfile
 import glob
@@ -28,42 +29,42 @@ def args(request):
 
 def test_read_signature_info(args: PmbArgs):
     # Tempfolder inside chroot for fake apk files
-    tmp_path = "/tmp/test_read_signature_info"
-    tmp_path_outside = pmb.config.work / "chroot_native" + tmp_path
+    tmp_path = Path("/tmp/test_read_signature_info")
+    tmp_path_outside = pmb.config.work / "chroot_native" / tmp_path
     if os.path.exists(tmp_path_outside):
         pmb.chroot.root(args, ["rm", "-r", tmp_path])
     pmb.chroot.user(args, ["mkdir", "-p", tmp_path])
 
     # No signature found
-    pmb.chroot.user(args, ["tar", "-czf", tmp_path + "/no_sig.apk",
+    pmb.chroot.user(args, ["tar", "-czf", tmp_path / "no_sig.apk",
                            "/etc/issue"])
-    with tarfile.open(tmp_path_outside + "/no_sig.apk", "r:gz") as tar:
+    with tarfile.open(tmp_path_outside / "no_sig.apk", "r:gz") as tar:
         with pytest.raises(RuntimeError) as e:
             pmb.chroot.apk_static.read_signature_info(tar)
         assert "Could not find signature" in str(e.value)
 
     # Signature file with invalid name
-    pmb.chroot.user(args, ["mkdir", "-p", tmp_path + "/sbin"])
-    pmb.chroot.user(args, ["cp", "/etc/issue", tmp_path +
-                           "/sbin/apk.static.SIGN.RSA.invalid.pub"])
-    pmb.chroot.user(args, ["tar", "-czf", tmp_path + "/invalid_sig.apk",
+    pmb.chroot.user(args, ["mkdir", "-p", tmp_path / "sbin"])
+    pmb.chroot.user(args, ["cp", "/etc/issue", tmp_path /
+                           "sbin/apk.static.SIGN.RSA.invalid.pub"])
+    pmb.chroot.user(args, ["tar", "-czf", tmp_path / "invalid_sig.apk",
                            "sbin/apk.static.SIGN.RSA.invalid.pub"],
                     working_dir=tmp_path)
-    with tarfile.open(tmp_path_outside + "/invalid_sig.apk", "r:gz") as tar:
+    with tarfile.open(tmp_path_outside / "invalid_sig.apk", "r:gz") as tar:
         with pytest.raises(RuntimeError) as e:
             pmb.chroot.apk_static.read_signature_info(tar)
         assert "Invalid signature key" in str(e.value)
 
     # Signature file with realistic name
-    path = glob.glob(pmb.config.apk_keys_path + "/*.pub")[0]
+    path = list(pmb.config.apk_keys_path.glob("/*.pub"))[0]
     name = os.path.basename(path)
     path_archive = "sbin/apk.static.SIGN.RSA." + name
     pmb.chroot.user(args, ["mv",
-                           f"{tmp_path}/sbin/apk.static.SIGN.RSA.invalid.pub",
-                           f"{tmp_path}/{path_archive}"])
-    pmb.chroot.user(args, ["tar", "-czf", tmp_path + "/realistic_name_sig.apk",
+                           tmp_path / "sbin/apk.static.SIGN.RSA.invalid.pub",
+                           tmp_path / path_archive])
+    pmb.chroot.user(args, ["tar", "-czf", tmp_path / "realistic_name_sig.apk",
                            path_archive], working_dir=tmp_path)
-    with tarfile.open(f"{tmp_path_outside}/realistic_name_sig.apk", "r:gz")\
+    with tarfile.open(tmp_path_outside / "realistic_name_sig.apk", "r:gz")\
             as tar:
         sigfilename, sigkey_path = pmb.chroot.apk_static.read_signature_info(
             tar)
