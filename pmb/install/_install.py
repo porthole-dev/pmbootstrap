@@ -1143,7 +1143,7 @@ def get_recommends(args: PmbArgs, packages, initial=True):
 
     for package in packages:
         if package in get_recommends_visited:
-            logging.debug(f"get_recommends: {package}: already visited")
+            logging.verbose(f"get_recommends: {package}: already visited")
             continue
         get_recommends_visited += [package]
 
