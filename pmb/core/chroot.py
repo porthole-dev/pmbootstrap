@@ -152,3 +152,12 @@ class Chroot:
                 yield f"chroot_{stype.value}"
             else:
                 yield f"chroot_{stype.value}_*"
+
+
+    @staticmethod
+    def glob() -> Generator[Path, None, None]:
+        """
+        Glob all initialized chroot directories
+        """
+        for pattern in Chroot.iter_patterns():
+            yield from Path(pmb.config.work).glob(pattern)
