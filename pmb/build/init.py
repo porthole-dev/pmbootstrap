@@ -67,6 +67,14 @@ def init(args, suffix="native"):
         with open(chroot + "/tmp/apk_wrapper.sh", "w") as handle:
             content = f"""
                 #!/bin/sh
+
+                # With !pmb:crossdirect, cross compilation is entriely done
+                # in QEMU, no /native dir gets mounted inside the foreign arch
+                # chroot.
+                if ! [ -d /native ]; then
+                    exec /usr/bin/abuild-apk "$@"
+                fi
+
                 export LD_PRELOAD_PATH=/native/usr/lib:/native/lib
                 args=""
                 for arg in "$@"; do
