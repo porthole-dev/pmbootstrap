@@ -113,6 +113,18 @@ def get_depends(args, apkbuild):
         ret += apkbuild["checkdepends"]
     if "ignore_depends" not in args or not args.ignore_depends:
         ret += apkbuild["depends"]
+
+    # Add depends of subpackages that are inside pmaports, so pmbootstrap
+    # builds them too. Otherwise we would get an error that a dependency does
+    # not exist when trying to install the subpackage (pmb#2084).
+    for subpkgname, subpkg in apkbuild["subpackages"].items():
+        if not subpkg:
+            continue
+        if not getattr(args, "ignore_depends", False):
+            for dep in subpkg["depends"]:
+                if pmb.helpers.pmaports.get(args, dep, False):
+                    ret += [dep]
+
     ret = sorted(set(ret))
 
     # Don't recurse forever when a package depends on itself (#948)
