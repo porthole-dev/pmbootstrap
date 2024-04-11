@@ -746,8 +746,4 @@ def frontend(args):
         # Do not zap any existing packages or cache_http directories
         pmb.chroot.zap(args, confirm=False)
 
-    logging.info("WARNING: The chroots and git repositories in the work dir do"
-                 " not get updated automatically.")
-    logging.info("Run 'pmbootstrap status' once a day before working with"
-                 " pmbootstrap to make sure that everything is up-to-date.")
     logging.info("DONE!")
