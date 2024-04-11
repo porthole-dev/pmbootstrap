@@ -624,8 +624,10 @@ def lint(args):
 
 
 def status(args: Namespace) -> None:
-    if not pmb.helpers.status.print_status(args, args.details):
-        sys.exit(1)
+    pmb.helpers.status.print_status(args)
+
+    # Do not print the DONE! line
+    sys.exit(0)
 
 
 def ci(args):

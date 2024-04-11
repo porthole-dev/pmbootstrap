@@ -551,9 +551,7 @@ def arguments_lint(subparser):
 
 def arguments_status(subparser):
     ret = subparser.add_parser("status",
-                               help="quick health check for the work dir")
-    ret.add_argument("--details", action="store_true",
-                     help="list passing checks in detail, not as summary")
+                               help="show a config and pmaports overview")
     return ret
 
 

@@ -3,7 +3,6 @@
 import configparser
 import logging
 import os
-import time
 
 import pmb.build
 import pmb.chroot.apk
@@ -227,25 +226,6 @@ def pull(args, name_repo):
     command = ["git", "merge", "--ff-only", branch_upstream]
     pmb.helpers.run.user(args, command, path, "stdout")
     return 0
-
-
-def is_outdated(path):
-    # FETCH_HEAD always exists in repositories cloned by pmbootstrap.
-    # Usually it does not (before first git fetch/pull), but there is no good
-    # fallback. For exampe, getting the _creation_ date of .git/HEAD is non-
-    # trivial with python on linux (https://stackoverflow.com/a/39501288).
-    # Note that we have to assume here that the user had fetched the "origin"
-    # repository. If the user fetched another repository, FETCH_HEAD would also
-    # get updated, even though "origin" may be outdated. For pmbootstrap status
-    # it is good enough, because it should help the users that are not doing
-    # much with pmaports.git to know when it is outdated. People who manually
-    # fetch other repos should usually know that and how to handle that
-    # situation.
-    path_head = path + "/.git/FETCH_HEAD"
-    date_head = os.path.getmtime(path_head)
-
-    date_outdated = time.time() - pmb.config.git_repo_outdated
-    return date_head <= date_outdated
 
 
 def get_topdir(args, path):
