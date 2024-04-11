@@ -73,18 +73,15 @@ def is_necessary(args, arch, apkbuild, indexes=None):
     # a) Binary repo has a newer version
     version_binary = index_data["version"]
     if pmb.parse.version.compare(version_binary, version_pmaports) == 1:
-        logging.warning("WARNING: package {}: aport version {} is lower than"
-                        " {} from the binary repository. {} will be used when"
-                        " installing {}. See also:"
-                        " <https://postmarketos.org/warning-repo2>"
-                        "".format(package, version_pmaports, version_binary,
-                                  version_binary, package))
+        logging.warning(f"WARNING: about to install {package} {version_binary}"
+                        f" (local pmaports: {version_pmaports}, consider"
+                        " 'pmbootstrap pull')")
         return False
 
     # b) Local pmaports has a newer version
     if version_pmaports != version_binary:
-        logging.debug(f"{msg}Binary package out of date (binary: "
-                      f"{version_binary}, aport: {version_pmaports})")
+        logging.debug(f"{msg}binary package out of date (binary: "
+                      f"{version_binary}, local pmaports: {version_pmaports})")
         return True
 
     # Local pmaports and binary repo have the same version
