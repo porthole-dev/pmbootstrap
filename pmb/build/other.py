@@ -52,12 +52,11 @@ def is_necessary(args, arch, apkbuild, indexes=None):
     :param indexes: list of APKINDEX.tar.gz paths
     :returns: boolean
     """
-    # Get package name, version, define start of debug message
     package = apkbuild["pkgname"]
     version_pmaports = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
     msg = "Build is necessary for package '" + package + "': "
 
-    # Get old version from APKINDEX
+    # Get version from APKINDEX
     index_data = pmb.parse.apkindex.package(args, package, arch, False,
                                             indexes)
     if not index_data:
@@ -82,13 +81,13 @@ def is_necessary(args, arch, apkbuild, indexes=None):
                                   version_binary, package))
         return False
 
-    # b) Aports folder has a newer version
+    # b) Local pmaports has a newer version
     if version_pmaports != version_binary:
         logging.debug(f"{msg}Binary package out of date (binary: "
                       f"{version_binary}, aport: {version_pmaports})")
         return True
 
-    # Aports and binary repo have the same version.
+    # Local pmaports and binary repo have the same version
     return False
 
 
