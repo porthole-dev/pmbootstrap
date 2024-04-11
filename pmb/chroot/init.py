@@ -14,6 +14,7 @@ import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.arch
 
+cache_chroot_is_outdated = []
 
 class UsrMerge(enum.Enum):
     """
@@ -92,6 +93,22 @@ def init_usr_merge(args, suffix):
                                 f"{args.work}/chroot_{suffix}"])
 
 
+def warn_if_chroot_is_outdated(args, suffix):
+    global cache_chroot_is_outdated
+
+    # Only check / display the warning once per session
+    if suffix in cache_chroot_is_outdated:
+        return
+
+    if pmb.config.workdir.chroots_outdated(args, suffix):
+        days_warn = int(pmb.config.chroot_outdated / 3600 / 24)
+        logging.warning(f"WARNING: Your {suffix} chroot is older than"
+                        f" {days_warn} days. Consider running"
+                        " 'pmbootstrap zap'.")
+
+    cache_chroot_is_outdated += [suffix]
+
+
 def init(args, suffix="native", usr_merge=UsrMerge.AUTO,
          postmarketos_mirror=True):
     """
@@ -115,6 +132,7 @@ def init(args, suffix="native", usr_merge=UsrMerge.AUTO,
         pmb.config.workdir.chroot_check_channel(args, suffix)
         copy_resolv_conf(args, suffix)
         pmb.chroot.apk.update_repository_list(args, suffix, postmarketos_mirror)
+        warn_if_chroot_is_outdated(args, suffix)
         return
 
     # Require apk-tools-static

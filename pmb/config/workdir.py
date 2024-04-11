@@ -35,11 +35,15 @@ def chroot_save_init(args, suffix):
         cfg.write(handle)
 
 
-def chroots_outdated(args):
-    """ Check if init dates from workdir.cfg indicate that any chroot is
-        outdated.
-        :returns: True if any of the chroots are outdated and should be zapped,
-                  False otherwise """
+def chroots_outdated(args, suffix=None):
+    """Check if init dates from workdir.cfg indicate that any chroot is
+    outdated.
+
+    :param suffix: only check a specific chroot suffix
+
+    :returns: True if any of the chroots are outdated and should be zapped,
+              False otherwise
+    """
     # Skip if workdir.cfg doesn't exist
     path = args.work + "/workdir.cfg"
     if not os.path.exists(path):
@@ -52,8 +56,10 @@ def chroots_outdated(args):
         return False
 
     date_outdated = time.time() - pmb.config.chroot_outdated
-    for suffix in cfg[key]:
-        date_init = int(cfg[key][suffix])
+    for cfg_suffix in cfg[key]:
+        if suffix and cfg_suffix != suffix:
+            continue
+        date_init = int(cfg[key][cfg_suffix])
         if date_init <= date_outdated:
             return True
     return False
