@@ -751,6 +751,7 @@ apkbuild_attributes = {
     "pkgname": {},
     "pkgrel": {},
     "pkgver": {},
+    "sha512sums": {},
     "subpackages": {},
     "url": {},
 
