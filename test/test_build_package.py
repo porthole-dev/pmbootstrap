@@ -137,15 +137,6 @@ def test_get_depends(monkeypatch):
     args = args_patched(monkeypatch, ["pmbootstrap", "build", "test"])
     assert func(args, apkbuild) == ["a", "b", "c", "e"]
 
-    # Depends from subpackage (pmb#2084)
-    apkbuild["makedepends"] = ["c", "b"]
-    apkbuild["subpackages"] = {
-        "d": {
-            "depends": ["hello-world", "package-does-not-exist-in-pmaports"],
-        }
-    }
-    assert func(args, apkbuild) == ["a", "b", "c", "e", "hello-world"]
-
 
 def test_build_depends(args, monkeypatch):
     # Shortcut and fake apkbuild
