@@ -137,13 +137,18 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
-def find(package: str, must_exist=True) -> Path:
-    """Find the aport path that provides a certain subpackage.
-
+def find(package, must_exist=True, subpackages=True):
+    """Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
     :param must_exist: Raise an exception, when not found
-    :returns: the full path to the aport folder
+    :param subpackages: set to False as speed optimization, if you know that
+                        the package is not a subpackage of another package
+                        (i.e. looking for UI packages for "pmbootstrap init").
+                        If a previous search with subpackages=True has found
+                        the package already, it will still be returned as
+                        cached result.
+    :returns: the full path to the package's dir in pmaports
     """
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
@@ -159,7 +164,7 @@ def find(package: str, must_exist=True) -> Path:
         path = _find_apkbuilds().get(package)
         if path:
             ret = path.parent
-        else:
+        elif subpackages:
             # No luck, take a guess what APKBUILD could have the package we are
             # looking for as subpackage
             guess = guess_main(package)
@@ -187,8 +192,10 @@ def find(package: str, must_exist=True) -> Path:
         raise RuntimeError("Could not find aport for package: " +
                            package)
 
-    # Save result in cache
-    pmb.helpers.other.cache["find_aport"][package] = ret
+    # Save result in cache (only if subpackage search was enabled)
+    if subpackages:
+        pmb.helpers.other.cache["find_aport"][package] = ret
+
     return ret
 
 
@@ -219,21 +226,9 @@ def get(pkgname, must_exist=True, subpackages=True):
                   ... }
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
-    if subpackages:
-        aport = find_optional(pkgname)
-        if aport:
-            return pmb.parse.apkbuild(aport / "APKBUILD")
-        elif must_exist:
-            raise RuntimeError("Could not find APKBUILD for package:"
-                               f" {pkgname}")
-    else:
-        path = _find_apkbuilds().get(pkgname)
-        if path:
-            return pmb.parse.apkbuild(path)
-        if must_exist:
-            raise RuntimeError("Could not find APKBUILD for package:"
-                               f" {pkgname}")
-
+    pmaport = find(pkgname, must_exist, subpackages)
+    if pmaport:
+            return pmb.parse.apkbuild(pmaport / "APKBUILD")
     return None
 
 
