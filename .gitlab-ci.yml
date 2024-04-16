@@ -9,7 +9,7 @@ workflow:
     - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'wip'
 
-before_script:
+before_script: &global_before_scripts
   - ".ci/note.sh"
   - "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories"
   - "adduser -D build"
@@ -52,6 +52,7 @@ mr-settings:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
+    - *global_before_scripts
     - "apk -q add python3"
     - "wget -q 'https://gitlab.com/postmarketOS/ci-common/-/raw/master/check_mr_settings.py'"
   script:
