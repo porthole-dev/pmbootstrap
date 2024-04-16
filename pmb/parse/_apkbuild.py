@@ -24,6 +24,9 @@ revar3 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)/([^/]+)(?:/([^/]*?))?}")
 # ${foo#bar} -- cut off bar from foo from start of string
 revar4 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)#(.*)}")
 
+# foo=
+revar5 = re.compile(r"([a-zA-Z_]+[a-zA-Z0-9_]*)=")
+
 
 def replace_variable(apkbuild, value: str) -> str:
     def log_key_not_found(match):
@@ -122,7 +125,7 @@ def read_file(path):
     return lines
 
 
-def parse_attribute(attribute, lines, i, path):
+def parse_next_attribute(lines, i, path):
     """
     Parse one attribute from the APKBUILD.
 
@@ -136,19 +139,21 @@ def parse_attribute(attribute, lines, i, path):
         first-pkg
         second-pkg"
 
-    :param attribute: from the APKBUILD, i.e. "pkgname"
     :param lines: \n-terminated list of lines from the APKBUILD
     :param i: index of the line we are currently looking at
     :param path: full path to the APKBUILD (for error message)
-    :returns: (found, value, i)
-              found: True if the attribute was found in line i, False otherwise
+    :returns: (attribute, value, i)
+              attribute: attribute name if any was found in line i / None
               value: that was parsed from the line
               i: line that was parsed last
     """
     # Check for and cut off "attribute="
-    if not lines[i].startswith(attribute + "="):
-        return (False, None, i)
-    value = lines[i][len(attribute + "="):-1]
+    rematch5 = revar5.match(lines[i])
+    if not rematch5:
+        return (None, None, i)
+    attribute = rematch5.group(0)
+    value = lines[i][len(attribute):-1]
+    attribute = rematch5.group(0).rstrip("=")
 
     # Determine end quote sign
     end_char = None
@@ -161,10 +166,10 @@ def parse_attribute(attribute, lines, i, path):
     # Single line
     if not end_char:
         value = value.split("#")[0].rstrip()
-        return (True, value, i)
+        return (attribute, value, i)
     if end_char in value:
         value = value.split(end_char, 1)[0]
-        return (True, value, i)
+        return (attribute, value, i)
 
     # Parse lines until reaching end quote
     i += 1
@@ -173,7 +178,7 @@ def parse_attribute(attribute, lines, i, path):
         value += " "
         if end_char in line:
             value += line.split(end_char, 1)[0].strip()
-            return (True, value.strip(), i)
+            return (attribute, value.strip(), i)
         value += line.strip()
         i += 1
 
@@ -191,13 +196,12 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
     :param apkbuild_attributes: the attributes to parse
     :param ret: a dict to update with new parsed variable
     """
+    # Parse all variables first, and replace variables mentioned earlier
     for i in range(len(lines)):
-        for attribute, options in apkbuild_attributes.items():
-            found, value, i = parse_attribute(attribute, lines, i, path)
-            if not found:
-                continue
-
-            ret[attribute] = replace_variable(ret, value)
+        attribute, value, i = parse_next_attribute(lines, i, path)
+        if not attribute:
+            continue
+        ret[attribute] = replace_variable(ret, value)
 
     if "subpackages" in apkbuild_attributes:
         subpackages = OrderedDict()
@@ -216,6 +220,11 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
                 ret[attribute] = int(ret[attribute])
             else:
                 ret[attribute] = 0
+
+    # Remove variables not in attributes
+    for attribute in list(ret.keys()):
+        if attribute not in apkbuild_attributes:
+            del ret[attribute]
 
 
 def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):

@@ -82,51 +82,53 @@ def test_depends_in_depends(args):
     assert apkbuild["depends"] == ["first", "second", "third"]
 
 
-def test_parse_attributes(args):
+def test_parse_next_attribute(args):
     # Convenience function for calling the function with a block of text
-    def func(attribute, block):
+    def func(block):
         lines = block.split("\n")
         for i in range(0, len(lines)):
             lines[i] += "\n"
         i = 0
         path = "(testcase in " + __file__ + ")"
-        print("=== parsing attribute '" + attribute + "' in test block:")
+        print("=== parsing next attribute in test block:")
         print(block)
         print("===")
-        return pmb.parse._apkbuild.parse_attribute(attribute, lines, i, path)
+        return pmb.parse._apkbuild.parse_next_attribute(lines, i, path)
 
-    assert func("depends", "pkgname='test'") == (False, None, 0)
+    assert func("no variable here") == (None, None, 0)
 
-    assert func("pkgname", 'pkgname="test"') == (True, "test", 0)
+    assert func("\tno_top_level_var=1") == (None, None, 0)
 
-    assert func("pkgname", "pkgname='test'") == (True, "test", 0)
+    assert func('pkgname="test"') == ("pkgname", "test", 0)
 
-    assert func("pkgname", "pkgname=test") == (True, "test", 0)
+    assert func("pkgname='test'") == ("pkgname", "test", 0)
 
-    assert func("pkgname", 'pkgname="test\n"') == (True, "test", 1)
+    assert func("pkgname=test") == ("pkgname", "test", 0)
 
-    assert func("pkgname", 'pkgname="\ntest\n"') == (True, "test", 2)
+    assert func('pkgname="test\n"') == ("pkgname", "test", 1)
 
-    assert func("pkgname", 'pkgname="test" # random comment\npkgrel=3') == \
-        (True, "test", 0)
+    assert func('pkgname="\ntest\n"') == ("pkgname", "test", 2)
 
-    assert func("pkgver", 'pkgver=2.37 # random comment\npkgrel=3') == \
-           (True, "2.37", 0)
+    assert func('pkgname="test" # random comment\npkgrel=3') == \
+            ("pkgname", "test", 0)
 
-    assert func("depends", "depends='\nfirst\nsecond\nthird\n'#") == \
-        (True, "first second third", 4)
+    assert func('pkgver=2.37 # random comment\npkgrel=3') == \
+            ("pkgver", "2.37", 0)
 
-    assert func("depends", 'depends="\nfirst\n\tsecond third"') == \
-        (True, "first second third", 2)
+    assert func("depends='\nfirst\nsecond\nthird\n'#") == \
+        ("depends", "first second third", 4)
 
-    assert func("depends", 'depends=') == (True, "", 0)
+    assert func('depends="\nfirst\n\tsecond third"') == \
+        ("depends", "first second third", 2)
+
+    assert func('depends=') == ("depends", "", 0)
 
     with pytest.raises(RuntimeError) as e:
-        func("depends", 'depends="\nmissing\nend\nquote\nsign')
+        func('depends="\nmissing\nend\nquote\nsign')
     assert str(e.value).startswith("Can't find closing")
 
     with pytest.raises(RuntimeError) as e:
-        func("depends", 'depends="')
+        func('depends="')
     assert str(e.value).startswith("Can't find closing")
 
 
