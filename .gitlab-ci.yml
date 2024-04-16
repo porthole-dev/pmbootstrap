@@ -11,6 +11,7 @@ workflow:
 
 before_script: &global_before_scripts
   - ".ci/note.sh"
+  - apk upgrade -U
   - "adduser -D build"
 
 stages:
