@@ -535,6 +535,6 @@ def package(args, pkgname, arch=None, force=False, strict=False,
         (output, cmd, env) = run_abuild(args, apkbuild, arch, strict, force, cross,
                                         suffix, src, bootstrap_stage)
     except RuntimeError:
-        raise BuildFailedError(f"ERROR: Build for {arch}/{pkgname} failed!")
+        raise BuildFailedError(f"Build for {arch}/{pkgname} failed!")
     finish(args, apkbuild, arch, output, strict, suffix)
     return output

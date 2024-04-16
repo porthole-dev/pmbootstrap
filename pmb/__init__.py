@@ -88,11 +88,11 @@ def main():
         sys.exit(130)  # SIGINT(2) + 128
 
     except NonBugError as exception:
-        logging.error(exception)
+        logging.error(f"ERROR: {exception}")
         return 2
 
     except BuildFailedError as exception:
-        logging.error(exception)
+        logging.error(f"ERROR: {exception}")
         print_log_hint(args)
         return 3
 

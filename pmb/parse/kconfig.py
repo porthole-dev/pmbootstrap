@@ -272,7 +272,7 @@ def check(args, pkgname, components_list=[], details=False, must_exist=True):
         config_name_split = config_name.split(".")
 
         if len(config_name_split) != 2:
-            raise NonBugError(f"ERROR: {config_name} is not a valid kernel config "
+            raise NonBugError(f"{config_name} is not a valid kernel config"
                               "name. Ensure that the _config property in your "
                               "kernel APKBUILD has a . before the "
                               "architecture name, e.g. .aarch64 or .armv7, "
