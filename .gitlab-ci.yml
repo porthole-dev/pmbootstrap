@@ -11,7 +11,6 @@ workflow:
 
 before_script: &global_before_scripts
   - ".ci/note.sh"
-  - "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories"
   - "adduser -D build"
 
 stages:
