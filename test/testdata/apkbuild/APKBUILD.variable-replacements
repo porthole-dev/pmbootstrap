@@ -3,7 +3,8 @@ pkgver="1.0.0"
 pkgrel=0
 arch="armhf"
 pkgdesc="$pkgdesc$pkgname test"
-url="${pkgname/variable-} ${pkgname/-replacements/} ${pkgname/variable/string}"
+_custom_var="1234"  # this variable is not known to pmbootstrap
+url="${pkgname/variable-} ${pkgname/-replacements/} ${pkgname/variable/string} $_custom_var"
 subpackages="${pkgdesc#variable-}:test_subpkg_func"
 pkgdesc="this should not affect variable replacement"
 

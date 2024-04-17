@@ -136,7 +136,7 @@ def test_variable_replacements():
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.variable-replacements"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["pkgdesc"] == "this should not affect variable replacement"
-    assert apkbuild["url"] == "replacements variable string-replacements"
+    assert apkbuild["url"] == "replacements variable string-replacements 1234"
     assert list(apkbuild["subpackages"].keys()) == ["replacements", "test"]
 
     assert apkbuild["subpackages"]["replacements"] is None
