@@ -19,7 +19,7 @@ def args(tmpdir, request):
     return args
 
 
-def test_subpackages():
+def test_subpackages(args):
     testdata = pmb_test.const.testdata
     path = testdata + "/apkbuild/APKBUILD.subpackages"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
@@ -76,13 +76,13 @@ def test_kernels(args):
     assert func(args, device) == ret
 
 
-def test_depends_in_depends():
+def test_depends_in_depends(args):
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.depends-in-depends"
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False)
     assert apkbuild["depends"] == ["first", "second", "third"]
 
 
-def test_parse_attributes():
+def test_parse_attributes(args):
     # Convenience function for calling the function with a block of text
     def func(attribute, block):
         lines = block.split("\n")
@@ -143,7 +143,7 @@ def test_variable_replacements():
                                       "replacement")
 
 
-def test_parse_maintainers():
+def test_parse_maintainers(args):
     path = pmb_test.const.testdata + "/apkbuild/APKBUILD.lint"
     maintainers = [
         "Oliver Smith <ollieparanoid@postmarketos.org>",
@@ -153,13 +153,13 @@ def test_parse_maintainers():
     assert pmb.parse._apkbuild.maintainers(path) == maintainers
 
 
-def test_parse_unmaintained():
+def test_parse_unmaintained(args):
     path = (f"{pmb_test.const.testdata}/apkbuild"
             "/APKBUILD.missing-pkgdesc-in-subpackage")
     assert pmb.parse._apkbuild.unmaintained(path) == "This is broken!"
 
 
-def test_weird_pkgver():
+def test_weird_pkgver(args):
     path = (f"{pmb_test.const.testdata}/apkbuild"
         "/APKBUILD.weird-pkgver")
     apkbuild = pmb.parse.apkbuild(path, check_pkgname=False, check_pkgver=True)
