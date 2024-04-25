@@ -118,3 +118,8 @@ ENV/
 
 # JetBrains IDEs (PyCharm, etc)
 .idea
+
+# KDevelop
+.kdev4/
+*.kdev4
+*.kate*
