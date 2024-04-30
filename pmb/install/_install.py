@@ -781,6 +781,8 @@ def create_fstab(args, layout, suffix):
         else f"UUID={get_uuid(args, root_dev)}"
 
     boot_filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
+    if boot_filesystem in ("fat16", "fat32"):
+        boot_filesystem = "vfat"
     root_filesystem = pmb.install.get_root_filesystem(args)
 
     if root_filesystem == "btrfs":
