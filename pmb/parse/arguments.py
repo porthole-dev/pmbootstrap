@@ -624,7 +624,7 @@ def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
         arg.completer = kernel_completer
 
 
-def arguments():
+def get_parser():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
     arch_native = pmb.config.arch_native
     arch_choices = set(pmb.config.build_device_architectures + [arch_native])
@@ -930,8 +930,13 @@ def arguments():
     if "argcomplete" in sys.modules:
         argcomplete.autocomplete(parser, always_complete_options="long")
 
+    return parser
+
+def arguments():
+
     # Parse and extend arguments (also backup unmodified result from argparse)
-    args = parser.parse_args()
+    args = get_parser().parse_args()
+
     setattr(args, "from_argparse", copy.deepcopy(args))
     setattr(args.from_argparse, "from_argparse", args.from_argparse)
 
