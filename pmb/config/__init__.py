@@ -503,7 +503,6 @@ kconfig_options_containers = {
             "CGROUP_PERF": True,  # Optional section
             "NET_CLS_CGROUP": True,  # Optional section
             "FAIR_GROUP_SCHED": True,  # Optional section
-            "RT_GROUP_SCHED": True,  # Optional section
             "IP_NF_TARGET_REDIRECT": True,  # Optional section
             "IP_VS": True,  # Optional section
             "IP_VS_NFCT": True,  # Optional section
@@ -676,6 +675,7 @@ kconfig_options_community = {
             "UCLAMP_TASK_GROUP": True,  # Scheduler hints
             "UHID": True,  # e.g. Bluetooth input devices
             "USB_STORAGE": True,  # USB mass storage devices
+            "RT_GROUP_SCHED": False, # https://gitlab.com/postmarketOS/pmaports/-/issues/2652
         },
     },
 }
