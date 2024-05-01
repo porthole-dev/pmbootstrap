@@ -780,9 +780,11 @@ def create_fstab(args, layout, suffix):
     root_mount_point = "/dev/mapper/root" if args.full_disk_encryption \
         else f"UUID={get_uuid(args, root_dev)}"
 
+    boot_options = "nodev,nosuid,noexec"
     boot_filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
     if boot_filesystem in ("fat16", "fat32"):
         boot_filesystem = "vfat"
+        boot_options += ",umask=0077,nosymfollow"
     root_filesystem = pmb.install.get_root_filesystem(args)
 
     if root_filesystem == "btrfs":
@@ -796,14 +798,14 @@ def create_fstab(args, layout, suffix):
 {root_mount_point} /var btrfs subvol=@var,ssd 0 0
 {root_mount_point} /.snapshots btrfs subvol=@snapshots,compress=zstd:2,ssd 0 0
 
-{boot_mount_point} /boot {boot_filesystem} defaults 0 0
+{boot_mount_point} /boot {boot_filesystem} {boot_options} 0 0
 """.lstrip()
 
     else:
         fstab = f"""
 # <file system> <mount point> <type> <options> <dump> <pass>
 {root_mount_point} / {root_filesystem} defaults 0 0
-{boot_mount_point} /boot {boot_filesystem} defaults 0 0
+{boot_mount_point} /boot {boot_filesystem} {boot_options} 0 0
 """.lstrip()
 
     with open(f"{args.work}/chroot_{suffix}/tmp/fstab", "w") as f:
