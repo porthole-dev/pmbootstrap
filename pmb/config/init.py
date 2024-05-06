@@ -404,9 +404,9 @@ def ask_for_device(args):
             if not pmb.helpers.cli.confirm(args, default=True):
                 continue
         else:
-            # Unmaintained devices can be selected, but are not displayed
+            # Archived devices can be selected, but are not displayed
             devices = sorted(pmb.helpers.devices.list_codenames(
-                args, vendor, unmaintained=False))
+                args, vendor, archived=False))
             # Remove "vendor-" prefixes from device list
             codenames = [x.split('-', 1)[1] for x in devices]
             logging.info(f"Available codenames ({len(codenames)}): " +
@@ -437,10 +437,10 @@ def ask_for_device(args):
             logging.info("Generating new aports for: {}...".format(device))
             pmb.aportgen.generate(args, f"device-{device}")
             pmb.aportgen.generate(args, f"linux-{device}")
-        elif "/unmaintained/" in device_path:
+        elif "/archived/" in device_path:
             apkbuild = f"{device_path[:-len('deviceinfo')]}APKBUILD"
-            unmaintained = pmb.parse._apkbuild.unmaintained(apkbuild)
-            logging.info(f"WARNING: {device} is unmaintained: {unmaintained}")
+            archived = pmb.parse._apkbuild.archived(apkbuild)
+            logging.info(f"WARNING: {device} is archived: {archived}")
             if not pmb.helpers.cli.confirm(args):
                 continue
         break

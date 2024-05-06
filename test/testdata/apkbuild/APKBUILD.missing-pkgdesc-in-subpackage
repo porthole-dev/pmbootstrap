@@ -1,5 +1,5 @@
 # Reference: <https://postmarketos.org/devicepkg>
-# Unmaintained: This is broken!
+# Archived: This is broken!
 pkgname="missing-pkgdesc-in-subpackage"
 arch="noarch"
 subpackages="$pkgname-subpackage invalid-function:does_not_exist"

@@ -436,15 +436,15 @@ def maintainers(path):
     return maintainers
 
 
-def unmaintained(path):
+def archived(path):
     """
-    Return if (and why) an APKBUILD might be unmaintained. This should be
-    defined using a # Unmaintained: <reason> tag in the APKBUILD.
+    Return if (and why) an APKBUILD might be archived. This should be
+    defined using a # Archived: <reason> tag in the APKBUILD.
 
     :param path: full path to the APKBUILD
-    :returns: reason why APKBUILD is unmaintained, or None
+    :returns: reason why APKBUILD is archived, or None
     """
-    unmaintained = _parse_comment_tags(read_file(path), 'Unmaintained')
-    if not unmaintained:
+    archived = _parse_comment_tags(read_file(path), 'Archived')
+    if not archived:
         return None
-    return '\n'.join(unmaintained)
+    return '\n'.join(archived)
