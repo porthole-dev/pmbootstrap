@@ -237,11 +237,11 @@ def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2
 
     display = args.qemu_display
     if display != "none":
-        display += ",gl=" + ("on" if args.qemu_gl else "off")
+        display += ",show-cursor=on,gl=" + ("on" if args.qemu_gl else "off")
 
     # Separate -show-cursor option is deprecated. If your host qemu fails here,
     # it's old (#1995).
-    command += ["-display", f"{display},show-cursor=on"]
+    command += ["-display", f"{display}"]
 
     # Audio support
     if args.qemu_audio:
