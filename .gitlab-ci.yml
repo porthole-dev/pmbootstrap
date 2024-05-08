@@ -8,6 +8,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'wip'
+    - if: $CI_COMMIT_BRANCH == 'docs'
 
 before_script: &global_before_scripts
   - ".ci/note.sh"
@@ -62,3 +63,12 @@ mypy:
   stage: lint
   script:
     - ".ci/mypy.sh"
+
+docs:
+  stage: lint
+  script:
+  - apk add py3-sphinx py3-sphinx_rtd_theme
+  - ".ci/docs.sh"
+  artifacts:
+    paths:
+    - public
