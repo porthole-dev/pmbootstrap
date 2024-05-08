@@ -12,10 +12,10 @@ import pmb.helpers.run
 
 
 def folder_size(args, path):
-    """
-    Run `du` to calculate the size of a folder (this is less code and
-    faster than doing the same task in pure Python). This result is only
-    approximatelly right, but good enough for pmbootstrap's use case (#760).
+    """Run `du` to calculate the size of a folder.
+
+    (this is less code and faster than doing the same task in pure Python)
+    This result is only approximatelly right, but good enough for pmbootstrap's use case (#760).
 
     :returns: folder size in kilobytes
     """
@@ -30,10 +30,10 @@ def folder_size(args, path):
 
 
 def check_grsec():
-    """
-    Check if the current kernel is based on the grsec patchset, and if
-    the chroot_deny_chmod option is enabled. Raise an exception in that
-    case, with a link to the issue. Otherwise, do nothing.
+    """Check if the current kernel is based on the grsec patchset.
+
+    Also check if the chroot_deny_chmod option is enabled.
+    Raise an exception in that case, with a link to the issue. Otherwise, do nothing.
     """
     path = "/proc/sys/kernel/grsecurity/chroot_deny_chmod"
     if not os.path.exists(path):
@@ -44,9 +44,10 @@ def check_grsec():
 
 
 def check_binfmt_misc(args):
-    """
-    Check if the 'binfmt_misc' module is loaded by checking, if
-    /proc/sys/fs/binfmt_misc/ exists. If it exists, then do nothing.
+    """Check if the 'binfmt_misc' module is loaded.
+
+    This is done by checking, if /proc/sys/fs/binfmt_misc/ exists.
+    If it exists, then do nothing.
     Otherwise, load the module and mount binfmt_misc.
     If that fails as well, raise an exception pointing the user to the wiki.
     """
@@ -241,11 +242,10 @@ def migrate_work_folder(args):
 
 
 def check_old_devices(args):
-    """
-    Check if there are any device ports in device/*/APKBUILD,
-    rather than device/*/*/APKBUILD (e.g. device/testing/...).
-    """
+    """Check if there are any device ports in device/\\*/APKBUILD.
 
+    Devices should be in device/\\*/\\*/APKBUILD (e.g. device/testing/...).
+    """
     g = glob.glob(args.aports + "/device/*/APKBUILD")
     if not g:
         return
@@ -257,8 +257,9 @@ def check_old_devices(args):
 
 
 def validate_hostname(hostname):
-    """
-    Check whether the string is a valid hostname, according to
+    """Check whether the string is a valid hostname.
+
+    Check is performed according to
     <http://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names>
     """
     # Check length
@@ -299,8 +300,7 @@ cache = None
 
 def init_cache():
     global cache
-    """ Add a caching dict (caches parsing of files etc. for the current
-        session) """
+    """Add a caching dict (caches parsing of files etc. for the current session)."""
     repo_update = {"404": [], "offline_msg_shown": False}
     cache = {"apkindex": {},
              "apkbuild": {},

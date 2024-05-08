@@ -11,30 +11,27 @@ import pmb.parse.version
 
 
 def parse_next_block(path, lines, start):
-    """
-    Parse the next block in an APKINDEX.
+    """Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
     :param start: current index in lines, gets increased in this
                   function. Wrapped into a list, so it can be modified
                   "by reference". Example: [5]
     :param lines: all lines from the "APKINDEX" file inside the archive
-    :returns: a dictionary with the following structure:
-              { "arch": "noarch",
-                "depends": ["busybox-extras", "lddtree", ... ],
-                "origin": "postmarketos-mkinitfs",
-                "pkgname": "postmarketos-mkinitfs",
-                "provides": ["mkinitfs=0.0.1"],
-                "timestamp": "1500000000",
-                "version": "0.0.4-r10" }
-              NOTE: "depends" is not set for packages without any dependencies,
-                    e.g. musl.
-              NOTE: "timestamp" and "origin" are not set for virtual packages
-                    (#1273). We use that information to skip these virtual
-                    packages in parse().
+    :returns: Dictionary with the following structure:
+              ``{ "arch": "noarch", "depends": ["busybox-extras", "lddtree", ... ],
+              "origin": "postmarketos-mkinitfs",
+              "pkgname": "postmarketos-mkinitfs",
+              "provides": ["mkinitfs=0.0.1"],
+              "timestamp": "1500000000",
+              "version": "0.0.4-r10" }``
+
+              NOTE: "depends" is not set for packages without any dependencies, e.g. ``musl``.
+
+              NOTE: "timestamp" and "origin" are not set for virtual packages (#1273).
+              We use that information to skip these virtual packages in parse().
     :returns: None, when there are no more blocks
     """
-
     # Parse until we hit an empty line or end of file
     ret = {}
     mapping = {
@@ -100,8 +97,7 @@ def parse_next_block(path, lines, start):
 
 
 def parse_add_block(ret, block, alias=None, multiple_providers=True):
-    """
-    Add one block to the return dictionary of parse().
+    """Add one block to the return dictionary of parse().
 
     :param ret: dictionary of all packages in the APKINDEX that is
                 getting built right now. This function will extend it.
@@ -113,7 +109,6 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
                                APKINDEX files from a repository (#1122), but
                                not when parsing apk's installed packages DB.
     """
-
     # Defaults
     pkgname = block["pkgname"]
     alias = alias or pkgname
@@ -142,8 +137,7 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
 
 
 def parse(path, multiple_providers=True):
-    """
-    Parse an APKINDEX.tar.gz file, and return its content as dictionary.
+    r"""Parse an APKINDEX.tar.gz file, and return its content as dictionary.
 
     :param path: path to an APKINDEX.tar.gz file or apk package database
                  (almost the same format, but not compressed).
@@ -152,22 +146,23 @@ def parse(path, multiple_providers=True):
                                APKINDEX files from a repository (#1122), but
                                not when parsing apk's installed packages DB.
     :returns: (without multiple_providers)
-              generic format:
-              { pkgname: block, ... }
+  
+    Generic format:
+        ``{ pkgname: block, ... }``
 
-              example:
-              { "postmarketos-mkinitfs": block,
-                "so:libGL.so.1": block, ...}
+    Example:
+        ``{ "postmarketos-mkinitfs": block, "so:libGL.so.1": block, ...}``
 
     :returns: (with multiple_providers)
-              generic format:
-              { provide: { pkgname: block, ... }, ... }
 
-              example:
-              { "postmarketos-mkinitfs": {"postmarketos-mkinitfs": block},
-                "so:libGL.so.1": {"mesa-egl": block, "libhybris": block}, ...}
+    Generic format:
+        ``{ provide: { pkgname: block, ... }, ... }``
 
-    NOTE: "block" is the return value from parse_next_block() above.
+    Example:
+        ``{ "postmarketos-mkinitfs": {"postmarketos-mkinitfs": block},"so:libGL.so.1": {"mesa-egl": block, "libhybris": block}, ...}``
+
+    *NOTE:* ``block`` is the return value from ``parse_next_block()`` above.
+
     """
     # Require the file to exist
     if not os.path.isfile(path):
@@ -230,7 +225,7 @@ def parse_blocks(path):
     :returns: all blocks in the APKINDEX, without restructuring them by
               pkgname or removing duplicates with lower versions (use
               parse() if you need these features). Structure:
-              [block, block, ...]
+              ``[block, block, ...]``
 
     NOTE: "block" is the return value from parse_next_block() above.
     """
@@ -276,10 +271,9 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
     :param indexes: list of APKINDEX.tar.gz paths, defaults to all index files
                     (depending on arch)
     :returns: list of parsed packages. Example for package="so:libGL.so.1":
-                  {"mesa-egl": block, "libhybris": block}
-              block is the return value from parse_next_block() above.
+        ``{"mesa-egl": block, "libhybris": block}``
+        block is the return value from parse_next_block() above.
     """
-
     if not indexes:
         arch = arch or pmb.config.arch_native
         indexes = pmb.helpers.repo.apkindex_files(args, arch)
@@ -319,8 +313,7 @@ def providers(args, package, arch=None, must_exist=True, indexes=None):
 
 
 def provider_highest_priority(providers, pkgname):
-    """
-    Get the provider(s) with the highest provider_priority and log a message.
+    """Get the provider(s) with the highest provider_priority and log a message.
 
     :param providers: returned dict from providers(), must not be empty
     :param pkgname: the package name we are interested in (for the log message)
@@ -346,8 +339,7 @@ def provider_highest_priority(providers, pkgname):
 
 
 def provider_shortest(providers, pkgname):
-    """
-    Get the provider with the shortest pkgname and log a message. In most cases
+    """Get the provider with the shortest pkgname and log a message. In most cases
     this should be sufficient, e.g. 'mesa-purism-gc7000-egl, mesa-egl' or
     'gtk+2.0-maemo, gtk+2.0'.
 
@@ -374,10 +366,10 @@ def package(args, package, arch=None, must_exist=True, indexes=None):
                     (depending on arch)
     :returns: a dictionary with the following structure:
               { "arch": "noarch",
-                "depends": ["busybox-extras", "lddtree", ... ],
-                "pkgname": "postmarketos-mkinitfs",
-                "provides": ["mkinitfs=0.0.1"],
-                "version": "0.0.4-r10" }
+              "depends": ["busybox-extras", "lddtree", ... ],
+              "pkgname": "postmarketos-mkinitfs",
+              "provides": ["mkinitfs=0.0.1"],
+              "version": "0.0.4-r10" }
               or None when the package was not found.
     """
     # Provider with the same package

@@ -104,7 +104,7 @@ def read_config_repos(args):
 
 
 def read_config(args):
-    """ Read and verify pmaports.cfg. """
+    """Read and verify pmaports.cfg."""
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config"
     if pmb.helpers.other.cache[cache_key]:
@@ -140,12 +140,16 @@ def read_config(args):
 
 
 def read_config_channel(args):
-    """ Get the properties of the currently active channel in pmaports.git,
-        as specified in channels.cfg (https://postmarketos.org/channels.cfg).
-        :returns: {"description: ...,
-                   "branch_pmaports": ...,
-                   "branch_aports": ...,
-                   "mirrordir_alpine": ...} """
+    """Get the properties of the currently active channel in pmaports.git.
+
+    As specified in channels.cfg (https://postmarketos.org/channels.cfg).
+
+    :returns: {"description: ...,
+               "branch_pmaports": ...,
+               "branch_aports": ...,
+               "mirrordir_alpine": ...}
+
+    """
     channel = read_config(args)["channel"]
     channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
 
@@ -179,9 +183,12 @@ def init(args):
 
 
 def switch_to_channel_branch(args, channel_new):
-    """ Checkout the channel's branch in pmaports.git.
-        :channel_new: channel name (e.g. "edge", "v21.03")
-        :returns: True if another branch was checked out, False otherwise """
+    """Checkout the channel's branch in pmaports.git.
+
+    :channel_new: channel name (e.g. "edge", "v21.03")
+
+    :returns: True if another branch was checked out, False otherwise
+    """
     # Check current pmaports branch channel
     channel_current = read_config(args)["channel"]
     if channel_current == channel_new:

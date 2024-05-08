@@ -1,7 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Functions that work with binary package repos. See also:
+Functions that work with binary package repos.
+
+See also:
 - pmb/helpers/pmaports.py (work with pmaports)
 - pmb/helpers/package.py (work with both)
 """
@@ -14,9 +16,9 @@ import pmb.helpers.run
 
 
 def hash(url, length=8):
-    """
-    Generate the hash that APK adds to the APKINDEX and apk packages
-    in its apk cache folder. It is the "12345678" part in this example:
+    r"""Generate the hash that APK adds to the APKINDEX and apk packages in its apk cache folder.
+
+    It is the "12345678" part in this example:
     "APKINDEX.12345678.tar.gz".
 
     :param length: The length of the hash in the output file.
@@ -24,7 +26,7 @@ def hash(url, length=8):
     See also: official implementation in apk-tools:
     <https://git.alpinelinux.org/cgit/apk-tools/>
 
-    blob.c: apk_blob_push_hexdump(), "const char *xd"
+    blob.c: apk_blob_push_hexdump(), "const char \\*xd"
     apk_defines.h: APK_CACHE_CSUM_BYTES
     database.c: apk_repo_format_cache_index()
     """
@@ -41,8 +43,8 @@ def hash(url, length=8):
 
 
 def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
-    """
-    Get a list of repository URLs, as they are in /etc/apk/repositories.
+    """Get a list of repository URLs, as they are in /etc/apk/repositories.
+
     :param user_repository: add /mnt/pmbootstrap/packages
     :param postmarketos_mirror: add postmarketos mirror URLs
     :param alpine: add alpine mirror URLs
@@ -86,9 +88,8 @@ def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
 
 def apkindex_files(args, arch=None, user_repository=True, pmos=True,
                    alpine=True):
-    """
-    Get a list of outside paths to all resolved APKINDEX.tar.gz files for a
-    specific arch.
+    """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
+
     :param arch: defaults to native
     :param user_repository: add path to index of locally built packages
     :param pmos: add paths to indexes of postmarketos mirrors
@@ -113,8 +114,7 @@ def apkindex_files(args, arch=None, user_repository=True, pmos=True,
 
 
 def update(args, arch=None, force=False, existing_only=False):
-    """
-    Download the APKINDEX files for all URLs depending on the architectures.
+    """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
                  * None for all architectures
@@ -196,9 +196,7 @@ def update(args, arch=None, force=False, existing_only=False):
 
 
 def alpine_apkindex_path(args, repo="main", arch=None):
-    """
-    Get the path to a specific Alpine APKINDEX file on disk and download it if
-    necessary.
+    """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")
     :param arch: Alpine architecture (e.g. "armhf"), defaults to native arch.

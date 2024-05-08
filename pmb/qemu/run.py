@@ -35,7 +35,9 @@ def system_image(args):
 def create_second_storage(args):
     """
     Generate a second storage image if it does not exist.
+
     :returns: path to the image or None
+
     """
     path = f"{args.work}/chroot_native/home/pmos/rootfs/{args.device}-2nd.img"
     pmb.helpers.run.root(args, ["touch", path])

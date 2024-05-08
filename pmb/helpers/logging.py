@@ -9,9 +9,7 @@ logfd = None
 
 
 class log_handler(logging.StreamHandler):
-    """
-    Write to stdout and to the already opened log file.
-    """
+    """Write to stdout and to the already opened log file."""
     _args = None
 
     def emit(self, record):
@@ -72,9 +70,9 @@ class log_handler(logging.StreamHandler):
 
 
 def add_verbose_log_level():
-    """
-    Add a new log level "verbose", which is below "debug". Also monkeypatch
-    logging, so it can be used with logging.verbose().
+    """Add a new log level "verbose", which is below "debug".
+
+    Also monkeypatch logging, so it can be used with logging.verbose().
 
     This function is based on work by Voitek Zylinski and sleepycal:
     https://stackoverflow.com/a/20602183
@@ -91,10 +89,7 @@ def add_verbose_log_level():
 
 
 def init(args):
-    """
-    Set log format and add the log file descriptor to logfd, add the
-    verbose log level.
-    """
+    """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
     # Set log file descriptor (logfd)
     if args.details_to_stdout:

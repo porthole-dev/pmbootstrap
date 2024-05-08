@@ -14,8 +14,7 @@ import pmb.parse.arch
 
 
 def init_abuild_minimal(args, suffix="native"):
-    """ Initialize a minimal chroot with abuild where one can do
-        'abuild checksum'. """
+    """Initialize a minimal chroot with abuild where one can do 'abuild checksum'."""
     marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):
         return
@@ -35,7 +34,7 @@ def init_abuild_minimal(args, suffix="native"):
 
 
 def init(args, suffix="native"):
-    """ Initialize a chroot for building packages with abuild. """
+    """Initialize a chroot for building packages with abuild."""
     marker = f"{args.work}/chroot_{suffix}/tmp/pmb_chroot_build_init_done"
     if os.path.exists(marker):
         return

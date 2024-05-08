@@ -5,9 +5,9 @@ import os
 import pmb.config
 import pmb.helpers.git
 
-""" This file constructs the args variable, which is passed to almost all
-    functions in the pmbootstrap code base. Here's a listing of the kind of
-    information it stores.
+"""This file constructs the args variable, which is passed to almost all
+   functions in the pmbootstrap code base. Here's a listing of the kind of
+   information it stores.
 
     1. Argparse
        Variables directly from command line argument parsing (see
@@ -44,16 +44,16 @@ import pmb.helpers.git
 
 
 def fix_mirrors_postmarketos(args):
-    """ Fix args.mirrors_postmarketos when it is supposed to be empty or the
-        default value.
+    """Fix args.mirrors_postmarketos when it is supposed to be empty or the default value.
 
-        In pmb/parse/arguments.py, we set the -mp/--mirror-pmOS argument to
-        action="append" and start off with an empty list. That way, users can
-        specify multiple custom mirrors by specifying -mp multiple times on the
-        command line. Here we fix the default and no mirrors case.
+    In pmb/parse/arguments.py, we set the -mp/--mirror-pmOS argument to
+    action="append" and start off with an empty list. That way, users can
+    specify multiple custom mirrors by specifying -mp multiple times on the
+    command line. Here we fix the default and no mirrors case.
 
-        NOTE: we don't use nargs="+", because it does not play nicely with
-        subparsers: <https://bugs.python.org/issue9338> """
+    NOTE: we don't use nargs="+", because it does not play nicely with
+    subparsers: <https://bugs.python.org/issue9338>
+    """
     # -mp not specified: use default mirrors
     if not args.mirrors_postmarketos:
         cfg = pmb.config.load(args)
@@ -66,19 +66,21 @@ def fix_mirrors_postmarketos(args):
 
 
 def check_pmaports_path(args):
-    """ Make sure that args.aports exists when it was overridden by --aports.
-        Without this check, 'pmbootstrap init' would start cloning the
-        pmaports into the default folder when args.aports does not exist. """
+    """Make sure that args.aports exists when it was overridden by --aports.
+
+    Without this check, 'pmbootstrap init' would start cloning the
+    pmaports into the default folder when args.aports does not exist.
+    """
     if args.from_argparse.aports and not os.path.exists(args.aports):
         raise ValueError("pmaports path (specified with --aports) does"
                          " not exist: " + args.aports)
 
 
 def replace_placeholders(args):
-    """ Replace $WORK and ~ (for path variables) in variables from any config
-        (user's config file, default config settings or config parameters
-        specified on commandline) """
+    """Replace $WORK and ~ (for path variables) in variables from any config.
 
+    (user's config file, default config settings or config parameters specified on commandline)
+    """
     # Replace $WORK
     for key, value in pmb.config.defaults.items():
         if key not in args:
@@ -94,7 +96,7 @@ def replace_placeholders(args):
 
 
 def add_deviceinfo(args):
-    """ Add and verify the deviceinfo (only after initialization) """
+    """Add and verify the deviceinfo (only after initialization)"""
     setattr(args, "deviceinfo", pmb.parse.deviceinfo(args))
     arch = args.deviceinfo["arch"]
     if (arch != pmb.config.arch_native and
@@ -126,7 +128,7 @@ def init(args):
 
 
 def update_work(args, work):
-    """ Update the work path in args.work and wherever $WORK was used. """
+    """Update the work path in args.work and wherever $WORK was used."""
     # Start with the unmodified args from argparse
     args_new = copy.deepcopy(args.from_argparse)
 

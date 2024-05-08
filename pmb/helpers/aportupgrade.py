@@ -96,9 +96,8 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
 
 
 def upgrade_git_package(args, pkgname: str, package) -> None:
-    """
-    Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if
-    args.dry is set).
+    """Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if args.dry is set).
+
     :param pkgname: the package name
     :param package: a dict containing package information
     """
@@ -254,8 +253,7 @@ def upgrade_stable_package(args, pkgname: str, package) -> None:
 
 
 def upgrade(args, pkgname, git=True, stable=True) -> None:
-    """
-    Find new versions of a single package and upgrade it.
+    """Find new versions of a single package and upgrade it.
 
     :param pkgname: the name of the package
     :param git: True if git packages should be upgraded
@@ -275,9 +273,7 @@ def upgrade(args, pkgname, git=True, stable=True) -> None:
 
 
 def upgrade_all(args) -> None:
-    """
-    Upgrade all packages, based on args.all, args.all_git and args.all_stable.
-    """
+    """Upgrade all packages, based on args.all, args.all_git and args.all_stable."""
     for pkgname in pmb.helpers.pmaports.get_list(args):
         # Always ignore postmarketOS-specific packages that have no upstream
         # source

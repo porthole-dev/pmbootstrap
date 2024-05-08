@@ -121,6 +121,7 @@ def check_config_options_set(config, config_path, config_arch, options,
                              component, pkgver, details=False):
     """
     Check, whether all the kernel config passes all rules of one component.
+
     Print a warning if any is missing.
 
     :param config: full kernel config as string
@@ -128,10 +129,10 @@ def check_config_options_set(config, config_path, config_arch, options,
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
     :param options: kconfig_options* var passed from pmb/config/__init__.py:
                     kconfig_options_example = {
-                        ">=0.0.0": {  # all versions
-                            "all": {  # all arches
-                                "ANDROID_PARANOID_NETWORK": False,
-                            },
+                    ">=0.0.0": {  # all versions
+                    "all": {  # all arches
+                    "ANDROID_PARANOID_NETWORK": False,
+                    },
                     }
     :param component: name of the component to test (postmarketOS, waydroid, …)
     :param pkgver: kernel version

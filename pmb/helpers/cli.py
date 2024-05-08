@@ -11,11 +11,10 @@ import pmb.config
 
 
 class ReadlineTabCompleter:
-    """ Stores intermediate state for completer function """
+    """Store intermediate state for completer function."""
+
     def __init__(self, options):
-        """
-        :param options: list of possible completions
-        """
+        """:param options: list of possible completions."""
         self.options = sorted(options)
         self.matches = []
 
@@ -40,11 +39,10 @@ class ReadlineTabCompleter:
 
 def ask(question="Continue?", choices=["y", "n"], default="n",
         lowercase_answer=True, validation_regex=None, complete=None):
-    """
-    Ask a question on the terminal.
+    """Ask a question on the terminal.
+
     :param question: display prompt
-    :param choices: short list of possible answers,
-                    displayed after prompt if set
+    :param choices: short list of possible answers, displayed after prompt if set
     :param default: default value to return if user doesn't input anything
     :param lowercase_answer: if True, convert return value to lower case
     :param validation_regex: if set, keep asking until regex matches
@@ -99,11 +97,9 @@ def ask(question="Continue?", choices=["y", "n"], default="n",
 
 
 def confirm(args, question="Continue?", default=False, no_assumptions=False):
-    """
-    Convenience wrapper around ask for simple yes-no questions with validation.
+    """Convenience wrapper around ask for simple yes-no questions with validation.
 
-    :param no_assumptions: ask for confirmation, even if "pmbootstrap -y'
-                           is set
+    :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
     :returns: True for "y", False for "n"
     """
     default_str = "y" if default else "n"
@@ -115,9 +111,9 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
 
 
 def progress_print(args, progress):
-    """
-    Print a snapshot of a progress bar to STDOUT. Call progress_flush to end
-    printing progress and clear the line. No output is printed in
+    """Print a snapshot of a progress bar to STDOUT.
+
+    Call progress_flush to end  printing progress and clear the line. No output is printed in
     non-interactive mode.
 
     :param progress: completion percentage as a number between 0 and 1
@@ -138,9 +134,9 @@ def progress_print(args, progress):
 
 
 def progress_flush(args):
-    """
-    Finish printing a progress bar. This will erase the line. Does nothing in
-    non-interactive mode.
+    """Finish printing a progress bar.
+
+    This will erase the line. Does nothing in non-interactive mode.
     """
     if pmb.config.is_interactive and not args.details_to_stdout:
         sys.stdout.flush()

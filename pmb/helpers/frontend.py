@@ -38,8 +38,8 @@ from argparse import Namespace
 
 
 def _parse_flavor(args, autoinstall=True):
-    """
-    Verify the flavor argument if specified, or return a default value.
+    """Verify the flavor argument if specified, or return a default value.
+
     :param autoinstall: make sure that at least one kernel flavor is installed
     """
     # Install a kernel and get its "flavor", where flavor is a pmOS-specific

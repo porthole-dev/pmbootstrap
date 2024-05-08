@@ -11,15 +11,13 @@ import threading
 import time
 import pmb.helpers.run
 
-""" For a detailed description of all output modes, read the description of
-    core() at the bottom. All other functions in this file get (indirectly)
-    called by core(). """
+"""For a detailed description of all output modes, read the description of
+   core() at the bottom. All other functions in this file get (indirectly)
+   called by core(). """
 
 
 def flat_cmd(cmd, working_dir=None, env={}):
-    """
-    Convert a shell command passed as list into a flat shell string with
-    proper escaping.
+    """Convert a shell command passed as list into a flat shell string with proper escaping.
 
     :param cmd: command as list, e.g. ["echo", "string with spaces"]
     :param working_dir: when set, prepend "cd ...;" to execute the command
@@ -46,8 +44,8 @@ def flat_cmd(cmd, working_dir=None, env={}):
 
 
 def sanity_checks(output="log", output_return=False, check=None):
-    """
-    Raise an exception if the parameters passed to core() don't make sense
+    """Raise an exception if the parameters passed to core() don't make sense.
+
     (all parameters are described in core() below).
     """
     vals = ["log", "stdout", "interactive", "tui", "background", "pipe"]
@@ -66,7 +64,7 @@ def sanity_checks(output="log", output_return=False, check=None):
 
 
 def background(cmd, working_dir=None):
-    """ Run a subprocess in background and redirect its output to the log. """
+    """Run a subprocess in background and redirect its output to the log."""
     ret = subprocess.Popen(cmd, stdout=pmb.helpers.logging.logfd,
                            stderr=pmb.helpers.logging.logfd, cwd=working_dir)
     logging.debug(f"New background process: pid={ret.pid}, output=background")
@@ -74,7 +72,7 @@ def background(cmd, working_dir=None):
 
 
 def pipe(cmd, working_dir=None):
-    """ Run a subprocess in background and redirect its output to a pipe. """
+    """Run a subprocess in background and redirect its output to a pipe."""
     ret = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                            stdin=subprocess.DEVNULL,
                            stderr=pmb.helpers.logging.logfd, cwd=working_dir)
@@ -84,10 +82,9 @@ def pipe(cmd, working_dir=None):
 
 def pipe_read(process, output_to_stdout=False, output_return=False,
               output_return_buffer=False):
-    """
-    Read all available output from a subprocess and copy it to the log and
-    optionally stdout and a buffer variable. This is only meant to be called by
-    foreground_pipe() below.
+    """Read all output from a subprocess, copy it to the log and optionally stdout and a buffer variable.
+
+    This is only meant to be called by foreground_pipe() below.
 
     :param process: subprocess.Popen instance
     :param output_to_stdout: copy all output to pmbootstrap's stdout
@@ -115,8 +112,7 @@ def pipe_read(process, output_to_stdout=False, output_return=False,
 
 
 def kill_process_tree(args, pid, ppids, sudo):
-    """
-    Recursively kill a pid and its child processes
+    """Recursively kill a pid and its child processes.
 
     :param pid: process id that will be killed
     :param ppids: list of process id and parent process id tuples (pid, ppid)
@@ -135,8 +131,7 @@ def kill_process_tree(args, pid, ppids, sudo):
 
 
 def kill_command(args, pid, sudo):
-    """
-    Kill a command process and recursively kill its child processes
+    """Kill a command process and recursively kill its child processes.
 
     :param pid: process id that will be killed
     :param sudo: use sudo to kill the process
@@ -157,9 +152,9 @@ def kill_command(args, pid, sudo):
 def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
                     output_return=False, output_timeout=True,
                     sudo=False, stdin=None):
-    """
-    Run a subprocess in foreground with redirected output and optionally kill
-    it after being silent for too long.
+    """Run a subprocess in foreground with redirected output.
+
+    Optionally kill it after being silent for too long.
 
     :param cmd: command as list, e.g. ["echo", "string with spaces"]
     :param working_dir: path in host system where the command should run
@@ -220,13 +215,11 @@ def foreground_pipe(args, cmd, working_dir=None, output_to_stdout=False,
 
 
 def foreground_tui(cmd, working_dir=None):
-    """
-    Run a subprocess in foreground without redirecting any of its output.
+    """Run a subprocess in foreground without redirecting any of its output.
 
     This is the only way text-based user interfaces (ncurses programs like
     vim, nano or the kernel's menuconfig) work properly.
     """
-
     logging.debug("*** output passed to pmbootstrap stdout, not to this log"
                   " ***")
     process = subprocess.Popen(cmd, cwd=working_dir)
@@ -234,8 +227,7 @@ def foreground_tui(cmd, working_dir=None):
 
 
 def check_return_code(args, code, log_message):
-    """
-    Check the return code of a command.
+    """Check the return code of a command.
 
     :param code: exit code to check
     :param log_message: simplified and more readable form of the command, e.g.
@@ -243,7 +235,6 @@ def check_return_code(args, code, log_message):
                         entering the chroot and more escaping
     :raises RuntimeError: when the code indicates that the command failed
     """
-
     if code:
         logging.debug("^" * 70)
         logging.info("NOTE: The failed command's output is above the ^^^ line"
@@ -253,10 +244,7 @@ def check_return_code(args, code, log_message):
 
 
 def sudo_timer_iterate():
-    """
-    Run sudo -v and schedule a new timer to repeat the same.
-    """
-
+    """Run sudo -v and schedule a new timer to repeat the same."""
     if pmb.config.which_sudo() == "sudo":
         subprocess.Popen(["sudo", "-v"]).wait()
     else:
@@ -268,11 +256,7 @@ def sudo_timer_iterate():
 
 
 def sudo_timer_start():
-    """
-    Start a timer to call sudo -v periodically, so that the password is only
-    needed once.
-    """
-
+    """Start a timer to call sudo -v periodically, so that the password is only needed once."""
     if "sudo_timer_active" in pmb.helpers.other.cache:
         return
     pmb.helpers.other.cache["sudo_timer_active"] = True
@@ -281,11 +265,10 @@ def sudo_timer_start():
 
 
 def add_proxy_env_vars(env):
-    """
-    Add proxy environment variables present on the host to the environment of
-    the command we are running.
-    :param env: dict of environment variables, it will be extended with all of
-                the proxy env vars that are set on the host
+    """Add proxy environment variables from host to the environment of the command we are running.
+
+    :param env: dict of environment variables, it will be extended with all of the proxy env vars
+        that are set on the host
     """
     proxy_env_vars = [
         "FTP_PROXY",
@@ -304,12 +287,11 @@ def add_proxy_env_vars(env):
 
 def core(args, log_message, cmd, working_dir=None, output="log",
          output_return=False, check=None, sudo=False, disable_timeout=False):
-    """
-    Run a command and create a log entry.
+    """Run a command and create a log entry.
 
     This is a low level function not meant to be used directly. Use one of the
     following instead: pmb.helpers.run.user(), pmb.helpers.run.root(),
-                       pmb.chroot.user(), pmb.chroot.root()
+    pmb.chroot.user(), pmb.chroot.root()
 
     :param log_message: simplified and more readable form of the command, e.g.
                         "(native) % echo test" instead of the full command with
@@ -337,24 +319,23 @@ def core(args, log_message, cmd, working_dir=None, output="log",
                    their properties. "wait" indicates that we wait for the
                    process to complete.
 
-                   output value  | timeout | out to log | out to stdout | wait | pass stdin
-                   ------------------------------------------------------------------------
-                   "log"         | x       | x          |               | x    |
-                   "stdout"      | x       | x          | x             | x    |
-                   "interactive" |         | x          | x             | x    | x
-                   "tui"         |         |            | x             | x    | x
-                   "background"  |         | x          |               |      |
-                   "pipe"        |         |            |               |      |
+        =============  =======  ==========  =============  ====  ==========
+        output value   timeout  out to log  out to stdout  wait  pass stdin
+        =============  =======  ==========  =============  ====  ==========
+        "log"          x        x                          x
+        "stdout"       x        x           x              x
+        "interactive"           x           x              x     x
+        "tui"                               x              x     x
+        "background"            x
+        "pipe"
+        =============  =======  ==========  =============  ====  ==========
 
     :param output_return: in addition to writing the program's output to the
-                          destinations above in real time, write to a buffer
-                          and return it as string when the command has
-                          completed. This is not possible when output is
-                          "background", "pipe" or "tui".
-    :param check: an exception will be raised when the command's return code
-                  is not 0. Set this to False to disable the check. This
-                  parameter can not be used when the output is "background" or
-                  "pipe".
+        destinations above in real time, write to a buffer and return it as string when the
+        command has completed. This is not possible when output is "background", "pipe" or "tui".
+    :param check: an exception will be raised when the command's return code is not 0.
+        Set this to False to disable the check. This parameter can not be used when the output is
+        "background" or "pipe".
     :param sudo: use sudo to kill the process when it hits the timeout.
     :returns: * program's return code (default)
               * subprocess.Popen instance (output is "background" or "pipe")

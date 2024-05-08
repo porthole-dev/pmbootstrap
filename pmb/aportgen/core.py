@@ -21,6 +21,7 @@ def format_function(name, body, remove_indent=4):
     """
     Format the body of a shell function passed to rewrite() below, so it fits
     the format of the original APKBUILD.
+
     :param remove_indent: Maximum number of spaces to remove from the
         beginning of each line of the function body.
     """

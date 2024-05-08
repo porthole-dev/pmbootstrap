@@ -559,7 +559,7 @@ kconfig_options_containers = {
         }
     },
     ">=3.13": {
-        "all": { # needed for iptables-nft (used by docker,tailscale)
+        "all": {  # needed for iptables-nft (used by docker,tailscale)
             "NFT_COMPAT": True,
         }
     },
@@ -831,17 +831,17 @@ deviceinfo_attributes = [
     "flash_heimdall_partition_kernel",
     "flash_heimdall_partition_initfs",
     "flash_heimdall_partition_rootfs",
-    "flash_heimdall_partition_system", # deprecated
+    "flash_heimdall_partition_system",  # deprecated
     "flash_heimdall_partition_vbmeta",
     "flash_heimdall_partition_dtbo",
     "flash_fastboot_partition_kernel",
     "flash_fastboot_partition_rootfs",
-    "flash_fastboot_partition_system", # deprecated
+    "flash_fastboot_partition_system",  # deprecated
     "flash_fastboot_partition_vbmeta",
     "flash_fastboot_partition_dtbo",
     "flash_rk_partition_kernel",
     "flash_rk_partition_rootfs",
-    "flash_rk_partition_system", # deprecated
+    "flash_rk_partition_system",  # deprecated
     "flash_mtkclient_partition_kernel",
     "flash_mtkclient_partition_rootfs",
     "flash_mtkclient_partition_vbmeta",
@@ -851,7 +851,7 @@ deviceinfo_attributes = [
     "generate_bootimg",
     "header_version",
     "bootimg_qcdt",
-    "bootimg_mtk_mkimage", # deprecated
+    "bootimg_mtk_mkimage",  # deprecated
     "bootimg_mtk_label_kernel",
     "bootimg_mtk_label_ramdisk",
     "bootimg_dtb_second",

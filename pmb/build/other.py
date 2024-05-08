@@ -43,9 +43,9 @@ def copy_to_buildpath(args, package, suffix="native"):
 
 
 def is_necessary(args, arch, apkbuild, indexes=None):
-    """
-    Check if the package has already been built. Compared to abuild's check,
-    this check also works for different architectures.
+    """Check if the package has already been built.
+
+    Compared to abuild's check, this check also works for different architectures.
 
     :param arch: package target architecture
     :param apkbuild: from pmb.parse.apkbuild()
@@ -89,8 +89,7 @@ def is_necessary(args, arch, apkbuild, indexes=None):
 
 
 def index_repo(args, arch=None):
-    """
-    Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
+    """Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
     cache for that file for the current pmbootstrap session (to prevent
     rebuilding packages twice, in case the rebuild takes less than a second).
 
@@ -126,8 +125,7 @@ def index_repo(args, arch=None):
 
 
 def configure_abuild(args, suffix, verify=False):
-    """
-    Set the correct JOBS count in abuild.conf
+    """Set the correct JOBS count in ``abuild.conf``.
 
     :param verify: internally used to test if changing the config has worked.
     """
@@ -152,8 +150,7 @@ def configure_abuild(args, suffix, verify=False):
 
 
 def configure_ccache(args, suffix="native", verify=False):
-    """
-    Set the maximum ccache size
+    """Set the maximum ccache size.
 
     :param verify: internally used to test if changing the config has worked.
     """

@@ -4,8 +4,7 @@ import pmb.config
 
 
 def merge_with_args(args):
-    """
-    We have the internal config (pmb/config/__init__.py) and the user config
+    """We have the internal config (pmb/config/__init__.py) and the user config
     (usually ~/.config/pmbootstrap.cfg, can be changed with the '-c'
     parameter).
 

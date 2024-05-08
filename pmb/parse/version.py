@@ -101,9 +101,9 @@ def parse_suffix(rest):
     :returns: (rest, value, invalid_suffix)
               - rest: is the input "rest" string without the suffix
               - value: is a signed integer (negative for pre-,
-                positive for post-suffixes).
+              positive for post-suffixes).
               - invalid_suffix: is true, when rest does not start
-                with anything from the suffixes variable.
+              with anything from the suffixes variable.
 
     C equivalent: get_token(), case TOKEN_SUFFIX
     """
@@ -284,6 +284,7 @@ def check_string(a_version, rule):
     :param a_version: "3.4.1"
     :param rule: ">=1.0.0"
     :returns: True if a_version matches rule, false otherwise.
+
     """
     # Operators and the expected returns of compare(a,b)
     operator_results = {">=": [1, 0],

@@ -1,9 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""
-Functions that work with both pmaports and binary package repos. See also:
-- pmb/helpers/pmaports.py (work with pmaports)
-- pmb/helpers/repo.py (work with binary package repos)
+"""Functions that work with both pmaports and binary package repos.
+
+See also:
+
+    - pmb/helpers/pmaports.py (work with pmaports)
+
+    - pmb/helpers/repo.py (work with binary package repos)
 """
 import copy
 import logging
@@ -21,24 +24,24 @@ def remove_operators(package):
 
 
 def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
-    """ Find a package in pmaports, and as fallback in the APKINDEXes of the
-        binary packages.
-        :param pkgname: package name (e.g. "hello-world")
-        :param arch: preferred architecture of the binary package. When it
-                     can't be found for this arch, we'll still look for another
-                     arch to see whether the package exists at all. So make
-                     sure to check the returned arch against what you wanted
-                     with check_arch(). Example: "armhf"
-        :param replace_subpkgnames: replace all subpkgnames with their main
-                                    pkgnames in the depends (see #1733)
-        :param must_exist: raise an exception, if not found
-        :returns: * data from the parsed APKBUILD or APKINDEX in the following
-                    format: {"arch": ["noarch"],
-                             "depends": ["busybox-extras", "lddtree", ...],
-                             "pkgname": "postmarketos-mkinitfs",
-                             "provides": ["mkinitfs=0..1"],
-                             "version": "0.0.4-r10"}
-                  * None if the package was not found """
+    """Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
+
+    :param pkgname: package name (e.g. "hello-world")
+    :param arch: preferred architecture of the binary package.
+        When it can't be found for this arch, we'll still look for another arch to see whether the
+        package exists at all. So make sure to check the returned arch against what you wanted
+        with check_arch(). Example: "armhf"
+    :param replace_subpkgnames: replace all subpkgnames with their main pkgnames in the depends
+        (see #1733)
+    :param must_exist: raise an exception, if not found
+
+    :returns: * data from the parsed APKBUILD or APKINDEX in the following format:
+                    {"arch": ["noarch"], "depends": ["busybox-extras", "lddtree", ...],
+                    "pkgname": "postmarketos-mkinitfs", "provides": ["mkinitfs=0..1"],
+                    "version": "0.0.4-r10"}
+
+        * None if the package was not found
+    """
     # Cached result
     cache_key = "pmb.helpers.package.get"
     if (
@@ -127,12 +130,14 @@ def get(args, pkgname, arch, replace_subpkgnames=False, must_exist=True):
 
 
 def depends_recurse(args, pkgname, arch):
-    """ Recursively resolve all of the package's dependencies.
-        :param pkgname: name of the package (e.g. "device-samsung-i9100")
-        :param arch: preferred architecture for binary packages
-        :returns: a list of pkgname_start and all its dependencies, e.g:
-                  ["busybox-static-armhf", "device-samsung-i9100",
-                   "linux-samsung-i9100", ...] """
+    """Recursively resolve all of the package's dependencies.
+
+    :param pkgname: name of the package (e.g. "device-samsung-i9100")
+    :param arch: preferred architecture for binary packages
+    :returns: a list of pkgname_start and all its dependencies, e.g:
+        ["busybox-static-armhf", "device-samsung-i9100",
+        "linux-samsung-i9100", ...]
+    """
     # Cached result
     cache_key = "pmb.helpers.package.depends_recurse"
     if (arch in pmb.helpers.other.cache[cache_key] and
@@ -164,15 +169,14 @@ def depends_recurse(args, pkgname, arch):
 
 
 def check_arch(args, pkgname, arch, binary=True):
-    """ Can a package be built for a certain architecture, or is there a binary
-        package for it?
+    """Check if a package be built for a certain architecture, or is there a binary package for it.
 
-        :param pkgname: name of the package
-        :param arch: architecture to check against
-        :param binary: set to False to only look at the pmaports, not at binary
-                       packages
-        :returns: True when the package can be built, or there is a binary
-                  package, False otherwise
+    :param pkgname: name of the package
+    :param arch: architecture to check against
+    :param binary: set to False to only look at the pmaports, not at binary
+        packages
+
+    :returns: True when the package can be built, or there is a binary package, False otherwise
     """
     if binary:
         arches = get(args, pkgname, arch)["arch"]

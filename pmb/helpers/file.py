@@ -19,11 +19,13 @@ def replace(path, old, new):
 
 
 def replace_apkbuild(args, pkgname, key, new, in_quotes=False):
-    """ Replace one key=value line in an APKBUILD and verify it afterwards.
-        :param pkgname: package name, e.g. "hello-world"
-        :param key: key that should be replaced, e.g. "pkgver"
-        :param new: new value
-        :param in_quotes: expect the value to be in quotation marks ("") """
+    """Replace one key=value line in an APKBUILD and verify it afterwards.
+
+    :param pkgname: package name, e.g. "hello-world"
+    :param key: key that should be replaced, e.g. "pkgver"
+    :param new: new value
+    :param in_quotes: expect the value to be in quotation marks ("")
+    """
     # Read old value
     path = pmb.helpers.pmaports.find(args, pkgname) + "/APKBUILD"
     apkbuild = pmb.parse.apkbuild(path)
@@ -51,8 +53,8 @@ def replace_apkbuild(args, pkgname, key, new, in_quotes=False):
 
 
 def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
-    """
-    Check if a file is up-to-date by comparing the last modified timestamps
+    """Check if a file is up-to-date by comparing the last modified timestamps.
+
     (just like make does it).
 
     :param path_sources: list of full paths to the source files
@@ -78,9 +80,7 @@ def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
 
 
 def is_older_than(path, seconds):
-    """
-    Check if a single file is older than a given amount of seconds.
-    """
+    """Check if a single file is older than a given amount of seconds."""
     if not os.path.exists(path):
         return True
     lastmod = os.path.getmtime(path)
@@ -88,9 +88,7 @@ def is_older_than(path, seconds):
 
 
 def symlink(args, file, link):
-    """
-    Checks if the symlink is already present, otherwise create it.
-    """
+    """Check if the symlink is already present, otherwise create it."""
     if os.path.exists(link):
         if (os.path.islink(link) and
                 os.path.realpath(os.readlink(link)) == os.path.realpath(file)):

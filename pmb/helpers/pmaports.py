@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""
-Functions that work with pmaports. See also:
+"""Functions that work with pmaports.
+
+See also:
 - pmb/helpers/repo.py (work with binary package repos)
 - pmb/helpers/package.py (work with both)
 """
@@ -42,10 +43,9 @@ def get_list(args):
 
 
 def guess_main_dev(args, subpkgname):
-    """
-    Check if a package without "-dev" at the end exists in pmaports or not, and
-    log the appropriate message. Don't call this function directly, use
-    guess_main() instead.
+    """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
+
+    Don't call this function directly, use guess_main() instead.
 
     :param subpkgname: subpackage name, must end in "-dev"
     :returns: full path to the pmaport or None
@@ -64,8 +64,8 @@ def guess_main_dev(args, subpkgname):
 
 
 def guess_main(args, subpkgname):
-    """
-    Find the main package by assuming it is a prefix of the subpkgname.
+    """Find the main package by assuming it is a prefix of the subpkgname.
+
     We do that, because in some APKBUILDs the subpkgname="" variable gets
     filled with a shell loop and the APKBUILD parser in pmbootstrap can't
     parse this right. (Intentionally, we don't want to implement a full shell
@@ -101,9 +101,8 @@ def guess_main(args, subpkgname):
 
 
 def _find_package_in_apkbuild(package, path):
-    """
-    Look through subpackages and all provides to see if the APKBUILD at the
-    specified path contains (or provides) the specified package.
+    """Look through subpackages and all provides to see if the APKBUILD at the specified path
+    contains (or provides) the specified package.
 
     :param package: The package to search for
     :param path: The path to the apkbuild
@@ -136,8 +135,8 @@ def _find_package_in_apkbuild(package, path):
 
 
 def find(args, package, must_exist=True):
-    """
-    Find the aport path that provides a certain subpackage.
+    """Find the aport path that provides a certain subpackage.
+
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
     :param must_exist: Raise an exception, when not found
@@ -191,22 +190,23 @@ def find(args, package, must_exist=True):
 
 
 def get(args, pkgname, must_exist=True, subpackages=True):
-    """ Find and parse an APKBUILD file.
-        Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
-        Relevant variables are defined in pmb.config.apkbuild_attributes.
+    """Find and parse an APKBUILD file.
 
-        :param pkgname: the package name to find
-        :param must_exist: raise an exception when it can't be found
-        :param subpackages: also search for subpackages with the specified
-                            names (slow! might need to parse all APKBUILDs to
-                            find it)
-        :returns: relevant variables from the APKBUILD as dictionary, e.g.:
+    Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
+    Relevant variables are defined in pmb.config.apkbuild_attributes.
+
+    :param pkgname: the package name to find
+    :param must_exist: raise an exception when it can't be found
+    :param subpackages: also search for subpackages with the specified
+        names (slow! might need to parse all APKBUILDs to find it)
+
+    :returns: relevant variables from the APKBUILD as dictionary, e.g.:
                   { "pkgname": "hello-world",
-                    "arch": ["all"],
-                    "pkgrel": "4",
-                    "pkgrel": "1",
-                    "options": [],
-                    ... }
+                  "arch": ["all"],
+                  "pkgrel": "4",
+                  "pkgrel": "1",
+                  "options": [],
+                  ... }
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
     if subpackages:
@@ -225,8 +225,8 @@ def get(args, pkgname, must_exist=True, subpackages=True):
 
 
 def find_providers(args, provide):
-    """
-    Search for providers of the specified (virtual) package in pmaports.
+    """Search for providers of the specified (virtual) package in pmaports.
+
     Note: Currently only providers from a single APKBUILD are returned.
 
     :param provide: the (virtual) package to search providers for
@@ -249,12 +249,13 @@ def find_providers(args, provide):
 
 
 def get_repo(args, pkgname, must_exist=True):
-    """ Get the repository folder of an aport.
+    """Get the repository folder of an aport.
 
-        :pkgname: package name
-        :must_exist: raise an exception when it can't be found
-        :returns: a string like "main", "device", "cross", ...
-                  or None when the aport could not be found """
+    :pkgname: package name
+    :must_exist: raise an exception when it can't be found
+    :returns: a string like "main", "device", "cross", ...
+                  or None when the aport could not be found
+    """
     aport = find(args, pkgname, must_exist)
     if not aport:
         return None
@@ -262,13 +263,15 @@ def get_repo(args, pkgname, must_exist=True):
 
 
 def check_arches(arches, arch):
-    """ Check if building for a certain arch is allowed.
+    """Check if building for a certain arch is allowed.
 
-        :param arches: list of all supported arches, as it can be found in the
-                       arch="" line of APKBUILDS (including all, noarch,
-                       !arch, ...). For example: ["x86_64", "x86", "!armhf"]
-        :param arch: the architecture to check for
-        :returns: True when building is allowed, False otherwise
+    :param arches: list of all supported arches, as it can be found in the
+        arch="" line of APKBUILDS (including all, noarch, !arch, ...).
+        For example: ["x86_64", "x86", "!armhf"]
+
+    :param arch: the architecture to check for
+
+    :returns: True when building is allowed, False otherwise
     """
     if "!" + arch in arches:
         return False
@@ -279,12 +282,13 @@ def check_arches(arches, arch):
 
 
 def get_channel_new(channel):
-    """ Translate legacy channel names to the new ones. Legacy names are still
-        supported for compatibility with old branches (pmb#2015).
-        :param channel: name as read from pmaports.cfg or channels.cfg, like
-                        "edge", "v21.03" etc., or potentially a legacy name
-                        like "stable".
-        :returns: name in the new format, e.g. "edge" or "v21.03"
+    """Translate legacy channel names to the new ones.
+
+    Legacy names are still supported for compatibility with old branches (pmb#2015).
+    :param channel: name as read from pmaports.cfg or channels.cfg, like "edge", "v21.03" etc.,
+    or potentially a legacy name like "stable".
+
+    :returns: name in the new format, e.g. "edge" or "v21.03"
     """
     legacy_cfg = pmb.config.pmaports_channels_legacy
     if channel in legacy_cfg:

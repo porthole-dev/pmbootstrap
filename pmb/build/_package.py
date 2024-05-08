@@ -26,9 +26,9 @@ class BootstrapStage(enum.IntEnum):
 
 
 def skip_already_built(pkgname, arch):
-    """
-    Check if the package was already built in this session, and add it
-    to the cache in case it was not built yet.
+    """Check if the package was already built in this session.
+
+    Add it to the cache in case it was not built yet.
 
     :returns: True when it can be skipped or False
     """
@@ -45,9 +45,9 @@ def skip_already_built(pkgname, arch):
 
 
 def get_apkbuild(args, pkgname, arch):
-    """
-    Parse the APKBUILD path for pkgname. When there is none, try to find it in
-    the binary package APKINDEX files or raise an exception.
+    """Parse the APKBUILD path for pkgname.
+
+    When there is none, try to find it in the binary package APKINDEX files or raise an exception.
 
     :param pkgname: package name to be built, as specified in the APKBUILD
     :returns: None or parsed APKBUILD
@@ -66,8 +66,8 @@ def get_apkbuild(args, pkgname, arch):
 
 
 def check_build_for_arch(args, pkgname, arch):
-    """
-    Check if pmaport can be built or exists as binary for a specific arch.
+    """Check if pmaport can be built or exists as binary for a specific arch.
+
     :returns: * True when it can be built
               * False when it can't be built, but exists in a binary repo
                 (e.g. temp/mesa can't be built for x86_64, but Alpine has it)
@@ -100,9 +100,10 @@ def check_build_for_arch(args, pkgname, arch):
 
 
 def get_depends(args, apkbuild):
-    """
-    Alpine's abuild always builds/installs the "depends" and "makedepends"
-    of a package before building it. We used to only care about "makedepends"
+    """Alpine's abuild always builds/installs the "depends" and "makedepends" of a package
+    before building it.
+
+    We used to only care about "makedepends"
     and it's still possible to ignore the depends with --ignore-depends.
 
     :returns: list of dependency pkgnames (eg. ["sdl2", "sdl2_net"])
@@ -126,8 +127,7 @@ def get_depends(args, apkbuild):
 
 
 def build_depends(args, apkbuild, arch, strict):
-    """
-    Get and build dependencies with verbose logging messages.
+    """Get and build dependencies with verbose logging messages.
 
     :returns: (depends, depends_built)
     """
@@ -173,9 +173,7 @@ def build_depends(args, apkbuild, arch, strict):
 
 
 def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
-    """
-    Check if a build is necessary, and warn if it is not, but there were
-    dependencies built.
+    """Check if a build is necessary, and warn if it is not, but there were dependencies built.
 
     :returns: True or False
     """
@@ -197,8 +195,9 @@ def is_necessary_warn_depends(args, apkbuild, arch, force, depends_built):
 
 def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
                   suffix="native", skip_init_buildenv=False, src=None):
-    """
-    Build all dependencies, check if we need to build at all (otherwise we've
+    """Build all dependencies.
+
+    Check if we need to build at all (otherwise we've
     just initialized the build environment for nothing) and then setup the
     whole build environment (abuild, gcc, dependencies, cross-compiler).
 
@@ -245,11 +244,11 @@ def init_buildenv(args, apkbuild, arch, strict=False, force=False, cross=None,
 
 
 def get_pkgver(original_pkgver, original_source=False, now=None):
-    """
-    Get the original pkgver when using the original source. Otherwise, get the
-    pkgver with an appended suffix of current date and time. For example:
-        _p20180218550502
-    When appending the suffix, an existing suffix (e.g. _git20171231) gets
+    """Get the original pkgver when using the original source.
+
+    Otherwise, get the pkgver with an appended suffix of current date and time.
+    For example: ``_p20180218550502``
+    When appending the suffix, an existing suffix (e.g. ``_git20171231``) gets
     replaced.
 
     :param original_pkgver: unmodified pkgver from the package's APKBUILD.
@@ -268,8 +267,7 @@ def get_pkgver(original_pkgver, original_source=False, now=None):
 
 
 def override_source(args, apkbuild, pkgver, src, suffix="native"):
-    """
-    Mount local source inside chroot and append new functions (prepare() etc.)
+    """Mount local source inside chroot and append new functions (prepare() etc.)
     to the APKBUILD to make it use the local source.
     """
     if not src:
@@ -346,8 +344,7 @@ def mount_pmaports(args, destination, suffix="native"):
 
 
 def link_to_git_dir(args, suffix):
-    """
-    Make /home/pmos/build/.git point to the .git dir from pmaports.git, with a
+    """ Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
     symlink so abuild does not fail (#1841).
 
     abuild expects the current working directory to be a subdirectory of a
@@ -457,9 +454,7 @@ def run_abuild(args, apkbuild, arch, strict=False, force=False, cross=None,
 
 
 def finish(args, apkbuild, arch, output, strict=False, suffix="native"):
-    """
-    Various finishing tasks that need to be done after a build.
-    """
+    """Various finishing tasks that need to be done after a build."""
     # Verify output file
     channel = pmb.config.pmaports.read_config(args)["channel"]
     path = f"{args.work}/packages/{channel}/{output}"

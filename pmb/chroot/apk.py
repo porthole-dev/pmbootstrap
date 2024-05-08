@@ -256,13 +256,15 @@ def installed(args, suffix="native"):
 
     :returns: a dictionary with the following structure:
               { "postmarketos-mkinitfs":
-                {
-                  "pkgname": "postmarketos-mkinitfs"
-                  "version": "0.0.4-r10",
-                  "depends": ["busybox-extras", "lddtree", ...],
-                  "provides": ["mkinitfs=0.0.1"]
-                }, ...
+              {
+              "pkgname": "postmarketos-mkinitfs"
+              "version": "0.0.4-r10",
+              "depends": ["busybox-extras", "lddtree", ...],
+              "provides": ["mkinitfs=0.0.1"]
+              }, ...
+
               }
+
     """
     path = f"{args.work}/chroot_{suffix}/lib/apk/db/installed"
     return pmb.parse.apkindex.parse(path, False)

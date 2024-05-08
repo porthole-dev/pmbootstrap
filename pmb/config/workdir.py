@@ -13,7 +13,7 @@ import pmb.config.pmaports
 
 
 def chroot_save_init(args, suffix):
-    """ Save the chroot initialization data in $WORK/workdir.cfg. """
+    """Save the chroot initialization data in $WORK/workdir.cfg."""
     # Read existing cfg
     cfg = configparser.ConfigParser()
     path = args.work + "/workdir.cfg"
@@ -88,10 +88,12 @@ def chroot_check_channel(args, suffix):
 
 
 def clean(args):
-    """ Remove obsolete data data from workdir.cfg.
-        :returns: None if workdir does not exist,
-                  True if config was rewritten,
-                  False if config did not change """
+    """Remove obsolete data data from workdir.cfg.
+
+    :returns: None if workdir does not exist,
+        True if config was rewritten,
+        False if config did not change
+    """
     # Skip if workdir.cfg doesn't exist
     path = args.work + "/workdir.cfg"
     if not os.path.exists(path):

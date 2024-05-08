@@ -6,8 +6,8 @@ import pmb.parse
 
 
 def find_path(args, codename, file=''):
-    """
-    Find path to device APKBUILD under `device/*/device-`.
+    """Find path to device APKBUILD under `device/*/device-`.
+
     :param codename: device codename
     :param file: file to look for (e.g. APKBUILD or deviceinfo), may be empty
     :returns: path to APKBUILD
@@ -24,8 +24,8 @@ def find_path(args, codename, file=''):
 
 
 def list_codenames(args, vendor=None, unmaintained=True):
-    """
-    Get all devices, for which aports are available
+    """Get all devices, for which aports are available.
+
     :param vendor: vendor name to choose devices from, or None for all vendors
     :param unmaintained: include unmaintained devices
     :returns: ["first-device", "second-device", ...]
@@ -41,8 +41,8 @@ def list_codenames(args, vendor=None, unmaintained=True):
 
 
 def list_vendors(args):
-    """
-    Get all device vendors, for which aports are available
+    """Get all device vendors, for which aports are available.
+
     :returns: {"vendor1", "vendor2", ...}
     """
     ret = set()
@@ -53,9 +53,7 @@ def list_vendors(args):
 
 
 def list_apkbuilds(args):
-    """
-    :returns: { "first-device": {"pkgname": ..., "pkgver": ...}, ... }
-    """
+    """:returns: { "first-device": {"pkgname": ..., "pkgver": ...}, ... }"""
     ret = {}
     for device in list_codenames(args):
         apkbuild_path = f"{args.aports}/device/*/device-{device}/APKBUILD"
@@ -64,9 +62,7 @@ def list_apkbuilds(args):
 
 
 def list_deviceinfos(args):
-    """
-    :returns: { "first-device": {"name": ..., "screen_width": ...}, ... }
-    """
+    """:returns: { "first-device": {"name": ..., "screen_width": ...}, ... }"""
     ret = {}
     for device in list_codenames(args):
         ret[device] = pmb.parse.deviceinfo(args, device)

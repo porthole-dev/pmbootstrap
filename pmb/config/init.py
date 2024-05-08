@@ -35,8 +35,7 @@ def require_programs():
 
 
 def ask_for_username(args):
-    """
-    Ask for a reasonable username for the non-root user.
+    """Ask for a reasonable username for the non-root user.
 
     :returns: the username
     """
@@ -52,13 +51,12 @@ def ask_for_username(args):
 
 
 def ask_for_work_path(args):
-    """
-    Ask for the work path, until we can create it (when it does not exist) and
-    write into it.
+    """Ask for the work path, until we can create it (when it does not exist) and write into it.
+
     :returns: (path, exists)
-              * path: is the full path, with expanded ~ sign
-              * exists: is False when the folder did not exist before we tested
-                        whether we can create it
+        * path: is the full path, with expanded ~ sign
+        * exists: is False when the folder did not exist before we tested whether we can create it
+
     """
     logging.info("Location of the 'work' path. Multiple chroots"
                  " (native, device arch, device rootfs) will be created"
@@ -100,10 +98,12 @@ def ask_for_work_path(args):
 
 
 def ask_for_channel(args):
-    """ Ask for the postmarketOS release channel. The channel dictates, which
-        pmaports branch pmbootstrap will check out, and which repository URLs
-        will be used when initializing chroots.
-        :returns: channel name (e.g. "edge", "v21.03") """
+    """Ask for the postmarketOS release channel.
+    The channel dictates, which pmaports branch pmbootstrap will check out,
+    and which repository URLs will be used when initializing chroots.
+
+    :returns: channel name (e.g. "edge", "v21.03")
+    """
     channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
     count = len(channels_cfg["channels"])
 
@@ -257,9 +257,7 @@ def ask_for_timezone(args):
 
 
 def ask_for_provider_select(args, apkbuild, providers_cfg):
-    """
-    Ask for selectable providers that are specified using "_pmb_select"
-    in a APKBUILD.
+    """Ask for selectable providers that are specified using "_pmb_select" in a APKBUILD.
 
     :param apkbuild: the APKBUILD with the _pmb_select
     :param providers_cfg: the configuration section with previously selected
@@ -314,8 +312,7 @@ def ask_for_provider_select(args, apkbuild, providers_cfg):
 
 
 def ask_for_provider_select_pkg(args, pkgname, providers_cfg):
-    """
-    Look up the APKBUILD for the specified pkgname and ask for selectable
+    """Look up the APKBUILD for the specified pkgname and ask for selectable
     providers that are specified using "_pmb_select".
 
     :param pkgname: name of the package to search APKBUILD for
@@ -331,12 +328,14 @@ def ask_for_provider_select_pkg(args, pkgname, providers_cfg):
 
 
 def ask_for_device_kernel(args, device):
-    """
-    Ask for the kernel that should be used with the device.
+    """Ask for the kernel that should be used with the device.
 
     :param device: code name, e.g. "lg-mako"
+
     :returns: None if the kernel is hardcoded in depends without subpackages
+
     :returns: kernel type ("downstream", "stable", "mainline", ...)
+
     """
     # Get kernels
     kernels = pmb.parse._apkbuild.kernels(args, device)

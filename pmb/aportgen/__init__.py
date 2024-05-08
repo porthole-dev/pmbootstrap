@@ -15,8 +15,11 @@ import pmb.helpers.cli
 def get_cross_package_arches(pkgname):
     """
     Get the arches for which we want to build cross packages.
+    
     :param pkgname: package name, e.g. "gcc-aarch64", "gcc-x86_64"
+    
     :returns: string of architecture(s) (space separated)
+    
     """
     if pkgname.endswith("-x86_64"):
         return "aarch64"
@@ -32,7 +35,9 @@ def properties(pkgname):
     Example: "musl-armhf" => ("musl", "cross", {"confirm_overwrite": False})
 
     :param pkgname: package name
+    
     :returns: (prefix, folder, options)
+    
     """
     for folder, options in pmb.config.aportgen.items():
         for prefix in options["prefixes"]:

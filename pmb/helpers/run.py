@@ -35,8 +35,7 @@ def user(args: Namespace, cmd: List[str], working_dir: Optional[str]=None, outpu
 
 def root(args, cmd, working_dir=None, output="log", output_return=False,
          check=None, env={}):
-    """
-    Run a command on the host system as root, with sudo or doas.
+    """Run a command on the host system as root, with sudo or doas.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}

@@ -18,7 +18,7 @@ def get_mtk_label(path):
         an extracted boot.img.
         :param path: to either the kernel or ramdisk extracted from boot.img
         :returns: * None: file does not exist or does not have MediaTek header
-                  * Label string (e.g. "ROOTFS", "KERNEL") """
+        * Label string (e.g. "ROOTFS", "KERNEL") """
     if not os.path.exists(path):
         return None
 
@@ -48,7 +48,8 @@ def get_qcdt_type(path):
     """ Get the dt.img type by reading the first four bytes of the file.
         :param path: to the qcdt image extracted from boot.img
         :returns: * None: dt.img is of unknown type
-                  * Type string (e.g. "qcom", "sprd", "exynos") """
+        * Type string (e.g. "qcom", "sprd", "exynos") 
+    """
     if not os.path.exists(path):
         return None
 

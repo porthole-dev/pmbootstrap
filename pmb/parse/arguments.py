@@ -15,23 +15,27 @@ import pmb.parse.arch
 import pmb.helpers.args
 import pmb.helpers.pmaports
 
-""" This file is about parsing command line arguments passed to pmbootstrap, as
-    well as generating the help pages (pmbootstrap -h). All this is done with
-    Python's argparse. The parsed arguments get extended and finally stored in
-    the "args" variable, which is prominently passed to most functions all
-    over the pmbootstrap code base.
+"""This file is about parsing command line arguments passed to pmbootstrap, as
+   well as generating the help pages (pmbootstrap -h). All this is done with
+   Python's argparse. The parsed arguments get extended and finally stored in
+   the "args" variable, which is prominently passed to most functions all
+   over the pmbootstrap code base.
 
-    See pmb/helpers/args.py for more information about the args variable. """
+   See pmb/helpers/args.py for more information about the args variable.
+"""
 
 
 def toggle_other_boolean_flags(*other_destinations, value=True):
-    """ Helper function to group several argparse flags to one. Sets multiple
-        other_destination to value.
+    """Group several argparse flags to one.
 
-        :param other_destinations: 'the other argument names' str
-        :param value 'the value to set the other_destinations to' bool
-        :returns custom Action"""
+    Sets multiple other_destination to value.
 
+    :param other_destinations: 'the other argument names' str
+
+    :param value 'the value to set the other_destinations to' bool
+
+    :returns custom Action
+    """
     class SetOtherDestinationsAction(argparse.Action):
         def __init__(self, option_strings, dest, **kwargs):
             super().__init__(option_strings, dest, nargs=0, const=value,
@@ -45,10 +49,12 @@ def toggle_other_boolean_flags(*other_destinations, value=True):
 
 
 def type_ondev_cp(val):
-    """ Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
+    """Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
 
-        :param val: 'HOST_SRC:CHROOT_DEST' string
-        :returns: (HOST_SRC, CHROOT_DEST) """
+    :param val: 'HOST_SRC:CHROOT_DEST' string
+
+    :returns: (HOST_SRC, CHROOT_DEST)
+    """
     ret = val.split(":")
 
     if len(ret) != 2:

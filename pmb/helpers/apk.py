@@ -11,8 +11,7 @@ import pmb.parse.version
 
 
 def _run(args, command, chroot=False, suffix="native", output="log"):
-    """
-    Run a command.
+    """Run a command.
 
     :param command: command in list form
     :param chroot: whether to run the command inside the chroot or on the host
@@ -29,8 +28,7 @@ def _run(args, command, chroot=False, suffix="native", output="log"):
 
 
 def _prepare_fifo(args, chroot=False, suffix="native"):
-    """
-    Prepare the progress fifo for reading / writing.
+    """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
     :param suffix: chroot suffix. Only applies if the "chroot" parameter is
@@ -53,9 +51,7 @@ def _prepare_fifo(args, chroot=False, suffix="native"):
 
 
 def _create_command_with_progress(command, fifo):
-    """
-    Build a full apk command from a subcommand, set up to redirect progress
-    into a fifo.
+    """Build a full apk command from a subcommand, set up to redirect progress into a fifo.
 
     :param command: apk subcommand in list form
     :param fifo: path of the fifo
@@ -69,8 +65,7 @@ def _create_command_with_progress(command, fifo):
 
 
 def _compute_progress(line):
-    """
-    Compute the progress as a number between 0 and 1.
+    """Compute the progress as a number between 0 and 1.
 
     :param line: line as read from the progress fifo
     :returns: progress as a number between 0 and 1
@@ -86,8 +81,7 @@ def _compute_progress(line):
 
 
 def apk_with_progress(args, command, chroot=False, suffix="native"):
-    """
-    Run an apk subcommand while printing a progress bar to STDOUT.
+    """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
     :param chroot: whether to run commands inside the chroot or on the host
@@ -112,10 +106,10 @@ def apk_with_progress(args, command, chroot=False, suffix="native"):
 
 
 def check_outdated(args, version_installed, action_msg):
-    """
-    Check if the provided alpine version is outdated, depending on the alpine
-    mirrordir (edge, v3.12, ...) related to currently checked out pmaports
-    branch.
+    """Check if the provided alpine version is outdated.
+
+    This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out
+    pmaports branch.
 
     :param version_installed: currently installed apk version, e.g. "2.12.1-r0"
     :param action_msg: string explaining what the user should do to resolve

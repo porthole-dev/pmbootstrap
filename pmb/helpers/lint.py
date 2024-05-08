@@ -11,8 +11,7 @@ import pmb.helpers.pmaports
 
 
 def check(args, pkgnames):
-    """
-    Run apkbuild-lint on the supplied packages
+    """Run apkbuild-lint on the supplied packages.
 
     :param pkgnames: Names of the packages to lint
     """

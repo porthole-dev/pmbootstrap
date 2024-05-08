@@ -13,8 +13,7 @@ import pmb.parse
 
 
 def match_kbuild_out(word):
-    """
-    Look for paths in the following formats:
+    """Look for paths in the following formats:
       "<prefix>/<kbuild_out>/arch/<arch>/boot"
       "<prefix>/<kbuild_out>/include/config/kernel.release"
 
@@ -48,16 +47,15 @@ def match_kbuild_out(word):
 
 
 def find_kbuild_output_dir(function_body):
-    """
-    Guess what the kernel build output directory is. Parses each line of the
-    function word by word, looking for paths which contain the kbuild output
-    directory.
+    """Guess what the kernel build output directory is.
+
+    Parses each line of the function word by word, looking for paths which
+    contain the kbuild output directory.
 
     :param function_body: contents of a function from the kernel APKBUILD
     :returns: kbuild output dir
               None, when output dir is not found
     """
-
     guesses = []
     for line in function_body:
         for item in line.split():
@@ -87,9 +85,7 @@ def find_kbuild_output_dir(function_body):
 
 
 def modify_apkbuild(args, pkgname, aport):
-    """
-    Modify kernel APKBUILD to package build output from envkernel.sh
-    """
+    """Modify kernel APKBUILD to package build output from envkernel.sh."""
     apkbuild_path = aport + "/APKBUILD"
     apkbuild = pmb.parse.apkbuild(apkbuild_path)
     if os.path.exists(args.work + "/aportgen"):
@@ -174,10 +170,7 @@ def run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out):
 
 
 def package_kernel(args):
-    """
-    Frontend for 'pmbootstrap build --envkernel': creates a package from
-    envkernel output.
-    """
+    """Frontend for 'pmbootstrap build --envkernel': creates a package from envkernel output."""
     pkgname = args.packages[0]
     if len(args.packages) > 1 or not pkgname.startswith("linux-"):
         raise RuntimeError("--envkernel needs exactly one linux-* package as "

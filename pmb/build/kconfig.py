@@ -15,13 +15,15 @@ import pmb.parse
 
 
 def get_arch(apkbuild):
-    """
-    Take the architecture from the APKBUILD or complain if it's ambiguous. This
-    function only gets called if --arch is not set.
+    """Take the architecture from the APKBUILD or complain if it's ambiguous.
+
+    This function only gets called if --arch is not set.
 
     :param apkbuild: looks like: {"pkgname": "linux-...",
                                   "arch": ["x86_64", "armhf", "aarch64"]}
-                     or: {"pkgname": "linux-...", "arch": ["armhf"]}
+
+    or: {"pkgname": "linux-...", "arch": ["armhf"]}
+
     """
     pkgname = apkbuild["pkgname"]
 
@@ -40,8 +42,8 @@ def get_arch(apkbuild):
 
 
 def get_outputdir(args, pkgname, apkbuild):
-    """
-    Get the folder for the kernel compilation output.
+    """Get the folder for the kernel compilation output.
+
     For most APKBUILDs, this is $builddir. But some older ones still use
     $srcdir/build (see the discussion in #1551).
     """

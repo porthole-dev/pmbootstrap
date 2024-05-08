@@ -13,12 +13,12 @@ def get_ci_scripts(topdir):
     """ Find 'pmbootstrap ci'-compatible scripts inside a git repository, and
         parse their metadata (description, options). The reference is at:
         https://postmarketos.org/pmb-ci
-        :param topdir: top directory of the git repository, get it with:
-                       pmb.helpers.git.get_topdir()
-        :returns: a dict of CI scripts found in the git repository, e.g.
-                  {"ruff": {"description": "lint all python scripts",
-                              "options": []},
-                   ...} """
+
+        :param topdir: top directory of the git repository, get it with: pmb.helpers.git.get_topdir()
+
+        :returns: a dict of CI scripts found in the git repository, e.g. 
+	  {"ruff": {"description": "lint all python scripts", "options": []}, ...} 
+	"""
     ret = {}
     for script in glob.glob(f"{topdir}/.ci/*.sh"):
         is_pmb_ci_script = False
@@ -59,9 +59,13 @@ def sort_scripts_by_speed(scripts):
     """ Order the scripts, so fast scripts run before slow scripts. Whether a
         script is fast or not is determined by the '# Options: slow' comment in
         the file.
-        :param scripts: return of get_ci_scripts()
-        :returns: same format as get_ci_scripts(), but as ordered dict with
-                  fast scripts before slow scripts """
+        
+	:param scripts: return of get_ci_scripts()
+        
+	:returns: same format as get_ci_scripts(), but as ordered dict with
+          fast scripts before slow scripts 
+	
+	"""
     ret = collections.OrderedDict()
 
     # Fast scripts first
@@ -81,8 +85,12 @@ def sort_scripts_by_speed(scripts):
 def ask_which_scripts_to_run(scripts_available):
     """ Display an interactive prompt about which of the scripts the user
         wishes to run, or all of them.
-        :param scripts_available: same format as get_ci_scripts()
-        :returns: either full scripts_available (all selected), or a subset """
+        
+	:param scripts_available: same format as get_ci_scripts()
+        
+	:returns: either full scripts_available (all selected), or a subset 
+	
+	"""
     count = len(scripts_available.items())
     choices = ["all"]
 
@@ -107,8 +115,11 @@ def ask_which_scripts_to_run(scripts_available):
 def copy_git_repo_to_chroot(args, topdir):
     """ Create a tarball of the git repo (including unstaged changes and new
         files) and extract it in chroot_native.
-        :param topdir: top directory of the git repository, get it with:
-                       pmb.helpers.git.get_topdir() """
+        
+	:param topdir: top directory of the git repository, get it with:
+          pmb.helpers.git.get_topdir() 
+
+	"""
     pmb.chroot.init(args)
     tarball_path = f"{args.work}/chroot_native/tmp/git.tar.gz"
     files = pmb.helpers.git.get_files(args, topdir)
@@ -132,9 +143,13 @@ def run_scripts(args, topdir, scripts):
     """ Run one of the given scripts after another, either natively or in a
         chroot. Display a progress message and stop on error (without printing
         a python stack trace).
-        :param topdir: top directory of the git repository, get it with:
-                       pmb.helpers.git.get_topdir()
-        :param scripts: return of get_ci_scripts() """
+        
+	:param topdir: top directory of the git repository, get it with:
+          pmb.helpers.git.get_topdir()
+        
+	:param scripts: return of get_ci_scripts() 
+
+	"""
     steps = len(scripts)
     step = 0
     repo_copied = False
