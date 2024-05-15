@@ -28,10 +28,10 @@ arch_native = pmb.parse.arch.alpine_native()
 # Update this frequently to prevent a MITM attack with an outdated version
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
-apk_tools_min_version = {"edge": "2.14.0-r5",
-                         "v3.19": "2.14.0-r5",
-                         "v3.18": "2.14.0-r2",
-                         "v3.17": "2.12.10-r1",
+apk_tools_min_version = {"edge": "2.14.4-r0",
+                         "v3.19": "2.14.4-r0",
+                         "v3.18": "2.14.4-r0",
+                         "v3.17": "2.12.14-r0",
                          "v3.16": "2.12.9-r3",
                          "v3.15": "2.12.7-r3",
                          "v3.14": "2.12.7-r0",
