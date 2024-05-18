@@ -189,7 +189,7 @@ def format_and_mount_root(args, device, root_label, disk):
     pmb.chroot.root(args, ["mkdir", "-p", mountpoint])
     pmb.chroot.root(args, ["mount", device, mountpoint])
 
-    if filesystem == "btrfs":
+    if not args.rsync and filesystem == "btrfs":
         # Make flat btrfs subvolume layout
         prepare_btrfs_subvolumes(args, device, mountpoint)
 
