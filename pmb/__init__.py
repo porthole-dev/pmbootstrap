@@ -18,7 +18,7 @@ from .helpers import mount
 from .helpers import other
 
 # pmbootstrap version
-__version__ = "2.3.0"
+__version__ = "2.3.1"
 
 # Python version check
 version = sys.version_info
