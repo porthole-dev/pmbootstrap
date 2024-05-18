@@ -38,7 +38,7 @@ def clone(args, name_repo):
     path = get_path(args, name_repo)
     if not os.path.exists(path):
         # Build git command
-        url = pmb.config.git_repos[name_repo]
+        url = pmb.config.git_repos[name_repo][0]
         command = ["git", "clone"]
         command += [url, path]
 
@@ -90,15 +90,15 @@ def get_upstream_remote(args, name_repo):
 
     Usually "origin", but the user may have set up their git repository differently.
     """
-    url = pmb.config.git_repos[name_repo]
+    urls = pmb.config.git_repos[name_repo]
     path = get_path(args, name_repo)
     command = ["git", "remote", "-v"]
     output = pmb.helpers.run.user(args, command, path, output_return=True)
     for line in output.split("\n"):
-        if url in line:
+        if any(u in line for u in urls):
             return line.split("\t", 1)[0]
-    raise RuntimeError("{}: could not find remote name for URL '{}' in git"
-                       " repository: {}".format(name_repo, url, path))
+    raise RuntimeError("{}: could not find remote name for any URL '{}' in git"
+                       " repository: {}".format(name_repo, urls, path))
 
 
 def parse_channels_cfg(args):
