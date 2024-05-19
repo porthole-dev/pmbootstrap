@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
 import logging
-import math
 import os
 
 import pmb.chroot
@@ -37,8 +36,6 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     # Get current work folder size
     if not dry:
         pmb.chroot.shutdown(args)
-        logging.debug("Calculate work folder size")
-        size_old = pmb.helpers.other.folder_size(args, args.work)
 
     # Delete packages with a different version compared to aports,
     # then re-index
@@ -89,10 +86,6 @@ def zap(args, confirm=True, dry=False, pkgs_local=False, http=False,
     # Print amount of cleaned up space
     if dry:
         logging.info("Dry run: nothing has been deleted")
-    else:
-        size_new = pmb.helpers.other.folder_size(args, args.work)
-        mb = (size_old - size_new) / 1024
-        logging.info(f"Cleared up ~{math.ceil(mb)} MB of space")
 
 
 def zap_pkgs_local_mismatch(args, confirm=True, dry=False):
