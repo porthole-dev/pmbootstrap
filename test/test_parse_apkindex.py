@@ -208,7 +208,7 @@ def test_parse_invalid_path():
     assert pmb.parse.apkindex.parse("/invalid/path/APKINDEX") == {}
 
 
-def test_parse_cached(args, tmpdir):
+def test_parse_cached(args: PmbArgs, tmpdir):
     # Create a real file (cache looks at the last modified date)
     path = str(tmpdir) + "/APKINDEX"
     pmb.helpers.run.user(args, ["touch", path])
@@ -293,7 +293,7 @@ def test_parse_virtual():
     assert pmb.helpers.other.cache["apkindex"][path]["single"] == ret
 
 
-def test_providers_invalid_package(args, tmpdir):
+def test_providers_invalid_package(args: PmbArgs, tmpdir):
     # Create empty APKINDEX
     path = str(tmpdir) + "/APKINDEX"
     pmb.helpers.run.user(args, ["touch", path])
@@ -310,7 +310,7 @@ def test_providers_invalid_package(args, tmpdir):
     assert str(e.value).startswith("Could not find package")
 
 
-def test_providers_highest_version(args, monkeypatch):
+def test_providers_highest_version(args: PmbArgs, monkeypatch):
     """
     In this test, we simulate 3 APKINDEX files ("i0", "i1", "i2" instead of
     full paths to real APKINDEX.tar.gz files), and each of them has a different
@@ -330,7 +330,7 @@ def test_providers_highest_version(args, monkeypatch):
     assert providers["test"]["version"] == "3"
 
 
-def test_provider_highest_priority(args, monkeypatch):
+def test_provider_highest_priority(args: PmbArgs, monkeypatch):
     # Verify that it picks the provider with highest priority
     func = pmb.parse.apkindex.provider_highest_priority
 
@@ -367,7 +367,7 @@ def test_provider_highest_priority(args, monkeypatch):
     assert func(providers2, "test") == providers
 
 
-def test_package(args, monkeypatch):
+def test_package(args: PmbArgs, monkeypatch):
     # Override pmb.parse.apkindex.providers()
     providers = collections.OrderedDict()
 

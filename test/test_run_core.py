@@ -127,7 +127,7 @@ def test_foreground_tui():
     assert func(["echo", "test"]) == 0
 
 
-def test_core(args, monkeypatch):
+def test_core(args: PmbArgs, monkeypatch):
     # Background
     func = pmb.helpers.run_core.core
     msg = "test"

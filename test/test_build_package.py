@@ -85,7 +85,7 @@ def test_check_build_for_arch(monkeypatch, args):
     # Fake APKBUILD data
     apkbuild = {"pkgname": "testpkgname"}
 
-    def fake_helpers_pmaports_get(args, pkgname):
+    def fake_helpers_pmaports_get(args: PmbArgs, pkgname):
         return apkbuild
     monkeypatch.setattr(pmb.helpers.pmaports, "get", fake_helpers_pmaports_get)
 
@@ -138,7 +138,7 @@ def test_get_depends(monkeypatch):
     assert func(args, apkbuild) == ["a", "b", "c", "e"]
 
 
-def test_build_depends(args, monkeypatch):
+def test_build_depends(args: PmbArgs, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.build_depends
     apkbuild = {"pkgname": "test", "depends": ["a", "!c"],
@@ -155,7 +155,7 @@ def test_build_depends(args, monkeypatch):
                                                     ["a", "b"])
 
 
-def test_build_depends_no_binary_error(args, monkeypatch):
+def test_build_depends_no_binary_error(args: PmbArgs, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.build_depends
     apkbuild = {"pkgname": "test", "depends": ["some-invalid-package-here"],
@@ -175,14 +175,14 @@ def test_build_depends_no_binary_error(args, monkeypatch):
     assert func(args, apkbuild, "armhf", True) == (["alpine-base"], [])
 
 
-def test_build_depends_binary_outdated(args, monkeypatch):
+def test_build_depends_binary_outdated(args: PmbArgs, monkeypatch):
     """ pmbootstrap runs with --no-depends and dependency binary package is
         outdated (#1895) """
     # Override pmb.parse.apkindex.package(): pretend hello-world-wrapper is
     # missing and hello-world is outdated
     func_orig = pmb.parse.apkindex.package
 
-    def func_patch(args, package, *args2, **kwargs):
+    def func_patch(args: PmbArgs, package, *args2, **kwargs):
         print(f"func_patch: called for package: {package}")
         if package == "hello-world-wrapper":
             print("pretending that it does not exist")
@@ -206,7 +206,7 @@ def test_build_depends_binary_outdated(args, monkeypatch):
     assert "'hello-world' of 'hello-world-wrapper' is outdated" in str(e.value)
 
 
-def test_is_necessary_warn_depends(args, monkeypatch):
+def test_is_necessary_warn_depends(args: PmbArgs, monkeypatch):
     # Shortcut and fake apkbuild
     func = pmb.build._package.is_necessary_warn_depends
     apkbuild = {"pkgname": "test"}
@@ -224,7 +224,7 @@ def test_is_necessary_warn_depends(args, monkeypatch):
     assert func(args, apkbuild, "armhf", False, ["first", "second"]) is False
 
 
-def test_init_buildenv(args, monkeypatch):
+def test_init_buildenv(args: PmbArgs, monkeypatch):
     # First init native chroot buildenv properly without patched functions
     pmb.build.init(args)
 
@@ -261,7 +261,7 @@ def test_get_pkgver(monkeypatch):
     assert func("1.0_git20170101", False, now) == "1.0_p20180101000000"
 
 
-def test_run_abuild(args, monkeypatch):
+def test_run_abuild(args: PmbArgs, monkeypatch):
     # Disable effects of functions we don't want to test here
     monkeypatch.setattr(pmb.build, "copy_to_buildpath", return_none)
     monkeypatch.setattr(pmb.chroot, "user", return_none)
@@ -294,7 +294,7 @@ def test_run_abuild(args, monkeypatch):
     assert func(args, apkbuild, "armhf", cross="native") == (output, cmd, env)
 
 
-def test_finish(args, monkeypatch):
+def test_finish(args: PmbArgs, monkeypatch):
     # Real output path
     output = pmb.build.package(args, "hello-world", force=True)
 
@@ -335,13 +335,13 @@ def test_package(args):
     assert pmb.build.package(args, "alpine-base") is None
 
 
-def test_build_depends_high_level(args, monkeypatch):
+def test_build_depends_high_level(args: PmbArgs, monkeypatch):
     """
     "hello-world-wrapper" depends on "hello-world". We build both, then delete
     "hello-world" and check that it gets rebuilt correctly again.
     """
     # Patch pmb.build.is_necessary() to always build the hello-world package
-    def fake_build_is_necessary(args, arch, apkbuild, apkindex_path=None):
+    def fake_build_is_necessary(args: PmbArgs, arch, apkbuild, apkindex_path=None):
         if apkbuild["pkgname"] == "hello-world":
             return True
         return pmb.build.other.is_necessary(args, arch, apkbuild,
@@ -370,7 +370,7 @@ def test_build_depends_high_level(args, monkeypatch):
     assert os.path.exists(output_hello_outside)
 
 
-def test_build_local_source_high_level(args, tmpdir):
+def test_build_local_source_high_level(args: PmbArgs, tmpdir):
     """
     Test building a package with overriding the source code:
         pmbootstrap build --src=/some/path hello-world
@@ -437,7 +437,7 @@ def test_build_local_source_high_level(args, tmpdir):
     pmb.helpers.run.root(args, ["rm", "-r", tmpdir])
 
 
-def test_build_abuild_leftovers(args, tmpdir):
+def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
     """
     Test building a package with having abuild leftovers, that will error if
     copied:

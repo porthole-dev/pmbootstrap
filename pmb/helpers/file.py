@@ -20,7 +20,7 @@ def replace(path, old, new):
         handle.write(text)
 
 
-def replace_apkbuild(args, pkgname, key, new, in_quotes=False):
+def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     """Replace one key=value line in an APKBUILD and verify it afterwards.
 
     :param pkgname: package name, e.g. "hello-world"

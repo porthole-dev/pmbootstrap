@@ -32,12 +32,12 @@ def test_filter_missing_packages_binary_exists(args):
     assert func(args, "armhf", ["busybox"]) == []
 
 
-def test_filter_missing_packages_pmaports(args, monkeypatch):
+def test_filter_missing_packages_pmaports(args: PmbArgs, monkeypatch):
     """ Test ...repo_missing.filter_missing_packages(): pmaports """
     build_is_necessary = None
     func = pmb.helpers.repo_missing.filter_missing_packages
 
-    def stub(args, arch, pmaport):
+    def stub(args: PmbArgs, arch, pmaport):
         return build_is_necessary
     monkeypatch.setattr(pmb.build, "is_necessary", stub)
 
@@ -54,12 +54,12 @@ def test_filter_aport_packages(args):
     assert func(args, "armhf", ["busybox", "hello-world"]) == ["hello-world"]
 
 
-def test_filter_arch_packages(args, monkeypatch):
+def test_filter_arch_packages(args: PmbArgs, monkeypatch):
     """ Test ...repo_missing.filter_arch_packages() """
     func = pmb.helpers.repo_missing.filter_arch_packages
     check_arch = None
 
-    def stub(args, arch, pmaport, binary=True):
+    def stub(args: PmbArgs, arch, pmaport, binary=True):
         return check_arch
     monkeypatch.setattr(pmb.helpers.package, "check_arch", stub)
 
@@ -70,7 +70,7 @@ def test_filter_arch_packages(args, monkeypatch):
     assert func(args, "armhf", []) == []
 
 
-def test_get_relevant_packages(args, monkeypatch):
+def test_get_relevant_packages(args: PmbArgs, monkeypatch):
     """ Test ...repo_missing.get_relevant_packages() """
 
     # Set up fake return values
@@ -80,24 +80,24 @@ def test_get_relevant_packages(args, monkeypatch):
                  "filter_aport_packages": ["b", "a"],
                  "filter_missing_packages": ["a"]}
 
-    def stub(args, arch, pmaport, binary=True):
+    def stub(args: PmbArgs, arch, pmaport, binary=True):
         return stub_data["check_arch"]
     monkeypatch.setattr(pmb.helpers.package, "check_arch", stub)
 
-    def stub(args, arch, pmaport):
+    def stub(args: PmbArgs, arch, pmaport):
         return stub_data["depends_recurse"]
     monkeypatch.setattr(pmb.helpers.package, "depends_recurse", stub)
 
-    def stub(args, arch, pmaport):
+    def stub(args: PmbArgs, arch, pmaport):
         return stub_data["filter_arch_packages"]
     monkeypatch.setattr(pmb.helpers.repo_missing, "filter_arch_packages", stub)
 
-    def stub(args, arch, pmaport):
+    def stub(args: PmbArgs, arch, pmaport):
         return stub_data["filter_aport_packages"]
     monkeypatch.setattr(pmb.helpers.repo_missing, "filter_aport_packages",
                         stub)
 
-    def stub(args, arch, pmaport):
+    def stub(args: PmbArgs, arch, pmaport):
         return stub_data["filter_missing_packages"]
     monkeypatch.setattr(pmb.helpers.repo_missing, "filter_missing_packages",
                         stub)
@@ -118,15 +118,15 @@ def test_get_relevant_packages(args, monkeypatch):
     assert func(args, "armhf", "a", True) == ["a", "b"]
 
 
-def test_generate_output_format(args, monkeypatch):
+def test_generate_output_format(args: PmbArgs, monkeypatch):
     """ Test ...repo_missing.generate_output_format() """
 
-    def stub(args, pkgname, arch, replace_subpkgnames=False):
+    def stub(args: PmbArgs, pkgname, arch, replace_subpkgnames=False):
         return {"pkgname": "hello-world", "version": "1.0-r0",
                 "depends": ["depend1", "depend2"]}
     monkeypatch.setattr(pmb.helpers.package, "get", stub)
 
-    def stub(args, pkgname):
+    def stub(args: PmbArgs, pkgname):
         return "main"
     monkeypatch.setattr(pmb.helpers.pmaports, "get_repo", stub)
 

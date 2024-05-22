@@ -34,7 +34,7 @@ def test_alpine_apkindex_path(args):
     assert func(args, "testing", "armhf") == ret
 
 
-def test_urls(args, monkeypatch):
+def test_urls(args: PmbArgs, monkeypatch):
     func = pmb.helpers.repo.urls
     channel = "v20.05"
     args.mirror_alpine = "http://localhost/alpine/"

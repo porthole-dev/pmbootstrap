@@ -19,7 +19,7 @@ def args(request):
     return args
 
 
-def test_get_folder_size(args, tmpdir):
+def test_get_folder_size(args: PmbArgs, tmpdir):
     # Write five 200 KB files to tmpdir
     tmpdir = str(tmpdir)
     files = 5

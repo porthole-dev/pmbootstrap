@@ -34,7 +34,7 @@ def args_patched(monkeypatch, argv):
     return pmb.parse.arguments()
 
 
-def test_config_user(args, tmpdir, monkeypatch):
+def test_config_user(args: PmbArgs, tmpdir, monkeypatch):
     # Temporary paths
     tmpdir = str(tmpdir)
     path_work = tmpdir + "/work"

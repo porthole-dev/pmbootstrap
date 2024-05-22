@@ -23,7 +23,7 @@ def args(request):
     return args
 
 
-def pmbootstrap(args, tmpdir, parameters, zero_exit=True):
+def pmbootstrap(args: PmbArgs, tmpdir, parameters, zero_exit=True):
     """
     Helper function for running pmbootstrap inside the fake work folder
     (created by setup() below) with the binary repo disabled and with the
@@ -57,7 +57,7 @@ def pmbootstrap(args, tmpdir, parameters, zero_exit=True):
         raise RuntimeError("Expected pmbootstrap to fail, but it did not!")
 
 
-def setup_work(args, tmpdir):
+def setup_work(args: PmbArgs, tmpdir):
     """
     Create fake work folder in tmpdir with everything symlinked except for the
     built packages. The aports testdata gets copied to the tempfolder as
@@ -123,7 +123,7 @@ def verify_pkgrels(tmpdir, pkgrel_testlib, pkgrel_testapp,
         assert pkgrel == int(apkbuild["pkgrel"])
 
 
-def test_pkgrel_bump_high_level(args, tmpdir):
+def test_pkgrel_bump_high_level(args: PmbArgs, tmpdir):
     # Tempdir setup
     tmpdir = str(tmpdir)
     setup_work(args, tmpdir)

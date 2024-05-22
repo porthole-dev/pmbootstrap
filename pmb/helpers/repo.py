@@ -46,7 +46,7 @@ def hash(url, length=8):
     return ret
 
 
-def urls(args, user_repository=True, postmarketos_mirror=True, alpine=True):
+def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=True):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
 
     :param user_repository: add /mnt/pmbootstrap/packages
@@ -117,7 +117,7 @@ def apkindex_files(args: PmbArgs, arch=None, user_repository=True, pmos=True,
     return ret
 
 
-def update(args, arch=None, force=False, existing_only=False):
+def update(args: PmbArgs, arch=None, force=False, existing_only=False):
     """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
@@ -199,7 +199,7 @@ def update(args, arch=None, force=False, existing_only=False):
     return True
 
 
-def alpine_apkindex_path(args, repo="main", arch=None):
+def alpine_apkindex_path(args: PmbArgs, repo="main", arch=None):
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")

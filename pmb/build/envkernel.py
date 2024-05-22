@@ -89,7 +89,7 @@ def find_kbuild_output_dir(function_body):
                        "can't resolve it, please open an issue.")
 
 
-def modify_apkbuild(args, pkgname, aport):
+def modify_apkbuild(args: PmbArgs, pkgname, aport):
     """Modify kernel APKBUILD to package build output from envkernel.sh."""
     apkbuild_path = aport + "/APKBUILD"
     apkbuild = pmb.parse.apkbuild(apkbuild_path)

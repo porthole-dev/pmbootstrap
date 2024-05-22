@@ -73,7 +73,7 @@ def test_read_signature_info(args):
     pmb.chroot.user(args, ["rm", "-r", tmp_path])
 
 
-def test_successful_extraction(args, tmpdir):
+def test_successful_extraction(args: PmbArgs, tmpdir):
     if os.path.exists(args.work + "/apk.static"):
         os.remove(args.work + "/apk.static")
 
@@ -82,7 +82,7 @@ def test_successful_extraction(args, tmpdir):
     os.remove(args.work + "/apk.static")
 
 
-def test_signature_verification(args, tmpdir):
+def test_signature_verification(args: PmbArgs, tmpdir):
     if os.path.exists(args.work + "/apk.static"):
         os.remove(args.work + "/apk.static")
 
@@ -116,7 +116,7 @@ def test_signature_verification(args, tmpdir):
     assert "downgrade attack" in str(e.value)
 
 
-def test_outdated_version(args, monkeypatch):
+def test_outdated_version(args: PmbArgs, monkeypatch):
     if os.path.exists(args.work + "/apk.static"):
         os.remove(args.work + "/apk.static")
 

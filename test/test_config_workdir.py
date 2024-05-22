@@ -23,7 +23,7 @@ def args(request):
     return args
 
 
-def test_chroot_save_init(args, tmpdir, monkeypatch):
+def test_chroot_save_init(args: PmbArgs, tmpdir, monkeypatch):
     # Override time.time()
     def fake_time():
         return 1234567890.1234
@@ -57,7 +57,7 @@ def test_chroot_save_init(args, tmpdir, monkeypatch):
         assert handle.read() == expected
 
 
-def test_chroots_outdated(args, tmpdir, monkeypatch):
+def test_chroots_outdated(args: PmbArgs, tmpdir, monkeypatch):
     args.work = str(tmpdir)
 
     # Override time.time(): now is "100"
@@ -87,7 +87,7 @@ def test_chroots_outdated(args, tmpdir, monkeypatch):
     assert func(args) is False
 
 
-def test_chroot_check_channel(args, tmpdir, monkeypatch):
+def test_chroot_check_channel(args: PmbArgs, tmpdir, monkeypatch):
     func = pmb.config.workdir.chroot_check_channel
     args.work = str(tmpdir)
     channel = "edge"
@@ -122,7 +122,7 @@ def test_chroot_check_channel(args, tmpdir, monkeypatch):
     func(args, "native")
 
 
-def test_clean(args, tmpdir):
+def test_clean(args: PmbArgs, tmpdir):
     args.work = str(tmpdir)
 
     # 0. workdir.cfg does not exist

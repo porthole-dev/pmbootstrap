@@ -25,11 +25,11 @@ def test_install_build(monkeypatch, args):
     func = pmb.chroot.apk.install_build
     ret_apkindex_package = None
 
-    def fake_build_package(args, package, arch):
+    def fake_build_package(args: PmbArgs, package, arch):
         return "build-pkg"
     monkeypatch.setattr(pmb.build, "package", fake_build_package)
 
-    def fake_apkindex_package(args, package, arch, must_exist):
+    def fake_apkindex_package(args: PmbArgs, package, arch, must_exist):
         return ret_apkindex_package
     monkeypatch.setattr(pmb.parse.apkindex, "package", fake_apkindex_package)
 
@@ -91,12 +91,12 @@ def test_install_run_apk(monkeypatch, args):
     func = pmb.chroot.apk.install_run_apk
     suffix = Suffix.native()
 
-    def fake_chroot_root(args, command, suffix):
+    def fake_chroot_root(args: PmbArgs, command, suffix):
         global cmds
         cmds += [command]
     monkeypatch.setattr(pmb.chroot, "root", fake_chroot_root)
 
-    def fake_apk_progress(args, command, chroot, suffix):
+    def fake_apk_progress(args: PmbArgs, command, chroot, suffix):
         global cmds_progress
         cmds_progress += [command]
     monkeypatch.setattr(pmb.helpers.apk, "apk_with_progress", fake_apk_progress)

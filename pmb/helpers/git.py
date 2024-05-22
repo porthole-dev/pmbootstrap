@@ -13,7 +13,7 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 
 
-def get_path(args, name_repo):
+def get_path(args: PmbArgs, name_repo):
     """Get the path to the repository.
 
     The path is either the default one in the work dir, or a user-specified one in args.
@@ -25,7 +25,7 @@ def get_path(args, name_repo):
     return pmb.config.work / "cache_git/" + name_repo
 
 
-def clone(args, name_repo):
+def clone(args: PmbArgs, name_repo):
     """Clone a git repository to $WORK/cache_git/$name_repo.
 
     (or to the overridden path set in args, as with ``pmbootstrap --aports``).
@@ -56,7 +56,7 @@ def clone(args, name_repo):
         open(fetch_head, "w").close()
 
 
-def rev_parse(args, path, revision="HEAD", extra_args: list = []):
+def rev_parse(args: PmbArgs, path, revision="HEAD", extra_args: list = []):
     """Run "git rev-parse" in a specific repository dir.
 
     :param path: to the git repository
@@ -81,13 +81,13 @@ def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
         raise RuntimeError("Unexpected exit code from git: " + str(ret))
 
 
-def clean_worktree(args, path):
+def clean_worktree(args: PmbArgs, path):
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
     return pmb.helpers.run.user(args, command, path, output_return=True) == ""
 
 
-def get_upstream_remote(args, name_repo):
+def get_upstream_remote(args: PmbArgs, name_repo):
     """Find the remote, which matches the git URL from the config.
 
     Usually "origin", but the user may have set up their git repository differently.
@@ -159,7 +159,7 @@ def parse_channels_cfg(args):
     return ret
 
 
-def get_branches_official(args, name_repo):
+def get_branches_official(args: PmbArgs, name_repo):
     """Get all branches that point to official release channels.
 
     :returns: list of supported branches, e.g. ["master", "3.11"]
@@ -177,7 +177,7 @@ def get_branches_official(args, name_repo):
     return ret
 
 
-def pull(args, name_repo):
+def pull(args: PmbArgs, name_repo):
     """Check if on official branch and essentially try ``git pull --ff-only``.
 
     Instead of really doing ``git pull --ff-only``, do it in multiple steps
@@ -251,7 +251,7 @@ def get_topdir(args: PmbArgs, path: Path):
                                 path, output_return=True, check=False).rstrip()
 
 
-def get_files(args, path):
+def get_files(args: PmbArgs, path):
     """Get all files inside a git repository, that are either already in the git tree or are not in gitignore.
 
     Do not list deleted files. To be used for creating a tarball of the git repository.

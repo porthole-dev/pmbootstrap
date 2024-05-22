@@ -26,7 +26,7 @@ def args(tmpdir, request):
     return args
 
 
-def test_newapkbuild(args, monkeypatch, tmpdir):
+def test_newapkbuild(args: PmbArgs, monkeypatch, tmpdir):
     testdata = pmb_test.const.testdata
 
     # Fake functions

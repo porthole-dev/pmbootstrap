@@ -46,7 +46,7 @@ def args(tmpdir, request):
     return args
 
 
-def generate(args, monkeypatch, answers):
+def generate(args: PmbArgs, monkeypatch, answers):
     """
     Generate the device-new-device and linux-new-device aports (with a patched
     pmb.helpers.cli()).
@@ -91,7 +91,7 @@ def generate(args, monkeypatch, answers):
     return (deviceinfo, apkbuild, apkbuild_linux)
 
 
-def remove_contributor_maintainer_lines(args, path):
+def remove_contributor_maintainer_lines(args: PmbArgs, path):
     with open(path, "r+", encoding="utf-8") as handle:
         lines_new = []
         for line in handle.readlines():
@@ -106,7 +106,7 @@ def remove_contributor_maintainer_lines(args, path):
         handle.truncate()
 
 
-def test_aportgen_device_wizard(args, monkeypatch):
+def test_aportgen_device_wizard(args: PmbArgs, monkeypatch):
     """
     Generate a device-testsuite-testdevice and linux-testsuite-testdevice
     package multiple times and check if the output is correct. Also build the

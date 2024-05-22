@@ -34,7 +34,7 @@ def test_get_path(args):
     assert func(args, "pmaports") == "/tmp/pmaports"
 
 
-def test_can_fast_forward(args, tmpdir):
+def test_can_fast_forward(args: PmbArgs, tmpdir):
     tmpdir = str(tmpdir)
     func = pmb.helpers.git.can_fast_forward
     branch_origin = "fake-branch-origin"
@@ -62,7 +62,7 @@ def test_can_fast_forward(args, tmpdir):
     assert str(e.value).startswith("Unexpected exit code")
 
 
-def test_clean_worktree(args, tmpdir):
+def test_clean_worktree(args: PmbArgs, tmpdir):
     tmpdir = str(tmpdir)
     func = pmb.helpers.git.clean_worktree
 
@@ -78,13 +78,13 @@ def test_clean_worktree(args, tmpdir):
     assert func(args, tmpdir) is False
 
 
-def test_get_upstream_remote(args, monkeypatch, tmpdir):
+def test_get_upstream_remote(args: PmbArgs, monkeypatch, tmpdir):
     tmpdir = str(tmpdir)
     func = pmb.helpers.git.get_upstream_remote
     name_repo = "test"
 
     # Override get_path()
-    def get_path(args, name_repo):
+    def get_path(args: PmbArgs, name_repo):
         return tmpdir
     monkeypatch.setattr(pmb.helpers.git, "get_path", get_path)
 
@@ -130,7 +130,7 @@ def test_pull_non_existing(args):
     assert pmb.helpers.git.pull(args, "non-existing-repo-name") == 1
 
 
-def test_pull(args, monkeypatch, tmpdir):
+def test_pull(args: PmbArgs, monkeypatch, tmpdir):
     """ Test pmb.helpers.git.pull """
     path, run_git = pmb_test.git.prepare_tmpdir(args, monkeypatch, tmpdir)
 

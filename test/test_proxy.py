@@ -24,28 +24,28 @@ def args(request):
     return args
 
 
-def test_proxy_user(args, monkeypatch):
+def test_proxy_user(args: PmbArgs, monkeypatch):
     func = pmb.helpers.run.user
     monkeypatch.setattr(os, "environ", {"HTTP_PROXY": "testproxy"})
     ret = func(args, ["sh", "-c", 'echo "$HTTP_PROXY"'], output_return=True)
     assert ret == "testproxy\n"
 
 
-def test_proxy_root(args, monkeypatch):
+def test_proxy_root(args: PmbArgs, monkeypatch):
     func = pmb.helpers.run.root
     monkeypatch.setattr(os, "environ", {"HTTP_PROXY": "testproxy"})
     ret = func(args, ["sh", "-c", 'echo "$HTTP_PROXY"'], output_return=True)
     assert ret == "testproxy\n"
 
 
-def test_proxy_chroot_user(args, monkeypatch):
+def test_proxy_chroot_user(args: PmbArgs, monkeypatch):
     func = pmb.chroot.user
     monkeypatch.setattr(os, "environ", {"HTTP_PROXY": "testproxy"})
     ret = func(args, ["sh", "-c", 'echo "$HTTP_PROXY"'], output_return=True)
     assert ret == "testproxy\n"
 
 
-def test_proxy_chroot_root(args, monkeypatch):
+def test_proxy_chroot_root(args: PmbArgs, monkeypatch):
     func = pmb.chroot.root
     monkeypatch.setattr(os, "environ", {"HTTP_PROXY": "testproxy"})
     ret = func(args, ["sh", "-c", 'echo "$HTTP_PROXY"'], output_return=True)

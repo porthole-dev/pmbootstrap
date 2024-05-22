@@ -115,7 +115,7 @@ def pipe_read(process, output_to_stdout=False, output_return=False,
         return
 
 
-def kill_process_tree(args, pid, ppids, sudo):
+def kill_process_tree(args: PmbArgs, pid, ppids, sudo):
     """Recursively kill a pid and its child processes.
 
     :param pid: process id that will be killed
@@ -134,7 +134,7 @@ def kill_process_tree(args, pid, ppids, sudo):
             kill_process_tree(args, child_pid, ppids, sudo)
 
 
-def kill_command(args, pid, sudo):
+def kill_command(args: PmbArgs, pid, sudo):
     """Kill a command process and recursively kill its child processes.
 
     :param pid: process id that will be killed
@@ -230,7 +230,7 @@ def foreground_tui(cmd, working_dir=None):
     return process.wait()
 
 
-def check_return_code(args, code, log_message):
+def check_return_code(args: PmbArgs, code, log_message):
     """Check the return code of a command.
 
     :param code: exit code to check

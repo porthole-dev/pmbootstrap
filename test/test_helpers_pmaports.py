@@ -19,7 +19,7 @@ def args(request):
     return args
 
 
-def test_guess_main(args, tmpdir):
+def test_guess_main(args: PmbArgs, tmpdir):
     # Fake pmaports folder
     tmpdir = str(tmpdir)
     args.aports = tmpdir
@@ -35,7 +35,7 @@ def test_guess_main(args, tmpdir):
     assert func(args, "qemuPackageWithoutDashes") is None
 
 
-def test_guess_main_dev(args, tmpdir):
+def test_guess_main_dev(args: PmbArgs, tmpdir):
     # Fake pmaports folder
     tmpdir = str(tmpdir)
     args.aports = tmpdir

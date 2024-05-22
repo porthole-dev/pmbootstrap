@@ -28,7 +28,7 @@ def args(tmpdir, request):
     return args
 
 
-def test_aportgen_compare_output(args, tmpdir, monkeypatch):
+def test_aportgen_compare_output(args: PmbArgs, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
     tmpdir = str(tmpdir)
     pmb_test.git.copy_dotgit(args, tmpdir)
@@ -37,7 +37,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
     testdata = pmb_test.const.testdata + "/aportgen"
 
     # Override get_upstream_aport() to point to testdata
-    def func(args, upstream_path, arch=None):
+    def func(args: PmbArgs, upstream_path, arch=None):
         return testdata + "/aports/main/" + upstream_path
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 
@@ -51,7 +51,7 @@ def test_aportgen_compare_output(args, tmpdir, monkeypatch):
         assert filecmp.cmp(path_new, path_old, False)
 
 
-def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
+def test_aportgen_fork_alpine_compare_output(args: PmbArgs, tmpdir, monkeypatch):
     # Fake aports folder in tmpdir
     tmpdir = str(tmpdir)
     pmb_test.git.copy_dotgit(args, tmpdir)
@@ -61,7 +61,7 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     args.fork_alpine = True
 
     # Override get_upstream_aport() to point to testdata
-    def func(args, upstream_path, arch=None):
+    def func(args: PmbArgs, upstream_path, arch=None):
         return testdata + "/aports/main/" + upstream_path
     monkeypatch.setattr(pmb.aportgen.core, "get_upstream_aport", func)
 
@@ -74,7 +74,7 @@ def test_aportgen_fork_alpine_compare_output(args, tmpdir, monkeypatch):
     assert filecmp.cmp(path_new, path_old, False)
 
 
-def test_aportgen(args, tmpdir):
+def test_aportgen(args: PmbArgs, tmpdir):
     # Fake aports folder in tmpdir
     testdata = pmb_test.const.testdata
     tmpdir = str(tmpdir)
@@ -101,7 +101,7 @@ def test_aportgen_invalid_generator(args):
     assert "No generator available" in str(e.value)
 
 
-def test_aportgen_get_upstream_aport(args, monkeypatch):
+def test_aportgen_get_upstream_aport(args: PmbArgs, monkeypatch):
     # Fake pmb.parse.apkbuild()
     def fake_apkbuild(*args, **kwargs):
         return apkbuild

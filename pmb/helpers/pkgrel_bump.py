@@ -10,7 +10,7 @@ import pmb.parse
 import pmb.parse.apkindex
 
 
-def package(args, pkgname, reason="", dry=False):
+def package(args: PmbArgs, pkgname, reason="", dry=False):
     """Increase the pkgrel in the APKBUILD of a specific package.
 
     :param pkgname: name of the package
@@ -44,7 +44,7 @@ def package(args, pkgname, reason="", dry=False):
                            path)
 
 
-def auto_apkindex_package(args, arch, aport, apk, dry=False):
+def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
     """Bump the pkgrel of a specific package if it is outdated in the given APKINDEX.
 
     :param arch: the architecture, e.g. "armhf"
@@ -101,7 +101,7 @@ def auto_apkindex_package(args, arch, aport, apk, dry=False):
         return True
 
 
-def auto(args, dry=False):
+def auto(args: PmbArgs, dry=False):
     """:returns: list of aport names, where the pkgrel needed to be changed"""
     ret = []
     for arch in pmb.config.build_device_architectures:

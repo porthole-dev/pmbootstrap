@@ -22,7 +22,7 @@ def args(request):
     return args
 
 
-def test_pmbootstrap_lint(args, tmpdir):
+def test_pmbootstrap_lint(args: PmbArgs, tmpdir):
     args.aports = tmpdir = str(tmpdir)
 
     # Create hello-world pmaport in tmpdir

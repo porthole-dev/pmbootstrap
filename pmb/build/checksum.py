@@ -12,7 +12,7 @@ import pmb.helpers.pmaports
 from pmb.core import Chroot
 
 
-def update(args, pkgname):
+def update(args: PmbArgs, pkgname):
     """Fetch all sources and update the checksums in the APKBUILD."""
     pmb.build.init_abuild_minimal(args)
     pmb.build.copy_to_buildpath(args, pkgname)
@@ -26,7 +26,7 @@ def update(args, pkgname):
     pmb.helpers.run.user(args, ["cp", source, target])
 
 
-def verify(args, pkgname):
+def verify(args: PmbArgs, pkgname):
     """Fetch all sources and verify their checksums."""
     pmb.build.init_abuild_minimal(args)
     pmb.build.copy_to_buildpath(args, pkgname)

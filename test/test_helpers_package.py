@@ -19,11 +19,11 @@ def args(request):
     return args
 
 
-def test_helpers_package_get_pmaports_and_cache(args, monkeypatch):
+def test_helpers_package_get_pmaports_and_cache(args: PmbArgs, monkeypatch):
     """ Test pmb.helpers.package.get(): find in pmaports, use cached result """
 
     # Fake APKBUILD data
-    def stub(args, pkgname, must_exist):
+    def stub(args: PmbArgs, pkgname, must_exist):
         return {"arch": ["armv7"],
                 "depends": ["testdepend"],
                 "pkgname": "testpkgname",
@@ -49,7 +49,7 @@ def test_helpers_package_get_pmaports_and_cache(args, monkeypatch):
     assert func(args, "testpkgname", "armv7") == package
 
 
-def test_helpers_package_get_apkindex(args, monkeypatch):
+def test_helpers_package_get_apkindex(args: PmbArgs, monkeypatch):
     """ Test pmb.helpers.package.get(): find in apkindex """
 
     # Fake APKINDEX data
@@ -59,7 +59,7 @@ def test_helpers_package_get_apkindex(args, monkeypatch):
                           "provides": ["testprovide"],
                           "version": "1.0-r1"}
 
-    def stub(args, pkgname, arch, must_exist):
+    def stub(args: PmbArgs, pkgname, arch, must_exist):
         if arch != fake_apkindex_data["arch"]:
             return None
         return fake_apkindex_data
@@ -121,12 +121,12 @@ def test_helpers_package_check_arch_package(args):
     assert func(args, "a", "armhf") is False
 
 
-def test_helpers_package_check_arch_pmaports(args, monkeypatch):
+def test_helpers_package_check_arch_pmaports(args: PmbArgs, monkeypatch):
     """ Test pmb.helpers.package.check_arch(): binary = False """
     func = pmb.helpers.package.check_arch
     fake_pmaport = {"arch": []}
 
-    def fake_pmaports_get(args, pkgname, must_exist=False):
+    def fake_pmaports_get(args: PmbArgs, pkgname, must_exist=False):
         return fake_pmaport
     monkeypatch.setattr(pmb.helpers.pmaports, "get", fake_pmaports_get)
 

@@ -44,7 +44,7 @@ def get_list(args: PmbArgs) -> Sequence[str]:
     return list(_find_apkbuilds(args).keys())
 
 
-def guess_main_dev(args, subpkgname):
+def guess_main_dev(args: PmbArgs, subpkgname):
     """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
@@ -227,7 +227,7 @@ def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
     return None
 
 
-def find_providers(args, provide):
+def find_providers(args: PmbArgs, provide):
     """Search for providers of the specified (virtual) package in pmaports.
 
     Note: Currently only providers from a single APKBUILD are returned.
@@ -251,7 +251,7 @@ def find_providers(args, provide):
                   key=lambda p: p[1].get('provider_priority', 0))
 
 
-def get_repo(args, pkgname, must_exist=True):
+def get_repo(args: PmbArgs, pkgname, must_exist=True):
     """Get the repository folder of an aport.
 
     :pkgname: package name

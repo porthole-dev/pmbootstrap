@@ -309,7 +309,7 @@ def test_check_config(monkeypatch, tmpdir):
     assert func(path, arch, pkgver, components_list, details, enforce) is True
 
 
-def test_check(args, monkeypatch, tmpdir):
+def test_check(args: PmbArgs, monkeypatch, tmpdir):
     func = pmb.parse.kconfig.check
     details = True
     components_list = []

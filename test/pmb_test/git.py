@@ -6,9 +6,10 @@ import os
 import pmb.helpers.git
 import pmb.helpers.run
 import shutil
+from pmb.core.types import PmbArgs
 
 
-def prepare_tmpdir(args, monkeypatch, tmpdir):
+def prepare_tmpdir(args: PmbArgs, monkeypatch, tmpdir):
     """ Prepare git repositories in tmpdir, and override related functions.
 
         Git repositories:
@@ -50,16 +51,16 @@ def prepare_tmpdir(args, monkeypatch, tmpdir):
     run_git(["checkout", "-b", "master", "--track", "origin2/master"])
 
     # Override get_path()
-    def get_path(args, name_repo):
+    def get_path(args: PmbArgs, name_repo):
         return path_local
     monkeypatch.setattr(pmb.helpers.git, "get_path", get_path)
 
     # Override get_upstream_remote()
-    def get_u_r(args, name_repo):
+    def get_u_r(args: PmbArgs, name_repo):
         return "origin"
     monkeypatch.setattr(pmb.helpers.git, "get_upstream_remote", get_u_r)
 
     return path_local, run_git
 
-def copy_dotgit(args, tmpdir):
+def copy_dotgit(args: PmbArgs, tmpdir):
     shutil.copytree(args.aports + "/.git", tmpdir + "/.git", ignore_dangling_symlinks=True)

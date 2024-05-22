@@ -24,7 +24,7 @@ def args(request):
     return args
 
 
-def test_switch_to_channel_branch(args, monkeypatch, tmpdir):
+def test_switch_to_channel_branch(args: PmbArgs, monkeypatch, tmpdir):
     path, run_git = pmb_test.git.prepare_tmpdir(args, monkeypatch, tmpdir)
     args.aports = path
 
@@ -50,7 +50,7 @@ def test_switch_to_channel_branch(args, monkeypatch, tmpdir):
     assert branch == "v20.05"
 
 
-def test_read_config_channel(args, monkeypatch):
+def test_read_config_channel(args: PmbArgs, monkeypatch):
     channel = "edge"
 
     # Pretend to have a certain channel in pmaports.cfg

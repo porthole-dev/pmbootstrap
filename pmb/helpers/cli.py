@@ -97,7 +97,7 @@ def ask(question="Continue?", choices=["y", "n"], default="n",
                       validation_regex + "). Please try again.")
 
 
-def confirm(args, question="Continue?", default=False, no_assumptions=False):
+def confirm(args: PmbArgs, question="Continue?", default=False, no_assumptions=False):
     """Convenience wrapper around ask for simple yes-no questions with validation.
 
     :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
@@ -111,7 +111,7 @@ def confirm(args, question="Continue?", default=False, no_assumptions=False):
     return answer == "y"
 
 
-def progress_print(args, progress):
+def progress_print(args: PmbArgs, progress):
     """Print a snapshot of a progress bar to STDOUT.
 
     Call progress_flush to end  printing progress and clear the line. No output is printed in

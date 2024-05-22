@@ -39,14 +39,14 @@ def ssh_create_askpass_script(args):
     pmb.chroot.root(args, ["chmod", "+x", "/tmp/y.sh"])
 
 
-def pmbootstrap_run(args, config, parameters, output="log"):
+def pmbootstrap_run(args: PmbArgs, config, parameters, output="log"):
     """Execute pmbootstrap.py with a test pmbootstrap.conf."""
     return pmb.helpers.run.user(args, ["./pmbootstrap.py", "-c", config] +
                                 parameters, working_dir=pmb.config.pmb_src,
                                 output=output)
 
 
-def pmbootstrap_yes(args, config, parameters):
+def pmbootstrap_yes(args: PmbArgs, config, parameters):
     """
     Execute pmbootstrap.py with a test pmbootstrap.conf, and pipe "yes" into it
     (so we can do a fully automated installation, using "y" as password
@@ -100,7 +100,7 @@ def qemu(request):
     return QEMU(request)
 
 
-def ssh_run(args, command):
+def ssh_run(args: PmbArgs, command):
     """
     Run a command in the QEMU VM on localhost via SSH.
 
@@ -116,7 +116,7 @@ def ssh_run(args, command):
     return ret
 
 
-def is_running(args, programs, timeout=300, sleep_before_retry=1):
+def is_running(args: PmbArgs, programs, timeout=300, sleep_before_retry=1):
     """
     Simple check that looks for program names in the output of "ps ax".
     This is error-prone, only use it with programs that have a unique name.
@@ -165,7 +165,7 @@ def is_running(args, programs, timeout=300, sleep_before_retry=1):
 
 
 @pytest.mark.skip_ci
-def test_none(args, tmpdir, qemu):
+def test_none(args: PmbArgs, tmpdir, qemu):
     qemu.run(args, tmpdir)
 
     # Check that at least SSH works (no special process running)
@@ -177,14 +177,14 @@ def test_none(args, tmpdir, qemu):
 
 
 @pytest.mark.skip_ci
-def test_xfce4(args, tmpdir, qemu):
+def test_xfce4(args: PmbArgs, tmpdir, qemu):
     qemu.run(args, tmpdir, "xfce4")
     assert is_running(args, ["xfce4-session", "xfdesktop", "xfce4-panel",
                              "Thunar", "dbus-daemon", "xfwm4"])
 
 
 @pytest.mark.skip_ci
-def test_plasma_mobile(args, tmpdir, qemu):
+def test_plasma_mobile(args: PmbArgs, tmpdir, qemu):
     # NOTE: Once we have plasma mobile running properly without GL, we can
     # check for more processes
     qemu.run(args, tmpdir, "plasma-mobile")
