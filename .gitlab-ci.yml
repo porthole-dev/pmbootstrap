@@ -67,8 +67,8 @@ mypy:
 docs:
   stage: lint
   script:
-  - apk add py3-sphinx py3-sphinx_rtd_theme
-  - ".ci/docs.sh"
+    - apk add py3-sphinx py3-sphinx_rtd_theme
+    - ".ci/docs.sh"
   artifacts:
     paths:
-    - public
+      - public
