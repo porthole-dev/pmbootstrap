@@ -13,6 +13,7 @@ import pmb.config.workdir
 from pmb.core.types import PmbArgs
 import pmb.helpers.repo
 import pmb.helpers.run
+import pmb.helpers.other
 import pmb.parse.arch
 from pmb.core import Chroot, ChrootType
 
@@ -124,6 +125,12 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     # When already initialized: just prepare the chroot
     arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
 
+    already_setup = str(chroot) in pmb.helpers.other.cache["pmb.chroot.init"]
+    if already_setup:
+        # FIXME: drop to debug/verbose later
+        logging.debug(f"({chroot}) already initialised")
+        return
+
     pmb.chroot.mount(args, chroot)
     setup_qemu_emulation(args, chroot)
     mark_in_chroot(args, chroot)
@@ -132,6 +139,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         copy_resolv_conf(args, chroot)
         pmb.chroot.apk.update_repository_list(args, chroot, postmarketos_mirror)
         warn_if_chroot_is_outdated(args, chroot)
+        pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)] = True
         return
 
     # Require apk-tools-static
@@ -189,3 +197,5 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         command = ["--force-missing-repositories"] + command
 
     pmb.chroot.root(args, ["apk"] + command, chroot)
+
+    pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)]

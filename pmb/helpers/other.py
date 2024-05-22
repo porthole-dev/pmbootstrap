@@ -296,4 +296,5 @@ cache: Dict[str, Any] = {
     "pmb.helpers.git.parse_channels_cfg": {},
     "pmb.config.pmaports.read_config": None,
     "pmb.config.pmaports.read_config_repos": None,
+    "pmb.chroot.init": {},
 }
