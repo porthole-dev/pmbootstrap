@@ -166,6 +166,12 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
                                      "--initdb", "--arch", arch,
                                      "add", "alpine-base"])
 
+    # Merge /usr
+    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(args):
+        usr_merge = UsrMerge.ON
+    if usr_merge is UsrMerge.ON:
+        init_usr_merge(args, chroot)
+
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
     if not chroot.type == ChrootType.ROOTFS:
         pmb.chroot.root(args, ["adduser", "-D", "pmos", "-u",
@@ -181,12 +187,6 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
                 pmb.chroot.root(args, ["mkdir", "-p", target], chroot)
             pmb.chroot.user(args, ["ln", "-s", target, link_name], chroot)
             pmb.chroot.root(args, ["chown", "pmos:pmos", target], chroot)
-
-    # Merge /usr
-    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(args):
-        usr_merge = UsrMerge.ON
-    if usr_merge is UsrMerge.ON:
-        init_usr_merge(args, chroot)
 
     # Upgrade packages in the chroot, in case alpine-base, apk, etc. have been
     # built from source with pmbootstrap
