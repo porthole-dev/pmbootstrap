@@ -94,7 +94,7 @@ def crosscompile(args: PmbArgs, apkbuild, arch, suffix: Chroot):
         return None
     if not pmb.parse.arch.cpu_emulation_required(arch):
         return None
-    if suffix.type() == ChrootType.NATIVE:
+    if suffix.type == ChrootType.NATIVE:
         return "native"
     if "!pmb:crossdirect" in apkbuild["options"]:
         return None

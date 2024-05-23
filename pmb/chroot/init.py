@@ -167,7 +167,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
                                      "add", "alpine-base"])
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
-    if not chroot.type() == ChrootType.ROOTFS:
+    if not chroot.type == ChrootType.ROOTFS:
         pmb.chroot.root(args, ["adduser", "-D", "pmos", "-u",
                                pmb.config.chroot_uid_user],
                         chroot, auto_init=False)

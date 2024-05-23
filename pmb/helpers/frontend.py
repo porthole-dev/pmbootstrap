@@ -161,7 +161,7 @@ def chroot(args: PmbArgs):
     # Suffix
     suffix = _parse_suffix(args)
     if (args.user and suffix != Chroot.native() and
-            not suffix.type() == ChrootType.BUILDROOT):
+            not suffix.type == ChrootType.BUILDROOT):
         raise RuntimeError("--user is only supported for native or"
                            " buildroot_* chroots.")
     if args.xauth and suffix != Chroot.native():

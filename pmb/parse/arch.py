@@ -19,7 +19,7 @@ def from_chroot_suffix(args: PmbArgs, chroot: Chroot) -> str:
         return pmb.config.arch_native
     if chroot.name() == args.device:
         return args.deviceinfo["arch"]
-    if chroot.type() == ChrootType.BUILDROOT:
+    if chroot.type == ChrootType.BUILDROOT:
         return chroot.name()
 
     raise ValueError(f"Invalid chroot suffix: {chroot}"
