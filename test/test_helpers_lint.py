@@ -36,7 +36,7 @@ def test_pmbootstrap_lint(args: PmbArgs, tmpdir):
     assert pmb.helpers.lint.check(args, ["hello-world"]) == ""
 
     # Change "pmb:cross-native" to non-existing "pmb:invalid-opt"
-    pmb.helpers.run.user(args, ["sed", "s/pmb:cross-native/pmb:invalid-opt/g",
+    pmb.helpers.run.user(["sed", "s/pmb:cross-native/pmb:invalid-opt/g",
                                 "-i", apkbuild_tmp])
 
     # Lint error

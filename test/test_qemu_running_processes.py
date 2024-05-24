@@ -42,7 +42,7 @@ def ssh_create_askpass_script(args: PmbArgs):
 
 def pmbootstrap_run(args: PmbArgs, config, parameters, output="log"):
     """Execute pmbootstrap.py with a test pmbootstrap.conf."""
-    return pmb.helpers.run.user(args, ["./pmbootstrap.py", "-c", config] +
+    return pmb.helpers.run.user(["./pmbootstrap.py", "-c", config] +
                                 parameters, working_dir=pmb.config.pmb_src,
                                 output=output)
 
@@ -59,7 +59,7 @@ def pmbootstrap_yes(args: PmbArgs, config, parameters):
                shlex.quote(config))
     for parameter in parameters:
         command += " " + shlex.quote(parameter)
-    return pmb.helpers.run.user(args, ["/bin/sh", "-c", command],
+    return pmb.helpers.run.user(["/bin/sh", "-c", command],
                                 working_dir=pmb.config.pmb_src)
 
 

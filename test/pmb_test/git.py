@@ -37,7 +37,7 @@ def prepare_tmpdir(args: PmbArgs, monkeypatch, tmpdir):
 
     def run_git(git_args, repo="local"):
         path = tmpdir + "/" + repo
-        pmb.helpers.run.user(args, ["git"] + git_args, path, "stdout", output_return=True)
+        pmb.helpers.run.user(["git"] + git_args, path, "stdout", output_return=True)
 
     # Remote repos
     run_git(["init", "-b", "master", "."], "remote")

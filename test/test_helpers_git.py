@@ -41,7 +41,7 @@ def test_can_fast_forward(args: PmbArgs, tmpdir):
     branch_origin = "fake-branch-origin"
 
     def run_git(git_args):
-        pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
+        pmb.helpers.run.user(["git"] + git_args, tmpdir, "stdout")
 
     # Create test git repo
     run_git(["init", "-b", "master", "."])
@@ -68,14 +68,14 @@ def test_clean_worktree(args: PmbArgs, tmpdir):
     func = pmb.helpers.git.clean_worktree
 
     def run_git(git_args):
-        pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
+        pmb.helpers.run.user(["git"] + git_args, tmpdir, "stdout")
 
     # Create test git repo
     run_git(["init", "-b", "master", "."])
     run_git(["commit", "--allow-empty", "-m", "commit on master"])
 
     assert func(args, tmpdir) is True
-    pmb.helpers.run.user(args, ["touch", "test"], tmpdir)
+    pmb.helpers.run.user(["touch", "test"], tmpdir)
     assert func(args, tmpdir) is False
 
 
@@ -95,7 +95,7 @@ def test_get_upstream_remote(args: PmbArgs, monkeypatch, tmpdir):
     monkeypatch.setattr(pmb.config, "git_repos", git_repos)
 
     def run_git(git_args):
-        pmb.helpers.run.user(args, ["git"] + git_args, tmpdir, "stdout")
+        pmb.helpers.run.user(["git"] + git_args, tmpdir, "stdout")
 
     # Create git repo
     run_git(["init", "-b", "master", "."])

@@ -162,10 +162,10 @@ def test_core(args: PmbArgs, monkeypatch):
 
 @pytest.mark.skip_ci
 def test_sudo_timer(args: PmbArgs):
-    pmb.helpers.run.root(args, ["whoami"])
+    pmb.helpers.run.root(["whoami"])
 
     time.sleep(300)
 
-    out = pmb.helpers.run.root(args, ["whoami"])
+    out = pmb.helpers.run.root(["whoami"])
 
     assert out == 0

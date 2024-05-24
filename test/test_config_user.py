@@ -47,7 +47,7 @@ def test_config_user(args: PmbArgs, tmpdir, monkeypatch):
                                          "-w", path_work,
                                          "--aports", args.aports,
                                          "init"])
-    pmb.helpers.run.user(args, ["sh", "-c", "yes '' | " + cmd],
+    pmb.helpers.run.user(["sh", "-c", "yes '' | " + cmd],
                          pmb.config.pmb_src)
 
     # Load and verify default config

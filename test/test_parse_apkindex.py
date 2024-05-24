@@ -212,7 +212,7 @@ def test_parse_invalid_path():
 def test_parse_cached(args: PmbArgs, tmpdir):
     # Create a real file (cache looks at the last modified date)
     path = str(tmpdir) + "/APKINDEX"
-    pmb.helpers.run.user(args, ["touch", path])
+    pmb.helpers.run.user(["touch", path])
     lastmod = os.path.getmtime(path)
 
     # Fill the cache
@@ -297,7 +297,7 @@ def test_parse_virtual():
 def test_providers_invalid_package(args: PmbArgs, tmpdir):
     # Create empty APKINDEX
     path = str(tmpdir) + "/APKINDEX"
-    pmb.helpers.run.user(args, ["touch", path])
+    pmb.helpers.run.user(["touch", path])
 
     # Test with must_exist=False
     func = pmb.parse.apkindex.providers

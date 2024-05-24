@@ -360,7 +360,7 @@ def test_build_depends_high_level(args: PmbArgs, monkeypatch):
     pmb.build.package(args, "hello-world-wrapper")
 
     # Remove hello-world
-    pmb.helpers.run.root(args, ["rm", output_hello_outside])
+    pmb.helpers.run.root(["rm", output_hello_outside])
     pmb.build.index_repo(args, pmb.config.arch_native)
     pmb.helpers.other.cache["built"] = {}
 
@@ -408,8 +408,8 @@ def test_build_local_source_high_level(args: PmbArgs, tmpdir):
     # src: Create unreadable file (rsync should skip it)
     unreadable = src + "/_unreadable_file"
     shutil.copy(args.aports + "/main/hello-world/main.c", unreadable)
-    pmb.helpers.run.root(args, ["chown", "root:root", unreadable])
-    pmb.helpers.run.root(args, ["chmod", "500", unreadable])
+    pmb.helpers.run.root(["chown", "root:root", unreadable])
+    pmb.helpers.run.root(["chmod", "500", unreadable])
 
     # Test native arch and foreign arch chroot
     channel = pmb.config.pmaports.read_config(args)["channel"]
@@ -420,22 +420,22 @@ def test_build_local_source_high_level(args: PmbArgs, tmpdir):
         # Delete all hello-world --src packages
         pattern = f"{args.work}/packages/{channel}/{arch}/hello-world-*_p*.apk"
         for path in glob.glob(pattern):
-            pmb.helpers.run.root(args, ["rm", path])
+            pmb.helpers.run.root(["rm", path])
         assert len(glob.glob(pattern)) == 0
 
         # Build hello-world --src package
-        pmb.helpers.run.user(args, [pmb.config.pmb_src + "/pmbootstrap.py",
+        pmb.helpers.run.user([pmb.config.pmb_src + "/pmbootstrap.py",
                                     "--aports", aports, "build", "--src", src,
                                     "hello-world", "--arch", arch])
 
         # Verify that the package has been built and delete it
         paths = glob.glob(pattern)
         assert len(paths) == 1
-        pmb.helpers.run.root(args, ["rm", paths[0]])
+        pmb.helpers.run.root(["rm", paths[0]])
 
     # Clean up: update index, delete temp folder
     pmb.build.index_repo(args, pmb.config.arch_native)
-    pmb.helpers.run.root(args, ["rm", "-r", tmpdir])
+    pmb.helpers.run.root(["rm", "-r", tmpdir])
 
 
 def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
@@ -471,19 +471,19 @@ def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
     channel = pmb.config.pmaports.read_config(args)["channel"]
     pattern = f"{args.work}/packages/{channel}/*/hello-world-*_p*.apk"
     for path in glob.glob(pattern):
-        pmb.helpers.run.root(args, ["rm", path])
+        pmb.helpers.run.root(["rm", path])
     assert len(glob.glob(pattern)) == 0
 
     # Build hello-world package
-    pmb.helpers.run.user(args, [f"{pmb.config.pmb_src}/pmbootstrap.py",
+    pmb.helpers.run.user([f"{pmb.config.pmb_src}/pmbootstrap.py",
                                 "--aports", aports, "build", "--src", src,
                                 "hello-world", "--arch", pmb.config.arch_native])
 
     # Verify that the package has been built and delete it
     paths = glob.glob(pattern)
     assert len(paths) == 1
-    pmb.helpers.run.root(args, ["rm", paths[0]])
+    pmb.helpers.run.root(["rm", paths[0]])
 
     # Clean up: update index, delete temp folder
     pmb.build.index_repo(args, pmb.config.arch_native)
-    pmb.helpers.run.root(args, ["rm", "-r", tmpdir])
+    pmb.helpers.run.root(["rm", "-r", tmpdir])

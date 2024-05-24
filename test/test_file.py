@@ -26,7 +26,7 @@ def args(request):
 def test_file_is_older_than(args: PmbArgs, tmpdir):
     # Create a file last modified 10s ago
     tempfile = str(tmpdir) + "/test"
-    pmb.helpers.run.user(args, ["touch", tempfile])
+    pmb.helpers.run.user(["touch", tempfile])
     past = time.time() - 10
     os.utime(tempfile, (-1, past))
 

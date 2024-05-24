@@ -32,14 +32,14 @@ def args(tmpdir, request):
     args.aports = tmpdir
 
     # Copy the devicepkg-dev package (shared device-* APKBUILD code)
-    pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/main"])
+    pmb.helpers.run.user(["mkdir", "-p", tmpdir + "/main"])
     path_dev = args._aports_real + "/main/devicepkg-dev"
-    pmb.helpers.run.user(args, ["cp", "-r", path_dev, tmpdir + "/main"])
+    pmb.helpers.run.user(["cp", "-r", path_dev, tmpdir + "/main"])
 
     # Copy the linux-lg-mako aport (we currently copy patches from there)
-    pmb.helpers.run.user(args, ["mkdir", "-p", tmpdir + "/device/testing"])
+    pmb.helpers.run.user(["mkdir", "-p", tmpdir + "/device/testing"])
     path_mako = args._aports_real + "/device/testing/linux-lg-mako"
-    pmb.helpers.run.user(args, ["cp", "-r", path_mako,
+    pmb.helpers.run.user(["cp", "-r", path_mako,
                                 f"{tmpdir}/device/testing"])
 
     # Copy pmaports.cfg

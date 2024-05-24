@@ -33,16 +33,16 @@ def test_shell_escape(args: PmbArgs):
             "hello world\n": ["printf", "%s world\n", "hello"]}
     for expected, cmd in cmds.items():
         copy = list(cmd)
-        core = pmb.helpers.run_core.core(args, str(cmd), cmd,
+        core = pmb.helpers.run_core.core(str(cmd), cmd,
                                          output_return=True)
         assert expected == core
         assert cmd == copy
 
-        user = pmb.helpers.run.user(args, cmd, output_return=True)
+        user = pmb.helpers.run.user(cmd, output_return=True)
         assert expected == user
         assert cmd == copy
 
-        root = pmb.helpers.run.root(args, cmd, output_return=True)
+        root = pmb.helpers.run.root(cmd, output_return=True)
         assert expected == root
         assert cmd == copy
 

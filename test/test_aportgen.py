@@ -85,7 +85,7 @@ def test_aportgen(args: PmbArgs, tmpdir):
     os.mkdir(tmpdir + "/cross")
 
     # Create aportgen folder -> code path where it still exists
-    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
 
     # Generate all valid packages (gcc twice -> different code path)
     pkgnames = ["musl-armv7",

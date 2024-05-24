@@ -25,7 +25,7 @@ def test_get_folder_size(args: PmbArgs, tmpdir):
     tmpdir = str(tmpdir)
     files = 5
     for i in range(files):
-        pmb.helpers.run.user(args, ["dd", "if=/dev/zero", "of=" +
+        pmb.helpers.run.user(["dd", "if=/dev/zero", "of=" +
                                     tmpdir + "/" + str(i), "bs=1K",
                                     "count=200", "conv=notrunc"])
 

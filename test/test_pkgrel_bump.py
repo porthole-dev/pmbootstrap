@@ -43,7 +43,7 @@ def pmbootstrap(args: PmbArgs, tmpdir, parameters, zero_exit=True):
         pmb_test.git.copy_dotgit(args, aports)
 
     try:
-        pmb.helpers.run.user(args, ["./pmbootstrap.py", "--work=" + tmpdir,
+        pmb.helpers.run.user(["./pmbootstrap.py", "--work=" + tmpdir,
                                     "--mirror-pmOS=", "--aports=" + aports,
                                     "--config=" + config] + parameters,
                              working_dir=pmb.config.pmb_src)
@@ -68,40 +68,40 @@ def setup_work(args: PmbArgs, tmpdir):
     # We do this before creating the fake work folder, because then all
     # packages are still present.
     os.chdir(pmb.config.pmb_src)
-    pmb.helpers.run.user(args, ["./pmbootstrap.py", "-y", "zap"])
-    pmb.helpers.run.user(args, ["./pmbootstrap.py", "build_init"])
-    pmb.helpers.run.user(args, ["./pmbootstrap.py", "shutdown"])
+    pmb.helpers.run.user(["./pmbootstrap.py", "-y", "zap"])
+    pmb.helpers.run.user(["./pmbootstrap.py", "build_init"])
+    pmb.helpers.run.user(["./pmbootstrap.py", "shutdown"])
 
     # Link everything from work (except for "packages") to the tmpdir
     for path in pmb.config.work.glob("*"):
         if os.path.basename(path) != "packages":
-            pmb.helpers.run.user(args, ["ln", "-s", path, tmpdir + "/"])
+            pmb.helpers.run.user(["ln", "-s", path, tmpdir + "/"])
 
     # Copy testdata and selected device aport
     for folder in ["device/testing", "main"]:
-        pmb.helpers.run.user(args, ["mkdir", "-p", args.aports, tmpdir +
+        pmb.helpers.run.user(["mkdir", "-p", args.aports, tmpdir +
                                     "/_aports/" + folder])
     path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
-    pmb.helpers.run.user(args, ["cp", "-r", path_original,
+    pmb.helpers.run.user(["cp", "-r", path_original,
                                 f"{tmpdir}/_aports/device/testing"])
     for pkgname in ["testlib", "testapp", "testsubpkg"]:
-        pmb.helpers.run.user(args, ["cp", "-r",
+        pmb.helpers.run.user(["cp", "-r",
                                     "test/testdata/pkgrel_bump/aports/"
                                     f"{pkgname}",
                                     f"{tmpdir}/_aports/main/{pkgname}"])
 
     # Copy pmaports.cfg
-    pmb.helpers.run.user(args, ["cp", args.aports / "pmaports.cfg", tmpdir +
+    pmb.helpers.run.user(["cp", args.aports / "pmaports.cfg", tmpdir +
                                 "/_aports"])
 
     # Empty packages folder
     channel = pmb.config.pmaports.read_config(args)["channel"]
     packages_path = f"{tmpdir}/packages/{channel}"
-    pmb.helpers.run.user(args, ["mkdir", "-p", packages_path])
-    pmb.helpers.run.user(args, ["chmod", "777", packages_path])
+    pmb.helpers.run.user(["mkdir", "-p", packages_path])
+    pmb.helpers.run.user(["chmod", "777", packages_path])
 
     # Copy over the pmbootstrap config
-    pmb.helpers.run.user(args, ["cp", args.config, tmpdir +
+    pmb.helpers.run.user(["cp", args.config, tmpdir +
                                 "/_pmbootstrap.cfg"])
 
 
@@ -148,7 +148,7 @@ def test_pkgrel_bump_high_level(args: PmbArgs, tmpdir):
     channel = pmb.config.pmaports.read_config(args)["channel"]
     arch = pmb.config.arch_native
     apk_path = f"{tmpdir}/packages/{channel}/{arch}/testlib-1.0-r0.apk"
-    pmb.helpers.run.root(args, ["rm", apk_path])
+    pmb.helpers.run.root(["rm", apk_path])
     pmbootstrap(args, tmpdir, ["index"])
     pmbootstrap(args, tmpdir, ["pkgrel_bump", "--dry", "--auto"], False)
     verify_pkgrels(tmpdir, 1, 0, 0)
@@ -169,4 +169,4 @@ def test_pkgrel_bump_high_level(args: PmbArgs, tmpdir):
 
     # Clean up
     pmbootstrap(args, tmpdir, ["shutdown"])
-    pmb.helpers.run.root(args, ["rm", "-rf", tmpdir])
+    pmb.helpers.run.root(["rm", "-rf", tmpdir])
