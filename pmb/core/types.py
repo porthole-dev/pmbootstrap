@@ -48,7 +48,7 @@ class PmbArgs(Namespace):
     built: str
     ccache_size: str
     cipher: str
-    clear_log: str
+    clear_log: bool
     cmdline: str
     command: str
     config: Path

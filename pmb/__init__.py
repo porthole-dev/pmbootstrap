@@ -76,7 +76,7 @@ def main() -> int:
 
         # Run the function with the action's name (in pmb/helpers/frontend.py)
         if args.action:
-            getattr(frontend, args.action)(args)
+            run_command(args)
         else:
             logging.info("Run pmbootstrap -h for usage information.")
 

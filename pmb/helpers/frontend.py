@@ -561,29 +561,6 @@ def work_migrate(args: PmbArgs):
     pmb.helpers.logging.disable()
 
 
-def log(args: PmbArgs):
-    context = pmb.core.get_context()
-    log_testsuite = pmb.config.work / "log_testsuite.txt"
-
-    if args.clear_log:
-        pmb.helpers.run.user(["truncate", "-s", "0", context.log])
-        pmb.helpers.run.user(["truncate", "-s", "0", log_testsuite])
-
-    cmd: List[PathString] = ["tail", "-n", args.lines, "-F"]
-
-    # Follow the testsuite's log file too if it exists. It will be created when
-    # starting a test case that writes to it (git -C test grep log_testsuite).
-    if os.path.exists(log_testsuite):
-        cmd += [log_testsuite]
-
-    # tail writes the last lines of the files to the terminal. Put the regular
-    # log at the end, so that output is visible at the bottom (where the user
-    # looks for an error / what's currently going on).
-    cmd += [context.log]
-
-    pmb.helpers.run.user(cmd, output="tui")
-
-
 def zap(args: PmbArgs):
     pmb.chroot.zap(args, dry=args.dry, http=args.http,
                    distfiles=args.distfiles, pkgs_local=args.pkgs_local,
