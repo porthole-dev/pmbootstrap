@@ -114,8 +114,22 @@ def init(args: PmbArgs) -> PmbArgs:
     pmb.config.merge_with_args(args)
     replace_placeholders(args)
 
+    # Configure runtime context
+    context = pmb.core.get_context()
+    context.command_timeout = args.timeout
+    context.details_to_stdout = args.details_to_stdout
+    context.sudo_timer = args.sudo_timer
+    context.quiet = args.quiet
+
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(args)
+
+    # Remove attributes from args so they don't get used by mistake
+    delattr(args, "timeout")
+    delattr(args, "details_to_stdout")
+    delattr(args, "sudo_timer")
+    delattr(args, "log")
+    delattr(args, "quiet")
 
     # Initialization code which may raise errors
     check_pmaports_path(args)

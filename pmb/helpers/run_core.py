@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
+from pmb.core import get_context
 from pmb.core.types import PathString, Env
 from pmb.helpers import logging
 import os
@@ -175,6 +176,7 @@ def foreground_pipe(args: PmbArgs, cmd, working_dir=None, output_to_stdout=False
               * output: ""
               * output: full program output string (output_return is True)
     """
+    context = pmb.core.get_context()
     # Start process in background (stdout and stderr combined)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, cwd=working_dir,
@@ -193,7 +195,7 @@ def foreground_pipe(args: PmbArgs, cmd, working_dir=None, output_to_stdout=False
     output_buffer: list[bytes] = []
     sel = selectors.DefaultSelector()
     sel.register(stdout, selectors.EVENT_READ)
-    timeout = args.timeout
+    timeout = context.command_timeout
     while process.poll() is None:
         wait_start = time.perf_counter()
         sel.select(timeout)
@@ -203,12 +205,12 @@ def foreground_pipe(args: PmbArgs, cmd, working_dir=None, output_to_stdout=False
         # timeout was not reached.)
         if output_timeout:
             wait_end = time.perf_counter()
-            if wait_end - wait_start >= args.timeout:
+            if wait_end - wait_start >= timeout:
                 logging.info("Process did not write any output for " +
-                             str(args.timeout) + " seconds. Killing it.")
+                             str(timeout) + " seconds. Killing it.")
                 logging.info("NOTE: The timeout can be increased with"
                              " 'pmbootstrap -t'.")
-                kill_command(args, process.pid, sudo)
+                kill_command(process.pid, sudo)
                 continue
 
         # Read all currently available output

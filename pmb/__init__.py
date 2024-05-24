@@ -29,10 +29,11 @@ if version < (3, 9):
     sys.exit()
 
 
-def print_log_hint(args: Any) -> None:
+def print_log_hint() -> None:
+    log = config.get("log")
     # Hints about the log file (print to stdout only)
     log_hint = "Run 'pmbootstrap log' for details."
-    if not args or not os.path.exists(args.log):
+    if not os.path.exists(log):
         log_hint += (" Alternatively you can use '--details-to-stdout' to get more"
                      " output, e.g. 'pmbootstrap --details-to-stdout init'.")
     print()
@@ -93,12 +94,12 @@ def main() -> int:
 
     except BuildFailedError as exception:
         logging.error(f"ERROR: {exception}")
-        print_log_hint(args)
+        print_log_hint()
         return 3
 
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed
-        if not args:
+        if "args" not in locals():
             import logging as pylogging
             pylogging.getLogger().setLevel(logging.DEBUG)
 
@@ -106,7 +107,7 @@ def main() -> int:
         logging.info("See also: <https://postmarketos.org/troubleshooting>")
         logging.debug(traceback.format_exc())
 
-        print_log_hint(args)
+        print_log_hint()
         print()
         print("Before you report this error, ensure that pmbootstrap is "
               "up to date.")

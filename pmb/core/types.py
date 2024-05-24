@@ -54,7 +54,7 @@ class PmbArgs(Namespace):
     config: Path
     config_channels: str
     details: bool
-    details_to_stdout: str
+    details_to_stdout: bool
     device: str
     deviceinfo: Dict[str, str]
     deviceinfo_parse_kernel: str
@@ -145,7 +145,7 @@ class PmbArgs(Namespace):
     src: str
     ssh_keys: str
     strict: str
-    sudo_timer: str
+    sudo_timer: bool
     suffix: str
     systemd: str
     timeout: float
