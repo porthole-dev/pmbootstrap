@@ -853,7 +853,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     pmb.chroot.root(args, ["mkinitfs"], chroot)
 
     # Clean up after running mkinitfs in chroot
-    pmb.helpers.mount.umount_all(args, chroot.path)
+    pmb.helpers.mount.umount_all(chroot.path)
     pmb.helpers.run.root(["rm", chroot / "in-pmbootstrap"])
     pmb.chroot.remove_mnt_pmbootstrap(args, chroot)
 

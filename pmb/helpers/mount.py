@@ -25,7 +25,7 @@ def ismount(folder: Path):
     return False
 
 
-def bind(args: PmbArgs, source: Path, destination: Path, create_folders=True, umount=False):
+def bind(source: Path, destination: Path, create_folders=True, umount=False):
     """Mount --bind a folder and create necessary directory structure.
 
     :param umount: when destination is already a mount point, umount it first.
@@ -33,7 +33,7 @@ def bind(args: PmbArgs, source: Path, destination: Path, create_folders=True, um
     # Check/umount destination
     if ismount(destination):
         if umount:
-            umount_all(args, destination)
+            umount_all(destination)
         else:
             return
         
@@ -56,7 +56,7 @@ def bind(args: PmbArgs, source: Path, destination: Path, create_folders=True, um
         raise RuntimeError(f"Mount failed: {source} -> {destination}")
 
 
-def bind_file(args: PmbArgs, source: Path, destination: Path, create_folders=False):
+def bind_file(source: Path, destination: Path, create_folders=False):
     """Mount a file with the --bind option, and create the destination file, if necessary."""
     # Skip existing mountpoint
     if ismount(destination):
@@ -98,7 +98,7 @@ def umount_all_list(prefix: Path, source: Path=Path("/proc/mounts")) -> List[Pat
     return ret
 
 
-def umount_all(args: PmbArgs, folder: Path):
+def umount_all(folder: Path):
     """Umount all folders that are mounted inside a given folder."""
     for mountpoint in umount_all_list(folder):
         pmb.helpers.run.root(["umount", mountpoint])
@@ -106,7 +106,7 @@ def umount_all(args: PmbArgs, folder: Path):
             raise RuntimeError(f"Failed to umount: {mountpoint}")
 
 
-def mount_device_rootfs(args: PmbArgs, chroot_rootfs: Chroot) -> PurePath:
+def mount_device_rootfs(chroot_rootfs: Chroot) -> PurePath:
     """
     Mount the device rootfs.
     :param chroot_rootfs: the chroot where the rootfs that will be
@@ -115,6 +115,6 @@ def mount_device_rootfs(args: PmbArgs, chroot_rootfs: Chroot) -> PurePath:
     :returns: the mountpoint (relative to the native chroot)
     """
     mountpoint = PurePath("/mnt", chroot_rootfs.dirname)
-    pmb.helpers.mount.bind(args, chroot_rootfs.path,
+    pmb.helpers.mount.bind(chroot_rootfs.path,
                            Chroot.native() / mountpoint)
     return mountpoint

@@ -48,7 +48,7 @@ def init(args: PmbArgs):
 
     # Mount folders from host system
     for folder in pmb.config.flash_mount_bind:
-        pmb.helpers.mount.bind(args, folder, Chroot.native() / folder)
+        pmb.helpers.mount.bind(folder, Chroot.native() / folder)
 
     # Mount device chroot inside native chroot (required for kernel/ramdisk)
     mount_device_rootfs(args, Chroot(ChrootType.ROOTFS, args.device))

@@ -129,7 +129,7 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
     # development, making it easy to quickly sideload a new kernel or pmbootstrap
     # to create a boot image.
 
-    pmb.helpers.mount.bind(args, Path("."), chroot / "mnt/linux")
+    pmb.helpers.mount.bind(Path("."), chroot / "mnt/linux")
 
     if not os.path.exists(chroot / kbuild_out_source):
         raise RuntimeError("No '.output' dir found in your kernel source dir. "
@@ -164,7 +164,7 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
     pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
 
     # Clean up bindmount
-    pmb.helpers.mount.umount_all(args, chroot / "mnt/linux")
+    pmb.helpers.mount.umount_all(chroot / "mnt/linux")
 
     # Clean up symlinks
     if kbuild_out != "":
@@ -211,6 +211,6 @@ def package_kernel(args: PmbArgs):
     try:
         run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out)
     except Exception as e:
-        pmb.helpers.mount.umount_all(args, Chroot.native() / "mnt/linux")
+        pmb.helpers.mount.umount_all(Chroot.native() / "mnt/linux")
         raise e
     pmb.build.other.index_repo(args, arch)

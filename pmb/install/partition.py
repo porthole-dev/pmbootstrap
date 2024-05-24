@@ -56,7 +56,7 @@ def partitions_mount(args: PmbArgs, layout, disk: Optional[Path]):
     for i in partitions:
         source = Path(f"{partition_prefix}{i}")
         target = Chroot.native() / "dev" / f"installp{i}"
-        pmb.helpers.mount.bind_file(args, source, target)
+        pmb.helpers.mount.bind_file(source, target)
 
 
 def partition(args: PmbArgs, layout, size_boot, size_reserve):

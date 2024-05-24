@@ -21,7 +21,7 @@ def init(args: PmbArgs):
     for loopdevice in Path("/dev/").glob("loop*"):
         if loopdevice.is_dir():
             continue
-        pmb.helpers.mount.bind_file(args, loopdevice, Chroot.native() / loopdevice)
+        pmb.helpers.mount.bind_file(loopdevice, Chroot.native() / loopdevice)
 
 
 def mount(args: PmbArgs, img_path: Path):

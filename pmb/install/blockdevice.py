@@ -25,7 +25,7 @@ def previous_install(args: PmbArgs, path: Path):
         if not os.path.exists(blockdevice_outside):
             continue
         blockdevice_inside = "/dev/diskp1"
-        pmb.helpers.mount.bind_file(args, blockdevice_outside,
+        pmb.helpers.mount.bind_file(blockdevice_outside,
                                     Chroot.native() / blockdevice_inside)
         try:
             label = pmb.chroot.root(args, ["blkid", "-s", "LABEL",
@@ -52,7 +52,7 @@ def mount_disk(args: PmbArgs, path: Path):
             raise RuntimeError(f"{path_mount} is mounted! Will not attempt to"
                                " format this!")
     logging.info(f"(native) mount /dev/install (host: {path})")
-    pmb.helpers.mount.bind_file(args, path, Chroot.native() / "dev/install")
+    pmb.helpers.mount.bind_file(path, Chroot.native() / "dev/install")
     if previous_install(args, path):
         if not pmb.helpers.cli.confirm(args, "WARNING: This device has a"
                                        " previous installation of pmOS."
@@ -86,7 +86,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
     for img_path in [img_path_full, img_path_boot, img_path_root]:
         outside = chroot / img_path
         if os.path.exists(outside):
-            pmb.helpers.mount.umount_all(args, chroot / "mnt")
+            pmb.helpers.mount.umount_all(chroot / "mnt")
             pmb.install.losetup.umount(args, img_path)
             pmb.chroot.root(args, ["rm", img_path])
 
@@ -122,7 +122,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
         logging.info(f"(native) mount {mount_point} ({img_path.name})")
         pmb.install.losetup.mount(args, img_path)
         device = pmb.install.losetup.device_by_back_file(args, img_path)
-        pmb.helpers.mount.bind_file(args, device, Chroot.native() / mount_point)
+        pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 
 
 def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Optional[Path]):
@@ -135,7 +135,7 @@ def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Optio
     :param split: create separate images for boot and root partitions
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
-    pmb.helpers.mount.umount_all(args, Chroot.native() / "dev/install")
+    pmb.helpers.mount.umount_all(Chroot.native() / "dev/install")
     if disk:
         mount_disk(args, disk)
     else:

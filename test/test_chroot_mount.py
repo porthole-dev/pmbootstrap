@@ -31,7 +31,7 @@ def test_chroot_mount(args: PmbArgs):
     assert (mnt_dir / "packages").exists()
 
     # Umount everything, like in pmb.install.install_system_image
-    pmb.helpers.mount.umount_all(args, chroot.path)
+    pmb.helpers.mount.umount_all(chroot.path)
 
     # Remove all /mnt/pmbootstrap dirs
     pmb.chroot.remove_mnt_pmbootstrap(args, chroot)

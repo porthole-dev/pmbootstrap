@@ -94,13 +94,13 @@ def mount(args: PmbArgs, chroot: Chroot=Chroot.native()):
     for source, target in mountpoints.items():
         target_outer = chroot / target
         #raise RuntimeError("test")
-        pmb.helpers.mount.bind(args, source, target_outer)
+        pmb.helpers.mount.bind(source, target_outer)
 
 
 def mount_native_into_foreign(args: PmbArgs, chroot: Chroot):
     source = Chroot.native().path
     target = chroot / "native"
-    pmb.helpers.mount.bind(args, source, target)
+    pmb.helpers.mount.bind(source, target)
 
     musl = next(source.glob("lib/ld-musl-*.so.1")).name
     musl_link = (chroot / "lib" / musl)

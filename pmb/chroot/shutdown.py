@@ -66,7 +66,7 @@ def shutdown(args: PmbArgs, only_install_related=False):
     chroot = Chroot.native()
 
     # Umount installation-related paths (order is important!)
-    pmb.helpers.mount.umount_all(args, chroot / "mnt/install")
+    pmb.helpers.mount.umount_all(chroot / "mnt/install")
     shutdown_cryptsetup_device(args, "pm_crypt")
 
     # Umount all losetup mounted images
@@ -79,7 +79,7 @@ def shutdown(args: PmbArgs, only_install_related=False):
     for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
         chroot = Chroot(chroot_type, args.device)
         if chroot.path.exists():
-            pmb.helpers.mount.umount_all(args, chroot.path)
+            pmb.helpers.mount.umount_all(chroot.path)
 
     # Remove "in-pmbootstrap" marker from all chroots. This marker indicates
     # that pmbootstrap has set up all mount points etc. to run programs inside
@@ -94,7 +94,7 @@ def shutdown(args: PmbArgs, only_install_related=False):
         # The folders are explicitly iterated over, so folders symlinked inside
         # work dir get umounted as well (used in test_pkgrel_bump.py, #1595)
         for path in pmb.config.work.glob("*"):
-            pmb.helpers.mount.umount_all(args, path)
+            pmb.helpers.mount.umount_all(path)
 
         # Clean up the rest
         for arch in pmb.config.build_device_architectures:

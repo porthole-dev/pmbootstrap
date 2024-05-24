@@ -280,7 +280,7 @@ def override_source(args: PmbArgs, apkbuild, pkgver, src, chroot: Chroot=Chroot.
     # Mount source in chroot
     mount_path = "/mnt/pmbootstrap/source-override/"
     mount_path_outside = chroot / mount_path
-    pmb.helpers.mount.bind(args, src, mount_path_outside, umount=True)
+    pmb.helpers.mount.bind(src, mount_path_outside, umount=True)
 
     # Delete existing append file
     append_path = "/tmp/APKBUILD.append"
@@ -337,14 +337,14 @@ def override_source(args: PmbArgs, apkbuild, pkgver, src, chroot: Chroot=Chroot.
     pmb.chroot.user(args, ["mv", append_path + "_", apkbuild_path], chroot)
 
 
-def mount_pmaports(args: PmbArgs, destination, chroot: Chroot=Chroot.native()):
+def mount_pmaports(destination, chroot: Chroot=Chroot.native()):
     """
     Mount pmaports.git in chroot.
 
     :param destination: mount point inside the chroot
     """
     outside_destination = chroot / destination
-    pmb.helpers.mount.bind(args, args.aports, outside_destination, umount=True)
+    pmb.helpers.mount.bind(args.aports, outside_destination, umount=True)
 
 
 def link_to_git_dir(args: PmbArgs, suffix):

@@ -65,7 +65,7 @@ def setup_qemu_emulation(args: PmbArgs, chroot: Chroot):
 
     # mount --bind the qemu-user binary
     pmb.chroot.binfmt.register(args, arch)
-    pmb.helpers.mount.bind_file(args, Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
+    pmb.helpers.mount.bind_file(Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
                                 chroot / f"usr/bin/qemu-{arch_qemu}-static",
                                 create_folders=True)
 
