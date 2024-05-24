@@ -92,7 +92,7 @@ def replace_placeholders(args: PmbArgs):
             setattr(args, key, old.replace("$WORK", str(pmb.config.work)))
 
     # Replace ~ (path variables only)
-    for key in ["aports", "config", "log", "work"]:
+    for key in ["aports", "config", "work"]:
         if key in args:
             setattr(args, key, Path(getattr(args, key)).expanduser())
 

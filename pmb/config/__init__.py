@@ -160,7 +160,6 @@ defaults = {
     # times on slower devices due to host systems being MUCH faster than the
     # target device (see issue #429).
     "iter_time": "200",
-    "log": "$WORK/log.txt",
 }
 
 allowed_values = {

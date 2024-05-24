@@ -15,7 +15,8 @@ from .helpers import frontend
 from .helpers import logging
 from .helpers import mount
 from .helpers import other
-from .core import Chroot
+from .core import Chroot, get_context
+from .commands import run_command
 
 # pmbootstrap version
 __version__ = "2.3.1"
@@ -30,7 +31,8 @@ if version < (3, 9):
 
 
 def print_log_hint() -> None:
-    log = config.get("log")
+    context = get_context()
+    log = context.log
     # Hints about the log file (print to stdout only)
     log_hint = "Run 'pmbootstrap log' for details."
     if not os.path.exists(log):

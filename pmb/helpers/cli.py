@@ -9,6 +9,7 @@ import sys
 
 import pmb.config
 from pmb.core.types import PmbArgs
+from pmb.core import get_context
 
 
 class ReadlineTabCompleter:
@@ -128,7 +129,7 @@ def progress_print(args: PmbArgs, progress):
     filled = "\u2588" * chars
     empty = " " * (width - chars)
     percent = int(progress * 100)
-    if pmb.config.is_interactive and not args.details_to_stdout:
+    if pmb.config.is_interactive and not get_context().details_to_stdout:
         sys.stdout.write(f"\u001b7{percent:>3}% {filled}{empty}")
         sys.stdout.flush()
         sys.stdout.write("\u001b8\u001b[0K")
@@ -139,5 +140,5 @@ def progress_flush(args):
 
     This will erase the line. Does nothing in non-interactive mode.
     """
-    if pmb.config.is_interactive and not args.details_to_stdout:
+    if pmb.config.is_interactive and not get_context().details_to_stdout:
         sys.stdout.flush()
