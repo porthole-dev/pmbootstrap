@@ -5,8 +5,7 @@ from pmb.helpers import logging
 from pathlib import Path
 from pmb.core.types import PmbArgs
 import pmb.helpers.run
-import pmb.chroot.root
-import pmb.chroot.user
+import pmb.chroot.run
 import pmb.chroot.other
 import pmb.chroot.apk
 from pmb.core import Chroot
@@ -167,6 +166,6 @@ def bootimg(args: PmbArgs, path: Path):
         output["cmdline"] = f.read().replace('\n', '')
 
     # Cleanup
-    pmb.chroot.root(args, ["rm", "-r", temp_path])
+    pmb.chroot.run(args, ["rm", "-r", temp_path])
 
     return output

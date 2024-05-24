@@ -8,8 +8,7 @@ import pytest
 import sys
 
 import pmb_test  # noqa
-import pmb.chroot.root
-import pmb.chroot.user
+import pmb.chroot.run
 import pmb.helpers.run
 import pmb.helpers.run_core
 
@@ -47,7 +46,7 @@ def test_proxy_chroot_user(args: PmbArgs, monkeypatch):
 
 
 def test_proxy_chroot_root(args: PmbArgs, monkeypatch):
-    func = pmb.chroot.root
+    func = pmb.chroot.run
     monkeypatch.setattr(os, "environ", {"HTTP_PROXY": "testproxy"})
     ret = func(args, ["sh", "-c", 'echo "$HTTP_PROXY"'], output_return=True)
     assert ret == "testproxy\n"

@@ -5,7 +5,7 @@ from pathlib import Path
 import socket
 import time
 
-import pmb.chroot.root
+import pmb.chroot.run
 from pmb.core.types import PmbArgs
 import pmb.helpers.run
 from pmb.core import Chroot
@@ -33,7 +33,7 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
                                               f"replace the rootfs for "
                                               f"{args.device}?"):
             return
-        pmb.chroot.root(args, ["cp", rootfs_path2, rootfs_path])
+        pmb.chroot.run(args, ["cp", rootfs_path2, rootfs_path])
         logging.info(f"NOTE: Copied device image to {pmb.config.work}"
                      f"/images_netboot/. The image will persist \"pmbootstrap "
                      f"zap\" for your convenience. Use \"pmbootstrap netboot "
@@ -61,7 +61,7 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
             break
 
         logging.info("Found postmarketOS device, serving image...")
-        pmb.chroot.root(
+        pmb.chroot.run(
             args, ["nbd-server", f"{ip}@{port}", rootfs_path, "-d"],
             check=False, disable_timeout=True)
         logging.info("nbd-server quit. Connection lost?")

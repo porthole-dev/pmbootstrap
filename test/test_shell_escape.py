@@ -6,8 +6,7 @@ from pmb.core.types import Env, PmbArgs
 import pytest
 
 import pmb_test  # noqa
-import pmb.chroot.root
-import pmb.chroot.user
+import pmb.chroot.run
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.helpers.logging
@@ -47,7 +46,7 @@ def test_shell_escape(args: PmbArgs):
         assert expected == root
         assert cmd == copy
 
-        chroot_root = pmb.chroot.root(args, cmd, output_return=True)
+        chroot_root = pmb.chroot.run(args, cmd, output_return=True)
         assert expected == chroot_root
         assert cmd == copy
 
@@ -72,7 +71,7 @@ def test_shell_escape_env(args: PmbArgs):
     assert func(args, cmd, output_return=True, env=env) == ret
     assert cmd == copy
 
-    func = pmb.chroot.root
+    func = pmb.chroot.run
     assert func(args, cmd, output_return=True, env=env) == ret
     assert cmd == copy
 
