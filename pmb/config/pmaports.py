@@ -12,39 +12,12 @@ import pmb.helpers.pmaports
 import pmb.parse.version
 
 
-def check_legacy_folder():
-    # Existing pmbootstrap/aports must be a symlink
-    link = pmb.config.pmb_src / "aports"
-    if os.path.exists(link) and not os.path.islink(link):
-        raise RuntimeError(f"The path '{link}' should be a"
-                           " symlink pointing to the new pmaports"
-                           " repository, which was split from the"
-                           " pmbootstrap repository (#383). Consider"
-                           " making a backup of that folder, then delete"
-                           " it and run 'pmbootstrap init' again to let"
-                           " pmbootstrap clone the pmaports repository and"
-                           " set up the symlink.")
-
-
-def clone(args: PmbArgs):
+def clone():
     logging.info("Setting up the native chroot and cloning the package build"
                  " recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
     pmb.helpers.git.clone("pmaports")
-
-
-def symlink(args: PmbArgs):
-    # Create the symlink
-    # This won't work when pmbootstrap was installed system wide, but that's
-    # okay since the symlink is only intended to make the migration to the
-    # pmaports repository easier.
-    link = pmb.config.pmb_src / "aports"
-    try:
-        os.symlink(args.aports, link)
-        logging.info(f"NOTE: pmaports path: {link}")
-    except:
-        logging.info(f"NOTE: pmaports path: {args.aports}")
 
 
 def check_version_pmaports(real):
@@ -176,12 +149,10 @@ def read_config_channel(args: PmbArgs):
                        " branch). Looks like a very old branch.")
 
 
-def init(args: PmbArgs):
-    check_legacy_folder()
-    if not os.path.exists(args.aports):
-        clone(args)
-    symlink(args)
-    read_config(args)
+def init():
+    if not os.path.exists(get_context().aports):
+        clone()
+    read_config()
 
 
 def switch_to_channel_branch(args: PmbArgs, channel_new):
