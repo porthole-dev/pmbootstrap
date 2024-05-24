@@ -7,7 +7,7 @@ import pmb.helpers.pmaports
 import pmb.parse
 
 
-def list(args: PmbArgs, arch):
+def list_ui(args: PmbArgs, arch):
     """Get all UIs, for which aports are available with their description.
 
     :param arch: device architecture, for which the UIs must be available

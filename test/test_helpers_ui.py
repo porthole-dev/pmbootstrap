@@ -27,7 +27,7 @@ def test_helpers_ui(args: PmbArgs):
         dir. That test dir has a plasma-mobile UI, which is disabled for armhf,
         so it must not be returned when querying the UI list for armhf. """
     args.aports = f"{pmb_test.const.testdata}/helpers_ui/pmaports"
-    func = pmb.helpers.ui.list
+    func = pmb.helpers.ui.list_ui
     none_desc = "Bare minimum OS image for testing and manual" \
                 " customization. The \"console\" UI should be selected if" \
                 " a graphical UI is not desired."

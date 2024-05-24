@@ -135,7 +135,7 @@ def init(args: PmbArgs) -> PmbArgs:
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config(args)
         add_deviceinfo(args)
-        pmb.helpers.git.parse_channels_cfg(args)
+        pmb.helpers.git.parse_channels_cfg()
         context.device_arch = args.deviceinfo["arch"]
 
     # Remove attributes from args so they don't get used by mistake

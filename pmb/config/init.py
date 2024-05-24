@@ -139,7 +139,7 @@ def ask_for_channel(args: PmbArgs):
 
 
 def ask_for_ui(args: PmbArgs, info):
-    ui_list = pmb.helpers.ui.list(args, info["arch"])
+    ui_list = pmb.helpers.ui.list_ui(args, info["arch"])
     hidden_ui_count = 0
     device_is_accelerated = info.get("gpu_accelerated") == "true"
     if not device_is_accelerated:
