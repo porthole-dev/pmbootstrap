@@ -325,7 +325,7 @@ def install_depends(args: PmbArgs, arch):
     if args.efi:
         depends.append("ovmf")
 
-    pmb.chroot.apk.install(args, depends)
+    pmb.chroot.apk.install(args, depends, Chroot.native())
 
 
 def run(args: PmbArgs):

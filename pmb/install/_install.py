@@ -134,7 +134,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
 
     # Update or copy all files
     if args.rsync:
-        pmb.chroot.apk.install(args, ["rsync"])
+        pmb.chroot.apk.install(args, ["rsync"], Chroot.native())
         rsync_flags = "-a"
         if args.verbose:
             rsync_flags += "vP"
@@ -883,7 +883,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     if sparse and not split and not disk:
         workdir = Path("/home/pmos/rootfs")
         logging.info("(native) make sparse rootfs")
-        pmb.chroot.apk.install(args, ["android-tools"])
+        pmb.chroot.apk.install(args, ["android-tools"], Chroot.native())
         sys_image = args.device + ".img"
         sys_image_sparse = args.device + "-sparse.img"
         pmb.chroot.user(args, ["img2simg", sys_image, sys_image_sparse],
@@ -895,7 +895,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
         samsungify_strategy = args.deviceinfo["flash_sparse_samsung_format"]
         if samsungify_strategy:
             logging.info("(native) convert sparse image into Samsung's sparse image format")
-            pmb.chroot.apk.install(args, ["sm-sparse-image-tool"])
+            pmb.chroot.apk.install(args, ["sm-sparse-image-tool"], Chroot.native())
             sys_image = f"{args.device}.img"
             sys_image_patched = f"{args.device}-patched.img"
             pmb.chroot.user(args, ["sm_sparse_image_tool", "samsungify", "--strategy",
@@ -1302,7 +1302,7 @@ def install(args: PmbArgs):
     # Install required programs in native chroot
     step = 1
     logging.info(f"*** ({step}/{steps}) PREPARE NATIVE CHROOT ***")
-    pmb.chroot.apk.install(args, pmb.config.install_native_packages,
+    pmb.chroot.apk.install(args, pmb.config.install_native_packages, Chroot.native(),
                            build=False)
     step += 1
 

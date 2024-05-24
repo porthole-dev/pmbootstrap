@@ -40,7 +40,7 @@ def install_depends(args: PmbArgs):
         depends = pmaports_cfg.get("supported_mtkclient_depends",
                                    "mtkclient,android-tools").split(",")
 
-    pmb.chroot.apk.install(args, depends)
+    pmb.chroot.apk.install(args, depends, Chroot.native())
 
 
 def init(args: PmbArgs):

@@ -23,7 +23,7 @@ def register(args: PmbArgs, arch):
     # always make sure the qemu-<arch> binary is installed, since registering
     # may happen outside of this method (e.g. by OS)
     if f"qemu-{arch_qemu}" not in pmb.chroot.apk.installed(args):
-        pmb.chroot.apk.install(args, ["qemu-" + arch_qemu])
+        pmb.chroot.apk.install(args, ["qemu-" + arch_qemu], Chroot.native())
 
     if is_registered(arch_qemu):
         return

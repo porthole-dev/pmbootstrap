@@ -129,4 +129,4 @@ def init_compiler(args: PmbArgs, depends, cross, arch):
             # native macros / build scripts
             cross_pkgs += depends
 
-    pmb.chroot.apk.install(args, cross_pkgs)
+    pmb.chroot.apk.install(args, cross_pkgs, Chroot.native())

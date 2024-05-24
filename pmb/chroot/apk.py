@@ -219,7 +219,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
                             chroot=chroot)
 
 
-def install(args: PmbArgs, packages, chroot: Chroot=Chroot.native(), build=True):
+def install(args: PmbArgs, packages, chroot: Chroot, build=True):
     """
     Install packages from pmbootstrap's local package index or the pmOS/Alpine
     binary package mirrors. Iterate over all dependencies recursively, and

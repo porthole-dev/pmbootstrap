@@ -8,6 +8,7 @@ import pmb.helpers.run
 import pmb.chroot.root
 import pmb.chroot.user
 import pmb.chroot.other
+import pmb.chroot.apk
 from pmb.core import Chroot
 
 
@@ -79,7 +80,7 @@ def bootimg(args: PmbArgs, path: Path):
     logging.info("NOTE: You will be prompted for your sudo/doas password, so"
                  " we can set up a chroot to extract and analyze your"
                  " boot.img file")
-    pmb.chroot.apk.install(args, ["file", "unpackbootimg"])
+    pmb.chroot.apk.install(args, ["file", "unpackbootimg"], Chroot.native())
 
     temp_path = pmb.chroot.other.tempfolder(args, Path("/tmp/bootimg_parser"))
     bootimg_path = Chroot.native() / temp_path / "boot.img"

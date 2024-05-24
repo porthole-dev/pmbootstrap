@@ -198,7 +198,7 @@ def is_necessary_warn_depends(args: PmbArgs, apkbuild, arch, force, depends_buil
 
 
 def init_buildenv(args: PmbArgs, apkbuild, arch, strict=False, force=False, cross=None,
-                  suffix: Chroot = Chroot.native(), skip_init_buildenv=False, src=None):
+                  chroot: Chroot = Chroot.native(), skip_init_buildenv=False, src=None):
     """Build all dependencies.
 
     Check if we need to build at all (otherwise we've
@@ -227,22 +227,22 @@ def init_buildenv(args: PmbArgs, apkbuild, arch, strict=False, force=False, cros
 
     # Install and configure abuild, ccache, gcc, dependencies
     if not skip_init_buildenv:
-        pmb.build.init(args, suffix)
-        pmb.build.other.configure_abuild(args, suffix)
+        pmb.build.init(args, chroot)
+        pmb.build.other.configure_abuild(args, chroot)
         if args.ccache:
-            pmb.build.other.configure_ccache(args, suffix)
+            pmb.build.other.configure_ccache(args, chroot)
             if "rust" in depends or "cargo" in depends:
-                pmb.chroot.apk.install(args, ["sccache"], suffix)
+                pmb.chroot.apk.install(args, ["sccache"], chroot)
     if not strict and "pmb:strict" not in apkbuild["options"] and len(depends):
-        pmb.chroot.apk.install(args, depends, suffix)
+        pmb.chroot.apk.install(args, depends, chroot)
     if src:
-        pmb.chroot.apk.install(args, ["rsync"], suffix)
+        pmb.chroot.apk.install(args, ["rsync"], chroot)
 
     # Cross-compiler init
     if cross:
         pmb.build.init_compiler(args, depends, cross, arch)
     if cross == "crossdirect":
-        pmb.chroot.mount_native_into_foreign(args, suffix)
+        pmb.chroot.mount_native_into_foreign(args, chroot)
 
     return True
 
