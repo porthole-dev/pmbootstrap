@@ -70,10 +70,10 @@ def generate(args: PmbArgs, pkgname):
     aportgen = pmb.config.work / "aportgen"
 
     if os.path.exists(aportgen):
-        pmb.helpers.run.user(args, ["rm", "-r", aportgen])
+        pmb.helpers.run.user(["rm", "-r", aportgen])
     if args.fork_alpine:
         upstream = pmb.aportgen.core.get_upstream_aport(args, pkgname)
-        pmb.helpers.run.user(args, ["cp", "-r", upstream,
+        pmb.helpers.run.user(["cp", "-r", upstream,
                                     aportgen])
         pmb.aportgen.core.rewrite(args, pkgname, replace_simple={
             "# Contributor:*": None, "# Maintainer:*": None})
@@ -83,7 +83,7 @@ def generate(args: PmbArgs, pkgname):
 
     # Move to the aports folder
     if os.path.exists(path_target):
-        pmb.helpers.run.user(args, ["rm", "-r", path_target])
+        pmb.helpers.run.user(["rm", "-r", path_target])
     pmb.helpers.run.user(
         args, ["mv", aportgen, path_target])
 

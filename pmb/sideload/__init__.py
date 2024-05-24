@@ -27,7 +27,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
     command: List[PathString] = ['scp', '-P', port, key, f'{user}@{host}:/tmp']
-    pmb.helpers.run.user(args, command, output="interactive")
+    pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
@@ -35,14 +35,14 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
                   '-S', 'mv', '-n', keyname, "/etc/apk/keys/"]
     remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd_l)
     command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
-    pmb.helpers.run.user(args, command, output="tui")
+    pmb.helpers.run.user(command, output="tui")
 
 
 def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> str:
     """Connect to a device via ssh and query the architecture."""
     logging.info(f"Querying architecture of {user}@{host}")
     command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
-    output = pmb.helpers.run.user_output(args, command)
+    output = pmb.helpers.run.user_output(command)
     # Split by newlines so we can pick out any irrelevant output, e.g. the "permanently
     # added to list of known hosts" warnings.
     output_lines = output.strip().splitlines()
@@ -66,7 +66,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
 
     logging.info(f"Copying packages to {user}@{host}")
     command = ['scp', '-P', port] + paths + [f'{user}@{host}:/tmp']
-    pmb.helpers.run.user(args, command, output="interactive")
+    pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
@@ -77,7 +77,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',
                f'sh -c {add_cmd_complete}']
-    pmb.helpers.run.user(args, command, output="tui")
+    pmb.helpers.run.user(command, output="tui")
 
 
 def sideload(args: PmbArgs, user: str, host: str, port: str, arch: str, copy_key: bool, pkgnames):

@@ -162,7 +162,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     logging.info("Copy kernel config back to aport-folder")
     config = "config-" + apkbuild["_flavor"] + "." + arch
     target = aport / config
-    pmb.helpers.run.user(args, ["cp", source, target])
+    pmb.helpers.run.user(["cp", source, target])
     pmb.build.checksum.update(args, pkgname)
 
     # Check config

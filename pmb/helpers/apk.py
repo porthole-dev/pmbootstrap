@@ -24,11 +24,11 @@ def _prepare_fifo(args: PmbArgs):
               path of the fifo as needed by cat to read from it (always
               relative to the host)
     """
-    pmb.helpers.run.root(args, ["mkdir", "-p", pmb.config.work / "tmp"])
+    pmb.helpers.run.root(["mkdir", "-p", pmb.config.work / "tmp"])
     fifo = fifo_outside = pmb.config.work / "tmp/apk_progress_fifo"
     if os.path.exists(fifo_outside):
-        pmb.helpers.run.root(args, ["rm", "-f", fifo_outside])
-    pmb.helpers.run.root(args, ["mkfifo", fifo_outside])
+        pmb.helpers.run.root(["rm", "-f", fifo_outside])
+    pmb.helpers.run.root(["mkfifo", fifo_outside])
     return (fifo, fifo_outside)
 
 
@@ -75,16 +75,16 @@ def apk_with_progress(args: PmbArgs, command: Sequence[PathString]):
     _command: List[str] = [os.fspath(c) for c in command]
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
-    with pmb.helpers.run.root(args, ['cat', fifo],
+    with pmb.helpers.run.root(['cat', fifo],
               output="pipe") as p_cat:
-        with pmb.helpers.run.root(args, command_with_progress,
+        with pmb.helpers.run.root(command_with_progress,
                   output="background") as p_apk:
             while p_apk.poll() is None:
                 line = p_cat.stdout.readline().decode('utf-8')
                 progress = _compute_progress(line)
                 pmb.helpers.cli.progress_print(args, progress)
             pmb.helpers.cli.progress_flush(args)
-            pmb.helpers.run_core.check_return_code(args, p_apk.returncode,
+            pmb.helpers.run_core.check_return_code(p_apk.returncode,
                                                    log_msg)
 
 

@@ -53,8 +53,7 @@ def register(args: PmbArgs, arch):
     # Register in binfmt_misc
     logging.info("Register qemu binfmt (" + arch_qemu + ")")
     register = "/proc/sys/fs/binfmt_misc/register"
-    pmb.helpers.run.root(
-        args, ["sh", "-c", 'echo "' + code + '" > ' + register])
+    pmb.helpers.run.root(["sh", "-c", 'echo "' + code + '" > ' + register])
 
 
 def unregister(args: PmbArgs, arch):
@@ -63,4 +62,4 @@ def unregister(args: PmbArgs, arch):
     if not os.path.exists(binfmt_file):
         return
     logging.info("Unregister qemu binfmt (" + arch_qemu + ")")
-    pmb.helpers.run.root(args, ["sh", "-c", "echo -1 > " + binfmt_file])
+    pmb.helpers.run.root(["sh", "-c", "echo -1 > " + binfmt_file])

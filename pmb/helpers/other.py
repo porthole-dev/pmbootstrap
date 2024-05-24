@@ -23,7 +23,7 @@ def folder_size(args: PmbArgs, path: Path):
 
     :returns: folder size in kilobytes
     """
-    output = pmb.helpers.run.root(args, ["du", "-ks",
+    output = pmb.helpers.run.root(["du", "-ks",
                                          path], output_return=True)
 
     # Only look at last line to filter out sudo garbage (#1766)
@@ -60,10 +60,10 @@ def check_binfmt_misc(args):
         return
 
     # check=False: this might be built-in instead of being a module
-    pmb.helpers.run.root(args, ["modprobe", "binfmt_misc"], check=False)
+    pmb.helpers.run.root(["modprobe", "binfmt_misc"], check=False)
 
     # check=False: we check it below and print a more helpful message on error
-    pmb.helpers.run.root(args, ["mount", "-t", "binfmt_misc", "none",
+    pmb.helpers.run.root(["mount", "-t", "binfmt_misc", "none",
                                 "/proc/sys/fs/binfmt_misc"], check=False)
 
     if not os.path.exists(path):
@@ -108,7 +108,7 @@ def migrate_work_folder(args: PmbArgs):
         pmb.chroot.zap(args, False)
         conf = pmb.config.work / "config_abuild/abuild.conf"
         if os.path.exists(conf):
-            pmb.helpers.run.root(args, ["sed", "-i",
+            pmb.helpers.run.root(["sed", "-i",
                                         "s./home/user/./home/pmos/.g", conf])
         # Update version file
         migrate_success(args, 1)
@@ -165,7 +165,7 @@ def migrate_work_folder(args: PmbArgs):
         pmb.config.init.require_programs()
         if os.path.exists(path):
             uid_gid = "{}:{}".format(os.getuid(), os.getgid())
-            pmb.helpers.run.root(args, ["chown", "-R", uid_gid, path])
+            pmb.helpers.run.root(["chown", "-R", uid_gid, path])
         else:
             os.makedirs(path, 0o700, True)
 
@@ -188,7 +188,7 @@ def migrate_work_folder(args: PmbArgs):
 
         # Move packages to edge subdir
         edge_path = pmb.config.work / "packages/edge"
-        pmb.helpers.run.root(args, ["mkdir", "-p", edge_path])
+        pmb.helpers.run.root(["mkdir", "-p", edge_path])
         for arch in pmb.config.build_device_architectures:
             old_path = pmb.config.work / "packages" / arch
             new_path = edge_path / arch
@@ -198,8 +198,8 @@ def migrate_work_folder(args: PmbArgs):
                                        f" '{new_path}', destination already"
                                        " exists! Consider 'pmbootstrap zap -p'"
                                        f" to delete '{pmb.config.work}/packages'.")
-                pmb.helpers.run.root(args, ["mv", old_path, new_path])
-        pmb.helpers.run.root(args, ["chown", pmb.config.chroot_uid_user,
+                pmb.helpers.run.root(["mv", old_path, new_path])
+        pmb.helpers.run.root(["chown", pmb.config.chroot_uid_user,
                                     edge_path])
 
         # Update version file
@@ -228,7 +228,7 @@ def migrate_work_folder(args: PmbArgs):
         packages_dir = f"{pmb.config.work}/packages"
         for old, new in pmb.config.pmaports_channels_legacy.items():
             if os.path.exists(f"{packages_dir}/{old}"):
-                pmb.helpers.run.root(args, ["mv", old, new], packages_dir)
+                pmb.helpers.run.root(["mv", old, new], packages_dir)
 
         # Update version file
         migrate_success(args, 6)

@@ -24,7 +24,7 @@ def generate(args: PmbArgs, pkgname):
     tempdir = Path("/tmp/aportgen")
     aportgen = pmb.config.work / "aportgen"
     pmb.chroot.root(args, ["rm", "-rf", tempdir])
-    pmb.helpers.run.user(args, ["mkdir", "-p", aportgen,
+    pmb.helpers.run.user(["mkdir", "-p", aportgen,
                                 Chroot.native() / tempdir])
 
     # Write the APKBUILD
@@ -74,4 +74,4 @@ def generate(args: PmbArgs, pkgname):
     pmb.build.init_abuild_minimal(args)
     pmb.chroot.root(args, ["chown", "-R", "pmos:pmos", tempdir])
     pmb.chroot.user(args, ["abuild", "checksum"], working_dir=tempdir)
-    pmb.helpers.run.user(args, ["cp", apkbuild_path, aportgen])
+    pmb.helpers.run.user(["cp", apkbuild_path, aportgen])

@@ -40,9 +40,9 @@ def copy_resolv_conf(args: PmbArgs, chroot: Chroot):
     resolv_path = chroot / host
     if os.path.exists(host):
         if not resolv_path.exists() or not filecmp.cmp(host, resolv_path):
-            pmb.helpers.run.root(args, ["cp", host, resolv_path])
+            pmb.helpers.run.root(["cp", host, resolv_path])
     else:
-        pmb.helpers.run.root(args, ["touch", resolv_path])
+        pmb.helpers.run.root(["touch", resolv_path])
 
 
 def mark_in_chroot(args: PmbArgs, chroot: Chroot=Chroot.native()):
@@ -53,7 +53,7 @@ def mark_in_chroot(args: PmbArgs, chroot: Chroot=Chroot.native()):
     """
     in_chroot_file = chroot / "in-pmbootstrap"
     if not in_chroot_file.exists():
-        pmb.helpers.run.root(args, ["touch", in_chroot_file])
+        pmb.helpers.run.root(["touch", in_chroot_file])
 
 
 def setup_qemu_emulation(args: PmbArgs, chroot: Chroot):
@@ -84,13 +84,13 @@ def init_keys(args: PmbArgs):
         target = pmb.config.work / "config_apk_keys" / key.name
         if not target.exists():
             # Copy as root, so the resulting files in chroots are owned by root
-            pmb.helpers.run.root(args, ["cp", key, target])
+            pmb.helpers.run.root(["cp", key, target])
 
 
 def init_usr_merge(args: PmbArgs, chroot: Chroot):
     logging.info(f"({chroot}) merge /usr")
     script = f"{pmb.config.pmb_src}/pmb/data/merge-usr.sh"
-    pmb.helpers.run.root(args, ["sh", "-e", script, "CALLED_FROM_PMB",
+    pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB",
                                 chroot.path])
 
 
@@ -148,7 +148,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
 
     # Initialize cache
     apk_cache = pmb.config.work / f"cache_apk_{arch}"
-    pmb.helpers.run.root(args, ["ln", "-s", "-f", "/var/cache/apk",
+    pmb.helpers.run.root(["ln", "-s", "-f", "/var/cache/apk",
                                 chroot / "etc/apk/cache"])
 
     # Initialize /etc/apk/keys/, resolv.conf, repositories

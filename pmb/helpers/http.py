@@ -35,14 +35,14 @@ def download(args: PmbArgs, url, prefix, cache=True, loglevel=logging.INFO,
     """
     # Create cache folder
     if not os.path.exists(pmb.config.work / "cache_http"):
-        pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "cache_http"])
+        pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "cache_http"])
 
     # Check if file exists in cache
     path = pmb.config.work / "cache_http" / cache_file(prefix, url)
     if os.path.exists(path):
         if cache:
             return path
-        pmb.helpers.run.user(args, ["rm", path])
+        pmb.helpers.run.user(["rm", path])
 
     # Offline and not cached
     if args.offline:

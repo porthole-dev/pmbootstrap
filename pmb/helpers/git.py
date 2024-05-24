@@ -49,7 +49,7 @@ def clone(args: PmbArgs, name_repo):
         # Create parent dir and clone
         logging.info("Clone git repository: " + url)
         os.makedirs(pmb.config.work / "cache_git", exist_ok=True)
-        pmb.helpers.run.user(args, command, output="stdout")
+        pmb.helpers.run.user(command, output="stdout")
 
     # FETCH_HEAD does not exist after initial clone. Create it, so
     # is_outdated() can use it.
@@ -68,13 +68,13 @@ def rev_parse(args: PmbArgs, path, revision="HEAD", extra_args: list = []):
         or (with ``--abbrev-ref``): the branch name, e.g. "master"
     """
     command = ["git", "rev-parse"] + extra_args + [revision]
-    rev = pmb.helpers.run.user_output(args, command, path)
+    rev = pmb.helpers.run.user_output(command, path)
     return rev.rstrip()
 
 
 def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
     command = ["git", "merge-base", "--is-ancestor", branch, branch_upstream]
-    ret = pmb.helpers.run.user(args, command, path, check=False)
+    ret = pmb.helpers.run.user(command, path, check=False)
     if ret == 0:
         return True
     elif ret == 1:
@@ -86,7 +86,7 @@ def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
 def clean_worktree(args: PmbArgs, path):
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
-    return pmb.helpers.run.user_output(args, command, path) == ""
+    return pmb.helpers.run.user_output(command, path) == ""
 
 
 def get_upstream_remote(args: PmbArgs, name_repo):
@@ -97,7 +97,7 @@ def get_upstream_remote(args: PmbArgs, name_repo):
     urls = pmb.config.git_repos[name_repo]
     path = get_path(args, name_repo)
     command = ["git", "remote", "-v"]
-    output = pmb.helpers.run.user_output(args, command, path)
+    output = pmb.helpers.run.user_output(command, path)
     for line in output.split("\n"):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
@@ -129,7 +129,7 @@ def parse_channels_cfg(args):
     else:
         remote = get_upstream_remote(args, "pmaports")
         command = ["git", "show", f"{remote}/master:channels.cfg"]
-        stdout = pmb.helpers.run.user_output(args, command, args.aports,
+        stdout = pmb.helpers.run.user_output(command, args.aports,
                                       check=False)
         try:
             cfg.read_string(stdout)
@@ -223,7 +223,7 @@ def pull(args: PmbArgs, name_repo):
     # Fetch (exception on failure, meaning connection to server broke)
     logging.info(msg_start + " git pull --ff-only")
     if not args.offline:
-        pmb.helpers.run.user(args, ["git", "fetch"], path)
+        pmb.helpers.run.user(["git", "fetch"], path)
 
     # Skip if already up to date
     if rev_parse(args, path, branch) == rev_parse(args, path, branch_upstream):
@@ -240,7 +240,7 @@ def pull(args: PmbArgs, name_repo):
     # Fast-forward now (should not fail due to checks above, so it's fine to
     # throw an exception on error)
     command = ["git", "merge", "--ff-only", branch_upstream]
-    pmb.helpers.run.user(args, command, path, "stdout")
+    pmb.helpers.run.user(command, path, "stdout")
     return 0
 
 
@@ -250,7 +250,7 @@ def get_topdir(args: PmbArgs, path: Path):
     :returns: a string with the top dir of the git repository,
         or an empty string if it's not a git repository.
     """
-    return pmb.helpers.run.user(args, ["git", "rev-parse", "--show-toplevel"],
+    return pmb.helpers.run.user(["git", "rev-parse", "--show-toplevel"],
                                 path, output_return=True, check=False).rstrip()
 
 
@@ -264,8 +264,8 @@ def get_files(args: PmbArgs, path):
     :returns: all files in a git repository as list, relative to path
     """
     ret = []
-    files = pmb.helpers.run.user_output(args, ["git", "ls-files"], path).split("\n")
-    files += pmb.helpers.run.user_output(args, ["git", "ls-files",
+    files = pmb.helpers.run.user_output(["git", "ls-files"], path).split("\n")
+    files += pmb.helpers.run.user_output(["git", "ls-files",
                                                 "--exclude-standard", "--other"],
                                          path).split("\n")
     for file in files:

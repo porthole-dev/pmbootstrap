@@ -36,7 +36,7 @@ def previous_install(args: PmbArgs, path: Path):
             logging.info("WARNING: Could not get block device label,"
                          " assume no previous installation on that partition")
 
-        pmb.helpers.run.root(args, ["umount", Chroot.native() / blockdevice_inside])
+        pmb.helpers.run.root(["umount", Chroot.native() / blockdevice_inside])
     return "pmOS_boot" in label
 
 

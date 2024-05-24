@@ -562,11 +562,12 @@ def work_migrate(args: PmbArgs):
 
 
 def log(args: PmbArgs):
+    context = pmb.core.get_context()
     log_testsuite = pmb.config.work / "log_testsuite.txt"
 
     if args.clear_log:
-        pmb.helpers.run.user(args, ["truncate", "-s", "0", args.log])
-        pmb.helpers.run.user(args, ["truncate", "-s", "0", log_testsuite])
+        pmb.helpers.run.user(["truncate", "-s", "0", context.log])
+        pmb.helpers.run.user(["truncate", "-s", "0", log_testsuite])
 
     cmd: List[PathString] = ["tail", "-n", args.lines, "-F"]
 
@@ -578,9 +579,9 @@ def log(args: PmbArgs):
     # tail writes the last lines of the files to the terminal. Put the regular
     # log at the end, so that output is visible at the bottom (where the user
     # looks for an error / what's currently going on).
-    cmd += [args.log]
+    cmd += [context.log]
 
-    pmb.helpers.run.user(args, cmd, output="tui")
+    pmb.helpers.run.user(cmd, output="tui")
 
 
 def zap(args: PmbArgs):

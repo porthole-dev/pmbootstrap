@@ -22,7 +22,7 @@ def generate(args: PmbArgs, pkgname):
     else:
         raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or"
                          " gcc6.")
-    pmb.helpers.run.user(args, ["cp", "-r", upstream, pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["cp", "-r", upstream, pmb.config.work / "aportgen"])
 
     # Rewrite APKBUILD
     fields = {

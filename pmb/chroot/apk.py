@@ -49,7 +49,7 @@ def update_repository_list(args: PmbArgs, suffix: Chroot, postmarketos_mirror=Tr
             for line in handle:
                 lines_old.append(line[:-1])
     else:
-        pmb.helpers.run.root(args, ["mkdir", "-p", path.parent])
+        pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
     # Up to date: Save cache, return
     lines_new = pmb.helpers.repo.urls(args, postmarketos_mirror=postmarketos_mirror)
@@ -64,9 +64,9 @@ def update_repository_list(args: PmbArgs, suffix: Chroot, postmarketos_mirror=Tr
     # Update the file
     logging.debug(f"({suffix}) update /etc/apk/repositories")
     if path.exists():
-        pmb.helpers.run.root(args, ["rm", path])
+        pmb.helpers.run.root(["rm", path])
     for line in lines_new:
-        pmb.helpers.run.root(args, ["sh", "-c", "echo "
+        pmb.helpers.run.root(["sh", "-c", "echo "
                                     f"{shlex.quote(line)} >> {path}"])
     update_repository_list(args, suffix, postmarketos_mirror, True)
 
@@ -229,7 +229,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
             # They finish up almost instantly, so don't display a progress bar.
-            pmb.helpers.run.root(args, [apk_static, "--no-progress"] + command)
+            pmb.helpers.run.root([apk_static, "--no-progress"] + command)
 
 
 def install(args: PmbArgs, packages, chroot: Chroot, build=True):

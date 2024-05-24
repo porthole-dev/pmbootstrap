@@ -95,10 +95,10 @@ def modify_apkbuild(args: PmbArgs, pkgname: str, aport: Path):
     apkbuild_path = aport + "/APKBUILD"
     apkbuild = pmb.parse.apkbuild(apkbuild_path)
     if os.path.exists(pmb.config.work / "aportgen"):
-        pmb.helpers.run.user(args, ["rm", "-r", pmb.config.work / "aportgen"])
+        pmb.helpers.run.user(["rm", "-r", pmb.config.work / "aportgen"])
 
-    pmb.helpers.run.user(args, ["mkdir", pmb.config.work / "aportgen"])
-    pmb.helpers.run.user(args, ["cp", "-r", apkbuild_path,
+    pmb.helpers.run.user(["mkdir", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["cp", "-r", apkbuild_path,
                          pmb.config.work / "aportgen"])
 
     pkgver = pmb.build._package.get_pkgver(apkbuild["pkgver"],
@@ -153,7 +153,7 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
                     build_path / "src" / kbuild_out])
 
     cmd: List[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
-    pmb.helpers.run.root(args, cmd)
+    pmb.helpers.run.root(cmd)
 
     # Create the apk package
     env = {"CARCH": arch,

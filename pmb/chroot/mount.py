@@ -20,7 +20,7 @@ def create_device_nodes(args: PmbArgs, chroot: Chroot):
         for dev in pmb.config.chroot_device_nodes:
             path = chroot / "dev" / str(dev[4])
             if not path.exists():
-                pmb.helpers.run.root(args, ["mknod",
+                pmb.helpers.run.root(["mknod",
                                             "-m", str(dev[0]),  # permissions
                                             path,  # name
                                             str(dev[1]),  # type
@@ -60,20 +60,20 @@ def mount_dev_tmpfs(args: PmbArgs, chroot: Chroot=Chroot.native()):
         return
 
     # Create the $chroot/dev folder and mount tmpfs there
-    pmb.helpers.run.root(args, ["mkdir", "-p", dev])
-    pmb.helpers.run.root(args, ["mount", "-t", "tmpfs",
+    pmb.helpers.run.root(["mkdir", "-p", dev])
+    pmb.helpers.run.root(["mount", "-t", "tmpfs",
                                 "-o", "size=1M,noexec,dev",
                                 "tmpfs", dev])
 
     # Create pts, shm folders and device nodes
-    pmb.helpers.run.root(args, ["mkdir", "-p", dev / "pts", dev / "shm"])
-    pmb.helpers.run.root(args, ["mount", "-t", "tmpfs",
+    pmb.helpers.run.root(["mkdir", "-p", dev / "pts", dev / "shm"])
+    pmb.helpers.run.root(["mount", "-t", "tmpfs",
                                 "-o", "nodev,nosuid,noexec",
                                 "tmpfs", dev / "shm"])
     create_device_nodes(args, chroot)
 
     # Setup /dev/fd as a symlink
-    pmb.helpers.run.root(args, ["ln", "-sf", "/proc/self/fd", f"{dev}/"])
+    pmb.helpers.run.root(["ln", "-sf", "/proc/self/fd", f"{dev}/"])
 
 
 def mount(args: PmbArgs, chroot: Chroot=Chroot.native()):
@@ -105,7 +105,7 @@ def mount_native_into_foreign(args: PmbArgs, chroot: Chroot):
     musl = next(source.glob("lib/ld-musl-*.so.1")).name
     musl_link = (chroot / "lib" / musl)
     if not musl_link.is_symlink():
-        pmb.helpers.run.root(args, ["ln", "-s", "/native/lib/" + musl,
+        pmb.helpers.run.root(["ln", "-s", "/native/lib/" + musl,
                                     musl_link])
         pmb.helpers.run.root(args, ["ln", "-sf", "/native/usr/bin/pigz", "/usr/local/bin/pigz"])
 
@@ -122,4 +122,4 @@ def remove_mnt_pmbootstrap(args: PmbArgs, chroot: Chroot):
         return
 
     for path in list(mnt_dir.glob("*")) + [mnt_dir]:
-        pmb.helpers.run.root(args, ["rmdir", path])
+        pmb.helpers.run.root(["rmdir", path])

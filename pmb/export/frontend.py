@@ -13,7 +13,7 @@ def frontend(args: PmbArgs):
     # Create the export folder
     target = args.export_folder
     if not os.path.exists(target):
-        pmb.helpers.run.user(args, ["mkdir", "-p", target])
+        pmb.helpers.run.user(["mkdir", "-p", target])
 
     # Rootfs image note
     chroot = Chroot.native()

@@ -211,7 +211,7 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
 
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
-    if pmb.helpers.run.user(args, ["git", "checkout", branch_new],
+    if pmb.helpers.run.user(["git", "checkout", branch_new],
                             args.aports, "interactive", check=False):
         raise RuntimeError("Failed to switch branch. Go to your pmaports and"
                            " fix what git complained about, then try again: "
@@ -232,5 +232,5 @@ def install_githooks(args: PmbArgs):
         # Use git default hooks dir so users can ignore our hooks
         # if they dislike them by setting "core.hooksPath" git config
         dst = os.path.join(args.aports, ".git", "hooks", h)
-        if pmb.helpers.run.user(args, ["cp", src, dst], check=False):
+        if pmb.helpers.run.user(["cp", src, dst], check=False):
             logging.warning(f"WARNING: Copying git hook failed: {dst}")

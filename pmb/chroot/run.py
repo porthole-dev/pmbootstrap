@@ -83,7 +83,7 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
         "env", "-i", executables["sh"], "-c",
         pmb.helpers.run_core.flat_cmd(cmd_chroot, env=env_all)]
     )
-    return pmb.helpers.run_core.core(args, msg, cmd_sudo, None, output,
+    return pmb.helpers.run_core.core(msg, cmd_sudo, None, output,
                                      output_return, check, True,
                                      disable_timeout)
 

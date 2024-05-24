@@ -45,8 +45,8 @@ def create_second_storage(args: PmbArgs):
 
     """
     path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}-2nd.img"
-    pmb.helpers.run.root(args, ["touch", path])
-    pmb.helpers.run.root(args, ["chmod", "a+w", path])
+    pmb.helpers.run.root(["touch", path])
+    pmb.helpers.run.root(["chmod", "a+w", path])
     resize_image(args, args.second_storage, path)
     return path
 
@@ -272,7 +272,7 @@ def resize_image(args: PmbArgs, img_size_new, img_path):
 
     if (img_size_new_bytes >= img_size):
         logging.info(f"Resize image to {img_size_new}: {img_path}")
-        pmb.helpers.run.root(args, ["truncate", "-s", img_size_new, img_path])
+        pmb.helpers.run.root(["truncate", "-s", img_size_new, img_path])
     else:
         # Convert to human-readable format
         # NOTE: We convert to M here, and not G, so that we don't have to
@@ -352,7 +352,7 @@ def run(args: PmbArgs):
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root
     if not os.access(img_path, os.W_OK):
-        pmb.helpers.run.root(args, ["chmod", "666", img_path])
+        pmb.helpers.run.root(["chmod", "666", img_path])
 
     # Resize the rootfs (or show hint)
     if args.image_size:
@@ -380,7 +380,7 @@ def run(args: PmbArgs):
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)
-        process = pmb.helpers.run.user(args, qemu, output="tui", env=env)
+        process = pmb.helpers.run.user(qemu, output="tui", env=env)
     except KeyboardInterrupt:
         # In addition to not showing a trace when pressing ^C, let user know
         # they can override this behavior:

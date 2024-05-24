@@ -15,8 +15,6 @@ import time
 from typing import Dict, Optional, Sequence
 import pmb.helpers.run
 
-from pmb.core.types import Env, PathString, PmbArgs
-
 """For a detailed description of all output modes, read the description of
    core() at the bottom. All other functions in this file get (indirectly)
    called by core(). """
@@ -118,7 +116,7 @@ def pipe_read(process, output_to_stdout=False, output_return=False,
         return
 
 
-def kill_process_tree(args: PmbArgs, pid, ppids, sudo):
+def kill_process_tree(pid, ppids, sudo):
     """Recursively kill a pid and its child processes.
 
     :param pid: process id that will be killed
@@ -126,18 +124,18 @@ def kill_process_tree(args: PmbArgs, pid, ppids, sudo):
     :param sudo: use sudo to kill the process
     """
     if sudo:
-        pmb.helpers.run.root(args, ["kill", "-9", str(pid)],
+        pmb.helpers.run.root(["kill", "-9", str(pid)],
                              check=False)
     else:
-        pmb.helpers.run.user(args, ["kill", "-9", str(pid)],
+        pmb.helpers.run.user(["kill", "-9", str(pid)],
                              check=False)
 
     for (child_pid, child_ppid) in ppids:
         if child_ppid == str(pid):
-            kill_process_tree(args, child_pid, ppids, sudo)
+            kill_process_tree(child_pid, ppids, sudo)
 
 
-def kill_command(args: PmbArgs, pid, sudo):
+def kill_command(pid, sudo):
     """Kill a command process and recursively kill its child processes.
 
     :param pid: process id that will be killed
@@ -153,10 +151,10 @@ def kill_command(args: PmbArgs, pid, sudo):
             raise RuntimeError("Unexpected ps output: " + row)
         ppids.append(items)
 
-    kill_process_tree(args, pid, ppids, sudo)
+    kill_process_tree(pid, ppids, sudo)
 
 
-def foreground_pipe(args: PmbArgs, cmd, working_dir=None, output_to_stdout=False,
+def foreground_pipe(cmd, working_dir=None, output_to_stdout=False,
                     output_return=False, output_timeout=True,
                     sudo=False, stdin=None):
     """Run a subprocess in foreground with redirected output.
@@ -238,7 +236,7 @@ def foreground_tui(cmd, working_dir=None):
     return process.wait()
 
 
-def check_return_code(args: PmbArgs, code, log_message):
+def check_return_code(code, log_message):
     """Check the return code of a command.
 
     :param code: exit code to check
@@ -249,8 +247,9 @@ def check_return_code(args: PmbArgs, code, log_message):
     """
     if code:
         logging.debug("^" * 70)
+        log_file = get_context().log
         logging.info("NOTE: The failed command's output is above the ^^^ line"
-                     f" in the log file: {args.log}")
+                     f" in the log file: {log_file}")
         raise RuntimeError(f"Command failed (exit code {str(code)}): " +
                            log_message)
 
@@ -297,7 +296,7 @@ def add_proxy_env_vars(env):
             env[var] = os.environ[var]
 
 
-def core(args: PmbArgs, log_message, cmd, working_dir=None, output="log",
+def core(log_message, cmd, working_dir=None, output="log",
          output_return=False, check=None, sudo=False, disable_timeout=False):
     """Run a command and create a log entry.
 
@@ -354,8 +353,9 @@ def core(args: PmbArgs, log_message, cmd, working_dir=None, output="log",
               * the program's entire output (output_return is True)
     """
     sanity_checks(output, output_return, check)
+    context = pmb.core.get_context()
 
-    if args.sudo_timer and sudo:
+    if context.sudo_timer and sudo:
         sudo_timer_start()
 
     # Log simplified and full command (pmbootstrap -v)
@@ -383,14 +383,14 @@ def core(args: PmbArgs, log_message, cmd, working_dir=None, output="log",
     else:
         # Foreground pipe (always redirects to the error log file)
         output_to_stdout = False
-        if not args.details_to_stdout and output in ["stdout", "interactive"]:
+        if not context.details_to_stdout and output in ["stdout", "interactive"]:
             output_to_stdout = True
 
         output_timeout = output in ["log", "stdout"] and not disable_timeout
 
         stdin = subprocess.DEVNULL if output in ["log", "stdout"] else None
 
-        (code, output_after_run) = foreground_pipe(args, cmd, working_dir,
+        (code, output_after_run) = foreground_pipe(cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,
                                                    output_timeout,
@@ -398,7 +398,7 @@ def core(args: PmbArgs, log_message, cmd, working_dir=None, output="log",
 
     # Check the return code
     if check is not False:
-        check_return_code(args, code, log_message)
+        check_return_code(code, log_message)
 
     # Return (code or output string)
     return output_after_run if output_return else code

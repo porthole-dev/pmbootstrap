@@ -452,13 +452,14 @@ def ask_for_device(args: PmbArgs):
 
 
 def ask_for_additional_options(args: PmbArgs, cfg):
+    context = pmb.core.get_context()
     # Allow to skip additional options
     logging.info("Additional options:"
                  f" extra free space: {args.extra_space} MB,"
                  f" boot partition size: {args.boot_size} MB,"
                  f" parallel jobs: {args.jobs},"
                  f" ccache per arch: {args.ccache_size},"
-                 f" sudo timer: {args.sudo_timer},"
+                 f" sudo timer: {context.sudo_timer},"
                  f" mirror: {','.join(args.mirrors_postmarketos)}")
 
     if not pmb.helpers.cli.confirm(args, "Change them?",
@@ -510,7 +511,7 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  " that you'll have to authorize sudo more than once.")
     answer = pmb.helpers.cli.confirm(args, "Enable background timer to prevent"
                                      " repeated sudo authorization?",
-                                     default=args.sudo_timer)
+                                     default=context.sudo_timer)
     cfg["pmbootstrap"]["sudo_timer"] = str(answer)
 
     # Mirrors

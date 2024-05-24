@@ -44,12 +44,12 @@ def bind(args: PmbArgs, source: Path, destination: Path, create_folders=True, um
         if os.path.exists(path):
             continue
         if create_folders:
-            pmb.helpers.run.root(args, ["mkdir", "-p", path])
+            pmb.helpers.run.root(["mkdir", "-p", path])
         else:
             raise RuntimeError(f"Mount failed, folder does not exist: {path}")
 
     # Actually mount the folder
-    pmb.helpers.run.root(args, ["mount", "--bind", source, destination])
+    pmb.helpers.run.root(["mount", "--bind", source, destination])
 
     # Verify that it has worked
     if not ismount(destination):
@@ -67,12 +67,12 @@ def bind_file(args: PmbArgs, source: Path, destination: Path, create_folders=Fal
         if create_folders:
             dest_dir: Path = destination.parent
             if not dest_dir.is_dir():
-                pmb.helpers.run.root(args, ["mkdir", "-p", dest_dir])
+                pmb.helpers.run.root(["mkdir", "-p", dest_dir])
 
-        pmb.helpers.run.root(args, ["touch", destination])
+        pmb.helpers.run.root(["touch", destination])
 
     # Mount
-    pmb.helpers.run.root(args, ["mount", "--bind", source,
+    pmb.helpers.run.root(["mount", "--bind", source,
                                 destination])
 
 
@@ -101,7 +101,7 @@ def umount_all_list(prefix: Path, source: Path=Path("/proc/mounts")) -> List[Pat
 def umount_all(args: PmbArgs, folder: Path):
     """Umount all folders that are mounted inside a given folder."""
     for mountpoint in umount_all_list(folder):
-        pmb.helpers.run.root(args, ["umount", mountpoint])
+        pmb.helpers.run.root(["umount", mountpoint])
         if ismount(mountpoint):
             raise RuntimeError(f"Failed to umount: {mountpoint}")
 

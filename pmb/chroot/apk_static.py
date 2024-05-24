@@ -86,7 +86,7 @@ def verify_signature(args: PmbArgs, files, sigkey_path):
     """
     logging.debug(f"Verify apk.static signature with {sigkey_path}")
     try:
-        pmb.helpers.run.user(args, ["openssl", "dgst", "-sha1", "-verify",
+        pmb.helpers.run.user(["openssl", "dgst", "-sha1", "-verify",
                                     sigkey_path, "-signature", files[
                                         "sig"]["temp_path"],
                                     files["apk"]["temp_path"]])
@@ -119,7 +119,7 @@ def extract(args: PmbArgs, version, apk_path):
     logging.debug("Verify the version reported by the apk.static binary"
                   f" (must match the package version {version})")
     os.chmod(temp_path, os.stat(temp_path).st_mode | stat.S_IEXEC)
-    version_bin = pmb.helpers.run.user_output(args, [temp_path, "--version"])
+    version_bin = pmb.helpers.run.user_output([temp_path, "--version"])
     version_bin = version_bin.split(" ")[1].split(",")[0]
     if not version.startswith(f"{version_bin}-r"):
         os.unlink(temp_path)

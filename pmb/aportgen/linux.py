@@ -115,7 +115,7 @@ def generate(args: PmbArgs, pkgname):
     deviceinfo = pmb.parse.deviceinfo(args, device)
 
     # Symlink commonly used patches
-    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
     patches = [
         "gcc7-give-up-on-ilog2-const-optimizations.patch",
         "gcc8-fix-put-user.patch",
@@ -123,7 +123,7 @@ def generate(args: PmbArgs, pkgname):
         "kernel-use-the-gnu89-standard-explicitly.patch",
     ]
     for patch in patches:
-        pmb.helpers.run.user(args, ["ln", "-s",
+        pmb.helpers.run.user(["ln", "-s",
                                     "../../.shared-patches/linux/" + patch,
                                     (pmb.config.work / "aportgen" / patch)])
 

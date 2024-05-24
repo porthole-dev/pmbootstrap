@@ -71,6 +71,6 @@ def copy_xauthority(args: PmbArgs):
     # Copy to chroot and chown
     copy = Chroot.native() / "home/pmos/.Xauthority"
     if os.path.exists(copy):
-        pmb.helpers.run.root(args, ["rm", copy])
-    pmb.helpers.run.root(args, ["cp", original, copy])
+        pmb.helpers.run.root(["rm", copy])
+    pmb.helpers.run.root(["cp", original, copy])
     pmb.chroot.root(args, ["chown", "pmos:pmos", "/home/pmos/.Xauthority"])

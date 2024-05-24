@@ -17,7 +17,7 @@ from pmb.core import Chroot
 
 def init(args: PmbArgs):
     if not Path("/sys/module/loop").is_dir():
-        pmb.helpers.run.root(args, ["modprobe", "loop"])
+        pmb.helpers.run.root(["modprobe", "loop"])
     for loopdevice in Path("/dev/").glob("loop*"):
         if loopdevice.is_dir():
             continue

@@ -118,12 +118,12 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
     arch_qemu = pmb.parse.arch.alpine_to_qemu(args.deviceinfo["arch"])
     qemu_binary = mountpoint_outside / ("/usr/bin/qemu-" + arch_qemu + "-static")
     if os.path.exists(qemu_binary):
-        pmb.helpers.run.root(args, ["rm", qemu_binary])
+        pmb.helpers.run.root(["rm", qemu_binary])
 
     # Remove apk progress fifo
     fifo = chroot / "tmp/apk_progress_fifo"
     if os.path.exists(fifo):
-        pmb.helpers.run.root(args, ["rm", fifo])
+        pmb.helpers.run.root(["rm", fifo])
 
     # Get all folders inside the device rootfs (except for home)
     folders: List[str] = []
@@ -153,14 +153,14 @@ def create_home_from_skel(args: PmbArgs):
     rootfs = (Chroot.native() / "mnt/install")
     # In btrfs, home subvol & home dir is created in format.py
     if args.filesystem != "btrfs":
-        pmb.helpers.run.root(args, ["mkdir", rootfs / "home"])
+        pmb.helpers.run.root(["mkdir", rootfs / "home"])
 
     home = (rootfs / "home" / args.user)
     if (rootfs / "etc/skel").exists():
-        pmb.helpers.run.root(args, ["cp", "-a", (rootfs / "etc/skel"), home])
+        pmb.helpers.run.root(["cp", "-a", (rootfs / "etc/skel"), home])
     else:
-        pmb.helpers.run.root(args, ["mkdir", home])
-    pmb.helpers.run.root(args, ["chown", "-R", "10000", home])
+        pmb.helpers.run.root(["mkdir", home])
+    pmb.helpers.run.root(["chown", "-R", "10000", home])
 
 
 def configure_apk(args: PmbArgs):
@@ -179,19 +179,19 @@ def configure_apk(args: PmbArgs):
     # Copy over keys
     rootfs = (Chroot.native() / "mnt/install")
     for key in keys_dir.glob("*.pub"):
-        pmb.helpers.run.root(args, ["cp", key, rootfs / "etc/apk/keys/"])
+        pmb.helpers.run.root(["cp", key, rootfs / "etc/apk/keys/"])
 
     # Copy over the corresponding APKINDEX files from cache
     index_files = pmb.helpers.repo.apkindex_files(args,
                                                   arch=args.deviceinfo["arch"],
                                                   user_repository=False)
     for f in index_files:
-        pmb.helpers.run.root(args, ["cp", f, rootfs / "var/cache/apk/"])
+        pmb.helpers.run.root(["cp", f, rootfs / "var/cache/apk/"])
 
     # Disable pmbootstrap repository
-    pmb.helpers.run.root(args, ["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d",
+    pmb.helpers.run.root(["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d",
                                 rootfs / "etc/apk/repositories"])
-    pmb.helpers.run.user(args, ["cat", rootfs / "etc/apk/repositories"])
+    pmb.helpers.run.user(["cat", rootfs / "etc/apk/repositories"])
 
 
 def set_user(args: PmbArgs):
@@ -311,11 +311,11 @@ def copy_ssh_keys(args: PmbArgs):
     outfile.close()
 
     target = Chroot.native() / "mnt/install/home/" / args.user / ".ssh"
-    pmb.helpers.run.root(args, ["mkdir", target])
-    pmb.helpers.run.root(args, ["chmod", "700", target])
-    pmb.helpers.run.root(args, ["cp", authorized_keys, target / "authorized_keys"])
-    pmb.helpers.run.root(args, ["rm", authorized_keys])
-    pmb.helpers.run.root(args, ["chown", "-R", "10000:10000", target])
+    pmb.helpers.run.root(["mkdir", target])
+    pmb.helpers.run.root(["chmod", "700", target])
+    pmb.helpers.run.root(["cp", authorized_keys, target / "authorized_keys"])
+    pmb.helpers.run.root(["rm", authorized_keys])
+    pmb.helpers.run.root(["chown", "-R", "10000:10000", target])
 
 
 def setup_keymap(args: PmbArgs):
@@ -854,7 +854,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
 
     # Clean up after running mkinitfs in chroot
     pmb.helpers.mount.umount_all(args, chroot.path)
-    pmb.helpers.run.root(args, ["rm", chroot / "in-pmbootstrap"])
+    pmb.helpers.run.root(["rm", chroot / "in-pmbootstrap"])
     pmb.chroot.remove_mnt_pmbootstrap(args, chroot)
 
     # Just copy all the files
@@ -1028,7 +1028,7 @@ def install_on_device_installer(args: PmbArgs, step, steps):
         img_path_src = Chroot.native() / "home/pmos/rootfs" / img
         logging.info(f"({chroot_installer}) add {img} as /var/lib/rootfs.img")
         pmb.install.losetup.umount(args, img_path_src)
-        pmb.helpers.run.root(args, ["mv", img_path_src, img_path_dest])
+        pmb.helpers.run.root(["mv", img_path_src, img_path_dest])
 
     # Run ondev-prepare, so it may generate nice configs from the channel
     # properties (e.g. to display the version number), or transform the image
@@ -1053,7 +1053,7 @@ def install_on_device_installer(args: PmbArgs, step, steps):
             host_dest = chroot_installer / chroot_dest
             logging.info(f"({chroot_installer}) add {host_src} as"
                          f" {chroot_dest}")
-            pmb.helpers.run.root(args, ["install", "-Dm644", host_src,
+            pmb.helpers.run.root(["install", "-Dm644", host_src,
                                         host_dest])
 
     # Remove $DEVICE-boot.img (we will generate a new one if --split was

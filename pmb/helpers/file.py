@@ -101,4 +101,4 @@ def symlink(args: PmbArgs, file: Path, link: Path):
         link.unlink()
 
     # Create the symlink
-    pmb.helpers.run.user(args, ["ln", "-s", file, link])
+    pmb.helpers.run.user(["ln", "-s", file, link])

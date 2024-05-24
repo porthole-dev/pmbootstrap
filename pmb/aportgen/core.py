@@ -175,7 +175,7 @@ def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
         channel_cfg = pmb.config.pmaports.read_config_channel(args)
         branch = channel_cfg["branch_aports"]
         logging.info(f"Checkout aports.git branch: {branch}")
-        if pmb.helpers.run.user(args, ["git", "checkout", branch],
+        if pmb.helpers.run.user(["git", "checkout", branch],
                                 aports_upstream_path, check=False):
             logging.info("NOTE: run 'pmbootstrap pull' and try again")
             logging.info("NOTE: if it still fails, your aports.git was cloned with"

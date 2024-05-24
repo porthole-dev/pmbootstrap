@@ -237,7 +237,7 @@ def generate_deviceinfo(args: PmbArgs, pkgname, name, manufacturer, year, arch,
         content += content_uuu
 
     # Write to file
-    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
     path = pmb.config.work / "aportgen/deviceinfo"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
@@ -258,7 +258,7 @@ def generate_modules_initfs(args: PmbArgs):
     """
 
     # Write to file
-    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
     path = pmb.config.work / "aportgen/modules-initfs"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
@@ -308,7 +308,7 @@ def generate_apkbuild(args: PmbArgs, pkgname, name, arch, flash_method):
         """
 
     # Write the file
-    pmb.helpers.run.user(args, ["mkdir", "-p", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
     path = pmb.config.work / "aportgen/APKBUILD"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):

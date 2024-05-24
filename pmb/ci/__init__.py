@@ -131,7 +131,7 @@ def copy_git_repo_to_chroot(args: PmbArgs, topdir):
             handle.write(file)
             handle.write("\n")
 
-    pmb.helpers.run.user(args, ["tar", "-cf", tarball_path, "-T",
+    pmb.helpers.run.user(["tar", "-cf", tarball_path, "-T",
                                 f"{tarball_path}.files"], topdir)
 
     ci_dir = Path("/home/pmos/ci")
@@ -168,7 +168,7 @@ def run_scripts(args: PmbArgs, topdir, scripts):
                      f" [{where}] ***")
 
         if "native" in script["options"]:
-            rc = pmb.helpers.run.user(args, [script_path], topdir,
+            rc = pmb.helpers.run.user([script_path], topdir,
                                       output="tui")
             continue
         else:

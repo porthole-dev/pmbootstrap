@@ -23,7 +23,7 @@ def update(args: PmbArgs, pkgname):
     # Copy modified APKBUILD back
     source = Chroot.native() / "home/pmos/build/APKBUILD"
     target = f"{os.fspath(pmb.helpers.pmaports.find(args, pkgname))}/"
-    pmb.helpers.run.user(args, ["cp", source, target])
+    pmb.helpers.run.user(["cp", source, target])
 
 
 def verify(args: PmbArgs, pkgname):

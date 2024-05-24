@@ -44,11 +44,11 @@ def newapkbuild(args: PmbArgs, folder, args_passed, force=False):
         question = "Continue and delete its contents?"
         if not force and not pmb.helpers.cli.confirm(args, question):
             raise RuntimeError("Aborted.")
-        pmb.helpers.run.user(args, ["rm", "-r", target])
+        pmb.helpers.run.user(["rm", "-r", target])
 
     # Copy the aport (without the extracted src folder)
     logging.info("Create " + target)
-    pmb.helpers.run.user(args, ["mkdir", "-p", target])
+    pmb.helpers.run.user(["mkdir", "-p", target])
     for path in build_outside.glob("/*"):
         if not path.is_dir():
-            pmb.helpers.run.user(args, ["cp", path, target])
+            pmb.helpers.run.user(["cp", path, target])
