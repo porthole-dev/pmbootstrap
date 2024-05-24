@@ -13,8 +13,7 @@ from typing import Dict, List, Sequence, TypedDict
 #
 # FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
 # this functions this way
-from pmb.config.load import load, sanity_checks
-from pmb.config.save import save
+from pmb.config.load import load, sanity_checks, save
 from pmb.config.merge_with_args import merge_with_args
 from pmb.config.sudo import which_sudo
 from pmb.config.other import is_systemd_selected
