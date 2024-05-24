@@ -7,6 +7,7 @@ See also:
 - pmb/helpers/package.py (work with both)
 """
 import glob
+from pmb.core import get_context
 from pmb.helpers import logging
 from pathlib import Path
 from typing import Optional, Sequence, Dict
@@ -14,7 +15,7 @@ from typing import Optional, Sequence, Dict
 from pmb.core.types import PmbArgs
 import pmb.parse
 
-def _find_apkbuilds(args: PmbArgs) -> Dict[str, Path]:
+def _find_apkbuilds() -> Dict[str, Path]:
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
@@ -22,7 +23,7 @@ def _find_apkbuilds(args: PmbArgs) -> Dict[str, Path]:
         return apkbuilds
 
     apkbuilds = {}
-    for apkbuild in glob.iglob(f"{args.aports}/**/*/APKBUILD", recursive=True):
+    for apkbuild in glob.iglob(f"{get_context().aports}/**/*/APKBUILD", recursive=True):
         package = Path(apkbuild).parent.name
         if package in apkbuilds:
             raise RuntimeError(f"Package {package} found in multiple aports "
@@ -38,12 +39,12 @@ def _find_apkbuilds(args: PmbArgs) -> Dict[str, Path]:
     return apkbuilds
 
 
-def get_list(args: PmbArgs) -> Sequence[str]:
+def get_list() -> Sequence[str]:
     """ :returns: list of all pmaport pkgnames (["hello-world", ...]) """
-    return list(_find_apkbuilds(args).keys())
+    return list(_find_apkbuilds().keys())
 
 
-def guess_main_dev(args: PmbArgs, subpkgname) -> Optional[Path]:
+def guess_main_dev(subpkgname) -> Optional[Path]:
     """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
@@ -52,7 +53,7 @@ def guess_main_dev(args: PmbArgs, subpkgname) -> Optional[Path]:
     :returns: full path to the pmaport or None
     """
     pkgname = subpkgname[:-4]
-    path = _find_apkbuilds(args).get(pkgname)
+    path = _find_apkbuilds().get(pkgname)
     if path:
         logging.verbose(subpkgname + ": guessed to be a subpackage of " +
                         pkgname + " (just removed '-dev')")
@@ -64,7 +65,7 @@ def guess_main_dev(args: PmbArgs, subpkgname) -> Optional[Path]:
     return None
 
 
-def guess_main(args: PmbArgs, subpkgname) -> Optional[Path]:
+def guess_main(subpkgname) -> Optional[Path]:
     """Find the main package by assuming it is a prefix of the subpkgname.
 
     We do that, because in some APKBUILDs the subpkgname="" variable gets
@@ -84,7 +85,7 @@ def guess_main(args: PmbArgs, subpkgname) -> Optional[Path]:
     # Alpine, but plasma is in pmaports, then the cutting algorithm below would
     # pick plasma instead of plasma-framework.
     if subpkgname.endswith("-dev"):
-        return guess_main_dev(args, subpkgname)
+        return guess_main_dev(subpkgname)
 
     # Iterate until the cut up subpkgname is gone
     words = subpkgname.split("-")
@@ -94,7 +95,7 @@ def guess_main(args: PmbArgs, subpkgname) -> Optional[Path]:
         pkgname = "-".join(words)
 
         # Look in pmaports
-        path = _find_apkbuilds(args).get(pkgname)
+        path = _find_apkbuilds().get(pkgname)
         if path:
             logging.verbose(subpkgname + ": guessed to be a subpackage of " +
                             pkgname)
@@ -136,7 +137,7 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
-def find(args: PmbArgs, package: str, must_exist=True) -> Path:
+def find(package: str, must_exist=True) -> Path:
     """Find the aport path that provides a certain subpackage.
 
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
@@ -155,13 +156,13 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
             raise RuntimeError("Invalid pkgname: " + package)
 
         # Try to find an APKBUILD with the exact pkgname we are looking for
-        path = _find_apkbuilds(args).get(package)
+        path = _find_apkbuilds().get(package)
         if path:
             ret = path.parent
         else:
             # No luck, take a guess what APKBUILD could have the package we are
             # looking for as subpackage
-            guess = guess_main(args, package)
+            guess = guess_main(package)
             if guess:
                 # Parse the APKBUILD and verify if the guess was right
                 if _find_package_in_apkbuild(package, guess / "APKBUILD"):
@@ -169,7 +170,7 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
                 else:
                     # Otherwise parse all APKBUILDs (takes time!), is the
                     # package we are looking for a subpackage of any of those?
-                    for path_current in _find_apkbuilds(args).values():
+                    for path_current in _find_apkbuilds().values():
                         if _find_package_in_apkbuild(package, path_current):
                             ret = path_current.parent
                             break
@@ -191,9 +192,9 @@ def find(args: PmbArgs, package: str, must_exist=True) -> Path:
     return ret
 
 
-def find_optional(args: PmbArgs, package: str) -> Optional[Path]:
+def find_optional(package: str) -> Optional[Path]:
     try:
-        return find(args, package)
+        return find(package)
     except RuntimeError:
         return None
 
@@ -219,14 +220,14 @@ def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
     if subpackages:
-        aport = find_optional(args, pkgname)
+        aport = find_optional(pkgname)
         if aport:
             return pmb.parse.apkbuild(aport / "APKBUILD")
         elif must_exist:
             raise RuntimeError("Could not find APKBUILD for package:"
                                f" {pkgname}")
     else:
-        path = _find_apkbuilds(args).get(pkgname)
+        path = _find_apkbuilds().get(pkgname)
         if path:
             return pmb.parse.apkbuild(path)
         if must_exist:
@@ -236,7 +237,7 @@ def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
     return None
 
 
-def find_providers(args: PmbArgs, provide):
+def find_providers( provide):
     """Search for providers of the specified (virtual) package in pmaports.
 
     Note: Currently only providers from a single APKBUILD are returned.
@@ -249,7 +250,7 @@ def find_providers(args: PmbArgs, provide):
 
     providers = {}
 
-    apkbuild = get(args, provide)
+    apkbuild = get(provide)
     for subpkgname, subpkg in apkbuild["subpackages"].items():
         for provides in subpkg["provides"]:
             # Strip provides version (=$pkgver-r$pkgrel)
@@ -261,7 +262,7 @@ def find_providers(args: PmbArgs, provide):
 
 
 # FIXME (#2324): split into an _optional variant or drop must_exist
-def get_repo(args: PmbArgs, pkgname, must_exist=True) -> Optional[str]:
+def get_repo(pkgname, must_exist=True) -> Optional[str]:
     """Get the repository folder of an aport.
 
     :pkgname: package name
@@ -271,9 +272,9 @@ def get_repo(args: PmbArgs, pkgname, must_exist=True) -> Optional[str]:
     """
     aport: Optional[Path]
     if must_exist:
-        aport = find(args, pkgname)
+        aport = find(pkgname)
     else:
-        aport = find_optional(args, pkgname)
+        aport = find_optional(pkgname)
     if not aport:
         return None
     return aport.parent.name
