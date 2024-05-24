@@ -57,14 +57,14 @@ def mount(args: PmbArgs, img_path: Path):
     raise RuntimeError(f"Failed to mount loop device: {img_path}")
 
 
-def device_by_back_file(args: PmbArgs, back_file: Path, auto_init=True) -> Path:
+def device_by_back_file(args: PmbArgs, back_file: Path) -> Path:
     """
     Get the /dev/loopX device that points to a specific image file.
     """
 
     # Get list from losetup
     losetup_output = pmb.chroot.root(args, ["losetup", "--json", "--list"],
-                                     output_return=True, auto_init=auto_init)
+                                     output_return=True)
     if not losetup_output:
         raise RuntimeError("losetup failed")
 
@@ -76,14 +76,14 @@ def device_by_back_file(args: PmbArgs, back_file: Path, auto_init=True) -> Path:
     raise RuntimeError(f"Failed to find loop device for {back_file}")
 
 
-def umount(args: PmbArgs, img_path: Path, auto_init=True):
+def umount(args: PmbArgs, img_path: Path):
     """
     :param img_path: Path to the img file inside native chroot.
     """
     device: Path
     try:
-        device = device_by_back_file(args, img_path, auto_init)
+        device = device_by_back_file(args, img_path)
     except RuntimeError:
         return
     logging.debug(f"(native) umount {device}")
-    pmb.chroot.root(args, ["losetup", "-d", device], auto_init=auto_init)
+    pmb.chroot.root(args, ["losetup", "-d", device])

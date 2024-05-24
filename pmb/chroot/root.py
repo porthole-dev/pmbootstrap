@@ -30,14 +30,13 @@ def executables_absolute_path():
 
 
 def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
-         output_return=False, check=None, env={}, auto_init=True,
+         output_return=False, check=None, env={},
          disable_timeout=False, add_proxy_env_vars=True):
     """
     Run a command inside a chroot as root.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
-    :param auto_init: automatically initialize the chroot
     :param working_dir: chroot-relative working directory
     :param add_proxy_env_vars: if True, preserve HTTP_PROXY etc. vars from host
                                environment. pmb.chroot.user sets this to False
@@ -47,11 +46,6 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
-    # Initialize chroot
-    if not auto_init and not (chroot / "bin/sh").is_symlink():
-        raise RuntimeError(f"Chroot does not exist: {chroot}")
-    if auto_init:
-        pmb.chroot.init(args, chroot)
 
     # Convert any Path objects to their string representation
     cmd_str = [os.fspath(x) for x in cmd]

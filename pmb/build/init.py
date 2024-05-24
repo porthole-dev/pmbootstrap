@@ -43,9 +43,11 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native()):
     if marker.exists():
         return
 
+    # Initialize chroot, install packages
+    pmb.chroot.init(args, Chroot.native())
+    pmb.chroot.init(args, chroot)
     init_abuild_minimal(args, chroot)
 
-    # Initialize chroot, install packages
     pmb.chroot.apk.install(args, pmb.config.build_packages, chroot,
                            build=False)
 

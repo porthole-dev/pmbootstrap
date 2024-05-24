@@ -1182,6 +1182,7 @@ def create_device_rootfs(args: PmbArgs, step, steps):
                  ' ***')
 
     suffix = Chroot(ChrootType.ROOTFS, args.device)
+    pmb.chroot.init(args, suffix)
     # Create user before installing packages, so post-install scripts of
     # pmaports can figure out the username (legacy reasons: pmaports#820)
     set_user(args)
@@ -1302,6 +1303,7 @@ def install(args: PmbArgs):
     # Install required programs in native chroot
     step = 1
     logging.info(f"*** ({step}/{steps}) PREPARE NATIVE CHROOT ***")
+    pmb.chroot.init(args, Chroot.native())
     pmb.chroot.apk.install(args, pmb.config.install_native_packages, Chroot.native(),
                            build=False)
     step += 1

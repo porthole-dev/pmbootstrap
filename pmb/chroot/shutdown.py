@@ -73,7 +73,7 @@ def shutdown(args: PmbArgs, only_install_related=False):
     if pmb.helpers.mount.ismount(chroot / "dev/loop-control"):
         for path_outside in (chroot / "/home/pmos/rootfs").glob("*.img"):
             path = path_outside.relative_to(chroot.path)
-            pmb.install.losetup.umount(args, path, auto_init=False)
+            pmb.install.losetup.umount(args, path)
 
     # Umount device rootfs and installer chroots
     for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:

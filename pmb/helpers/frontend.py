@@ -11,6 +11,7 @@ import pmb.aportgen
 import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
+import pmb.chroot.apk
 import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
@@ -171,6 +172,8 @@ def chroot(args: PmbArgs):
     pmb.chroot.apk.check_min_version(args, suffix)
     if args.add:
         pmb.chroot.apk.install(args, args.add.split(","), suffix)
+
+    pmb.chroot.init(args, suffix)
 
     # Xauthority
     env = {}

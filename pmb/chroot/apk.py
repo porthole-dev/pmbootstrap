@@ -241,7 +241,6 @@ def install(args: PmbArgs, packages, chroot: Chroot, build=True):
 
     # Initialize chroot
     check_min_version(args, chroot)
-    pmb.chroot.init(args, chroot)
 
     installed_pkgs = pmb.chroot.user(["apk", "info", "-e"] + packages, chroot, output_return=True, check=False)
     if installed_pkgs is not None and installed_pkgs.strip().split("\n") == packages:

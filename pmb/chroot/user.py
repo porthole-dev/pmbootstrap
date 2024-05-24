@@ -9,7 +9,7 @@ from pmb.core.types import PathString, PmbArgs
 
 
 def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
-         output_return=False, check=None, env={}, auto_init=True):
+         output_return=False, check=None, env={}):
     """
     Run a command inside a chroot as "user". We always use the BusyBox
     implementation of 'su', because other implementations may override the PATH
@@ -17,7 +17,6 @@ def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path =
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
-    :param auto_init: automatically initialize the chroot
 
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
@@ -31,7 +30,7 @@ def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path =
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
     return pmb.chroot.root(args, cmd, chroot, working_dir, output,
-                           output_return, check, {}, auto_init,
+                           output_return, check, {},
                            add_proxy_env_vars=False)
 
 

@@ -7,6 +7,7 @@ import pmb.chroot.user
 from pmb.core.types import PmbArgs
 import pmb.helpers.cli
 import pmb.parse
+import pmb.build
 
 from pmb.core import Chroot
 

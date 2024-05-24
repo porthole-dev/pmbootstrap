@@ -127,8 +127,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
 
     already_setup = str(chroot) in pmb.helpers.other.cache["pmb.chroot.init"]
     if already_setup:
-        # FIXME: drop to debug/verbose later
-        logging.debug(f"({chroot}) already initialised")
+        logging.warning(f"({chroot}) FIXME! init() called multiple times!")
         return
 
     pmb.chroot.mount(args, chroot)
@@ -176,7 +175,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     if not chroot.type == ChrootType.ROOTFS:
         pmb.chroot.root(args, ["adduser", "-D", "pmos", "-u",
                                pmb.config.chroot_uid_user],
-                        chroot, auto_init=False)
+                        chroot)
 
         # Create the links (with subfolders if necessary)
         for target, link_name in pmb.config.chroot_home_symlinks.items():
