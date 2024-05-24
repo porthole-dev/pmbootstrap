@@ -3,6 +3,8 @@
 import configparser
 from pathlib import Path
 from typing import Dict
+from pmb.core import get_context
+from pmb.core.context import Context
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -10,12 +12,11 @@ from pathlib import Path
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
-from pmb.core.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 
 
-def get_path(args: PmbArgs, name_repo):
+def get_path(context: Context, name_repo):
     """Get the path to the repository.
 
     The path is either the default one in the work dir, or a user-specified one in args.
@@ -23,11 +24,11 @@ def get_path(args: PmbArgs, name_repo):
     :returns: full path to repository
     """
     if name_repo == "pmaports":
-        return args.aports
+        return context.aports
     return pmb.config.work / "cache_git" / name_repo
 
 
-def clone(args: PmbArgs, name_repo):
+def clone(name_repo):
     """Clone a git repository to $WORK/cache_git/$name_repo.
 
     (or to the overridden path set in args, as with ``pmbootstrap --aports``).
@@ -39,7 +40,7 @@ def clone(args: PmbArgs, name_repo):
     if name_repo not in pmb.config.git_repos:
         raise ValueError("No git repository configured for " + name_repo)
 
-    path = get_path(args, name_repo)
+    path = get_path(get_context(), name_repo)
     if not os.path.exists(path):
         # Build git command
         url = pmb.config.git_repos[name_repo][0]
@@ -58,7 +59,7 @@ def clone(args: PmbArgs, name_repo):
         open(fetch_head, "w").close()
 
 
-def rev_parse(args: PmbArgs, path, revision="HEAD", extra_args: list = []):
+def rev_parse(path, revision="HEAD", extra_args: list = []):
     """Run "git rev-parse" in a specific repository dir.
 
     :param path: to the git repository
@@ -72,7 +73,7 @@ def rev_parse(args: PmbArgs, path, revision="HEAD", extra_args: list = []):
     return rev.rstrip()
 
 
-def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
+def can_fast_forward(path, branch_upstream, branch="HEAD"):
     command = ["git", "merge-base", "--is-ancestor", branch, branch_upstream]
     ret = pmb.helpers.run.user(command, path, check=False)
     if ret == 0:
@@ -83,19 +84,19 @@ def can_fast_forward(args: PmbArgs, path, branch_upstream, branch="HEAD"):
         raise RuntimeError("Unexpected exit code from git: " + str(ret))
 
 
-def clean_worktree(args: PmbArgs, path):
+def clean_worktree(path):
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
     return pmb.helpers.run.user_output(command, path) == ""
 
 
-def get_upstream_remote(args: PmbArgs, name_repo):
+def get_upstream_remote(context: Context, name_repo):
     """Find the remote, which matches the git URL from the config.
 
     Usually "origin", but the user may have set up their git repository differently.
     """
     urls = pmb.config.git_repos[name_repo]
-    path = get_path(args, name_repo)
+    path = get_path(context, name_repo)
     command = ["git", "remote", "-v"]
     output = pmb.helpers.run.user_output(command, path)
     for line in output.split("\n"):
@@ -105,7 +106,7 @@ def get_upstream_remote(args: PmbArgs, name_repo):
                        " repository: {}".format(name_repo, urls, path))
 
 
-def parse_channels_cfg(args):
+def parse_channels_cfg():
     """Parse channels.cfg from pmaports.git, origin/master branch.
 
     Reference: https://postmarketos.org/channels.cfg
@@ -121,12 +122,14 @@ def parse_channels_cfg(args):
     cache_key = "pmb.helpers.git.parse_channels_cfg"
     if pmb.helpers.other.cache[cache_key]:
         return pmb.helpers.other.cache[cache_key]
+    
+    context = get_context()
 
     # Read with configparser
     cfg = configparser.ConfigParser()
-    remote = get_upstream_remote(args, "pmaports")
+    remote = get_upstream_remote(context, "pmaports")
     command = ["git", "show", f"{remote}/master:channels.cfg"]
-    stdout = pmb.helpers.run.user_output(command, args.aports,
+    stdout = pmb.helpers.run.user_output(command, context.aports,
                                     check=False)
     try:
         cfg.read_string(stdout)
@@ -159,7 +162,7 @@ def parse_channels_cfg(args):
     return ret
 
 
-def get_branches_official(args: PmbArgs, name_repo):
+def get_branches_official(name_repo):
     """Get all branches that point to official release channels.
 
     :returns: list of supported branches, e.g. ["master", "3.11"]
@@ -170,14 +173,14 @@ def get_branches_official(args: PmbArgs, name_repo):
     if name_repo != "pmaports":
         return ["master"]
 
-    channels_cfg = parse_channels_cfg(args)
+    channels_cfg = parse_channels_cfg()
     ret = []
     for channel, channel_data in channels_cfg["channels"].items():
         ret.append(channel_data["branch_pmaports"])
     return ret
 
 
-def pull(args: PmbArgs, name_repo):
+def pull(name_repo):
     """Check if on official branch and essentially try ``git pull --ff-only``.
 
     Instead of really doing ``git pull --ff-only``, do it in multiple steps
@@ -186,16 +189,17 @@ def pull(args: PmbArgs, name_repo):
 
     :returns: integer, >= 0 on success, < 0 on error
     """
-    branches_official = get_branches_official(args, name_repo)
+    branches_official = get_branches_official(name_repo)
+    context = get_context()
 
     # Skip if repo wasn't cloned
-    path = get_path(args, name_repo)
+    path = get_path(context, name_repo)
     if not os.path.exists(path):
         logging.debug(name_repo + ": repo was not cloned, skipping pull!")
         return 1
 
     # Skip if not on official branch
-    branch = rev_parse(args, path, extra_args=["--abbrev-ref"])
+    branch = rev_parse(path, extra_args=["--abbrev-ref"])
     msg_start = "{} (branch: {}):".format(name_repo, branch)
     if branch not in branches_official:
         logging.warning("{} not on one of the official branches ({}), skipping"
@@ -204,13 +208,13 @@ def pull(args: PmbArgs, name_repo):
         return -1
 
     # Skip if workdir is not clean
-    if not clean_worktree(args, path):
+    if not clean_worktree(path):
         logging.warning(msg_start + " workdir is not clean, skipping pull!")
         return -2
 
     # Skip if branch is tracking different remote
-    branch_upstream = get_upstream_remote(args, name_repo) + "/" + branch
-    remote_ref = rev_parse(args, path, branch + "@{u}", ["--abbrev-ref"])
+    branch_upstream = get_upstream_remote(context, name_repo) + "/" + branch
+    remote_ref = rev_parse(path, branch + "@{u}", ["--abbrev-ref"])
     if remote_ref != branch_upstream:
         logging.warning("{} is tracking unexpected remote branch '{}' instead"
                         " of '{}'".format(msg_start, remote_ref,
@@ -219,16 +223,16 @@ def pull(args: PmbArgs, name_repo):
 
     # Fetch (exception on failure, meaning connection to server broke)
     logging.info(msg_start + " git pull --ff-only")
-    if not args.offline:
+    if not context.offline:
         pmb.helpers.run.user(["git", "fetch"], path)
 
     # Skip if already up to date
-    if rev_parse(args, path, branch) == rev_parse(args, path, branch_upstream):
+    if rev_parse(path, branch) == rev_parse(path, branch_upstream):
         logging.info(msg_start + " already up to date")
         return 2
 
     # Skip if we can't fast-forward
-    if not can_fast_forward(args, path, branch_upstream):
+    if not can_fast_forward(path, branch_upstream):
         logging.warning("{} can't fast-forward to {}, looks like you changed"
                         " the git history of your local branch. Skipping pull!"
                         "".format(msg_start, branch_upstream))
@@ -241,7 +245,7 @@ def pull(args: PmbArgs, name_repo):
     return 0
 
 
-def get_topdir(args: PmbArgs, path: Path):
+def get_topdir(path: Path):
     """Get top-dir of git repo.
 
     :returns: a string with the top dir of the git repository,
@@ -251,7 +255,7 @@ def get_topdir(args: PmbArgs, path: Path):
                                 path, output_return=True, check=False).rstrip()
 
 
-def get_files(args: PmbArgs, path):
+def get_files(path):
     """Get all files inside a git repository, that are either already in the git tree or are not in gitignore.
 
     Do not list deleted files. To be used for creating a tarball of the git repository.

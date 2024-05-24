@@ -128,7 +128,7 @@ def test_parse_channels_cfg(args: PmbArgs):
 
 
 def test_pull_non_existing(args: PmbArgs):
-    assert pmb.helpers.git.pull(args, "non-existing-repo-name") == 1
+    assert pmb.helpers.git.pull("non-existing-repo-name") == 1
 
 
 def test_pull(args: PmbArgs, monkeypatch, tmpdir):

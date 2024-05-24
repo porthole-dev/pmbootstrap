@@ -47,7 +47,7 @@ def test_switch_to_channel_branch(args: PmbArgs, monkeypatch, tmpdir):
     run_git(["checkout", "-b", "v20.05"])
     run_git(["checkout", "master"])
     assert func(args, "v20.05") is True
-    branch = pmb.helpers.git.rev_parse(args, path, extra_args=["--abbrev-ref"])
+    branch = pmb.helpers.git.rev_parse(path, extra_args=["--abbrev-ref"])
     assert branch == "v20.05"
 
 

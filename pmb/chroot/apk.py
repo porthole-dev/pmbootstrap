@@ -20,7 +20,7 @@ import pmb.parse.apkindex
 import pmb.parse.arch
 import pmb.parse.depends
 import pmb.parse.version
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def update_repository_list(args: PmbArgs, suffix: Chroot, postmarketos_mirror=True,
@@ -88,7 +88,7 @@ def check_min_version(args: PmbArgs, chroot: Chroot=Chroot.native()):
         return
 
     # Compare
-    version_installed = installed(args, chroot)["apk-tools"]["version"]
+    version_installed = installed(chroot)["apk-tools"]["version"]
     pmb.helpers.apk.check_outdated(
         args, version_installed,
         "Delete your http cache and zap all chroots, then try again:"
@@ -174,7 +174,7 @@ def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str) -> List[
     return ret
 
 
-def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot):
+def install_run_apk(to_add, to_add_local, to_del, chroot: Chroot):
     """
     Run apk to add packages, and ensure only the desired packages get
     explicitly marked as installed.
@@ -186,6 +186,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
                    installed or their dependencies (e.g. ["unl0kr"])
     :param chroot: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
+    context = get_context()
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
     for package in to_add + [os.fspath(p) for p in to_add_local] + to_del:
@@ -221,10 +222,10 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
             command = ["--force-missing-repositories"] + command
 
-        if args.offline:
+        if context.offline:
             command = ["--no-network"] + command
         if i == 0:
-            pmb.helpers.apk.apk_with_progress(args, [apk_static] + command)
+            pmb.helpers.apk.apk_with_progress([apk_static] + command)
         else:
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
@@ -271,10 +272,10 @@ def install(args: PmbArgs, packages, chroot: Chroot, build=True):
     to_add_no_deps, _ = packages_split_to_add_del(packages)
 
     logging.info(f"({chroot}) install {' '.join(to_add_no_deps)}")
-    install_run_apk(args, to_add_no_deps, to_add_local, to_del, chroot)
+    install_run_apk(to_add_no_deps, to_add_local, to_del, chroot)
 
 
-def installed(args: PmbArgs, suffix: Chroot=Chroot.native()):
+def installed(suffix: Chroot=Chroot.native()):
     """
     Read the list of installed packages (which has almost the same format, as
     an APKINDEX, but with more keys).

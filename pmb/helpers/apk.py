@@ -13,7 +13,7 @@ import pmb.helpers.run_core
 import pmb.parse.version
 
 
-def _prepare_fifo(args: PmbArgs):
+def _prepare_fifo():
     """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
@@ -62,7 +62,7 @@ def _compute_progress(line):
     return cur / tot if tot > 0 else 0
 
 
-def apk_with_progress(args: PmbArgs, command: Sequence[PathString]):
+def apk_with_progress(command: Sequence[PathString]):
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
@@ -71,7 +71,7 @@ def apk_with_progress(args: PmbArgs, command: Sequence[PathString]):
                    set to True.
     :raises RuntimeError: when the apk command fails
     """
-    fifo, fifo_outside = _prepare_fifo(args)
+    fifo, fifo_outside = _prepare_fifo()
     _command: List[str] = [os.fspath(c) for c in command]
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
@@ -82,8 +82,8 @@ def apk_with_progress(args: PmbArgs, command: Sequence[PathString]):
             while p_apk.poll() is None:
                 line = p_cat.stdout.readline().decode('utf-8')
                 progress = _compute_progress(line)
-                pmb.helpers.cli.progress_print(args, progress)
-            pmb.helpers.cli.progress_flush(args)
+                pmb.helpers.cli.progress_print(progress)
+            pmb.helpers.cli.progress_flush()
             pmb.helpers.run_core.check_return_code(p_apk.returncode,
                                                    log_msg)
 

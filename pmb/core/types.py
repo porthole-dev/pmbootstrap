@@ -105,7 +105,7 @@ class PmbArgs(Namespace):
     no_reboot: str
     no_sshd: str
     odin_flashable_tar: str
-    offline: str
+    offline: bool
     ondev_cp: List[Tuple[str, str]]
     on_device_installer: str
     ondev_no_rootfs: str

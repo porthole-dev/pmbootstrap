@@ -112,7 +112,7 @@ def confirm(args: PmbArgs, question="Continue?", default=False, no_assumptions=F
     return answer == "y"
 
 
-def progress_print(args: PmbArgs, progress):
+def progress_print(progress):
     """Print a snapshot of a progress bar to STDOUT.
 
     Call progress_flush to end  printing progress and clear the line. No output is printed in
@@ -135,7 +135,7 @@ def progress_print(args: PmbArgs, progress):
         sys.stdout.write("\u001b8\u001b[0K")
 
 
-def progress_flush(args):
+def progress_flush():
     """Finish printing a progress bar.
 
     This will erase the line. Does nothing in non-interactive mode.

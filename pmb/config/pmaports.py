@@ -31,7 +31,7 @@ def clone(args: PmbArgs):
                  " recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
-    pmb.helpers.git.clone(args, "pmaports")
+    pmb.helpers.git.clone("pmaports")
 
 
 def symlink(args: PmbArgs):
@@ -159,11 +159,11 @@ def read_config_channel(args: PmbArgs):
         return channels_cfg["channels"][channel]
 
     # Channel not in channels.cfg, try to be helpful
-    branch = pmb.helpers.git.rev_parse(args, args.aports,
+    branch = pmb.helpers.git.rev_parse(args.aports,
                                        extra_args=["--abbrev-ref"])
-    branches_official = pmb.helpers.git.get_branches_official(args, "pmaports")
+    branches_official = pmb.helpers.git.get_branches_official("pmaports")
     branches_official = ", ".join(branches_official)
-    remote = pmb.helpers.git.get_upstream_remote(args, "pmaports")
+    remote = pmb.helpers.git.get_upstream_remote("pmaports")
     logging.info("NOTE: fix the error by rebasing or cherry picking relevant"
                  " commits from this branch onto a branch that is on a"
                  f" supported channel: {branches_official}")
@@ -199,7 +199,7 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
     # List current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
-    branch_current = pmb.helpers.git.rev_parse(args, args.aports,
+    branch_current = pmb.helpers.git.rev_parse(args.aports,
                                                extra_args=["--abbrev-ref"])
     logging.info(f"Currently checked out branch '{branch_current}' of"
                  f" pmaports.git is on channel '{channel_current}'.")

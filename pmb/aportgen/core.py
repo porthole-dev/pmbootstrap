@@ -164,7 +164,7 @@ def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
               example: /opt/pmbootstrap_work/cache_git/aports/upstream/main/gcc
     """
     # APKBUILD
-    pmb.helpers.git.clone(args, "aports_upstream")
+    pmb.helpers.git.clone("aports_upstream")
     aports_upstream_path = pmb.config.work / "cache_git/aports_upstream"
 
     if getattr(args, "fork_alpine_retain_branch", False):

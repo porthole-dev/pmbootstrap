@@ -584,7 +584,7 @@ def bootimg_analyze(args: PmbArgs):
 def pull(args: PmbArgs):
     failed = []
     for repo in pmb.config.git_repos.keys():
-        if pmb.helpers.git.pull(args, repo) < 0:
+        if pmb.helpers.git.pull(repo) < 0:
             failed.append(repo)
 
     if not failed:
@@ -602,7 +602,7 @@ def pull(args: PmbArgs):
     logging.info("")
     logging.info("Fix and try again:")
     for name_repo in failed:
-        logging.info("* " + pmb.helpers.git.get_path(args, name_repo))
+        logging.info("* " + pmb.helpers.git.get_path(name_repo))
     logging.info("---")
     return False
 
@@ -623,7 +623,7 @@ def status(args: PmbArgs) -> None:
 
 
 def ci(args: PmbArgs):
-    topdir = pmb.helpers.git.get_topdir(args, Path.cwd())
+    topdir = pmb.helpers.git.get_topdir(Path.cwd())
     if not os.path.exists(topdir):
         logging.error("ERROR: change your current directory to a git"
                       " repository (e.g. pmbootstrap, pmaports) before running"
@@ -657,7 +657,7 @@ def ci(args: PmbArgs):
             if "slow" not in script_data["options"]:
                 scripts_selected[script] = script_data
 
-    if not pmb.helpers.git.clean_worktree(args, topdir):
+    if not pmb.helpers.git.clean_worktree(topdir):
         logging.warning("WARNING: this git repository has uncommitted changes")
 
     if not scripts_selected:

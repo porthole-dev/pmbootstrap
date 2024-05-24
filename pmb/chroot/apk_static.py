@@ -172,5 +172,4 @@ def run(args: PmbArgs, parameters):
 
     if args.offline:
         parameters = ["--no-network"] + parameters
-    pmb.helpers.apk.apk_with_progress(
-        args, [pmb.config.work / "apk.static"] + parameters)
+    pmb.helpers.apk.apk_with_progress([pmb.config.work / "apk.static"] + parameters)

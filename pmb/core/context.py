@@ -16,6 +16,8 @@ class Context():
     log: Path
     # The architecture of the selected device
     device_arch: Optional[str]
+    offline: bool
+    aports: Path
 
     def __init__(self):
         self.details_to_stdout = False
@@ -24,3 +26,5 @@ class Context():
         self.log = pmb.config.work / "log.txt"
         self.quiet = False
         self.device_arch = None
+        self.offline = False
+        self.aports = pmb.config.work / "cache_git" / "pmaports"

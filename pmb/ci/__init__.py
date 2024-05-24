@@ -124,7 +124,7 @@ def copy_git_repo_to_chroot(args: PmbArgs, topdir):
 	"""
     pmb.chroot.init(args)
     tarball_path = Chroot.native() / "tmp/git.tar.gz"
-    files = pmb.helpers.git.get_files(args, topdir)
+    files = pmb.helpers.git.get_files(topdir)
 
     with open(f"{tarball_path}.files", "w") as handle:
         for file in files:

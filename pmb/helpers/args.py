@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
+import os
 from pathlib import Path
 import pmb.config
 from pmb.core.types import PmbArgs
@@ -120,16 +121,13 @@ def init(args: PmbArgs) -> PmbArgs:
     context.details_to_stdout = args.details_to_stdout
     context.sudo_timer = args.sudo_timer
     context.quiet = args.quiet
+    context.offline = args.offline
+    if args.aports:
+        print(f"Using pmaports from: {args.aports}")
+        context.aports = args.aports
 
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(args)
-
-    # Remove attributes from args so they don't get used by mistake
-    delattr(args, "timeout")
-    delattr(args, "details_to_stdout")
-    delattr(args, "sudo_timer")
-    delattr(args, "log")
-    delattr(args, "quiet")
 
     # Initialization code which may raise errors
     check_pmaports_path(args)
@@ -139,6 +137,15 @@ def init(args: PmbArgs) -> PmbArgs:
         add_deviceinfo(args)
         pmb.helpers.git.parse_channels_cfg(args)
         context.device_arch = args.deviceinfo["arch"]
+
+    # Remove attributes from args so they don't get used by mistake
+    delattr(args, "timeout")
+    delattr(args, "details_to_stdout")
+    delattr(args, "sudo_timer")
+    delattr(args, "log")
+    delattr(args, "quiet")
+    delattr(args, "offline")
+    delattr(args, "aports")
 
     return args
 

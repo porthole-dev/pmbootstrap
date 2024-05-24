@@ -20,12 +20,12 @@ def print_channel(args: PmbArgs) -> None:
     channel = pmaports_cfg["channel"]
 
     # Get branch name (if on branch) or current commit
-    path = pmb.helpers.git.get_path(args, "pmaports")
-    ref = pmb.helpers.git.rev_parse(args, path, extra_args=["--abbrev-ref"])
+    path = pmb.helpers.git.get_path("pmaports")
+    ref = pmb.helpers.git.rev_parse(path, extra_args=["--abbrev-ref"])
     if ref == "HEAD":
-        ref = pmb.helpers.git.rev_parse(args, path)[0:8]
+        ref = pmb.helpers.git.rev_parse(path)[0:8]
 
-    if not pmb.helpers.git.clean_worktree(args, path):
+    if not pmb.helpers.git.clean_worktree(path):
         ref += ", dirty"
 
     value = f"{channel} (pmaports: {ref})"
