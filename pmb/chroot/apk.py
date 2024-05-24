@@ -1,5 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
+from pathlib import Path
+import pmb.chroot.apk_static
+from pmb.core.chroot import ChrootType
 from pmb.helpers import logging
 import shlex
 from typing import List
@@ -11,6 +15,7 @@ import pmb.helpers.apk
 import pmb.helpers.other
 import pmb.helpers.pmaports
 import pmb.helpers.repo
+import pmb.helpers.run
 import pmb.parse.apkindex
 import pmb.parse.arch
 import pmb.parse.depends
@@ -140,7 +145,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str):
+def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str) -> List[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -152,7 +157,7 @@ def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str):
               ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
     """
     channel: str = pmb.config.pmaports.read_config(args)["channel"]
-    ret = []
+    ret: List[Path] = []
 
     for package in packages:
         data_repo = pmb.parse.apkindex.package(args, package, arch, False)
@@ -160,10 +165,11 @@ def packages_get_locally_built_apks(args: PmbArgs, packages, arch: str):
             continue
 
         apk_file = f"{package}-{data_repo['version']}.apk"
-        if not (pmb.config.work / "packages" / channel / arch / apk_file ).exists():
+        apk_path = pmb.config.work / "packages" / channel / arch / apk_file
+        if not apk_path.exists():
             continue
 
-        ret.append(f"/mnt/pmbootstrap/packages/{arch}/{apk_file}")
+        ret.append(apk_path)
 
     return ret
 
@@ -182,7 +188,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
     """
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
-    for package in to_add + to_add_local + to_del:
+    for package in to_add + [os.fspath(p) for p in to_add_local] + to_del:
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
@@ -197,10 +203,19 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
     if to_del:
         commands += [["del"] + to_del]
 
+    # For systemd we use a fork of apk-tools, to easily handle this
+    # we expect apk.static to be installed in the native chroot (which
+    # will be the systemd version if building for systemd) and run
+    # it from there.
+    apk_static = Chroot.native() / "sbin/apk.static"
+    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    apk_cache = pmb.config.work / f"cache_apk_{arch}"
+
     for (i, command) in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
         # gets confused
         command += ["--no-interactive"]
+        command = ["--root", chroot.path, "--arch", arch, "--cache-dir", apk_cache] + command
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
@@ -209,14 +224,12 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
         if args.offline:
             command = ["--no-network"] + command
         if i == 0:
-            pmb.helpers.apk.apk_with_progress(args, ["apk"] + command,
-                                              run_in_chroot=True, chroot=chroot)
+            pmb.helpers.apk.apk_with_progress(args, [apk_static] + command)
         else:
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
             # They finish up almost instantly, so don't display a progress bar.
-            pmb.chroot.root(args, ["apk", "--no-progress"] + command,
-                            chroot=chroot)
+            pmb.helpers.run.root(args, [apk_static, "--no-progress"] + command)
 
 
 def install(args: PmbArgs, packages, chroot: Chroot, build=True):

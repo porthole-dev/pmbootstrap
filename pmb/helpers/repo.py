@@ -66,7 +66,8 @@ def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=T
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        ret.append("/mnt/pmbootstrap/packages")
+        channel = pmb.config.pmaports.read_config(args)["channel"]
+        ret.append(str(pmb.config.work / "packages" / channel))
 
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:

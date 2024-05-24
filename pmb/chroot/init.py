@@ -160,10 +160,16 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
 
     # Install alpine-base
     pmb.helpers.repo.update(args, arch)
+    pkgs = ["alpine-base"]
+    # install apk static in the native chroot so we can run it
+    # we have a forked apk for systemd and this is the easiest
+    # way to install/run it.
+    if chroot.type == ChrootType.NATIVE:
+        pkgs += ["apk-tools-static"]
     pmb.chroot.apk_static.run(args, ["--root", chroot.path,
                                      "--cache-dir", apk_cache,
                                      "--initdb", "--arch", arch,
-                                     "add", "alpine-base"])
+                                     "add"] + pkgs)
 
     # Merge /usr
     if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(args):
