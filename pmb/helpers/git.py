@@ -124,21 +124,18 @@ def parse_channels_cfg(args):
 
     # Read with configparser
     cfg = configparser.ConfigParser()
-    if args.config_channels:
-        cfg.read([args.config_channels])
-    else:
-        remote = get_upstream_remote(args, "pmaports")
-        command = ["git", "show", f"{remote}/master:channels.cfg"]
-        stdout = pmb.helpers.run.user_output(command, args.aports,
-                                      check=False)
-        try:
-            cfg.read_string(stdout)
-        except configparser.MissingSectionHeaderError:
-            logging.info("NOTE: fix this by fetching your pmaports.git, e.g."
-                         " with 'pmbootstrap pull'")
-            raise RuntimeError("Failed to read channels.cfg from"
-                               f" '{remote}/master' branch of your local"
-                               " pmaports clone")
+    remote = get_upstream_remote(args, "pmaports")
+    command = ["git", "show", f"{remote}/master:channels.cfg"]
+    stdout = pmb.helpers.run.user_output(command, args.aports,
+                                    check=False)
+    try:
+        cfg.read_string(stdout)
+    except configparser.MissingSectionHeaderError:
+        logging.info("NOTE: fix this by fetching your pmaports.git, e.g."
+                        " with 'pmbootstrap pull'")
+        raise RuntimeError("Failed to read channels.cfg from"
+                            f" '{remote}/master' branch of your local"
+                            " pmaports clone")
 
     # Meta section
     ret: Dict[str, Dict[str, str | Dict[str, str]]] = {"channels": {}}

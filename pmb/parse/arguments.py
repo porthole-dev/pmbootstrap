@@ -646,9 +646,6 @@ def get_parser():
                         default=pmb.config.defaults["config"],
                         help="path to pmbootstrap.cfg file (default in"
                              " ~/.config/)")
-    parser.add_argument("--config-channels",
-                        help="path to channels.cfg (which is by default"
-                             " read from pmaports.git, origin/master branch)")
     parser.add_argument("-mp", "--mirror-pmOS", dest="mirrors_postmarketos",
                         help="postmarketOS mirror, disable with: -mp='',"
                              " specify multiple with: -mp='one' -mp='two',"

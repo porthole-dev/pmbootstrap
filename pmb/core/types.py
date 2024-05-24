@@ -52,7 +52,6 @@ class PmbArgs(Namespace):
     cmdline: str
     command: str
     config: Path
-    config_channels: str
     details: bool
     details_to_stdout: bool
     device: str
