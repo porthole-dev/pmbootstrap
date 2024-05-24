@@ -161,7 +161,7 @@ def configure_ccache(args: PmbArgs, chroot: Chroot=Chroot.native(), verify=False
     :param verify: internally used to test if changing the config has worked.
     """
     # Check if the settings have been set already
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    arch = chroot.arch
     path = pmb.config.work / f"cache_ccache_{arch}" / "ccache.conf"
     if os.path.exists(path):
         with open(path, encoding="utf-8") as handle:

@@ -57,7 +57,7 @@ def mark_in_chroot(args: PmbArgs, chroot: Chroot=Chroot.native()):
 
 
 def setup_qemu_emulation(args: PmbArgs, chroot: Chroot):
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    arch = chroot.arch
     if not pmb.parse.arch.cpu_emulation_required(arch):
         return
 
@@ -123,7 +123,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     :param postmarketos_mirror: add postmarketos mirror URLs
     """
     # When already initialized: just prepare the chroot
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    arch = chroot.arch
 
     already_setup = str(chroot) in pmb.helpers.other.cache["pmb.chroot.init"]
     if already_setup:

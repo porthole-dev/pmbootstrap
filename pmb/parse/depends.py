@@ -41,7 +41,7 @@ def package_provider(args: PmbArgs, pkgname, pkgnames_install, suffix: Chroot=Ch
               or None (no provider found)
     """
     # Get all providers
-    arch = pmb.parse.arch.from_chroot_suffix(args, suffix)
+    arch = suffix.arch
     providers = pmb.parse.apkindex.providers(args, pkgname, arch, False)
 
     # 0. No provider

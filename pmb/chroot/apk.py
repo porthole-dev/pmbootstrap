@@ -208,7 +208,7 @@ def install_run_apk(args: PmbArgs, to_add, to_add_local, to_del, chroot: Chroot)
     # will be the systemd version if building for systemd) and run
     # it from there.
     apk_static = Chroot.native() / "sbin/apk.static"
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    arch = chroot.arch
     apk_cache = pmb.config.work / f"cache_apk_{arch}"
 
     for (i, command) in enumerate(commands):
@@ -245,7 +245,7 @@ def install(args: PmbArgs, packages, chroot: Chroot, build=True):
                   special case that all packages are expected to be in Alpine's
                   repositories, set this to False for performance optimization.
     """
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    arch = chroot.arch
 
     if not packages:
         logging.verbose("pmb.chroot.apk.install called with empty packages list,"

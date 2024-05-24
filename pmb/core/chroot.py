@@ -72,6 +72,23 @@ class Chroot:
         return Path(pmb.config.work, self.dirname)
 
 
+    @property
+    # FIXME: make an Arch type
+    def arch(self) -> str:
+        if self.type == ChrootType.NATIVE:
+            return pmb.config.arch_native
+        if self.type == ChrootType.BUILDROOT:
+            return self.name()
+        # FIXME: this is quite delicate as it will only be valid
+        # for certain pmbootstrap commands... It was like this
+        # before but it should be fixed.
+        arch = pmb.core.get_context().device_arch
+        if arch is not None:
+            return arch
+
+        raise ValueError(f"Invalid chroot suffix: {self}"
+                     " (wrong device chosen in 'init' step?)")
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return str(self) == other or self.path == Path(other) or self.name() == other

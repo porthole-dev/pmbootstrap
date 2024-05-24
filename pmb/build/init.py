@@ -62,7 +62,7 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native()):
             key = key.relative_to(chroot.path)
             pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], chroot)
 
-    apk_arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
+    apk_arch = chroot.arch
 
     # Add apk wrapper that runs native apk and lies about arch
     if pmb.parse.arch.cpu_emulation_required(apk_arch) and \

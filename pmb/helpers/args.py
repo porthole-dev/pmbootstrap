@@ -138,6 +138,7 @@ def init(args: PmbArgs) -> PmbArgs:
         pmb.config.pmaports.read_config(args)
         add_deviceinfo(args)
         pmb.helpers.git.parse_channels_cfg(args)
+        context.device_arch = args.deviceinfo["arch"]
 
     return args
 

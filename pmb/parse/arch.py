@@ -14,18 +14,6 @@ def alpine_native():
     return machine_type_to_alpine(machine)
 
 
-def from_chroot_suffix(args: PmbArgs, chroot: Chroot) -> str:
-    if chroot == Chroot.native():
-        return pmb.config.arch_native
-    if chroot.name() == args.device:
-        return args.deviceinfo["arch"]
-    if chroot.type == ChrootType.BUILDROOT:
-        return chroot.name()
-
-    raise ValueError(f"Invalid chroot suffix: {chroot}"
-                     " (wrong device chosen in 'init' step?)")
-
-
 def alpine_to_qemu(arch):
     """
     Convert the architecture to the string used in the QEMU packaging.
