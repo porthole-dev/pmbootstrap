@@ -181,6 +181,10 @@ def chroot(args: PmbArgs):
 
     # Install blockdevice
     if args.install_blockdev:
+        logging.warning("--install-blockdev is deprecated for the chroot command"
+                        " and will be removed in a future release. If you need this"
+                        " for some reason, please open an issue on"
+                        " https://gitlab.com/postmarketOS/pmbootstrap.git")
         size_boot = 128  # 128 MiB
         size_root = 4096  # 4 GiB
         size_reserve = 2048  # 2 GiB
