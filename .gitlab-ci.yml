@@ -1,4 +1,4 @@
-image: alpine:edge
+image: alpine:latest
 
 # The mr-settings check needs to run in a MR specific context. With this block,
 # the whole pipeline runs in that context for MRs. Otherwise we would have two
