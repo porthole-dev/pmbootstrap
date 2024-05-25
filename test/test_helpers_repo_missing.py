@@ -1,6 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import sys
 
@@ -13,7 +13,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args

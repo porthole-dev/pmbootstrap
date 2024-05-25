@@ -1,6 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.chroot.initfs
 
@@ -80,4 +80,4 @@ def run(args: PmbArgs, action, flavor=None):
         # Remove empty strings
         command = [x for x in command if x != '']
         # Run the action
-        pmb.chroot.root(args, command, output="interactive")
+        pmb.chroot.root(command, output="interactive")

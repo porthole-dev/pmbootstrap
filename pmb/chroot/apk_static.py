@@ -7,7 +7,7 @@ import tarfile
 import tempfile
 import stat
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.apk
 import pmb.helpers.run
 import pmb.config
@@ -15,6 +15,7 @@ import pmb.config.load
 import pmb.parse.apkindex
 import pmb.helpers.http
 import pmb.parse.version
+from pmb.core import get_context
 
 
 def read_signature_info(tar):
@@ -77,7 +78,7 @@ def extract_temp(tar, sigfilename):
     return ret
 
 
-def verify_signature(args: PmbArgs, files, sigkey_path):
+def verify_signature(files, sigkey_path):
     """
     Verify the signature with openssl.
 
@@ -99,7 +100,7 @@ def verify_signature(args: PmbArgs, files, sigkey_path):
                            " delete the download and try again.")
 
 
-def extract(args: PmbArgs, version, apk_path):
+def extract(version, apk_path):
     """
     Extract everything to temporary locations, verify signatures and reported
     versions. When everything is right, move the extracted apk.static to the
@@ -111,7 +112,7 @@ def extract(args: PmbArgs, version, apk_path):
         files = extract_temp(tar, sigfilename)
 
     # Verify signature
-    verify_signature(args, files, sigkey_path)
+    verify_signature(files, sigkey_path)
     os.unlink(files["sig"]["temp_path"])
     temp_path = files["apk"]["temp_path"]
 
@@ -131,45 +132,45 @@ def extract(args: PmbArgs, version, apk_path):
                            " and try again.")
 
     # Move it to the right path
-    target_path = pmb.config.work / "apk.static"
+    target_path = get_context().config.work / "apk.static"
     shutil.move(temp_path, target_path)
 
 
-def download(args: PmbArgs, file):
+def download(file):
     """
     Download a single file from an Alpine mirror.
     """
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir = channel_cfg["mirrordir_alpine"]
-    base_url = f"{args.mirror_alpine}{mirrordir}/main/{pmb.config.arch_native}"
-    return pmb.helpers.http.download(args, f"{base_url}/{file}", file)
+    base_url = f"{get_context().config.mirror_alpine}{mirrordir}/main/{pmb.config.arch_native}"
+    return pmb.helpers.http.download(f"{base_url}/{file}", file)
 
 
-def init(args: PmbArgs):
+def init():
     """
     Download, verify, extract $WORK/apk.static.
     """
     # Get and parse the APKINDEX
-    apkindex = pmb.helpers.repo.alpine_apkindex_path(args, "main")
-    index_data = pmb.parse.apkindex.package(args, "apk-tools-static",
+    apkindex = pmb.helpers.repo.alpine_apkindex_path("main")
+    index_data = pmb.parse.apkindex.package("apk-tools-static",
                                             indexes=[apkindex])
     version = index_data["version"]
 
     # Verify the apk-tools-static version
     pmb.helpers.apk.check_outdated(
-        args, version, "Run 'pmbootstrap update', then try again.")
+        version, "Run 'pmbootstrap update', then try again.")
 
     # Download, extract, verify apk-tools-static
     apk_name = f"apk-tools-static-{version}.apk"
-    apk_static = download(args, apk_name)
-    extract(args, version, apk_static)
+    apk_static = download(apk_name)
+    extract(version, apk_static)
 
 
-def run(args: PmbArgs, parameters):
+def run(parameters):
     # --no-interactive is a parameter to `add`, so it must be appended or apk
     # gets confused
     parameters += ["--no-interactive"]
 
-    if args.offline:
+    if get_context().offline:
         parameters = ["--no-network"] + parameters
-    pmb.helpers.apk.apk_with_progress([pmb.config.work / "apk.static"] + parameters)
+    pmb.helpers.apk.apk_with_progress([get_context().config.work / "apk.static"] + parameters)

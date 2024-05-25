@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core import get_context
 from pmb.helpers import logging
 import pmb.aportgen.busybox_static
 import pmb.aportgen.device
@@ -9,7 +10,7 @@ import pmb.aportgen.linux
 import pmb.aportgen.musl
 import pmb.aportgen.grub_efi
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.cli
 
 
@@ -58,7 +59,8 @@ def generate(args: PmbArgs, pkgname):
                                    {"confirm_overwrite": True})
     else:
         prefix, folder, options = properties(pkgname)
-    path_target = args.aports / folder / pkgname
+    config = get_context().config
+    path_target = config.aports / folder / pkgname
 
     # Confirm overwrite
     if options["confirm_overwrite"] and os.path.exists(path_target):
@@ -67,7 +69,7 @@ def generate(args: PmbArgs, pkgname):
         if not pmb.helpers.cli.confirm(args, "Continue and overwrite?"):
             raise RuntimeError("Aborted.")
 
-    aportgen = pmb.config.work / "aportgen"
+    aportgen = config.work / "aportgen"
 
     if os.path.exists(aportgen):
         pmb.helpers.run.user(["rm", "-r", aportgen])
@@ -85,6 +87,6 @@ def generate(args: PmbArgs, pkgname):
     if os.path.exists(path_target):
         pmb.helpers.run.user(["rm", "-r", path_target])
     pmb.helpers.run.user(
-        args, ["mv", aportgen, path_target])
+        ["mv", aportgen, path_target])
 
     logging.info("*** pmaport generated: " + path_target)

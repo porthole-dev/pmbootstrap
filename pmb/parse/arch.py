@@ -5,9 +5,6 @@ import platform
 import pmb.config
 import pmb.parse.arch
 
-from pmb.core.types import PmbArgs
-from pmb.core import Chroot, ChrootType
-
 def alpine_native():
     machine = platform.machine()
 

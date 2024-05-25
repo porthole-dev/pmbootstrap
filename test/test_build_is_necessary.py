@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import sys
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 
 import pmb_test  # noqa
@@ -15,7 +15,7 @@ def args(request, tmpdir):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
 
@@ -44,7 +44,7 @@ def cache_apkindex(version):
 
 def test_build_is_necessary(args: PmbArgs):
     # Prepare APKBUILD and APKINDEX data
-    aport = pmb.helpers.pmaports.find(args, "hello-world")
+    aport = pmb.helpers.pmaports.find("hello-world")
     apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     apkbuild["pkgver"] = "1"
     apkbuild["pkgrel"] = "2"
@@ -73,7 +73,7 @@ def test_build_is_necessary_no_binary_available(args: PmbArgs):
     hello-world package has not been built yet.
     """
     indexes = list(pmb.helpers.other.cache["apkindex"].keys())
-    aport = pmb.helpers.pmaports.find(args, "hello-world")
+    aport = pmb.helpers.pmaports.find("hello-world")
     apkbuild = pmb.parse.apkbuild(f"{aport}/APKBUILD")
     assert pmb.build.is_necessary(args, None, apkbuild, indexes) is True
 

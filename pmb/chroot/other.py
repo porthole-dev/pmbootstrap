@@ -4,7 +4,7 @@ import os
 from pmb.helpers import logging
 from pathlib import Path
 import pmb.chroot.apk
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.install
 from pmb.core import Chroot
 
@@ -24,7 +24,7 @@ def kernel_flavor_installed(args: PmbArgs, chroot: Chroot, autoinstall=True):
     if autoinstall:
         packages = ([f"device-{args.device}"] +
                     pmb.install.get_kernel_package(args, args.device))
-        pmb.chroot.apk.install(args, packages, chroot)
+        pmb.chroot.apk.install(packages, chroot)
 
     glob_result = list((chroot / "usr/share/kernel").glob("*"))
 
@@ -41,8 +41,8 @@ def tempfolder(args: PmbArgs, path: Path, chroot: Chroot=Chroot.native()):
     :returns: the path
     """
     if chroot / path:
-        pmb.chroot.root(args, ["rm", "-r", path])
-    pmb.chroot.user(args, ["mkdir", "-p", path])
+        pmb.chroot.root(["rm", "-r", path])
+    pmb.chroot.user(["mkdir", "-p", path])
     return path
 
 
@@ -73,4 +73,4 @@ def copy_xauthority(args: PmbArgs):
     if os.path.exists(copy):
         pmb.helpers.run.root(["rm", copy])
     pmb.helpers.run.root(["cp", original, copy])
-    pmb.chroot.root(args, ["chown", "pmos:pmos", "/home/pmos/.Xauthority"])
+    pmb.chroot.root(["chown", "pmos:pmos", "/home/pmos/.Xauthority"])

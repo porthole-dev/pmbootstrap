@@ -10,6 +10,7 @@ from pmb.helpers.exceptions import BuildFailedError, NonBugError
 
 from . import config
 from . import parse
+from . import types
 from .config import init as config_init
 from .helpers import frontend
 from .helpers import logging
@@ -31,8 +32,8 @@ if version < (3, 9):
 
 
 def print_log_hint() -> None:
-    context = get_context()
-    log = context.log
+    context = get_context(allow_failure=True)
+    log = context.log if context else types.Config().work / "log.txt"
     # Hints about the log file (print to stdout only)
     log_hint = "Run 'pmbootstrap log' for details."
     if not os.path.exists(log):
@@ -50,6 +51,7 @@ def main() -> int:
     try:
         # Parse arguments, set up logging
         args = parse.arguments()
+        context = get_context()
         os.umask(0o22)
 
         # Store script invocation command
@@ -66,7 +68,7 @@ def main() -> int:
         elif not os.path.exists(args.config):
             raise RuntimeError("Please specify a config file, or run"
                                " 'pmbootstrap init' to generate one.")
-        elif not os.path.exists(config.work):
+        elif not os.path.exists(context.config.work):
             raise RuntimeError("Work path not found, please run 'pmbootstrap"
                                " init' to create it.")
 

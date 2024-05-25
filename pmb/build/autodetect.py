@@ -6,10 +6,10 @@ from typing import Dict, Optional
 
 import pmb.config
 import pmb.chroot.apk
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.parse.arch
-from pmb.core import Chroot, ChrootType
+from pmb.core import Chroot, ChrootType, get_context
 
 
 # FIXME (#2324): type hint Arch
@@ -31,7 +31,7 @@ def arch_from_deviceinfo(args: PmbArgs, pkgname, aport: Path) -> Optional[str]:
 
     # Return its arch
     device = pkgname.split("-", 1)[1]
-    arch = pmb.parse.deviceinfo(args, device)["arch"]
+    arch = pmb.parse.deviceinfo(device)["arch"]
     logging.verbose(pkgname + ": arch from deviceinfo: " + arch)
     return arch
 
@@ -47,7 +47,7 @@ def arch(args: PmbArgs, pkgname: str):
               * device arch (this will be preferred instead if build_default_device_arch is true)
               * first arch in the APKBUILD
     """
-    aport = pmb.helpers.pmaports.find(args, pkgname)
+    aport = pmb.helpers.pmaports.find(pkgname)
     if not aport:
         raise FileNotFoundError(f"APKBUILD not found for {pkgname}")
     ret = arch_from_deviceinfo(args, pkgname, aport)
@@ -57,7 +57,7 @@ def arch(args: PmbArgs, pkgname: str):
     apkbuild = pmb.parse.apkbuild(aport)
     arches = apkbuild["arch"]
 
-    if args.build_default_device_arch:
+    if get_context().config.build_default_device_arch:
         preferred_arch = args.deviceinfo["arch"]
         preferred_arch_2nd = pmb.config.arch_native
     else:
@@ -86,11 +86,11 @@ def chroot(apkbuild: Dict[str, str], arch: str) -> Chroot:
     return Chroot.buildroot(arch)
 
 
-def crosscompile(args: PmbArgs, apkbuild, arch, suffix: Chroot):
+def crosscompile(apkbuild, arch, suffix: Chroot):
     """
         :returns: None, "native", "crossdirect"
     """
-    if not args.cross:
+    if not get_context().cross:
         return None
     if not pmb.parse.arch.cpu_emulation_required(arch):
         return None

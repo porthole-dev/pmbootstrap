@@ -6,6 +6,7 @@ import enum
 from typing import Generator, Optional
 from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
+from .context import get_context
 
 class ChrootType(enum.Enum):
     ROOTFS = "rootfs"
@@ -69,7 +70,7 @@ class Chroot:
 
     @property
     def path(self) -> Path:
-        return Path(pmb.config.work, self.dirname)
+        return Path(get_context().config.work, self.dirname)
 
 
     @property
@@ -182,4 +183,4 @@ class Chroot:
         Glob all initialized chroot directories
         """
         for pattern in Chroot.iter_patterns():
-            yield from Path(pmb.config.work).glob(pattern)
+            yield from Path(get_context().config.work).glob(pattern)

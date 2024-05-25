@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """ Test pmb/config/workdir.py """
 import os
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import sys
 import time
@@ -18,7 +18,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -43,7 +43,7 @@ def test_chroot_save_init(args: PmbArgs, tmpdir, monkeypatch):
                 "native = 1234567890\n\n"
                 "[chroot-channels]\n"
                 "native = v20.05\n\n")
-    with open(pmb.config.work / "workdir.cfg", "r") as handle:
+    with open(get_context().config.work / "workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
     # Write again (different code path)
@@ -54,7 +54,7 @@ def test_chroot_save_init(args: PmbArgs, tmpdir, monkeypatch):
                 "[chroot-channels]\n"
                 "native = v20.05\n"
                 "buildroot_armhf = v20.05\n\n")
-    with open(pmb.config.work / "workdir.cfg", "r") as handle:
+    with open(get_context().config.work / "workdir.cfg", "r") as handle:
         assert handle.read() == expected
 
 
@@ -71,12 +71,12 @@ def test_chroots_outdated(args: PmbArgs, tmpdir, monkeypatch):
     assert func(args) is False
 
     # workdir.cfg is empty file
-    with open(pmb.config.work / "workdir.cfg", "w") as handle:
+    with open(get_context().config.work / "workdir.cfg", "w") as handle:
         handle.write("")
     assert func(args) is False
 
     # Write fake workdir.cfg: native was created at "90"
-    with open(pmb.config.work / "workdir.cfg", "w") as handle:
+    with open(get_context().config.work / "workdir.cfg", "w") as handle:
         handle.write("[chroot-init-dates]\nnative = 90\n\n")
 
     # Outdated (date_outdated: 90)
@@ -132,21 +132,21 @@ def test_clean(args: PmbArgs, tmpdir):
 
     # Write fake workdir.cfg
     cfg_fake = "[chroot-init-dates]\nnative = 1337\n\n"
-    with open(pmb.config.work / "workdir.cfg", "w") as handle:
+    with open(get_context().config.work / "workdir.cfg", "w") as handle:
         handle.write(cfg_fake)
 
     # 1. chroot_native dir exists
-    os.makedirs(pmb.config.work / "chroot_native")
+    os.makedirs(get_context().config.work / "chroot_native")
     assert func(args) is False
 
     # workdir.cfg: unchanged
-    with open(pmb.config.work / "workdir.cfg", "r") as handle:
+    with open(get_context().config.work / "workdir.cfg", "r") as handle:
         assert handle.read() == cfg_fake
 
     # 2. chroot_native dir does not exist
-    os.rmdir(pmb.config.work / "chroot_native")
+    os.rmdir(get_context().config.work / "chroot_native")
     assert func(args) is True
 
     # workdir.cfg: "native" entry removed
-    with open(pmb.config.work / "workdir.cfg", "r") as handle:
+    with open(get_context().config.work / "workdir.cfg", "r") as handle:
         assert handle.read() == "[chroot-init-dates]\n\n"

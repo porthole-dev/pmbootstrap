@@ -5,13 +5,14 @@ from typing import List
 from pmb.helpers import logging
 import shlex
 
-from pmb.core.types import PathString, PmbArgs
+from pmb.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
 import pmb.parse.arch
 import pmb.config.pmaports
 import pmb.build
+from pmb.core import get_context
 
 
 def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
@@ -21,7 +22,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
         :param host: target device ssh hostname
         :param port: target device ssh port """
 
-    keys = list((pmb.config.work / "config_abuild").glob("*.pub"))
+    keys = list((get_context().config.work / "config_abuild").glob("*.pub"))
     key = keys[0]
     key_name = os.path.basename(key)
 
@@ -91,17 +92,18 @@ def sideload(args: PmbArgs, user: str, host: str, port: str, arch: str, copy_key
         :param pkgnames: list of pkgnames to be built """
 
     paths = []
-    channel: str = pmb.config.pmaports.read_config(args)["channel"]
+    channel: str = pmb.config.pmaports.read_config()["channel"]
 
     if arch is None:
         arch = ssh_find_arch(args, user, host, port)
 
+    context = get_context()
     for pkgname in pkgnames:
-        data_repo = pmb.parse.apkindex.package(args, pkgname, arch, True)
+        data_repo = pmb.parse.apkindex.package(pkgname, arch, True)
         apk_file = f"{pkgname}-{data_repo['version']}.apk"
-        host_path = pmb.config.work / "packages" / channel / arch / apk_file
+        host_path = context.config.work / "packages" / channel / arch / apk_file
         if not host_path.is_file():
-            pmb.build.package(args, pkgname, arch, force=True)
+            pmb.build.package(context, pkgname, arch, force=True)
 
         if not host_path.is_file():
             raise RuntimeError(f"The package '{pkgname}' could not be built")

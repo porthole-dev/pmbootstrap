@@ -12,7 +12,7 @@ from pmb.helpers import logging
 from pathlib import Path
 from typing import Optional, Sequence, Dict
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.parse
 
 def _find_apkbuilds() -> Dict[str, Path]:
@@ -23,7 +23,7 @@ def _find_apkbuilds() -> Dict[str, Path]:
         return apkbuilds
 
     apkbuilds = {}
-    for apkbuild in glob.iglob(f"{get_context().aports}/**/*/APKBUILD", recursive=True):
+    for apkbuild in glob.iglob(f"{get_context().config.aports}/**/*/APKBUILD", recursive=True):
         package = Path(apkbuild).parent.name
         if package in apkbuilds:
             raise RuntimeError(f"Package {package} found in multiple aports "
@@ -199,7 +199,7 @@ def find_optional(package: str) -> Optional[Path]:
         return None
 
 
-def get(args: PmbArgs, pkgname, must_exist=True, subpackages=True):
+def get(pkgname, must_exist=True, subpackages=True):
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.

@@ -7,15 +7,15 @@ from pmb.helpers import logging
 import os
 
 import pmb.chroot
+import pmb.chroot.binfmt
 import pmb.chroot.apk_static
 import pmb.config
 import pmb.config.workdir
-from pmb.core.types import PmbArgs
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.other
 import pmb.parse.arch
-from pmb.core import Chroot, ChrootType
+from pmb.core import Chroot, ChrootType, get_context
 
 cache_chroot_is_outdated: List[str] = []
 
@@ -29,7 +29,7 @@ class UsrMerge(enum.Enum):
     OFF = 2
 
 
-def copy_resolv_conf(args: PmbArgs, chroot: Chroot):
+def copy_resolv_conf(chroot: Chroot):
     """
     Use pythons super fast file compare function (due to caching)
     and copy the /etc/resolv.conf to the chroot, in case it is
@@ -45,7 +45,7 @@ def copy_resolv_conf(args: PmbArgs, chroot: Chroot):
         pmb.helpers.run.root(["touch", resolv_path])
 
 
-def mark_in_chroot(args: PmbArgs, chroot: Chroot=Chroot.native()):
+def mark_in_chroot(chroot: Chroot=Chroot.native()):
     """
     Touch a flag so we can know when we're running in chroot (and
     don't accidentally flash partitions on our host). This marker
@@ -56,7 +56,7 @@ def mark_in_chroot(args: PmbArgs, chroot: Chroot=Chroot.native()):
         pmb.helpers.run.root(["touch", in_chroot_file])
 
 
-def setup_qemu_emulation(args: PmbArgs, chroot: Chroot):
+def setup_qemu_emulation(chroot: Chroot):
     arch = chroot.arch
     if not pmb.parse.arch.cpu_emulation_required(arch):
         return
@@ -64,13 +64,13 @@ def setup_qemu_emulation(args: PmbArgs, chroot: Chroot):
     arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
 
     # mount --bind the qemu-user binary
-    pmb.chroot.binfmt.register(args, arch)
+    pmb.chroot.binfmt.register(arch)
     pmb.helpers.mount.bind_file(Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
                                 chroot / f"usr/bin/qemu-{arch_qemu}-static",
                                 create_folders=True)
 
 
-def init_keys(args: PmbArgs):
+def init_keys():
     """
     All Alpine and postmarketOS repository keys are shipped with pmbootstrap.
     Copy them into $WORK/config_apk_keys, which gets mounted inside the various
@@ -81,27 +81,27 @@ def init_keys(args: PmbArgs):
     not installed yet.
     """
     for key in pmb.config.apk_keys_path.glob("*.pub"):
-        target = pmb.config.work / "config_apk_keys" / key.name
+        target = get_context().config.work / "config_apk_keys" / key.name
         if not target.exists():
             # Copy as root, so the resulting files in chroots are owned by root
             pmb.helpers.run.root(["cp", key, target])
 
 
-def init_usr_merge(args: PmbArgs, chroot: Chroot):
+def init_usr_merge(chroot: Chroot):
     logging.info(f"({chroot}) merge /usr")
     script = f"{pmb.config.pmb_src}/pmb/data/merge-usr.sh"
     pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB",
                                 chroot.path])
 
 
-def warn_if_chroot_is_outdated(args: PmbArgs, chroot: Chroot):
+def warn_if_chroot_is_outdated(chroot: Chroot):
     global cache_chroot_is_outdated
 
     # Only check / display the warning once per session
     if str(chroot) in cache_chroot_is_outdated:
         return
 
-    if pmb.config.workdir.chroots_outdated(args, chroot):
+    if pmb.config.workdir.chroots_outdated(chroot):
         days_warn = int(pmb.config.chroot_outdated / 3600 / 24)
         logging.warning(f"WARNING: Your {chroot} chroot is older than"
                         f" {days_warn} days. Consider running"
@@ -110,7 +110,7 @@ def warn_if_chroot_is_outdated(args: PmbArgs, chroot: Chroot):
     cache_chroot_is_outdated += [str(chroot)]
 
 
-def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
+def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
          postmarketos_mirror=True):
     """
     Initialize a chroot by copying the resolv.conf and updating
@@ -125,61 +125,62 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     # When already initialized: just prepare the chroot
     arch = chroot.arch
 
+    config = get_context().config
     already_setup = str(chroot) in pmb.helpers.other.cache["pmb.chroot.init"]
     if already_setup:
         logging.warning(f"({chroot}) FIXME! init() called multiple times!")
         return
 
-    pmb.chroot.mount(args, chroot)
-    setup_qemu_emulation(args, chroot)
-    mark_in_chroot(args, chroot)
+    pmb.chroot.mount(chroot)
+    setup_qemu_emulation(chroot)
+    mark_in_chroot(chroot)
     if (chroot / "bin/sh").is_symlink():
-        pmb.config.workdir.chroot_check_channel(args, chroot)
-        copy_resolv_conf(args, chroot)
-        pmb.chroot.apk.update_repository_list(args, chroot, postmarketos_mirror)
-        warn_if_chroot_is_outdated(args, chroot)
+        pmb.config.workdir.chroot_check_channel(chroot)
+        copy_resolv_conf(chroot)
+        pmb.chroot.apk.update_repository_list(chroot, postmarketos_mirror)
+        warn_if_chroot_is_outdated(chroot)
         pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)] = True
         return
 
     # Require apk-tools-static
-    pmb.chroot.apk_static.init(args)
+    pmb.chroot.apk_static.init()
 
     logging.info(f"({chroot}) install alpine-base")
 
     # Initialize cache
-    apk_cache = pmb.config.work / f"cache_apk_{arch}"
+    apk_cache = config.work / f"cache_apk_{arch}"
     pmb.helpers.run.root(["ln", "-s", "-f", "/var/cache/apk",
                                 chroot / "etc/apk/cache"])
 
     # Initialize /etc/apk/keys/, resolv.conf, repositories
-    init_keys(args)
-    copy_resolv_conf(args, chroot)
-    pmb.chroot.apk.update_repository_list(args, chroot, postmarketos_mirror)
+    init_keys()
+    copy_resolv_conf(chroot)
+    pmb.chroot.apk.update_repository_list(chroot, postmarketos_mirror)
 
-    pmb.config.workdir.chroot_save_init(args, chroot)
+    pmb.config.workdir.chroot_save_init(chroot)
 
     # Install alpine-base
-    pmb.helpers.repo.update(args, arch)
+    pmb.helpers.repo.update(arch)
     pkgs = ["alpine-base"]
     # install apk static in the native chroot so we can run it
     # we have a forked apk for systemd and this is the easiest
     # way to install/run it.
     if chroot.type == ChrootType.NATIVE:
         pkgs += ["apk-tools-static"]
-    pmb.chroot.apk_static.run(args, ["--root", chroot.path,
+    pmb.chroot.apk_static.run(["--root", chroot.path,
                                      "--cache-dir", apk_cache,
                                      "--initdb", "--arch", arch,
                                      "add"] + pkgs)
 
     # Merge /usr
-    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(args):
+    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):
         usr_merge = UsrMerge.ON
     if usr_merge is UsrMerge.ON:
-        init_usr_merge(args, chroot)
+        init_usr_merge(chroot)
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
     if not chroot.type == ChrootType.ROOTFS:
-        pmb.chroot.root(args, ["adduser", "-D", "pmos", "-u",
+        pmb.chroot.root(["adduser", "-D", "pmos", "-u",
                                pmb.config.chroot_uid_user],
                         chroot)
 
@@ -187,11 +188,11 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         for target, link_name in pmb.config.chroot_home_symlinks.items():
             link_dir = os.path.dirname(link_name)
             if not os.path.exists(chroot / link_dir):
-                pmb.chroot.user(args, ["mkdir", "-p", link_dir], chroot)
+                pmb.chroot.user(["mkdir", "-p", link_dir], chroot)
             if not os.path.exists(chroot / target):
-                pmb.chroot.root(args, ["mkdir", "-p", target], chroot)
-            pmb.chroot.user(args, ["ln", "-s", target, link_name], chroot)
-            pmb.chroot.root(args, ["chown", "pmos:pmos", target], chroot)
+                pmb.chroot.root(["mkdir", "-p", target], chroot)
+            pmb.chroot.user(["ln", "-s", target, link_name], chroot)
+            pmb.chroot.root(["chown", "pmos:pmos", target], chroot)
 
     # Upgrade packages in the chroot, in case alpine-base, apk, etc. have been
     # built from source with pmbootstrap
@@ -201,6 +202,6 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
         command = ["--force-missing-repositories"] + command
 
-    pmb.chroot.root(args, ["apk"] + command, chroot)
+    pmb.chroot.root(["apk"] + command, chroot)
 
-    pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)]
+    pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)] = True

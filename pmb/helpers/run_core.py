@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
 from pmb.core import get_context
-from pmb.core.types import PathString, Env
+from pmb.types import PathString, Env
 from pmb.helpers import logging
 import os
 from pathlib import Path

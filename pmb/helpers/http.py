@@ -8,7 +8,8 @@ from pathlib import Path
 import shutil
 import urllib.request
 
-from pmb.core.types import PmbArgs
+from pmb.core import get_context
+from pmb.types import PmbArgs
 import pmb.helpers.run
 
 def cache_file(prefix: str, url: str) -> Path:
@@ -16,7 +17,7 @@ def cache_file(prefix: str, url: str) -> Path:
     return Path(f"{prefix}_{hashlib.sha256(url.encode('utf-8')).hexdigest()}")
 
 
-def download(args: PmbArgs, url, prefix, cache=True, loglevel=logging.INFO,
+def download(url, prefix, cache=True, loglevel=logging.INFO,
              allow_404=False):
     """Download a file to disk.
 
@@ -34,18 +35,19 @@ def download(args: PmbArgs, url, prefix, cache=True, loglevel=logging.INFO,
     :returns: path to the downloaded file in the cache or None on 404
     """
     # Create cache folder
-    if not os.path.exists(pmb.config.work / "cache_http"):
-        pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "cache_http"])
+    context = get_context()
+    if not os.path.exists(context.config.work / "cache_http"):
+        pmb.helpers.run.user(["mkdir", "-p", context.config.work / "cache_http"])
 
     # Check if file exists in cache
-    path = pmb.config.work / "cache_http" / cache_file(prefix, url)
+    path = context.config.work / "cache_http" / cache_file(prefix, url)
     if os.path.exists(path):
         if cache:
             return path
         pmb.helpers.run.user(["rm", path])
 
     # Offline and not cached
-    if args.offline:
+    if context.offline:
         raise RuntimeError("File not found in cache and offline flag is"
                            f" enabled: {url}")
 

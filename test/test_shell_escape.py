@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
 from typing import Any
-from pmb.core.types import Env, PmbArgs
+from pmb.types import Env, PmbArgs
 import pytest
 
 import pmb_test  # noqa
@@ -17,7 +17,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -50,7 +50,7 @@ def test_shell_escape(args: PmbArgs):
         assert expected == chroot_root
         assert cmd == copy
 
-        chroot_user = pmb.chroot.user(args, cmd, output_return=True)
+        chroot_user = pmb.chroot.user(cmd, output_return=True)
         assert expected == chroot_user
         assert cmd == copy
 

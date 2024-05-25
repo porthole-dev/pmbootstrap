@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import sys
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 
 import pmb_test  # noqa

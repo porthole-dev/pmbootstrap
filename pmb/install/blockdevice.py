@@ -5,12 +5,12 @@ from pmb.helpers import logging
 import os
 import glob
 from pathlib import Path
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.helpers.cli
 import pmb.config
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def previous_install(args: PmbArgs, path: Path):
@@ -28,7 +28,7 @@ def previous_install(args: PmbArgs, path: Path):
         pmb.helpers.mount.bind_file(blockdevice_outside,
                                     Chroot.native() / blockdevice_inside)
         try:
-            label = pmb.chroot.root(args, ["blkid", "-s", "LABEL",
+            label = pmb.chroot.root(["blkid", "-s", "LABEL",
                                            "-o", "value",
                                            blockdevice_inside],
                                     output_return=True)
@@ -87,19 +87,19 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
         outside = chroot / img_path
         if os.path.exists(outside):
             pmb.helpers.mount.umount_all(chroot / "mnt")
-            pmb.install.losetup.umount(args, img_path)
-            pmb.chroot.root(args, ["rm", img_path])
+            pmb.install.losetup.umount(img_path)
+            pmb.chroot.root(["rm", img_path])
 
     # Make sure there is enough free space
     size_mb = round(size_boot + size_reserve + size_root)
-    disk_data = os.statvfs(pmb.config.work)
+    disk_data = os.statvfs(get_context().config.work)
     free = round((disk_data.f_bsize * disk_data.f_bavail) / (1024**2))
     if size_mb > free:
         raise RuntimeError("Not enough free space to create rootfs image! "
                            f"(free: {free}M, required: {size_mb}M)")
 
     # Create empty image files
-    pmb.chroot.user(args, ["mkdir", "-p", "/home/pmos/rootfs"])
+    pmb.chroot.user(["mkdir", "-p", "/home/pmos/rootfs"])
     size_mb_full = str(size_mb) + "M"
     size_mb_boot = str(round(size_boot)) + "M"
     size_mb_root = str(round(size_root)) + "M"
@@ -110,7 +110,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
     for img_path, size_mb in images.items():
         logging.info(f"(native) create {img_path.name} "
                      f"({size_mb})")
-        pmb.chroot.root(args, ["truncate", "-s", size_mb, img_path])
+        pmb.chroot.root(["truncate", "-s", size_mb, img_path])
 
     # Mount to /dev/install
     mount_image_paths = {img_path_full: "/dev/install"}

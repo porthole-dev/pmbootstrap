@@ -8,7 +8,7 @@ import pmb.build
 import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
@@ -21,7 +21,7 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix = f"-{flavor}"
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         suffix = ""
 

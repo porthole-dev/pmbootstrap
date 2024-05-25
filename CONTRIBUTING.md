@@ -63,13 +63,13 @@ they contain untrusted input):
 
 ```py
 # Does not work, the command does not run in a shell!
-pmb.chroot.root(args, ["echo", "test", ">", "/tmp/test"])
+pmb.chroot.root(["echo", "test", ">", "/tmp/test"])
 
 # Use this instead (assuming untrusted input for text, dest)
 text = "test"
 dest = "/tmp/test"
 shell_cmd = f"echo {shutil.quote(text)} > {shutil.quote(dest)}"
-pmb.chroot.root(args, ["sh", "-c", shell_cmd])
+pmb.chroot.root(["sh", "-c", shell_cmd])
 ```
 
 If you need to run many commands in a shell at once, write them into a
@@ -83,7 +83,7 @@ the chroot. Use one of the following methods.
 
 ##### Short files
 ```py
-pmb.chroot.user(args, ["sh", "-c", f"echo {shlex.quote(hostname)}"
+pmb.chroot.user(["sh", "-c", f"echo {shlex.quote(hostname)}"
                        " > /etc/hostname"], suffix)
 ```
 
@@ -95,8 +95,8 @@ with open("tmp/somefile", "w") as handle:
     handle.write("Some long file")
     handle.write("with multiple")
     handle.write("lines here")
-pmb.chroot.root(args, ["mv", "/tmp/somefile", "/etc/somefile"])
-pmb.chroot.root(args, ["chown", "root:root", "/etc/somefile"], suffix)
+pmb.chroot.root(["mv", "/tmp/somefile", "/etc/somefile"])
+pmb.chroot.root(["chown", "root:root", "/etc/somefile"], suffix)
 ```
 
 ### Manual testing

@@ -3,9 +3,10 @@
 import fnmatch
 from pmb.helpers import logging
 import re
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
+from pmb.core import get_context
 
 
 def indent_size(line):
@@ -48,7 +49,7 @@ def format_function(name, body, remove_indent=4):
     return name + "() {\n" + ret + "}\n"
 
 
-def rewrite(args: PmbArgs, pkgname, path_original="", fields={}, replace_pkgname=None,
+def rewrite(pkgname, path_original="", fields={}, replace_pkgname=None,
             replace_functions={}, replace_simple={}, below_header="",
             remove_indent=4):
     """
@@ -93,7 +94,7 @@ def rewrite(args: PmbArgs, pkgname, path_original="", fields={}, replace_pkgname
             lines_new += line.rstrip() + "\n"
 
     # Copy/modify lines, skip Maintainer/Contributor
-    path = pmb.config.work / "aportgen/APKBUILD"
+    path = get_context().config.work / "aportgen/APKBUILD"
     with open(path, "r+", encoding="utf-8") as handle:
         skip_in_func = False
         for line in handle.readlines():
@@ -165,14 +166,14 @@ def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
     """
     # APKBUILD
     pmb.helpers.git.clone("aports_upstream")
-    aports_upstream_path = pmb.config.work / "cache_git/aports_upstream"
+    aports_upstream_path = get_context().config.work / "cache_git/aports_upstream"
 
     if getattr(args, "fork_alpine_retain_branch", False):
         logging.info("Not changing aports branch as --fork-alpine-retain-branch was "
                      "used.")
     else:
         # Checkout branch
-        channel_cfg = pmb.config.pmaports.read_config_channel(args)
+        channel_cfg = pmb.config.pmaports.read_config_channel()
         branch = channel_cfg["branch_aports"]
         logging.info(f"Checkout aports.git branch: {branch}")
         if pmb.helpers.run.user(["git", "checkout", branch],
@@ -202,8 +203,8 @@ def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
     split = aport_path.parts
     repo = split[-2]
     pkgname = split[-1]
-    index_path = pmb.helpers.repo.alpine_apkindex_path(args, repo, arch)
-    package = pmb.parse.apkindex.package(args, pkgname, indexes=[index_path])
+    index_path = pmb.helpers.repo.alpine_apkindex_path(repo, arch)
+    package = pmb.parse.apkindex.package(pkgname, indexes=[index_path])
 
     # Compare version (return when equal)
     compare = pmb.parse.version.compare(apkbuild_version, package["version"])

@@ -4,31 +4,33 @@ import os
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.other
 import pmb.parse
 import pmb.parse.arch
+import pmb.chroot.apk
 
 
 def is_registered(arch_qemu):
     return os.path.exists("/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu)
 
 
-def register(args: PmbArgs, arch):
+def register(arch):
     """
     Get arch, magic, mask.
     """
     arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+    chroot = Chroot.native()
 
     # always make sure the qemu-<arch> binary is installed, since registering
     # may happen outside of this method (e.g. by OS)
-    if f"qemu-{arch_qemu}" not in pmb.chroot.apk.installed(args):
-        pmb.chroot.apk.install(args, ["qemu-" + arch_qemu], Chroot.native())
+    if f"qemu-{arch_qemu}" not in pmb.chroot.apk.installed(chroot):
+        pmb.chroot.apk.install(["qemu-" + arch_qemu], chroot)
 
     if is_registered(arch_qemu):
         return
-    pmb.helpers.other.check_binfmt_misc(args)
+    pmb.helpers.other.check_binfmt_misc()
 
     # Don't continue if the actions from check_binfmt_misc caused the OS to
     # automatically register the target arch

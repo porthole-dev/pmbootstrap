@@ -7,7 +7,7 @@ import os
 import time
 import pmb.chroot
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.install.losetup
 from pmb.core import Chroot
 
@@ -114,7 +114,7 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
         commands += [["set", str(layout["boot"]), "esp", "on"]]
 
     for command in commands:
-        pmb.chroot.root(args, ["parted", "-s", "/dev/install"] +
+        pmb.chroot.root(["parted", "-s", "/dev/install"] +
                         command, check=False)
 
 
@@ -128,7 +128,7 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
 
-    pmb.chroot.apk.install(args, ["cgpt"], build=False)
+    pmb.chroot.apk.install(["cgpt"], build=False)
 
     cgpt = {
         'kpart_start': args.deviceinfo["cgpt_kpart_start"],
@@ -196,4 +196,4 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     ]
 
     for command in commands:
-        pmb.chroot.root(args, command, check=False)
+        pmb.chroot.root(command, check=False)

@@ -11,15 +11,15 @@ from typing import Optional
 
 import pmb.config
 import pmb.config.pmaports
-from pmb.core import Chroot
-from pmb.core.types import PmbArgs
+from pmb.core import Chroot, get_context
+from pmb.types import PmbArgs
 
 
-def chroot_save_init(args: PmbArgs, suffix: Chroot):
+def chroot_save_init(suffix: Chroot):
     """Save the chroot initialization data in $WORK/workdir.cfg."""
     # Read existing cfg
     cfg = configparser.ConfigParser()
-    path = pmb.config.work / "workdir.cfg"
+    path = get_context().config.work / "workdir.cfg"
     if os.path.isfile(path):
         cfg.read(path)
 
@@ -29,7 +29,7 @@ def chroot_save_init(args: PmbArgs, suffix: Chroot):
             cfg[key] = {}
 
     # Update sections
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     cfg["chroot-channels"][str(suffix)] = channel
     cfg["chroot-init-dates"][str(suffix)] = str(int(time.time()))
 
@@ -38,7 +38,7 @@ def chroot_save_init(args: PmbArgs, suffix: Chroot):
         cfg.write(handle)
 
 
-def chroots_outdated(args: PmbArgs, chroot: Optional[Chroot]=None):
+def chroots_outdated(chroot: Optional[Chroot]=None):
     """Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 
@@ -48,7 +48,7 @@ def chroots_outdated(args: PmbArgs, chroot: Optional[Chroot]=None):
               False otherwise
     """
     # Skip if workdir.cfg doesn't exist
-    path = pmb.config.work / "workdir.cfg"
+    path = get_context().config.work / "workdir.cfg"
     if not os.path.exists(path):
         return False
 
@@ -68,8 +68,8 @@ def chroots_outdated(args: PmbArgs, chroot: Optional[Chroot]=None):
     return False
 
 
-def chroot_check_channel(args: PmbArgs, chroot: Chroot):
-    path = pmb.config.work / "workdir.cfg"
+def chroot_check_channel(chroot: Chroot):
+    path = get_context().config.work / "workdir.cfg"
     msg_again = "Run 'pmbootstrap zap' to delete your chroots and try again."
     msg_unknown = ("Could not figure out on which release channel the"
                    f" '{chroot}' chroot is.")
@@ -82,7 +82,7 @@ def chroot_check_channel(args: PmbArgs, chroot: Chroot):
     if key not in cfg or str(chroot) not in cfg[key]:
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     channel_cfg = cfg[key][str(chroot)]
     if channel != channel_cfg:
         raise RuntimeError(f"Chroot '{chroot}' was created for the"
@@ -98,7 +98,7 @@ def clean(args: PmbArgs):
         False if config did not change
     """
     # Skip if workdir.cfg doesn't exist
-    path = pmb.config.work / "workdir.cfg"
+    path = get_context().config.work / "workdir.cfg"
     if not os.path.exists(path):
         return None
 

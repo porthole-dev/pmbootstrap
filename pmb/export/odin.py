@@ -6,7 +6,7 @@ from pathlib import Path
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
@@ -23,7 +23,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix_flavor = f"-{flavor}"
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         suffix_flavor = ""
 
@@ -44,7 +44,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
     # Temporary folder
     temp_folder = "/tmp/odin-flashable-tar"
     if (Chroot.native() / temp_folder).exists():
-        pmb.chroot.root(args, ["rm", "-rf", temp_folder])
+        pmb.chroot.root(["rm", "-rf", temp_folder])
 
     # Odin flashable tar generation script
     # (because redirecting stdin/stdout is not allowed
@@ -86,15 +86,15 @@ def odin(args: PmbArgs, flavor, folder: Path):
                 ["rm", "/tmp/_odin.sh"]
                 ]
     for command in commands:
-        pmb.chroot.root(args, command, suffix)
+        pmb.chroot.root(command, suffix)
 
     # Move Odin flashable tar to native chroot and cleanup temp folder
-    pmb.chroot.user(args, ["mkdir", "-p", "/home/pmos/rootfs"])
-    pmb.chroot.root(args, ["mv", f"/mnt/rootfs_{args.device}{temp_folder}"
+    pmb.chroot.user(["mkdir", "-p", "/home/pmos/rootfs"])
+    pmb.chroot.root(["mv", f"/mnt/rootfs_{args.device}{temp_folder}"
                            f"/{odin_device_tar_md5}", "/home/pmos/rootfs/"]),
-    pmb.chroot.root(args, ["chown", "pmos:pmos",
+    pmb.chroot.root(["chown", "pmos:pmos",
                            f"/home/pmos/rootfs/{odin_device_tar_md5}"])
-    pmb.chroot.root(args, ["rmdir", temp_folder], suffix)
+    pmb.chroot.root(["rmdir", temp_folder], suffix)
 
     # Create the symlink
     file = Chroot.native() / "home/pmos/rootfs" / odin_device_tar_md5

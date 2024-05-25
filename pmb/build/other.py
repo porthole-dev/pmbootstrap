@@ -8,7 +8,7 @@ import datetime
 from typing import List
 
 import pmb.chroot
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.git
 import pmb.helpers.pmaports
@@ -16,12 +16,12 @@ import pmb.helpers.run
 import pmb.parse.arch
 import pmb.parse.apkindex
 import pmb.parse.version
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
-def copy_to_buildpath(args: PmbArgs, package, chroot: Chroot=Chroot.native()):
+def copy_to_buildpath(package, chroot: Chroot=Chroot.native()):
     # Sanity check
-    aport = pmb.helpers.pmaports.find(args, package)
+    aport = pmb.helpers.pmaports.find(package)
     if not os.path.exists(aport / "APKBUILD"):
         raise ValueError(f"Path does not contain an APKBUILD file: {aport}")
 
@@ -42,11 +42,11 @@ def copy_to_buildpath(args: PmbArgs, package, chroot: Chroot=Chroot.native()):
             continue
         pmb.helpers.run.root(["cp", "-rL", aport / file, build / file])
 
-    pmb.chroot.root(args, ["chown", "-R", "pmos:pmos",
+    pmb.chroot.root(["chown", "-R", "pmos:pmos",
                            "/home/pmos/build"], chroot)
 
 
-def is_necessary(args: PmbArgs, arch, apkbuild, indexes=None):
+def is_necessary(arch, apkbuild, indexes=None):
     """Check if the package has already been built.
 
     Compared to abuild's check, this check also works for different architectures.
@@ -61,7 +61,7 @@ def is_necessary(args: PmbArgs, arch, apkbuild, indexes=None):
     msg = "Build is necessary for package '" + package + "': "
 
     # Get version from APKINDEX
-    index_data = pmb.parse.apkindex.package(args, package, arch, False,
+    index_data = pmb.parse.apkindex.package(package, arch, False,
                                             indexes)
     if not index_data:
         logging.debug(msg + "No binary package available")
@@ -101,8 +101,8 @@ def index_repo(args: PmbArgs, arch=None):
     """
     pmb.build.init(args)
 
-    channel = pmb.config.pmaports.read_config(args)["channel"]
-    pkgdir = (pmb.config.work / "packages" / channel)
+    channel = pmb.config.pmaports.read_config()["channel"]
+    pkgdir = (get_context().config.work / "packages" / channel)
     paths: List[Path] = []
     if arch:
         paths = [pkgdir / arch]
@@ -124,55 +124,57 @@ def index_repo(args: PmbArgs, arch=None):
                 ["mv", "APKINDEX.tar.gz_", "APKINDEX.tar.gz"]
             ]
             for command in commands:
-                pmb.chroot.user(args, command, working_dir=path_repo_chroot)
+                pmb.chroot.user(command, working_dir=path_repo_chroot)
         else:
             logging.debug(f"NOTE: Can't build index for: {path}")
         pmb.parse.apkindex.clear_cache(path / "APKINDEX.tar.gz")
 
 
-def configure_abuild(args: PmbArgs, chroot: Chroot, verify=False):
+def configure_abuild(chroot: Chroot, verify=False):
     """Set the correct JOBS count in ``abuild.conf``.
 
     :param verify: internally used to test if changing the config has worked.
     """
+    jobs = get_context().config.jobs
     path = chroot / "etc/abuild.conf"
     prefix = "export JOBS="
     with path.open(encoding="utf-8") as handle:
         for line in handle:
             if not line.startswith(prefix):
                 continue
-            if line != (prefix + args.jobs + "\n"):
+            if line != (prefix + jobs + "\n"):
                 if verify:
                     raise RuntimeError(f"Failed to configure abuild: {path}"
                                        "\nTry to delete the file"
                                        "(or zap the chroot).")
-                pmb.chroot.root(args, ["sed", "-i", "-e",
-                                       f"s/^{prefix}.*/{prefix}{args.jobs}/",
+                pmb.chroot.root(["sed", "-i", "-e",
+                                       f"s/^{prefix}.*/{prefix}{jobs}/",
                                        "/etc/abuild.conf"],
                                 chroot)
-                configure_abuild(args, chroot, True)
+                configure_abuild(chroot, True)
             return
-    pmb.chroot.root(args, ["sed", "-i", f"$ a\\{prefix}{args.jobs}", "/etc/abuild.conf"], chroot)
+    pmb.chroot.root(["sed", "-i", f"$ a\\{prefix}{jobs}", "/etc/abuild.conf"], chroot)
 
 
-def configure_ccache(args: PmbArgs, chroot: Chroot=Chroot.native(), verify=False):
+def configure_ccache(chroot: Chroot=Chroot.native(), verify=False):
     """Set the maximum ccache size.
 
     :param verify: internally used to test if changing the config has worked.
     """
     # Check if the settings have been set already
     arch = chroot.arch
-    path = pmb.config.work / f"cache_ccache_{arch}" / "ccache.conf"
+    config = get_context().config
+    path = config.work / f"cache_ccache_{arch}" / "ccache.conf"
     if os.path.exists(path):
         with open(path, encoding="utf-8") as handle:
             for line in handle:
-                if line == ("max_size = " + args.ccache_size + "\n"):
+                if line == ("max_size = " + config.ccache_size + "\n"):
                     return
     if verify:
         raise RuntimeError(f"Failed to configure ccache: {path}\nTry to"
                            " delete the file (or zap the chroot).")
 
     # Set the size and verify
-    pmb.chroot.user(args, ["ccache", "--max-size", args.ccache_size],
+    pmb.chroot.user(["ccache", "--max-size", config.ccache_size],
                     chroot)
-    configure_ccache(args, chroot, True)
+    configure_ccache(chroot, True)

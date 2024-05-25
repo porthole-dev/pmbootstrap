@@ -3,7 +3,7 @@
 import os
 from pmb.helpers import logging
 from pathlib import Path
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.chroot.run
 import pmb.chroot.other
@@ -79,7 +79,7 @@ def bootimg(args: PmbArgs, path: Path):
     logging.info("NOTE: You will be prompted for your sudo/doas password, so"
                  " we can set up a chroot to extract and analyze your"
                  " boot.img file")
-    pmb.chroot.apk.install(args, ["file", "unpackbootimg"], Chroot.native())
+    pmb.chroot.apk.install(["file", "unpackbootimg"], Chroot.native())
 
     temp_path = pmb.chroot.other.tempfolder(args, Path("/tmp/bootimg_parser"))
     bootimg_path = Chroot.native() / temp_path / "boot.img"
@@ -89,7 +89,7 @@ def bootimg(args: PmbArgs, path: Path):
     pmb.helpers.run.root(["cp", path, bootimg_path])
     pmb.helpers.run.root(["chmod", "a+r", bootimg_path])
 
-    file_output = pmb.chroot.user(args, ["file", "-b", "boot.img"],
+    file_output = pmb.chroot.user(["file", "-b", "boot.img"],
                                   working_dir=temp_path,
                                   output_return=True).rstrip()
     if "android bootimg" not in file_output.lower():
@@ -111,7 +111,7 @@ def bootimg(args: PmbArgs, path: Path):
                                    file_output + ")")
 
     # Extract all the files
-    pmb.chroot.user(args, ["unpackbootimg", "-i", "boot.img"],
+    pmb.chroot.user(["unpackbootimg", "-i", "boot.img"],
                     working_dir=temp_path)
 
     output = {}

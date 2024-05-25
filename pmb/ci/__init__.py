@@ -6,7 +6,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 import pmb.chroot
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.cli
 from pmb.core import Chroot
 
@@ -135,9 +135,9 @@ def copy_git_repo_to_chroot(args: PmbArgs, topdir):
                                 f"{tarball_path}.files"], topdir)
 
     ci_dir = Path("/home/pmos/ci")
-    pmb.chroot.user(args, ["rm", "-rf", ci_dir])
-    pmb.chroot.user(args, ["mkdir", ci_dir])
-    pmb.chroot.user(args, ["tar", "-xf", "/tmp/git.tar.gz"],
+    pmb.chroot.user(["rm", "-rf", ci_dir])
+    pmb.chroot.user(["mkdir", ci_dir])
+    pmb.chroot.user(["tar", "-xf", "/tmp/git.tar.gz"],
                     working_dir=ci_dir)
 
 
@@ -178,7 +178,7 @@ def run_scripts(args: PmbArgs, topdir, scripts):
                 repo_copied = True
 
             env = {"TESTUSER": "pmos"}
-            rc = pmb.chroot.root(args, [script_path], check=False, env=env,
+            rc = pmb.chroot.root([script_path], check=False, env=env,
                                  working_dir=Path("/home/pmos/ci"),
                                  output="tui")
         if rc:

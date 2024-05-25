@@ -8,7 +8,7 @@ import readline
 import sys
 
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 from pmb.core import get_context
 
 

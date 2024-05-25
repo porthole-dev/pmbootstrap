@@ -4,7 +4,7 @@
 # sourcehut currently. Related to some CDN caching issue probably.
 import os
 import sys
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import glob
 import filecmp
@@ -20,7 +20,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -29,18 +29,18 @@ def args(request):
 def test_keys(args: PmbArgs):
     # Get the alpine-keys apk filename
     pmb.chroot.init(args)
-    version = pmb.parse.apkindex.package(args, "alpine-keys")["version"]
-    pattern = (pmb.config.work / "cache_apk_" + pmb.config.arch_native +
+    version = pmb.parse.apkindex.package("alpine-keys")["version"]
+    pattern = (get_context().config.work / "cache_apk_" + pmb.config.arch_native +
                "/alpine-keys-" + version + ".*.apk")
     filename = os.path.basename(glob.glob(pattern)[0])
 
     # Extract it to a temporary folder
     temp = "/tmp/test_keys_extract"
-    temp_outside = pmb.config.work / "chroot_native" + temp
+    temp_outside = get_context().config.work / "chroot_native" + temp
     if os.path.exists(temp_outside):
-        pmb.chroot.root(args, ["rm", "-r", temp])
-    pmb.chroot.user(args, ["mkdir", "-p", temp])
-    pmb.chroot.user(args, ["tar", "xvf", "/var/cache/apk/" + filename],
+        pmb.chroot.root(["rm", "-r", temp])
+    pmb.chroot.user(["mkdir", "-p", temp])
+    pmb.chroot.user(["tar", "xvf", "/var/cache/apk/" + filename],
                     working_dir=temp)
 
     # Get all relevant key file names as {"filename": "full_outside_path"}

@@ -11,7 +11,7 @@ import pmb.chroot.binfmt
 import pmb.helpers.run
 import pmb.helpers.run_core
 from pmb.core import Chroot
-from pmb.core.types import Env, PathString, PmbArgs
+from pmb.types import Env, PathString, PmbArgs
 
 
 def executables_absolute_path():
@@ -29,7 +29,7 @@ def executables_absolute_path():
     return ret
 
 
-def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
+def root(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
          output_return=False, check=None, env={},
          disable_timeout=False, add_proxy_env_vars=True):
     """
@@ -88,7 +88,7 @@ def root(args: PmbArgs, cmd: Sequence[PathString], chroot: Chroot=Chroot.native(
                                      disable_timeout)
 
 
-def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
+def user(cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
          output_return=False, check=None, env={}):
     """
     Run a command inside a chroot as "user". We always use the BusyBox
@@ -109,19 +109,19 @@ def user(args: PmbArgs, cmd, chroot: Chroot=Chroot.native(), working_dir: Path =
 
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
-    return pmb.chroot.root(args, cmd, chroot, working_dir, output,
+    return pmb.chroot.root(cmd, chroot, working_dir, output,
                            output_return, check, {},
                            add_proxy_env_vars=False)
 
 
-def exists(args: PmbArgs, username, chroot: Chroot=Chroot.native()):
+def exists(username, chroot: Chroot=Chroot.native()):
     """
     Checks if username exists in the system
 
     :param username: User name
     :returns: bool
     """
-    output = pmb.chroot.root(args, ["getent", "passwd", username],
+    output = pmb.chroot.root(["getent", "passwd", username],
                              chroot, output_return=True, check=False)
     return len(output) > 0
 

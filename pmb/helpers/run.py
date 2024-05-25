@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import pmb.helpers.run_core
 from typing import Any, Dict, List, Optional, Sequence
-from pmb.core.types import Env, PathString, PmbArgs
+from pmb.types import Env, PathString, PmbArgs
 
 
 def user(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: str = "log", output_return: bool = False,

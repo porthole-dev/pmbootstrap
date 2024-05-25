@@ -8,7 +8,7 @@ import re
 import urllib.parse
 from typing import Dict, Optional
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
@@ -263,7 +263,7 @@ def upgrade(args: PmbArgs, pkgname, git=True, stable=True) -> None:
     # Initialize request headers
     init_req_headers()
 
-    package = pmb.helpers.pmaports.get(args, pkgname)
+    package = pmb.helpers.pmaports.get(pkgname)
     # Run the correct function
     if "_git" in package["pkgver"]:
         if git:

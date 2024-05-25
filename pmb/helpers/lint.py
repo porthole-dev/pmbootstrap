@@ -7,7 +7,7 @@ import os
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.build
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 
@@ -17,7 +17,7 @@ def check(args: PmbArgs, pkgnames):
 
     :param pkgnames: Names of the packages to lint
     """
-    pmb.chroot.apk.install(args, ["atools"])
+    pmb.chroot.apk.install(["atools"])
 
     # Mount pmaports.git inside the chroot so that we don't have to copy the
     # package folders
@@ -28,7 +28,7 @@ def check(args: PmbArgs, pkgnames):
     # root
     apkbuilds = []
     for pkgname in pkgnames:
-        aport = pmb.helpers.pmaports.find(args, pkgname)
+        aport = pmb.helpers.pmaports.find(pkgname)
         if not (aport / "APKBUILD").exists():
             raise ValueError(f"Path does not contain an APKBUILD file: {aport}")
         relpath = os.path.relpath(aport, args.aports)
@@ -40,7 +40,7 @@ def check(args: PmbArgs, pkgnames):
     pkgstr = ", ".join(pkgnames)
     logging.info(f"(native) linting {pkgstr} with apkbuild-lint")
     options = pmb.config.apkbuild_custom_valid_options
-    return pmb.chroot.root(args, ["apkbuild-lint"] + apkbuilds,
+    return pmb.chroot.root(["apkbuild-lint"] + apkbuilds,
                            check=False, output="stdout",
                            output_return=True,
                            working_dir=pmaports,

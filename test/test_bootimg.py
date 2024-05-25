@@ -9,6 +9,7 @@ import pmb.chroot.apk_static
 import pmb.parse.apkindex
 import pmb.helpers.logging
 import pmb.parse.bootimg
+from pmb.core import get_context
 
 
 @pytest.fixture
@@ -16,7 +17,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args

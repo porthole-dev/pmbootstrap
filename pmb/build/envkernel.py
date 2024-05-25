@@ -7,15 +7,16 @@ from pathlib import Path
 import re
 
 import pmb.aportgen
+import pmb.aportgen.core
 import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
-from pmb.core.types import PathString, PmbArgs
+from pmb.types import PathString, PmbArgs
 import pmb.helpers
 import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.parse
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def match_kbuild_out(word):
@@ -90,16 +91,17 @@ def find_kbuild_output_dir(function_body):
                        "can't resolve it, please open an issue.")
 
 
-def modify_apkbuild(args: PmbArgs, pkgname: str, aport: Path):
+def modify_apkbuild(pkgname: str, aport: Path):
     """Modify kernel APKBUILD to package build output from envkernel.sh."""
-    apkbuild_path = aport + "/APKBUILD"
+    work = get_context().config.work
+    apkbuild_path = aport / "APKBUILD"
     apkbuild = pmb.parse.apkbuild(apkbuild_path)
-    if os.path.exists(pmb.config.work / "aportgen"):
-        pmb.helpers.run.user(["rm", "-r", pmb.config.work / "aportgen"])
+    if os.path.exists(work / "aportgen"):
+        pmb.helpers.run.user(["rm", "-r", work / "aportgen"])
 
-    pmb.helpers.run.user(["mkdir", pmb.config.work / "aportgen"])
+    pmb.helpers.run.user(["mkdir", work / "aportgen"])
     pmb.helpers.run.user(["cp", "-r", apkbuild_path,
-                         pmb.config.work / "aportgen"])
+                         work / "aportgen"])
 
     pkgver = pmb.build._package.get_pkgver(apkbuild["pkgver"],
                                            original_source=False)
@@ -108,7 +110,7 @@ def modify_apkbuild(args: PmbArgs, pkgname: str, aport: Path):
               "subpackages": "",
               "builddir": "/home/pmos/build/src"}
 
-    pmb.aportgen.core.rewrite(args, pkgname, apkbuild_path, fields=fields)
+    pmb.aportgen.core.rewrite(pkgname, apkbuild_path, fields=fields)
 
 
 def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbuild_out):
@@ -140,16 +142,16 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
                            "as an argument to make.")
 
     # Create working directory for abuild
-    pmb.build.copy_to_buildpath(args, pkgname)
+    pmb.build.copy_to_buildpath(pkgname)
 
     # Create symlink from abuild working directory to envkernel build directory
     if kbuild_out != "":
         if os.path.islink(chroot / "mnt/linux" / kbuild_out) and \
                 os.path.lexists(chroot / "mnt/linux" / kbuild_out):
-            pmb.chroot.root(args, ["rm", "/mnt/linux" / kbuild_out])
-        pmb.chroot.root(args, ["ln", "-s", "/mnt/linux",
+            pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
+        pmb.chroot.root(["ln", "-s", "/mnt/linux",
                         build_path / "src"])
-    pmb.chroot.root(args, ["ln", "-s", kbuild_out_source,
+    pmb.chroot.root(["ln", "-s", kbuild_out_source,
                     build_path / "src" / kbuild_out])
 
     cmd: List[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
@@ -161,7 +163,7 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
            "CBUILD": pmb.config.arch_native,
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "rootpkg"]
-    pmb.chroot.user(args, cmd, working_dir=build_path, env=env)
+    pmb.chroot.user(cmd, working_dir=build_path, env=env)
 
     # Clean up bindmount
     pmb.helpers.mount.umount_all(chroot / "mnt/linux")
@@ -170,8 +172,8 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
     if kbuild_out != "":
         if os.path.islink(chroot / "mnt/linux" / kbuild_out) and \
                 os.path.lexists(chroot / "mnt/linux" / kbuild_out):
-            pmb.chroot.root(args, ["rm", "/mnt/linux" / kbuild_out])
-    pmb.chroot.root(args, ["rm", build_path / "src"])
+            pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
+    pmb.chroot.root(["rm", build_path / "src"])
 
 
 def package_kernel(args: PmbArgs):
@@ -181,10 +183,10 @@ def package_kernel(args: PmbArgs):
         raise RuntimeError("--envkernel needs exactly one linux-* package as "
                            "argument.")
 
-    aport = pmb.helpers.pmaports.find(args, pkgname)
+    aport = pmb.helpers.pmaports.find(pkgname)
 
-    modify_apkbuild(args, pkgname, aport)
-    apkbuild_path = pmb.config.work / "aportgen/APKBUILD"
+    modify_apkbuild(pkgname, aport)
+    apkbuild_path = get_context().config.work / "aportgen/APKBUILD"
 
     arch = args.deviceinfo["arch"]
     apkbuild = pmb.parse.apkbuild(apkbuild_path, check_pkgname=False)
@@ -201,7 +203,7 @@ def package_kernel(args: PmbArgs):
     pmb.build.init(args, chroot)
     if pmb.parse.arch.cpu_emulation_required(arch):
         depends.append("binutils-" + arch)
-    pmb.chroot.apk.install(args, depends, chroot)
+    pmb.chroot.apk.install(depends, chroot)
 
     output = (arch + "/" + apkbuild["pkgname"] + "-" + apkbuild["pkgver"] +
               "-r" + apkbuild["pkgrel"] + ".apk")

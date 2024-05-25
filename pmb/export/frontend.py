@@ -1,7 +1,7 @@
 from pmb.helpers import logging
 import os
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.frontend
 import pmb.chroot.initfs

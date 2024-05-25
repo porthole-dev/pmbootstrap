@@ -6,26 +6,26 @@ import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.cli
 from pmb.core import Chroot
 
 
 def build(args: PmbArgs, flavor, chroot: Chroot):
     # Update mkinitfs and hooks
-    pmb.chroot.apk.install(args, ["postmarketos-mkinitfs"], chroot)
+    pmb.chroot.apk.install(["postmarketos-mkinitfs"], chroot)
     pmb.chroot.initfs_hooks.update(args, chroot)
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
 
     # Call mkinitfs
     logging.info(f"({chroot}) mkinitfs {flavor}")
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        pmb.chroot.root(args, ["mkinitfs"], chroot)
+        pmb.chroot.root(["mkinitfs"], chroot)
     else:
         release_file = (chroot / "usr/share/kernel" / flavor / "kernel.release")
         with release_file.open() as handle:
             release = handle.read().rstrip()
-            pmb.chroot.root(args, ["mkinitfs", "-o",
+            pmb.chroot.root(["mkinitfs", "-o",
                                    f"/boot/initramfs-{flavor}", release],
                             chroot)
 
@@ -38,7 +38,7 @@ def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
     # Extraction folder
     inside = "/tmp/initfs-extracted"
 
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         initfs_file = "/boot/initramfs"
     else:
@@ -53,7 +53,7 @@ def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
                                        " already exists."
                                        " Do you want to overwrite it?"):
             raise RuntimeError("Aborted!")
-        pmb.chroot.root(args, ["rm", "-r", inside], chroot)
+        pmb.chroot.root(["rm", "-r", inside], chroot)
 
     # Extraction script (because passing a file to stdin is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
@@ -71,7 +71,7 @@ def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
                 ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"]
                 ]
     for command in commands:
-        pmb.chroot.root(args, command, chroot)
+        pmb.chroot.root(command, chroot)
 
     # Return outside path for logging
     return outside
@@ -82,8 +82,8 @@ def ls(args: PmbArgs, flavor, suffix, extra=False):
     if extra:
         tmp = "/tmp/initfs-extra-extracted"
     extract(args, flavor, suffix, extra)
-    pmb.chroot.root(args, ["ls", "-lahR", "."], suffix, Path(tmp), "stdout")
-    pmb.chroot.root(args, ["rm", "-r", tmp], suffix)
+    pmb.chroot.root(["ls", "-lahR", "."], suffix, Path(tmp), "stdout")
+    pmb.chroot.root(["rm", "-r", tmp], suffix)
 
 
 def frontend(args: PmbArgs):
@@ -108,12 +108,12 @@ def frontend(args: PmbArgs):
 
     # Handle hook actions
     elif action == "hook_ls":
-        pmb.chroot.initfs_hooks.ls(args, chroot)
+        pmb.chroot.initfs_hooks.ls(chroot)
     else:
         if action == "hook_add":
-            pmb.chroot.initfs_hooks.add(args, args.hook, chroot)
+            pmb.chroot.initfs_hooks.add(args.hook, chroot)
         elif action == "hook_del":
-            pmb.chroot.initfs_hooks.delete(args, args.hook, chroot)
+            pmb.chroot.initfs_hooks.delete(args.hook, chroot)
 
         # Rebuild the initfs after adding/removing a hook
         build(args, flavor, chroot)

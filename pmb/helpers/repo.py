@@ -9,12 +9,13 @@ See also:
 """
 import os
 import hashlib
+from pmb.core import get_context
 from pmb.helpers import logging
 from pathlib import Path
 from typing import List
 
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.http
 import pmb.helpers.run
 import pmb.helpers.other
@@ -47,7 +48,7 @@ def apkindex_hash(url: str, length: int=8) -> Path:
     return Path(f"APKINDEX.{ret}.tar.gz")
 
 
-def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=True):
+def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
 
     :param user_repository: add /mnt/pmbootstrap/packages
@@ -60,18 +61,19 @@ def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=T
 
     # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
     # the pmaports branch of the channel, no need to make it more complicated)
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir_pmos = channel_cfg["branch_pmaports"]
     mirrordir_alpine = channel_cfg["mirrordir_alpine"]
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        channel = pmb.config.pmaports.read_config(args)["channel"]
-        ret.append(str(pmb.config.work / "packages" / channel))
+        channel = pmb.config.pmaports.read_config()["channel"]
+        ret.append(str(get_context().config.work / "packages" / channel))
 
+    context = get_context()
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:
-        for mirror in args.mirrors_postmarketos:
+        for mirror in context.config.mirrors_postmarketos:
             # Remove "master" mirrordir to avoid breakage until bpo is adjusted
             # (build.postmarketos.org#63) and to give potential other users of
             # this flag a heads up.
@@ -88,12 +90,12 @@ def urls(args: PmbArgs, user_repository=True, postmarketos_mirror=True, alpine=T
         if mirrordir_alpine == "edge":
             directories.append("testing")
         for dir in directories:
-            ret.append(f"{args.mirror_alpine}{mirrordir_alpine}/{dir}")
+            ret.append(f"{context.config.mirror_alpine}{mirrordir_alpine}/{dir}")
 
     return ret
 
 
-def apkindex_files(args: PmbArgs, arch=None, user_repository=True, pmos=True,
+def apkindex_files(arch=None, user_repository=True, pmos=True,
                    alpine=True) -> List[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
@@ -109,17 +111,17 @@ def apkindex_files(args: PmbArgs, arch=None, user_repository=True, pmos=True,
     ret = []
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        channel = pmb.config.pmaports.read_config(args)["channel"]
-        ret = [pmb.config.work / "packages" / channel / arch / "APKINDEX.tar.gz"]
+        channel = pmb.config.pmaports.read_config()["channel"]
+        ret = [get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz"]
 
     # Resolve the APKINDEX.$HASH.tar.gz files
-    for url in urls(args, False, pmos, alpine):
-        ret.append(pmb.config.work / f"cache_apk_{arch}" / apkindex_hash(url))
+    for url in urls(False, pmos, alpine):
+        ret.append(get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url))
 
     return ret
 
 
-def update(args: PmbArgs, arch=None, force=False, existing_only=False):
+def update(arch=None, force=False, existing_only=False):
     """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
@@ -132,7 +134,7 @@ def update(args: PmbArgs, arch=None, force=False, existing_only=False):
     """
     # Skip in offline mode, only show once
     cache_key = "pmb.helpers.repo.update"
-    if args.offline:
+    if get_context().offline:
         if not pmb.helpers.other.cache[cache_key]["offline_msg_shown"]:
             logging.info("NOTE: skipping package index update (offline mode)")
             pmb.helpers.other.cache[cache_key]["offline_msg_shown"] = True
@@ -148,11 +150,11 @@ def update(args: PmbArgs, arch=None, force=False, existing_only=False):
     # outdated_arches: ["armhf", "x86_64", ... ]
     outdated = {}
     outdated_arches = []
-    for url in urls(args, False):
+    for url in urls(False):
         for arch in architectures:
             # APKINDEX file name from the URL
             url_full = url + "/" + arch + "/APKINDEX.tar.gz"
-            cache_apk_outside = pmb.config.work / f"cache_apk_{arch}"
+            cache_apk_outside = get_context().config.work / f"cache_apk_{arch}"
             apkindex = cache_apk_outside / f"APKINDEX.{apkindex_hash(url)}.tar.gz"
 
             # Find update reason, possibly skip non-existing or known 404 files
@@ -186,8 +188,8 @@ def update(args: PmbArgs, arch=None, force=False, existing_only=False):
 
     # Download and move to right location
     for (i, (url, target)) in enumerate(outdated.items()):
-        pmb.helpers.cli.progress_print(args, i / len(outdated))
-        temp = pmb.helpers.http.download(args, url, "APKINDEX", False,
+        pmb.helpers.cli.progress_print(i / len(outdated))
+        temp = pmb.helpers.http.download(url, "APKINDEX", False,
                                          logging.DEBUG, True)
         if not temp:
             pmb.helpers.other.cache[cache_key]["404"].append(url)
@@ -196,12 +198,12 @@ def update(args: PmbArgs, arch=None, force=False, existing_only=False):
         if not os.path.exists(target_folder):
             pmb.helpers.run.root(["mkdir", "-p", target_folder])
         pmb.helpers.run.root(["cp", temp, target])
-    pmb.helpers.cli.progress_flush(args)
+    pmb.helpers.cli.progress_flush()
 
     return True
 
 
-def alpine_apkindex_path(args: PmbArgs, repo="main", arch=None):
+def alpine_apkindex_path(repo="main", arch=None):
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")
@@ -214,10 +216,10 @@ def alpine_apkindex_path(args: PmbArgs, repo="main", arch=None):
 
     # Download the file
     arch = arch or pmb.config.arch_native
-    update(args, arch)
+    update(arch)
 
     # Find it on disk
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
-    repo_link = f"{args.mirror_alpine}{channel_cfg['mirrordir_alpine']}/{repo}"
-    cache_folder = pmb.config.work / (f"cache_apk_{arch}")
+    channel_cfg = pmb.config.pmaports.read_config_channel()
+    repo_link = f"{get_context().config.mirror_alpine}{channel_cfg['mirrordir_alpine']}/{repo}"
+    cache_folder = get_context().config.work / (f"cache_apk_{arch}")
     return cache_folder / apkindex_hash(repo_link)

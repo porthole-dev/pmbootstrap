@@ -6,12 +6,12 @@ from typing import List, Sequence
 
 import pmb.chroot.run
 import pmb.config.pmaports
-from pmb.core.types import PathString, PmbArgs
+from pmb.types import PathString, PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.version
-
+from pmb.core import get_context
 
 def _prepare_fifo():
     """Prepare the progress fifo for reading / writing.
@@ -24,8 +24,8 @@ def _prepare_fifo():
               path of the fifo as needed by cat to read from it (always
               relative to the host)
     """
-    pmb.helpers.run.root(["mkdir", "-p", pmb.config.work / "tmp"])
-    fifo = fifo_outside = pmb.config.work / "tmp/apk_progress_fifo"
+    pmb.helpers.run.root(["mkdir", "-p", get_context().config.work / "tmp"])
+    fifo = fifo_outside = get_context().config.work / "tmp/apk_progress_fifo"
     if os.path.exists(fifo_outside):
         pmb.helpers.run.root(["rm", "-f", fifo_outside])
     pmb.helpers.run.root(["mkfifo", fifo_outside])
@@ -88,7 +88,7 @@ def apk_with_progress(command: Sequence[PathString]):
                                                    log_msg)
 
 
-def check_outdated(args: PmbArgs, version_installed, action_msg):
+def check_outdated(version_installed, action_msg):
     """Check if the provided alpine version is outdated.
 
     This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out
@@ -99,7 +99,7 @@ def check_outdated(args: PmbArgs, version_installed, action_msg):
                        this
     :raises: RuntimeError if the version is outdated
     """
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir_alpine = channel_cfg["mirrordir_alpine"]
     version_min = pmb.config.apk_tools_min_version[mirrordir_alpine]
 

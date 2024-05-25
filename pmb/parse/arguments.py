@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import sys
 
-from pmb.core.types import PmbArgs
+from pmb.types import Config, PmbArgs
 
 try:
     import argcomplete # type:ignore[import-untyped]
@@ -637,7 +637,8 @@ def get_parser():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
     arch_native = pmb.config.arch_native
     arch_choices = set(pmb.config.build_device_architectures + [arch_native])
-    mirrors_pmos_default = pmb.config.defaults["mirrors_postmarketos"]
+    default_config = Config()
+    mirrors_pmos_default = ",".join(default_config.mirrors_postmarketos)
 
     # Other
     parser.add_argument("-V", "--version", action="version",
@@ -653,7 +654,7 @@ def get_parser():
                         metavar="URL", action="append", default=[])
     parser.add_argument("-m", "--mirror-alpine", dest="mirror_alpine",
                         help="Alpine Linux mirror, default: "
-                            f"{pmb.config.defaults['mirror_alpine']}",
+                            f"{default_config.mirror_alpine}",
                         metavar="URL")
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
     parser.add_argument("-E", "--extra-space",

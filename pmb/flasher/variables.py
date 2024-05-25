@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Optional
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 
 
 def variables(args: PmbArgs, flavor, method):
@@ -99,7 +99,7 @@ def variables(args: PmbArgs, flavor, method):
     }
 
     # Backwards compatibility with old mkinitfs (pma#660)
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         vars["$FLAVOR"] = ""
     else:

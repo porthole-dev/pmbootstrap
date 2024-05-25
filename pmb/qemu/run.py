@@ -17,7 +17,7 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
-from pmb.core.types import PathString, PmbArgs
+from pmb.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.parse.arch
 import pmb.parse.cpuinfo
@@ -79,11 +79,11 @@ def create_gdk_loader_cache(args: PmbArgs) -> Path:
     if not (chroot_native / cache_path).is_file():
         raise RuntimeError(f"gdk pixbuf cache file not found: {cache_path}")
 
-    pmb.chroot.root(args, ["cp", cache_path, custom_cache_path])
+    pmb.chroot.root(["cp", cache_path, custom_cache_path])
     cmd: Sequence[PathString] = ["sed", "-i", "-e",
            f"s@\"{gdk_cache_dir}@\"{chroot_native / gdk_cache_dir}@",
            custom_cache_path]
-    pmb.chroot.root(args, cmd)
+    pmb.chroot.root(cmd)
     return chroot_native / custom_cache_path
 
 
@@ -107,7 +107,7 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
     flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
     flavor_suffix = f"-{flavor}"
     # Backwards compatibility with old mkinitfs (pma#660)
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         flavor_suffix = ""
 
@@ -325,7 +325,7 @@ def install_depends(args: PmbArgs, arch):
     if args.efi:
         depends.append("ovmf")
 
-    pmb.chroot.apk.install(args, depends, Chroot.native())
+    pmb.chroot.apk.install(depends, Chroot.native())
 
 
 def run(args: PmbArgs):

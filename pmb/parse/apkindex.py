@@ -6,7 +6,6 @@ from pmb.helpers import logging
 from pathlib import Path
 import tarfile
 import pmb.chroot.apk
-from pmb.core.types import PmbArgs
 import pmb.helpers.package
 import pmb.helpers.repo
 import pmb.parse.version
@@ -261,7 +260,7 @@ def clear_cache(path: Path):
         return False
 
 
-def providers(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
+def providers(package, arch=None, must_exist=True, indexes=None):
     """
     Get all packages, which provide one package.
 
@@ -277,7 +276,7 @@ def providers(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
     """
     if not indexes:
         arch = arch or pmb.config.arch_native
-        indexes = pmb.helpers.repo.apkindex_files(args, arch)
+        indexes = pmb.helpers.repo.apkindex_files(arch)
 
     package = pmb.helpers.package.remove_operators(package)
 
@@ -353,7 +352,7 @@ def provider_shortest(providers, pkgname):
     return providers[ret]
 
 
-def package(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
+def package(package, arch=None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
 
@@ -372,7 +371,7 @@ def package(args: PmbArgs, package, arch=None, must_exist=True, indexes=None):
               or None when the package was not found.
     """
     # Provider with the same package
-    package_providers = providers(args, package, arch, must_exist, indexes)
+    package_providers = providers(package, arch, must_exist, indexes)
     if package in package_providers:
         return package_providers[package]
 

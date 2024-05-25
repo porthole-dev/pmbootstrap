@@ -1,8 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core import get_context
 from pmb.helpers import logging
 import os
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.aportgen.core
@@ -237,8 +238,9 @@ def generate_deviceinfo(args: PmbArgs, pkgname, name, manufacturer, year, arch,
         content += content_uuu
 
     # Write to file
-    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
-    path = pmb.config.work / "aportgen/deviceinfo"
+    work = get_context().config.work
+    pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
+    path = work / "aportgen/deviceinfo"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
@@ -258,8 +260,9 @@ def generate_modules_initfs(args: PmbArgs):
     """
 
     # Write to file
-    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
-    path = pmb.config.work / "aportgen/modules-initfs"
+    work = get_context().config.work
+    pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
+    path = work / "aportgen/modules-initfs"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line.lstrip() + "\n")
@@ -308,8 +311,9 @@ def generate_apkbuild(args: PmbArgs, pkgname, name, arch, flash_method):
         """
 
     # Write the file
-    pmb.helpers.run.user(["mkdir", "-p", pmb.config.work / "aportgen"])
-    path = pmb.config.work / "aportgen/APKBUILD"
+    work = get_context().config.work
+    pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
+    path = work / "aportgen/APKBUILD"
     with open(path, "w", encoding="utf-8") as handle:
         for line in content.rstrip().split("\n"):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")

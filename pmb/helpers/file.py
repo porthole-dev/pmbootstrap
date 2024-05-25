@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import time
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 
@@ -30,7 +30,7 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     :param in_quotes: expect the value to be in quotation marks ("")
     """
     # Read old value
-    path = pmb.helpers.pmaports.find(args, pkgname) / "APKBUILD"
+    path = pmb.helpers.pmaports.find(pkgname) / "APKBUILD"
     apkbuild = pmb.parse.apkbuild(path)
     old = apkbuild[key]
 

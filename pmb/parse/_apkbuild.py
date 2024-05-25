@@ -8,7 +8,7 @@ import re
 from collections import OrderedDict
 
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.devices
 import pmb.parse.version
 
@@ -330,7 +330,7 @@ def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
         path = path / "APKBUILD"
 
     if not path.exists():
-        raise FileNotFoundError(f"{path.relative_to(pmb.config.work)} not found!")
+        raise FileNotFoundError(f"{path.relative_to(get_context().config.work)} not found!")
 
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
@@ -367,7 +367,7 @@ def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
     return ret
 
 
-def kernels(args: PmbArgs, device):
+def kernels(device: str):
     """
     Get the possible kernels from a device-* APKBUILD.
 
@@ -379,7 +379,7 @@ def kernels(args: PmbArgs, device):
                         "downstream": "Downstream description"}
     """
     # Read the APKBUILD
-    apkbuild_path = pmb.helpers.devices.find_path(args, device, 'APKBUILD')
+    apkbuild_path = pmb.helpers.devices.find_path(device, 'APKBUILD')
     if apkbuild_path is None:
         return None
     subpackages = apkbuild(apkbuild_path)["subpackages"]

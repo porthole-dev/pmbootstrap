@@ -11,7 +11,7 @@ import pmb.build.checksum
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.chroot.other
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse
@@ -65,7 +65,7 @@ def get_outputdir(args: PmbArgs, pkgname: str, apkbuild: Dict[str, Any]) -> Path
 
     # New style ($builddir)
     cmd = "srcdir=/home/pmos/build/src source APKBUILD; echo $builddir"
-    ret = Path(pmb.chroot.user(args, ["sh", "-c", cmd],
+    ret = Path(pmb.chroot.user(["sh", "-c", cmd],
                           chroot, Path("/home/pmos/build"),
                           output_return=True).rstrip())
     if (chroot / ret / ".config").exists():
@@ -87,9 +87,9 @@ def get_outputdir(args: PmbArgs, pkgname: str, apkbuild: Dict[str, Any]) -> Path
 def extract_and_patch_sources(args: PmbArgs, pkgname: str, arch):
     pmb.build.copy_to_buildpath(args, pkgname)
     logging.info("(native) extract kernel source")
-    pmb.chroot.user(args, ["abuild", "unpack"], working_dir=Path("/home/pmos/build"))
+    pmb.chroot.user(["abuild", "unpack"], working_dir=Path("/home/pmos/build"))
     logging.info("(native) apply patches")
-    pmb.chroot.user(args, ["abuild", "prepare"], working_dir=Path("/home/pmos/build"),
+    pmb.chroot.user(["abuild", "prepare"], working_dir=Path("/home/pmos/build"),
                     output="interactive", env={"CARCH": arch})
 
 
@@ -99,7 +99,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
         pkgname = "linux-" + pkgname
 
     # Read apkbuild
-    aport = pmb.helpers.pmaports.find(args, pkgname)
+    aport = pmb.helpers.pmaports.find(pkgname)
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     arch = args.arch or get_arch(apkbuild)
     suffix = pmb.build.autodetect.chroot(apkbuild, arch)
@@ -128,7 +128,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
         else:
             depends += ["ncurses-dev"]
 
-    pmb.chroot.apk.install(args, depends)
+    pmb.chroot.apk.install(depends)
 
     # Copy host's .xauthority into native
     if copy_xauth:
@@ -150,7 +150,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
         env["CC"] = f"{hostspec}-gcc"
     if color:
         env["MENUCONFIG_COLOR"] = color
-    pmb.chroot.user(args, ["make", kopt], Chroot.native(),
+    pmb.chroot.user(["make", kopt], Chroot.native(),
                     outputdir, output="tui", env=env)
 
     # Find the updated config

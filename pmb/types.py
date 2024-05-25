@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from argparse import Namespace
+import multiprocessing
+import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, TypedDict, Union
 
@@ -24,7 +26,7 @@ class AportGenEntry(TypedDict):
 
 # Property list generated with:
 # $ rg --vimgrep "((^|\s)args\.\w+)" --only-matching | cut -d"." -f3 | sort | uniq
-class PmbArgs(Namespace):
+class PmbArgs():
     action_flasher: str
     action_initfs: str
     action_kconfig: str
@@ -52,9 +54,9 @@ class PmbArgs(Namespace):
     cmdline: str
     command: str
     config: Path
+    cross: bool
     details: bool
     details_to_stdout: bool
-    device: str
     deviceinfo: Dict[str, str]
     deviceinfo_parse_kernel: str
     devices: str
@@ -63,7 +65,6 @@ class PmbArgs(Namespace):
     efi: str
     envkernel: str
     export_folder: Path
-    extra_packages: str
     extra_space: str
     fast: str
     file: str
@@ -148,8 +149,6 @@ class PmbArgs(Namespace):
     suffix: str
     systemd: str
     timeout: float
-    ui: str
-    ui_extras: str
     user: str
     value: str
     verbose: str
@@ -157,3 +156,39 @@ class PmbArgs(Namespace):
     work: Path
     xauth: str
     zap: str
+
+
+class Config():
+    aports: Path = Path(os.path.expanduser("~") +
+                        "/.local/var/pmbootstrap/cache_git/pmaports")
+    boot_size: int = 256
+    build_default_device_arch: bool = False
+    build_pkgs_on_install: bool = True
+    ccache_size: str = "5G" # yeahhhh this one has a suffix
+    device: str = "qemu-amd64"
+    extra_packages: str = "none"
+    extra_space: int = 0
+    hostname: str = ""
+    is_default_channel: bool = True
+    jobs: str = str(multiprocessing.cpu_count() + 1)
+    kernel: str = "stable"
+    keymap: str = ""
+    locale: str = "en_US.UTF-8"
+    # NOTE: mirrors use http by default to leverage caching
+    mirror_alpine: str = "http://dl-cdn.alpinelinux.org/alpine/"
+    # NOTE: mirrors_postmarketos variable type is supposed to be
+    #       comma-separated string, not a python list or any other type!
+    mirrors_postmarketos: List[str] = ["http://mirror.postmarketos.org/postmarketos/"]
+    qemu_redir_stdio: bool = False
+    ssh_key_glob: str = "~/.ssh/id_*.pub"
+    ssh_keys: bool = False
+    sudo_timer: bool = False
+    systemd: str = "default"
+    timezone: str = "GMT"
+    ui: str = "console"
+    ui_extras: bool = False
+    user: str = "user"
+    work: Path = Path(os.path.expanduser("~") + "/.local/var/pmbootstrap")
+
+    providers: Dict[str, str] = { }
+

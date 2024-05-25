@@ -3,7 +3,7 @@
 from pmb.helpers import logging
 
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.install
 import pmb.chroot.apk
@@ -116,7 +116,7 @@ def flash_lk2nd(args: PmbArgs):
         # manually since supporting the codepath with heimdall requires more effort.
         pmb.flasher.init(args)
         logging.info("(native) checking current fastboot product")
-        output = pmb.chroot.root(args, ["fastboot", "getvar", "product"],
+        output = pmb.chroot.root(["fastboot", "getvar", "product"],
                                  output="interactive", output_return=True)
         # Variable "product" is e.g. "LK2ND_MSM8974" or "lk2nd-msm8226" depending
         # on the lk2nd version.
@@ -126,7 +126,7 @@ def flash_lk2nd(args: PmbArgs):
 
     # Get the lk2nd package (which is a dependency of the device package)
     device_pkg = f"device-{args.device}"
-    apkbuild = pmb.helpers.pmaports.get(args, device_pkg)
+    apkbuild = pmb.helpers.pmaports.get(device_pkg)
     lk2nd_pkg = None
     for dep in apkbuild["depends"]:
         if dep.startswith("lk2nd"):
@@ -137,7 +137,7 @@ def flash_lk2nd(args: PmbArgs):
         raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
 
     suffix = Chroot(ChrootType.ROOTFS, args.device)
-    pmb.chroot.apk.install(args, [lk2nd_pkg], suffix)
+    pmb.chroot.apk.install([lk2nd_pkg], suffix)
 
     logging.info("(native) flash lk2nd image")
     pmb.flasher.run(args, "flash_lk2nd")

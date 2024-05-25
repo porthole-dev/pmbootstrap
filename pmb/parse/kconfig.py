@@ -7,7 +7,7 @@ import os
 
 import pmb.build
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.parse
 import pmb.helpers.pmaports
 from pmb.helpers.exceptions import NonBugError
@@ -255,7 +255,7 @@ def check(args: PmbArgs, pkgname, components_list=[], details=False, must_exist=
     ret = True
     aport: Path
     try:
-        aport = pmb.helpers.pmaports.find(args, "linux-" + flavor)
+        aport = pmb.helpers.pmaports.find("linux-" + flavor)
     except RuntimeError as e:
         if must_exist:
             raise e

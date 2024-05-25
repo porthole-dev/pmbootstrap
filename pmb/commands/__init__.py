@@ -6,7 +6,7 @@ import enum
 from typing import Generator, Optional
 from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 from pmb.helpers import frontend
 
 from .base import Command

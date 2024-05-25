@@ -6,7 +6,7 @@ import socket
 import time
 
 import pmb.chroot.run
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 from pmb.core import Chroot
 
@@ -18,7 +18,7 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
     :param port: port of nbd server
     """
 
-    pmb.chroot.apk.install(args, ['nbd'])
+    pmb.chroot.apk.install(['nbd'])
 
     chroot = Chroot.native()
 
@@ -34,7 +34,7 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
                                               f"{args.device}?"):
             return
         pmb.chroot.run(args, ["cp", rootfs_path2, rootfs_path])
-        logging.info(f"NOTE: Copied device image to {pmb.config.work}"
+        logging.info(f"NOTE: Copied device image to {get_context().config.work}"
                      f"/images_netboot/. The image will persist \"pmbootstrap "
                      f"zap\" for your convenience. Use \"pmbootstrap netboot "
                      f"serve --help\" for more options.")

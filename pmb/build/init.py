@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.context import Context
 from pmb.helpers import logging
 import os
 import pathlib
@@ -8,13 +9,13 @@ import pmb.build
 import pmb.config
 import pmb.chroot
 import pmb.chroot.apk
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.arch
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
-def init_abuild_minimal(args: PmbArgs, chroot: Chroot=Chroot.native()):
+def init_abuild_minimal(chroot: Chroot=Chroot.native()):
     """Initialize a minimal chroot with abuild where one can do 'abuild checksum'."""
     marker = chroot / "tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):
@@ -22,45 +23,45 @@ def init_abuild_minimal(args: PmbArgs, chroot: Chroot=Chroot.native()):
 
     # pigz is multithreaded and makes compression must faster, we install it in the native
     # chroot and then symlink it into the buildroot so we aren't running it through QEMU.
-    pmb.chroot.apk.install(args, ["pigz"], Chroot.native(), build=False)
-    pmb.chroot.apk.install(args, ["abuild"], chroot, build=False)
+    pmb.chroot.apk.install(["pigz"], Chroot.native(), build=False)
+    pmb.chroot.apk.install(["abuild"], chroot, build=False)
 
     # Fix permissions
-    pmb.chroot.root(args, ["chown", "root:abuild",
+    pmb.chroot.root(["chown", "root:abuild",
                            "/var/cache/distfiles"], chroot)
-    pmb.chroot.root(args, ["chmod", "g+w",
+    pmb.chroot.root(["chmod", "g+w",
                            "/var/cache/distfiles"], chroot)
 
     # Add user to group abuild
-    pmb.chroot.root(args, ["adduser", "pmos", "abuild"], chroot)
+    pmb.chroot.root(["adduser", "pmos", "abuild"], chroot)
 
     pathlib.Path(marker).touch()
 
 
-def init(args: PmbArgs, chroot: Chroot=Chroot.native()):
+def init(chroot: Chroot=Chroot.native()):
     """Initialize a chroot for building packages with abuild."""
     marker = chroot / "tmp/pmb_chroot_build_init_done"
     if marker.exists():
         return
 
     # Initialize chroot, install packages
-    pmb.chroot.init(args, Chroot.native())
-    pmb.chroot.init(args, chroot)
-    init_abuild_minimal(args, chroot)
+    pmb.chroot.init(Chroot.native())
+    pmb.chroot.init(chroot)
+    init_abuild_minimal(chroot)
 
-    pmb.chroot.apk.install(args, pmb.config.build_packages, chroot,
+    pmb.chroot.apk.install(pmb.config.build_packages, chroot,
                            build=False)
 
     # Generate package signing keys
-    if not os.path.exists(pmb.config.work / "config_abuild/abuild.conf"):
+    if not os.path.exists(get_context().config.work / "config_abuild/abuild.conf"):
         logging.info(f"({chroot}) generate abuild keys")
-        pmb.chroot.user(args, ["abuild-keygen", "-n", "-q", "-a"],
+        pmb.chroot.user(["abuild-keygen", "-n", "-q", "-a"],
                         chroot, env={"PACKAGER": "pmos <pmos@local>"})
 
         # Copy package signing key to /etc/apk/keys
         for key in (chroot / "mnt/pmbootstrap/abuild-config").glob("*.pub"):
             key = key.relative_to(chroot.path)
-            pmb.chroot.root(args, ["cp", key, "/etc/apk/keys/"], chroot)
+            pmb.chroot.root(["cp", key, "/etc/apk/keys/"], chroot)
 
     apk_arch = chroot.arch
 
@@ -93,25 +94,25 @@ def init(args: PmbArgs, chroot: Chroot=Chroot.native()):
             for i in range(len(lines)):
                 lines[i] = lines[i][16:]
             handle.write("\n".join(lines))
-        pmb.chroot.root(args, ["cp", "/tmp/apk_wrapper.sh",
+        pmb.chroot.root(["cp", "/tmp/apk_wrapper.sh",
                                "/usr/local/bin/abuild-apk"], chroot)
-        pmb.chroot.root(args, ["chmod", "+x", "/usr/local/bin/abuild-apk"], chroot)
+        pmb.chroot.root(["chmod", "+x", "/usr/local/bin/abuild-apk"], chroot)
 
     # abuild.conf: Don't clean the build folder after building, so we can
     # inspect it afterwards for debugging
-    pmb.chroot.root(args, ["sed", "-i", "-e", "s/^CLEANUP=.*/CLEANUP=''/",
+    pmb.chroot.root(["sed", "-i", "-e", "s/^CLEANUP=.*/CLEANUP=''/",
                            "/etc/abuild.conf"], chroot)
 
     # abuild.conf: Don't clean up installed packages in strict mode, so
     # abuild exits directly when pressing ^C in pmbootstrap.
-    pmb.chroot.root(args, ["sed", "-i", "-e",
+    pmb.chroot.root(["sed", "-i", "-e",
                            "s/^ERROR_CLEANUP=.*/ERROR_CLEANUP=''/",
                            "/etc/abuild.conf"], chroot)
 
     pathlib.Path(marker).touch()
 
 
-def init_compiler(args: PmbArgs, depends, cross, arch):
+def init_compiler(context: Context, depends, cross, arch):
     cross_pkgs = ["ccache-cross-symlinks", "abuild"]
     if "gcc4" in depends:
         cross_pkgs += ["gcc4-" + arch]
@@ -124,11 +125,11 @@ def init_compiler(args: PmbArgs, depends, cross, arch):
     if cross == "crossdirect":
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:
-            if args.ccache:
+            if context.ccache:
                 cross_pkgs += ["sccache"]
             # crossdirect for rust installs all build dependencies in the
             # native chroot too, as some of them can be required for building
             # native macros / build scripts
             cross_pkgs += depends
 
-    pmb.chroot.apk.install(args, cross_pkgs, Chroot.native())
+    pmb.chroot.apk.install(cross_pkgs, Chroot.native())

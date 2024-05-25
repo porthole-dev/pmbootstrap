@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.helpers import logging
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.pmaports
 import pmb.helpers.repo
@@ -18,7 +18,7 @@ def package(args: PmbArgs, pkgname, reason="", dry=False):
     :param dry: don't modify the APKBUILD, just print the message
     """
     # Current and new pkgrel
-    path = pmb.helpers.pmaports.find(args, pkgname) / "APKBUILD"
+    path = pmb.helpers.pmaports.find(pkgname) / "APKBUILD"
     apkbuild = pmb.parse.apkbuild(path)
     pkgrel = int(apkbuild["pkgrel"])
     pkgrel_new = pkgrel + 1
@@ -84,7 +84,7 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
             # Ignore conflict-dependencies
             continue
 
-        providers = pmb.parse.apkindex.providers(args, depend, arch,
+        providers = pmb.parse.apkindex.providers(depend, arch,
                                                  must_exist=False)
         if providers == {}:
             # We're only interested in missing depends starting with "so:"

@@ -7,7 +7,7 @@ from typing import TextIO
 import pmb.config
 from pmb.core import get_context
 from pmb.core.context import Context
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 
 logfd: TextIO
 
@@ -108,7 +108,7 @@ def add_verbose_log_level():
 def init(args: PmbArgs):
     """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
-    context = pmb.core.get_context()
+    context = get_context()
     # Set log file descriptor (logfd)
     if context.details_to_stdout:
         logfd = sys.stdout

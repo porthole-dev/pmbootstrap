@@ -5,13 +5,14 @@ import os
 from pathlib import Path
 from typing import Dict
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
+import pmb.helpers.run
 import pmb.parse
 import pmb.helpers.mount
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
-def create_device_nodes(args: PmbArgs, chroot: Chroot):
+def create_device_nodes(chroot: Chroot):
     """
     Create device nodes for null, zero, full, random, urandom in the chroot.
     """
@@ -48,7 +49,7 @@ def create_device_nodes(args: PmbArgs, chroot: Chroot):
         raise RuntimeError(f"Failed to create device nodes in the '{chroot}' chroot.")
 
 
-def mount_dev_tmpfs(args: PmbArgs, chroot: Chroot=Chroot.native()):
+def mount_dev_tmpfs(chroot: Chroot=Chroot.native()):
     """
     Mount tmpfs inside the chroot's dev folder to make sure we can create
     device nodes, even if the filesystem of the work folder does not support
@@ -70,22 +71,22 @@ def mount_dev_tmpfs(args: PmbArgs, chroot: Chroot=Chroot.native()):
     pmb.helpers.run.root(["mount", "-t", "tmpfs",
                                 "-o", "nodev,nosuid,noexec",
                                 "tmpfs", dev / "shm"])
-    create_device_nodes(args, chroot)
+    create_device_nodes(chroot)
 
     # Setup /dev/fd as a symlink
     pmb.helpers.run.root(["ln", "-sf", "/proc/self/fd", f"{dev}/"])
 
 
-def mount(args: PmbArgs, chroot: Chroot=Chroot.native()):
+def mount(chroot: Chroot):
     # Mount tmpfs as the chroot's /dev
-    mount_dev_tmpfs(args, chroot)
+    mount_dev_tmpfs(chroot)
 
     # Get all mountpoints
-    arch = pmb.parse.arch.from_chroot_suffix(args, chroot)
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    arch = chroot.arch
+    channel = pmb.config.pmaports.read_config()["channel"]
     mountpoints: Dict[Path, Path] = {}
     for src_template, target_template in pmb.config.chroot_mount_bind.items():
-        src_template = src_template.replace("$WORK", os.fspath(pmb.config.work))
+        src_template = src_template.replace("$WORK", os.fspath(get_context().config.work))
         src_template = src_template.replace("$ARCH", arch)
         src_template = src_template.replace("$CHANNEL", channel)
         mountpoints[Path(src_template)] = Path(target_template)

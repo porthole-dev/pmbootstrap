@@ -1,12 +1,14 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
+from pathlib import Path
+from pmb.core import get_context
 from pmb.helpers import logging
 import os
 import sys
 
 import pmb.config
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.pmaports
 import pmb.parse.version
@@ -56,7 +58,7 @@ def check_version_pmbootstrap(min_ver):
                        " of pmbootstrap from git.")
 
 
-def read_config_repos(args: PmbArgs):
+def read_config_repos():
     """ Read the sections starting with "repo:" from pmaports.cfg. """
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config_repos"
@@ -64,7 +66,7 @@ def read_config_repos(args: PmbArgs):
         return pmb.helpers.other.cache[cache_key]
 
     cfg = configparser.ConfigParser()
-    cfg.read(f"{args.aports}/pmaports.cfg")
+    cfg.read(f"{get_context().config.aports}/pmaports.cfg")
 
     ret = {}
     for section in cfg.keys():
@@ -78,21 +80,22 @@ def read_config_repos(args: PmbArgs):
     return ret
 
 
-def read_config(args: PmbArgs):
+def read_config():
     """Read and verify pmaports.cfg."""
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config"
     if pmb.helpers.other.cache[cache_key]:
         return pmb.helpers.other.cache[cache_key]
 
+    aports = get_context().config.aports
     # Migration message
-    if not os.path.exists(args.aports):
-        logging.error(f"ERROR: pmaports dir not found: {args.aports}")
+    if not os.path.exists(aports):
+        logging.error(f"ERROR: pmaports dir not found: {aports}")
         logging.error("Did you run 'pmbootstrap init'?")
         sys.exit(1)
 
     # Require the config
-    path_cfg = args.aports / "pmaports.cfg"
+    path_cfg = aports / "pmaports.cfg"
     if not os.path.exists(path_cfg):
         raise RuntimeError("Invalid pmaports repository, could not find the"
                           f" config: {path_cfg}")
@@ -114,7 +117,7 @@ def read_config(args: PmbArgs):
     return ret
 
 
-def read_config_channel(args: PmbArgs):
+def read_config_channel():
     """Get the properties of the currently active channel in pmaports.git.
 
     As specified in channels.cfg (https://postmarketos.org/channels.cfg).
@@ -125,18 +128,19 @@ def read_config_channel(args: PmbArgs):
                "mirrordir_alpine": ...}
 
     """
-    channel = read_config(args)["channel"]
-    channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
+    aports = get_context().config.aports
+    channel = read_config()["channel"]
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
 
     if channel in channels_cfg["channels"]:
         return channels_cfg["channels"][channel]
 
     # Channel not in channels.cfg, try to be helpful
-    branch = pmb.helpers.git.rev_parse(args.aports,
+    branch = pmb.helpers.git.rev_parse(aports,
                                        extra_args=["--abbrev-ref"])
-    branches_official = pmb.helpers.git.get_branches_official("pmaports")
+    branches_official = pmb.helpers.git.get_branches_official(aports)
     branches_official = ", ".join(branches_official)
-    remote = pmb.helpers.git.get_upstream_remote("pmaports")
+    remote = pmb.helpers.git.get_upstream_remote(aports)
     logging.info("NOTE: fix the error by rebasing or cherry picking relevant"
                  " commits from this branch onto a branch that is on a"
                  f" supported channel: {branches_official}")
@@ -150,7 +154,7 @@ def read_config_channel(args: PmbArgs):
 
 
 def init():
-    if not os.path.exists(get_context().aports):
+    if not os.path.exists(get_context().config.aports):
         clone()
     read_config()
 
@@ -163,14 +167,15 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
     :returns: True if another branch was checked out, False otherwise
     """
     # Check current pmaports branch channel
-    channel_current = read_config(args)["channel"]
+    channel_current = read_config()["channel"]
     if channel_current == channel_new:
         return False
 
+    aports = get_context().config.aports
     # List current and new branches/channels
-    channels_cfg = pmb.helpers.git.parse_channels_cfg(args)
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
-    branch_current = pmb.helpers.git.rev_parse(args.aports,
+    branch_current = pmb.helpers.git.rev_parse(aports,
                                                extra_args=["--abbrev-ref"])
     logging.info(f"Currently checked out branch '{branch_current}' of"
                  f" pmaports.git is on channel '{channel_current}'.")
@@ -183,25 +188,26 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
     if pmb.helpers.run.user(["git", "checkout", branch_new],
-                            args.aports, "interactive", check=False):
+                            aports, "interactive", check=False):
         raise RuntimeError("Failed to switch branch. Go to your pmaports and"
                            " fix what git complained about, then try again: "
-                           f"{args.aports}")
+                           f"{aports}")
 
     # Verify pmaports.cfg on new branch
-    read_config(args)
+    read_config()
     return True
 
 
-def install_githooks(args: PmbArgs):
-    hooks_dir = os.path.join(args.aports, ".githooks")
-    if not os.path.exists(hooks_dir):
+def install_githooks():
+    aports = get_context().config.aports
+    hooks_dir = aports / ".githooks"
+    if not hooks_dir.exists():
         logging.info("No .githooks dir found")
         return
     for h in os.listdir(hooks_dir):
         src = os.path.join(hooks_dir, h)
         # Use git default hooks dir so users can ignore our hooks
         # if they dislike them by setting "core.hooksPath" git config
-        dst = os.path.join(args.aports, ".git", "hooks", h)
+        dst = aports / ".git/hooks" / h
         if pmb.helpers.run.user(["cp", src, dst], check=False):
             logging.warning(f"WARNING: Copying git hook failed: {dst}")

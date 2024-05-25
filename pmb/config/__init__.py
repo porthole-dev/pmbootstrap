@@ -3,7 +3,7 @@
 import multiprocessing
 import os
 from pathlib import Path
-from pmb.core.types import AportGenEntry, PathString
+from pmb.types import AportGenEntry, PathString
 import pmb.parse.arch
 import sys
 from typing import Dict, List, Sequence, TypedDict
@@ -14,7 +14,6 @@ from typing import Dict, List, Sequence, TypedDict
 # FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
 # this functions this way
 from pmb.config.load import load, sanity_checks, save
-from pmb.config.merge_with_args import merge_with_args
 from pmb.config.sudo import which_sudo
 from pmb.config.other import is_systemd_selected
 
@@ -25,7 +24,6 @@ from pmb.config.other import is_systemd_selected
 pmb_src: Path = Path(Path(__file__) / "../../..").resolve()
 apk_keys_path: Path = (pmb_src / "pmb/data/keys")
 arch_native = pmb.parse.arch.alpine_native()
-work: Path
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge
@@ -77,15 +75,6 @@ def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
         return cmd
 
 
-def work_dir(_work: Path) -> None:
-    """Set the work directory. This is used in the main program to set the
-    work directory before any other code is run. It is not meant to be used
-    anywhere else."""
-    global work
-    if "work" in globals():
-        raise RuntimeError("work_dir() called multiple times!")
-    work = _work
-
 # Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
 config_keys = [
     "aports",
@@ -116,42 +105,7 @@ config_keys = [
     "work",
 ]
 
-# Config file/commandline default values
-# $WORK gets replaced with the actual value for pmb.config.work (which may be
-# overridden on the commandline)
 defaults = {
-    # This first chunk matches config_keys
-    "aports": "$WORK/cache_git/pmaports",
-    "boot_size": "256",
-    "build_default_device_arch": False,
-    "build_pkgs_on_install": True,
-    "ccache_size": "5G",
-    "device": "qemu-amd64",
-    "extra_packages": "none",
-    "extra_space": "0",
-    "hostname": "",
-    "is_default_channel": True,
-    "jobs": str(multiprocessing.cpu_count() + 1),
-    "kernel": "stable",
-    "keymap": "",
-    "locale": "en_US.UTF-8",
-    # NOTE: mirrors use http by default to leverage caching
-    "mirror_alpine": "http://dl-cdn.alpinelinux.org/alpine/",
-    # NOTE: mirrors_postmarketos variable type is supposed to be
-    #       comma-separated string, not a python list or any other type!
-    "mirrors_postmarketos": "http://mirror.postmarketos.org/postmarketos/",
-    "qemu_redir_stdio": False,
-    "ssh_key_glob": "~/.ssh/id_*.pub",
-    "ssh_keys": False,
-    "sudo_timer": False,
-    "systemd": "default",
-    "timezone": "GMT",
-    "ui": "console",
-    "ui_extras": False,
-    "user": "user",
-    "work": os.path.expanduser("~") + "/.local/var/pmbootstrap",
-
-    # These values are not part of config_keys
     "cipher": "aes-xts-plain64",
     "config": (os.environ.get('XDG_CONFIG_HOME') or
                os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
@@ -223,7 +177,7 @@ chroot_path = ":".join([
 chroot_host_path = os.environ["PATH"] + ":/usr/sbin/"
 
 # Folders that get mounted inside the chroot
-# $WORK gets replaced with pmb.config.work
+# $WORK gets replaced with get_context().config.work
 # $ARCH gets replaced with the chroot architecture (eg. x86_64, armhf)
 # $CHANNEL gets replaced with the release channel (e.g. edge, v21.03)
 # Use no more than one dir after /mnt/pmbootstrap, see remove_mnt_pmbootstrap.

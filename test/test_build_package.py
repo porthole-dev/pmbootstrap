@@ -4,7 +4,7 @@
 import datetime
 import glob
 import os
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import shutil
 import sys
@@ -23,7 +23,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap", "init"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -351,9 +351,9 @@ def test_build_depends_high_level(args: PmbArgs, monkeypatch):
                         fake_build_is_necessary)
 
     # Build hello-world to get its full output path
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     output_hello = pmb.build.package(args, "hello-world")
-    output_hello_outside = pmb.config.work / "packages" / channel / output_hello
+    output_hello_outside = get_context().config.work / "packages" / channel / output_hello
     assert output_hello_outside.exists()
 
     # Make sure the wrapper exists
@@ -386,7 +386,7 @@ def test_build_local_source_high_level(args: PmbArgs, tmpdir):
     aports = tmpdir + "/aports"
     aport = aports + "/device/testing/device-" + args.device
     os.makedirs(aport)
-    path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
     shutil.copy(f"{path_original}/deviceinfo", aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)
@@ -412,7 +412,7 @@ def test_build_local_source_high_level(args: PmbArgs, tmpdir):
     pmb.helpers.run.root(["chmod", "500", unreadable])
 
     # Test native arch and foreign arch chroot
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     # TODO: test disabled, seems to *only* fail on gitlab runners and nowhere else.
     # See: https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2346
     # for arch in [pmb.config.arch_native, "armhf"]:
@@ -449,7 +449,7 @@ def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
     aports = f"{tmpdir}/aports"
     aport = f"{aports}/device/testing/device-{args.device}"
     os.makedirs(aport)
-    path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
     shutil.copy(f"{path_original}/deviceinfo", aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)
@@ -468,7 +468,7 @@ def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
                f"{src}/broken-tarball-symlink.tar.gz")
 
     # Delete all hello-world packages
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     pattern = f"{args.work}/packages/{channel}/*/hello-world-*_p*.apk"
     for path in glob.glob(pattern):
         pmb.helpers.run.root(["rm", path])

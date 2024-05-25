@@ -7,7 +7,7 @@ via SSH if expected processes are running.
 We use an extra config file (based on ~/.config/pmbootstrap.cfg), because we
 need to change it a lot (e.g. UI, username, ...).
 """
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import sys
 import shutil
@@ -27,7 +27,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -35,9 +35,9 @@ def args(request):
 
 def ssh_create_askpass_script(args: PmbArgs):
     """Create /tmp/y.sh, which we need to automatically login via SSH."""
-    with open(pmb.config.work / "chroot_native/tmp/y.sh", "w") as handle:
+    with open(get_context().config.work / "chroot_native/tmp/y.sh", "w") as handle:
         handle.write("#!/bin/sh\necho y\n")
-    pmb.chroot.root(args, ["chmod", "+x", "/tmp/y.sh"])
+    pmb.chroot.root(["chmod", "+x", "/tmp/y.sh"])
 
 
 def pmbootstrap_run(args: PmbArgs, config, parameters, output="log"):
@@ -87,7 +87,7 @@ class QEMU(object):
 
         # Prepare native chroot
         pmbootstrap_run(args, config, ["-y", "zap"])
-        pmb.chroot.apk.install(args, ["openssh-client"])
+        pmb.chroot.apk.install(["openssh-client"])
         ssh_create_askpass_script(args)
 
         # Create and run rootfs
@@ -108,7 +108,7 @@ def ssh_run(args: PmbArgs, command):
     :param command: flat string of the command to execute, e.g. "ps au"
     :returns: the result from the SSH server
     """
-    ret = pmb.chroot.user(args, ["SSH_ASKPASS=/tmp/y.sh", "DISPLAY=", "ssh",
+    ret = pmb.chroot.user(["SSH_ASKPASS=/tmp/y.sh", "DISPLAY=", "ssh",
                                  "-o", "ConnectTimeout=10",
                                  "-o", "UserKnownHostsFile=/dev/null",
                                  "-o", "StrictHostKeyChecking=no",

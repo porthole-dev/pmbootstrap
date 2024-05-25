@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core import get_context
 from pmb.helpers import logging
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import sys
 import shutil
@@ -21,7 +22,7 @@ def args(tmpdir, request):
     sys.argv = ["pmbootstrap.py", "--config-channels", cfg, "build", "-i",
                 "device-testsuite-testdevice"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
 
@@ -73,9 +74,10 @@ def generate(args: PmbArgs, monkeypatch, answers):
     pmb.aportgen.generate(args, "linux-testsuite-testdevice")
     monkeypatch.undo()
 
-    apkbuild_path = (f"{args.aports}/device/testing/"
+    aports = get_context().config.aports
+    apkbuild_path = (aports / "device/testing/"
                      "device-testsuite-testdevice/APKBUILD")
-    apkbuild_path_linux = (args.aports + "/device/testing/"
+    apkbuild_path_linux = (aports / "device/testing/"
                            "linux-testsuite-testdevice/APKBUILD")
 
     # The build fails if the email is not a valid email, so remove them just
@@ -88,11 +90,11 @@ def generate(args: PmbArgs, monkeypatch, answers):
     apkbuild = pmb.parse.apkbuild(apkbuild_path)
     apkbuild_linux = pmb.parse.apkbuild(apkbuild_path_linux,
                                         check_pkgver=False)
-    deviceinfo = pmb.parse.deviceinfo(args, "testsuite-testdevice")
+    deviceinfo = pmb.parse.deviceinfo("testsuite-testdevice")
     return (deviceinfo, apkbuild, apkbuild_linux)
 
 
-def remove_contributor_maintainer_lines(args: PmbArgs, path):
+def remove_contributor_maintainer_lines(path):
     with open(path, "r+", encoding="utf-8") as handle:
         lines_new = []
         for line in handle.readlines():

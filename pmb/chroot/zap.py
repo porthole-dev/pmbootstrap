@@ -7,11 +7,11 @@ import os
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.config.workdir
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
@@ -32,7 +32,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
     :param rust: Remove rust related caches
     :param netboot: Remove images for netboot
 
-    NOTE: This function gets called in pmb/config/init.py, with only pmb.config.work
+    NOTE: This function gets called in pmb/config/init.py, with only get_context().config.work
     and args.device set!
     """
     # Get current work folder size
@@ -50,7 +50,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
 
     pmb.chroot.shutdown(args)
 
-    # Deletion patterns for folders inside pmb.config.work
+    # Deletion patterns for folders inside get_context().config.work
     patterns = list(Chroot.iter_patterns())
     if pkgs_local:
         patterns += ["packages"]
@@ -66,7 +66,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
     # Delete everything matching the patterns
     for pattern in patterns:
         logging.debug(f"Deleting {pattern}")
-        pattern = os.path.realpath(f"{pmb.config.work}/{pattern}")
+        pattern = os.path.realpath(f"{get_context().config.work}/{pattern}")
         matches = glob.glob(pattern)
         for match in matches:
             if (not confirm or
@@ -87,8 +87,8 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
 
 
 def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
-    channel = pmb.config.pmaports.read_config(args)["channel"]
-    if not os.path.exists(f"{pmb.config.work}/packages/{channel}"):
+    channel = pmb.config.pmaports.read_config()["channel"]
+    if not os.path.exists(f"{get_context().config.work}/packages/{channel}"):
         return
 
     question = "Remove binary packages that are newer than the corresponding" \
@@ -97,7 +97,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
         return
 
     reindex = False
-    for apkindex_path in (pmb.config.work / "packages" / channel).glob("*/APKINDEX.tar.gz"):
+    for apkindex_path in (get_context().config.work / "packages" / channel).glob("*/APKINDEX.tar.gz"):
         # Delete packages without same version in aports
         blocks = pmb.parse.apkindex.parse_blocks(apkindex_path)
         for block in blocks:
@@ -108,7 +108,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
 
             # Apk path
             apk_path_short = f"{arch}/{pkgname}-{version}.apk"
-            apk_path = f"{pmb.config.work}/packages/{channel}/{apk_path_short}"
+            apk_path = f"{get_context().config.work}/packages/{channel}/{apk_path_short}"
             if not os.path.exists(apk_path):
                 logging.info("WARNING: Package mentioned in index not"
                              f" found: {apk_path_short}")
@@ -140,7 +140,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
 
 def zap_pkgs_online_mismatch(args: PmbArgs, confirm=True, dry=False):
     # Check whether we need to do anything
-    paths = glob.glob(f"{pmb.config.work}/cache_apk_*")
+    paths = glob.glob(f"{get_context().config.work}/cache_apk_*")
     if not len(paths):
         return
     if (confirm and not pmb.helpers.cli.confirm(args,
@@ -162,4 +162,4 @@ def zap_pkgs_online_mismatch(args: PmbArgs, confirm=True, dry=False):
         # Clean the cache with apk
         logging.info(f"({suffix}) apk -v cache clean")
         if not dry:
-            pmb.chroot.root(args, ["apk", "-v", "cache", "clean"], suffix)
+            pmb.chroot.root(["apk", "-v", "cache", "clean"], suffix)

@@ -5,7 +5,7 @@ from typing import List
 import pytest
 import sys
 
-from pmb.core.types import PathString
+from pmb.types import PathString
 import pmb_test  # noqa
 import pmb.build
 import pmb.chroot.apk
@@ -19,7 +19,7 @@ def args(tmpdir, request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "init"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args

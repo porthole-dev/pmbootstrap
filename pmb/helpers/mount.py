@@ -3,7 +3,7 @@
 import os
 from pathlib import Path, PurePath
 from typing import List
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers
 from pmb.core import Chroot
 import pmb.helpers.run

@@ -6,7 +6,8 @@ import glob
 
 import pmb.config.pmaports
 import pmb.helpers.repo
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
+from pmb.core import get_context
 
 
 progress_done = 0
@@ -25,7 +26,7 @@ def get_arch(args: PmbArgs):
 
 
 def check_repo_arg(args: PmbArgs):
-    cfg = pmb.config.pmaports.read_config_repos(args)
+    cfg = pmb.config.pmaports.read_config_repos()
     repo = args.repository
 
     if repo in cfg:
@@ -41,8 +42,8 @@ def check_repo_arg(args: PmbArgs):
 
 
 def check_existing_pkgs(args: PmbArgs, arch):
-    channel = pmb.config.pmaports.read_config(args)["channel"]
-    path = pmb.config.work / "packages" / channel / arch
+    channel = pmb.config.pmaports.read_config()["channel"]
+    path = get_context().config.work / "packages" / channel / arch
 
     if glob.glob(f"{path}/*"):
         logging.info(f"Packages path: {path}")
@@ -57,7 +58,7 @@ def check_existing_pkgs(args: PmbArgs, arch):
 
 
 def get_steps(args: PmbArgs):
-    cfg = pmb.config.pmaports.read_config_repos(args)
+    cfg = pmb.config.pmaports.read_config_repos()
     prev_step = 0
     ret = {}
 
@@ -132,11 +133,11 @@ def run_steps(args: PmbArgs, steps, arch, chroot: Chroot):
         if chroot != Chroot.native():
             log_progress(f"initializing native chroot (merge /usr: {usr_merge.name})")
             # Native chroot needs pmOS binary package repo for cross compilers
-            pmb.chroot.init(args, Chroot.native(), usr_merge)
+            pmb.chroot.init(Chroot.native(), usr_merge)
 
         log_progress(f"initializing {chroot} chroot (merge /usr: {usr_merge.name})")
         # Initialize without pmOS binary package repo
-        pmb.chroot.init(args, chroot, usr_merge, postmarketos_mirror=False)
+        pmb.chroot.init(chroot, usr_merge, postmarketos_mirror=False)
 
         for package in get_packages(bootstrap_line):
             log_progress(f"building {package}")
@@ -181,9 +182,9 @@ def require_bootstrap(args: PmbArgs, arch, trigger_str):
     :param arch: for which architecture
     :param trigger_str: message for the user to understand what caused this
     """
-    if pmb.config.other.is_systemd_selected(args):
-        pmb.helpers.repo.update(args, arch)
-        pkg = pmb.parse.apkindex.package(args, "postmarketos-base-systemd",
+    if pmb.config.other.is_systemd_selected(get_context().config):
+        pmb.helpers.repo.update(arch)
+        pkg = pmb.parse.apkindex.package("postmarketos-base-systemd",
                                          arch, False)
         if not pkg:
             require_bootstrap_error("systemd", arch, trigger_str)

@@ -16,7 +16,7 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
 import pmb.config
-from pmb.core.types import PathString, PmbArgs
+from pmb.types import Config, PathString, PmbArgs
 import pmb.export
 import pmb.flasher
 import pmb.helpers.aportupgrade
@@ -37,7 +37,7 @@ import pmb.netboot
 import pmb.parse
 import pmb.qemu
 import pmb.sideload
-from pmb.core import ChrootType, Chroot
+from pmb.core import ChrootType, Chroot, get_context
 
 
 def _parse_flavor(args: PmbArgs, autoinstall=True):
@@ -62,7 +62,7 @@ def _parse_flavor(args: PmbArgs, autoinstall=True):
 
 def _parse_suffix(args: PmbArgs) -> Chroot:
     if "rootfs" in args and args.rootfs:
-        return Chroot(ChrootType.ROOTFS, args.device)
+        return Chroot(ChrootType.ROOTFS, get_context().config.device)
     elif args.buildroot:
         if args.buildroot == "device":
             return Chroot.buildroot(args.deviceinfo["arch"])
@@ -122,10 +122,11 @@ def build(args: PmbArgs):
         pmb.helpers.repo_bootstrap.require_bootstrap(args, arch_package,
             f"build {package} for {arch_package}")
 
+    context = get_context()
     # Build all packages
     for package in args.packages:
         arch_package = args.arch or pmb.build.autodetect.arch(args, package)
-        if not pmb.build.package(args, package, arch_package, force,
+        if not pmb.build.package(context, package, arch_package, force,
                                  args.strict, src=src):
             logging.info("NOTE: Package '" + package + "' is up to date. Use"
                          " 'pmbootstrap build " + package + " --force'"
@@ -169,11 +170,11 @@ def chroot(args: PmbArgs):
         raise RuntimeError("--xauth is only supported for native chroot.")
 
     # apk: check minimum version, install packages
-    pmb.chroot.apk.check_min_version(args, suffix)
+    pmb.chroot.apk.check_min_version(suffix)
     if args.add:
-        pmb.chroot.apk.install(args, args.add.split(","), suffix)
+        pmb.chroot.apk.install(args.add.split(","), suffix)
 
-    pmb.chroot.init(args, suffix)
+    pmb.chroot.init(suffix)
 
     # Xauthority
     env = {}
@@ -198,11 +199,11 @@ def chroot(args: PmbArgs):
     if args.user:
         logging.info(f"({suffix}) % su pmos -c '" +
                      " ".join(args.command) + "'")
-        pmb.chroot.user(args, args.command, suffix, output=args.output,
+        pmb.chroot.user(args.command, suffix, output=args.output,
                         env=env)
     else:
         logging.info(f"({suffix}) % " + " ".join(args.command))
-        pmb.chroot.root(args, args.command, suffix, output=args.output,
+        pmb.chroot.root(args.command, suffix, output=args.output,
                         env=env)
 
 
@@ -212,24 +213,27 @@ def config(args: PmbArgs):
         logging.info("NOTE: Valid config keys: " + ", ".join(keys))
         raise RuntimeError("Invalid config key: " + args.name)
 
-    cfg = pmb.config.load(args)
+    config = pmb.config.load(args)
     if args.reset:
         if args.name is None:
             raise RuntimeError("config --reset requires a name to be given.")
-        value = pmb.config.defaults[args.name]
-        cfg["pmbootstrap"][args.name] = value
+        def_value = getattr(Config(), args.name)
+        setattr(config, args.name, def_value)
         logging.info(f"Config changed to default: {args.name}='{value}'")
-        pmb.config.save(args, cfg)
+        pmb.config.save(args.config, config)
     elif args.value is not None:
-        cfg["pmbootstrap"][args.name] = args.value
-        pmb.config.sanity_checks(args, cfg, False)
+        setattr(config, args.name, args.value)
+        pmb.config.sanity_checks(args, config, False)
         logging.info("Config changed: " + args.name + "='" + args.value + "'")
-        pmb.config.save(args, cfg)
+        pmb.config.save(args.config, config)
     elif args.name:
-        value = cfg["pmbootstrap"].get(args.name, "")
+        if hasattr(config, args.name):
+            value = getattr(config, args.name)
+        else:
+            value = ""
         print(value)
     else:
-        cfg.write(sys.stdout)
+        print(open(args.config).read())
 
     # Don't write the "Done" message
     pmb.helpers.logging.disable()
@@ -240,7 +244,7 @@ def repo_bootstrap(args: PmbArgs):
 
 
 def repo_missing(args: PmbArgs):
-    missing = pmb.helpers.repo_missing.generate(args, args.arch, args.overview,
+    missing = pmb.helpers.repo_missing.generate(args.arch, args.overview,
                                                 args.package, args.built)
     print(json.dumps(missing, indent=4))
 
@@ -344,7 +348,7 @@ def install(args: PmbArgs):
         args.build_pkgs_on_install = False
 
         # Safest way to avoid installing local packages is having none
-        if (pmb.config.work / "packages").glob("*"):
+        if (get_context().config.work / "packages").glob("*"):
             raise ValueError("--no-local-pkgs specified, but locally built"
                              " packages found. Consider 'pmbootstrap zap -p'"
                              " to delete them.")
@@ -365,7 +369,7 @@ def export(args: PmbArgs):
 
 def update(args: PmbArgs):
     existing_only = not args.non_existing
-    if not pmb.helpers.repo.update(args, args.arch, True, existing_only):
+    if not pmb.helpers.repo.update(args.arch, True, existing_only):
         logging.info("No APKINDEX files exist, so none have been updated."
                      " The pmbootstrap command downloads the APKINDEX files on"
                      " demand.")
@@ -430,7 +434,7 @@ def kconfig(args: PmbArgs):
         else:
             packages = [args.package]
         if not args.package:
-            for pkg in pmb.helpers.pmaports.get_list(args):
+            for pkg in pmb.helpers.pmaports.get_list():
                 if pkg.startswith("linux-"):
                     packages.append(pkg.split("linux-")[1])
 
@@ -442,7 +446,7 @@ def kconfig(args: PmbArgs):
             if not args.force:
                 pkgname = package if package.startswith("linux-") \
                     else "linux-" + package
-                aport = pmb.helpers.pmaports.find(args, pkgname)
+                aport = pmb.helpers.pmaports.find(pkgname)
                 apkbuild = pmb.parse.apkbuild(aport)
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
@@ -472,13 +476,13 @@ def deviceinfo_parse(args: PmbArgs):
     # Default to all devices
     devices = args.devices
     if not devices:
-        devices = pmb.helpers.devices.list_codenames(args)
+        devices = pmb.helpers.devices.list_codenames(get_context().config.aports)
 
     # Iterate over all devices
     kernel = args.deviceinfo_parse_kernel
     for device in devices:
         print(f"{device}, with kernel={kernel}:")
-        print(json.dumps(pmb.parse.deviceinfo(args, device, kernel), indent=4,
+        print(json.dumps(pmb.parse.deviceinfo(device, kernel), indent=4,
                          sort_keys=True))
 
 
@@ -486,12 +490,12 @@ def apkbuild_parse(args: PmbArgs):
     # Default to all packages
     packages: Sequence[str] = args.packages
     if not packages:
-        packages = pmb.helpers.pmaports.get_list(args)
+        packages = pmb.helpers.pmaports.get_list()
 
     # Iterate over all packages
     for package in packages:
         print(package + ":")
-        aport = pmb.helpers.pmaports.find(args, package)
+        aport = pmb.helpers.pmaports.find(package)
         print(json.dumps(pmb.parse.apkbuild(aport), indent=4,
                          sort_keys=True))
 
@@ -512,7 +516,7 @@ def pkgrel_bump(args: PmbArgs):
     else:
         # Each package must exist
         for package in args.packages:
-            pmb.helpers.pmaports.find(args, package)
+            pmb.helpers.pmaports.find(package)
 
         # Increase pkgrel
         for package in args.packages:
@@ -529,7 +533,7 @@ def aportupgrade(args: PmbArgs):
     else:
         # Each package must exist
         for package in args.packages:
-            pmb.helpers.pmaports.find(args, package)
+            pmb.helpers.pmaports.find(package)
 
         # Check each package for a new version
         for package in args.packages:
@@ -551,9 +555,9 @@ def stats(args: PmbArgs):
         chroot = Chroot.buildroot(args.arch)
 
     # Install ccache and display stats
-    pmb.chroot.apk.install(args, ["ccache"], chroot)
+    pmb.chroot.apk.install(["ccache"], chroot)
     logging.info(f"({chroot}) % ccache -s")
-    pmb.chroot.user(args, ["ccache", "-s"], chroot, output="stdout")
+    pmb.chroot.user(["ccache", "-s"], chroot, output="stdout")
 
 
 def work_migrate(args: PmbArgs):
@@ -581,7 +585,7 @@ def bootimg_analyze(args: PmbArgs):
     logging.info(tmp_output)
 
 
-def pull(args: PmbArgs):
+def pull():
     failed = []
     for repo in pmb.config.git_repos.keys():
         if pmb.helpers.git.pull(repo) < 0:
@@ -610,7 +614,7 @@ def pull(args: PmbArgs):
 def lint(args: PmbArgs):
     packages: Sequence[str] = args.packages
     if not packages:
-        packages = pmb.helpers.pmaports.get_list(args)
+        packages = pmb.helpers.pmaports.get_list()
 
     pmb.helpers.lint.check(args, packages)
 

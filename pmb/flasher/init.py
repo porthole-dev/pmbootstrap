@@ -3,7 +3,7 @@
 import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.mount
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.core import Chroot, ChrootType
@@ -28,19 +28,19 @@ def install_depends(args: PmbArgs):
     # Depends for some flash methods may be different for various pmaports
     # branches, so read them from pmaports.cfg.
     if method == "fastboot":
-        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        pmaports_cfg = pmb.config.pmaports.read_config()
         depends = pmaports_cfg.get("supported_fastboot_depends",
                                    "android-tools,avbtool").split(",")
     elif method == "heimdall-bootimg":
-        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        pmaports_cfg = pmb.config.pmaports.read_config()
         depends = pmaports_cfg.get("supported_heimdall_depends",
                                    "heimdall,avbtool").split(",")
     elif method == "mtkclient":
-        pmaports_cfg = pmb.config.pmaports.read_config(args)
+        pmaports_cfg = pmb.config.pmaports.read_config()
         depends = pmaports_cfg.get("supported_mtkclient_depends",
                                    "mtkclient,android-tools").split(",")
 
-    pmb.chroot.apk.install(args, depends, Chroot.native())
+    pmb.chroot.apk.install(depends, Chroot.native())
 
 
 def init(args: PmbArgs):

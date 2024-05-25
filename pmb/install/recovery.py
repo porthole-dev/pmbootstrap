@@ -5,7 +5,7 @@ from pmb.helpers import logging
 
 import pmb.chroot
 import pmb.config.pmaports
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.frontend
 
@@ -45,7 +45,7 @@ def create_zip(args: PmbArgs, suffix):
     }
 
     # Backwards compatibility with old mkinitfs (pma#660)
-    pmaports_cfg = pmb.config.pmaports.read_config(args)
+    pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         options["FLAVOR"] = ""
     else:
@@ -71,4 +71,4 @@ def create_zip(args: PmbArgs, suffix):
         ["gzip", "-f1", "rootfs.tar"],
         ["build-recovery-zip", args.device]]
     for command in commands:
-        pmb.chroot.root(args, command, suffix, working_dir=zip_root)
+        pmb.chroot.root(command, suffix, working_dir=zip_root)

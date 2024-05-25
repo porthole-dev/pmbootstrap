@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Generator, List, Optional
 from pathlib import Path, PosixPath, PurePosixPath
 from pmb import commands
-from pmb.core.types import PathString
+from pmb.types import PathString
 from pmb.helpers import run
 from pmb.core import get_context
 from pmb import config

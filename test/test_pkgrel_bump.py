@@ -3,7 +3,7 @@
 """ Test pmb.helper.pkgrel_bump """
 import glob
 import os
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pytest
 import sys
 
@@ -18,7 +18,7 @@ def args(request):
     import pmb.parse
     sys.argv = ["pmbootstrap.py", "chroot"]
     args = pmb.parse.arguments()
-    args.log = pmb.config.work / "log_testsuite.txt"
+    args.log = get_context().config.work / "log_testsuite.txt"
     pmb.helpers.logging.init(args)
     request.addfinalizer(pmb.helpers.logging.logfd.close)
     return args
@@ -73,7 +73,7 @@ def setup_work(args: PmbArgs, tmpdir):
     pmb.helpers.run.user(["./pmbootstrap.py", "shutdown"])
 
     # Link everything from work (except for "packages") to the tmpdir
-    for path in pmb.config.work.glob("*"):
+    for path in get_context().config.work.glob("*"):
         if os.path.basename(path) != "packages":
             pmb.helpers.run.user(["ln", "-s", path, tmpdir + "/"])
 
@@ -81,7 +81,7 @@ def setup_work(args: PmbArgs, tmpdir):
     for folder in ["device/testing", "main"]:
         pmb.helpers.run.user(["mkdir", "-p", args.aports, tmpdir +
                                     "/_aports/" + folder])
-    path_original = pmb.helpers.pmaports.find(args, f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
     pmb.helpers.run.user(["cp", "-r", path_original,
                                 f"{tmpdir}/_aports/device/testing"])
     for pkgname in ["testlib", "testapp", "testsubpkg"]:
@@ -95,7 +95,7 @@ def setup_work(args: PmbArgs, tmpdir):
                                 "/_aports"])
 
     # Empty packages folder
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     packages_path = f"{tmpdir}/packages/{channel}"
     pmb.helpers.run.user(["mkdir", "-p", packages_path])
     pmb.helpers.run.user(["chmod", "777", packages_path])
@@ -145,7 +145,7 @@ def test_pkgrel_bump_high_level(args: PmbArgs, tmpdir):
     verify_pkgrels(tmpdir, 1, 0, 0)
 
     # Delete package with previous soname (--auto-dry exits with >0 now)
-    channel = pmb.config.pmaports.read_config(args)["channel"]
+    channel = pmb.config.pmaports.read_config()["channel"]
     arch = pmb.config.arch_native
     apk_path = f"{tmpdir}/packages/{channel}/{arch}/testlib-1.0-r0.apk"
     pmb.helpers.run.root(["rm", apk_path])

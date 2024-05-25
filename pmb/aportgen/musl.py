@@ -5,30 +5,31 @@ import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def generate(args: PmbArgs, pkgname):
     arch = pkgname.split("-")[1]
 
     # Parse musl version from APKINDEX
-    package_data = pmb.parse.apkindex.package(args, "musl")
+    package_data = pmb.parse.apkindex.package("musl")
     version = package_data["version"]
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
 
     # Prepare aportgen tempdir inside and outside of chroot
+    work = get_context().config.work
     tempdir = Path("/tmp/aportgen")
-    aportgen = pmb.config.work / "aportgen"
-    pmb.chroot.root(args, ["rm", "-rf", tempdir])
+    aportgen = work / "aportgen"
+    pmb.chroot.root(["rm", "-rf", tempdir])
     pmb.helpers.run.user(["mkdir", "-p", aportgen,
                                 Chroot.native() / tempdir])
 
     # Write the APKBUILD
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir = channel_cfg["mirrordir_alpine"]
     apkbuild_path = Chroot.native() / tempdir / "APKBUILD"
     apk_name = f"$srcdir/musl-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk"
@@ -97,7 +98,7 @@ def generate(args: PmbArgs, pkgname):
             handle.write(line[12:].replace(" " * 4, "\t") + "\n")
 
     # Generate checksums
-    pmb.build.init_abuild_minimal(args)
-    pmb.chroot.root(args, ["chown", "-R", "pmos:pmos", tempdir])
-    pmb.chroot.user(args, ["abuild", "checksum"], working_dir=tempdir)
+    pmb.build.init_abuild_minimal()
+    pmb.chroot.root(["chown", "-R", "pmos:pmos", tempdir])
+    pmb.chroot.user(["abuild", "checksum"], working_dir=tempdir)
     pmb.helpers.run.user(["cp", apkbuild_path, aportgen])

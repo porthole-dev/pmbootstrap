@@ -3,11 +3,11 @@
 """ Common code for git tests """
 import os
 
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
 import shutil
-from pmb.core.types import PmbArgs
+from pmb.types import PmbArgs
 
 
 def prepare_tmpdir(args: PmbArgs, monkeypatch, tmpdir):
