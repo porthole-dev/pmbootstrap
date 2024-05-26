@@ -9,47 +9,34 @@ from pmb.types import Config
 
 
 class Context():
-    details_to_stdout: bool
-    quiet: bool
-    command_timeout: float
-    sudo_timer: bool
+    details_to_stdout: bool = False
+    quiet: bool = False
+    command_timeout: float = 900
+    sudo_timer: bool = False
     log: Path
     # The architecture of the selected device
-    device_arch: Optional[str]
-    offline: bool
+    device_arch: Optional[str] = None
+    offline: bool = False
 
-    # Never build packages
-    sdnfivnsifdvsbdf: bool
+    # assume yes to prompts
+    assume_yes: bool = False
 
     # The pmbootstrap subcommand
-    command: str
+    command: str = ""
 
     ## FIXME: build options, should not be here ##
     # disable cross compilation and use QEMU
-    cross: bool
-    no_depends: bool
-    ignore_depends: bool
-    ccache: bool
-    go_mod_cache: bool
+    cross: bool = False
+    no_depends: bool = False
+    ignore_depends: bool = False
+    ccache: bool = False
+    go_mod_cache: bool = False
 
     config: Config
 
     def __init__(self, config: Config):
-        self.details_to_stdout = False
-        self.command_timeout = 0
-        self.sudo_timer = False
         self.log = config.work / "log.txt"
-        self.quiet = False
-        self.device_arch = None
-        self.offline = False
         self.config = config
-        self.sdnfivnsifdvsbdf = False
-        self.command = ""
-        self.cross = False
-        self.no_depends = False
-        self.ignore_depends = False
-        self.ccache = False
-        self.go_mod_cache = False
 
 
 __context: Context

@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
 import pmb.chroot.apk
@@ -9,7 +10,7 @@ import pmb.install
 from pmb.core import Chroot
 
 
-def kernel_flavor_installed(args: PmbArgs, chroot: Chroot, autoinstall=True):
+def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
     """
     Get installed kernel flavor. Optionally install the device's kernel
     beforehand.
@@ -22,8 +23,9 @@ def kernel_flavor_installed(args: PmbArgs, chroot: Chroot, autoinstall=True):
     """
     # Automatically install the selected kernel
     if autoinstall:
-        packages = ([f"device-{args.device}"] +
-                    pmb.install.get_kernel_package(args, args.device))
+        config = get_context().config
+        packages = ([f"device-{config.device}"] +
+                    pmb.install.get_kernel_package(config))
         pmb.chroot.apk.install(packages, chroot)
 
     glob_result = list((chroot / "usr/share/kernel").glob("*"))
@@ -32,7 +34,8 @@ def kernel_flavor_installed(args: PmbArgs, chroot: Chroot, autoinstall=True):
     return glob_result[0].name if glob_result else None
 
 
-def tempfolder(args: PmbArgs, path: Path, chroot: Chroot=Chroot.native()):
+# FIXME: this function has ONE user, does it need to exist?
+def tempfolder(path: Path, chroot: Chroot=Chroot.native()):
     """
     Create a temporary folder inside the chroot that belongs to "user".
     The folder gets deleted, if it already exists.

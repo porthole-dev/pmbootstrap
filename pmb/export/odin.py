@@ -19,7 +19,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
     and with boot.img for devices with 'heimdall-bootimg'
     """
     pmb.flasher.init(args)
-    suffix = Chroot(ChrootType.ROOTFS, args.device)
+    suffix = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix_flavor = f"-{flavor}"
@@ -49,12 +49,12 @@ def odin(args: PmbArgs, flavor, folder: Path):
     # Odin flashable tar generation script
     # (because redirecting stdin/stdout is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    odin_script = Chroot(ChrootType.ROOTFS, args.device) / "tmp/_odin.sh"
+    odin_script = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud) / "tmp/_odin.sh"
     with odin_script.open("w") as handle:
         odin_kernel_md5 = f"{partition_kernel}.bin.md5"
         odin_initfs_md5 = f"{partition_initfs}.bin.md5"
-        odin_device_tar = f"{args.device}.tar"
-        odin_device_tar_md5 = f"{args.device}.tar.md5"
+        odin_device_tar = f"{args.devicesdhbfvhubsud}.tar"
+        odin_device_tar_md5 = f"{args.devicesdhbfvhubsud}.tar.md5"
 
         handle.write(
             "#!/bin/sh\n"
@@ -90,7 +90,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
 
     # Move Odin flashable tar to native chroot and cleanup temp folder
     pmb.chroot.user(["mkdir", "-p", "/home/pmos/rootfs"])
-    pmb.chroot.root(["mv", f"/mnt/rootfs_{args.device}{temp_folder}"
+    pmb.chroot.root(["mv", f"/mnt/rootfs_{args.devicesdhbfvhubsud}{temp_folder}"
                            f"/{odin_device_tar_md5}", "/home/pmos/rootfs/"]),
     pmb.chroot.root(["chown", "pmos:pmos",
                            f"/home/pmos/rootfs/{odin_device_tar_md5}"])

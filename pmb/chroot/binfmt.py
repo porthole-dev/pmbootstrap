@@ -58,7 +58,7 @@ def register(arch):
     pmb.helpers.run.root(["sh", "-c", 'echo "' + code + '" > ' + register])
 
 
-def unregister(args: PmbArgs, arch):
+def unregister(arch):
     arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
     binfmt_file = "/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu
     if not os.path.exists(binfmt_file):

@@ -76,11 +76,11 @@ def variables(args: PmbArgs, flavor, method):
         _resume = "--resume"
 
     vars = {
-        "$BOOT": "/mnt/rootfs_" + args.device + "/boot",
+        "$BOOT": "/mnt/rootfs_" + args.devicesdhbfvhubsud + "/boot",
         "$DTB": _dtb,
-        "$IMAGE_SPLIT_BOOT": "/home/pmos/rootfs/" + args.device + "-boot.img",
-        "$IMAGE_SPLIT_ROOT": "/home/pmos/rootfs/" + args.device + "-root.img",
-        "$IMAGE": "/home/pmos/rootfs/" + args.device + ".img",
+        "$IMAGE_SPLIT_BOOT": "/home/pmos/rootfs/" + args.devicesdhbfvhubsud + "-boot.img",
+        "$IMAGE_SPLIT_ROOT": "/home/pmos/rootfs/" + args.devicesdhbfvhubsud + "-root.img",
+        "$IMAGE": "/home/pmos/rootfs/" + args.devicesdhbfvhubsud + ".img",
         "$KERNEL_CMDLINE": _cmdline,
         "$PARTITION_KERNEL": _partition_kernel,
         "$PARTITION_INITFS": args.deviceinfo[
@@ -91,7 +91,7 @@ def variables(args: PmbArgs, flavor, method):
         "$FLASH_PAGESIZE": flash_pagesize,
         "$RECOVERY_ZIP": "/mnt/buildroot_" + args.deviceinfo["arch"] +
                          "/var/lib/postmarketos-android-recovery-installer"
-                         "/pmos-" + args.device + ".zip",
+                         "/pmos-" + args.devicesdhbfvhubsud + ".zip",
         "$UUU_SCRIPT": "/mnt/rootfs_" + args.deviceinfo["codename"] +
                        "/usr/share/uuu/flash_script.lst",
         "$NO_REBOOT": _no_reboot,

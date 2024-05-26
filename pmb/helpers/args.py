@@ -1,13 +1,18 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from argparse import Namespace
 import copy
+import json
 import os
 from pathlib import Path
+import sys
 import pmb.config
 from pmb.core.context import Context
 from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.args
+
+__args: PmbArgs = PmbArgs()
 
 """This file constructs the args variable, which is passed to almost all
    functions in the pmbootstrap code base. Here's a listing of the kind of
@@ -89,6 +94,7 @@ def add_deviceinfo(args: PmbArgs):
 
 
 def init(args: PmbArgs) -> PmbArgs:
+    global __args
     # Basic initialization
     config = pmb.config.load(args)
     # pmb.config.merge_with_args(args)
@@ -136,8 +142,17 @@ def init(args: PmbArgs) -> PmbArgs:
     delattr(args, "mirror_alpine")
     # args.work is deprecated!
     delattr(args, "work")
+    
+    # Copy all properties from args to out that don't start with underscores
+    for key, value in vars(args).items():
+        if not key.startswith("_") and not key == "from_argparse":
+            setattr(__args, key, value)
 
-    return args
+    print(json.dumps(__args.__dict__))
+
+    #sys.exit(0)
+
+    return __args
 
 
 def update_work(args: PmbArgs, work):
@@ -157,3 +172,7 @@ def update_work(args: PmbArgs, work):
     # Overwrite old attributes of args with the new attributes
     for key in vars(args_new):
         setattr(args, key, getattr(args_new, key))
+
+def please_i_really_need_args() -> PmbArgs:
+    print("FIXME: retrieved args where it shouldn't be needed!")
+    return __args

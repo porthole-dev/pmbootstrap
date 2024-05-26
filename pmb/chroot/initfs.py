@@ -8,7 +8,7 @@ import pmb.chroot.apk
 import pmb.config.pmaports
 from pmb.types import PmbArgs
 import pmb.helpers.cli
-from pmb.core import Chroot
+from pmb.core import Chroot, get_context
 
 
 def build(args: PmbArgs, flavor, chroot: Chroot):
@@ -49,7 +49,7 @@ def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
 
     outside = chroot / inside
     if outside.exists():
-        if not pmb.helpers.cli.confirm(args, f"Extraction folder {outside}"
+        if not pmb.helpers.cli.confirm(f"Extraction folder {outside}"
                                        " already exists."
                                        " Do you want to overwrite it?"):
             raise RuntimeError("Aborted!")
@@ -88,8 +88,9 @@ def ls(args: PmbArgs, flavor, suffix, extra=False):
 
 def frontend(args: PmbArgs):
     # Find the appropriate kernel flavor
-    chroot = Chroot.rootfs(args.device)
-    flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
+    context = get_context()
+    chroot = Chroot.rootfs(context.config.device)
+    flavor = pmb.chroot.other.kernel_flavor_installed(chroot)
 
     # Handle initfs actions
     action = args.action_initfs

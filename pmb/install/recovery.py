@@ -15,7 +15,7 @@ def create_zip(args: PmbArgs, suffix):
     Create android recovery compatible installer zip.
     """
     zip_root = Path("/var/lib/postmarketos-android-recovery-installer/")
-    rootfs = "/mnt/rootfs_" + args.device
+    rootfs = "/mnt/rootfs_" + args.devicesdhbfvhubsud
     flavor = pmb.helpers.frontend._parse_flavor(args)
     method = args.deviceinfo["flash_method"]
     vars = pmb.flasher.variables(args, flavor, method)
@@ -32,7 +32,7 @@ def create_zip(args: PmbArgs, suffix):
 
     # Create config file for the recovery installer
     options = {
-        "DEVICE": args.device,
+        "DEVICE": args.devicesdhbfvhubsud,
         "FLASH_KERNEL": args.recovery_flash_kernel,
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": vars["$PARTITION_KERNEL"],
@@ -69,6 +69,6 @@ def create_zip(args: PmbArgs, suffix):
         ["tar", "-prf", "rootfs.tar", "-C", "/", "./etc/apk/keys"],
         # Compress with -1 for speed improvement
         ["gzip", "-f1", "rootfs.tar"],
-        ["build-recovery-zip", args.device]]
+        ["build-recovery-zip", args.devicesdhbfvhubsud]]
     for command in commands:
         pmb.chroot.root(command, suffix, working_dir=zip_root)

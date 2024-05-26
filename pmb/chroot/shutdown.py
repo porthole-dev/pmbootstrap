@@ -77,7 +77,7 @@ def shutdown(args: PmbArgs, only_install_related=False):
 
     # Umount device rootfs and installer chroots
     for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
-        chroot = Chroot(chroot_type, args.device)
+        chroot = Chroot(chroot_type, get_context().config.device)
         if chroot.path.exists():
             pmb.helpers.mount.umount_all(chroot.path)
 
@@ -99,5 +99,5 @@ def shutdown(args: PmbArgs, only_install_related=False):
         # Clean up the rest
         for arch in pmb.config.build_device_architectures:
             if pmb.parse.arch.cpu_emulation_required(arch):
-                pmb.chroot.binfmt.unregister(args, arch)
+                pmb.chroot.binfmt.unregister(arch)
         logging.debug("Shutdown complete")

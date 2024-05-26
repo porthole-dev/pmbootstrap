@@ -6,12 +6,12 @@ from pmb.core import Chroot
 from pmb.types import PmbArgs
 
 
-def install_fsprogs(args: PmbArgs, filesystem):
+def install_fsprogs(filesystem):
     """ Install the package required to format a specific filesystem. """
     fsprogs = pmb.config.filesystems.get(filesystem)
     if not fsprogs:
         raise RuntimeError(f"Unsupported filesystem: {filesystem}")
-    pmb.chroot.apk.install([fsprogs])
+    pmb.chroot.apk.install([fsprogs], Chroot.native())
 
 
 def format_and_mount_boot(args: PmbArgs, device, boot_label):
@@ -24,7 +24,7 @@ def format_and_mount_boot(args: PmbArgs, device, boot_label):
     """
     mountpoint = "/mnt/install/boot"
     filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
-    install_fsprogs(args, filesystem)
+    install_fsprogs(filesystem)
     logging.info(f"(native) format {device} (boot, {filesystem}), mount to"
                  f" {mountpoint}")
     if filesystem == "fat16":
@@ -99,8 +99,7 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     /snapshots should be a separate subvol so that changing the root subvol
     doesn't affect snapshots
     """
-    pmb.chroot.root(args,
-                    ["btrfs", "subvol", "create",
+    pmb.chroot.root(["btrfs", "subvol", "create",
                         f"{mountpoint}/@",
                         f"{mountpoint}/@home",
                         f"{mountpoint}/@root",
@@ -112,8 +111,7 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     # Set the default root subvolume to be separate from top level btrfs
     # subvol. This lets us easily swap out current root subvol with an
     # earlier snapshot.
-    pmb.chroot.root(args,
-        ["btrfs", "subvol", "set-default",  f"{mountpoint}/@"])
+    pmb.chroot.root(["btrfs", "subvol", "set-default",  f"{mountpoint}/@"])
 
     # Make directories to mount subvols onto
     pmb.chroot.root(["umount", mountpoint])
@@ -131,20 +129,15 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     pmb.chroot.root(["chmod", "700", f"{mountpoint}/.snapshots"])
 
     # Mount subvols
-    pmb.chroot.root(args,
-                    ["mount", "-o", "subvol=@var",
+    pmb.chroot.root(["mount", "-o", "subvol=@var",
                         device, f"{mountpoint}/var"])
-    pmb.chroot.root(args,
-                    ["mount", "-o", "subvol=@home",
+    pmb.chroot.root(["mount", "-o", "subvol=@home",
                         device, f"{mountpoint}/home"])
-    pmb.chroot.root(args,
-                    ["mount", "-o", "subvol=@root",
+    pmb.chroot.root(["mount", "-o", "subvol=@root",
                         device, f"{mountpoint}/root"])
-    pmb.chroot.root(args,
-                    ["mount", "-o", "subvol=@srv",
+    pmb.chroot.root(["mount", "-o", "subvol=@srv",
                         device, f"{mountpoint}/srv"])
-    pmb.chroot.root(args,
-                    ["mount", "-o", "subvol=@snapshots",
+    pmb.chroot.root(["mount", "-o", "subvol=@snapshots",
                         device, f"{mountpoint}/.snapshots"])
 
     # Disable CoW for /var, to avoid write multiplication
@@ -180,7 +173,7 @@ def format_and_mount_root(args: PmbArgs, device, root_label, disk):
         else:
             raise RuntimeError(f"Don't know how to format {filesystem}!")
 
-        install_fsprogs(args, filesystem)
+        install_fsprogs(filesystem)
         logging.info(f"(native) format {device} (root, {filesystem})")
         pmb.chroot.root(mkfs_root_args + [device])
 

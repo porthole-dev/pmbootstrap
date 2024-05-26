@@ -12,7 +12,7 @@ from typing import Any, List
 import pmb.aportgen
 import pmb.config
 import pmb.config.pmaports
-from pmb.types import PmbArgs
+from pmb.types import Config, PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.git
@@ -189,7 +189,7 @@ def ask_for_ui_extras(args: PmbArgs, ui):
     logging.info("This user interface has an extra package:"
                  f" {extra['pkgdesc']}")
 
-    return pmb.helpers.cli.confirm(args, "Enable this package?",
+    return pmb.helpers.cli.confirm("Enable this package?",
                                    default=args.ui_extras)
 
 
@@ -234,7 +234,7 @@ def ask_for_keymaps(args: PmbArgs, info):
                       " one from the list above.")
 
 
-def ask_for_timezone(args: PmbArgs):
+def ask_for_timezone():
     localtimes = ["/etc/zoneinfo/localtime", "/etc/localtime"]
     zoneinfo_path = "/usr/share/zoneinfo/"
     for localtime in localtimes:
@@ -251,8 +251,7 @@ def ask_for_timezone(args: PmbArgs):
                     pass
         if tz:
             logging.info(f"Your host timezone: {tz}")
-            if pmb.helpers.cli.confirm(args,
-                                       "Use this timezone instead of GMT?",
+            if pmb.helpers.cli.confirm("Use this timezone instead of GMT?",
                                        default="y"):
                 return tz
     logging.info("WARNING: Unable to determine timezone configuration on host,"
@@ -260,7 +259,7 @@ def ask_for_timezone(args: PmbArgs):
     return "GMT"
 
 
-def ask_for_provider_select(args: PmbArgs, apkbuild, providers_cfg):
+def ask_for_provider_select(apkbuild, providers_cfg):
     """Ask for selectable providers that are specified using "_pmb_select" in a APKBUILD.
 
     :param apkbuild: the APKBUILD with the _pmb_select
@@ -375,7 +374,7 @@ def ask_for_device_kernel(args: PmbArgs, device: str):
     return ret
 
 
-def ask_for_device(args: PmbArgs):
+def ask_for_device(config: Config):
     """
     Prompt for the device vendor, model, and kernel.
 
@@ -391,9 +390,9 @@ def ask_for_device(args: PmbArgs):
 
     current_vendor = None
     current_codename = None
-    if args.device:
-        current_vendor = args.device.split("-", 1)[0]
-        current_codename = args.device.split("-", 1)[1]
+    if config.device:
+        current_vendor = config.device.split("-", 1)[0]
+        current_codename = config.device.split("-", 1)[1]
 
     while True:
         vendor = pmb.helpers.cli.ask("Vendor", None, current_vendor,
@@ -405,7 +404,7 @@ def ask_for_device(args: PmbArgs):
             logging.info("The specified vendor ({}) could not be found in"
                          " existing ports, do you want to start a new"
                          " port?".format(vendor))
-            if not pmb.helpers.cli.confirm(args, default=True):
+            if not pmb.helpers.cli.confirm(default=True):
                 continue
         else:
             # Archived devices can be selected, but are not displayed
@@ -425,21 +424,21 @@ def ask_for_device(args: PmbArgs):
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(device, 'deviceinfo')
         if device_path is None:
-            if device == args.device:
+            if device == args.devicesdhbfvhubsud:
                 raise RuntimeError(
                     "This device does not exist anymore, check"
                     " <https://postmarketos.org/renamed>"
                     " to see if it was renamed")
             logging.info("You are about to do"
                          f" a new device port for '{device}'.")
-            if not pmb.helpers.cli.confirm(args, default=True):
+            if not pmb.helpers.cli.confirm(default=True):
                 current_vendor = vendor
                 continue
 
             # New port creation confirmed
             logging.info("Generating new aports for: {}...".format(device))
-            pmb.aportgen.generate(args, f"device-{device}")
-            pmb.aportgen.generate(args, f"linux-{device}")
+            pmb.aportgen.generate(f"device-{device}")
+            pmb.aportgen.generate(f"linux-{device}")
         elif any("archived" == x for x in device_path.parts):
             apkbuild = f"{device_path[:-len('deviceinfo')]}APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild)
@@ -463,7 +462,7 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  f" sudo timer: {context.sudo_timer},"
                  f" mirror: {','.join(context.config.mirrors_postmarketos)}")
 
-    if not pmb.helpers.cli.confirm(args, "Change them?",
+    if not pmb.helpers.cli.confirm("Change them?",
                                    default=False):
         return
 
@@ -510,7 +509,7 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  " work with these chroots, pmbootstrap calls 'sudo'"
                  " internally. For long running operations, it is possible"
                  " that you'll have to authorize sudo more than once.")
-    answer = pmb.helpers.cli.confirm(args, "Enable background timer to prevent"
+    answer = pmb.helpers.cli.confirm("Enable background timer to prevent"
                                      " repeated sudo authorization?",
                                      default=context.sudo_timer)
     cfg["pmbootstrap"]["sudo_timer"] = str(answer)
@@ -519,7 +518,7 @@ def ask_for_additional_options(args: PmbArgs, cfg):
     # prompt for mirror change
     logging.info("Selected mirror:"
                  f" {','.join(context.config.mirrors_postmarketos)}")
-    if pmb.helpers.cli.confirm(args, "Change mirror?", default=False):
+    if pmb.helpers.cli.confirm("Change mirror?", default=False):
         mirrors = ask_for_mirror(args)
         cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(mirrors)
 
@@ -597,8 +596,7 @@ def ask_for_hostname(args: PmbArgs, device):
 def ask_for_ssh_keys(args: PmbArgs):
     if not len(glob.glob(os.path.expanduser("~/.ssh/id_*.pub"))):
         return False
-    return pmb.helpers.cli.confirm(args,
-                                   "Would you like to copy your SSH public"
+    return pmb.helpers.cli.confirm("Would you like to copy your SSH public"
                                    " keys to the device?",
                                    default=args.ssh_keys)
 
@@ -607,7 +605,7 @@ def ask_build_pkgs_on_install(args: PmbArgs):
     logging.info("After pmaports are changed, the binary packages may be"
                  " outdated. If you want to install postmarketOS without"
                  " changes, reply 'n' for a faster installation.")
-    return pmb.helpers.cli.confirm(args, "Build outdated packages during"
+    return pmb.helpers.cli.confirm("Build outdated packages during"
                                    " 'pmbootstrap install'?",
                                    default=args.build_pkgs_on_install)
 
@@ -677,7 +675,7 @@ def frontend(args: PmbArgs):
         pmb.config.pmaports.install_githooks()
 
     # Device
-    device, device_exists, kernel = ask_for_device(args)
+    device, device_exists, kernel = ask_for_device(config)
     config.device = device
     config.kernel = kernel
 
@@ -685,7 +683,7 @@ def frontend(args: PmbArgs):
     apkbuild_path = pmb.helpers.devices.find_path(device, 'APKBUILD')
     if apkbuild_path:
         apkbuild = pmb.parse.apkbuild(apkbuild_path)
-        ask_for_provider_select(args, apkbuild, config.providers)
+        ask_for_provider_select(apkbuild, config.providers)
 
     # Device keymap
     if device_exists:
@@ -712,12 +710,12 @@ def frontend(args: PmbArgs):
                  " Specify them in a comma separated list (e.g.: vim,file)"
                  " or \"none\"")
     extra = pmb.helpers.cli.ask("Extra packages", None,
-                                args.extra_packages,
+                                config.extra_packages,
                                 validation_regex=r"^([-.+\w]+)(,[-.+\w]+)*$")
     config.extra_packages = extra
 
     # Configure timezone info
-    config.timezone = ask_for_timezone(args)
+    config.timezone = ask_for_timezone()
 
     # Locale
     config.locale = ask_for_locale(args)
@@ -741,7 +739,7 @@ def frontend(args: PmbArgs):
     if (work_exists and device_exists and
             len(list(Chroot.iter_patterns())) and
             pmb.helpers.cli.confirm(
-                args, "Zap existing chroots to apply configuration?",
+                "Zap existing chroots to apply configuration?",
                 default=True)):
         setattr(args, "deviceinfo", info)
 

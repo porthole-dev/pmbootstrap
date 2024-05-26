@@ -29,7 +29,7 @@ def system_image(args: PmbArgs):
     Returns path to rootfs for specified device. In case that it doesn't
     exist, raise and exception explaining how to generate it.
     """
-    path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}.img"
+    path = Chroot.native() / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}.img"
     if not path.exists():
         logging.debug(f"Could not find rootfs: {path}")
         raise RuntimeError("The rootfs has not been generated yet, please "
@@ -44,7 +44,7 @@ def create_second_storage(args: PmbArgs):
     :returns: path to the image or None
 
     """
-    path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}-2nd.img"
+    path = Chroot.native() / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-2nd.img"
     pmb.helpers.run.root(["touch", path])
     pmb.helpers.run.root(["chmod", "a+w", path])
     resize_image(args, args.second_storage, path)
@@ -102,7 +102,7 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
 
     port_ssh = str(args.port)
 
-    chroot = Chroot(ChrootType.ROOTFS, args.device)
+    chroot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
     chroot_native = Chroot.native()
     flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
     flavor_suffix = f"-{flavor}"
@@ -332,7 +332,7 @@ def run(args: PmbArgs):
     """
     Run a postmarketOS image in qemu
     """
-    if not args.device.startswith("qemu-"):
+    if not args.devicesdhbfvhubsud.startswith("qemu-"):
         raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
                            "the QEMU device packages. Run 'pmbootstrap init' "
                            "and select the 'qemu' vendor.")

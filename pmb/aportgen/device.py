@@ -8,7 +8,7 @@ import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.aportgen.core
 import pmb.parse.apkindex
-import pmb.parse.bootimg
+import pmb.parse
 
 
 def ask_for_architecture():
@@ -60,13 +60,13 @@ def ask_for_chassis():
                                complete=types)
 
 
-def ask_for_keyboard(args: PmbArgs):
-    return pmb.helpers.cli.confirm(args, "Does the device have a hardware"
+def ask_for_keyboard():
+    return pmb.helpers.cli.confirm("Does the device have a hardware"
                                    " keyboard?")
 
 
-def ask_for_external_storage(args: PmbArgs):
-    return pmb.helpers.cli.confirm(args, "Does the device have a sdcard or"
+def ask_for_external_storage():
+    return pmb.helpers.cli.confirm("Does the device have a sdcard or"
                                    " other external storage medium?")
 
 
@@ -178,7 +178,7 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
     return content
 
 
-def generate_deviceinfo(args: PmbArgs, pkgname, name, manufacturer, year, arch,
+def generate_deviceinfo(pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
@@ -246,7 +246,7 @@ def generate_deviceinfo(args: PmbArgs, pkgname, name, manufacturer, year, arch,
             handle.write(line.lstrip() + "\n")
 
 
-def generate_modules_initfs(args: PmbArgs):
+def generate_modules_initfs():
     content = """\
     # Remove this file if unnecessary (CHANGEME!)
     # This file shall contain a list of modules to be included in the initramfs,
@@ -268,7 +268,7 @@ def generate_modules_initfs(args: PmbArgs):
             handle.write(line.lstrip() + "\n")
 
 
-def generate_apkbuild(args: PmbArgs, pkgname, name, arch, flash_method):
+def generate_apkbuild(pkgname, name, arch, flash_method):
     # Dependencies
     depends = ["postmarketos-base",
                "linux-" + "-".join(pkgname.split("-")[1:])]
@@ -325,15 +325,15 @@ def generate(args: PmbArgs, pkgname):
     name = ask_for_name(manufacturer)
     year = ask_for_year()
     chassis = ask_for_chassis()
-    has_keyboard = ask_for_keyboard(args)
-    has_external_storage = ask_for_external_storage(args)
+    has_keyboard = ask_for_keyboard()
+    has_external_storage = ask_for_external_storage()
     flash_method = ask_for_flash_method()
     bootimg = None
     if flash_method in ["fastboot", "heimdall-bootimg"]:
         bootimg = ask_for_bootimg(args)
 
-    generate_deviceinfo(args, pkgname, name, manufacturer, year, arch,
+    generate_deviceinfo(pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,
                         flash_method, bootimg)
-    generate_modules_initfs(args)
-    generate_apkbuild(args, pkgname, name, arch, flash_method)
+    generate_modules_initfs()
+    generate_apkbuild(pkgname, name, arch, flash_method)

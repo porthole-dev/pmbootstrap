@@ -108,7 +108,7 @@ def test_questions_bootimg(args: PmbArgs, monkeypatch):
 def test_questions_device(args: PmbArgs, monkeypatch):
     # Prepare args
     args.aports = pmb_test.const.testdata + "/init_questions_device/aports"
-    args.device = "lg-mako"
+    args.devicesdhbfvhubsud = "lg-mako"
     args.kernel = "downstream"
 
     # Do not generate aports

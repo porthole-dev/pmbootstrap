@@ -19,7 +19,7 @@ def kernel(args: PmbArgs):
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
     if args.autoinstall:
-        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.device))
+        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud))
 
     # Check kernel config
     pmb.parse.kconfig.check(args, flavor, must_exist=False)
@@ -42,9 +42,9 @@ def kernel(args: PmbArgs):
 
 
 def list_flavors(args: PmbArgs):
-    suffix = Chroot(ChrootType.ROOTFS, args.device)
+    suffix = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
     logging.info(f"({suffix}) installed kernel flavors:")
-    logging.info("* " + pmb.chroot.other.kernel_flavor_installed(args, suffix))
+    logging.info("* " + pmb.chroot.other.kernel_flavor_installed(suffix))
 
 
 def rootfs(args: PmbArgs):
@@ -55,7 +55,7 @@ def rootfs(args: PmbArgs):
     if pmb.config.flashers.get(method, {}).get("split", False):
         suffix = "-root.img"
 
-    img_path = Chroot.native() / "home/pmos/rootfs" / f"{args.device}{suffix}"
+    img_path = Chroot.native() / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}{suffix}"
     if not img_path.exists():
         raise RuntimeError("The rootfs has not been generated yet, please run"
                            " 'pmbootstrap install' first.")
@@ -100,7 +100,7 @@ def sideload(args: PmbArgs):
 
     # Missing recovery zip error
     if not (Chroot.native() / mountpoint / "/var/lib/postmarketos-android-recovery-installer"
-            / f"pmos-{args.device}.zip").exists():
+            / f"pmos-{args.devicesdhbfvhubsud}.zip").exists():
         raise RuntimeError("The recovery zip has not been generated yet,"
                            " please run 'pmbootstrap install' with the"
                            " '--android-recovery-zip' parameter first!")
@@ -125,7 +125,7 @@ def flash_lk2nd(args: PmbArgs):
                                " bootloader mode to re-flash lk2nd.")
 
     # Get the lk2nd package (which is a dependency of the device package)
-    device_pkg = f"device-{args.device}"
+    device_pkg = f"device-{args.devicesdhbfvhubsud}"
     apkbuild = pmb.helpers.pmaports.get(device_pkg)
     lk2nd_pkg = None
     for dep in apkbuild["depends"]:
@@ -136,7 +136,7 @@ def flash_lk2nd(args: PmbArgs):
     if not lk2nd_pkg:
         raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
 
-    suffix = Chroot(ChrootType.ROOTFS, args.device)
+    suffix = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
     pmb.chroot.apk.install([lk2nd_pkg], suffix)
 
     logging.info("(native) flash lk2nd image")

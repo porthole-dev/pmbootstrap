@@ -15,7 +15,7 @@ import pmb.chroot
 from pmb.core import Chroot
 
 
-def init(args: PmbArgs):
+def init():
     if not Path("/sys/module/loop").is_dir():
         pmb.helpers.run.root(["modprobe", "loop"])
     for loopdevice in Path("/dev/").glob("loop*"):
@@ -39,7 +39,7 @@ def mount(args: PmbArgs, img_path: Path):
             time.sleep(1)
 
         # Mount and return on success
-        init(args)
+        init()
 
         losetup_cmd: List[PathString] = ["losetup", "-f", img_path]
         sector_size = args.deviceinfo["rootfs_image_sector_size"]
@@ -48,7 +48,7 @@ def mount(args: PmbArgs, img_path: Path):
 
         pmb.chroot.root(losetup_cmd, check=False)
         try:
-            device_by_back_file(args, img_path)
+            device_by_back_file(img_path)
             return
         except RuntimeError:
             pass

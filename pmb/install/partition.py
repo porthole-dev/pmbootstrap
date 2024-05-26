@@ -21,7 +21,7 @@ def partitions_mount(args: PmbArgs, layout, disk: Optional[Path]):
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     if not disk:
-        img_path = Path("/home/pmos/rootfs") / f"{args.device}.img"
+        img_path = Path("/home/pmos/rootfs") / f"{args.devicesdhbfvhubsud}.img"
         disk = pmb.install.losetup.device_by_back_file(args, img_path)
 
     logging.info(f"Mounting partitions of {disk} inside the chroot")

@@ -81,7 +81,7 @@ def setup_work(args: PmbArgs, tmpdir):
     for folder in ["device/testing", "main"]:
         pmb.helpers.run.user(["mkdir", "-p", args.aports, tmpdir +
                                     "/_aports/" + folder])
-    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.devicesdhbfvhubsud}")
     pmb.helpers.run.user(["cp", "-r", path_original,
                                 f"{tmpdir}/_aports/device/testing"])
     for pkgname in ["testlib", "testapp", "testsubpkg"]:

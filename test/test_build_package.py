@@ -384,9 +384,9 @@ def test_build_local_source_high_level(args: PmbArgs, tmpdir):
     # aports: Add deviceinfo (required by pmbootstrap to start)
     tmpdir = str(tmpdir)
     aports = tmpdir + "/aports"
-    aport = aports + "/device/testing/device-" + args.device
+    aport = aports + "/device/testing/device-" + args.devicesdhbfvhubsud
     os.makedirs(aport)
-    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.devicesdhbfvhubsud}")
     shutil.copy(f"{path_original}/deviceinfo", aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)
@@ -447,9 +447,9 @@ def test_build_abuild_leftovers(args: PmbArgs, tmpdir):
     # aports: Add deviceinfo (required by pmbootstrap to start)
     tmpdir = str(tmpdir)
     aports = f"{tmpdir}/aports"
-    aport = f"{aports}/device/testing/device-{args.device}"
+    aport = f"{aports}/device/testing/device-{args.devicesdhbfvhubsud}"
     os.makedirs(aport)
-    path_original = pmb.helpers.pmaports.find(f"device-{args.device}")
+    path_original = pmb.helpers.pmaports.find(f"device-{args.devicesdhbfvhubsud}")
     shutil.copy(f"{path_original}/deviceinfo", aport)
 
     # aports: Add modified hello-world aport (source="", uses $builddir)

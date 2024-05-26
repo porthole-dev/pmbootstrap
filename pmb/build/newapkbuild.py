@@ -14,7 +14,7 @@ from pmb.core import Chroot, get_context
 
 def newapkbuild(args: PmbArgs, folder, args_passed, force=False):
     # Initialize build environment and build folder
-    pmb.build.init(args)
+    pmb.build.init()
     build = Path("/home/pmos/build")
     build_outside = Chroot.native() / build
     if build_outside.exists():
@@ -42,7 +42,7 @@ def newapkbuild(args: PmbArgs, folder, args_passed, force=False):
     if os.path.exists(target):
         logging.warning("WARNING: Folder already exists: " + target)
         question = "Continue and delete its contents?"
-        if not force and not pmb.helpers.cli.confirm(args, question):
+        if not force and not pmb.helpers.cli.confirm(question):
             raise RuntimeError("Aborted.")
         pmb.helpers.run.user(["rm", "-r", target])
 

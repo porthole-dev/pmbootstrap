@@ -49,9 +49,9 @@ def _parse_flavor(args: PmbArgs, autoinstall=True):
     # identifier that is typically in the form
     # "postmarketos-<manufacturer>-<device/chip>", e.g.
     # "postmarketos-qcom-sdm845"
-    chroot = Chroot(ChrootType.ROOTFS, args.device)
+    chroot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
     flavor = pmb.chroot.other.kernel_flavor_installed(
-        args, chroot, autoinstall)
+        chroot, autoinstall)
 
     if not flavor:
         raise RuntimeError(
@@ -78,7 +78,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
 
 def _install_ondev_verify_no_rootfs(args: PmbArgs):
     chroot_dest = "/var/lib/rootfs.img"
-    dest = Chroot(ChrootType.INSTALLER, args.device) / chroot_dest
+    dest = Chroot(ChrootType.INSTALLER, args.devicesdhbfvhubsud) / chroot_dest
     if dest.exists():
         return
 

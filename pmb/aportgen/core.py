@@ -6,6 +6,7 @@ import re
 from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
+import pmb.helpers.args
 from pmb.core import get_context
 
 
@@ -155,7 +156,7 @@ def rewrite(pkgname, path_original="", fields={}, replace_pkgname=None,
         handle.truncate()
 
 
-def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
+def get_upstream_aport(pkgname, arch=None):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 
@@ -167,6 +168,8 @@ def get_upstream_aport(args: PmbArgs, pkgname, arch=None):
     # APKBUILD
     pmb.helpers.git.clone("aports_upstream")
     aports_upstream_path = get_context().config.work / "cache_git/aports_upstream"
+
+    args = pmb.helpers.args.please_i_really_need_args()
 
     if getattr(args, "fork_alpine_retain_branch", False):
         logging.info("Not changing aports branch as --fork-alpine-retain-branch was "

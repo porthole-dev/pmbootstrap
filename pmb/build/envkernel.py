@@ -1,6 +1,7 @@
 # Copyright 2023 Robert Yang
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import List
+from pmb.core.context import Context
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -113,7 +114,7 @@ def modify_apkbuild(pkgname: str, aport: Path):
     pmb.aportgen.core.rewrite(pkgname, apkbuild_path, fields=fields)
 
 
-def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbuild_out):
+def run_abuild(context: Context, pkgname: str, arch: str, apkbuild_path: Path, kbuild_out):
     """
     Prepare build environment and run abuild.
 
@@ -135,7 +136,7 @@ def run_abuild(args: PmbArgs, pkgname: str, arch: str, apkbuild_path: Path, kbui
 
     if not os.path.exists(chroot / kbuild_out_source):
         raise RuntimeError("No '.output' dir found in your kernel source dir. "
-                           "Compile the " + args.device + " kernel first and "
+                           "Compile the " + context.config.device + " kernel first and "
                            "then try again. See https://postmarketos.org/envkernel"
                            "for details. If building on your host and only using "
                            "--envkernel for packaging, make sure you have O=.output "
@@ -184,9 +185,10 @@ def package_kernel(args: PmbArgs):
                            "argument.")
 
     aport = pmb.helpers.pmaports.find(pkgname)
+    context = get_context()
 
     modify_apkbuild(pkgname, aport)
-    apkbuild_path = get_context().config.work / "aportgen/APKBUILD"
+    apkbuild_path = context.config.work / "aportgen/APKBUILD"
 
     arch = args.deviceinfo["arch"]
     apkbuild = pmb.parse.apkbuild(apkbuild_path, check_pkgname=False)
@@ -199,8 +201,8 @@ def package_kernel(args: PmbArgs):
 
     # Install package dependencies
     depends, _ = pmb.build._package.build_depends(
-        args, apkbuild, pmb.config.arch_native, strict=False)
-    pmb.build.init(args, chroot)
+        context, apkbuild, pmb.config.arch_native, strict=False)
+    pmb.build.init(chroot)
     if pmb.parse.arch.cpu_emulation_required(arch):
         depends.append("binutils-" + arch)
     pmb.chroot.apk.install(depends, chroot)
@@ -211,7 +213,7 @@ def package_kernel(args: PmbArgs):
     logging.info(message)
 
     try:
-        run_abuild(args, pkgname, arch, apkbuild_path, kbuild_out)
+        run_abuild(context, pkgname, arch, apkbuild_path, kbuild_out)
     except Exception as e:
         pmb.helpers.mount.umount_all(Chroot.native() / "mnt/linux")
         raise e

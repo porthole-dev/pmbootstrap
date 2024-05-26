@@ -4,6 +4,7 @@ import os
 from pmb.core import get_context
 from pmb.helpers import logging
 import pmb.aportgen.busybox_static
+import pmb.aportgen.core
 import pmb.aportgen.device
 import pmb.aportgen.gcc
 import pmb.aportgen.linux
@@ -53,8 +54,8 @@ def properties(pkgname):
     raise ValueError("No generator available for " + pkgname + "!")
 
 
-def generate(args: PmbArgs, pkgname):
-    if args.fork_alpine:
+def generate(args: PmbArgs, pkgname, fork_alpine=False):
+    if fork_alpine:
         prefix, folder, options = (pkgname, "temp",
                                    {"confirm_overwrite": True})
     else:
@@ -66,21 +67,22 @@ def generate(args: PmbArgs, pkgname):
     if options["confirm_overwrite"] and os.path.exists(path_target):
         logging.warning("WARNING: Target folder already exists: "
                         f"{path_target}")
-        if not pmb.helpers.cli.confirm(args, "Continue and overwrite?"):
+        if not pmb.helpers.cli.confirm("Continue and overwrite?"):
             raise RuntimeError("Aborted.")
 
     aportgen = config.work / "aportgen"
 
     if os.path.exists(aportgen):
         pmb.helpers.run.user(["rm", "-r", aportgen])
-    if args.fork_alpine:
-        upstream = pmb.aportgen.core.get_upstream_aport(args, pkgname)
+    if fork_alpine:
+        upstream = pmb.aportgen.core.get_upstream_aport(pkgname)
         pmb.helpers.run.user(["cp", "-r", upstream,
                                     aportgen])
-        pmb.aportgen.core.rewrite(args, pkgname, replace_simple={
+        pmb.aportgen.core.rewrite(pkgname, replace_simple={
             "# Contributor:*": None, "# Maintainer:*": None})
     else:
         # Run pmb.aportgen.PREFIX.generate()
+        # FIXME: this is really bad and hacky let's not do this please
         getattr(pmb.aportgen, prefix.replace("-", "_")).generate(args, pkgname)
 
     # Move to the aports folder

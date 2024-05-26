@@ -13,7 +13,7 @@ import pmb.config
 from pmb.core import Chroot, get_context
 
 
-def previous_install(args: PmbArgs, path: Path):
+def previous_install(path: Path):
     """
     Search the disk for possible existence of a previous installation of
     pmOS. We temporarily mount the possible pmOS_boot partition as
@@ -40,7 +40,7 @@ def previous_install(args: PmbArgs, path: Path):
     return "pmOS_boot" in label
 
 
-def mount_disk(args: PmbArgs, path: Path):
+def mount_disk( path: Path):
     """
     :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
@@ -53,13 +53,13 @@ def mount_disk(args: PmbArgs, path: Path):
                                " format this!")
     logging.info(f"(native) mount /dev/install (host: {path})")
     pmb.helpers.mount.bind_file(path, Chroot.native() / "dev/install")
-    if previous_install(args, path):
-        if not pmb.helpers.cli.confirm(args, "WARNING: This device has a"
+    if previous_install(path):
+        if not pmb.helpers.cli.confirm("WARNING: This device has a"
                                        " previous installation of pmOS."
                                        " CONTINUE?"):
             raise RuntimeError("Aborted.")
     else:
-        if not pmb.helpers.cli.confirm(args, f"EVERYTHING ON {path} WILL BE"
+        if not pmb.helpers.cli.confirm(f"EVERYTHING ON {path} WILL BE"
                                        " ERASED! CONTINUE?"):
             raise RuntimeError("Aborted.")
 
@@ -77,10 +77,11 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
 
     # Short variables for paths
     chroot = Chroot.native()
+    config = get_context().config
     img_path_prefix = Path("/home/pmos/rootfs")
-    img_path_full = img_path_prefix / f"{args.device}.img"
-    img_path_boot = img_path_prefix / f"{args.device}-boot.img"
-    img_path_root = img_path_prefix / f"{args.device}-root.img"
+    img_path_full = img_path_prefix / f"{config.device}.img"
+    img_path_boot = img_path_prefix / f"{config.device}-boot.img"
+    img_path_root = img_path_prefix / f"{config.device}-root.img"
 
     # Umount and delete existing images
     for img_path in [img_path_full, img_path_boot, img_path_root]:
@@ -121,7 +122,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve,
     for img_path, mount_point in mount_image_paths.items():
         logging.info(f"(native) mount {mount_point} ({img_path.name})")
         pmb.install.losetup.mount(args, img_path)
-        device = pmb.install.losetup.device_by_back_file(args, img_path)
+        device = pmb.install.losetup.device_by_back_file(img_path)
         pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 
 
@@ -137,7 +138,7 @@ def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Optio
     """
     pmb.helpers.mount.umount_all(Chroot.native() / "dev/install")
     if disk:
-        mount_disk(args, disk)
+        mount_disk(disk)
     else:
         create_and_mount_image(args, size_boot, size_root, size_reserve,
                                split)

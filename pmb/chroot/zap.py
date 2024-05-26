@@ -70,7 +70,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
         matches = glob.glob(pattern)
         for match in matches:
             if (not confirm or
-                    pmb.helpers.cli.confirm(args, f"Remove {match}?")):
+                    pmb.helpers.cli.confirm(f"Remove {match}?")):
                 logging.info(f"% rm -rf {match}")
                 if not dry:
                     pmb.helpers.run.root(["rm", "-rf", match])
@@ -93,7 +93,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
 
     question = "Remove binary packages that are newer than the corresponding" \
                f" pmaports (channel '{channel}')?"
-    if confirm and not pmb.helpers.cli.confirm(args, question):
+    if confirm and not pmb.helpers.cli.confirm(question):
         return
 
     reindex = False
@@ -143,8 +143,7 @@ def zap_pkgs_online_mismatch(args: PmbArgs, confirm=True, dry=False):
     paths = glob.glob(f"{get_context().config.work}/cache_apk_*")
     if not len(paths):
         return
-    if (confirm and not pmb.helpers.cli.confirm(args,
-                                                "Remove outdated"
+    if (confirm and not pmb.helpers.cli.confirm("Remove outdated"
                                                 " binary packages?")):
         return
 

@@ -22,16 +22,16 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
 
     chroot = Chroot.native()
 
-    rootfs_path = Path("/mnt/pmbootstrap/netboot") / f"{args.device}.img"
+    rootfs_path = Path("/mnt/pmbootstrap/netboot") / f"{args.devicesdhbfvhubsud}.img"
     if not (chroot / rootfs_path).exists() or args.replace:
-        rootfs_path2 = Path("/home/pmos/rootfs") / f"{args.device}.img"
+        rootfs_path2 = Path("/home/pmos/rootfs") / f"{args.devicesdhbfvhubsud}.img"
         if not (chroot / rootfs_path2).exists():
             raise RuntimeError("The rootfs has not been generated yet, please "
                                "run 'pmbootstrap install' first.")
         if args.replace and not \
-                pmb.helpers.cli.confirm(args, f"Are you sure you want to "
+                pmb.helpers.cli.confirm(f"Are you sure you want to "
                                               f"replace the rootfs for "
-                                              f"{args.device}?"):
+                                              f"{args.devicesdhbfvhubsud}?"):
             return
         pmb.chroot.run(args, ["cp", rootfs_path2, rootfs_path])
         logging.info(f"NOTE: Copied device image to {get_context().config.work}"
@@ -39,7 +39,7 @@ def start_nbd_server(args: PmbArgs, ip="172.16.42.2", port=9999):
                      f"zap\" for your convenience. Use \"pmbootstrap netboot "
                      f"serve --help\" for more options.")
 
-    logging.info(f"Running nbd server for {args.device} on {ip} port {port}.")
+    logging.info(f"Running nbd server for {args.devicesdhbfvhubsud} on {ip} port {port}.")
 
     while True:
         logging.info("Waiting for postmarketOS device to appear...")

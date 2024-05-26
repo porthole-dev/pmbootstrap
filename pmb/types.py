@@ -26,7 +26,8 @@ class AportGenEntry(TypedDict):
 
 # Property list generated with:
 # $ rg --vimgrep "((^|\s)args\.\w+)" --only-matching | cut -d"." -f3 | sort | uniq
-class PmbArgs():
+class PmbArgs(Namespace):
+    devicesdhbfvhubsud: str
     action_flasher: str
     action_initfs: str
     action_kconfig: str

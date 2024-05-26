@@ -17,7 +17,7 @@ def frontend(args: PmbArgs):
 
     # Rootfs image note
     chroot = Chroot.native()
-    rootfs_dir = chroot / "home/pmos/rootfs" / args.device
+    rootfs_dir = chroot / "home/pmos/rootfs" / args.devicesdhbfvhubsud
     if not rootfs_dir.glob("*.img"):
         logging.info("NOTE: To export the rootfs image, run 'pmbootstrap"
                      " install' first (without the 'disk' parameter).")
@@ -25,7 +25,7 @@ def frontend(args: PmbArgs):
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
     if args.autoinstall:
-        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.device))
+        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud))
 
     # Do the export, print all files
     logging.info(f"Export symlinks to: {target}")

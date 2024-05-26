@@ -35,16 +35,16 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
         f"uInitrd{suffix}": "Initramfs, legacy u-boot image format",
         f"uImage{suffix}": "Kernel, legacy u-boot image format",
         f"vmlinuz{suffix}": "Linux kernel",
-        f"{args.device}.img": "Rootfs with partitions for /boot and /",
-        f"{args.device}-boot.img": "Boot partition image",
-        f"{args.device}-root.img": "Root partition image",
-        f"pmos-{args.device}.zip": "Android recovery flashable zip",
+        f"{args.devicesdhbfvhubsud}.img": "Rootfs with partitions for /boot and /",
+        f"{args.devicesdhbfvhubsud}-boot.img": "Boot partition image",
+        f"{args.devicesdhbfvhubsud}-root.img": "Root partition image",
+        f"pmos-{args.devicesdhbfvhubsud}.zip": "Android recovery flashable zip",
         "lk2nd.img": "Secondary Android bootloader",
     }
 
     # Generate a list of patterns
     chroot_native = Chroot.native()
-    path_boot = Chroot(ChrootType.ROOTFS, args.device) / "boot"
+    path_boot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud) / "boot"
     chroot_buildroot = Chroot.buildroot(args.deviceinfo['arch'])
     files: List[Path] = [
         path_boot / f"boot.img{suffix}",
@@ -52,11 +52,11 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
         path_boot / f"uImage{suffix}",
         path_boot / f"vmlinuz{suffix}",
         path_boot /  "dtbo.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.device}.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.device}-boot.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.device}-root.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-boot.img",
+        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-root.img",
         chroot_buildroot / "var/libpostmarketos-android-recovery-installer" /
-            f"pmos-{args.device}.zip",
+            f"pmos-{args.devicesdhbfvhubsud}.zip",
         path_boot / "lk2nd.img"
     ]
 

@@ -51,4 +51,4 @@ def init(args: PmbArgs):
         pmb.helpers.mount.bind(folder, Chroot.native() / folder)
 
     # Mount device chroot inside native chroot (required for kernel/ramdisk)
-    mount_device_rootfs(args, Chroot(ChrootType.ROOTFS, args.device))
+    mount_device_rootfs(args, Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud))
