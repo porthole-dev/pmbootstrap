@@ -183,4 +183,10 @@ def init(args, suffix="native", usr_merge=UsrMerge.AUTO,
 
     # Upgrade packages in the chroot, in case alpine-base, apk, etc. have been
     # built from source with pmbootstrap
-    pmb.chroot.root(args, ["apk", "--no-network", "upgrade", "-a"], suffix)
+    command = ["--no-network", "upgrade", "-a"]
+
+    # Ignore missing repos before initial build (bpo#137)
+    if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == 1:
+        command = ["--force-missing-repositories"] + command
+
+    pmb.chroot.root(args, ["apk"] + command, suffix)
