@@ -199,7 +199,7 @@ def install_run_apk(args, to_add, to_add_local, to_del, suffix):
         command += ["--no-interactive"]
 
         # Ignore missing repos before initial build (bpo#137)
-        if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == 1:
+        if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
             command = ["--force-missing-repositories"] + command
 
         if args.offline:
