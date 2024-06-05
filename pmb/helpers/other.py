@@ -291,6 +291,7 @@ cache: Dict[str, Any] = {
     "apk_min_version_checked": [],
     "apk_repository_list_updated": [],
     "built": {},
+    "deviceinfo": {},
     "find_aport": {},
     "pmb.helpers.package.depends_recurse": {},
     "pmb.helpers.package.get": {},

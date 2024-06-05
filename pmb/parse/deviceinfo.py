@@ -6,7 +6,7 @@ from pmb.core import get_context
 from pmb.helpers import logging
 import os
 import pmb.config
-from pmb.types import PmbArgs
+import pmb.helpers.other
 import pmb.helpers.devices
 
 
@@ -133,6 +133,9 @@ def deviceinfo(device=None, kernel=None) -> Dict[str, str]:
     if not kernel:
         kernel = context.config.kernel
 
+    if device in pmb.helpers.other.cache["deviceinfo"]:
+        return pmb.helpers.other.cache["deviceinfo"][device]
+
     aports = context.config.aports
     if not aports.exists():
         logging.fatal(f"Aports directory is missing, expected: {aports}")
@@ -166,4 +169,6 @@ def deviceinfo(device=None, kernel=None) -> Dict[str, str]:
 
     ret = _parse_kernel_suffix(ret, device, kernel)
     sanity_check(ret, path)
+
+    pmb.helpers.other.cache["deviceinfo"][device] = ret
     return ret
