@@ -1,25 +1,26 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.context import Context
 from pmb.helpers import logging
 from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk
 import pmb.config
-from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
 
 
-def odin(args: PmbArgs, flavor, folder: Path):
+def odin(context: Context, flavor, folder: Path):
     """
     Create Odin flashable tar file with kernel and initramfs
     for devices configured with the flasher method 'heimdall-isorec'
     and with boot.img for devices with 'heimdall-bootimg'
     """
-    pmb.flasher.init(args)
-    suffix = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
+    pmb.flasher.init(context.device)
+    suffix = Chroot(ChrootType.ROOTFS, context.device)
+    deviceinfo = pmb.parse.deviceinfo(context.device)
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix_flavor = f"-{flavor}"
@@ -28,7 +29,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
         suffix_flavor = ""
 
     # Validate method
-    method = args.deviceinfo["flash_method"]
+    method = deviceinfo["flash_method"]
     if not method.startswith("heimdall-"):
         raise RuntimeError("An odin flashable tar is not supported"
                            f" for the flash method '{method}' specified"
@@ -36,10 +37,8 @@ def odin(args: PmbArgs, flavor, folder: Path):
                            " Only 'heimdall' methods are supported.")
 
     # Partitions
-    partition_kernel = \
-        args.deviceinfo["flash_heimdall_partition_kernel"] or "KERNEL"
-    partition_initfs = \
-        args.deviceinfo["flash_heimdall_partition_initfs"] or "RECOVERY"
+    partition_kernel = deviceinfo["flash_heimdall_partition_kernel"] or "KERNEL"
+    partition_initfs = deviceinfo["flash_heimdall_partition_initfs"] or "RECOVERY"
 
     # Temporary folder
     temp_folder = "/tmp/odin-flashable-tar"
@@ -49,12 +48,12 @@ def odin(args: PmbArgs, flavor, folder: Path):
     # Odin flashable tar generation script
     # (because redirecting stdin/stdout is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    odin_script = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud) / "tmp/_odin.sh"
+    odin_script = Chroot(ChrootType.ROOTFS, context.device) / "tmp/_odin.sh"
     with odin_script.open("w") as handle:
         odin_kernel_md5 = f"{partition_kernel}.bin.md5"
         odin_initfs_md5 = f"{partition_initfs}.bin.md5"
-        odin_device_tar = f"{args.devicesdhbfvhubsud}.tar"
-        odin_device_tar_md5 = f"{args.devicesdhbfvhubsud}.tar.md5"
+        odin_device_tar = f"{context.device}.tar"
+        odin_device_tar_md5 = f"{context.device}.tar.md5"
 
         handle.write(
             "#!/bin/sh\n"
@@ -90,7 +89,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
 
     # Move Odin flashable tar to native chroot and cleanup temp folder
     pmb.chroot.user(["mkdir", "-p", "/home/pmos/rootfs"])
-    pmb.chroot.root(["mv", f"/mnt/rootfs_{args.devicesdhbfvhubsud}{temp_folder}"
+    pmb.chroot.root(["mv", f"/mnt/rootfs_{context.device}{temp_folder}"
                            f"/{odin_device_tar_md5}", "/home/pmos/rootfs/"]),
     pmb.chroot.root(["chown", "pmos:pmos",
                            f"/home/pmos/rootfs/{odin_device_tar_md5}"])
@@ -99,7 +98,7 @@ def odin(args: PmbArgs, flavor, folder: Path):
     # Create the symlink
     file = Chroot.native() / "home/pmos/rootfs" / odin_device_tar_md5
     link = folder / odin_device_tar_md5
-    pmb.helpers.file.symlink(args, file, link)
+    pmb.helpers.file.symlink(file, link)
 
     # Display a readable message
     msg = f" * {odin_device_tar_md5}"

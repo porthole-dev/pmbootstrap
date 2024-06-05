@@ -14,15 +14,15 @@ from pmb.core import Chroot
 
 # FIXME (#2324): this function drops disk to a string because it's easier
 # to manipulate, this is probably bad.
-def partitions_mount(args: PmbArgs, layout, disk: Optional[Path]):
+def partitions_mount(device: str, layout, disk: Optional[Path]):
     """
     Mount blockdevices of partitions inside native chroot
     :param layout: partition layout from get_partition_layout()
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     if not disk:
-        img_path = Path("/home/pmos/rootfs") / f"{args.devicesdhbfvhubsud}.img"
-        disk = pmb.install.losetup.device_by_back_file(args, img_path)
+        img_path = Path("/home/pmos/rootfs") / f"{device}.img"
+        disk = pmb.install.losetup.device_by_back_file(img_path)
 
     logging.info(f"Mounting partitions of {disk} inside the chroot")
 
@@ -80,15 +80,15 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
     logging.info(f"(native) partition /dev/install (boot: {mb_boot},"
                  f" reserved: {mb_reserved}, root: the rest)")
 
-    filesystem = args.deviceinfo["boot_filesystem"] or "ext2"
+    filesystem = pmb.parse.deviceinfo()["boot_filesystem"] or "ext2"
 
     # Actual partitioning with 'parted'. Using check=False, because parted
     # sometimes "fails to inform the kernel". In case it really failed with
     # partitioning, the follow-up mounting/formatting will not work, so it
     # will stop there (see #463).
-    boot_part_start = args.deviceinfo["boot_part_start"] or "2048"
+    boot_part_start = pmb.parse.deviceinfo()["boot_part_start"] or "2048"
 
-    partition_type = args.deviceinfo["partition_type"] or "msdos"
+    partition_type = pmb.parse.deviceinfo()["partition_type"] or "msdos"
 
     commands = [
         ["mktable", partition_type],
@@ -128,11 +128,11 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
 
-    pmb.chroot.apk.install(["cgpt"], build=False)
+    pmb.chroot.apk.install(["cgpt"], Chroot.native(), build=False)
 
     cgpt = {
-        'kpart_start': args.deviceinfo["cgpt_kpart_start"],
-        'kpart_size': args.deviceinfo["cgpt_kpart_size"],
+        'kpart_start': pmb.parse.deviceinfo()["cgpt_kpart_start"],
+        'kpart_size': pmb.parse.deviceinfo()["cgpt_kpart_size"],
     }
 
     # Convert to MB and print info
@@ -178,7 +178,7 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     ]
 
     dev_size = pmb.chroot.root(
-        args, ["blockdev", "--getsz", "/dev/install"], output_return=True)
+        ["blockdev", "--getsz", "/dev/install"], output_return=True)
     # 33: Sec GPT table (32) + Sec GPT header (1)
     root_size = str(int(dev_size) - int(s_root_start) - 33)
 

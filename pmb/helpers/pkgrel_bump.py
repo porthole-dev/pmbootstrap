@@ -91,7 +91,7 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
             # (which means dynamic libraries that the package was linked
             # against) and packages for which no aport exists.
             if (depend.startswith("so:") or
-                    not pmb.helpers.pmaports.find_optional(args, depend)):
+                    not pmb.helpers.pmaports.find_optional(depend)):
                 missing.append(depend)
 
     # Increase pkgrel
@@ -116,7 +116,7 @@ def auto(args: PmbArgs, dry=False):
                     logging.verbose(
                         f"{pkgname}: origin '{origin}' found again")
                     continue
-                aport_path = pmb.helpers.pmaports.find_optional(args, origin)
+                aport_path = pmb.helpers.pmaports.find_optional(origin)
                 if not aport_path:
                     logging.warning("{}: origin '{}' aport not found".format(
                                     pkgname, origin))

@@ -1,3 +1,4 @@
+from pmb.core.context import get_context
 from pmb.helpers import logging
 import os
 
@@ -9,7 +10,8 @@ import pmb.export
 from pmb.core import Chroot, ChrootType
 
 
-def frontend(args: PmbArgs):
+def frontend(args: PmbArgs): # FIXME: ARGS_REFACTOR
+    context = get_context()
     # Create the export folder
     target = args.export_folder
     if not os.path.exists(target):
@@ -17,18 +19,18 @@ def frontend(args: PmbArgs):
 
     # Rootfs image note
     chroot = Chroot.native()
-    rootfs_dir = chroot / "home/pmos/rootfs" / args.devicesdhbfvhubsud
+    rootfs_dir = chroot / "home/pmos/rootfs" / context.device
     if not rootfs_dir.glob("*.img"):
         logging.info("NOTE: To export the rootfs image, run 'pmbootstrap"
                      " install' first (without the 'disk' parameter).")
 
     # Rebuild the initramfs, just to make sure (see #69)
-    flavor = pmb.helpers.frontend._parse_flavor(args, args.autoinstall)
+    flavor = pmb.helpers.frontend._parse_flavor(context.device, args.autoinstall)
     if args.autoinstall:
-        pmb.chroot.initfs.build(args, flavor, Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud))
+        pmb.chroot.initfs.build(flavor, Chroot(ChrootType.ROOTFS, context.device))
 
     # Do the export, print all files
     logging.info(f"Export symlinks to: {target}")
     if args.odin_flashable_tar:
-        pmb.export.odin(args, flavor, target)
+        pmb.export.odin(context, flavor, target)
     pmb.export.symlinks(args, flavor, target)

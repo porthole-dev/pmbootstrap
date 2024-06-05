@@ -46,7 +46,6 @@ class PmbArgs(Namespace):
     autoinstall: str
     boot_size: str
     build_default_device_arch: str
-    build_pkgs_on_install: bool
     buildroot: str
     built: str
     ccache_size: str
@@ -72,14 +71,13 @@ class PmbArgs(Namespace):
     filesystem: str
     flash_method: str
     folder: str
-    force: str
+    force: bool
     fork_alpine: str
     # This is a filthy lie
     from_argparse: "PmbArgs"
     full_disk_encryption: str
     hook: str
     host: str
-    hostname: str
     host_qemu: str
     image_size: str
     install_base: str
@@ -101,7 +99,7 @@ class PmbArgs(Namespace):
     name: str
     no_depends: str
     no_fde: str
-    no_firewall: str
+    no_firewall: bool
     no_image: str
     non_existing: str
     no_reboot: str
@@ -132,7 +130,7 @@ class PmbArgs(Namespace):
     recovery_flash_kernel: str
     recovery_install_partition: str
     ref: str
-    replace: str
+    replace: bool
     repository: str
     reset: str
     resume: str
@@ -142,7 +140,7 @@ class PmbArgs(Namespace):
     second_storage: str
     selected_providers: Dict[str, str]
     sparse: str
-    split: str
+    split: bool
     src: str
     ssh_keys: str
     strict: str
@@ -150,7 +148,6 @@ class PmbArgs(Namespace):
     suffix: str
     systemd: str
     timeout: float
-    user: str
     value: str
     verbose: str
     verify: str

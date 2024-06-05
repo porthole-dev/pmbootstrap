@@ -114,7 +114,7 @@ def ask_which_scripts_to_run(scripts_available):
     return ret
 
 
-def copy_git_repo_to_chroot(args: PmbArgs, topdir):
+def copy_git_repo_to_chroot(topdir):
     """ Create a tarball of the git repo (including unstaged changes and new
         files) and extract it in chroot_native.
         
@@ -122,7 +122,7 @@ def copy_git_repo_to_chroot(args: PmbArgs, topdir):
           pmb.helpers.git.get_topdir() 
 
 	"""
-    pmb.chroot.init(args)
+    pmb.chroot.init()
     tarball_path = Chroot.native() / "tmp/git.tar.gz"
     files = pmb.helpers.git.get_files(topdir)
 
@@ -141,7 +141,7 @@ def copy_git_repo_to_chroot(args: PmbArgs, topdir):
                     working_dir=ci_dir)
 
 
-def run_scripts(args: PmbArgs, topdir, scripts):
+def run_scripts(topdir, scripts):
     """ Run one of the given scripts after another, either natively or in a
         chroot. Display a progress message and stop on error (without printing
         a python stack trace).
@@ -174,7 +174,7 @@ def run_scripts(args: PmbArgs, topdir, scripts):
         else:
             # Run inside pmbootstrap chroot
             if not repo_copied:
-                copy_git_repo_to_chroot(args, topdir)
+                copy_git_repo_to_chroot(topdir)
                 repo_copied = True
 
             env = {"TESTUSER": "pmos"}

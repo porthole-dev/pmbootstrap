@@ -3,7 +3,7 @@
 import os
 from pmb.helpers import logging
 from pathlib import Path
-import pmb.chroot.run
+import pmb.chroot
 from pmb.types import PmbArgs
 import pmb.helpers.cli
 import pmb.parse

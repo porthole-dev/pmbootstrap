@@ -11,7 +11,7 @@ import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
 
-def generate(args: PmbArgs, pkgname):
+def generate(pkgname):
     arch = "x86"
     if pkgname != "grub-efi-x86":
         raise RuntimeError("only grub-efi-x86 is available")

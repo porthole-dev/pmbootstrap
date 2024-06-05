@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Sequence
 
-import pmb.chroot.run
+import pmb.chroot
 import pmb.config.pmaports
 from pmb.types import PathString, PmbArgs
 import pmb.helpers.cli

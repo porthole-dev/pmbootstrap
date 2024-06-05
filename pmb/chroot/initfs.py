@@ -11,10 +11,10 @@ import pmb.helpers.cli
 from pmb.core import Chroot, get_context
 
 
-def build(args: PmbArgs, flavor, chroot: Chroot):
+def build(flavor, chroot: Chroot):
     # Update mkinitfs and hooks
     pmb.chroot.apk.install(["postmarketos-mkinitfs"], chroot)
-    pmb.chroot.initfs_hooks.update(args, chroot)
+    pmb.chroot.initfs_hooks.update(chroot)
     pmaports_cfg = pmb.config.pmaports.read_config()
 
     # Call mkinitfs
@@ -30,7 +30,7 @@ def build(args: PmbArgs, flavor, chroot: Chroot):
                             chroot)
 
 
-def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
+def extract(flavor, chroot: Chroot, extra=False):
     """
     Extract the initramfs to /tmp/initfs-extracted or the initramfs-extra to
     /tmp/initfs-extra-extracted and return the outside extraction path.
@@ -77,11 +77,11 @@ def extract(args: PmbArgs, flavor, chroot: Chroot, extra=False):
     return outside
 
 
-def ls(args: PmbArgs, flavor, suffix, extra=False):
+def ls( flavor, suffix, extra=False):
     tmp = "/tmp/initfs-extracted"
     if extra:
         tmp = "/tmp/initfs-extra-extracted"
-    extract(args, flavor, suffix, extra)
+    extract(flavor, suffix, extra)
     pmb.chroot.root(["ls", "-lahR", "."], suffix, Path(tmp), "stdout")
     pmb.chroot.root(["rm", "-r", tmp], suffix)
 
@@ -95,17 +95,17 @@ def frontend(args: PmbArgs):
     # Handle initfs actions
     action = args.action_initfs
     if action == "build":
-        build(args, flavor, chroot)
+        build(flavor, chroot)
     elif action == "extract":
-        dir = extract(args, flavor, chroot)
+        dir = extract(flavor, chroot)
         logging.info(f"Successfully extracted initramfs to: {dir}")
-        dir_extra = extract(args, flavor, chroot, True)
+        dir_extra = extract(flavor, chroot, True)
         logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
     elif action == "ls":
         logging.info("*** initramfs ***")
-        ls(args, flavor, chroot)
+        ls(flavor, chroot)
         logging.info("*** initramfs-extra ***")
-        ls(args, flavor, chroot, True)
+        ls(flavor, chroot, True)
 
     # Handle hook actions
     elif action == "hook_ls":
@@ -117,7 +117,7 @@ def frontend(args: PmbArgs):
             pmb.chroot.initfs_hooks.delete(args.hook, chroot)
 
         # Rebuild the initfs after adding/removing a hook
-        build(args, flavor, chroot)
+        build(flavor, chroot)
 
     if action in ["ls", "extract"]:
         link = "https://wiki.postmarketos.org/wiki/Initramfs_development"

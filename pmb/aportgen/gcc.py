@@ -2,18 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 from pmb.core import get_context
-from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
 
 
-def generate(args: PmbArgs, pkgname):
+def generate(pkgname):
     # Copy original aport
     prefix = pkgname.split("-")[0]
     arch = pkgname.split("-")[1]
     context = get_context()
     if prefix == "gcc":
-        upstream = pmb.aportgen.core.get_upstream_aport(args, "gcc", arch)
+        upstream = pmb.aportgen.core.get_upstream_aport("gcc", arch)
         based_on = "main/gcc (from Alpine)"
     elif prefix == "gcc4":
         upstream = f"{context.config.aports}/main/gcc4"

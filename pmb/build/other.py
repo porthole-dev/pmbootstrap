@@ -9,6 +9,7 @@ from typing import List
 
 import pmb.chroot
 from pmb.types import PmbArgs
+import pmb.build
 import pmb.helpers.file
 import pmb.helpers.git
 import pmb.helpers.pmaports
@@ -99,7 +100,7 @@ def index_repo(args: PmbArgs, arch=None):
 
     :param arch: when not defined, re-index all repos
     """
-    pmb.build.init(args)
+    pmb.build.init()
 
     channel = pmb.config.pmaports.read_config()["channel"]
     pkgdir = (get_context().config.work / "packages" / channel)

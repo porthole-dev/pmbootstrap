@@ -1,11 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
 from pmb.types import PmbArgs
 import pmb.helpers.run
-import pmb.chroot.run
+import pmb.chroot
 import pmb.chroot.other
 import pmb.chroot.apk
 from pmb.core import Chroot
@@ -72,7 +73,7 @@ def get_qcdt_type(path):
             return None
 
 
-def bootimg(args: PmbArgs, path: Path):
+def bootimg(path: Path):
     if not path.exists():
         raise RuntimeError(f"Could not find file '{path}'")
 
@@ -93,7 +94,7 @@ def bootimg(args: PmbArgs, path: Path):
                                   working_dir=temp_path,
                                   output_return=True).rstrip()
     if "android bootimg" not in file_output.lower():
-        if "force" in args and args.force:
+        if get_context().force:
             logging.warning("WARNING: boot.img file seems to be invalid, but"
                             " proceeding anyway (-f specified)")
         else:
@@ -166,6 +167,6 @@ def bootimg(args: PmbArgs, path: Path):
         output["cmdline"] = f.read().replace('\n', '')
 
     # Cleanup
-    pmb.chroot.run.user(["rm", "-r", temp_path])
+    pmb.chroot.user(["rm", "-r", temp_path])
 
     return output

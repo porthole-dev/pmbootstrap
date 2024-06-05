@@ -90,7 +90,7 @@ def is_older_than(path, seconds):
     return lastmod + seconds < time.time()
 
 
-def symlink(args: PmbArgs, file: Path, link: Path):
+def symlink(file: Path, link: Path):
     """Check if the symlink is already present, otherwise create it."""
     if os.path.exists(link):
         if (os.path.islink(link) and

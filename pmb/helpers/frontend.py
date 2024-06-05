@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
-from typing import List, Sequence
+from typing import List, Sequence, Tuple
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -40,7 +40,7 @@ import pmb.sideload
 from pmb.core import ChrootType, Chroot, get_context
 
 
-def _parse_flavor(args: PmbArgs, autoinstall=True):
+def _parse_flavor(device: str, autoinstall=True):
     """Verify the flavor argument if specified, or return a default value.
 
     :param autoinstall: make sure that at least one kernel flavor is installed
@@ -49,7 +49,7 @@ def _parse_flavor(args: PmbArgs, autoinstall=True):
     # identifier that is typically in the form
     # "postmarketos-<manufacturer>-<device/chip>", e.g.
     # "postmarketos-qcom-sdm845"
-    chroot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
+    chroot = Chroot(ChrootType.ROOTFS, device)
     flavor = pmb.chroot.other.kernel_flavor_installed(
         chroot, autoinstall)
 
@@ -65,7 +65,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.ROOTFS, get_context().config.device)
     elif args.buildroot:
         if args.buildroot == "device":
-            return Chroot.buildroot(args.deviceinfo["arch"])
+            return Chroot.buildroot(pmb.parse.deviceinfo()["arch"])
         else:
             return Chroot.buildroot(args.buildroot)
     elif args.suffix:
@@ -76,14 +76,14 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.NATIVE)
 
 
-def _install_ondev_verify_no_rootfs(args: PmbArgs):
+def _install_ondev_verify_no_rootfs(device: str, ondev_cp: List[Tuple[str, str]]):
     chroot_dest = "/var/lib/rootfs.img"
-    dest = Chroot(ChrootType.INSTALLER, args.devicesdhbfvhubsud) / chroot_dest
+    dest = Chroot(ChrootType.INSTALLER, device) / chroot_dest
     if dest.exists():
         return
 
-    if args.ondev_cp:
-        for _, chroot_dest_cp in args.ondev_cp:
+    if ondev_cp:
+        for _, chroot_dest_cp in ondev_cp:
             if chroot_dest_cp == chroot_dest:
                 return
 
@@ -112,14 +112,14 @@ def build(args: PmbArgs):
     # Set src and force
     src = os.path.realpath(os.path.expanduser(args.src[0])) \
         if args.src else None
-    force = True if src else args.force
+    force = True if src else get_context().force
     if src and not os.path.exists(src):
         raise RuntimeError("Invalid path specified for --src: " + src)
 
     # Ensure repo_bootstrap is done for all arches we intend to build for
     for package in args.packages:
         arch_package = args.arch or pmb.build.autodetect.arch(args, package)
-        pmb.helpers.repo_bootstrap.require_bootstrap(args, arch_package,
+        pmb.helpers.repo_bootstrap.require_bootstrap(arch_package,
             f"build {package} for {arch_package}")
 
     context = get_context()
@@ -134,8 +134,8 @@ def build(args: PmbArgs):
 
 
 def build_init(args: PmbArgs):
-    suffix = _parse_suffix(args)
-    pmb.build.init(args, suffix)
+    chroot = _parse_suffix(args)
+    pmb.build.init(chroot)
 
 
 def checksum(args: PmbArgs):
@@ -148,7 +148,7 @@ def checksum(args: PmbArgs):
 
 def sideload(args: PmbArgs):
     arch = args.arch
-    user = args.user
+    user = get_context().config.user
     host = args.host
     pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key,
                           args.packages)
@@ -156,25 +156,27 @@ def sideload(args: PmbArgs):
 
 def netboot(args: PmbArgs):
     if args.action_netboot == "serve":
-        pmb.netboot.start_nbd_server(args)
+        device = get_context().config.device
+        pmb.netboot.start_nbd_server(device, args.replace)
 
 
 def chroot(args: PmbArgs):
     # Suffix
-    suffix = _parse_suffix(args)
-    if (args.user and suffix != Chroot.native() and
-            not suffix.type == ChrootType.BUILDROOT):
+    chroot = _parse_suffix(args)
+    user = get_context().config.user
+    if (user and chroot != Chroot.native() and
+            not chroot.type == ChrootType.BUILDROOT):
         raise RuntimeError("--user is only supported for native or"
                            " buildroot_* chroots.")
-    if args.xauth and suffix != Chroot.native():
+    if args.xauth and chroot != Chroot.native():
         raise RuntimeError("--xauth is only supported for native chroot.")
 
     # apk: check minimum version, install packages
-    pmb.chroot.apk.check_min_version(suffix)
+    pmb.chroot.apk.check_min_version(chroot)
     if args.add:
-        pmb.chroot.apk.install(args.add.split(","), suffix)
+        pmb.chroot.apk.install(args.add.split(","), chroot)
 
-    pmb.chroot.init(suffix)
+    pmb.chroot.init(chroot)
 
     # Xauthority
     env = {}
@@ -196,14 +198,14 @@ def chroot(args: PmbArgs):
                                                        size_root, size_reserve)
 
     # Run the command as user/root
-    if args.user:
-        logging.info(f"({suffix}) % su pmos -c '" +
+    if user:
+        logging.info(f"({chroot}) % su pmos -c '" +
                      " ".join(args.command) + "'")
-        pmb.chroot.user(args.command, suffix, output=args.output,
+        pmb.chroot.user(args.command, chroot, output=args.output,
                         env=env)
     else:
-        logging.info(f"({suffix}) % " + " ".join(args.command))
-        pmb.chroot.root(args.command, suffix, output=args.output,
+        logging.info(f"({chroot}) % " + " ".join(args.command))
+        pmb.chroot.root(args.command, chroot, output=args.output,
                         env=env)
 
 
@@ -219,7 +221,7 @@ def config(args: PmbArgs):
             raise RuntimeError("config --reset requires a name to be given.")
         def_value = getattr(Config(), args.name)
         setattr(config, args.name, def_value)
-        logging.info(f"Config changed to default: {args.name}='{value}'")
+        logging.info(f"Config changed to default: {args.name}='{def_value}'")
         pmb.config.save(args.config, config)
     elif args.value is not None:
         setattr(config, args.name, args.value)
@@ -258,6 +260,9 @@ def initfs(args: PmbArgs):
 
 
 def install(args: PmbArgs):
+    config = get_context().config
+    device = config.device
+    deviceinfo = pmb.parse.deviceinfo(device)
     if args.no_fde:
         logging.warning("WARNING: --no-fde is deprecated,"
                         " as it is now the default.")
@@ -271,8 +276,8 @@ def install(args: PmbArgs):
         raise ValueError("Installation using rsync"
                         " is not currently supported on btrfs filesystem.")
 
-    pmb.helpers.repo_bootstrap.require_bootstrap(args, args.deviceinfo["arch"],
-        f"do 'pmbootstrap install' for {args.deviceinfo['arch']}"
+    pmb.helpers.repo_bootstrap.require_bootstrap(deviceinfo["arch"],
+        f"do 'pmbootstrap install' for {deviceinfo['arch']}"
         " (deviceinfo_arch)")
 
     # On-device installer checks
@@ -296,7 +301,7 @@ def install(args: PmbArgs):
             raise ValueError("--on-device-installer cannot be combined with"
                              " --filesystem")
 
-        if args.deviceinfo["cgpt_kpart"]:
+        if deviceinfo["cgpt_kpart"]:
             raise ValueError("--on-device-installer cannot be used with"
                              " ChromeOS devices")
     else:
@@ -306,7 +311,7 @@ def install(args: PmbArgs):
             raise ValueError("--no-rootfs can only be combined with --ondev."
                              " Do you mean --no-image?")
     if args.ondev_no_rootfs:
-        _install_ondev_verify_no_rootfs(args)
+        _install_ondev_verify_no_rootfs(device, args.ondev_cp)
 
     # On-device installer overrides
     if args.on_device_installer:
@@ -315,15 +320,15 @@ def install(args: PmbArgs):
         # a password for the user, disable SSH password authentication,
         # optionally add a new user for SSH that must not have the same
         # username etc.)
-        if args.user != "user":
-            logging.warning(f"WARNING: custom username '{args.user}' will be"
+        if config.user != "user":
+            logging.warning(f"WARNING: custom username '{config.user}' will be"
                             " replaced with 'user' for the on-device"
                             " installer.")
-            args.user = "user"
+            config.user = "user"
 
     if not args.disk and args.split is None:
         # Default to split if the flash method requires it
-        flasher = pmb.config.flashers.get(args.deviceinfo["flash_method"], {})
+        flasher = pmb.config.flashers.get(deviceinfo["flash_method"], {})
         if flasher.get("split", False):
             args.split = True
 
@@ -345,10 +350,10 @@ def install(args: PmbArgs):
     if not args.install_local_pkgs:
         # Implies that we don't build outdated packages (overriding the answer
         # in 'pmbootstrap init')
-        args.build_pkgs_on_install = False
+        config.build_pkgs_on_install = False
 
         # Safest way to avoid installing local packages is having none
-        if (get_context().config.work / "packages").glob("*"):
+        if (config.work / "packages").glob("*"):
             raise ValueError("--no-local-pkgs specified, but locally built"
                              " packages found. Consider 'pmbootstrap zap -p'"
                              " to delete them.")
@@ -443,7 +448,7 @@ def kconfig(args: PmbArgs):
         skipped = 0
         packages.sort()
         for package in packages:
-            if not args.force:
+            if not get_context().force:
                 pkgname = package if package.startswith("linux-") \
                     else "linux-" + package
                 aport = pmb.helpers.pmaports.find(pkgname)
@@ -451,7 +456,7 @@ def kconfig(args: PmbArgs):
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(args, package, components_list,
+            if not pmb.parse.kconfig.check(package, components_list,
                                            details=details):
                 error = True
 
@@ -467,7 +472,7 @@ def kconfig(args: PmbArgs):
         if args.package:
             pkgname = args.package if isinstance(args.package, str) else args.package[0]
         else:
-            pkgname = args.deviceinfo["codename"]
+            pkgname = get_context().config.device
         use_oldconfig = args.action_kconfig == "migrate"
         pmb.build.menuconfig(args, pkgname, use_oldconfig)
 
@@ -577,7 +582,7 @@ def zap(args: PmbArgs):
 
 
 def bootimg_analyze(args: PmbArgs):
-    bootimg = pmb.parse.bootimg(args, args.path)
+    bootimg = pmb.parse.bootimg(args.path)
     tmp_output = "Put these variables in the deviceinfo file of your device:\n"
     for line in pmb.aportgen.device.\
             generate_deviceinfo_fastboot_content(bootimg).split("\n"):
@@ -667,4 +672,4 @@ def ci(args: PmbArgs):
     if not scripts_selected:
         scripts_selected = pmb.ci.ask_which_scripts_to_run(scripts_available)
 
-    pmb.ci.run_scripts(args, topdir, scripts_selected)
+    pmb.ci.run_scripts(topdir, scripts_selected)

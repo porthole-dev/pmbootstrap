@@ -248,8 +248,11 @@ def get_topdir(repo: Path):
     :returns: a string with the top dir of the git repository,
         or an empty string if it's not a git repository.
     """
-    return pmb.helpers.run.user(["git", "rev-parse", "--show-toplevel"],
-                                repo, output_return=True, check=False).rstrip()
+    res = pmb.helpers.run.user(["git", "rev-parse", "--show-toplevel"],
+                                repo, output_return=True, check=False)
+    if not isinstance(res, str):
+        raise RuntimeError("Not a git repository: " + str(repo))
+    return res.strip()
 
 
 def get_files(repo: Path):

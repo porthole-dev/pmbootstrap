@@ -20,7 +20,7 @@ def get_arch(args: PmbArgs):
         return args.arch
 
     if args.build_default_device_arch:
-        return args.deviceinfo["arch"]
+        return pmb.parse.deviceinfo()["arch"]
 
     return pmb.config.arch_native
 
@@ -142,7 +142,7 @@ def run_steps(args: PmbArgs, steps, arch, chroot: Chroot):
         for package in get_packages(bootstrap_line):
             log_progress(f"building {package}")
             bootstrap_stage = int(step.split("bootstrap_", 1)[1])
-            pmb.build.package(args, package, arch, force=True,
+            pmb.build.package(package, arch, force=True,
                               strict=True, bootstrap_stage=bootstrap_stage)
 
     log_progress("bootstrap complete!")
@@ -175,7 +175,7 @@ def require_bootstrap_error(repo, arch, trigger_str):
                        " and then try again.")
 
 
-def require_bootstrap(args: PmbArgs, arch, trigger_str):
+def require_bootstrap(arch, trigger_str):
     """
     Check if repo_bootstrap was done, if any is needed.
 

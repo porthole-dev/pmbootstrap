@@ -8,7 +8,6 @@ from pmb import commands
 from pmb.types import PathString
 from pmb.helpers import run
 from pmb.core import get_context
-from pmb import config
 
 class Log(commands.Command):
     clear_log: bool
@@ -20,7 +19,7 @@ class Log(commands.Command):
 
     def run(self):
         context = get_context()
-        log_testsuite = config.work / "log_testsuite.txt"
+        log_testsuite = context.config.work / "log_testsuite.txt"
 
         if self.clear_log:
             run.user(["truncate", "-s", "0", context.log])

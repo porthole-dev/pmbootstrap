@@ -33,12 +33,12 @@ def print_channel(config: Config) -> None:
     print_status_line("Channel", value)
 
 
-def print_device(args: PmbArgs, config: Config) -> None:
+def print_device(config: Config) -> None:
     kernel = ""
     if pmb.parse._apkbuild.kernels(config.device):
         kernel = f", kernel: {config.kernel}"
 
-    value = f"{config.device} ({args.deviceinfo['arch']}{kernel})"
+    value = f"{config.device} ({pmb.parse.deviceinfo()['arch']}{kernel})"
     print_status_line("Device", value)
 
 
@@ -56,6 +56,6 @@ def print_status(args: PmbArgs) -> None:
         :returns: True if all checks passed, False otherwise """
     config = get_context().config
     print_channel(config)
-    print_device(args, config)
+    print_device(config)
     print_ui(config)
     print_systemd(config)

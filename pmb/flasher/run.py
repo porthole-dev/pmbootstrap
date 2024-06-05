@@ -1,26 +1,31 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Dict
 from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.chroot.initfs
+import pmb.helpers.args
 
 
-def check_partition_blacklist(args: PmbArgs, key, value):
+def check_partition_blacklist(args: PmbArgs, deviceinfo: Dict[str, str], key, value):
     if not key.startswith("$PARTITION_"):
         return
 
-    name = args.deviceinfo["name"]
-    if value in args.deviceinfo["partition_blacklist"].split(","):
+    name = deviceinfo["name"]
+    if value in deviceinfo["partition_blacklist"].split(","):
         raise RuntimeError("'" + value + "'" + " partition is blacklisted " +
                            "from being flashed! See the " + name + " device " +
                            "wiki page for more information.")
 
 
-def run(args: PmbArgs, action, flavor=None):
-    pmb.flasher.init(args)
+def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
+    pmb.flasher.init(device)
+
+    # FIXME: handle argparsing and pass in only the args we need.
+    args = pmb.helpers.args.please_i_really_need_args()
 
     # Verify action
-    method = args.flash_method or args.deviceinfo["flash_method"]
+    method = args.flash_method or deviceinfo["flash_method"]
     cfg = pmb.config.flashers[method]
     if not isinstance(cfg["actions"], dict):
         raise TypeError(f"Flashers misconfigured! {method} key 'actions' should be a dictionary")
@@ -74,7 +79,7 @@ def run(args: PmbArgs, action, flavor=None):
                                            " but the value for this variable"
                                            " is None! Is that missing in your"
                                            " deviceinfo?")
-                    check_partition_blacklist(args, key, value)
+                    check_partition_blacklist(args, deviceinfo, key, value)
                     command[i] = command[i].replace(key, value)
 
         # Remove empty strings

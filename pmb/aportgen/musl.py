@@ -5,13 +5,12 @@ import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
 
-def generate(args: PmbArgs, pkgname):
+def generate(pkgname):
     arch = pkgname.split("-")[1]
 
     # Parse musl version from APKINDEX

@@ -9,7 +9,7 @@ import pmb.helpers.package
 import pmb.parse
 
 
-def list_ui(args: PmbArgs, arch):
+def list_ui(arch):
     """Get all UIs, for which aports are available with their description.
 
     :param arch: device architecture, for which the UIs must be available
@@ -22,7 +22,7 @@ def list_ui(args: PmbArgs, arch):
     for path in sorted(context.config.aports.glob("main/postmarketos-ui-*")):
         apkbuild = pmb.parse.apkbuild(path)
         ui = os.path.basename(path).split("-", 2)[2]
-        if pmb.helpers.package.check_arch(args, apkbuild["pkgname"], arch):
+        if pmb.helpers.package.check_arch(apkbuild["pkgname"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))
     return ret
 

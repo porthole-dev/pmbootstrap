@@ -48,7 +48,7 @@ __args: PmbArgs = PmbArgs()
        code as well.
 
        Examples:
-       args.deviceinfo (e.g. {"name": "Mydevice", "arch": "armhf", ...})
+       deviceinfo (e.g. {"name": "Mydevice", "arch": "armhf", ...})
 """
 
 
@@ -82,17 +82,17 @@ def check_pmaports_path(args: PmbArgs):
 #             setattr(args, key, Path(getattr(args, key)).expanduser())
 
 
-def add_deviceinfo(args: PmbArgs):
-    """Add and verify the deviceinfo (only after initialization)"""
-    setattr(args, "deviceinfo", pmb.parse.deviceinfo())
-
-
 def init(args: PmbArgs) -> PmbArgs:
     global __args
     # Basic initialization
     config = pmb.config.load(args)
-    # pmb.config.merge_with_args(args)
-    # replace_placeholders(args)
+
+    for key, value in vars(args).items():
+        if key.startswith("_"):
+            continue
+        if getattr(args, key, None) and hasattr(config, key):
+            print(f"Overriding config.{key} with {value}")
+            setattr(config, key, value)
 
     # Configure runtime context
     context = Context(config)
@@ -102,6 +102,8 @@ def init(args: PmbArgs) -> PmbArgs:
     context.offline = args.offline
     context.command = args.action
     context.cross = args.cross
+    context.assume_yes = getattr(args, "assume_yes", False)
+    context.force = getattr(args, "force", False)
     if args.mirrors_postmarketos:
         context.config.mirrors_postmarketos = args.mirrors_postmarketos
     if args.mirror_alpine:
@@ -121,9 +123,9 @@ def init(args: PmbArgs) -> PmbArgs:
     if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config()
-        add_deviceinfo(args)
         pmb.helpers.git.parse_channels_cfg(config.aports)
-        context.device_arch = args.deviceinfo["arch"]
+        deviceinfo = pmb.parse.deviceinfo()
+        context.device_arch = deviceinfo["arch"]
 
     # Remove attributes from args so they don't get used by mistake
     delattr(args, "timeout")
@@ -134,6 +136,10 @@ def init(args: PmbArgs) -> PmbArgs:
     delattr(args, "aports")
     delattr(args, "mirrors_postmarketos")
     delattr(args, "mirror_alpine")
+    if hasattr(args, "force"):
+        delattr(args, "force")
+    if hasattr(args, "device"):
+        delattr(args, "device")
     # args.work is deprecated!
     delattr(args, "work")
     
@@ -142,7 +148,7 @@ def init(args: PmbArgs) -> PmbArgs:
         if not key.startswith("_") and not key == "from_argparse":
             setattr(__args, key, value)
 
-    print(json.dumps(__args.__dict__))
+    #print(json.dumps(__args.__dict__))
 
     #sys.exit(0)
 

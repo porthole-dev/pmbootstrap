@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import subprocess
 from typing import Sequence
+from pmb.core.context import get_context
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -24,12 +25,12 @@ import pmb.parse.cpuinfo
 from pmb.core import Chroot, ChrootType
 
 
-def system_image(args: PmbArgs):
+def system_image(device: str):
     """
     Returns path to rootfs for specified device. In case that it doesn't
     exist, raise and exception explaining how to generate it.
     """
-    path = Chroot.native() / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}.img"
+    path = Chroot.native() / "home/pmos/rootfs" / f"{device}.img"
     if not path.exists():
         logging.debug(f"Could not find rootfs: {path}")
         raise RuntimeError("The rootfs has not been generated yet, please "
@@ -37,14 +38,14 @@ def system_image(args: PmbArgs):
     return path
 
 
-def create_second_storage(args: PmbArgs):
+def create_second_storage(args: PmbArgs, device: str):
     """
     Generate a second storage image if it does not exist.
 
     :returns: path to the image or None
 
     """
-    path = Chroot.native() / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-2nd.img"
+    path = Chroot.native() / "home/pmos/rootfs" / f"{device}-2nd.img"
     pmb.helpers.run.root(["touch", path])
     pmb.helpers.run.root(["chmod", "a+w", path])
     resize_image(args, args.second_storage, path)
@@ -87,11 +88,11 @@ def create_gdk_loader_cache(args: PmbArgs) -> Path:
     return chroot_native / custom_cache_path
 
 
-def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
+def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
-    cmdline = args.deviceinfo["kernel_cmdline"]
+    cmdline = pmb.parse.deviceinfo()["kernel_cmdline"]
     if args.cmdline:
         cmdline = args.cmdline
 
@@ -102,9 +103,9 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
 
     port_ssh = str(args.port)
 
-    chroot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud)
+    chroot = Chroot(ChrootType.ROOTFS, device)
     chroot_native = Chroot.native()
-    flavor = pmb.chroot.other.kernel_flavor_installed(args, chroot)
+    flavor = pmb.chroot.other.kernel_flavor_installed(chroot)
     flavor_suffix = f"-{flavor}"
     # Backwards compatibility with old mkinitfs (pma#660)
     pmaports_cfg = pmb.config.pmaports.read_config()
@@ -220,7 +221,7 @@ def command_qemu(args: PmbArgs, arch, img_path, img_path_2nd=None):
                     "if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF.fd"]
 
     # Kernel Virtual Machine (KVM) support
-    native = pmb.config.arch_native == args.deviceinfo["arch"]
+    native = pmb.config.arch_native == pmb.parse.deviceinfo()["arch"]
     if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
         command += ["-cpu", "host"]
@@ -315,7 +316,7 @@ def install_depends(args: PmbArgs, arch):
     ]
 
     # QEMU packaging isn't split up as much in 3.12
-    channel_cfg = pmb.config.pmaports.read_config_channel(args)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
     if channel_cfg["branch_aports"] == "3.12-stable":
         depends.remove("qemu-hw-display-virtio-gpu")
         depends.remove("qemu-hw-display-virtio-gpu-pci")
@@ -332,22 +333,23 @@ def run(args: PmbArgs):
     """
     Run a postmarketOS image in qemu
     """
-    if not args.devicesdhbfvhubsud.startswith("qemu-"):
+    device = get_context().config.device
+    if not device.startswith("qemu-"):
         raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
                            "the QEMU device packages. Run 'pmbootstrap init' "
                            "and select the 'qemu' vendor.")
-    arch = pmb.parse.arch.alpine_to_qemu(args.deviceinfo["arch"])
+    arch = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo()["arch"])
 
-    img_path = system_image(args)
+    img_path = system_image(device)
     img_path_2nd = None
     if args.second_storage:
-        img_path_2nd = create_second_storage(args)
+        img_path_2nd = create_second_storage(args, device)
 
     if not args.host_qemu:
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
 
-    qemu, env = command_qemu(args, arch, img_path, img_path_2nd)
+    qemu, env = command_qemu(args, device, arch, img_path, img_path_2nd)
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root

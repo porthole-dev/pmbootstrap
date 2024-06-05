@@ -58,6 +58,7 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
                                             "http://...", ...]
     """
     ret: List[str] = []
+    context = get_context()
 
     # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
     # the pmaports branch of the channel, no need to make it more complicated)
@@ -68,9 +69,9 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
         channel = pmb.config.pmaports.read_config()["channel"]
-        ret.append(str(get_context().config.work / "packages" / channel))
+        # FIXME: We shouldn't hardcod this here
+        ret.append("/mnt/pmbootstrap/packages")
 
-    context = get_context()
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:
         for mirror in context.config.mirrors_postmarketos:

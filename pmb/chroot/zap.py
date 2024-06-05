@@ -115,7 +115,7 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
                 continue
 
             # Aport path
-            aport_path = pmb.helpers.pmaports.find_optional(args, origin)
+            aport_path = pmb.helpers.pmaports.find_optional(origin)
             if not aport_path:
                 logging.info(f"% rm {apk_path_short}"
                              f" ({origin} aport not found)")

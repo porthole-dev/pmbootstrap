@@ -1,6 +1,7 @@
 # Copyright 2023 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
+from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 import os
 
@@ -17,12 +18,13 @@ def check(args: PmbArgs, pkgnames):
 
     :param pkgnames: Names of the packages to lint
     """
-    pmb.chroot.apk.install(["atools"])
+    chroot = Chroot.native()
+    pmb.chroot.apk.install(["atools"], chroot)
 
     # Mount pmaports.git inside the chroot so that we don't have to copy the
     # package folders
     pmaports = Path("/mnt/pmaports")
-    pmb.build.mount_pmaports(args, pmaports)
+    pmb.build.mount_pmaports(pmaports, chroot)
 
     # Locate all APKBUILDs and make the paths be relative to the pmaports
     # root

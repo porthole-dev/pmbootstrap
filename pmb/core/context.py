@@ -13,13 +13,21 @@ class Context():
     quiet: bool = False
     command_timeout: float = 900
     sudo_timer: bool = False
+    force: bool = False
     log: Path
     # The architecture of the selected device
     device_arch: Optional[str] = None
-    offline: bool = False
 
     # assume yes to prompts
     assume_yes: bool = False
+
+    # Operate offline
+    offline: bool = False
+
+    # Device we are operating on
+    # FIXME: should not be in global context, only
+    # specific actions actually depend on this
+    device: str = ""
 
     # The pmbootstrap subcommand
     command: str = ""
@@ -41,6 +49,7 @@ class Context():
 
 __context: Context
 
+# mypy: disable-error-code="return-value"
 def get_context(allow_failure: bool=False) -> Context:
     """Get immutable global runtime context."""
     global __context

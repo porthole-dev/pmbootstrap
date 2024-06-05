@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core import get_context
 from pmb.core.chroot import Chroot
+from pmb.core.context import Context
 from pmb.helpers import logging
 import glob
 import json
@@ -38,13 +39,13 @@ def require_programs():
                            f" {', '.join(missing)}")
 
 
-def ask_for_username(args: PmbArgs):
+def ask_for_username(args: PmbArgs, default_user: str):
     """Ask for a reasonable username for the non-root user.
 
     :returns: the username
     """
     while True:
-        ret = pmb.helpers.cli.ask("Username", None, args.user, False,
+        ret = pmb.helpers.cli.ask("Username", None, default_user, False,
                                   "[a-z_][a-z0-9_-]*")
         if ret == "root":
             logging.fatal("ERROR: don't put \"root\" here. This is about"
@@ -139,8 +140,8 @@ def ask_for_channel(args: PmbArgs):
                       " from the list above.")
 
 
-def ask_for_ui(args: PmbArgs, info):
-    ui_list = pmb.helpers.ui.list_ui(args, info["arch"])
+def ask_for_ui(info):
+    ui_list = pmb.helpers.ui.list_ui(info["arch"])
     hidden_ui_count = 0
     device_is_accelerated = info.get("gpu_accelerated") == "true"
     if not device_is_accelerated:
@@ -154,7 +155,7 @@ def ask_for_ui(args: PmbArgs, info):
                 hidden_ui_count += 1
 
     # Get default
-    default: Any = args.ui
+    default: Any = get_context().config.ui
     if default not in dict(ui_list).keys():
         default = pmb.config.defaults["ui"]
 
@@ -176,7 +177,7 @@ def ask_for_ui(args: PmbArgs, info):
                       " one from the list above.")
 
 
-def ask_for_ui_extras(args: PmbArgs, ui):
+def ask_for_ui_extras(config: Config, ui):
     apkbuild = pmb.helpers.pmaports.get(f"postmarketos-ui-{ui}",
                                         subpackages=False, must_exist=False)
     if not apkbuild:
@@ -190,17 +191,17 @@ def ask_for_ui_extras(args: PmbArgs, ui):
                  f" {extra['pkgdesc']}")
 
     return pmb.helpers.cli.confirm("Enable this package?",
-                                   default=args.ui_extras)
+                                   default=config.ui_extras)
 
 
-def ask_for_systemd(args: PmbArgs, ui):
+def ask_for_systemd(config: Config, ui):
     if "systemd" not in pmb.config.pmaports.read_config_repos():
-        return args.systemd
+        return config.systemd
 
     if pmb.helpers.ui.check_option(ui, "pmb:systemd-never"):
         logging.info("Based on your UI selection, OpenRC will be used as init"
                      " system. This UI does not support systemd.")
-        return args.systemd
+        return config.systemd
 
     default_is_systemd = pmb.helpers.ui.check_option(ui, "pmb:systemd")
     not_str = " " if default_is_systemd else " not "
@@ -210,7 +211,7 @@ def ask_for_systemd(args: PmbArgs, ui):
     choices = pmb.config.allowed_values["systemd"]
     answer = pmb.helpers.cli.ask("Install systemd?",
                                  choices,
-                                 args.systemd,
+                                 config.systemd,
                                  validation_regex=f"^({'|'.join(choices)})$",
                                  complete=choices)
     return answer
@@ -314,7 +315,7 @@ def ask_for_provider_select(apkbuild, providers_cfg):
                           " one from the list above.")
 
 
-def ask_for_provider_select_pkg(args: PmbArgs, pkgname, providers_cfg):
+def ask_for_provider_select_pkg(pkgname, providers_cfg):
     """Look up the APKBUILD for the specified pkgname and ask for selectable
     providers that are specified using "_pmb_select".
 
@@ -327,10 +328,10 @@ def ask_for_provider_select_pkg(args: PmbArgs, pkgname, providers_cfg):
     if not apkbuild:
         return
 
-    ask_for_provider_select(args, apkbuild, providers_cfg)
+    ask_for_provider_select(apkbuild, providers_cfg)
 
 
-def ask_for_device_kernel(args: PmbArgs, device: str):
+def ask_for_device_kernel(config: Config, device: str):
     """Ask for the kernel that should be used with the device.
 
     :param device: code name, e.g. "lg-mako"
@@ -343,10 +344,10 @@ def ask_for_device_kernel(args: PmbArgs, device: str):
     # Get kernels
     kernels = pmb.parse._apkbuild.kernels(device)
     if not kernels:
-        return args.kernel
+        return config.kernel
 
     # Get default
-    default = args.kernel
+    default = config.kernel
     if default not in kernels:
         default = list(kernels.keys())[0]
 
@@ -374,7 +375,7 @@ def ask_for_device_kernel(args: PmbArgs, device: str):
     return ret
 
 
-def ask_for_device(config: Config):
+def ask_for_device(context: Context):
     """
     Prompt for the device vendor, model, and kernel.
 
@@ -383,16 +384,16 @@ def ask_for_device(config: Config):
         * device_exists: bool indicating if device port exists in repo
         * kernel: type of kernel (downstream, etc)
     """
-    vendors = sorted(pmb.helpers.devices.list_vendors(get_context().config.aports))
+    vendors = sorted(pmb.helpers.devices.list_vendors(context.config.aports))
     logging.info("Choose your target device vendor (either an "
                  "existing one, or a new one for porting).")
     logging.info(f"Available vendors ({len(vendors)}): {', '.join(vendors)}")
 
     current_vendor = None
     current_codename = None
-    if config.device:
-        current_vendor = config.device.split("-", 1)[0]
-        current_codename = config.device.split("-", 1)[1]
+    if context.config.device:
+        current_vendor = context.config.device.split("-", 1)[0]
+        current_codename = context.config.device.split("-", 1)[1]
 
     while True:
         vendor = pmb.helpers.cli.ask("Vendor", None, current_vendor,
@@ -409,7 +410,7 @@ def ask_for_device(config: Config):
         else:
             # Archived devices can be selected, but are not displayed
             devices = sorted(pmb.helpers.devices.list_codenames(
-                get_context().config.aports, vendor, archived=False))
+                context.config.aports, vendor, archived=False))
             # Remove "vendor-" prefixes from device list
             codenames = [x.split('-', 1)[1] for x in devices]
             logging.info(f"Available codenames ({len(codenames)}): " +
@@ -424,7 +425,7 @@ def ask_for_device(config: Config):
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(device, 'deviceinfo')
         if device_path is None:
-            if device == args.devicesdhbfvhubsud:
+            if device == context.device:
                 raise RuntimeError(
                     "This device does not exist anymore, check"
                     " <https://postmarketos.org/renamed>"
@@ -440,14 +441,14 @@ def ask_for_device(config: Config):
             pmb.aportgen.generate(f"device-{device}")
             pmb.aportgen.generate(f"linux-{device}")
         elif any("archived" == x for x in device_path.parts):
-            apkbuild = f"{device_path[:-len('deviceinfo')]}APKBUILD"
+            apkbuild = device_path.parent / "APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild)
             logging.info(f"WARNING: {device} is archived: {archived}")
-            if not pmb.helpers.cli.confirm(args):
+            if not pmb.helpers.cli.confirm():
                 continue
         break
 
-    kernel = ask_for_device_kernel(args, device)
+    kernel = ask_for_device_kernel(context.config, device)
     return (device, device_path is not None, kernel)
 
 
@@ -675,7 +676,7 @@ def frontend(args: PmbArgs):
         pmb.config.pmaports.install_githooks()
 
     # Device
-    device, device_exists, kernel = ask_for_device(config)
+    device, device_exists, kernel = ask_for_device(get_context())
     config.device = device
     config.kernel = kernel
 
@@ -689,19 +690,19 @@ def frontend(args: PmbArgs):
     if device_exists:
         config.keymap = ask_for_keymaps(args, info)
 
-    config.user = ask_for_username(args)
-    ask_for_provider_select_pkg(args, "postmarketos-base", config.providers)
-    ask_for_provider_select_pkg(args, "postmarketos-base-ui", config.providers)
+    config.user = ask_for_username(args, config.user)
+    ask_for_provider_select_pkg("postmarketos-base", config.providers)
+    ask_for_provider_select_pkg("postmarketos-base-ui", config.providers)
 
     # UI and various build options
-    ui = ask_for_ui(args, info)
+    ui = ask_for_ui(info)
     config.ui = ui
-    config.ui_extras = ask_for_ui_extras(args, ui)
+    config.ui_extras = ask_for_ui_extras(config, ui)
 
     # systemd
-    config.systemd = ask_for_systemd(args, ui)
+    config.systemd = ask_for_systemd(config, ui)
 
-    ask_for_provider_select_pkg(args, f"postmarketos-ui-{ui}",
+    ask_for_provider_select_pkg(f"postmarketos-ui-{ui}",
                                 config.providers)
     ask_for_additional_options(args, config)
 

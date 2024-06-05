@@ -1,38 +1,40 @@
 # Copyright 2023 Attila Szollosi
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
+from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 
 import pmb.chroot
+import pmb.chroot.apk
 import pmb.config.pmaports
 from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.frontend
 
 
-def create_zip(args: PmbArgs, suffix):
+def create_zip(args: PmbArgs, chroot: Chroot, device: str):
     """
     Create android recovery compatible installer zip.
     """
     zip_root = Path("/var/lib/postmarketos-android-recovery-installer/")
-    rootfs = "/mnt/rootfs_" + args.devicesdhbfvhubsud
-    flavor = pmb.helpers.frontend._parse_flavor(args)
-    method = args.deviceinfo["flash_method"]
+    rootfs = "/mnt/rootfs_" + device
+    flavor = pmb.helpers.frontend._parse_flavor(device)
+    deviceinfo = pmb.parse.deviceinfo()
+    method = deviceinfo["flash_method"]
     vars = pmb.flasher.variables(args, flavor, method)
 
     # Install recovery installer package in buildroot
-    pmb.chroot.apk.install(args,
-                           ["postmarketos-android-recovery-installer"],
-                           suffix)
+    pmb.chroot.apk.install(["postmarketos-android-recovery-installer"],
+                           chroot)
 
-    logging.info(f"({suffix}) create recovery zip")
+    logging.info(f"({chroot}) create recovery zip")
 
     for key in vars:
-        pmb.flasher.check_partition_blacklist(args, key, vars[key])
+        pmb.flasher.check_partition_blacklist(args, deviceinfo, key, vars[key])
 
     # Create config file for the recovery installer
     options = {
-        "DEVICE": args.devicesdhbfvhubsud,
+        "DEVICE": device,
         "FLASH_KERNEL": args.recovery_flash_kernel,
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": vars["$PARTITION_KERNEL"],
@@ -52,7 +54,7 @@ def create_zip(args: PmbArgs, suffix):
         options["FLAVOR"] = f"-{flavor}" if flavor is not None else "-"
 
     # Write to a temporary file
-    config_temp = suffix / "tmp/install_options"
+    config_temp = chroot / "tmp/install_options"
     with config_temp.open("w") as handle:
         for key, value in options.items():
             if isinstance(value, bool):
@@ -69,6 +71,6 @@ def create_zip(args: PmbArgs, suffix):
         ["tar", "-prf", "rootfs.tar", "-C", "/", "./etc/apk/keys"],
         # Compress with -1 for speed improvement
         ["gzip", "-f1", "rootfs.tar"],
-        ["build-recovery-zip", args.devicesdhbfvhubsud]]
+        ["build-recovery-zip", device]]
     for command in commands:
-        pmb.chroot.root(command, suffix, working_dir=zip_root)
+        pmb.chroot.root(command, chroot, working_dir=zip_root)

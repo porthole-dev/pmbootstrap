@@ -10,7 +10,9 @@ See also:
 """
 import copy
 from typing import Any, Dict
+from pmb.core.context import get_context
 from pmb.helpers import logging
+import pmb.build._package
 
 from pmb.types import PmbArgs
 import pmb.helpers.pmaports
@@ -62,7 +64,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
     if pmaport:
         ret = {"arch": pmaport["arch"],
-               "depends": pmb.build._package.get_depends(args, pmaport),
+               "depends": pmb.build._package.get_depends(get_context(), pmaport),
                "pkgname": pmaport["pkgname"],
                "provides": pmaport["provides"],
                "version": pmaport["pkgver"] + "-r" + pmaport["pkgrel"]}

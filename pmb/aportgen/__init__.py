@@ -54,7 +54,7 @@ def properties(pkgname):
     raise ValueError("No generator available for " + pkgname + "!")
 
 
-def generate(args: PmbArgs, pkgname, fork_alpine=False):
+def generate(pkgname, fork_alpine=False):
     if fork_alpine:
         prefix, folder, options = (pkgname, "temp",
                                    {"confirm_overwrite": True})
@@ -83,7 +83,7 @@ def generate(args: PmbArgs, pkgname, fork_alpine=False):
     else:
         # Run pmb.aportgen.PREFIX.generate()
         # FIXME: this is really bad and hacky let's not do this please
-        getattr(pmb.aportgen, prefix.replace("-", "_")).generate(args, pkgname)
+        getattr(pmb.aportgen, prefix.replace("-", "_")).generate(pkgname)
 
     # Move to the aports folder
     if os.path.exists(path_target):

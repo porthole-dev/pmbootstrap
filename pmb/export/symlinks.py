@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
 from typing import List
@@ -18,6 +19,9 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
     """
     Create convenience symlinks to the rootfs and boot files.
     """
+    
+    context = get_context()
+    arch = pmb.parse.deviceinfo(context.device)["arch"]
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix = f"-{flavor}"
@@ -35,28 +39,28 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
         f"uInitrd{suffix}": "Initramfs, legacy u-boot image format",
         f"uImage{suffix}": "Kernel, legacy u-boot image format",
         f"vmlinuz{suffix}": "Linux kernel",
-        f"{args.devicesdhbfvhubsud}.img": "Rootfs with partitions for /boot and /",
-        f"{args.devicesdhbfvhubsud}-boot.img": "Boot partition image",
-        f"{args.devicesdhbfvhubsud}-root.img": "Root partition image",
-        f"pmos-{args.devicesdhbfvhubsud}.zip": "Android recovery flashable zip",
+        f"{context.device}.img": "Rootfs with partitions for /boot and /",
+        f"{context.device}-boot.img": "Boot partition image",
+        f"{context.device}-root.img": "Root partition image",
+        f"pmos-{context.device}.zip": "Android recovery flashable zip",
         "lk2nd.img": "Secondary Android bootloader",
     }
 
     # Generate a list of patterns
     chroot_native = Chroot.native()
-    path_boot = Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud) / "boot"
-    chroot_buildroot = Chroot.buildroot(args.deviceinfo['arch'])
+    path_boot = Chroot(ChrootType.ROOTFS, context.device) / "boot"
+    chroot_buildroot = Chroot.buildroot(arch)
     files: List[Path] = [
         path_boot / f"boot.img{suffix}",
         path_boot / f"uInitrd{suffix}",
         path_boot / f"uImage{suffix}",
         path_boot / f"vmlinuz{suffix}",
         path_boot /  "dtbo.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-boot.img",
-        chroot_native / "home/pmos/rootfs" / f"{args.devicesdhbfvhubsud}-root.img",
+        chroot_native / "home/pmos/rootfs" / f"{context.device}.img",
+        chroot_native / "home/pmos/rootfs" / f"{context.device}-boot.img",
+        chroot_native / "home/pmos/rootfs" / f"{context.device}-root.img",
         chroot_buildroot / "var/libpostmarketos-android-recovery-installer" /
-            f"pmos-{args.devicesdhbfvhubsud}.zip",
+            f"pmos-{context.device}.zip",
         path_boot / "lk2nd.img"
     ]
 
@@ -73,4 +77,4 @@ def symlinks(args: PmbArgs, flavor, folder: Path):
             msg += " (" + info[basename] + ")"
         logging.info(msg)
 
-        pmb.helpers.file.symlink(args, file, link)
+        pmb.helpers.file.symlink(file, link)

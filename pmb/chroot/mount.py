@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from typing import Dict
 import pmb.config
+import pmb.chroot.apk
 from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse
@@ -98,7 +99,7 @@ def mount(chroot: Chroot):
         pmb.helpers.mount.bind(source, target_outer)
 
 
-def mount_native_into_foreign(args: PmbArgs, chroot: Chroot):
+def mount_native_into_foreign(chroot: Chroot):
     source = Chroot.native().path
     target = chroot / "native"
     pmb.helpers.mount.bind(source, target)

@@ -55,7 +55,7 @@ def delete(hook, suffix: Chroot):
     pmb.chroot.root(["apk", "del", f"{prefix}{hook}"], suffix)
 
 
-def update(args: PmbArgs, suffix: Chroot):
+def update(suffix: Chroot):
     """
     Rebuild and update all hooks that are out of date
     """

@@ -5,15 +5,18 @@ import pmb.config
 import pmb.config.pmaports
 from pmb.types import PmbArgs
 import pmb.helpers.mount
+import pmb.helpers.args
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.core import Chroot, ChrootType
 
 
-def install_depends(args: PmbArgs):
+def install_depends() -> None:
+    args: PmbArgs = pmb.helpers.args.please_i_really_need_args()
     if hasattr(args, 'flash_method'):
-        method = args.flash_method or args.deviceinfo["flash_method"]
-    else:
-        method = args.deviceinfo["flash_method"]
+        method = args.flash_method
+    
+    if not method:
+        method = pmb.parse.deviceinfo()["flash_method"]
 
     if method not in pmb.config.flashers:
         raise RuntimeError(f"Flash method {method} is not supported by the"
@@ -43,12 +46,12 @@ def install_depends(args: PmbArgs):
     pmb.chroot.apk.install(depends, Chroot.native())
 
 
-def init(args: PmbArgs):
-    install_depends(args)
+def init(device: str):
+    install_depends()
 
     # Mount folders from host system
     for folder in pmb.config.flash_mount_bind:
         pmb.helpers.mount.bind(folder, Chroot.native() / folder)
 
     # Mount device chroot inside native chroot (required for kernel/ramdisk)
-    mount_device_rootfs(args, Chroot(ChrootType.ROOTFS, args.devicesdhbfvhubsud))
+    mount_device_rootfs(Chroot(ChrootType.ROOTFS, device))

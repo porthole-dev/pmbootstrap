@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 # mypy: disable-error-code="attr-defined"
+from pmb.core.context import get_context
 from pmb.helpers import logging
 import os
 from pathlib import Path

@@ -56,13 +56,14 @@ def arch(args: PmbArgs, pkgname: str):
 
     apkbuild = pmb.parse.apkbuild(aport)
     arches = apkbuild["arch"]
+    deviceinfo = pmb.parse.deviceinfo()
 
     if get_context().config.build_default_device_arch:
-        preferred_arch = args.deviceinfo["arch"]
+        preferred_arch = deviceinfo["arch"]
         preferred_arch_2nd = pmb.config.arch_native
     else:
         preferred_arch = pmb.config.arch_native
-        preferred_arch_2nd = args.deviceinfo["arch"]
+        preferred_arch_2nd = deviceinfo["arch"]
 
     if "noarch" in arches or "all" in arches or preferred_arch in arches:
         return preferred_arch

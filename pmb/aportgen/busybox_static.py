@@ -11,7 +11,7 @@ import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
 
-def generate(args: PmbArgs, pkgname):
+def generate(pkgname):
     arch = pkgname.split("-")[2]
     context = get_context()
 

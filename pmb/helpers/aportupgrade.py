@@ -275,7 +275,7 @@ def upgrade(args: PmbArgs, pkgname, git=True, stable=True) -> None:
 
 def upgrade_all(args: PmbArgs) -> None:
     """Upgrade all packages, based on args.all, args.all_git and args.all_stable."""
-    for pkgname in pmb.helpers.pmaports.get_list(args):
+    for pkgname in pmb.helpers.pmaports.get_list():
         # Always ignore postmarketOS-specific packages that have no upstream
         # source
         skip = False

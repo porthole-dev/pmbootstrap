@@ -101,7 +101,7 @@ def ask_for_flash_method():
                       " pmb/config/__init__.py.")
 
 
-def ask_for_bootimg(args: PmbArgs):
+def ask_for_bootimg():
     logging.info("You can analyze a known working boot.img file to"
                  " automatically fill out the flasher information for your"
                  " deviceinfo file. Either specify the path to an image or"
@@ -114,7 +114,7 @@ def ask_for_bootimg(args: PmbArgs):
         if not path:
             return None
         try:
-            return pmb.parse.bootimg(args, path)
+            return pmb.parse.bootimg(path)
         except Exception as e:
             logging.fatal("ERROR: " + str(e) + ". Please try again.")
 
@@ -319,7 +319,7 @@ def generate_apkbuild(pkgname, name, arch, flash_method):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
-def generate(args: PmbArgs, pkgname):
+def generate(pkgname):
     arch = ask_for_architecture()
     manufacturer = ask_for_manufacturer()
     name = ask_for_name(manufacturer)
@@ -330,7 +330,7 @@ def generate(args: PmbArgs, pkgname):
     flash_method = ask_for_flash_method()
     bootimg = None
     if flash_method in ["fastboot", "heimdall-bootimg"]:
-        bootimg = ask_for_bootimg(args)
+        bootimg = ask_for_bootimg()
 
     generate_deviceinfo(pkgname, name, manufacturer, year, arch,
                         chassis, has_keyboard, has_external_storage,

@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
 from typing import Any, Dict
@@ -84,8 +85,8 @@ def get_outputdir(args: PmbArgs, pkgname: str, apkbuild: Dict[str, Any]) -> Path
                        " template with: pmbootstrap aportgen " + pkgname)
 
 
-def extract_and_patch_sources(args: PmbArgs, pkgname: str, arch):
-    pmb.build.copy_to_buildpath(args, pkgname)
+def extract_and_patch_sources(pkgname: str, arch):
+    pmb.build.copy_to_buildpath(pkgname)
     logging.info("(native) extract kernel source")
     pmb.chroot.user(["abuild", "unpack"], working_dir=Path("/home/pmos/build"))
     logging.info("(native) apply patches")
@@ -102,14 +103,14 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     aport = pmb.helpers.pmaports.find(pkgname)
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     arch = args.arch or get_arch(apkbuild)
-    suffix = pmb.build.autodetect.chroot(apkbuild, arch)
-    cross = pmb.build.autodetect.crosscompile(args, apkbuild, arch, suffix)
+    chroot = pmb.build.autodetect.chroot(apkbuild, arch)
+    cross = pmb.build.autodetect.crosscompile(apkbuild, arch, chroot)
     hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
 
     # Set up build tools and makedepends
-    pmb.build.init(args, suffix)
+    pmb.build.init(chroot)
     if cross:
-        pmb.build.init_compiler(args, [], cross, arch)
+        pmb.build.init_compiler(get_context(), [], cross, arch)
 
     depends = apkbuild["makedepends"]
     copy_xauth = False
@@ -128,13 +129,13 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
         else:
             depends += ["ncurses-dev"]
 
-    pmb.chroot.apk.install(depends)
+    pmb.chroot.apk.install(depends, Chroot.native())
 
     # Copy host's .xauthority into native
     if copy_xauth:
         pmb.chroot.other.copy_xauthority(args)
 
-    extract_and_patch_sources(args, pkgname, arch)
+    extract_and_patch_sources(pkgname, arch)
 
     # Check for background color variable
     color = os.environ.get("MENUCONFIG_COLOR")
