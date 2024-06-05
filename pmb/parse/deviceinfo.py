@@ -65,6 +65,13 @@ def sanity_check(info, path):
     if "arch" not in info or not info["arch"]:
         raise RuntimeError(f"Please add 'deviceinfo_arch' to: {path}")
 
+    arch = info["arch"]
+    if (arch != pmb.config.arch_native and
+            arch not in pmb.config.build_device_architectures):
+        raise ValueError("Arch '" + arch + "' is not available in"
+                         " postmarketOS. If you would like to add it, see:"
+                         " <https://postmarketos.org/newarch>")
+
     # "chassis" validation
     chassis_type = info["chassis"]
     if chassis_type not in chassis_types:

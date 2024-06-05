@@ -85,12 +85,6 @@ def check_pmaports_path(args: PmbArgs):
 def add_deviceinfo(args: PmbArgs):
     """Add and verify the deviceinfo (only after initialization)"""
     setattr(args, "deviceinfo", pmb.parse.deviceinfo())
-    arch = args.deviceinfo["arch"]
-    if (arch != pmb.config.arch_native and
-            arch not in pmb.config.build_device_architectures):
-        raise ValueError("Arch '" + arch + "' is not available in"
-                         " postmarketOS. If you would like to add it, see:"
-                         " <https://postmarketos.org/newarch>")
 
 
 def init(args: PmbArgs) -> PmbArgs:
