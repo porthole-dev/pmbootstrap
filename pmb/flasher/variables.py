@@ -9,11 +9,11 @@ from pmb.types import PmbArgs
 def variables(args: PmbArgs, flavor, method):
     device = get_context().config.device
     deviceinfo = pmb.parse.deviceinfo()
-    _cmdline = deviceinfo["kernel_cmdline"] or ""
+    _cmdline = deviceinfo.kernel_cmdline or ""
     if "cmdline" in args and args.cmdline:
         _cmdline = args.cmdline
 
-    flash_pagesize = deviceinfo['flash_pagesize']
+    flash_pagesize = deviceinfo.flash_pagesize
 
     # TODO Remove _partition_system deviceinfo support once pmaports has been
     # updated and minimum pmbootstrap version bumped.
@@ -23,39 +23,39 @@ def variables(args: PmbArgs, flavor, method):
     _partition_rootfs: Optional[str]
 
     if method.startswith("fastboot"):
-        _partition_kernel = deviceinfo["flash_fastboot_partition_kernel"]\
+        _partition_kernel = deviceinfo.flash_fastboot_partition_kernel\
             or "boot"
-        _partition_rootfs = deviceinfo["flash_fastboot_partition_rootfs"]\
-            or deviceinfo["flash_fastboot_partition_system"] or "userdata"
-        _partition_vbmeta = deviceinfo["flash_fastboot_partition_vbmeta"]\
+        _partition_rootfs = deviceinfo.flash_fastboot_partition_rootfs\
+            or deviceinfo.flash_fastboot_partition_system or "userdata"
+        _partition_vbmeta = deviceinfo.flash_fastboot_partition_vbmeta\
             or None
-        _partition_dtbo = deviceinfo["flash_fastboot_partition_dtbo"]\
+        _partition_dtbo = deviceinfo.flash_fastboot_partition_dtbo\
             or None
     # Require that the partitions are specified in deviceinfo for now
     elif method.startswith("rkdeveloptool"):
-        _partition_kernel = deviceinfo["flash_rk_partition_kernel"]\
+        _partition_kernel = deviceinfo.flash_rk_partition_kernel\
             or None
-        _partition_rootfs = deviceinfo["flash_rk_partition_rootfs"]\
-            or deviceinfo["flash_rk_partition_system"] or None
+        _partition_rootfs = deviceinfo.flash_rk_partition_rootfs\
+            or deviceinfo.flash_rk_partition_system or None
         _partition_vbmeta = None
         _partition_dtbo = None
     elif method.startswith("mtkclient"):
-        _partition_kernel = deviceinfo["flash_mtkclient_partition_kernel"]\
+        _partition_kernel = deviceinfo.flash_mtkclient_partition_kernel\
             or "boot"
-        _partition_rootfs = deviceinfo["flash_mtkclient_partition_rootfs"]\
+        _partition_rootfs = deviceinfo.flash_mtkclient_partition_rootfs\
             or "userdata"
-        _partition_vbmeta = deviceinfo["flash_mtkclient_partition_vbmeta"]\
+        _partition_vbmeta = deviceinfo.flash_mtkclient_partition_vbmeta\
             or None
-        _partition_dtbo = deviceinfo["flash_mtkclient_partition_dtbo"]\
+        _partition_dtbo = deviceinfo.flash_mtkclient_partition_dtbo\
             or None
     else:
-        _partition_kernel = deviceinfo["flash_heimdall_partition_kernel"]\
+        _partition_kernel = deviceinfo.flash_heimdall_partition_kernel\
             or "KERNEL"
-        _partition_rootfs = deviceinfo["flash_heimdall_partition_rootfs"]\
-            or deviceinfo["flash_heimdall_partition_system"] or "SYSTEM"
-        _partition_vbmeta = deviceinfo["flash_heimdall_partition_vbmeta"]\
+        _partition_rootfs = deviceinfo.flash_heimdall_partition_rootfs\
+            or deviceinfo.flash_heimdall_partition_system or "SYSTEM"
+        _partition_vbmeta = deviceinfo.flash_heimdall_partition_vbmeta\
             or None
-        _partition_dtbo = deviceinfo["flash_heimdall_partition_dtbo"]\
+        _partition_dtbo = deviceinfo.flash_heimdall_partition_dtbo\
             or None
 
     if "partition" in args and args.partition:
@@ -67,7 +67,7 @@ def variables(args: PmbArgs, flavor, method):
         _partition_dtbo = args.partition
 
     _dtb = ""
-    if deviceinfo["append_dtb"] == "true":
+    if deviceinfo.append_dtb == "true":
         _dtb = "-dtb"
 
     _no_reboot = ""
@@ -86,16 +86,15 @@ def variables(args: PmbArgs, flavor, method):
         "$IMAGE": "/home/pmos/rootfs/" + device + ".img",
         "$KERNEL_CMDLINE": _cmdline,
         "$PARTITION_KERNEL": _partition_kernel,
-        "$PARTITION_INITFS": deviceinfo[
-            "flash_heimdall_partition_initfs"] or "RECOVERY",
+        "$PARTITION_INITFS": deviceinfo.flash_heimdall_partition_initfs or "RECOVERY",
         "$PARTITION_ROOTFS": _partition_rootfs,
         "$PARTITION_VBMETA": _partition_vbmeta,
         "$PARTITION_DTBO": _partition_dtbo,
         "$FLASH_PAGESIZE": flash_pagesize,
-        "$RECOVERY_ZIP": "/mnt/buildroot_" + deviceinfo["arch"] +
+        "$RECOVERY_ZIP": "/mnt/buildroot_" + deviceinfo.arch +
                          "/var/lib/postmarketos-android-recovery-installer"
                          "/pmos-" + device + ".zip",
-        "$UUU_SCRIPT": "/mnt/rootfs_" + deviceinfo["codename"] +
+        "$UUU_SCRIPT": "/mnt/rootfs_" + deviceinfo.codename +
                        "/usr/share/uuu/flash_script.lst",
         "$NO_REBOOT": _no_reboot,
         "$RESUME": _resume

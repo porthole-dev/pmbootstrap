@@ -10,14 +10,7 @@ from pmb.helpers.mount import mount_device_rootfs
 from pmb.core import Chroot, ChrootType
 
 
-def install_depends() -> None:
-    args: PmbArgs = pmb.helpers.args.please_i_really_need_args()
-    if hasattr(args, 'flash_method'):
-        method = args.flash_method
-    
-    if not method:
-        method = pmb.parse.deviceinfo()["flash_method"]
-
+def install_depends(method: str) -> None:
     if method not in pmb.config.flashers:
         raise RuntimeError(f"Flash method {method} is not supported by the"
                            " current configuration. However, adding a new"
@@ -46,8 +39,8 @@ def install_depends() -> None:
     pmb.chroot.apk.install(depends, Chroot.native())
 
 
-def init(device: str):
-    install_depends()
+def init(device: str, method: str):
+    install_depends(method)
 
     # Mount folders from host system
     for folder in pmb.config.flash_mount_bind:

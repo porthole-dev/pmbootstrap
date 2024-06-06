@@ -745,6 +745,6 @@ def frontend(args: PmbArgs):
         setattr(args, "deviceinfo", info)
 
         # Do not zap any existing packages or cache_http directories
-        pmb.chroot.zap(args, confirm=False)
+        pmb.chroot.zap(confirm=False)
 
     logging.info("DONE!")

@@ -18,7 +18,7 @@ def odin(context: Context, flavor, folder: Path):
     for devices configured with the flasher method 'heimdall-isorec'
     and with boot.img for devices with 'heimdall-bootimg'
     """
-    pmb.flasher.init(context.device)
+    pmb.flasher.init(context.device, "heimdall-isorec")
     suffix = Chroot(ChrootType.ROOTFS, context.device)
     deviceinfo = pmb.parse.deviceinfo(context.device)
 
@@ -29,7 +29,7 @@ def odin(context: Context, flavor, folder: Path):
         suffix_flavor = ""
 
     # Validate method
-    method = deviceinfo["flash_method"]
+    method = deviceinfo.flash_method or ""
     if not method.startswith("heimdall-"):
         raise RuntimeError("An odin flashable tar is not supported"
                            f" for the flash method '{method}' specified"
@@ -37,8 +37,8 @@ def odin(context: Context, flavor, folder: Path):
                            " Only 'heimdall' methods are supported.")
 
     # Partitions
-    partition_kernel = deviceinfo["flash_heimdall_partition_kernel"] or "KERNEL"
-    partition_initfs = deviceinfo["flash_heimdall_partition_initfs"] or "RECOVERY"
+    partition_kernel = deviceinfo.flash_heimdall_partition_kernel or "KERNEL"
+    partition_initfs = deviceinfo.flash_heimdall_partition_initfs or "RECOVERY"
 
     # Temporary folder
     temp_folder = "/tmp/odin-flashable-tar"

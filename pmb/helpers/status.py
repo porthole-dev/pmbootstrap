@@ -38,7 +38,7 @@ def print_device(config: Config) -> None:
     if pmb.parse._apkbuild.kernels(config.device):
         kernel = f", kernel: {config.kernel}"
 
-    value = f"{config.device} ({pmb.parse.deviceinfo()['arch']}{kernel})"
+    value = f"{config.device} ({pmb.parse.deviceinfo().arch}{kernel})"
     print_status_line("Device", value)
 
 

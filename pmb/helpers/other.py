@@ -107,7 +107,7 @@ def migrate_work_folder(args: PmbArgs):
             raise RuntimeError("Aborted.")
 
         # Zap and update abuild.conf
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
         conf = context.config.work / "config_abuild/abuild.conf"
         if os.path.exists(conf):
             pmb.helpers.run.root(["sed", "-i",
@@ -145,7 +145,7 @@ def migrate_work_folder(args: PmbArgs):
             raise RuntimeError("Aborted.")
 
         # Zap chroots
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
 
         # Update version file
         migrate_success(context.config.work, 3)
@@ -186,7 +186,7 @@ def migrate_work_folder(args: PmbArgs):
             raise RuntimeError("Aborted.")
 
         # Zap chroots
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
 
         # Move packages to edge subdir
         edge_path = context.config.work / "packages/edge"
@@ -224,7 +224,7 @@ def migrate_work_folder(args: PmbArgs):
 
         # Zap chroots to avoid potential "ERROR: Chroot 'native' was created
         # for the 'stable' channel, but you are on the 'v20.05' channel now."
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
 
         # Migrate
         packages_dir = f"{context.config.work}/packages"

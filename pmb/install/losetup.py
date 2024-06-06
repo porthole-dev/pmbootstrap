@@ -42,7 +42,7 @@ def mount(args: PmbArgs, img_path: Path):
         init()
 
         losetup_cmd: List[PathString] = ["losetup", "-f", img_path]
-        sector_size = pmb.parse.deviceinfo()["rootfs_image_sector_size"]
+        sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
         if sector_size:
             losetup_cmd += ["-b", str(int(sector_size))]
 

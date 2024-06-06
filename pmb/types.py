@@ -57,7 +57,6 @@ class PmbArgs(Namespace):
     cross: bool
     details: bool
     details_to_stdout: bool
-    deviceinfo: Dict[str, str]
     deviceinfo_parse_kernel: str
     devices: str
     disk: Path

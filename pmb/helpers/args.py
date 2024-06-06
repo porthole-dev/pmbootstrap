@@ -99,7 +99,7 @@ def init(args: PmbArgs) -> PmbArgs:
         pmb.config.pmaports.read_config()
         pmb.helpers.git.parse_channels_cfg(config.aports)
         deviceinfo = pmb.parse.deviceinfo()
-        context.device_arch = deviceinfo["arch"]
+        context.device_arch = deviceinfo.arch
 
     # Remove attributes from args so they don't get used by mistake
     delattr(args, "timeout")

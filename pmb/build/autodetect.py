@@ -13,7 +13,7 @@ from pmb.core import Chroot, ChrootType, get_context
 
 
 # FIXME (#2324): type hint Arch
-def arch_from_deviceinfo(args: PmbArgs, pkgname, aport: Path) -> Optional[str]:
+def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[str]:
     """
     The device- packages are noarch packages. But it only makes sense to build
     them for the device's architecture, which is specified in the deviceinfo
@@ -31,12 +31,12 @@ def arch_from_deviceinfo(args: PmbArgs, pkgname, aport: Path) -> Optional[str]:
 
     # Return its arch
     device = pkgname.split("-", 1)[1]
-    arch = pmb.parse.deviceinfo(device)["arch"]
+    arch = pmb.parse.deviceinfo(device).arch
     logging.verbose(pkgname + ": arch from deviceinfo: " + arch)
     return arch
 
 
-def arch(args: PmbArgs, pkgname: str):
+def arch(pkgname: str):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
@@ -50,7 +50,7 @@ def arch(args: PmbArgs, pkgname: str):
     aport = pmb.helpers.pmaports.find(pkgname)
     if not aport:
         raise FileNotFoundError(f"APKBUILD not found for {pkgname}")
-    ret = arch_from_deviceinfo(args, pkgname, aport)
+    ret = arch_from_deviceinfo(pkgname, aport)
     if ret:
         return ret
 
@@ -59,11 +59,11 @@ def arch(args: PmbArgs, pkgname: str):
     deviceinfo = pmb.parse.deviceinfo()
 
     if get_context().config.build_default_device_arch:
-        preferred_arch = deviceinfo["arch"]
+        preferred_arch = deviceinfo.arch
         preferred_arch_2nd = pmb.config.arch_native
     else:
         preferred_arch = pmb.config.arch_native
-        preferred_arch_2nd = deviceinfo["arch"]
+        preferred_arch_2nd = deviceinfo.arch
 
     if "noarch" in arches or "all" in arches or preferred_arch in arches:
         return preferred_arch

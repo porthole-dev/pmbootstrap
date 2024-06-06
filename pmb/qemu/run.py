@@ -92,7 +92,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
-    cmdline = pmb.parse.deviceinfo()["kernel_cmdline"]
+    cmdline = pmb.parse.deviceinfo().kernel_cmdline
     if args.cmdline:
         cmdline = args.cmdline
 
@@ -221,7 +221,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
                     "if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF.fd"]
 
     # Kernel Virtual Machine (KVM) support
-    native = pmb.config.arch_native == pmb.parse.deviceinfo()["arch"]
+    native = pmb.config.arch_native == pmb.parse.deviceinfo().arch
     if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
         command += ["-cpu", "host"]
@@ -338,7 +338,7 @@ def run(args: PmbArgs):
         raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
                            "the QEMU device packages. Run 'pmbootstrap init' "
                            "and select the 'qemu' vendor.")
-    arch = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo()["arch"])
+    arch = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo().arch)
 
     img_path = system_image(device)
     img_path_2nd = None

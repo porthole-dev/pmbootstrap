@@ -90,7 +90,7 @@ def chroot_check_channel(chroot: Chroot):
                            f" '{channel}' channel now. {msg_again}")
 
 
-def clean(args: PmbArgs):
+def clean():
     """Remove obsolete data data from workdir.cfg.
 
     :returns: None if workdir does not exist,

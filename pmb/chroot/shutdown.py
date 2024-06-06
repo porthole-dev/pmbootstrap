@@ -58,7 +58,7 @@ def shutdown_cryptsetup_device(name: str):
         raise RuntimeError("Failed to parse 'cryptsetup status' output!")
 
 
-def shutdown(args: PmbArgs, only_install_related=False):
+def shutdown(only_install_related=False):
     # Stop daemons
     kill_adb()
     kill_sccache()

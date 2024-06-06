@@ -1,12 +1,13 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Optional
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 import glob
 
 import pmb.config.pmaports
 import pmb.helpers.repo
-from pmb.types import PmbArgs
+from pmb.types import Config
 from pmb.core import get_context
 
 
@@ -15,19 +16,15 @@ progress_total = 0
 progress_step: str
 
 
-def get_arch(args: PmbArgs):
-    if args.arch:
-        return args.arch
-
-    if args.build_default_device_arch:
-        return pmb.parse.deviceinfo()["arch"]
+def get_arch(config: Config):
+    if config.build_default_device_arch:
+        return pmb.parse.deviceinfo().arch
 
     return pmb.config.arch_native
 
 
-def check_repo_arg(args: PmbArgs):
+def check_repo_arg(repo: str):
     cfg = pmb.config.pmaports.read_config_repos()
-    repo = args.repository
 
     if repo in cfg:
         return
@@ -41,9 +38,9 @@ def check_repo_arg(args: PmbArgs):
                      " current branch")
 
 
-def check_existing_pkgs(args: PmbArgs, arch):
+def check_existing_pkgs(config: Config, arch):
     channel = pmb.config.pmaports.read_config()["channel"]
-    path = get_context().config.work / "packages" / channel / arch
+    path = config.work / "packages" / channel / arch
 
     if glob.glob(f"{path}/*"):
         logging.info(f"Packages path: {path}")
@@ -57,12 +54,12 @@ def check_existing_pkgs(args: PmbArgs, arch):
         raise RuntimeError(f"{msg}!")
 
 
-def get_steps(args: PmbArgs):
+def get_steps(repo: str):
     cfg = pmb.config.pmaports.read_config_repos()
     prev_step = 0
     ret = {}
 
-    for key, packages in cfg[args.repository].items():
+    for key, packages in cfg[repo].items():
         if not key.startswith("bootstrap_"):
             continue
 
@@ -76,7 +73,7 @@ def get_steps(args: PmbArgs):
     return ret
 
 
-def get_suffix(args: PmbArgs, arch):
+def get_suffix(arch):
     if pmb.parse.arch.cpu_emulation_required(arch):
         return f"buildroot_{arch}"
     return "native"
@@ -91,7 +88,7 @@ def get_packages(bootstrap_line):
     return ret
 
 
-def set_progress_total(args: PmbArgs, steps, arch):
+def set_progress_total(steps, arch):
     global progress_total
 
     progress_total = 0
@@ -117,14 +114,14 @@ def log_progress(msg):
     progress_done += 1
 
 
-def run_steps(args: PmbArgs, steps, arch, chroot: Chroot):
+def run_steps(steps, arch, chroot: Chroot):
     global progress_step
 
     for step, bootstrap_line in steps.items():
         progress_step = step.replace("bootstrap_", "BOOTSTRAP=")
 
         log_progress("zapping")
-        pmb.chroot.zap(args, confirm=False)
+        pmb.chroot.zap(confirm=False)
 
         usr_merge = pmb.chroot.UsrMerge.OFF
         if "[usr_merge]" in bootstrap_line:
@@ -148,17 +145,18 @@ def run_steps(args: PmbArgs, steps, arch, chroot: Chroot):
     log_progress("bootstrap complete!")
 
 
-def main(args: PmbArgs):
-    check_repo_arg(args)
+def main(arch: Optional[str], repository: str):  # noqa: F821
+    config = get_context().config
+    check_repo_arg(repository)
 
-    arch = get_arch(args)
-    check_existing_pkgs(args, arch)
+    arch = arch or get_arch(config)
+    check_existing_pkgs(config, arch)
 
-    steps = get_steps(args)
-    suffix = get_suffix(args, arch)
+    steps = get_steps(repository)
+    suffix = get_suffix(arch)
 
-    set_progress_total(args, steps, arch)
-    run_steps(args, steps, arch, suffix)
+    set_progress_total(steps, arch)
+    run_steps(steps, arch, suffix)
 
 
 def require_bootstrap_error(repo, arch, trigger_str):

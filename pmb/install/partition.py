@@ -80,15 +80,15 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
     logging.info(f"(native) partition /dev/install (boot: {mb_boot},"
                  f" reserved: {mb_reserved}, root: the rest)")
 
-    filesystem = pmb.parse.deviceinfo()["boot_filesystem"] or "ext2"
+    filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
 
     # Actual partitioning with 'parted'. Using check=False, because parted
     # sometimes "fails to inform the kernel". In case it really failed with
     # partitioning, the follow-up mounting/formatting will not work, so it
     # will stop there (see #463).
-    boot_part_start = pmb.parse.deviceinfo()["boot_part_start"] or "2048"
+    boot_part_start = pmb.parse.deviceinfo().boot_part_start or "2048"
 
-    partition_type = pmb.parse.deviceinfo()["partition_type"] or "msdos"
+    partition_type = pmb.parse.deviceinfo().partition_type or "msdos"
 
     commands = [
         ["mktable", partition_type],
@@ -131,8 +131,8 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     pmb.chroot.apk.install(["cgpt"], Chroot.native(), build=False)
 
     cgpt = {
-        'kpart_start': pmb.parse.deviceinfo()["cgpt_kpart_start"],
-        'kpart_size': pmb.parse.deviceinfo()["cgpt_kpart_size"],
+        'kpart_start': pmb.parse.deviceinfo().cgpt_kpart_start,
+        'kpart_size': pmb.parse.deviceinfo().cgpt_kpart_size,
     }
 
     # Convert to MB and print info

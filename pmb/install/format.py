@@ -23,7 +23,7 @@ def format_and_mount_boot(args: PmbArgs, device, boot_label):
     ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
     """
     mountpoint = "/mnt/install/boot"
-    filesystem = pmb.parse.deviceinfo()["boot_filesystem"] or "ext2"
+    filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
     install_fsprogs(filesystem)
     logging.info(f"(native) format {device} (boot, {filesystem}), mount to"
                  f" {mountpoint}")
@@ -72,7 +72,7 @@ def format_luks_root(args: PmbArgs, device):
 
 
 def get_root_filesystem(args: PmbArgs):
-    ret = args.filesystem or pmb.parse.deviceinfo()["root_filesystem"] or "ext4"
+    ret = args.filesystem or pmb.parse.deviceinfo().root_filesystem or "ext4"
     pmaports_cfg = pmb.config.pmaports.read_config()
 
     supported = pmaports_cfg.get("supported_root_filesystems", "ext4")

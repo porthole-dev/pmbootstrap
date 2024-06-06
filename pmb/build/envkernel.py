@@ -190,7 +190,7 @@ def package_kernel(args: PmbArgs):
     modify_apkbuild(pkgname, aport)
     apkbuild_path = context.config.work / "aportgen/APKBUILD"
 
-    arch = pmb.parse.deviceinfo()["arch"]
+    arch = pmb.parse.deviceinfo().arch
     apkbuild = pmb.parse.apkbuild(apkbuild_path, check_pkgname=False)
     if apkbuild["_outdir"]:
         kbuild_out = apkbuild["_outdir"]

@@ -4,17 +4,18 @@ import glob
 from pmb.helpers import logging
 import os
 
+import pmb.build.other
+import pmb.config.workdir
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.config.workdir
-from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
 
-def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
+def zap(confirm=True, dry=False, pkgs_local=False, http=False,
         pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False,
         rust=False, netboot=False):
     """
@@ -38,13 +39,13 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
     # Delete packages with a different version compared to aports,
     # then re-index
     if pkgs_local_mismatch:
-        zap_pkgs_local_mismatch(args, confirm, dry)
+        zap_pkgs_local_mismatch(confirm, dry)
 
     # Delete outdated binary packages
     if pkgs_online_mismatch:
-        zap_pkgs_online_mismatch(args, confirm, dry)
+        zap_pkgs_online_mismatch(confirm, dry)
 
-    pmb.chroot.shutdown(args)
+    pmb.chroot.shutdown()
 
     # Deletion patterns for folders inside get_context().config.work
     patterns = list(Chroot.iter_patterns())
@@ -72,7 +73,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
                     pmb.helpers.run.root(["rm", "-rf", match])
 
     # Remove config init dates for deleted chroots
-    pmb.config.workdir.clean(args)
+    pmb.config.workdir.clean()
 
     # Chroots were zapped, so no repo lists exist anymore
     pmb.helpers.other.cache["apk_repository_list_updated"].clear()
@@ -82,7 +83,7 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
         logging.info("Dry run: nothing has been deleted")
 
 
-def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
+def zap_pkgs_local_mismatch(confirm=True, dry=False):
     channel = pmb.config.pmaports.read_config()["channel"]
     if not os.path.exists(f"{get_context().config.work}/packages/{channel}"):
         return
@@ -131,10 +132,10 @@ def zap_pkgs_local_mismatch(args: PmbArgs, confirm=True, dry=False):
                     reindex = True
 
     if reindex:
-        pmb.build.other.index_repo(args)
+        pmb.build.other.index_repo()
 
 
-def zap_pkgs_online_mismatch(args: PmbArgs, confirm=True, dry=False):
+def zap_pkgs_online_mismatch(confirm=True, dry=False):
     # Check whether we need to do anything
     paths = glob.glob(f"{get_context().config.work}/cache_apk_*")
     if not len(paths):

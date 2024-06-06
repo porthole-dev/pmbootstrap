@@ -16,6 +16,7 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
+from pmb.parse.deviceinfo import Deviceinfo
 from pmb.types import Config, PartitionLayout, PmbArgs
 import pmb.helpers.devices
 from pmb.helpers.mount import mount_device_rootfs
@@ -118,7 +119,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
     mountpoint_outside = Chroot.native() / mountpoint
 
     # Remove empty qemu-user binary stub (where the binary was bind-mounted)
-    arch_qemu = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo()["arch"])
+    arch_qemu = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo().arch)
     qemu_binary = mountpoint_outside / ("/usr/bin/qemu-" + arch_qemu + "-static")
     if os.path.exists(qemu_binary):
         pmb.helpers.run.root(["rm", qemu_binary])
@@ -185,7 +186,7 @@ def configure_apk(args: PmbArgs):
         pmb.helpers.run.root(["cp", key, rootfs / "etc/apk/keys/"])
 
     # Copy over the corresponding APKINDEX files from cache
-    index_files = pmb.helpers.repo.apkindex_files(arch=pmb.parse.deviceinfo()["arch"],
+    index_files = pmb.helpers.repo.apkindex_files(arch=pmb.parse.deviceinfo().arch,
                                                   user_repository=False)
     for f in index_files:
         pmb.helpers.run.root(["cp", f, rootfs / "var/cache/apk/"])
@@ -325,11 +326,11 @@ def setup_keymap(config: Config):
     Set the keymap with the setup-keymap utility if the device requires it
     """
     chroot = Chroot(ChrootType.ROOTFS, config.device)
-    info = pmb.parse.deviceinfo(device=config.device)
-    if "keymaps" not in info or info["keymaps"].strip() == "":
+    deviceinfo = pmb.parse.deviceinfo(device=config.device)
+    if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
         logging.info("NOTE: No valid keymap specified for device")
         return
-    options = info["keymaps"].split(' ')
+    options = deviceinfo.keymaps.split(' ')
     if (config.keymap != "" and
             config.keymap is not None and
             config.keymap in options):
@@ -525,7 +526,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step):
     """
     binary_ranges: Dict[int, int] = {}
     binary_list = []
-    binaries = pmb.parse.deviceinfo()["sd_embed_firmware"].split(",")
+    binaries = pmb.parse.deviceinfo().sd_embed_firmware.split(",")
 
     for binary_offset in binaries:
         binary, _offset = binary_offset.split(':')
@@ -541,7 +542,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step):
                                f"/usr/share/{binary}")
         # Insure that embedding the firmware will not overrun the
         # first partition
-        boot_part_start = pmb.parse.deviceinfo()["boot_part_start"] or "2048"
+        boot_part_start = pmb.parse.deviceinfo().boot_part_start or "2048"
         max_size = (int(boot_part_start) * 512) - (offset * step)
         binary_size = os.path.getsize(binary_path)
         if binary_size > max_size:
@@ -574,13 +575,13 @@ def embed_firmware(args: PmbArgs, suffix: Chroot):
     :param suffix: of the chroot, which holds the firmware files (either the
                    rootfs_{args.device} or installer_{args.device}
     """
-    if not pmb.parse.deviceinfo()["sd_embed_firmware"]:
+    if not pmb.parse.deviceinfo().sd_embed_firmware:
         return
 
     step = 1024
-    if pmb.parse.deviceinfo()["sd_embed_firmware_step_size"]:
+    if pmb.parse.deviceinfo().sd_embed_firmware_step_size:
         try:
-            step = int(pmb.parse.deviceinfo()["sd_embed_firmware_step_size"])
+            step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size)
         except ValueError:
             raise RuntimeError("Value for "
                                "deviceinfo_sd_embed_firmware_step_size "
@@ -606,7 +607,7 @@ def write_cgpt_kpart(args: PmbArgs, layout, suffix: Chroot):
     :param layout: partition layout from get_partition_layout()
     :param suffix: of the chroot, which holds the image file to be flashed
     """
-    if not pmb.parse.deviceinfo()["cgpt_kpart"] or not args.install_cgpt:
+    if not pmb.parse.deviceinfo().cgpt_kpart or not args.install_cgpt:
         return
 
     device_rootfs = mount_device_rootfs(suffix)
@@ -667,7 +668,7 @@ def sanity_check_disk_size(args: PmbArgs):
 
 
 def get_ondev_pkgver(args: PmbArgs):
-    arch = pmb.parse.deviceinfo()["arch"]
+    arch = pmb.parse.deviceinfo().arch
     package = pmb.helpers.package.get(args, "postmarketos-ondev", arch)
     return package["version"].split("-r")[0]
 
@@ -762,7 +763,7 @@ def create_fstab(args: PmbArgs, layout, chroot: Chroot):
         else f"UUID={get_uuid(args, root_dev)}"
 
     boot_options = "nodev,nosuid,noexec"
-    boot_filesystem = pmb.parse.deviceinfo()["boot_filesystem"] or "ext2"
+    boot_filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
     if boot_filesystem in ("fat16", "fat32"):
         boot_filesystem = "vfat"
         boot_options += ",umask=0077,nosymfollow,codepage=437,iocharset=ascii"
@@ -812,15 +813,15 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     device = chroot.name()
     # Partition and fill image file/disk block device
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
-    pmb.chroot.shutdown(args, True)
+    pmb.chroot.shutdown(True)
     (size_boot, size_root) = get_subpartitions_size(chroot)
-    layout = get_partition_layout(size_reserve, pmb.parse.deviceinfo()["cgpt_kpart"] \
+    layout = get_partition_layout(size_reserve, pmb.parse.deviceinfo().cgpt_kpart \
              and args.install_cgpt)
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root,
                                        size_reserve, split, disk)
         if not split:
-            if pmb.parse.deviceinfo()["cgpt_kpart"] and args.install_cgpt:
+            if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
                 pmb.install.partition_cgpt(
                     args, layout, size_boot, size_reserve)
             else:
@@ -862,12 +863,12 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     if disk:
         logging.info(f"Unmounting disk {disk} (this may take a while "
                      "to sync, please wait)")
-    pmb.chroot.shutdown(args, True)
+    pmb.chroot.shutdown(True)
 
     # Convert rootfs to sparse using img2simg
     sparse = args.sparse
     if sparse is None:
-        sparse = pmb.parse.deviceinfo()["flash_sparse"] == "true"
+        sparse = pmb.parse.deviceinfo().flash_sparse == "true"
 
     if sparse and not split and not disk:
         workdir = Path("/home/pmos/rootfs")
@@ -881,7 +882,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
                         working_dir=workdir)
 
         # patch sparse image for Samsung devices if specified
-        samsungify_strategy = pmb.parse.deviceinfo()["flash_sparse_samsung_format"]
+        samsungify_strategy = pmb.parse.deviceinfo().flash_sparse_samsung_format
         if samsungify_strategy:
             logging.info("(native) convert sparse image into Samsung's sparse image format")
             pmb.chroot.apk.install(["sm-sparse-image-tool"], Chroot.native())
@@ -894,14 +895,14 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
                             working_dir=workdir)
 
 
-def print_flash_info(device: str, deviceinfo: Dict[str, str], split: bool, have_disk: bool):
+def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk: bool):
     """ Print flashing information, based on the deviceinfo data and the
         pmbootstrap arguments. """
     logging.info("")  # make the note stand out
     logging.info("*** FLASHING INFORMATION ***")
 
     # System flash information
-    method = deviceinfo["flash_method"]
+    method = deviceinfo.flash_method
     flasher = pmb.config.flashers.get(method, {})
     flasher_actions = flasher.get("actions", {})
     if not isinstance(flasher_actions, dict):
@@ -934,16 +935,16 @@ def print_flash_info(device: str, deviceinfo: Dict[str, str], split: bool, have_
     # if current flasher supports vbmeta and partition is explicitly specified
     # in deviceinfo
     if "flash_vbmeta" in flasher_actions and \
-            (deviceinfo["flash_fastboot_partition_vbmeta"] or
-             deviceinfo["flash_heimdall_partition_vbmeta"]):
+            (deviceinfo.flash_fastboot_partition_vbmeta or
+             deviceinfo.flash_heimdall_partition_vbmeta):
         logging.info("* pmbootstrap flasher flash_vbmeta")
         logging.info("  Flashes vbmeta image with verification disabled flag.")
 
     # if current flasher supports dtbo and partition is explicitly specified
     # in deviceinfo
     if "flash_dtbo" in flasher_actions and \
-            (deviceinfo["flash_fastboot_partition_dtbo"] or
-             deviceinfo["flash_heimdall_partition_dtbo"]):
+            (deviceinfo.flash_fastboot_partition_dtbo or
+             deviceinfo.flash_heimdall_partition_dtbo):
         logging.info("* pmbootstrap flasher flash_dtbo")
         logging.info("  Flashes dtbo image.")
 
@@ -1226,7 +1227,7 @@ def create_device_rootfs(args: PmbArgs, step, steps):
         else:
             install_packages += ["postmarketos-base-nofde"]
 
-    pmb.helpers.repo.update(pmb.parse.deviceinfo()["arch"])
+    pmb.helpers.repo.update(pmb.parse.deviceinfo().arch)
 
     # Install uninstallable "dependencies" by default
     install_packages += get_recommends(args, install_packages)
@@ -1235,7 +1236,7 @@ def create_device_rootfs(args: PmbArgs, step, steps):
     # dependency, in case the version increased
     if config.build_pkgs_on_install:
         for pkgname in install_packages:
-            pmb.build.package(context, pkgname, pmb.parse.deviceinfo()["arch"])
+            pmb.build.package(context, pkgname, pmb.parse.deviceinfo().arch)
 
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
@@ -1296,7 +1297,7 @@ def install(args: PmbArgs):
         steps = 4
 
     if args.zap:
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
 
     # Install required programs in native chroot
     step = 1
@@ -1313,7 +1314,7 @@ def install(args: PmbArgs):
     if args.no_image:
         return
     elif args.android_recovery_zip:
-        return install_recovery_zip(args, device, deviceinfo["arch"], steps)
+        return install_recovery_zip(args, device, deviceinfo.arch, steps)
 
     if args.on_device_installer:
         # Runs install_system_image twice
@@ -1324,7 +1325,7 @@ def install(args: PmbArgs):
 
     print_flash_info(device, deviceinfo, args.split, True if args.disk and args.disk.is_absolute() else False)
     print_sshd_info(args)
-    print_firewall_info(args.no_firewall, deviceinfo["arch"])
+    print_firewall_info(args.no_firewall, deviceinfo.arch)
 
     # Leave space before 'chroot still active' note
     logging.info("")

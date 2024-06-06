@@ -1,31 +1,28 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Dict
+from pmb.parse.deviceinfo import Deviceinfo
 from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.chroot.initfs
 import pmb.helpers.args
 
 
-def check_partition_blacklist(args: PmbArgs, deviceinfo: Dict[str, str], key, value):
+def check_partition_blacklist(deviceinfo: Deviceinfo, key, value):
     if not key.startswith("$PARTITION_"):
         return
 
-    name = deviceinfo["name"]
-    if value in deviceinfo["partition_blacklist"].split(","):
+    name = deviceinfo.name
+    if value in (deviceinfo.partition_blacklist or "").split(","):
         raise RuntimeError("'" + value + "'" + " partition is blacklisted " +
                            "from being flashed! See the " + name + " device " +
                            "wiki page for more information.")
 
 
-def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
-    pmb.flasher.init(device)
-
-    # FIXME: handle argparsing and pass in only the args we need.
-    args = pmb.helpers.args.please_i_really_need_args()
+def run(deviceinfo: Deviceinfo, method: str, action: str, flavor=None):
+    pmb.flasher.init(deviceinfo.codename, method)
 
     # Verify action
-    method = args.flash_method or deviceinfo["flash_method"]
     cfg = pmb.config.flashers[method]
     if not isinstance(cfg["actions"], dict):
         raise TypeError(f"Flashers misconfigured! {method} key 'actions' should be a dictionary")
@@ -38,6 +35,8 @@ def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
                            "Deviceinfo_flash_methods>")
 
     # Variable setup
+    # FIXME: handle argparsing and pass in only the args we need.
+    args = pmb.helpers.args.please_i_really_need_args()
     fvars = pmb.flasher.variables(args, flavor, method)
 
     # vbmeta flasher requires vbmeta partition to be explicitly specified
@@ -79,7 +78,7 @@ def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
                                            " but the value for this variable"
                                            " is None! Is that missing in your"
                                            " deviceinfo?")
-                    check_partition_blacklist(args, deviceinfo, key, value)
+                    check_partition_blacklist(deviceinfo, key, value)
                     command[i] = command[i].replace(key, value)
 
         # Remove empty strings

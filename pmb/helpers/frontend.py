@@ -65,7 +65,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.ROOTFS, get_context().config.device)
     elif args.buildroot:
         if args.buildroot == "device":
-            return Chroot.buildroot(pmb.parse.deviceinfo()["arch"])
+            return Chroot.buildroot(pmb.parse.deviceinfo().arch)
         else:
             return Chroot.buildroot(args.buildroot)
     elif args.suffix:
@@ -118,14 +118,14 @@ def build(args: PmbArgs):
 
     # Ensure repo_bootstrap is done for all arches we intend to build for
     for package in args.packages:
-        arch_package = args.arch or pmb.build.autodetect.arch(args, package)
+        arch_package = args.arch or pmb.build.autodetect.arch(package)
         pmb.helpers.repo_bootstrap.require_bootstrap(arch_package,
             f"build {package} for {arch_package}")
 
     context = get_context()
     # Build all packages
     for package in args.packages:
-        arch_package = args.arch or pmb.build.autodetect.arch(args, package)
+        arch_package = args.arch or pmb.build.autodetect.arch(package)
         if not pmb.build.package(context, package, arch_package, force,
                                  args.strict, src=src):
             logging.info("NOTE: Package '" + package + "' is up to date. Use"
@@ -215,7 +215,9 @@ def config(args: PmbArgs):
         logging.info("NOTE: Valid config keys: " + ", ".join(keys))
         raise RuntimeError("Invalid config key: " + args.name)
 
-    config = pmb.config.load(args)
+    # Reload the config because get_context().config has been overwritten
+    # by any rogue cmdline arguments.
+    config = pmb.config.load(args.config)
     if args.reset:
         if args.name is None:
             raise RuntimeError("config --reset requires a name to be given.")
@@ -242,7 +244,7 @@ def config(args: PmbArgs):
 
 
 def repo_bootstrap(args: PmbArgs):
-    pmb.helpers.repo_bootstrap.main(args)
+    pmb.helpers.repo_bootstrap.main(args.arch, args.repository)
 
 
 def repo_missing(args: PmbArgs):
@@ -272,8 +274,8 @@ def install(args: PmbArgs):
         raise ValueError("Installation using rsync"
                         " is not currently supported on btrfs filesystem.")
 
-    pmb.helpers.repo_bootstrap.require_bootstrap(deviceinfo["arch"],
-        f"do 'pmbootstrap install' for {deviceinfo['arch']}"
+    pmb.helpers.repo_bootstrap.require_bootstrap(deviceinfo.arch,
+        f"do 'pmbootstrap install' for {deviceinfo.arch}"
         " (deviceinfo_arch)")
 
     # On-device installer checks
@@ -297,7 +299,7 @@ def install(args: PmbArgs):
             raise ValueError("--on-device-installer cannot be combined with"
                              " --filesystem")
 
-        if deviceinfo["cgpt_kpart"]:
+        if deviceinfo.cgpt_kpart:
             raise ValueError("--on-device-installer cannot be used with"
                              " ChromeOS devices")
     else:
@@ -324,7 +326,7 @@ def install(args: PmbArgs):
 
     if not args.disk and args.split is None:
         # Default to split if the flash method requires it
-        flasher = pmb.config.flashers.get(deviceinfo["flash_method"], {})
+        flasher = pmb.config.flashers.get(deviceinfo.flash_method, {})
         if flasher.get("split", False):
             args.split = True
 
@@ -567,7 +569,7 @@ def work_migrate(args: PmbArgs):
 
 
 def zap(args: PmbArgs):
-    pmb.chroot.zap(args, dry=args.dry, http=args.http,
+    pmb.chroot.zap(dry=args.dry, http=args.http,
                    distfiles=args.distfiles, pkgs_local=args.pkgs_local,
                    pkgs_local_mismatch=args.pkgs_local_mismatch,
                    pkgs_online_mismatch=args.pkgs_online_mismatch,

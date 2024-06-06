@@ -9,19 +9,18 @@ import pmb.build
 import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
-from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
 
 
-def symlinks(args: PmbArgs, flavor, folder: Path):
+def symlinks(flavor, folder: Path):
     """
     Create convenience symlinks to the rootfs and boot files.
     """
     
     context = get_context()
-    arch = pmb.parse.deviceinfo(context.device)["arch"]
+    arch = pmb.parse.deviceinfo(context.device).arch
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix = f"-{flavor}"

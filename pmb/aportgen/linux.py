@@ -1,16 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core import get_context
-from pmb.types import PmbArgs
+from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
 import pmb.aportgen.core
 import pmb.parse.apkindex
 import pmb.parse.arch
 
 
-def generate_apkbuild(pkgname, deviceinfo, patches):
+def generate_apkbuild(pkgname, deviceinfo: Deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
-    carch = pmb.parse.arch.alpine_to_kernel(deviceinfo["arch"])
+    carch = pmb.parse.arch.alpine_to_kernel(deviceinfo.arch)
 
     makedepends = ["bash", "bc", "bison", "devicepkg-dev", "findutils", "flex",
                    "openssl-dev", "perl"]
@@ -24,13 +24,13 @@ def generate_apkbuild(pkgname, deviceinfo, patches):
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
                 "$_flavor" "$_outdir\""""
 
-    if deviceinfo.get("header_version") == "2":
+    if deviceinfo.header_version == "2":
         package += """
 
             make dtbs_install O="$_outdir" ARCH="$_carch" \\
                 INSTALL_DTBS_PATH="$pkgdir\"/boot/dtbs"""
 
-    if deviceinfo["bootimg_qcdt"] == "true":
+    if deviceinfo.bootimg_qcdt == "true":
         build += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)"""
         vendors = ["spreadtrum", "exynos", "other"]
@@ -68,8 +68,8 @@ def generate_apkbuild(pkgname, deviceinfo, patches):
         pkgname={pkgname}
         pkgver=3.x.x
         pkgrel=0
-        pkgdesc="{deviceinfo["name"]} kernel fork"
-        arch="{deviceinfo["arch"]}"
+        pkgdesc="{deviceinfo.name} kernel fork"
+        arch="{deviceinfo.arch}"
         _carch="{carch}"
         _flavor="{device}"
         url="https://kernel.org"
