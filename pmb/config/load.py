@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from pmb.helpers import logging
 import configparser
 import os
@@ -11,7 +11,7 @@ from pmb.types import Config
 from pmb.types import PmbArgs
 
 
-def sanity_check(args: PmbArgs, cfg: Config, key, allowed, print_path):
+def sanity_check(cfg: Config, key, allowed, path: Optional[Path] = None):
     value = getattr(cfg, key)
 
     if value in allowed:
@@ -20,23 +20,23 @@ def sanity_check(args: PmbArgs, cfg: Config, key, allowed, print_path):
     logging.error(f"pmbootstrap.cfg: invalid value for {key}: '{value}'")
     logging.error(f"Allowed: {', '.join(allowed)}")
 
-    if print_path:
-        logging.error(f"Fix it here and try again: {args.config}")
+    if path:
+        logging.error(f"Fix it here and try again: {path}")
 
     sys.exit(1)
 
 
-def sanity_checks(args: PmbArgs, cfg: Config, print_path=True):
+def sanity_checks(cfg: Config, path: Optional[Path] = None):
     for key, allowed in pmb.config.allowed_values.items():
-        sanity_check(args, cfg, key, allowed, print_path)
+        sanity_check(cfg, key, allowed, path)
 
 
-def load(args: PmbArgs) -> Config:
+def load(path: Path) -> Config:
     config = Config()
 
     cfg = configparser.ConfigParser()
-    if os.path.isfile(args.config):
-        cfg.read(args.config)
+    if os.path.isfile(path):
+        cfg.read(path)
 
     if "pmbootstrap" not in cfg:
         cfg["pmbootstrap"] = {}
@@ -57,7 +57,7 @@ def load(args: PmbArgs) -> Config:
         elif key in cfg["pmbootstrap"]:
             setattr(config, key, cfg["pmbootstrap"][key])
 
-    sanity_checks(args, config)
+    sanity_checks(config, path)
 
     return config
 

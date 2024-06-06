@@ -52,47 +52,29 @@ __args: PmbArgs = PmbArgs()
 """
 
 
-def check_pmaports_path(args: PmbArgs):
-    """Make sure that args.aports exists when it was overridden by --aports.
-
-    Without this check, 'pmbootstrap init' would start cloning the
-    pmaports into the default folder when args.aports does not exist.
-    """
-    if args.from_argparse.aports and not os.path.exists(args.aports):
-        raise ValueError("pmaports path (specified with --aports) does"
-                        f" not exist: {args.aports}")
-
-
-# def replace_placeholders(args: PmbArgs):
-#     """Replace $WORK and ~ (for path variables) in variables from any config.
-
-#     (user's config file, default config settings or config parameters specified on commandline)
-#     """
-#     # Replace $WORK
-#     for key, value in pmb.config.defaults.items():
-#         if key not in args:
-#             continue
-#         old = getattr(args, key)
-#         if isinstance(old, str):
-#             setattr(args, key, old.replace("$WORK", str(get_context().config.work)))
-
-#     # Replace ~ (path variables only)
-#     for key in ["aports", "config", "work"]:
-#         if key in args:
-#             setattr(args, key, Path(getattr(args, key)).expanduser())
-
-
 def init(args: PmbArgs) -> PmbArgs:
     global __args
     # Basic initialization
-    config = pmb.config.load(args)
+    # print(json.dumps(args.__dict__))
+    # sys.exit(0)
+    config = pmb.config.load(args.config)
 
-    for key, value in vars(args).items():
+    if args.aports and not args.aports.exists():
+        raise ValueError("pmaports path (specified with --aports) does"
+                        f" not exist: {args.aports}")
+
+    # Override config at runtime with command line arguments
+    for key, _ in vars(config).items():
         if key.startswith("_"):
             continue
-        if getattr(args, key, None) and hasattr(config, key):
+        value = getattr(args, key, None)
+        if value:
             print(f"Overriding config.{key} with {value}")
             setattr(config, key, value)
+
+        # Deny accessing the attribute via args
+        if hasattr(args, key):
+            delattr(args, key)
 
     # Configure runtime context
     context = Context(config)
@@ -104,13 +86,6 @@ def init(args: PmbArgs) -> PmbArgs:
     context.cross = args.cross
     context.assume_yes = getattr(args, "assume_yes", False)
     context.force = getattr(args, "force", False)
-    if args.mirrors_postmarketos:
-        context.config.mirrors_postmarketos = args.mirrors_postmarketos
-    if args.mirror_alpine:
-        context.config.mirror_alpine = args.mirror_alpine
-    if args.aports:
-        print(f"Using pmaports from: {args.aports}")
-        context.config.aports = args.aports
 
     # Initialize context
     pmb.core.set_context(context)
@@ -119,7 +94,6 @@ def init(args: PmbArgs) -> PmbArgs:
     pmb.helpers.logging.init(args)
 
     # Initialization code which may raise errors
-    check_pmaports_path(args)
     if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config()
@@ -133,15 +107,10 @@ def init(args: PmbArgs) -> PmbArgs:
     delattr(args, "log")
     delattr(args, "quiet")
     delattr(args, "offline")
-    delattr(args, "aports")
-    delattr(args, "mirrors_postmarketos")
-    delattr(args, "mirror_alpine")
     if hasattr(args, "force"):
         delattr(args, "force")
     if hasattr(args, "device"):
         delattr(args, "device")
-    # args.work is deprecated!
-    delattr(args, "work")
     
     # Copy all properties from args to out that don't start with underscores
     for key, value in vars(args).items():
@@ -155,24 +124,26 @@ def init(args: PmbArgs) -> PmbArgs:
     return __args
 
 
-def update_work(args: PmbArgs, work):
-    """Update the work path in args.work and wherever $WORK was used."""
-    # Start with the unmodified args from argparse
-    args_new = copy.deepcopy(args.from_argparse)
+# def update_work(args: PmbArgs, work):
+#     """Update the work path in args.work and wherever $WORK was used."""
+#     # Start with the unmodified args from argparse
+#     args_new = copy.deepcopy(args.from_argparse)
 
-    # Keep from the modified args:
-    # * the unmodified args from argparse (to check if --aports was specified)
-    args_new.from_argparse = args.from_argparse
+#     # Keep from the modified args:
+#     # * the unmodified args from argparse (to check if --aports was specified)
+#     args_new.from_argparse = args.from_argparse
 
-    # Generate modified args again, replacing $WORK with the new work folder
-    # When args.log is different, this also opens the log in the new location
-    args_new.work = work
-    args_new = pmb.helpers.args.init(args_new)
+#     # Generate modified args again, replacing $WORK with the new work folder
+#     # When args.log is different, this also opens the log in the new location
+#     args_new.work = work
+#     args_new = pmb.helpers.args.init(args_new)
 
-    # Overwrite old attributes of args with the new attributes
-    for key in vars(args_new):
-        setattr(args, key, getattr(args_new, key))
+#     # Overwrite old attributes of args with the new attributes
+#     for key in vars(args_new):
+#         setattr(args, key, getattr(args_new, key))
 
 def please_i_really_need_args() -> PmbArgs:
+    import traceback
+    traceback.print_stack()
     print("FIXME: retrieved args where it shouldn't be needed!")
     return __args

@@ -143,10 +143,11 @@ def arguments_install(subparser):
     group.add_argument("--no-fde", help=argparse.SUPPRESS,
                        action="store_true", dest="no_fde")
     group.add_argument("--cipher", help="cryptsetup cipher used to encrypt the"
-                       " the rootfs (e.g. 'aes-xts-plain64')")
+                       " the rootfs (e.g. 'aes-xts-plain64')",
+                       default=pmb.config.defaults["cipher"])
     group.add_argument("--iter-time", help="cryptsetup iteration time (in"
                        " milliseconds) to use when encrypting the system"
-                       " partition")
+                       " partition", default=pmb.config.defaults["iter_time"])
 
     # Packages
     group = ret.add_argument_group(
@@ -663,7 +664,8 @@ def get_parser():
                              "partition size on target machine in MB (default"
                              " 128)")
     parser.add_argument("-p", "--aports",
-                        help="postmarketos aports (pmaports) path")
+                        help="postmarketos aports (pmaports) path",
+                        type=lambda x: Path(x))
     parser.add_argument("-t", "--timeout", help="seconds after which processes"
                         " get killed that stopped writing any output (default:"
                         " 900)", default=900, type=float)
@@ -942,8 +944,8 @@ def arguments():
     # Parse and extend arguments (also backup unmodified result from argparse)
     args: PmbArgs = get_parser().parse_args() # type: ignore
 
-    setattr(args, "from_argparse", copy.deepcopy(args))
-    setattr(args.from_argparse, "from_argparse", args.from_argparse)
+    # setattr(args, "from_argparse", copy.deepcopy(args))
+    # setattr(args.from_argparse, "from_argparse", args.from_argparse)
 
     if getattr(args, "fork_alpine_retain_branch", False):
         # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so

@@ -647,11 +647,11 @@ def frontend(args: PmbArgs):
     require_programs()
 
     # Work folder (needs to be first, so we can create chroots early)
-    config = pmb.config.load(args)
+    config = pmb.config.load(args.config)
     config.work, work_exists = ask_for_work_path(args)
 
     # Update args and save config (so chroots and 'pmbootstrap log' work)
-    pmb.helpers.args.update_work(args, config.work)
+    #pmb.helpers.args.update_work(args, config.work)
     pmb.config.save(args.config, config)
 
     # Migrate work dir if necessary
