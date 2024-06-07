@@ -27,7 +27,6 @@ import pmb.helpers.logging
 import pmb.helpers.pkgrel_bump
 import pmb.helpers.pmaports
 import pmb.helpers.repo
-import pmb.helpers.repo_bootstrap
 import pmb.helpers.repo_missing
 import pmb.helpers.run
 import pmb.helpers.status
@@ -119,7 +118,7 @@ def build(args: PmbArgs):
     # Ensure repo_bootstrap is done for all arches we intend to build for
     for package in args.packages:
         arch_package = args.arch or pmb.build.autodetect.arch(package)
-        pmb.helpers.repo_bootstrap.require_bootstrap(arch_package,
+        pmb.helpers.pmaports.require_bootstrap(arch_package,
             f"build {package} for {arch_package}")
 
     context = get_context()
@@ -243,10 +242,6 @@ def config(args: PmbArgs):
     pmb.helpers.logging.disable()
 
 
-def repo_bootstrap(args: PmbArgs):
-    pmb.helpers.repo_bootstrap.main(args.arch, args.repository)
-
-
 def repo_missing(args: PmbArgs):
     missing = pmb.helpers.repo_missing.generate(args.arch, args.overview,
                                                 args.package, args.built)
@@ -274,7 +269,7 @@ def install(args: PmbArgs):
         raise ValueError("Installation using rsync"
                         " is not currently supported on btrfs filesystem.")
 
-    pmb.helpers.repo_bootstrap.require_bootstrap(deviceinfo.arch,
+    pmb.helpers.pmaports.require_bootstrap(deviceinfo.arch,
         f"do 'pmbootstrap install' for {deviceinfo.arch}"
         " (deviceinfo_arch)")
 

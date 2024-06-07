@@ -11,6 +11,7 @@ from pmb.helpers import frontend
 from .base import Command
 from .log import Log
 from .index import Index
+from .repo_bootstrap import RepoBootstrap
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -19,7 +20,6 @@ unmigrated_commands = [
     "init",
     "shutdown",
     "work_migrate",
-    "repo_bootstrap",
     "repo_missing",
     "kconfig",
     "export",
@@ -64,6 +64,8 @@ def run_command(args: PmbArgs):
     elif args.action == "index":
         # FIXME: should index support --arch?
         command = Index()
+    elif args.action == "repo_bootstrap":
+        command = RepoBootstrap(args.arch, args.repository)
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 
