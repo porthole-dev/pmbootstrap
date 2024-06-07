@@ -35,10 +35,6 @@ def zap(args: PmbArgs, confirm=True, dry=False, pkgs_local=False, http=False,
     NOTE: This function gets called in pmb/config/init.py, with only get_context().config.work
     and args.device set!
     """
-    # Get current work folder size
-    if not dry:
-        pmb.chroot.shutdown(args)
-
     # Delete packages with a different version compared to aports,
     # then re-index
     if pkgs_local_mismatch:
