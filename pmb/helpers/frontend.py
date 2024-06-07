@@ -96,7 +96,7 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: List[Tuple[str, str]]
 def aportgen(args: PmbArgs):
     for package in args.packages:
         logging.info("Generate aport: " + package)
-        pmb.aportgen.generate(args, package)
+        pmb.aportgen.generate(package, args.fork_alpine)
 
 
 def build(args: PmbArgs):

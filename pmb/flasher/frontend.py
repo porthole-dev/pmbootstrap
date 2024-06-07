@@ -137,7 +137,7 @@ def frontend(args: PmbArgs):
     action = args.action_flasher
     device = context.device
     deviceinfo = pmb.parse.deviceinfo()
-    method = args.flash_method or deviceinfo.flash_method or "none"
+    method = args.flash_method or deviceinfo.flash_method
 
     if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs",
                                        "flash_lk2nd"]:

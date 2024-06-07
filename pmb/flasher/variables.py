@@ -6,7 +6,7 @@ from pmb.core.context import get_context
 from pmb.types import PmbArgs
 
 
-def variables(args: PmbArgs, flavor, method):
+def variables(args: PmbArgs, flavor: str, method: str):
     device = get_context().config.device
     deviceinfo = pmb.parse.deviceinfo()
     _cmdline = deviceinfo.kernel_cmdline or ""

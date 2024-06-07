@@ -438,8 +438,8 @@ def ask_for_device(context: Context):
 
             # New port creation confirmed
             logging.info("Generating new aports for: {}...".format(device))
-            pmb.aportgen.generate(f"device-{device}")
-            pmb.aportgen.generate(f"linux-{device}")
+            pmb.aportgen.generate(f"device-{device}", False)
+            pmb.aportgen.generate(f"linux-{device}", False)
         elif any("archived" == x for x in device_path.parts):
             apkbuild = device_path.parent / "APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild)
