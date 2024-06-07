@@ -21,7 +21,7 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str):
     flavor = pmb.helpers.frontend._parse_flavor(device)
     deviceinfo = pmb.parse.deviceinfo()
     method = deviceinfo["flash_method"]
-    vars = pmb.flasher.variables(args, flavor, method)
+    fvars = pmb.flasher.variables(args, flavor, method)
 
     # Install recovery installer package in buildroot
     pmb.chroot.apk.install(["postmarketos-android-recovery-installer"],
@@ -29,18 +29,18 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str):
 
     logging.info(f"({chroot}) create recovery zip")
 
-    for key in vars:
-        pmb.flasher.check_partition_blacklist(args, deviceinfo, key, vars[key])
+    for key in fvars:
+        pmb.flasher.check_partition_blacklist(args, deviceinfo, key, fvars[key])
 
     # Create config file for the recovery installer
     options = {
         "DEVICE": device,
         "FLASH_KERNEL": args.recovery_flash_kernel,
         "ISOREC": method == "heimdall-isorec",
-        "KERNEL_PARTLABEL": vars["$PARTITION_KERNEL"],
-        "INITFS_PARTLABEL": vars["$PARTITION_INITFS"],
+        "KERNEL_PARTLABEL": fvars["$PARTITION_KERNEL"],
+        "INITFS_PARTLABEL": fvars["$PARTITION_INITFS"],
         # Name is still "SYSTEM", not "ROOTFS" in the recovery installer
-        "SYSTEM_PARTLABEL": vars["$PARTITION_ROOTFS"],
+        "SYSTEM_PARTLABEL": fvars["$PARTITION_ROOTFS"],
         "INSTALL_PARTITION": args.recovery_install_partition,
         "CIPHER": args.cipher,
         "FDE": args.full_disk_encryption,

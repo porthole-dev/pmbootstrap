@@ -38,10 +38,10 @@ def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
                            "Deviceinfo_flash_methods>")
 
     # Variable setup
-    vars = pmb.flasher.variables(args, flavor, method)
+    fvars = pmb.flasher.variables(args, flavor, method)
 
     # vbmeta flasher requires vbmeta partition to be explicitly specified
-    if action == "flash_vbmeta" and not vars["$PARTITION_VBMETA"]:
+    if action == "flash_vbmeta" and not fvars["$PARTITION_VBMETA"]:
         raise RuntimeError("Your device does not have 'vbmeta' partition"
                            " specified; set"
                            " 'deviceinfo_flash_fastboot_partition_vbmeta'"
@@ -51,7 +51,7 @@ def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
                            "Deviceinfo_reference>")
 
     # dtbo flasher requires dtbo partition to be explicitly specified
-    if action == "flash_dtbo" and not vars["$PARTITION_DTBO"]:
+    if action == "flash_dtbo" and not fvars["$PARTITION_DTBO"]:
         raise RuntimeError("Your device does not have 'dtbo' partition"
                            " specified; set"
                            " 'deviceinfo_flash_fastboot_partition_dtbo'"
@@ -70,7 +70,7 @@ def run(device: str, deviceinfo: Dict[str, str], action, flavor=None):
     # Run the commands of each action
     for command in cfg["actions"][action]:
         # Variable replacement
-        for key, value in vars.items():
+        for key, value in fvars.items():
             for i in range(len(command)):
                 if key in command[i]:
                     if value is None:

@@ -78,7 +78,7 @@ def variables(args: PmbArgs, flavor, method):
     if getattr(args,'resume', False):
         _resume = "--resume"
 
-    vars = {
+    fvars = {
         "$BOOT": "/mnt/rootfs_" + device + "/boot",
         "$DTB": _dtb,
         "$IMAGE_SPLIT_BOOT": "/home/pmos/rootfs/" + device + "-boot.img",
@@ -104,8 +104,8 @@ def variables(args: PmbArgs, flavor, method):
     # Backwards compatibility with old mkinitfs (pma#660)
     pmaports_cfg = pmb.config.pmaports.read_config()
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        vars["$FLAVOR"] = ""
+        fvars["$FLAVOR"] = ""
     else:
-        vars["$FLAVOR"] = f"-{flavor}" if flavor is not None else "-"
+        fvars["$FLAVOR"] = f"-{flavor}" if flavor is not None else "-"
 
-    return vars
+    return fvars
