@@ -251,10 +251,6 @@ def repo_missing(args: PmbArgs):
     print(json.dumps(missing, indent=4))
 
 
-def index(args: PmbArgs):
-    pmb.build.index_repo(args)
-
-
 def initfs(args: PmbArgs):
     pmb.chroot.initfs.frontend(args)
 

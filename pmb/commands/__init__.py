@@ -5,12 +5,12 @@ from __future__ import annotations
 import enum
 from typing import Generator, Optional
 from pathlib import Path, PosixPath, PurePosixPath
-import pmb.config
 from pmb.types import PmbArgs
 from pmb.helpers import frontend
 
 from .base import Command
 from .log import Log
+from .index import Index
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -18,7 +18,6 @@ from .log import Log
 unmigrated_commands = [
     "init",
     "shutdown",
-    "index",
     "work_migrate",
     "repo_bootstrap",
     "repo_missing",
@@ -59,9 +58,12 @@ def run_command(args: PmbArgs):
         return
 
     command: Command
-    # FIXME: would be nice to use match case...
+    # Would be nice to use match case but we support Python 3.8
     if args.action == "log":
         command = Log(args.clear_log, int(args.lines))
+    elif args.action == "index":
+        # FIXME: should index support --arch?
+        command = Index()
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 

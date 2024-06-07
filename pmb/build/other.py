@@ -93,7 +93,7 @@ def is_necessary(arch, apkbuild, indexes=None):
     return False
 
 
-def index_repo(args: PmbArgs, arch=None):
+def index_repo(arch=None):
     """Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
     cache for that file for the current pmbootstrap session (to prevent
     rebuilding packages twice, in case the rebuild takes less than a second).

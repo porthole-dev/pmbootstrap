@@ -217,4 +217,4 @@ def package_kernel(args: PmbArgs):
     except Exception as e:
         pmb.helpers.mount.umount_all(Chroot.native() / "mnt/linux")
         raise e
-    pmb.build.other.index_repo(args, arch)
+    pmb.build.other.index_repo(arch)
