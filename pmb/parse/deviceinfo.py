@@ -115,7 +115,7 @@ class Deviceinfo:
     append_dtb: Optional[str] = ""
 
     # bootloader
-    flash_method: Optional[str] = ""
+    flash_method: str = ""
     boot_filesystem: Optional[str] = ""
 
     # flash
@@ -265,3 +265,6 @@ class Deviceinfo:
             # if key not in Deviceinfo.__annotations__.keys():
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
             setattr(self, key, value)
+
+        if not self.flash_method:
+            self.flash_method = "none"
