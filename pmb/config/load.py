@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from pmb.helpers import logging
 import configparser
 import os
@@ -52,6 +52,10 @@ def load(path: Path) -> Config:
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
+        # Yeah this really sucks and there isn't a better way to do it without external
+        # libraries
+        elif isinstance(getattr(Config, key), List) and isinstance(getattr(Config, key)[0], PosixPath):
+            setattr(config, key, [Path(p.strip()) for p in cfg["pmbootstrap"][key].split(",")])
         elif isinstance(getattr(Config, key), bool):
             setattr(config, key, cfg["pmbootstrap"][key].lower() == "true")
         elif key in cfg["pmbootstrap"]:
@@ -70,20 +74,21 @@ def save(output: Path, config: Config):
     cfg["pmbootstrap"] = {}
     cfg["providers"] = {}
 
-    for key in Config.__dict__.keys():
-        print(key)
+    for key in Config.__annotations__.keys():
         if key == "providers":
             cfg["providers"] = config.providers
         # Handle whacky type conversions
         elif key == "mirrors_postmarketos":
             cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(config.mirrors_postmarketos)
         # Convert strings to paths
-        elif type(getattr(Config, key)) == Path:
+        elif type(getattr(Config, key)) == PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))
+        elif isinstance(getattr(Config, key), List) and isinstance(getattr(Config, key)[0], PosixPath):
+            cfg["pmbootstrap"][key] = ",".join(os.fspath(p) for p in getattr(config, key))
         elif isinstance(getattr(Config, key), bool):
             cfg["pmbootstrap"][key] = str(getattr(config, key))
         else:
-            cfg["pmbootstrap"] = getattr(config, key)
+            cfg["pmbootstrap"][key] = getattr(config, key)
 
     with output.open("w") as handle:
         cfg.write(handle)

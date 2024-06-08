@@ -3,12 +3,13 @@
 from pmb.core import get_context
 from pmb.core.chroot import Chroot
 from pmb.core.context import Context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import glob
 import json
 import os
 import shutil
-from typing import Any, List
+from typing import Any, List, Optional
 
 import pmb.aportgen
 import pmb.config
@@ -25,6 +26,7 @@ import pmb.helpers.run
 import pmb.helpers.ui
 import pmb.chroot.zap
 import pmb.parse.deviceinfo
+from pmb.parse.deviceinfo import Deviceinfo
 import pmb.parse._apkbuild
 
 
@@ -102,14 +104,14 @@ def ask_for_work_path(args: PmbArgs):
                           " inside it! Please try again.")
 
 
-def ask_for_channel(args: PmbArgs):
+def ask_for_channel(config: Config):
     """Ask for the postmarketOS release channel.
     The channel dictates, which pmaports branch pmbootstrap will check out,
     and which repository URLs will be used when initializing chroots.
 
     :returns: channel name (e.g. "edge", "v21.03")
     """
-    channels_cfg = pmb.helpers.git.parse_channels_cfg(get_context().config.aports)
+    channels_cfg = pmb.helpers.git.parse_channels_cfg(pkgrepo_default_path())
     count = len(channels_cfg["channels"])
 
     # List channels
@@ -127,7 +129,7 @@ def ask_for_channel(args: PmbArgs):
     # would need to sync it with what is checked out in pmaports.git.
     default = pmb.config.pmaports.read_config()["channel"]
     choices = channels_cfg["channels"].keys()
-    if args.is_default_channel or default not in choices:
+    if config.is_default_channel or default not in choices:
         default = channels_cfg["meta"]["recommended"]
 
     # Ask until user gives valid channel
@@ -140,10 +142,10 @@ def ask_for_channel(args: PmbArgs):
                       " from the list above.")
 
 
-def ask_for_ui(info):
-    ui_list = pmb.helpers.ui.list_ui(info["arch"])
+def ask_for_ui(deviceinfo):
+    ui_list = pmb.helpers.ui.list_ui(deviceinfo.arch)
     hidden_ui_count = 0
-    device_is_accelerated = info.get("gpu_accelerated") == "true"
+    device_is_accelerated = deviceinfo.gpu_accelerated == "true"
     if not device_is_accelerated:
         for i in reversed(range(len(ui_list))):
             pkgname = f"postmarketos-ui-{ui_list[i][0]}"
@@ -217,10 +219,10 @@ def ask_for_systemd(config: Config, ui):
     return answer
 
 
-def ask_for_keymaps(args: PmbArgs, info):
-    if "keymaps" not in info or info["keymaps"].strip() == "":
+def ask_for_keymaps(args: PmbArgs, deviceinfo: Deviceinfo):
+    if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
         return ""
-    options = info["keymaps"].split(' ')
+    options = deviceinfo.keymaps.split(' ')
     logging.info(f"Available keymaps for device ({len(options)}): "
                  f"{', '.join(options)}")
     if args.keymap == "":
@@ -384,7 +386,7 @@ def ask_for_device(context: Context):
         * device_exists: bool indicating if device port exists in repo
         * kernel: type of kernel (downstream, etc)
     """
-    vendors = sorted(pmb.helpers.devices.list_vendors(context.config.aports))
+    vendors = sorted(pmb.helpers.devices.list_vendors())
     logging.info("Choose your target device vendor (either an "
                  "existing one, or a new one for porting).")
     logging.info(f"Available vendors ({len(vendors)}): {', '.join(vendors)}")
@@ -410,7 +412,7 @@ def ask_for_device(context: Context):
         else:
             # Archived devices can be selected, but are not displayed
             devices = sorted(pmb.helpers.devices.list_codenames(
-                context.config.aports, vendor, archived=False))
+                vendor, archived=False))
             # Remove "vendor-" prefixes from device list
             codenames = [x.split('-', 1)[1] for x in devices]
             logging.info(f"Available codenames ({len(codenames)}): " +
@@ -454,14 +456,15 @@ def ask_for_device(context: Context):
 
 def ask_for_additional_options(args: PmbArgs, cfg):
     context = pmb.core.get_context()
+    config = context.config
     # Allow to skip additional options
     logging.info("Additional options:"
-                 f" extra free space: {args.extra_space} MB,"
-                 f" boot partition size: {args.boot_size} MB,"
-                 f" parallel jobs: {args.jobs},"
-                 f" ccache per arch: {args.ccache_size},"
+                 f" extra free space: {config.extra_space} MB,"
+                 f" boot partition size: {config.boot_size} MB,"
+                 f" parallel jobs: {config.jobs},"
+                 f" ccache per arch: {config.ccache_size},"
                  f" sudo timer: {context.sudo_timer},"
-                 f" mirror: {','.join(context.config.mirrors_postmarketos)}")
+                 f" mirror: {','.join(config.mirrors_postmarketos)}")
 
     if not pmb.helpers.cli.confirm("Change them?",
                                    default=False):
@@ -582,10 +585,10 @@ def ask_for_mirror(args: PmbArgs):
     return mirrors_list
 
 
-def ask_for_hostname(args: PmbArgs, device):
+def ask_for_hostname(default: Optional[str], device):
     while True:
         ret = pmb.helpers.cli.ask("Device hostname (short form, e.g. 'foo')",
-                                  None, (args.hostname or device), True)
+                                  None, (default or device), True)
         if not pmb.helpers.other.validate_hostname(ret):
             continue
         # Don't store device name in user's config (gets replaced in install)
@@ -594,21 +597,21 @@ def ask_for_hostname(args: PmbArgs, device):
         return ret
 
 
-def ask_for_ssh_keys(args: PmbArgs):
+def ask_for_ssh_keys(default: bool) -> bool:
     if not len(glob.glob(os.path.expanduser("~/.ssh/id_*.pub"))):
         return False
     return pmb.helpers.cli.confirm("Would you like to copy your SSH public"
                                    " keys to the device?",
-                                   default=args.ssh_keys)
+                                   default=default)
 
 
-def ask_build_pkgs_on_install(args: PmbArgs):
+def ask_build_pkgs_on_install(default: bool) -> bool:
     logging.info("After pmaports are changed, the binary packages may be"
                  " outdated. If you want to install postmarketOS without"
                  " changes, reply 'n' for a faster installation.")
     return pmb.helpers.cli.confirm("Build outdated packages during"
                                    " 'pmbootstrap install'?",
-                                   default=args.build_pkgs_on_install)
+                                   default=default)
 
 
 def get_locales():
@@ -620,7 +623,7 @@ def get_locales():
     return ret
 
 
-def ask_for_locale(args: PmbArgs):
+def ask_for_locale(current_locale: str):
     locales = get_locales()
     logging.info("Choose your preferred locale, like e.g. en_US. Only UTF-8"
                  " is supported, it gets appended automatically. Use"
@@ -629,7 +632,7 @@ def ask_for_locale(args: PmbArgs):
     while True:
         ret = pmb.helpers.cli.ask("Locale",
                                   choices=None,
-                                  default=args.locale.replace(".UTF-8", ""),
+                                  default=current_locale.replace(".UTF-8", ""),
                                   lowercase_answer=False,
                                   complete=locales)
         ret = ret.replace(".UTF-8", "")
@@ -661,7 +664,7 @@ def frontend(args: PmbArgs):
     pmb.config.pmaports.init()
 
     # Choose release channel, possibly switch pmaports branch
-    channel = ask_for_channel(args)
+    channel = ask_for_channel(config)
     pmb.config.pmaports.switch_to_channel_branch(args, channel)
     # FIXME: ???
     config.is_default_channel = False
@@ -669,7 +672,7 @@ def frontend(args: PmbArgs):
     # Copy the git hooks if master was checked out. (Don't symlink them and
     # only do it on master, so the git hooks don't change unexpectedly when
     # having a random branch checked out.)
-    branch_current = pmb.helpers.git.rev_parse(get_context().config.aports,
+    branch_current = pmb.helpers.git.rev_parse(pkgrepo_default_path(),
                                                extra_args=["--abbrev-ref"])
     if branch_current == "master":
         logging.info("NOTE: pmaports is on master branch, copying git hooks.")
@@ -680,7 +683,7 @@ def frontend(args: PmbArgs):
     config.device = device
     config.kernel = kernel
 
-    info = pmb.parse.deviceinfo(args, device)
+    deviceinfo = pmb.parse.deviceinfo(device)
     apkbuild_path = pmb.helpers.devices.find_path(device, 'APKBUILD')
     if apkbuild_path:
         apkbuild = pmb.parse.apkbuild(apkbuild_path)
@@ -688,14 +691,14 @@ def frontend(args: PmbArgs):
 
     # Device keymap
     if device_exists:
-        config.keymap = ask_for_keymaps(args, info)
+        config.keymap = ask_for_keymaps(args, deviceinfo)
 
     config.user = ask_for_username(args, config.user)
     ask_for_provider_select_pkg("postmarketos-base", config.providers)
     ask_for_provider_select_pkg("postmarketos-base-ui", config.providers)
 
     # UI and various build options
-    ui = ask_for_ui(info)
+    ui = ask_for_ui(deviceinfo)
     config.ui = ui
     config.ui_extras = ask_for_ui_extras(config, ui)
 
@@ -719,19 +722,19 @@ def frontend(args: PmbArgs):
     config.timezone = ask_for_timezone()
 
     # Locale
-    config.locale = ask_for_locale(args)
+    config.locale = ask_for_locale(config.locale)
 
     # Hostname
-    config.hostname = ask_for_hostname(args, device)
+    config.hostname = ask_for_hostname(config.hostname, device)
 
     # SSH keys
-    config.ssh_keys = ask_for_ssh_keys(args)
+    config.ssh_keys = ask_for_ssh_keys(config.ssh_keys)
 
     # pmaports path (if users change it with: 'pmbootstrap --aports=... init')
     config.aports = get_context().config.aports
 
     # Build outdated packages in pmbootstrap install
-    config.build_pkgs_on_install = ask_build_pkgs_on_install(args)
+    config.build_pkgs_on_install = ask_build_pkgs_on_install(config.build_pkgs_on_install)
 
     # Save config
     pmb.config.save(args.config, config)
@@ -742,7 +745,7 @@ def frontend(args: PmbArgs):
             pmb.helpers.cli.confirm(
                 "Zap existing chroots to apply configuration?",
                 default=True)):
-        setattr(args, "deviceinfo", info)
+        setattr(args, "deviceinfo", deviceinfo)
 
         # Do not zap any existing packages or cache_http directories
         pmb.chroot.zap(confirm=False)

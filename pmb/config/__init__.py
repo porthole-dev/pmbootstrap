@@ -107,8 +107,8 @@ config_keys = [
 
 defaults = {
     "cipher": "aes-xts-plain64",
-    "config": (os.environ.get('XDG_CONFIG_HOME') or
-               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg",
+    "config": Path((os.environ.get('XDG_CONFIG_HOME') or
+               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"),
     "fork_alpine": False,
     # A higher value is typically desired, but this can lead to VERY long open
     # times on slower devices due to host systems being MUCH faster than the

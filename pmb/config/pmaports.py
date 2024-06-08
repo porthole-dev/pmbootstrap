@@ -3,6 +3,7 @@
 import configparser
 from pathlib import Path
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import os
 import sys
@@ -66,7 +67,7 @@ def read_config_repos():
         return pmb.helpers.other.cache[cache_key]
 
     cfg = configparser.ConfigParser()
-    cfg.read(f"{get_context().config.aports}/pmaports.cfg")
+    cfg.read(f"{pkgrepo_default_path()}/pmaports.cfg")
 
     ret = {}
     for section in cfg.keys():
@@ -87,7 +88,7 @@ def read_config():
     if pmb.helpers.other.cache[cache_key]:
         return pmb.helpers.other.cache[cache_key]
 
-    aports = get_context().config.aports
+    aports = pkgrepo_default_path()
     # Migration message
     if not os.path.exists(aports):
         logging.error(f"ERROR: pmaports dir not found: {aports}")
@@ -128,7 +129,7 @@ def read_config_channel():
                "mirrordir_alpine": ...}
 
     """
-    aports = get_context().config.aports
+    aports = pkgrepo_default_path()
     channel = read_config()["channel"]
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
 
@@ -154,7 +155,7 @@ def read_config_channel():
 
 
 def init():
-    if not os.path.exists(get_context().config.aports):
+    if not os.path.exists(pkgrepo_default_path()):
         clone()
     read_config()
 
@@ -171,7 +172,7 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
     if channel_current == channel_new:
         return False
 
-    aports = get_context().config.aports
+    aports = pkgrepo_default_path()
     # List current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
@@ -199,7 +200,7 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
 
 
 def install_githooks():
-    aports = get_context().config.aports
+    aports = pkgrepo_default_path()
     hooks_dir = aports / ".githooks"
     if not hooks_dir.exists():
         logging.info("No .githooks dir found")

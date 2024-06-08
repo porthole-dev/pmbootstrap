@@ -8,13 +8,13 @@ import pmb.config.pmaports
 def is_systemd_selected(config: Config):
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return False
-    if pmb.helpers.ui.check_option(config.ui, "pmb:systemd-never"):
+    if pmb.helpers.ui.check_option(config.ui, "pmb:systemd-never", skip_extra_repos=True):
         return False
     if config.systemd == "always":
         return True
     if config.systemd == "never":
         return False
-    return pmb.helpers.ui.check_option(config.ui, "pmb:systemd")
+    return pmb.helpers.ui.check_option(config.ui, "pmb:systemd", skip_extra_repos=True)
 
 
 def systemd_selected_str(config: Config):
