@@ -90,6 +90,9 @@ def shutdown(only_install_related=False):
         pmb.helpers.run.root(["rm", marker])
 
     if not only_install_related:
+        for path in Chroot.glob():
+            if path.exists():
+                pmb.helpers.mount.umount_all(path)
         # Umount all folders inside work dir
         # The folders are explicitly iterated over, so folders symlinked inside
         # work dir get umounted as well (used in test_pkgrel_bump.py, #1595)
