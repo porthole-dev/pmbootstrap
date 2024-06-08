@@ -1,7 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
 import tarfile
@@ -172,12 +174,13 @@ def parse(path: Path, multiple_providers=True):
 
     # Try to get a cached result first
     lastmod = path.lstat().st_mtime
-    cache_key = "multiple" if multiple_providers else "single"
-    if path in pmb.helpers.other.cache["apkindex"]:
-        cache = pmb.helpers.other.cache["apkindex"][path]
+    _cache_key = "multiple" if multiple_providers else "single"
+    key = cache_key(path)
+    if key in pmb.helpers.other.cache["apkindex"]:
+        cache = pmb.helpers.other.cache["apkindex"][key]
         if cache["lastmod"] == lastmod:
-            if cache_key in cache:
-                return cache[cache_key]
+            if _cache_key in cache:
+                return cache[_cache_key]
         else:
             clear_cache(path)
 
@@ -211,9 +214,10 @@ def parse(path: Path, multiple_providers=True):
                 parse_add_block(ret, block, alias, multiple_providers)
 
     # Update the cache
-    if path not in pmb.helpers.other.cache["apkindex"]:
-        pmb.helpers.other.cache["apkindex"][path] = {"lastmod": lastmod}
-    pmb.helpers.other.cache["apkindex"][path][cache_key] = ret
+    key = cache_key(path)
+    if key not in pmb.helpers.other.cache["apkindex"]:
+        pmb.helpers.other.cache["apkindex"][key] = {"lastmod": lastmod}
+    pmb.helpers.other.cache["apkindex"][key][_cache_key] = ret
     return ret
 
 
@@ -244,15 +248,20 @@ def parse_blocks(path: Path):
         ret.append(block)
 
 
+def cache_key(path: Path):
+    return str(path.relative_to(get_context().config.work))
+
+
 def clear_cache(path: Path):
     """
     Clear the APKINDEX parsing cache.
 
     :returns: True on successful deletion, False otherwise
     """
-    logging.verbose(f"Clear APKINDEX cache for: {path}")
-    if path in pmb.helpers.other.cache["apkindex"]:
-        del pmb.helpers.other.cache["apkindex"][path]
+    key = cache_key(path)
+    logging.verbose(f"Clear APKINDEX cache for: {key}")
+    if key in pmb.helpers.other.cache["apkindex"]:
+        del pmb.helpers.other.cache["apkindex"][key]
         return True
     else:
         logging.verbose("Nothing to do, path was not in cache:" +
@@ -260,7 +269,7 @@ def clear_cache(path: Path):
         return False
 
 
-def providers(package, arch=None, must_exist=True, indexes=None):
+def providers(package, arch: Optional[Arch]=None, must_exist=True, indexes=None):
     """
     Get all packages, which provide one package.
 
@@ -275,7 +284,7 @@ def providers(package, arch=None, must_exist=True, indexes=None):
         block is the return value from parse_next_block() above.
     """
     if not indexes:
-        arch = arch or pmb.config.arch_native
+        arch = arch or Arch.native()
         indexes = pmb.helpers.repo.apkindex_files(arch)
 
     package = pmb.helpers.package.remove_operators(package)
@@ -352,7 +361,7 @@ def provider_shortest(providers, pkgname):
     return providers[ret]
 
 
-def package(package, arch=None, must_exist=True, indexes=None):
+def package(package, arch: Optional[Arch]=None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
 
