@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 import pmb.chroot.apk_static
-from pmb.core.chroot import ChrootType
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
 from typing import List
@@ -11,14 +11,12 @@ from typing import List
 import pmb.build
 import pmb.chroot
 import pmb.config
-from pmb.types import PmbArgs
 import pmb.helpers.apk
 import pmb.helpers.other
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.apkindex
-import pmb.parse.arch
 import pmb.parse.depends
 import pmb.parse.version
 from pmb.core import Chroot, get_context
@@ -120,7 +118,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(packages, arch: str) -> List[Path]:
+def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -183,6 +181,9 @@ def install_run_apk(to_add, to_add_local, to_del, chroot: Chroot):
     # we expect apk.static to be installed in the native chroot (which
     # will be the systemd version if building for systemd) and run
     # it from there.
+    # pmb.chroot.init(Chroot.native())
+    # if chroot != Chroot.native():
+    #     pmb.chroot.init(chroot)
     apk_static = Chroot.native() / "sbin/apk.static"
     arch = chroot.arch
     apk_cache = get_context().config.work / f"cache_apk_{arch}"

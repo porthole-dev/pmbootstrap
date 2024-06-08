@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
 
@@ -137,7 +138,7 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
 
 def zap_pkgs_online_mismatch(confirm=True, dry=False):
     # Check whether we need to do anything
-    paths = glob.glob(f"{get_context().config.work}/cache_apk_*")
+    paths = list(get_context().config.work.glob("cache_apk_*"))
     if not len(paths):
         return
     if (confirm and not pmb.helpers.cli.confirm("Remove outdated"
@@ -146,8 +147,8 @@ def zap_pkgs_online_mismatch(confirm=True, dry=False):
 
     # Iterate over existing apk caches
     for path in paths:
-        arch = os.path.basename(path).split("_", 2)[2]
-        if arch == pmb.config.arch_native:
+        arch = Arch.from_str(path.name.split("_", 2)[2])
+        if arch == Arch.native():
             suffix = Chroot.native()
         else:
             try:

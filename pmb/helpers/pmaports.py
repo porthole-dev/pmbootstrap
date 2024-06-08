@@ -8,6 +8,7 @@ See also:
 """
 import glob
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
@@ -164,6 +165,7 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
         # Try to find an APKBUILD with the exact pkgname we are looking for
         path = _find_apkbuilds(skip_extra_repos).get(package)
         if path:
+            logging.verbose(f"{package}: found apkbuild: {path}")
             ret = path.parent
         elif subpackages:
             # No luck, take a guess what APKBUILD could have the package we are
@@ -282,7 +284,7 @@ def get_repo(pkgname, must_exist=True) -> Optional[str]:
     return aport.parent.name
 
 
-def check_arches(arches, arch):
+def check_arches(arches, arch: Arch):
     """Check if building for a certain arch is allowed.
 
     :param arches: list of all supported arches, as it can be found in the
@@ -293,9 +295,9 @@ def check_arches(arches, arch):
 
     :returns: True when building is allowed, False otherwise
     """
-    if "!" + arch in arches:
+    if f"!{arch}" in arches:
         return False
-    for value in [arch, "all", "noarch"]:
+    for value in [str(arch), "all", "noarch"]:
         if value in arches:
             return True
     return False

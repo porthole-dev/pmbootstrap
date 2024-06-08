@@ -33,7 +33,7 @@ if version < (3, 9):
 
 def print_log_hint() -> None:
     context = get_context(allow_failure=True)
-    log = context.log if context else types.Config().work / "log.txt"
+    log = context.log if context else Config().work / "log.txt"
     # Hints about the log file (print to stdout only)
     log_hint = "Run 'pmbootstrap log' for details."
     if not os.path.exists(log):

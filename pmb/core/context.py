@@ -5,7 +5,8 @@
 
 from typing import List, Optional
 from pathlib import Path
-from pmb.types import Config
+from pmb.core.arch import Arch
+from .config import Config
 
 
 class Context():
@@ -15,8 +16,6 @@ class Context():
     sudo_timer: bool = False
     force: bool = False
     log: Path
-    # The architecture of the selected device
-    device_arch: Optional[str] = None
 
     # assume yes to prompts
     assume_yes: bool = False

@@ -1,14 +1,13 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import socket
 from contextlib import closing
 
 import pmb.chroot
-from pmb.types import PmbArgs
 import pmb.helpers.mount
 import pmb.install.losetup
-import pmb.parse.arch
 from pmb.core import Chroot, ChrootType, get_context
 
 
@@ -100,7 +99,7 @@ def shutdown(only_install_related=False):
             pmb.helpers.mount.umount_all(path)
 
         # Clean up the rest
-        for arch in pmb.config.build_device_architectures:
-            if pmb.parse.arch.cpu_emulation_required(arch):
+        for arch in Arch.supported():
+            if arch.cpu_emulation_required():
                 pmb.chroot.binfmt.unregister(arch)
         logging.debug("Shutdown complete")

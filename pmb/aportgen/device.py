@@ -12,7 +12,7 @@ import pmb.parse
 
 
 def ask_for_architecture():
-    architectures = pmb.config.build_device_architectures
+    architectures = Arch.supported()
     # Don't show armhf, new ports shouldn't use this architecture
     if "armhf" in architectures:
         architectures.remove("armhf")

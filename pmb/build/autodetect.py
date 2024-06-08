@@ -1,14 +1,13 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 from typing import Dict, Optional
 
 import pmb.config
 import pmb.chroot.apk
-from pmb.types import PmbArgs
 import pmb.helpers.pmaports
-import pmb.parse.arch
 from pmb.core import Chroot, ChrootType, get_context
 
 
@@ -60,9 +59,9 @@ def arch(pkgname: str):
 
     if get_context().config.build_default_device_arch:
         preferred_arch = deviceinfo.arch
-        preferred_arch_2nd = pmb.config.arch_native
+        preferred_arch_2nd = Arch.native()
     else:
-        preferred_arch = pmb.config.arch_native
+        preferred_arch = Arch.native()
         preferred_arch_2nd = deviceinfo.arch
 
     if "noarch" in arches or "all" in arches or preferred_arch in arches:
@@ -77,8 +76,8 @@ def arch(pkgname: str):
         return None
 
 
-def chroot(apkbuild: Dict[str, str], arch: str) -> Chroot:
-    if arch == pmb.config.arch_native:
+def chroot(apkbuild: Dict[str, str], arch: Arch) -> Chroot:
+    if arch == Arch.native():
         return Chroot.native()
 
     if "pmb:cross-native" in apkbuild["options"]:
@@ -87,13 +86,13 @@ def chroot(apkbuild: Dict[str, str], arch: str) -> Chroot:
     return Chroot.buildroot(arch)
 
 
-def crosscompile(apkbuild, arch, suffix: Chroot):
+def crosscompile(apkbuild, arch: Arch, suffix: Chroot):
     """
         :returns: None, "native", "crossdirect"
     """
     if not get_context().cross:
         return None
-    if not pmb.parse.arch.cpu_emulation_required(arch):
+    if not arch.cpu_emulation_required():
         return None
     if suffix.type == ChrootType.NATIVE:
         return "native"

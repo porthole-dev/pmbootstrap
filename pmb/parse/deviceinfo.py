@@ -4,6 +4,7 @@ import copy
 from pathlib import Path
 from typing import Dict, Optional
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
 import pmb.config
@@ -97,7 +98,7 @@ class Deviceinfo:
     codename: str
     year: str
     dtb: str
-    arch: str
+    arch: Arch
 
     # device
     chassis: str
@@ -222,10 +223,10 @@ class Deviceinfo:
         if "arch" not in info or not info["arch"]:
             raise RuntimeError(f"Please add 'deviceinfo_arch' to: {path}")
 
-        arch = info["arch"]
-        if (arch != pmb.config.arch_native and
-                arch not in pmb.config.build_device_architectures):
-            raise ValueError("Arch '" + arch + "' is not available in"
+        arch = Arch.from_str(info["arch"])
+        if (not arch.is_native() and
+                arch not in Arch.supported()):
+            raise ValueError(f"Arch '{arch}' is not available in"
                             " postmarketOS. If you would like to add it, see:"
                             " <https://postmarketos.org/newarch>")
 
@@ -257,7 +258,10 @@ class Deviceinfo:
             # FIXME: something to turn on and fix in the future
             # if key not in Deviceinfo.__annotations__.keys():
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
-            setattr(self, key, value)
+            if key == "arch":
+                setattr(self, key, Arch(value))
+            else:
+                setattr(self, key, value)
 
         if not self.flash_method:
             self.flash_method = "none"

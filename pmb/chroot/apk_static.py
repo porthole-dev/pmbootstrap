@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shutil
 import tarfile
@@ -142,7 +143,7 @@ def download(file):
     """
     channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir = channel_cfg["mirrordir_alpine"]
-    base_url = f"{get_context().config.mirror_alpine}{mirrordir}/main/{pmb.config.arch_native}"
+    base_url = f"{get_context().config.mirror_alpine}{mirrordir}/main/{Arch.native()}"
     return pmb.helpers.http.download(f"{base_url}/{file}", file)
 
 

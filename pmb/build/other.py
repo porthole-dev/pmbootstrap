@@ -8,13 +8,11 @@ import datetime
 from typing import List
 
 import pmb.chroot
-from pmb.types import PmbArgs
 import pmb.build
 import pmb.helpers.file
 import pmb.helpers.git
 import pmb.helpers.pmaports
 import pmb.helpers.run
-import pmb.parse.arch
 import pmb.parse.apkindex
 import pmb.parse.version
 from pmb.core import Chroot, get_context

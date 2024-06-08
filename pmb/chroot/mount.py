@@ -88,7 +88,7 @@ def mount(chroot: Chroot):
     mountpoints: Dict[Path, Path] = {}
     for src_template, target_template in pmb.config.chroot_mount_bind.items():
         src_template = src_template.replace("$WORK", os.fspath(get_context().config.work))
-        src_template = src_template.replace("$ARCH", arch)
+        src_template = src_template.replace("$ARCH", str(arch))
         src_template = src_template.replace("$CHANNEL", channel)
         mountpoints[Path(src_template)] = Path(target_template)
 

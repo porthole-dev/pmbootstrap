@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 import enum
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
+from pmb.core.arch import Arch
 from .context import get_context
 
 class ChrootType(enum.Enum):
@@ -21,10 +22,10 @@ class Chroot:
     __type: ChrootType
     __name: str
 
-    def __init__(self, suffix_type: ChrootType, name: Optional[str] = ""):
+    def __init__(self, suffix_type: ChrootType, name: Optional[Union[str, Arch]] = ""):
         self.__type = suffix_type
-        self.__name = name or ""
-        
+        self.__name = str(name or "")
+
         self.__validate()
 
     def __validate(self) -> None:
@@ -74,16 +75,15 @@ class Chroot:
 
 
     @property
-    # FIXME: make an Arch type
-    def arch(self) -> str:
+    def arch(self) -> Arch:
         if self.type == ChrootType.NATIVE:
-            return pmb.config.arch_native
+            return Arch.native()
         if self.type == ChrootType.BUILDROOT:
-            return self.name()
+            return Arch.from_str(self.name())
         # FIXME: this is quite delicate as it will only be valid
         # for certain pmbootstrap commands... It was like this
         # before but it should be fixed.
-        arch = pmb.core.get_context().device_arch
+        arch = pmb.parse.deviceinfo().arch
         if arch is not None:
             return arch
 
@@ -118,8 +118,12 @@ class Chroot:
 
     def __rtruediv__(self, other: object) -> Path:
         if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+            # Important to produce a new Path object here, otherwise we
+            # end up with one object getting shared around and modified
+            # and lots of weird stuff happens.
             return Path(other) / self.path
         if isinstance(other, str):
+            # This implicitly creates a new Path object
             return other / self.path
 
         return NotImplemented
@@ -139,7 +143,7 @@ class Chroot:
 
 
     @staticmethod
-    def buildroot(arch: str) -> Chroot:
+    def buildroot(arch: Arch) -> Chroot:
         return Chroot(ChrootType.BUILDROOT, arch)
 
 

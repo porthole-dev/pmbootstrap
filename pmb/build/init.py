@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
 import os
@@ -9,9 +10,7 @@ import pmb.build
 import pmb.config
 import pmb.chroot
 import pmb.chroot.apk
-from pmb.types import PmbArgs
 import pmb.helpers.run
-import pmb.parse.arch
 from pmb.core import Chroot, get_context
 
 
@@ -66,7 +65,7 @@ def init(chroot: Chroot=Chroot.native()):
     apk_arch = chroot.arch
 
     # Add apk wrapper that runs native apk and lies about arch
-    if pmb.parse.arch.cpu_emulation_required(apk_arch) and \
+    if apk_arch.cpu_emulation_required() and \
             not (chroot / "usr/local/bin/abuild-apk").exists():
         with (chroot / "tmp/apk_wrapper.sh").open("w") as handle:
             content = f"""
@@ -112,14 +111,15 @@ def init(chroot: Chroot=Chroot.native()):
     pathlib.Path(marker).touch()
 
 
-def init_compiler(context: Context, depends, cross, arch):
+def init_compiler(context: Context, depends, cross, arch: Arch):
+    arch_str = str(arch)
     cross_pkgs = ["ccache-cross-symlinks", "abuild"]
     if "gcc4" in depends:
-        cross_pkgs += ["gcc4-" + arch]
+        cross_pkgs += ["gcc4-" + arch_str]
     elif "gcc6" in depends:
-        cross_pkgs += ["gcc6-" + arch]
+        cross_pkgs += ["gcc6-" + arch_str]
     else:
-        cross_pkgs += ["gcc-" + arch, "g++-" + arch]
+        cross_pkgs += ["gcc-" + arch_str, "g++-" + arch_str]
     if "clang" in depends or "clang-dev" in depends:
         cross_pkgs += ["clang"]
     if cross == "crossdirect":

@@ -4,10 +4,8 @@ from typing import Dict, List, Sequence, Set
 from pmb.helpers import logging
 import pmb.chroot
 import pmb.chroot.apk
-from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.parse.apkindex
-import pmb.parse.arch
 from pmb.core import Chroot, get_context
 
 

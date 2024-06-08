@@ -5,12 +5,11 @@ from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
 import pmb.aportgen.core
 import pmb.parse.apkindex
-import pmb.parse.arch
 
 
 def generate_apkbuild(pkgname, deviceinfo: Deviceinfo, patches):
     device = "-".join(pkgname.split("-")[1:])
-    carch = pmb.parse.arch.alpine_to_kernel(deviceinfo.arch)
+    carch = deviceinfo.arch.kernel()
 
     makedepends = ["bash", "bc", "bison", "devicepkg-dev", "findutils", "flex",
                    "openssl-dev", "perl"]

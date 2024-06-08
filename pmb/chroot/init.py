@@ -14,7 +14,6 @@ import pmb.config.workdir
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.other
-import pmb.parse.arch
 from pmb.core import Chroot, ChrootType, get_context
 
 cache_chroot_is_outdated: List[str] = []
@@ -58,10 +57,10 @@ def mark_in_chroot(chroot: Chroot=Chroot.native()):
 
 def setup_qemu_emulation(chroot: Chroot):
     arch = chroot.arch
-    if not pmb.parse.arch.cpu_emulation_required(arch):
+    if not arch.cpu_emulation_required():
         return
 
-    arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+    arch_qemu = arch.qemu()
 
     # mount --bind the qemu-user binary
     pmb.chroot.binfmt.register(arch)

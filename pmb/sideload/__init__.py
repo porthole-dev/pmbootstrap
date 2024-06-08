@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from typing import List
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
 
@@ -9,7 +10,6 @@ from pmb.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
-import pmb.parse.arch
 import pmb.config.pmaports
 import pmb.build
 from pmb.core import get_context
@@ -39,7 +39,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
     pmb.helpers.run.user(command, output="tui")
 
 
-def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> str:
+def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     """Connect to a device via ssh and query the architecture."""
     logging.info(f"Querying architecture of {user}@{host}")
     command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
@@ -49,7 +49,7 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> str:
     output_lines = output.strip().splitlines()
     # Pick out last line which should contain the foreign device's architecture
     foreign_machine_type = output_lines[-1]
-    alpine_architecture = pmb.parse.arch.machine_type_to_alpine(foreign_machine_type)
+    alpine_architecture = Arch.from_machine_type(foreign_machine_type)
     return alpine_architecture
 
 
@@ -81,7 +81,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
     pmb.helpers.run.user(command, output="tui")
 
 
-def sideload(args: PmbArgs, user: str, host: str, port: str, arch: str, copy_key: bool, pkgnames):
+def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Arch, copy_key: bool, pkgnames):
     """ Build packages if necessary and install them via SSH.
 
         :param user: target device ssh username

@@ -5,6 +5,7 @@ import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
+from pmb.core.arch import Arch
 from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
@@ -48,7 +49,7 @@ def generate(pkgname):
             pkgdesc="GRUB $_arch EFI files for every architecture"
             url="https://www.gnu.org/software/grub/"
             license="GPL-3.0-or-later"
-            arch="{pmb.config.arch_native}"
+            arch="{Arch.native()}"
             source="grub-efi-$pkgver-r$pkgrel-$_arch-{mirrordir}.apk::$_mirror/{mirrordir}/main/$_arch/grub-efi-$pkgver-r$pkgrel.apk"
 
             package() {{

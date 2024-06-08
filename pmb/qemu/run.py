@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import subprocess
 from typing import Sequence
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
 import os
@@ -20,7 +21,6 @@ import pmb.config
 import pmb.config.pmaports
 from pmb.types import PathString, PmbArgs
 import pmb.helpers.run
-import pmb.parse.arch
 import pmb.parse.cpuinfo
 from pmb.core import Chroot, ChrootType
 
@@ -48,15 +48,15 @@ def create_second_storage(args: PmbArgs, device: str):
     path = Chroot.native() / "home/pmos/rootfs" / f"{device}-2nd.img"
     pmb.helpers.run.root(["touch", path])
     pmb.helpers.run.root(["chmod", "a+w", path])
-    resize_image(args, args.second_storage, path)
+    resize_image(args.second_storage, path)
     return path
 
 
-def which_qemu(arch):
+def which_qemu(arch: Arch):
     """
     Finds the qemu executable or raises an exception otherwise
     """
-    executable = "qemu-system-" + arch
+    executable = "qemu-system-" + arch.qemu()
     if shutil.which(executable):
         return executable
     else:
@@ -88,11 +88,11 @@ def create_gdk_loader_cache(args: PmbArgs) -> Path:
     return chroot_native / custom_cache_path
 
 
-def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
+def command_qemu(args: PmbArgs, device: str, arch: Arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
-    cmdline = pmb.parse.deviceinfo().kernel_cmdline
+    cmdline = pmb.parse.deviceinfo().kernel_cmdline or ""
     if args.cmdline:
         cmdline = args.cmdline
 
@@ -126,7 +126,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
 
     # QEMU mach-virt's max CPU count is 8, limit it so it will work correctly
     # on systems with more than 8 CPUs
-    if arch != pmb.config.arch_native and ncpus > 8:
+    if not arch.is_native() and ncpus > 8:
         ncpus = 8
 
     if args.host_qemu:
@@ -149,7 +149,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
                         ])})
 
         command = []
-        if pmb.config.arch_native in ["aarch64", "armv7"]:
+        if Arch.native() in [Arch.aarch64, Arch.armv7]:
             # Workaround for QEMU failing on aarch64 asymmetric multiprocessor
             # arch (big/little architecture
             # https://en.wikipedia.org/wiki/ARM_big.LITTLE) see
@@ -159,11 +159,11 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
                 ncpus = ncpus_bl
                 logging.info("QEMU will run on big/little architecture on the"
                              f" first {ncpus} cores (from /proc/cpuinfo)")
-                command += [chroot_native / "lib" / f"ld-musl-{pmb.config.arch_native}.so.1"]
+                command += [chroot_native / "lib" / f"ld-musl-{Arch.native()}.so.1"]
                 command += [chroot_native / "usr/bin/taskset"]
                 command += ["-c", "0-" + str(ncpus - 1)]
 
-        command += [chroot_native / "lib" / f"ld-musl-{pmb.config.arch_native}.so.1"]
+        command += [chroot_native / "lib" / f"ld-musl-{Arch.native()}.so.1"]
         command += ["--library-path=" + ":".join([
                         str(chroot_native / "lib"),
                         str(chroot_native / "usr/lib"),
@@ -203,13 +203,13 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
     command += ["-netdev", f"user,id=net,hostfwd=tcp:127.0.0.1:{port_ssh}-:22"]
     command += ["-device", "virtio-net-pci,netdev=net"]
 
-    if arch == "x86_64":
+    if arch == Arch.x86_64:
         command += ["-device", "virtio-vga-gl"]
-    elif arch == "aarch64":
+    elif arch == Arch.aarch64:
         command += ["-M", "virt"]
         command += ["-cpu", "cortex-a57"]
         command += ["-device", "virtio-gpu-pci"]
-    elif arch == "riscv64":
+    elif arch == Arch.riscv64:
         command += ["-M", "virt"]
         command += ["-device", "virtio-gpu-pci"]
     else:
@@ -221,7 +221,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
                     "if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF.fd"]
 
     # Kernel Virtual Machine (KVM) support
-    native = pmb.config.arch_native == pmb.parse.deviceinfo().arch
+    native = pmb.parse.deviceinfo().arch.is_native()
     if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
         command += ["-cpu", "host"]
@@ -246,7 +246,7 @@ def command_qemu(args: PmbArgs, device: str, arch, img_path, img_path_2nd=None):
     return (command, env)
 
 
-def resize_image(args: PmbArgs, img_size_new, img_path):
+def resize_image(img_size_new, img_path):
     """
     Truncates an image to a specific size. The value must be larger than the
     current image size, and it must be specified in MiB or GiB units (powers of
@@ -292,7 +292,7 @@ def sigterm_handler(number, frame):
                        " and killed the QEMU VM it was running.")
 
 
-def install_depends(args: PmbArgs, arch):
+def install_depends(args: PmbArgs, arch: Arch):
     """
     Install any necessary qemu dependencies in native chroot
     """
@@ -309,7 +309,7 @@ def install_depends(args: PmbArgs, arch):
         "qemu-hw-display-virtio-gpu-pci",
         "qemu-hw-display-virtio-vga",
         "qemu-hw-display-virtio-vga-gl",
-        "qemu-system-" + arch,
+        "qemu-system-" + arch.qemu(),
         "qemu-ui-gtk",
         "qemu-ui-opengl",
         "qemu-ui-sdl",
@@ -338,7 +338,7 @@ def run(args: PmbArgs):
         raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
                            "the QEMU device packages. Run 'pmbootstrap init' "
                            "and select the 'qemu' vendor.")
-    arch = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo().arch)
+    arch = pmb.parse.deviceinfo().arch
 
     img_path = system_image(device)
     img_path_2nd = None
@@ -347,7 +347,7 @@ def run(args: PmbArgs):
 
     if not args.host_qemu:
         install_depends(args, arch)
-    logging.info("Running postmarketOS in QEMU VM (" + arch + ")")
+    logging.info("Running postmarketOS in QEMU VM (" + arch.qemu() + ")")
 
     qemu, env = command_qemu(args, device, arch, img_path, img_path_2nd)
 
@@ -358,7 +358,7 @@ def run(args: PmbArgs):
 
     # Resize the rootfs (or show hint)
     if args.image_size:
-        resize_image(args, args.image_size, img_path)
+        resize_image(args.image_size, img_path)
     else:
         logging.info("NOTE: Run 'pmbootstrap qemu --image-size 2G' to set"
                      " the rootfs size when you run out of space!")

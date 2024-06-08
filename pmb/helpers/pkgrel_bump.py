@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 
 from pmb.types import PmbArgs
@@ -104,7 +105,7 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
 def auto(args: PmbArgs, dry=False):
     """:returns: list of aport names, where the pkgrel needed to be changed"""
     ret = []
-    for arch in pmb.config.build_device_architectures:
+    for arch in Arch.supported():
         paths = pmb.helpers.repo.apkindex_files(args, arch, alpine=False)
         for path in paths:
             logging.info(f"scan {path}")

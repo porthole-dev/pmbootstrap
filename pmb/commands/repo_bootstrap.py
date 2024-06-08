@@ -1,6 +1,7 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Optional
+from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot, ChrootType
 from pmb.core.context import Context
 from pmb.helpers import logging
@@ -15,7 +16,7 @@ from pmb.core import get_context
 from pmb import commands
 
 class RepoBootstrap(commands.Command):
-    arch: str
+    arch: Arch
     repo: str
     context: Context
 
@@ -38,7 +39,7 @@ class RepoBootstrap(commands.Command):
                             " current branch")
 
 
-    def __init__(self, arch: Optional[str], repository: str):
+    def __init__(self, arch: Optional[Arch], repository: str):
         context = get_context()
         if arch:
             self.arch = arch
@@ -46,7 +47,7 @@ class RepoBootstrap(commands.Command):
             if context.config.build_default_device_arch:
                 self.arch = pmb.parse.deviceinfo().arch
             else:
-                self.arch = pmb.config.arch_native
+                self.arch = Arch.native()
 
         self.repo = repository
         self.context = context
@@ -74,7 +75,7 @@ class RepoBootstrap(commands.Command):
         self.progress_total += len(steps) * 2
 
         # Foreign arch: need to initialize one additional chroot each step
-        if pmb.parse.arch.cpu_emulation_required(self.arch):
+        if self.arch.cpu_emulation_required():
             self.progress_total += len(steps)
 
 
@@ -87,7 +88,7 @@ class RepoBootstrap(commands.Command):
 
     def run_steps(self, steps):
         chroot: Chroot
-        if pmb.parse.arch.cpu_emulation_required(self.arch):
+        if self.arch.cpu_emulation_required():
             chroot = Chroot(ChrootType.BUILDROOT, self.arch)
         else:
             chroot = Chroot.native()
@@ -129,7 +130,7 @@ class RepoBootstrap(commands.Command):
 
             msg = f"Found previously built packages for {channel}/{self.arch}, run" \
                 " 'pmbootstrap zap -p' first"
-            if pmb.parse.arch.cpu_emulation_required(self.arch):
+            if self.arch.cpu_emulation_required():
                 msg += " or remove the path manually (to keep cross compilers if" \
                     " you just built them)"
 

@@ -105,7 +105,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     arch = args.arch or get_arch(apkbuild)
     chroot = pmb.build.autodetect.chroot(apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(apkbuild, arch, chroot)
-    hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
+    hostspec = arch.alpine_triple()
 
     # Set up build tools and makedepends
     pmb.build.init(chroot)
@@ -143,7 +143,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     # Run make menuconfig
     outputdir = get_outputdir(args, pkgname, apkbuild)
     logging.info("(native) make " + kopt)
-    env = {"ARCH": pmb.parse.arch.alpine_to_kernel(arch),
+    env = {"ARCH": arch.kernel(),
            "DISPLAY": os.environ.get("DISPLAY"),
            "XAUTHORITY": "/home/pmos/.Xauthority"}
     if cross:

@@ -5,6 +5,8 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, TypedDict, Union
 
+from pmb.core.arch import Arch
+
 PathString = Union[Path, str]
 Env = Dict[str, PathString]
 
@@ -37,7 +39,7 @@ class PmbArgs(Namespace):
     android_recovery_zip: str
     aports: Optional[Path]
     _aports_real: str
-    arch: str
+    arch: Arch
     as_root: str
     assume_yes: str
     auto: str

@@ -10,10 +10,11 @@ See also:
 import os
 import hashlib
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_paths
 from pmb.helpers import logging
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import pmb.config.pmaports
 from pmb.types import PmbArgs
@@ -69,7 +70,6 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        channel = pmb.config.pmaports.read_config()["channel"]
         # FIXME: We shouldn't hardcod this here
         for channel in pmb.config.pmaports.all_channels():
             ret.append(f"/mnt/pmbootstrap/packages/{channel}")
@@ -98,7 +98,7 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
     return ret
 
 
-def apkindex_files(arch=None, user_repository=True, pmos=True,
+def apkindex_files(arch: Optional[Arch]=None, user_repository=True, pmos=True,
                    alpine=True) -> List[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
@@ -109,7 +109,7 @@ def apkindex_files(arch=None, user_repository=True, pmos=True,
     :returns: list of absolute APKINDEX.tar.gz file paths
     """
     if not arch:
-        arch = pmb.config.arch_native
+        arch = Arch.native()
 
     ret = []
     # Local user repository (for packages compiled with pmbootstrap)
@@ -144,7 +144,7 @@ def update(arch=None, force=False, existing_only=False):
         return False
 
     # Architectures and retention time
-    architectures = [arch] if arch else pmb.config.build_device_architectures
+    architectures = [arch] if arch else Arch.supported()
     retention_hours = pmb.config.apkindex_retention_time
     retention_seconds = retention_hours * 3600
 
@@ -152,13 +152,13 @@ def update(arch=None, force=False, existing_only=False):
     # outdated: {URL: apkindex_path, ... }
     # outdated_arches: ["armhf", "x86_64", ... ]
     outdated = {}
-    outdated_arches = []
+    outdated_arches: List[Arch] = []
     for url in urls(False):
         for arch in architectures:
             # APKINDEX file name from the URL
-            url_full = url + "/" + arch + "/APKINDEX.tar.gz"
+            url_full = f"{url}/{arch}/APKINDEX.tar.gz"
             cache_apk_outside = get_context().config.work / f"cache_apk_{arch}"
-            apkindex = cache_apk_outside / f"APKINDEX.{apkindex_hash(url)}.tar.gz"
+            apkindex = cache_apk_outside / f"{apkindex_hash(url)}.tar.gz"
 
             # Find update reason, possibly skip non-existing or known 404 files
             reason = None
@@ -186,7 +186,7 @@ def update(arch=None, force=False, existing_only=False):
     # Bail out or show log message
     if not len(outdated):
         return False
-    logging.info("Update package index for " + ", ".join(outdated_arches) +
+    logging.info("Update package index for " + ", ".join([str(a) for a in outdated_arches]) +
                  " (" + str(len(outdated)) + " file(s))")
 
     # Download and move to right location
@@ -206,7 +206,7 @@ def update(arch=None, force=False, existing_only=False):
     return True
 
 
-def alpine_apkindex_path(repo="main", arch=None):
+def alpine_apkindex_path(repo="main", arch: Optional[Arch]=None):
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")
@@ -215,10 +215,10 @@ def alpine_apkindex_path(repo="main", arch=None):
     """
     # Repo sanity check
     if repo not in ["main", "community", "testing", "non-free"]:
-        raise RuntimeError("Invalid Alpine repository: " + repo)
+        raise RuntimeError(f"Invalid Alpine repository: {repo}")
 
     # Download the file
-    arch = arch or pmb.config.arch_native
+    arch = arch or Arch.native()
     update(arch)
 
     # Find it on disk

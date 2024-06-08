@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.types import PathString, Env
 from pmb.helpers import logging
 import os
@@ -35,6 +36,8 @@ def flat_cmd(cmds: Sequence[Sequence[PathString]], working_dir: Optional[Path]=N
     # Merge env and cmd into escaped list
     escaped = []
     for key, value in env.items():
+        if isinstance(value, Arch):
+            value = str(value)
         escaped.append(key + "=" + shlex.quote(os.fspath(value)))
     for cmd in cmds:
         for i in range(len(cmd)):

@@ -10,6 +10,7 @@ See also:
 """
 import copy
 from typing import Any, Dict
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
 import pmb.build._package
@@ -83,7 +84,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     # Find in APKINDEX (other arches)
     if not ret:
         pmb.helpers.repo.update()
-        for arch_i in pmb.config.build_device_architectures:
+        for arch_i in Arch.supported():
             if arch_i != arch:
                 ret = pmb.parse.apkindex.package(pkgname, arch_i, False)
             if ret:

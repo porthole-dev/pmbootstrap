@@ -29,7 +29,7 @@ def chroot_save_init(suffix: Chroot):
             cfg[key] = {}
 
     # Update sections
-    channel = pmb.config.pmaports.read_config()["channel"]
+    channel = pmb.config.pmaports.read_config(support_systemd=False)["channel"]
     cfg["chroot-channels"][str(suffix)] = channel
     cfg["chroot-init-dates"][str(suffix)] = str(int(time.time()))
 
@@ -82,7 +82,8 @@ def chroot_check_channel(chroot: Chroot):
     if key not in cfg or str(chroot) not in cfg[key]:
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
-    channel = pmb.config.pmaports.read_config()["channel"]
+    # Exclude systemd repo
+    channel = pmb.config.pmaports.read_config(support_systemd=False)["channel"]
     channel_cfg = cfg[key][str(chroot)]
     if channel != channel_cfg:
         raise RuntimeError(f"Chroot '{chroot}' was created for the"

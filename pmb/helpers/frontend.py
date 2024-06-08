@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
 from typing import List, Sequence, Tuple
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -67,7 +68,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         if args.buildroot == "device":
             return Chroot.buildroot(pmb.parse.deviceinfo().arch)
         else:
-            return Chroot.buildroot(args.buildroot)
+            return Chroot.buildroot(Arch.from_str(args.buildroot))
     elif args.suffix:
         (_t, s) = args.suffix.split("_")
         t: ChrootType = ChrootType(_t)
@@ -550,7 +551,7 @@ def shutdown(args: PmbArgs):
 def stats(args: PmbArgs):
     # Chroot suffix
     chroot = Chroot.native()
-    if args.arch != pmb.config.arch_native:
+    if args.arch != Arch.native():
         chroot = Chroot.buildroot(args.arch)
 
     # Install ccache and display stats

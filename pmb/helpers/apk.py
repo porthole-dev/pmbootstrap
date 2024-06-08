@@ -6,6 +6,7 @@ from typing import List, Sequence
 
 import pmb.chroot
 import pmb.config.pmaports
+from pmb.core.arch import Arch
 from pmb.types import PathString, PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
@@ -72,7 +73,12 @@ def apk_with_progress(command: Sequence[PathString]):
     :raises RuntimeError: when the apk command fails
     """
     fifo, fifo_outside = _prepare_fifo()
-    _command: List[str] = [os.fspath(c) for c in command]
+    _command: List[str] = []
+    for c in command:
+        if isinstance(c, Arch):
+            _command.append(str(c))
+        else:
+            _command.append(os.fspath(c))
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
     with pmb.helpers.run.root(['cat', fifo],

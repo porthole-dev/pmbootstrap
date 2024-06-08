@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import enum
-from typing import Dict, List
+from typing import Dict, List, Optional
+from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_relative_path
 from pmb.helpers import logging
@@ -17,7 +18,6 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.mount
 import pmb.parse
-import pmb.parse.arch
 import pmb.parse.apkindex
 from pmb.helpers.exceptions import BuildFailedError
 
@@ -221,7 +221,7 @@ def init_buildenv(context: Context, apkbuild, arch, strict=False, force=False, c
 
     depends_arch = arch
     if cross == "native":
-        depends_arch = pmb.config.arch_native
+        depends_arch = Arch.native()
 
     # Build dependencies
     depends, built = build_depends(context, apkbuild, depends_arch, strict)
@@ -386,8 +386,9 @@ def link_to_git_dir(chroot: Chroot):
                            "/home/pmos/build/.git"], chroot)
 
 
-def output_path(arch: str, pkgname: str, pkgver: str, pkgrel: str) -> Path:
-    return Path(arch) / f"{pkgname}-{pkgver}-r{pkgrel}.apk"
+def output_path(arch: Arch, pkgname: str, pkgver: str, pkgrel: str) -> Path:
+    # Yeahp, you can just treat an Arch like a path!
+    return arch / f"{pkgname}-{pkgver}-r{pkgrel}.apk"
 
 
 def run_abuild(context: Context, apkbuild, channel, arch, strict=False, force=False, cross=None,
@@ -433,11 +434,11 @@ def run_abuild(context: Context, apkbuild, channel, arch, strict=False, force=Fa
     env = {"CARCH": arch,
            "SUDO_APK": "abuild-apk --no-progress"}
     if cross == "native":
-        hostspec = pmb.parse.arch.alpine_to_hostspec(arch)
+        hostspec = arch.alpine_triple()
         env["CROSS_COMPILE"] = hostspec + "-"
         env["CC"] = hostspec + "-gcc"
     if cross == "crossdirect":
-        env["PATH"] = ":".join(["/native/usr/lib/crossdirect/" + arch,
+        env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}",
                                 pmb.config.chroot_path])
     if not context.ccache:
         env["CCACHE_DISABLE"] = "1"
@@ -503,7 +504,7 @@ def finish(apkbuild, channel, arch, output: str, chroot: Chroot, strict=False):
         pmb.chroot.init_keys()
 
 
-def package(context: Context, pkgname, arch=None, force=False, strict=False,
+def package(context: Context, pkgname, arch: Optional[Arch]=None, force=False, strict=False,
             skip_init_buildenv=False, src=None,
             bootstrap_stage=BootstrapStage.NONE):
     """
@@ -531,7 +532,7 @@ def package(context: Context, pkgname, arch=None, force=False, strict=False,
     logging.verbose(f"{pkgname}: running pmb.build._package.package")
 
     # Once per session is enough
-    arch = arch or pmb.config.arch_native
+    arch = arch or Arch.native()
     # the order of checks here is intentional,
     # skip_already_built() has side effects!
     if skip_already_built(pkgname, arch) and not force:

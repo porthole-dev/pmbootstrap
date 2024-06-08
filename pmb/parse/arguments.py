@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import argparse
-import copy
 import os
 from pathlib import Path
 import sys
@@ -16,7 +15,6 @@ except ImportError:
     pass
 
 import pmb.config
-import pmb.parse.arch
 import pmb.helpers.args
 import pmb.helpers.pmaports
 
@@ -234,7 +232,8 @@ def arguments_sideload(subparser):
     ret.add_argument("--user", help="use a different username than the"
                      " one set in init")
     ret.add_argument("--arch", help="skip automatic architecture deduction and use the"
-                                    " given value")
+                                    " given value",
+                     type=lambda x: Arch.from_str(x))
     ret.add_argument("--install-key", help="install the apk key from this"
                      " machine if needed",
                      action="store_true", dest="install_key")
@@ -483,8 +482,7 @@ def arguments_newapkbuild(subparser):
 
 def arguments_kconfig(subparser):
     # Allowed architectures
-    arch_native = pmb.config.arch_native
-    arch_choices = set(pmb.config.build_device_architectures + [arch_native])
+    arch_choices = Arch.supported()
 
     # Kconfig subparser
     ret = subparser.add_parser("kconfig", help="change or edit kernel configs")
@@ -496,7 +494,8 @@ def arguments_kconfig(subparser):
     check.add_argument("-f", "--force", action="store_true", help="check all"
                        " kernels, even the ones that would be ignored by"
                        " default")
-    check.add_argument("--arch", choices=arch_choices, dest="arch")
+    check.add_argument("--arch", choices=arch_choices, dest="arch",
+                       type=lambda x: Arch.from_str(x))
     check.add_argument("--file", help="check a file directly instead of a"
                        " config in a package")
     check.add_argument("--no-details", action="store_false",
@@ -511,7 +510,8 @@ def arguments_kconfig(subparser):
 
     # "pmbootstrap kconfig edit"
     edit = sub.add_parser("edit", help="edit kernel aport config")
-    edit.add_argument("--arch", choices=arch_choices, dest="arch")
+    edit.add_argument("--arch", choices=arch_choices, dest="arch",
+                      type=lambda x: Arch.from_str(x))
     edit.add_argument("-x", dest="xconfig", action="store_true",
                       help="use xconfig rather than menuconfig for kernel"
                            " configuration")
@@ -526,18 +526,19 @@ def arguments_kconfig(subparser):
                                   "newer. Internally runs 'make oldconfig', "
                                   "which asks question for every new kernel "
                                   "config option.")
-    migrate.add_argument("--arch", choices=arch_choices, dest="arch")
+    migrate.add_argument("--arch", choices=arch_choices, dest="arch",
+                         type=lambda x: Arch.from_str(x))
     add_kernel_arg(migrate)
 
 
 def arguments_repo_bootstrap(subparser):
-    arch_native = pmb.config.arch_native
-    arch_choices = set(pmb.config.build_device_architectures + [arch_native])
+    arch_choices = Arch.supported()
 
     ret = subparser.add_parser("repo_bootstrap")
     ret.add_argument("repository",
                      help="which repository to bootstrap (e.g. systemd)")
-    ret.add_argument("--arch", choices=arch_choices, dest="arch")
+    ret.add_argument("--arch", choices=arch_choices, dest="arch",
+                     type=lambda x: Arch.from_str(x))
     return ret
 
 
@@ -547,8 +548,9 @@ def arguments_repo_missing(subparser):
                                " specific package and its dependencies")
     if "argcomplete" in sys.modules:
         package.completer = package_completer
-    ret.add_argument("--arch", choices=pmb.config.build_device_architectures,
-                     default=pmb.config.arch_native)
+    ret.add_argument("--arch", choices=Arch.supported(),
+                     default=Arch.native(),
+                     type=lambda x: Arch.from_str(x))
     ret.add_argument("--built", action="store_true",
                      help="include packages which exist in the binary repos")
     ret.add_argument("--overview", action="store_true",
@@ -635,8 +637,8 @@ def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
 
 def get_parser():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
-    arch_native = pmb.config.arch_native
-    arch_choices = set(pmb.config.build_device_architectures + [arch_native])
+    arch_native = Arch.native()
+    arch_choices = Arch.supported()
     default_config = Config()
     mirrors_pmos_default = ",".join(default_config.mirrors_postmarketos)
 
@@ -774,13 +776,15 @@ def get_parser():
 
     # Action: stats
     stats = sub.add_parser("stats", help="show ccache stats")
-    stats.add_argument("--arch", default=arch_native, choices=arch_choices)
+    stats.add_argument("--arch", default=arch_native, choices=arch_choices,
+                       type=lambda x: Arch.from_str(x))
 
     # Action: update
     update = sub.add_parser("update", help="update all existing APKINDEX"
                             " files")
     update.add_argument("--arch", default=None, choices=arch_choices,
-                        help="only update a specific architecture")
+                        help="only update a specific architecture",
+                        type=lambda x: Arch.from_str(x))
     update.add_argument("--non-existing", action="store_true", help="do not"
                         " only update the existing APKINDEX files, but all of"
                         " them", dest="non_existing")
@@ -817,7 +821,7 @@ def get_parser():
             suffix.add_argument("-r", "--rootfs", action="store_true",
                                 help="Chroot for the device root file system")
         suffix.add_argument("-b", "--buildroot", nargs="?", const="device",
-                            choices={"device"} | arch_choices,
+                            choices={"device"} | {str(a) for a in arch_choices},
                             help="Chroot for building packages, defaults to"
                             " device architecture")
         suffix.add_argument("-s", "--suffix", default=None,
@@ -853,9 +857,10 @@ def get_parser():
     build = sub.add_parser("build", help="create a package for a"
                            " specific architecture")
     build.add_argument("--arch", choices=arch_choices, default=None,
-                       help="CPU architecture to build for (default: " +
-                       arch_native + " or first available architecture in"
-                       " APKBUILD)")
+                       help="CPU architecture to build for (default: "
+                       f"{arch_native} or first available architecture in"
+                       " APKBUILD)",
+                       type=lambda x: Arch.from_str(x))
     build.add_argument("--force", action="store_true", help="even build if not"
                        " necessary")
     build.add_argument("--strict", action="store_true", help="(slower) zap and"

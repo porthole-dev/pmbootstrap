@@ -1,12 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import multiprocessing
 import os
 from pathlib import Path
 from pmb.types import AportGenEntry, PathString
-import pmb.parse.arch
 import sys
-from typing import Dict, List, Sequence, TypedDict
+from typing import Dict, List, Sequence
 
 #
 # Exported functions
@@ -23,7 +21,6 @@ from pmb.config.other import is_systemd_selected
 #
 pmb_src: Path = Path(Path(__file__) / "../../..").resolve()
 apk_keys_path: Path = (pmb_src / "pmb/data/keys")
-arch_native = pmb.parse.arch.alpine_native()
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge
@@ -238,15 +235,6 @@ apkindex_retention_time = 4
 
 # When chroot is considered outdated (in seconds)
 chroot_outdated = 3600 * 24 * 2
-
-#
-# BUILD
-#
-# Officially supported host/target architectures for postmarketOS. Only
-# specify architectures supported by Alpine here. For cross-compiling,
-# we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use
-# "pmbootstrap aportgen musl-armhf" etc.).
-build_device_architectures = ["armhf", "armv7", "aarch64", "x86_64", "x86", "riscv64"]
 
 # Packages that will be installed in a chroot before it builds packages
 # for the first time

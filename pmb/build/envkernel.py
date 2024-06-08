@@ -1,6 +1,7 @@
 # Copyright 2023 Robert Yang
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import List
+from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
 import os
@@ -114,7 +115,7 @@ def modify_apkbuild(pkgname: str, aport: Path):
     pmb.aportgen.core.rewrite(pkgname, apkbuild_path, fields=fields)
 
 
-def run_abuild(context: Context, pkgname: str, arch: str, apkbuild_path: Path, kbuild_out):
+def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, kbuild_out):
     """
     Prepare build environment and run abuild.
 
@@ -159,9 +160,9 @@ def run_abuild(context: Context, pkgname: str, arch: str, apkbuild_path: Path, k
     pmb.helpers.run.root(cmd)
 
     # Create the apk package
-    env = {"CARCH": arch,
-           "CHOST": arch,
-           "CBUILD": pmb.config.arch_native,
+    env = {"CARCH": str(arch),
+           "CHOST": str(arch),
+           "CBUILD": Arch.native(),
            "SUDO_APK": "abuild-apk --no-progress"}
     cmd = ["abuild", "rootpkg"]
     pmb.chroot.user(cmd, working_dir=build_path, env=env)
@@ -201,15 +202,15 @@ def package_kernel(args: PmbArgs):
 
     # Install package dependencies
     depends, _ = pmb.build._package.build_depends(
-        context, apkbuild, pmb.config.arch_native, strict=False)
+        context, apkbuild, Arch.native(), strict=False)
     pmb.build.init(chroot)
-    if pmb.parse.arch.cpu_emulation_required(arch):
-        depends.append("binutils-" + arch)
+    if arch.cpu_emulation_required():
+        depends.append(f"binutils-{arch}")
     pmb.chroot.apk.install(depends, chroot)
 
-    output = (arch + "/" + apkbuild["pkgname"] + "-" + apkbuild["pkgver"] +
-              "-r" + apkbuild["pkgrel"] + ".apk")
-    message = f"({chroot}) build " + output
+    output = pmb.build.output_path(arch, apkbuild["pkgname"], apkbuild["pkgver"],
+                                   apkbuild["pkgrel"])
+    message = f"({chroot}) build {output}"
     logging.info(message)
 
     try:

@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -191,7 +192,7 @@ def migrate_work_folder(args: PmbArgs):
         # Move packages to edge subdir
         edge_path = context.config.work / "packages/edge"
         pmb.helpers.run.root(["mkdir", "-p", edge_path])
-        for arch in pmb.config.build_device_architectures:
+        for arch in Arch.supported():
             old_path = context.config.work / "packages" / arch
             new_path = edge_path / arch
             if old_path.exists():

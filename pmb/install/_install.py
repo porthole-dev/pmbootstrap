@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
 import re
@@ -120,7 +121,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
     mountpoint_outside = Chroot.native() / mountpoint
 
     # Remove empty qemu-user binary stub (where the binary was bind-mounted)
-    arch_qemu = pmb.parse.arch.alpine_to_qemu(pmb.parse.deviceinfo().arch)
+    arch_qemu = pmb.parse.deviceinfo().arch.qemu()
     qemu_binary = mountpoint_outside / ("/usr/bin/qemu-" + arch_qemu + "-static")
     if os.path.exists(qemu_binary):
         pmb.helpers.run.root(["rm", qemu_binary])
@@ -367,7 +368,7 @@ def setup_keymap(config: Config):
 
 def setup_timezone(chroot: Chroot, timezone: str):
     # We don't care about the arch since it's built for all!
-    alpine_conf = pmb.helpers.package.get("alpine-conf", pmb.config.arch_native)
+    alpine_conf = pmb.helpers.package.get("alpine-conf", Arch.native())
     version = alpine_conf["version"].split("-r")[0]
 
     setup_tz_cmd = ["setup-timezone"]
@@ -476,7 +477,7 @@ def disable_firewall(chroot: Chroot):
         raise RuntimeError(f"Failed to disable firewall: {nftables_files}")
 
 
-def print_firewall_info(disabled: bool, arch: str):
+def print_firewall_info(disabled: bool, arch: Arch):
     pmaports_cfg = pmb.config.pmaports.read_config()
     pmaports_ok = pmaports_cfg.get("supported_firewall", None) == "nftables"
 
@@ -981,7 +982,7 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
                  " and flash outside of pmbootstrap.")
 
 
-def install_recovery_zip(args: PmbArgs, device: str, arch: str, steps):
+def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps):
     logging.info(f"*** ({steps}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     chroot = Chroot(ChrootType.BUILDROOT, arch)
     mount_device_rootfs(Chroot.rootfs(device))

@@ -1,26 +1,25 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
 
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.other
 import pmb.parse
-import pmb.parse.arch
 import pmb.chroot.apk
 
 
-def is_registered(arch_qemu):
-    return os.path.exists("/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu)
+def is_registered(arch_qemu: Arch):
+    return os.path.exists(f"/proc/sys/fs/binfmt_misc/qemu-{arch_qemu}")
 
 
-def register(arch):
+def register(arch: Arch):
     """
     Get arch, magic, mask.
     """
-    arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+    arch_qemu = arch.qemu()
     chroot = Chroot.native()
 
     # always make sure the qemu-<arch> binary is installed, since registering
@@ -58,8 +57,8 @@ def register(arch):
     pmb.helpers.run.root(["sh", "-c", 'echo "' + code + '" > ' + register])
 
 
-def unregister(arch):
-    arch_qemu = pmb.parse.arch.alpine_to_qemu(arch)
+def unregister(arch: Arch):
+    arch_qemu = arch.qemu()
     binfmt_file = "/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu
     if not os.path.exists(binfmt_file):
         return
