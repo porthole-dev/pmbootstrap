@@ -211,7 +211,7 @@ def chroot(args: PmbArgs):
 
 
 def config(args: PmbArgs):
-    keys = pmb.config.config_keys
+    keys = Config.keys()
     if args.name and args.name not in keys:
         logging.info("NOTE: Valid config keys: " + ", ".join(keys))
         raise RuntimeError("Invalid config key: " + args.name)
@@ -222,7 +222,7 @@ def config(args: PmbArgs):
     if args.reset:
         if args.name is None:
             raise RuntimeError("config --reset requires a name to be given.")
-        def_value = getattr(Config(), args.name)
+        def_value = Config.get_default(args.name)
         setattr(config, args.name, def_value)
         logging.info(f"Config changed to default: {args.name}='{def_value}'")
         pmb.config.save(args.config, config)
@@ -238,7 +238,11 @@ def config(args: PmbArgs):
             value = ""
         print(value)
     else:
-        print(open(args.config).read())
+        # Serialize the entire config including default values for
+        # the user. Even though the defaults aren't actually written
+        # to disk.
+        cfg = pmb.config.serialize(config, skip_defaults=False)
+        cfg.write(sys.stdout)
 
     # Don't write the "Done" message
     pmb.helpers.logging.disable()

@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional
 from pmb.helpers import logging
 import configparser
 import os
@@ -45,6 +45,13 @@ def load(path: Path) -> Config:
     for key in Config.__dict__.keys():
         if key == "providers":
             setattr(config, key, cfg["providers"])
+        if key == "mirrors" and key in cfg:
+            for subkey in Config.mirrors.keys():
+                if subkey in cfg["mirrors"]:
+                    setattr(config, f"mirrors.{subkey}", cfg["mirrors"][subkey])
+        # default values won't be set in the config file
+        if key not in cfg["pmbootstrap"]:
+            continue
         # Handle whacky type conversions
         elif key == "mirrors_postmarketos":
             config.mirrors_postmarketos = cfg["pmbootstrap"]["mirrors_postmarketos"].split(",")
@@ -64,18 +71,32 @@ def load(path: Path) -> Config:
 
     return config
 
-def save(output: Path, config: Config):
-    logging.debug(f"Save config: {output}")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.touch(0o700, exist_ok=True)
+
+def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
+    """Serialize the config object into a ConfigParser to write it out
+    in the pmbootstrap.cfg INI format.
     
+    :param config: The config object to serialize
+    :param skip_defaults: Skip writing out default values
+    """
     cfg = configparser.ConfigParser()
     cfg["pmbootstrap"] = {}
     cfg["providers"] = {}
+    cfg["mirrors"] = {}
 
-    for key in Config.__annotations__.keys():
+    # .keys() flat maps dictionaries like config.mirrors with
+    # dotted notation
+    for key in Config.keys():
+        # If the default value hasn't changed then don't write out,
+        # this makes it possible to update the default, otherwise
+        # we wouldn't be able to tell if the user overwrote it.
+        if skip_defaults and Config.get_default(key) == getattr(config, key):
+            continue
         if key == "providers":
             cfg["providers"] = config.providers
+        elif key.startswith("mirrors."):
+            _key = key.split(".")[1]
+            cfg["mirrors"][_key] = getattr(config, key)
         # Handle whacky type conversions
         elif key == "mirrors_postmarketos":
             cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(config.mirrors_postmarketos)
@@ -87,7 +108,16 @@ def save(output: Path, config: Config):
         elif isinstance(getattr(Config, key), bool):
             cfg["pmbootstrap"][key] = str(getattr(config, key))
         else:
-            cfg["pmbootstrap"][key] = getattr(config, key)
+            cfg["pmbootstrap"][key] = str(getattr(config, key))
+
+    return cfg
+
+def save(output: Path, config: Config):
+    logging.debug(f"Save config: {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.touch(0o700, exist_ok=True)
+    
+    cfg = serialize(config)
 
     with output.open("w") as handle:
         cfg.write(handle)

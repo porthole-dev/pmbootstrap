@@ -924,8 +924,8 @@ def get_parser():
                         help="Reset config options with the given name to it's"
                         " default.")
     config.add_argument("name", nargs="?", help="variable name, one of: " +
-                        ", ".join(sorted(pmb.config.config_keys)),
-                        choices=pmb.config.config_keys, metavar="name")
+                        ", ".join(sorted(Config.keys())),
+                        choices=Config.keys(), metavar="name")
     config.add_argument("value", nargs="?", help="set variable to value")
 
     # Action: bootimg_analyze
