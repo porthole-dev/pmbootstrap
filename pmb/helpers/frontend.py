@@ -404,7 +404,7 @@ def newapkbuild(args: PmbArgs):
 
     # Passthrough: PKGNAME[-PKGVER] | SRCURL
     pass_through.append(args.pkgname_pkgver_srcurl)
-    pmb.build.newapkbuild(args, args.folder, pass_through, args.force)
+    pmb.build.newapkbuild(args.folder, pass_through, args.force)
 
 
 def kconfig(args: PmbArgs):
@@ -474,7 +474,7 @@ def deviceinfo_parse(args: PmbArgs):
     # Default to all devices
     devices = args.devices
     if not devices:
-        devices = pmb.helpers.devices.list_codenames(get_context().config.aports)
+        devices = pmb.helpers.devices.list_codenames()
 
     # Iterate over all devices
     kernel = args.deviceinfo_parse_kernel

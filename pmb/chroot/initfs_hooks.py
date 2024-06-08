@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import glob
+from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.helpers import logging
 
 import pmb.config
@@ -25,7 +26,7 @@ def list_chroot(suffix: Chroot, remove_prefix=True):
 def list_aports():
     ret = []
     prefix = pmb.config.initfs_hook_prefix
-    for path in glob.glob(f"{get_context().config.aports}/*/{prefix}*"):
+    for path in pkgrepo_iglob(f"*/{prefix}*"):
         ret.append(os.path.basename(path)[len(prefix):])
     return ret
 

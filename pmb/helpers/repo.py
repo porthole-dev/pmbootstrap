@@ -10,6 +10,7 @@ See also:
 import os
 import hashlib
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_paths
 from pmb.helpers import logging
 from pathlib import Path
 from typing import List
@@ -70,7 +71,8 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
     if user_repository:
         channel = pmb.config.pmaports.read_config()["channel"]
         # FIXME: We shouldn't hardcod this here
-        ret.append("/mnt/pmbootstrap/packages")
+        for channel in pmb.config.pmaports.all_channels():
+            ret.append(f"/mnt/pmbootstrap/packages/{channel}")
 
     # Upstream postmarketOS binary repository
     if postmarketos_mirror:
@@ -112,8 +114,8 @@ def apkindex_files(arch=None, user_repository=True, pmos=True,
     ret = []
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        channel = pmb.config.pmaports.read_config()["channel"]
-        ret = [get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz"]
+        for channel in pmb.config.pmaports.all_channels():
+            ret.append(get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz")
 
     # Resolve the APKINDEX.$HASH.tar.gz files
     for url in urls(False, pmos, alpine):

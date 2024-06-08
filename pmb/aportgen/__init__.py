@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import pmb.aportgen.busybox_static
 import pmb.aportgen.core
@@ -61,7 +62,7 @@ def generate(pkgname, fork_alpine):
     else:
         prefix, folder, options = properties(pkgname)
     config = get_context().config
-    path_target = config.aports / folder / pkgname
+    path_target = pkgrepo_default_path() / folder / pkgname
 
     # Confirm overwrite
     if options["confirm_overwrite"] and os.path.exists(path_target):

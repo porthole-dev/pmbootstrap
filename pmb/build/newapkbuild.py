@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 from pathlib import Path
 import pmb.chroot
@@ -12,7 +13,7 @@ import pmb.build
 from pmb.core import Chroot, get_context
 
 
-def newapkbuild(args: PmbArgs, folder, args_passed, force=False):
+def newapkbuild(folder, args_passed, force=False):
     # Initialize build environment and build folder
     pmb.build.init()
     build = Path("/home/pmos/build")
@@ -30,7 +31,7 @@ def newapkbuild(args: PmbArgs, folder, args_passed, force=False):
     # Paths for copying
     source_apkbuild = glob_result[0]
     pkgname = pmb.parse.apkbuild(source_apkbuild, False)["pkgname"]
-    target = get_context().config.aports / folder / pkgname
+    target = pkgrepo_default_path() / folder / pkgname
 
     # Move /home/pmos/build/$pkgname/* to /home/pmos/build/*
     for path in build_outside.glob("/*/*"):

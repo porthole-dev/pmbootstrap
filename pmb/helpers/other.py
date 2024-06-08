@@ -297,7 +297,8 @@ cache: Dict[str, Any] = {
     "pmb.helpers.package.get": {},
     "pmb.helpers.repo.update": {"404": [], "offline_msg_shown": False},
     "pmb.helpers.git.parse_channels_cfg": {},
-    "pmb.config.pmaports.read_config": None,
+    "pmb.config.pmaports.read_config": {},
     "pmb.config.pmaports.read_config_repos": None,
     "pmb.chroot.init": {},
+    "pkgrepo_paths": [],
 }

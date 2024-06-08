@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict
 from pmb.core import get_context
 from pmb.core.context import Context
+from pmb.core.pkgrepo import pkgrepo_path
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -23,9 +24,9 @@ def get_path(name_repo: str):
 
     :returns: full path to repository
     """
-    if name_repo == "pmaports":
-        return get_context().config.aports
-    return get_context().config.work / "cache_git" / name_repo
+    if name_repo == "aports_upstream":
+        return get_context().config.work / "cache_git" / name_repo
+    return pkgrepo_path(name_repo)
 
 
 def clone(name_repo):

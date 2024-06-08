@@ -156,8 +156,8 @@ class PmbArgs(Namespace):
 
 
 class Config():
-    aports: Path = Path(os.path.expanduser("~") +
-                        "/.local/var/pmbootstrap/cache_git/pmaports")
+    aports: List[Path] = [Path(os.path.expanduser("~") +
+                        "/.local/var/pmbootstrap/cache_git/pmaports")]
     boot_size: int = 256
     build_default_device_arch: bool = False
     build_pkgs_on_install: bool = True

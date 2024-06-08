@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
 import pmb.helpers.git
 import pmb.helpers.run
 
@@ -15,10 +16,10 @@ def generate(pkgname):
         upstream = pmb.aportgen.core.get_upstream_aport("gcc", arch)
         based_on = "main/gcc (from Alpine)"
     elif prefix == "gcc4":
-        upstream = f"{context.config.aports}/main/gcc4"
+        upstream = pkgrepo_default_path() / "main/gcc4"
         based_on = "main/gcc4 (from postmarketOS)"
     elif prefix == "gcc6":
-        upstream = f"{context.config.aports}/main/gcc6"
+        upstream = pkgrepo_default_path() / "main/gcc6"
         based_on = "main/gcc6 (from postmarketOS)"
     else:
         raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or"

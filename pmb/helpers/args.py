@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import pmb.config
 from pmb.core.context import Context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.args
@@ -97,7 +98,7 @@ def init(args: PmbArgs) -> PmbArgs:
     if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
                            "pull", "shutdown", "zap"]:
         pmb.config.pmaports.read_config()
-        pmb.helpers.git.parse_channels_cfg(config.aports)
+        pmb.helpers.git.parse_channels_cfg(pkgrepo_default_path())
         deviceinfo = pmb.parse.deviceinfo()
         context.device_arch = deviceinfo.arch
 

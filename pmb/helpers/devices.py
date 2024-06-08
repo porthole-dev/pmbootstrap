@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Optional
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 
 
 def find_path(codename: str, file='') -> Optional[Path]:
@@ -13,18 +14,14 @@ def find_path(codename: str, file='') -> Optional[Path]:
     :param file: file to look for (e.g. APKBUILD or deviceinfo), may be empty
     :returns: path to APKBUILD
     """
-    g = list((get_context().config.aports / "device").glob(f"*/device-{codename}/{file}"))
+    g = pkgrepo_glob_one(f"device/*/device-{codename}/{file}")
     if not g:
         return None
 
-    if len(g) != 1:
-        raise RuntimeError(codename + " found multiple times in the device"
-                           " subdirectory of pmaports")
-
-    return g[0]
+    return g
 
 
-def list_codenames(aports: Path, vendor=None, archived=True):
+def list_codenames(vendor=None, archived=True):
     """Get all devices, for which aports are available.
 
     :param vendor: vendor name to choose devices from, or None for all vendors
@@ -32,7 +29,7 @@ def list_codenames(aports: Path, vendor=None, archived=True):
     :returns: ["first-device", "second-device", ...]
     """
     ret = []
-    for path in aports.glob("device/*/device-*"):
+    for path in pkgrepo_iglob("device/*/device-*"):
         if not archived and 'archived' in path.parts:
             continue
         device = os.path.basename(path).split("-", 1)[1]
@@ -41,13 +38,13 @@ def list_codenames(aports: Path, vendor=None, archived=True):
     return ret
 
 
-def list_vendors(aports: Path):
+def list_vendors():
     """Get all device vendors, for which aports are available.
 
     :returns: {"vendor1", "vendor2", ...}
     """
     ret = set()
-    for path in (aports / "device").glob("*/device-*"):
+    for path in pkgrepo_iglob("device/*/device-*"):
         vendor = path.name.split("-", 2)[1]
         ret.add(vendor)
     return ret

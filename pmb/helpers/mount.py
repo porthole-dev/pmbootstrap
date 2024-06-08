@@ -36,8 +36,6 @@ def bind(source: Path, destination: Path, create_folders=True, umount=False):
             umount_all(destination)
         else:
             return
-        
-    print(f"Mounting {source} -> {destination}")
 
     # Check/create folders
     for path in [source, destination]:

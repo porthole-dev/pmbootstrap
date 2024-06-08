@@ -61,11 +61,12 @@ def get_apkbuild(pkgname, arch):
     pmb.helpers.repo.update(arch)
 
     # Get pmaport, skip upstream only packages
-    pmaport = pmb.helpers.pmaports.get(pkgname, False)
+    pmaport, apkbuild = pmb.helpers.pmaports.get_with_path(pkgname, False)
     if pmaport:
-        return pmaport
+        pmaport = pkgrepo_relative_path(pmaport)[0]
+        return pmaport, apkbuild
     if pmb.parse.apkindex.providers(pkgname, arch, False):
-        return None
+        return None, None
     raise RuntimeError("Package '" + pkgname + "': Could not find aport, and"
                        " could not find this package in any APKINDEX!")
 
@@ -158,7 +159,7 @@ def build_depends(context: Context, apkbuild, arch, strict):
                                    " pmbootstrap won't build any depends since"
                                    " it was started with --no-depends.")
             # Check if binary package is outdated
-            apkbuild_dep = get_apkbuild(depend, arch)
+            _, apkbuild_dep = get_apkbuild(depend, arch)
             if apkbuild_dep and \
                pmb.build.is_necessary(arch, apkbuild_dep):
                 raise RuntimeError(f"Binary package for dependency '{depend}'"
@@ -339,15 +340,21 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
     pmb.chroot.user(["mv", append_path + "_", apkbuild_path], chroot)
 
 
-def mount_pmaports(destination, chroot: Chroot=Chroot.native()):
+def mount_pmaports(chroot: Chroot=Chroot.native()) -> Dict[str, Path]:
     """
     Mount pmaports.git in chroot.
 
-    :param destination: mount point inside the chroot
+    :param chroot: chroot to target
+    :returns: Dictionary mapping pkgrepo name to dest path
     """
-    outside_destination = chroot / destination
-    pmb.helpers.mount.bind(get_context().config.aports, outside_destination, umount=True)
-
+    dest_paths = {}
+    for repo in pkgrepo_paths(skip_extras=True):
+        destination = Path("/mnt") / repo.name
+        outside_destination = chroot / destination
+        pmb.helpers.mount.bind(repo, outside_destination, umount=True)
+        dest_paths[repo.name] = destination
+        
+    return dest_paths
 
 def link_to_git_dir(suffix):
     """ Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
@@ -368,13 +375,12 @@ def link_to_git_dir(suffix):
     # initialization of the chroot, because the pmaports dir may not exist yet
     # at that point. Use umount=True, so we don't have an old path mounted
     # (some tests change the pmaports dir).
-    destination = "/mnt/pmaports"
-    mount_pmaports(destination, suffix)
+    dest_paths = mount_pmaports(chroot)
 
     # Create .git symlink
-    pmb.chroot.user(["mkdir", "-p", "/home/pmos/build"], suffix)
-    pmb.chroot.user(["ln", "-sf", destination + "/.git",
-                           "/home/pmos/build/.git"], suffix)
+    pmb.chroot.user(["mkdir", "-p", "/home/pmos/build"], chroot)
+    pmb.chroot.user(["ln", "-sf", dest_paths["pmaports"] / ".git",
+                           "/home/pmos/build/.git"], chroot)
 
 
 def run_abuild(context: Context, apkbuild, arch, strict=False, force=False, cross=None,

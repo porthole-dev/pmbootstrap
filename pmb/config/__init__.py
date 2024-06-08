@@ -194,7 +194,7 @@ chroot_mount_bind = {
     "$WORK/config_apk_keys": "/etc/apk/keys",
     "$WORK/cache_sccache": "/mnt/pmbootstrap/sccache",
     "$WORK/images_netboot": "/mnt/pmbootstrap/netboot",
-    "$WORK/packages/$CHANNEL": "/mnt/pmbootstrap/packages",
+    "$WORK/packages/": "/mnt/pmbootstrap/packages",
 }
 
 # Building chroots (all chroots, except for the rootfs_ chroot) get symlinks in
@@ -214,7 +214,7 @@ chroot_home_symlinks = {
     "/mnt/pmbootstrap/ccache": "/home/pmos/.ccache",
     "/mnt/pmbootstrap/go/gocache": "/home/pmos/.cache/go-build",
     "/mnt/pmbootstrap/go/gomodcache": "/home/pmos/go/pkg/mod",
-    "/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
+    #"/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
     "/mnt/pmbootstrap/rust/git/db": "/home/pmos/.cargo/git/db",
     "/mnt/pmbootstrap/rust/registry/cache": "/home/pmos/.cargo/registry/cache",
     "/mnt/pmbootstrap/rust/registry/index": "/home/pmos/.cargo/registry/index",

@@ -3,7 +3,7 @@
 import os
 import glob
 from pmb.core import get_context
-from pmb.types import PmbArgs
+from pmb.core.pkgrepo import pkgrepo_iglob
 import pmb.helpers.pmaports
 import pmb.helpers.package
 import pmb.parse
@@ -18,8 +18,7 @@ def list_ui(arch):
     ret = [("none", "Bare minimum OS image for testing and manual"
                     " customization. The \"console\" UI should be selected if"
                     " a graphical UI is not desired.")]
-    context = get_context()  # noqa: F821
-    for path in sorted(context.config.aports.glob("main/postmarketos-ui-*")):
+    for path in sorted(pkgrepo_iglob("main/postmarketos-ui-*")):
         apkbuild = pmb.parse.apkbuild(path)
         ui = os.path.basename(path).split("-", 2)[2]
         if pmb.helpers.package.check_arch(apkbuild["pkgname"], arch):
@@ -27,10 +26,10 @@ def list_ui(arch):
     return ret
 
 
-def check_option(ui, option):
+def check_option(ui, option, skip_extra_repos=False):
     """
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
     """
     pkgname = f"postmarketos-ui-{ui}"
-    apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False)
+    apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False, skip_extra_repos=skip_extra_repos)
     return option in apkbuild["options"]

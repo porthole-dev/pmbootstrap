@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from pathlib import Path
-from pmb.core import get_context
-from pmb.core.pkgrepo import pkgrepo_default_path
+from typing import List, Optional
+from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_paths, pkgrepo_relative_path
 from pmb.helpers import logging
 import os
 import sys
@@ -81,14 +81,28 @@ def read_config_repos():
     return ret
 
 
-def read_config():
+def read_config(aports: Optional[Path] = None):
     """Read and verify pmaports.cfg."""
+    if not aports:
+        aports = pkgrepo_default_path()
+    name = aports.name
+    if support_systemd and aports.name == "systemd":
+        name = f"systemd-{aports.name}"
     # Try cache first
     cache_key = "pmb.config.pmaports.read_config"
-    if pmb.helpers.other.cache[cache_key]:
-        return pmb.helpers.other.cache[cache_key]
+    if support_systemd and aports.name in pmb.helpers.other.cache[cache_key]:
+        return pmb.helpers.other.cache[cache_key][name]
 
-    aports = pkgrepo_default_path()
+    systemd = aports.name == "systemd"
+    # extra-repos don't have a pmaports.cfg
+    # so jump up the main aports dir
+    if "extra-repos" in aports.parts:
+        aports = pkgrepo_relative_path(aports)[0]
+    # Try cache first
+    cache_key = "pmb.config.pmaports.read_config"
+    if aports.name in pmb.helpers.other.cache[cache_key]:
+        return pmb.helpers.other.cache[cache_key][aports.name]
+
     # Migration message
     if not os.path.exists(aports):
         logging.error(f"ERROR: pmaports dir not found: {aports}")
@@ -113,8 +127,26 @@ def read_config():
     # Translate legacy channel names
     ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
 
+    if "systemd" in name:
+        ret["channel"] = "systemd-" + ret["channel"]
+
     # Cache and return
-    pmb.helpers.other.cache[cache_key] = ret
+    pmb.helpers.other.cache[cache_key][name] = ret
+    return ret
+
+
+def all_channels() -> List[str]:
+    """Get a list of all channels for all pkgrepos."""
+    ret = []
+    for repo in pkgrepo_paths():
+        if repo.name == "systemd":
+            channel = "systemd"
+        else:
+            channel = read_config(repo)["channel"]
+
+        if channel not in ret:
+            ret.append(channel)
+
     return ret
 
 

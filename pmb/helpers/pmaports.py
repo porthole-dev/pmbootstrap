@@ -8,14 +8,14 @@ See also:
 """
 import glob
 from pmb.core import get_context
+from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Optional, Sequence, Dict
+from typing import Any, Optional, Sequence, Dict, Tuple
 
-from pmb.types import PmbArgs
 import pmb.parse
 
-def _find_apkbuilds() -> Dict[str, Path]:
+def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
@@ -23,19 +23,20 @@ def _find_apkbuilds() -> Dict[str, Path]:
         return apkbuilds
 
     apkbuilds = {}
-    for apkbuild in glob.iglob(f"{get_context().config.aports}/**/*/APKBUILD", recursive=True):
-        package = Path(apkbuild).parent.name
-        if package in apkbuilds:
-            raise RuntimeError(f"Package {package} found in multiple aports "
+    for package in pkgrepo_iter_package_dirs(skip_extra_repos=skip_extra_repos):
+        pkgname = package.name
+        if pkgname in apkbuilds:
+            raise RuntimeError(f"Package {pkgname} found in multiple aports "
                                "subfolders. Please put it only in one folder.")
-        apkbuilds[package] = Path(apkbuild)
+        apkbuilds[pkgname] = package / "APKBUILD"
 
     # Sort dictionary so we don't need to do it over and over again in
     # get_list()
     apkbuilds = dict(sorted(apkbuilds.items()))
 
     # Save result in cache
-    pmb.helpers.other.cache["pmb.helpers.pmaports.apkbuilds"] = apkbuilds
+    if not skip_extra_repos:
+        pmb.helpers.other.cache["pmb.helpers.pmaports.apkbuilds"] = apkbuilds
     return apkbuilds
 
 
@@ -137,7 +138,7 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
-def find(package, must_exist=True, subpackages=True):
+def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
     """Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
@@ -161,7 +162,7 @@ def find(package, must_exist=True, subpackages=True):
             raise RuntimeError("Invalid pkgname: " + package)
 
         # Try to find an APKBUILD with the exact pkgname we are looking for
-        path = _find_apkbuilds().get(package)
+        path = _find_apkbuilds(skip_extra_repos).get(package)
         if path:
             ret = path.parent
         elif subpackages:
@@ -188,12 +189,12 @@ def find(package, must_exist=True, subpackages=True):
                     ret = guess
 
     # Crash when necessary
-    if ret is None:
+    if ret is None and must_exist:
         raise RuntimeError("Could not find aport for package: " +
                            package)
 
     # Save result in cache (only if subpackage search was enabled)
-    if subpackages:
+    if subpackages and not skip_extra_repos:
         pmb.helpers.other.cache["find_aport"][package] = ret
 
     return ret
@@ -206,7 +207,7 @@ def find_optional(package: str) -> Optional[Path]:
         return None
 
 
-def get(pkgname, must_exist=True, subpackages=True):
+def get_with_path(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
@@ -216,6 +217,8 @@ def get(pkgname, must_exist=True, subpackages=True):
     :param must_exist: raise an exception when it can't be found
     :param subpackages: also search for subpackages with the specified
         names (slow! might need to parse all APKBUILDs to find it)
+    :param skip_extra_repos: skip extra repositories (e.g. systemd) when
+        searching for the package
 
     :returns: relevant variables from the APKBUILD as dictionary, e.g.:
                   { "pkgname": "hello-world",
@@ -226,10 +229,14 @@ def get(pkgname, must_exist=True, subpackages=True):
                   ... }
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
-    pmaport = find(pkgname, must_exist, subpackages)
+    pmaport = find(pkgname, must_exist, subpackages, skip_extra_repos)
     if pmaport:
-            return pmb.parse.apkbuild(pmaport / "APKBUILD")
-    return None
+            return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
+    return None, None
+
+
+def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Optional[Dict[str, Any]]:
+    return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
 
 
 def find_providers( provide):
