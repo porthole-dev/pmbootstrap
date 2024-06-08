@@ -34,7 +34,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
     keyname = os.path.join("/tmp", os.path.basename(key))
     remote_cmd_l: List[PathString] = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
                   '-S', 'mv', '-n', keyname, "/etc/apk/keys/"]
-    remote_cmd = pmb.helpers.run_core.flat_cmd(remote_cmd_l)
+    remote_cmd = pmb.helpers.run_core.flat_cmd([remote_cmd_l])
     command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
     pmb.helpers.run.user(command, output="tui")
 
@@ -72,8 +72,8 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
                '-S', 'apk', '--wait', '30', 'add'] + remote_paths
-    add_cmd = pmb.helpers.run_core.flat_cmd(add_cmd)
-    clean_cmd = pmb.helpers.run_core.flat_cmd(['rm'] + remote_paths)
+    add_cmd = pmb.helpers.run_core.flat_cmd([add_cmd])
+    clean_cmd = pmb.helpers.run_core.flat_cmd([['rm'] + remote_paths])
     add_cmd_complete = shlex.quote(f"{add_cmd}; rc=$?; {clean_cmd}; exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',

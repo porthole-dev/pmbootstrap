@@ -32,7 +32,7 @@ def user(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: 
     env = env.copy()
     pmb.helpers.run_core.add_proxy_env_vars(env)
     if env:
-        cmd_parts = ["sh", "-c", pmb.helpers.run_core.flat_cmd(cmd_parts, env=env)]
+        cmd_parts = ["sh", "-c", pmb.helpers.run_core.flat_cmd([cmd_parts], env=env)]
     return pmb.helpers.run_core.core(msg, cmd_parts, working_dir, output,
                                      output_return, check, sudo)
 
@@ -60,7 +60,7 @@ def root(cmd: Sequence[PathString], working_dir=None, output="log", output_retur
     pmb.helpers.run_core.add_proxy_env_vars(env)
 
     if env:
-        cmd = ["sh", "-c", pmb.helpers.run_core.flat_cmd(cmd, env=env)]
+        cmd = ["sh", "-c", pmb.helpers.run_core.flat_cmd([cmd], env=env)]
     cmd = pmb.config.sudo(cmd)
 
     return user(cmd, working_dir, output, output_return, check, env,

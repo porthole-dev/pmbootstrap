@@ -20,10 +20,10 @@ import pmb.helpers.run
    called by core(). """
 
 
-def flat_cmd(cmd: Sequence[PathString], working_dir: Optional[Path]=None, env: Env={}):
+def flat_cmd(cmds: Sequence[Sequence[PathString]], working_dir: Optional[Path]=None, env: Env={}):
     """Convert a shell command passed as list into a flat shell string with proper escaping.
 
-    :param cmd: command as list, e.g. ["echo", "string with spaces"]
+    :param cmds: list of commands as list, e.g. ["echo", "string with spaces"]
     :param working_dir: when set, prepend "cd ...;" to execute the command
                         in the given working directory
     :param env: dict of environment variables to be passed to the command, e.g.
@@ -36,8 +36,10 @@ def flat_cmd(cmd: Sequence[PathString], working_dir: Optional[Path]=None, env: E
     escaped = []
     for key, value in env.items():
         escaped.append(key + "=" + shlex.quote(os.fspath(value)))
-    for i in range(len(cmd)):
-        escaped.append(shlex.quote(os.fspath(cmd[i])))
+    for cmd in cmds:
+        for i in range(len(cmd)):
+            escaped.append(shlex.quote(os.fspath(cmd[i])))
+        escaped.append(";")
 
     # Prepend working dir
     ret = " ".join(escaped)

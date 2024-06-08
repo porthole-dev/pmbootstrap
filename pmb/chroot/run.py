@@ -29,11 +29,11 @@ def executables_absolute_path():
     return ret
 
 
-def root(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
+def rootm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
          output_return=False, check=None, env={},
          disable_timeout=False, add_proxy_env_vars=True):
     """
-    Run a command inside a chroot as root.
+    Run a list of commands inside a chroot as root.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
@@ -48,7 +48,7 @@ def root(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir:
     """
 
     # Convert any Path objects to their string representation
-    cmd_str = [os.fspath(x) for x in cmd]
+    cmd_strs = [[os.fspath(x) for x in cmd] for cmd in cmds]
 
     # Readable log message (without all the escaping)
     msg = f"({chroot}) % "
@@ -56,7 +56,7 @@ def root(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir:
         msg += f"{key}={value} "
     if working_dir != PurePath("/"):
         msg += f"cd {working_dir}; "
-    msg += " ".join(cmd_str)
+    msg += "; ".join([" ".join(cmd_str) for cmd_str in cmd_strs])
 
     # Merge env with defaults into env_all
     env_all: Env = {"CHARSET": "UTF-8",
@@ -78,14 +78,21 @@ def root(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir:
     # cmd_sudo: ["sudo", "env", "-i", "sh", "-c", "PATH=... /sbin/chroot ..."]
     executables = executables_absolute_path()
     cmd_chroot = [executables["chroot"], chroot.path, "/bin/sh", "-c",
-                  pmb.helpers.run_core.flat_cmd(cmd_str, Path(working_dir))]
+                  pmb.helpers.run_core.flat_cmd(cmd_strs, Path(working_dir))]
     cmd_sudo = pmb.config.sudo([
         "env", "-i", executables["sh"], "-c",
-        pmb.helpers.run_core.flat_cmd(cmd_chroot, env=env_all)]
+        pmb.helpers.run_core.flat_cmd([cmd_chroot], env=env_all)]
     )
     return pmb.helpers.run_core.core(msg, cmd_sudo, None, output,
                                      output_return, check, True,
                                      disable_timeout)
+
+
+def root(cmds: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
+         output_return=False, check=None, env={},
+         disable_timeout=False, add_proxy_env_vars=True):
+    return rootm([cmds], chroot, working_dir, output, output_return, check, env,
+          disable_timeout, add_proxy_env_vars)
 
 
 def user(cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
@@ -107,7 +114,7 @@ def user(cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), out
     if "HOME" not in env:
         env["HOME"] = "/home/pmos"
 
-    flat_cmd = pmb.helpers.run_core.flat_cmd(cmd, env=env)
+    flat_cmd = pmb.helpers.run_core.flat_cmd([cmd], env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
     return pmb.chroot.root(cmd, chroot, working_dir, output,
                            output_return, check, {},

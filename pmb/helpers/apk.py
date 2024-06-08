@@ -41,7 +41,7 @@ def _create_command_with_progress(command, fifo):
     """
     flags = ["--no-progress", "--progress-fd", "3"]
     command_full = [command[0]] + flags + command[1:]
-    command_flat = pmb.helpers.run_core.flat_cmd(command_full)
+    command_flat = pmb.helpers.run_core.flat_cmd([command_full])
     command_flat = f"exec 3>{fifo}; {command_flat}"
     return ["sh", "-c", command_flat]
 
