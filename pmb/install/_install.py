@@ -17,7 +17,8 @@ import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
 from pmb.parse.deviceinfo import Deviceinfo
-from pmb.types import Config, PartitionLayout, PmbArgs
+from pmb.core import Config
+from pmb.types import PartitionLayout, PmbArgs
 import pmb.helpers.devices
 from pmb.helpers.mount import mount_device_rootfs
 import pmb.helpers.run

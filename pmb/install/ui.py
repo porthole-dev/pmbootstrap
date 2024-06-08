@@ -3,7 +3,7 @@
 from typing import List
 from pmb.helpers import logging
 
-from pmb.types import Config
+from pmb.core import Config
 import pmb.helpers.pmaports
 
 

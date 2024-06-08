@@ -6,7 +6,9 @@ import os
 from pathlib import Path
 import sys
 
-from pmb.types import Config, PmbArgs
+from pmb.core.arch import Arch
+from pmb.core import Config
+from pmb.types import PmbArgs
 
 try:
     import argcomplete # type:ignore[import-untyped]

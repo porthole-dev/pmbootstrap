@@ -3,7 +3,8 @@
 import pmb.config
 import pmb.config.workdir
 import pmb.helpers.git
-from pmb.types import Config, PmbArgs
+from pmb.core import Config
+from pmb.types import PmbArgs
 from pmb.core import get_context
 from typing import List, Tuple
 

@@ -14,7 +14,8 @@ from typing import Any, List, Optional
 import pmb.aportgen
 import pmb.config
 import pmb.config.pmaports
-from pmb.types import Config, PmbArgs
+from pmb.core import Config
+from pmb.types import PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.git

@@ -9,7 +9,7 @@ import glob
 import pmb.config.pmaports
 import pmb.helpers.repo
 import pmb.build
-from pmb.types import Config
+from pmb.core import Config
 from pmb.core import get_context
 
 from pmb import commands

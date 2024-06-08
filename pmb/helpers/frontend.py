@@ -16,7 +16,8 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
 import pmb.config
-from pmb.types import Config, PathString, PmbArgs
+from pmb.core import Config
+from pmb.types import PmbArgs
 import pmb.export
 import pmb.flasher
 import pmb.helpers.aportupgrade

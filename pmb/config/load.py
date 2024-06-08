@@ -7,8 +7,7 @@ import configparser
 import os
 import sys
 import pmb.config
-from pmb.types import Config
-from pmb.types import PmbArgs
+from pmb.core import Config
 
 
 def sanity_check(cfg: Config, key, allowed, path: Optional[Path] = None):
