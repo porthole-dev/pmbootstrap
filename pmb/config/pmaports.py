@@ -81,7 +81,7 @@ def read_config_repos():
     return ret
 
 
-def read_config(aports: Optional[Path] = None):
+def read_config(aports: Optional[Path] = None, support_systemd=True):
     """Read and verify pmaports.cfg."""
     if not aports:
         aports = pkgrepo_default_path()
@@ -98,10 +98,6 @@ def read_config(aports: Optional[Path] = None):
     # so jump up the main aports dir
     if "extra-repos" in aports.parts:
         aports = pkgrepo_relative_path(aports)[0]
-    # Try cache first
-    cache_key = "pmb.config.pmaports.read_config"
-    if aports.name in pmb.helpers.other.cache[cache_key]:
-        return pmb.helpers.other.cache[cache_key][aports.name]
 
     # Migration message
     if not os.path.exists(aports):
@@ -137,17 +133,11 @@ def read_config(aports: Optional[Path] = None):
 
 def all_channels() -> List[str]:
     """Get a list of all channels for all pkgrepos."""
-    ret = []
+    ret = set()
     for repo in pkgrepo_paths():
-        if repo.name == "systemd":
-            channel = "systemd"
-        else:
-            channel = read_config(repo)["channel"]
+        ret.add(read_config(repo)["channel"])
 
-        if channel not in ret:
-            ret.append(channel)
-
-    return ret
+    return list(ret)
 
 
 def read_config_channel():
@@ -162,7 +152,7 @@ def read_config_channel():
 
     """
     aports = pkgrepo_default_path()
-    channel = read_config()["channel"]
+    channel = read_config(support_systemd=False)["channel"]
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
 
     if channel in channels_cfg["channels"]:

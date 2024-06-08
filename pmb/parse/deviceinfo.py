@@ -71,13 +71,6 @@ def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
     if device in pmb.helpers.other.cache["deviceinfo"]:
         return pmb.helpers.other.cache["deviceinfo"][device]
 
-    aports = context.config.aports
-    if not aports.exists():
-        logging.fatal(f"Aports directory is missing, expected: {aports}")
-        logging.fatal("Please provide a path to the aports directory using the"
-                      " -p flag")
-        raise RuntimeError("Aports directory missing")
-
     path = pmb.helpers.devices.find_path(device, 'deviceinfo')
     if not path:
         raise RuntimeError(

@@ -665,7 +665,7 @@ def get_parser():
                              " 128)")
     parser.add_argument("-p", "--aports",
                         help="postmarketos aports (pmaports) path",
-                        type=lambda x: Path(x))
+                        type=lambda x: [Path(p.strip()) for p in x.split(",")])
     parser.add_argument("-t", "--timeout", help="seconds after which processes"
                         " get killed that stopped writing any output (default:"
                         " 900)", default=900, type=float)

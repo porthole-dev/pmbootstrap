@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import enum
+from typing import Dict, List
 from pmb.core.context import Context
+from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_relative_path
 from pmb.helpers import logging
 from pathlib import Path
 
@@ -10,7 +12,7 @@ import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.apk
-from pmb.types import PmbArgs
+import pmb.config.pmaports
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.mount
@@ -356,7 +358,8 @@ def mount_pmaports(chroot: Chroot=Chroot.native()) -> Dict[str, Path]:
         
     return dest_paths
 
-def link_to_git_dir(suffix):
+
+def link_to_git_dir(chroot: Chroot):
     """ Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
     symlink so abuild does not fail (#1841).
 
@@ -383,7 +386,11 @@ def link_to_git_dir(suffix):
                            "/home/pmos/build/.git"], chroot)
 
 
-def run_abuild(context: Context, apkbuild, arch, strict=False, force=False, cross=None,
+def output_path(arch: str, pkgname: str, pkgver: str, pkgrel: str) -> Path:
+    return Path(arch) / f"{pkgname}-{pkgver}-r{pkgrel}.apk"
+
+
+def run_abuild(context: Context, apkbuild, channel, arch, strict=False, force=False, cross=None,
                suffix: Chroot=Chroot.native(), src=None, bootstrap_stage=BootstrapStage.NONE):
     """
     Set up all environment variables and construct the abuild command (all
@@ -403,12 +410,21 @@ def run_abuild(context: Context, apkbuild, arch, strict=False, force=False, cros
         logging.info("WARNING: Option !tracedeps is not set, but we're"
                      " cross-compiling in the native chroot. This will"
                      " probably fail!")
+    pkgdir = context.config.work / "packages" / channel
+    if not pkgdir.exists():
+        pmb.helpers.run.root(["mkdir", "-p", pkgdir])
+        pmb.helpers.run.root(["chown", "-R", f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
+                              pkgdir.parent])
+
+    pmb.chroot.rootm([["mkdir", "-p", "/home/pmos/packages"],
+                      ["rm", "-f", "/home/pmos/packages/pmos"],
+                      ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}",
+                     "/home/pmos/packages/pmos"]], suffix)
 
     # Pretty log message
     pkgver = get_pkgver(apkbuild["pkgver"], src is None)
-    output = (arch + "/" + apkbuild["pkgname"] + "-" + pkgver +
-              "-r" + apkbuild["pkgrel"] + ".apk")
-    message = f"({suffix}) build " + output
+    output = output_path(arch, apkbuild["pkgname"], pkgver, apkbuild["pkgrel"])
+    message = f"({suffix}) build {channel}/{output}"
     if src:
         message += " (source: " + src + ")"
     logging.info(message)
@@ -465,10 +481,9 @@ def run_abuild(context: Context, apkbuild, arch, strict=False, force=False, cros
     return (output, cmd, env)
 
 
-def finish(apkbuild, arch, output: str, chroot: Chroot, strict=False):
+def finish(apkbuild, channel, arch, output: str, chroot: Chroot, strict=False):
     """Various finishing tasks that need to be done after a build."""
     # Verify output file
-    channel: str = pmb.config.pmaports.read_config()["channel"]
     out_dir = (get_context().config.work / "packages" / channel)
     if not (out_dir / output).exists():
         raise RuntimeError(f"Package not found after build: {(out_dir / output)}")
@@ -523,9 +538,11 @@ def package(context: Context, pkgname, arch=None, force=False, strict=False,
         return
 
     # Only build when APKBUILD exists
-    apkbuild = get_apkbuild(pkgname, arch)
+    aports, apkbuild = get_apkbuild(pkgname, arch)
     if not apkbuild:
         return
+
+    channel: str = pmb.config.pmaports.read_config(aports)["channel"]
 
     # Detect the build environment (skip unnecessary builds)
     if not check_build_for_arch(pkgname, arch):
@@ -538,9 +555,9 @@ def package(context: Context, pkgname, arch=None, force=False, strict=False,
 
     # Build and finish up
     try:
-        (output, cmd, env) = run_abuild(context, apkbuild, arch, strict, force, cross,
+        (output, cmd, env) = run_abuild(context, apkbuild, channel, arch, strict, force, cross,
                                         chroot, src, bootstrap_stage)
     except RuntimeError:
         raise BuildFailedError(f"Build for {arch}/{pkgname} failed!")
-    finish(apkbuild, arch, output, chroot, strict)
+    finish(apkbuild, channel, arch, output, chroot, strict)
     return output
