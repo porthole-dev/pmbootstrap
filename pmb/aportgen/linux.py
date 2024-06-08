@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import List
 from pmb.core import get_context
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
@@ -7,7 +8,7 @@ import pmb.aportgen.core
 import pmb.parse.apkindex
 
 
-def generate_apkbuild(pkgname, deviceinfo: Deviceinfo, patches):
+def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: List[str]):
     device = "-".join(pkgname.split("-")[1:])
     carch = deviceinfo.arch.kernel()
 
@@ -110,7 +111,7 @@ def generate_apkbuild(pkgname, deviceinfo: Deviceinfo, patches):
             hndl.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
-def generate(pkgname):
+def generate(pkgname: str):
     device = "-".join(pkgname.split("-")[1:])
     deviceinfo = pmb.parse.deviceinfo(device)
     work = get_context().config.work

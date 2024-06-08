@@ -156,7 +156,7 @@ def rewrite(pkgname, path_original="", fields={}, replace_pkgname=None,
         handle.truncate()
 
 
-def get_upstream_aport(pkgname, arch=None):
+def get_upstream_aport(pkgname: str, arch=None):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 

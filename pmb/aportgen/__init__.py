@@ -55,7 +55,7 @@ def properties(pkgname):
     raise ValueError("No generator available for " + pkgname + "!")
 
 
-def generate(pkgname, fork_alpine):
+def generate(pkgname: str, fork_alpine: bool):
     if fork_alpine:
         prefix, folder, options = (pkgname, "temp",
                                    {"confirm_overwrite": True})

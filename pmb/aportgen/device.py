@@ -1,9 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core import get_context
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
-from pmb.types import PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.aportgen.core
@@ -12,7 +12,7 @@ import pmb.parse
 
 
 def ask_for_architecture():
-    architectures = Arch.supported()
+    architectures = [str(a) for a in Arch.supported()]
     # Don't show armhf, new ports shouldn't use this architecture
     if "armhf" in architectures:
         architectures.remove("armhf")
@@ -20,7 +20,7 @@ def ask_for_architecture():
         ret = pmb.helpers.cli.ask("Device architecture", architectures,
                                   "aarch64", complete=architectures)
         if ret in architectures:
-            return ret
+            return Arch.from_str(ret)
         logging.fatal("ERROR: Invalid architecture specified. If you want to"
                       " add a new architecture, edit"
                       " build_device_architectures in"
@@ -60,12 +60,12 @@ def ask_for_chassis():
                                complete=types)
 
 
-def ask_for_keyboard():
+def ask_for_keyboard() -> bool:
     return pmb.helpers.cli.confirm("Does the device have a hardware"
                                    " keyboard?")
 
 
-def ask_for_external_storage():
+def ask_for_external_storage() -> bool:
     return pmb.helpers.cli.confirm("Does the device have a sdcard or"
                                    " other external storage medium?")
 
@@ -178,9 +178,9 @@ def generate_deviceinfo_fastboot_content(bootimg=None):
     return content
 
 
-def generate_deviceinfo(pkgname, name, manufacturer, year, arch,
-                        chassis, has_keyboard, has_external_storage,
-                        flash_method, bootimg=None):
+def generate_deviceinfo(pkgname: str, name: str, manufacturer: str, year: str, arch: Arch,
+                        chassis: str, has_keyboard: bool, has_external_storage: bool,
+                        flash_method: str, bootimg=None):
     codename = "-".join(pkgname.split("-")[1:])
     external_storage = "true" if has_external_storage else "false"
     # Note: New variables must be added to pmb/config/__init__.py as well
@@ -246,7 +246,7 @@ def generate_deviceinfo(pkgname, name, manufacturer, year, arch,
             handle.write(line.lstrip() + "\n")
 
 
-def generate_modules_initfs():
+def generate_modules_initfs() -> None:
     content = """\
     # Remove this file if unnecessary (CHANGEME!)
     # This file shall contain a list of modules to be included in the initramfs,
@@ -268,7 +268,7 @@ def generate_modules_initfs():
             handle.write(line.lstrip() + "\n")
 
 
-def generate_apkbuild(pkgname, name, arch, flash_method):
+def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str):
     # Dependencies
     depends = ["postmarketos-base",
                "linux-" + "-".join(pkgname.split("-")[1:])]
@@ -319,7 +319,7 @@ def generate_apkbuild(pkgname, name, arch, flash_method):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
-def generate(pkgname):
+def generate(pkgname: str):
     arch = ask_for_architecture()
     manufacturer = ask_for_manufacturer()
     name = ask_for_name(manufacturer)

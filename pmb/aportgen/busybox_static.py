@@ -5,13 +5,12 @@ import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
 
-def generate(pkgname):
+def generate(pkgname: str):
     arch = pkgname.split("-")[2]
     context = get_context()
 
