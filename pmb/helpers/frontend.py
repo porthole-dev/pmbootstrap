@@ -162,7 +162,7 @@ def netboot(args: PmbArgs):
 def chroot(args: PmbArgs):
     # Suffix
     chroot = _parse_suffix(args)
-    user = get_context().config.user
+    user = args.user
     if (user and chroot != Chroot.native() and
             not chroot.type == ChrootType.BUILDROOT):
         raise RuntimeError("--user is only supported for native or"

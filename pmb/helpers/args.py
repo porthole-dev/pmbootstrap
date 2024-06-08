@@ -65,7 +65,7 @@ def init(args: PmbArgs) -> PmbArgs:
 
     # Override config at runtime with command line arguments
     for key, _ in vars(config).items():
-        if key.startswith("_"):
+        if key.startswith("_") or key == "user":
             continue
         value = getattr(args, key, None)
         if value:
