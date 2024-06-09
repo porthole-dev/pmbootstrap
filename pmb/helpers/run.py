@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import subprocess
+from pmb.core.arch import Arch
 import pmb.helpers.run_core
 from typing import Any, Dict, List, Optional, Sequence
 from pmb.types import Env, PathString, PmbArgs
@@ -19,7 +20,13 @@ def user(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: 
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
-    cmd_parts = [os.fspath(x) for x in cmd]
+    cmd_parts = []
+    for c in cmd:
+        if isinstance(c, Arch):
+            c = str(c)
+        else:
+            c = os.fspath(c)
+        cmd_parts.append(c)
     # Readable log message (without all the escaping)
     msg = "% "
     for key, value in env.items():
@@ -42,7 +49,7 @@ def user_output(cmd: Sequence[PathString], working_dir: Optional[Path] = None, o
     ret = user(cmd, working_dir, output, output_return=True, check=check, env=env, sudo=sudo)
     if not isinstance(ret, str):
         raise TypeError("Expected str output, got " + str(ret))
-    
+
     return ret
 
 
