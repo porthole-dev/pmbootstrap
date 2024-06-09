@@ -120,10 +120,10 @@ def copy_git_repo_to_chroot(topdir):
         
 	:param topdir: top directory of the git repository, get it with:
           pmb.helpers.git.get_topdir() 
-
-	"""
-    pmb.chroot.init()
-    tarball_path = Chroot.native() / "tmp/git.tar.gz"
+    """
+    chroot = Chroot.native()
+    pmb.chroot.init(chroot)
+    tarball_path = chroot / "tmp/git.tar.gz"
     files = pmb.helpers.git.get_files(topdir)
 
     with open(f"{tarball_path}.files", "w") as handle:

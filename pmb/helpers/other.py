@@ -288,18 +288,5 @@ def lookup(key):
 """
 cache: Dict[str, Any] = {
     "apkindex": {},
-    "apkbuild": {},
-    "apk_min_version_checked": [],
-    "apk_repository_list_updated": [],
-    "built": {},
-    "deviceinfo": {},
-    "find_aport": {},
-    "pmb.helpers.package.depends_recurse": {},
-    "pmb.helpers.package.get": {},
     "pmb.helpers.repo.update": {"404": [], "offline_msg_shown": False},
-    "pmb.helpers.git.parse_channels_cfg": {},
-    "pmb.config.pmaports.read_config": {},
-    "pmb.config.pmaports.read_config_repos": None,
-    "pmb.chroot.init": {},
-    "pkgrepo_paths": [],
 }

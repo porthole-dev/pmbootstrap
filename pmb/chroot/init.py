@@ -3,6 +3,7 @@
 import enum
 import filecmp
 from typing import List
+from pmb.meta import Cache
 from pmb.helpers import logging
 import os
 
@@ -95,7 +96,8 @@ def warn_if_chroot_is_outdated(chroot: Chroot):
     cache_chroot_is_outdated += [str(chroot)]
 
 
-def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
+@Cache("chroot")
+def init(chroot: Chroot, usr_merge=UsrMerge.AUTO,
          postmarketos_mirror=True):
     """
     Initialize a chroot by copying the resolv.conf and updating
@@ -111,10 +113,6 @@ def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
     arch = chroot.arch
 
     config = get_context().config
-    already_setup = str(chroot) in pmb.helpers.other.cache["pmb.chroot.init"]
-    if already_setup:
-        logging.warning(f"({chroot}) FIXME! init() called multiple times!")
-        return
 
     pmb.chroot.mount(chroot)
     mark_in_chroot(chroot)
@@ -123,7 +121,6 @@ def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         copy_resolv_conf(chroot)
         pmb.chroot.apk.update_repository_list(chroot, postmarketos_mirror)
         warn_if_chroot_is_outdated(chroot)
-        pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)] = True
         return
 
     # Require apk-tools-static
@@ -187,5 +184,3 @@ def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         command = ["--force-missing-repositories"] + command
 
     pmb.chroot.root(["apk"] + command, chroot)
-
-    pmb.helpers.other.cache["pmb.chroot.init"][str(chroot)] = True

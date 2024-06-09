@@ -15,6 +15,7 @@ import pmb.chroot.apk
 import pmb.config
 import pmb.helpers.pmaports
 import pmb.helpers.run
+from pmb.meta import Cache
 
 
 def get_path(name_repo: str):
@@ -107,6 +108,7 @@ def get_upstream_remote(aports: Path):
                        " repository: {}".format(name_repo, urls, aports))
 
 
+@Cache("aports")
 def parse_channels_cfg(aports: Path):
     """Parse channels.cfg from pmaports.git, origin/master branch.
 
@@ -119,11 +121,6 @@ def parse_channels_cfg(aports: Path):
         "mirrordir_alpine": ...},
         ...}}
     """
-    # Cache during one pmbootstrap run
-    cache_key = "pmb.helpers.git.parse_channels_cfg"
-    if pmb.helpers.other.cache[cache_key]:
-        return pmb.helpers.other.cache[cache_key]
-
     # Read with configparser
     cfg = configparser.ConfigParser()
     remote = get_upstream_remote(aports)
@@ -157,7 +154,6 @@ def parse_channels_cfg(aports: Path):
             # FIXME: how to type this properly??
             ret["channels"][channel_new][key] = value # type: ignore[index]
 
-    pmb.helpers.other.cache[cache_key] = ret
     return ret
 
 

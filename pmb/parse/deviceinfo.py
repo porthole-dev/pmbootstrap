@@ -10,6 +10,7 @@ import os
 import pmb.config
 import pmb.helpers.other
 import pmb.helpers.devices
+from pmb.meta import Cache
 
 # FIXME: It feels weird to handle this at parse time.
 # we should instead have the Deviceinfo object store
@@ -57,7 +58,7 @@ def _parse_kernel_suffix(info, device, kernel):
 
     return ret
 
-
+@Cache("device", "kernel")
 def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
     """
     :param device: defaults to args.device
@@ -69,9 +70,6 @@ def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
     if not kernel:
         kernel = context.config.kernel
 
-    if device in pmb.helpers.other.cache["deviceinfo"]:
-        return pmb.helpers.other.cache["deviceinfo"][device]
-
     path = pmb.helpers.devices.find_path(device, 'deviceinfo')
     if not path:
         raise RuntimeError(
@@ -79,10 +77,7 @@ def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
             " start a new device port or to choose another device. It may have"
             " been renamed, see <https://postmarketos.org/renamed>")
 
-    di = Deviceinfo(path, kernel)
-
-    pmb.helpers.other.cache["deviceinfo"][device] = di
-    return di
+    return Deviceinfo(path, kernel)
 
 class Deviceinfo:
     """Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>

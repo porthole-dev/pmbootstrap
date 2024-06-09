@@ -3,7 +3,6 @@
 from pmb.helpers import logging
 
 import pmb.build
-from pmb.types import PmbArgs
 import pmb.helpers.package
 import pmb.helpers.pmaports
 

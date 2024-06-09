@@ -16,13 +16,15 @@ import pmb.helpers.other
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.run
+from pmb.meta import Cache
 import pmb.parse.apkindex
 import pmb.parse.depends
 import pmb.parse.version
 from pmb.core import Chroot, get_context
 
 
-def update_repository_list(suffix: Chroot, postmarketos_mirror=True,
+@Cache("chroot")
+def update_repository_list(chroot: Chroot, postmarketos_mirror=True,
                            check=False):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
@@ -34,12 +36,8 @@ def update_repository_list(suffix: Chroot, postmarketos_mirror=True,
                   Only for this purpose, the "check" parameter should be set to
                   True.
     """
-    # Skip if we already did this
-    if suffix in pmb.helpers.other.cache["apk_repository_list_updated"]:
-        return
-
     # Read old entries or create folder structure
-    path = suffix / "etc/apk/repositories"
+    path = chroot / "etc/apk/repositories"
     lines_old: List[str] = []
     if path.exists():
         # Read all old lines
@@ -54,7 +52,6 @@ def update_repository_list(suffix: Chroot, postmarketos_mirror=True,
     exclude = ["pmaports"] if not postmarketos_mirror else []
     lines_new = pmb.helpers.repo.urls(mirrors_exclude=exclude)
     if lines_old == lines_new:
-        pmb.helpers.other.cache["apk_repository_list_updated"].append(suffix)
         return
 
     # Check phase: raise error when still outdated
@@ -62,24 +59,21 @@ def update_repository_list(suffix: Chroot, postmarketos_mirror=True,
         raise RuntimeError(f"Failed to update: {path}")
 
     # Update the file
-    logging.debug(f"({suffix}) update /etc/apk/repositories")
+    logging.debug(f"({chroot}) update /etc/apk/repositories")
     if path.exists():
         pmb.helpers.run.root(["rm", path])
     for line in lines_new:
         pmb.helpers.run.root(["sh", "-c", "echo "
                                     f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(suffix, postmarketos_mirror, True)
+    update_repository_list(chroot, postmarketos_mirror, True)
 
 
+@Cache("chroot")
 def check_min_version(chroot: Chroot=Chroot.native()):
     """
     Check the minimum apk version, before running it the first time in the
     current session (lifetime of one pmbootstrap call).
     """
-
-    # Skip if we already did this
-    if chroot.path in pmb.helpers.other.cache["apk_min_version_checked"]:
-        return
 
     # Skip if apk is not installed yet
     if not (chroot / "sbin/apk").exists():
@@ -93,9 +87,6 @@ def check_min_version(chroot: Chroot=Chroot.native()):
         version_installed,
         "Delete your http cache and zap all chroots, then try again:"
         " 'pmbootstrap zap -hc'")
-
-    # Mark this suffix as checked
-    pmb.helpers.other.cache["apk_min_version_checked"].append(chroot.path)
 
 
 def packages_split_to_add_del(packages):

@@ -15,7 +15,7 @@ from pmb.core.context import get_context
 from pmb.helpers import logging
 import pmb.build._package
 
-from pmb.types import PmbArgs
+from pmb.meta import Cache
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 
@@ -28,6 +28,7 @@ def remove_operators(package):
     return package
 
 
+@Cache("pkgname", "arch", "replace_subpkgnames")
 def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     """Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
 
@@ -47,19 +48,6 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
 
         * None if the package was not found
     """
-    # Cached result
-    cache_key = "pmb.helpers.package.get"
-    if (
-        arch in pmb.helpers.other.cache[cache_key] and
-        pkgname in pmb.helpers.other.cache[cache_key][arch] and
-        replace_subpkgnames in pmb.helpers.other.cache[cache_key][arch][
-            pkgname
-        ]
-    ):
-        return pmb.helpers.other.cache[cache_key][arch][pkgname][
-            replace_subpkgnames
-        ]
-
     # Find in pmaports
     ret: Dict[str, Any] = {}
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
@@ -118,13 +106,6 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
 
     # Save to cache and return
     if ret:
-        if arch not in pmb.helpers.other.cache[cache_key]:
-            pmb.helpers.other.cache[cache_key][arch] = {}
-        if pkgname not in pmb.helpers.other.cache[cache_key][arch]:
-            pmb.helpers.other.cache[cache_key][arch][pkgname] = {}
-        pmb.helpers.other.cache[cache_key][arch][pkgname][
-            replace_subpkgnames
-        ] = ret
         return ret
 
     # Could not find the package
@@ -134,6 +115,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
                        " could not find this package in any APKINDEX!")
 
 
+@Cache("pkgname", "arch")
 def depends_recurse(pkgname, arch):
     """Recursively resolve all of the package's dependencies.
 
@@ -143,12 +125,6 @@ def depends_recurse(pkgname, arch):
         ["busybox-static-armhf", "device-samsung-i9100",
         "linux-samsung-i9100", ...]
     """
-    # Cached result
-    cache_key = "pmb.helpers.package.depends_recurse"
-    if (arch in pmb.helpers.other.cache[cache_key] and
-            pkgname in pmb.helpers.other.cache[cache_key][arch]):
-        return pmb.helpers.other.cache[cache_key][arch][pkgname]
-
     # Build ret (by iterating over the queue)
     queue = [pkgname]
     ret = []
@@ -166,10 +142,6 @@ def depends_recurse(pkgname, arch):
             ret += [package["pkgname"]]
     ret.sort()
 
-    # Save to cache and return
-    if arch not in pmb.helpers.other.cache[cache_key]:
-        pmb.helpers.other.cache[cache_key][arch] = {}
-    pmb.helpers.other.cache[cache_key][arch][pkgname] = ret
     return ret
 
 

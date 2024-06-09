@@ -9,6 +9,7 @@ import os
 import sys
 
 import pmb.config
+from pmb.meta import Cache
 from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.pmaports
@@ -59,12 +60,9 @@ def check_version_pmbootstrap(min_ver):
                        " of pmbootstrap from git.")
 
 
+@Cache()
 def read_config_repos():
     """ Read the sections starting with "repo:" from pmaports.cfg. """
-    # Try cache first
-    cache_key = "pmb.config.pmaports.read_config_repos"
-    if pmb.helpers.other.cache[cache_key]:
-        return pmb.helpers.other.cache[cache_key]
 
     cfg = configparser.ConfigParser()
     cfg.read(f"{pkgrepo_default_path()}/pmaports.cfg")
@@ -76,22 +74,17 @@ def read_config_repos():
         repo = section.split("repo:", 1)[1]
         ret[repo] = cfg[section]
 
-    # Cache and return
-    pmb.helpers.other.cache[cache_key] = ret
     return ret
 
 
-def read_config(aports: Optional[Path] = None, support_systemd=True):
-    """Read and verify pmaports.cfg."""
-    if not aports:
-        aports = pkgrepo_default_path()
-    name = aports.name
-    if support_systemd and aports.name == "systemd":
-        name = f"systemd-{aports.name}"
-    # Try cache first
-    cache_key = "pmb.config.pmaports.read_config"
-    if support_systemd and aports.name in pmb.helpers.other.cache[cache_key]:
-        return pmb.helpers.other.cache[cache_key][name]
+@Cache("aports")
+def read_config(aports: Optional[Path] = None):
+    """Read and verify pmaports.cfg. If aports is not
+    specified and systemd is enabled, the returned channel
+    will be the systemd one (e.g. systemd-edge instead of edge)
+    since we'll use the first pkgrepo which is systemd."""
+    if aports is None:
+        aports = pkgrepo_paths()[0]
 
     systemd = aports.name == "systemd"
     # extra-repos don't have a pmaports.cfg
@@ -123,11 +116,9 @@ def read_config(aports: Optional[Path] = None, support_systemd=True):
     # Translate legacy channel names
     ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
 
-    if "systemd" in name:
+    if systemd:
         ret["channel"] = "systemd-" + ret["channel"]
 
-    # Cache and return
-    pmb.helpers.other.cache[cache_key][name] = ret
     return ret
 
 
@@ -153,7 +144,7 @@ def read_config_channel():
 
     """
     aports = pkgrepo_default_path()
-    channel = read_config(support_systemd=False)["channel"]
+    channel = read_config(aports)["channel"]
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
 
     if channel in channels_cfg["channels"]:

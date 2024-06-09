@@ -104,7 +104,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     arch = args.arch or get_arch(apkbuild)
     chroot = pmb.build.autodetect.chroot(apkbuild, arch)
-    cross = pmb.build.autodetect.crosscompile(apkbuild, arch, chroot)
+    cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
     hostspec = arch.alpine_triple()
 
     # Set up build tools and makedepends

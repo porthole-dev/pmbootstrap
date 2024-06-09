@@ -12,7 +12,7 @@ from typing import Optional
 import pmb.config
 import pmb.config.pmaports
 from pmb.core import Chroot, get_context
-from pmb.types import PmbArgs
+from pmb.core.pkgrepo import pkgrepo_default_path
 
 
 def chroot_save_init(suffix: Chroot):
@@ -29,7 +29,7 @@ def chroot_save_init(suffix: Chroot):
             cfg[key] = {}
 
     # Update sections
-    channel = pmb.config.pmaports.read_config(support_systemd=False)["channel"]
+    channel = pmb.config.pmaports.read_config(pkgrepo_default_path())["channel"]
     cfg["chroot-channels"][str(suffix)] = channel
     cfg["chroot-init-dates"][str(suffix)] = str(int(time.time()))
 
@@ -83,7 +83,8 @@ def chroot_check_channel(chroot: Chroot):
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
     # Exclude systemd repo
-    channel = pmb.config.pmaports.read_config(support_systemd=False)["channel"]
+    aports = pkgrepo_default_path()
+    channel = pmb.config.pmaports.read_config(aports)["channel"]
     channel_cfg = cfg[key][str(chroot)]
     if channel != channel_cfg:
         raise RuntimeError(f"Chroot '{chroot}' was created for the"

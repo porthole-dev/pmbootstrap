@@ -4,8 +4,10 @@ from pmb.core import Config
 from pmb.core.config import SystemdConfig
 import pmb.helpers.ui
 import pmb.config.pmaports
+from pmb.meta import Cache
 
 
+@Cache()
 def is_systemd_selected(config: Config):
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return False

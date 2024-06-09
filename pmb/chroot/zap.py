@@ -12,6 +12,7 @@ import pmb.config.pmaports
 import pmb.config.workdir
 import pmb.helpers.pmaports
 import pmb.helpers.run
+from pmb.meta import Cache
 import pmb.parse.apkindex
 from pmb.core import Chroot, get_context
 
@@ -77,7 +78,7 @@ def zap(confirm=True, dry=False, pkgs_local=False, http=False,
     pmb.config.workdir.clean()
 
     # Chroots were zapped, so no repo lists exist anymore
-    pmb.helpers.other.cache["apk_repository_list_updated"].clear()
+    Cache.clear_cache(pmb.chroot.apk.update_repository_list)
 
     # Print amount of cleaned up space
     if dry:

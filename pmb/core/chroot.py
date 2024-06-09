@@ -100,7 +100,7 @@ class Chroot:
         if not isinstance(other, Chroot):
             return NotImplemented
 
-        return self.type() == other.type() and self.name() == other.name()
+        return self.type == other.type and self.name() == other.name()
 
 
     def __truediv__(self, other: object) -> Path:
@@ -129,6 +129,7 @@ class Chroot:
         return NotImplemented
 
 
+    @property
     def type(self) -> ChrootType:
         return self.__type
 

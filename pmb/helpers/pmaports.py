@@ -14,6 +14,7 @@ from pmb.helpers import logging
 from pathlib import Path
 from typing import Any, Optional, Sequence, Dict, Tuple
 
+from pmb.meta import Cache
 import pmb.parse
 
 def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
@@ -139,6 +140,7 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
+@Cache("package", "subpackages", skip_extra_repos=False)
 def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
     """Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
@@ -155,49 +157,42 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     ret: Optional[Path] = None
-    if package in pmb.helpers.other.cache["find_aport"]:
-        ret = pmb.helpers.other.cache["find_aport"][package]
-    else:
-        # Sanity check
-        if "*" in package:
-            raise RuntimeError("Invalid pkgname: " + package)
+    # Sanity check
+    if "*" in package:
+        raise RuntimeError("Invalid pkgname: " + package)
 
-        # Try to find an APKBUILD with the exact pkgname we are looking for
-        path = _find_apkbuilds(skip_extra_repos).get(package)
-        if path:
-            logging.verbose(f"{package}: found apkbuild: {path}")
-            ret = path.parent
-        elif subpackages:
-            # No luck, take a guess what APKBUILD could have the package we are
-            # looking for as subpackage
-            guess = guess_main(package)
-            if guess:
-                # Parse the APKBUILD and verify if the guess was right
-                if _find_package_in_apkbuild(package, guess / "APKBUILD"):
-                    ret = guess
-                else:
-                    # Otherwise parse all APKBUILDs (takes time!), is the
-                    # package we are looking for a subpackage of any of those?
-                    for path_current in _find_apkbuilds().values():
-                        if _find_package_in_apkbuild(package, path_current):
-                            ret = path_current.parent
-                            break
+    # Try to find an APKBUILD with the exact pkgname we are looking for
+    path = _find_apkbuilds(skip_extra_repos).get(package)
+    if path:
+        logging.verbose(f"{package}: found apkbuild: {path}")
+        ret = path.parent
+    elif subpackages:
+        # No luck, take a guess what APKBUILD could have the package we are
+        # looking for as subpackage
+        guess = guess_main(package)
+        if guess:
+            # Parse the APKBUILD and verify if the guess was right
+            if _find_package_in_apkbuild(package, guess / "APKBUILD"):
+                ret = guess
+            else:
+                # Otherwise parse all APKBUILDs (takes time!), is the
+                # package we are looking for a subpackage of any of those?
+                for path_current in _find_apkbuilds().values():
+                    if _find_package_in_apkbuild(package, path_current):
+                        ret = path_current.parent
+                        break
 
-                # If we still didn't find anything, as last resort: assume our
-                # initial guess was right and the APKBUILD parser just didn't
-                # find the subpackage in there because it is behind shell logic
-                # that we don't parse.
-                if not ret:
-                    ret = guess
+            # If we still didn't find anything, as last resort: assume our
+            # initial guess was right and the APKBUILD parser just didn't
+            # find the subpackage in there because it is behind shell logic
+            # that we don't parse.
+            if not ret:
+                ret = guess
 
     # Crash when necessary
     if ret is None and must_exist:
         raise RuntimeError("Could not find aport for package: " +
                            package)
-
-    # Save result in cache (only if subpackage search was enabled)
-    if subpackages and not skip_extra_repos:
-        pmb.helpers.other.cache["find_aport"][package] = ret
 
     return ret
 
@@ -209,6 +204,8 @@ def find_optional(package: str) -> Optional[Path]:
         return None
 
 
+# The only caller with subpackages=False is ui.check_option()
+@Cache("pkgname", subpackages=True)
 def get_with_path(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
     """Find and parse an APKBUILD file.
 

@@ -11,12 +11,13 @@ import os
 import hashlib
 from pmb.core import get_context
 from pmb.core.arch import Arch
-from pmb.core.pkgrepo import pkgrepo_names, pkgrepo_paths
+from pmb.core.pkgrepo import pkgrepo_names
 from pmb.helpers import logging
 from pathlib import Path
 from typing import List, Optional, Set
 
 import pmb.config.pmaports
+from pmb.meta import Cache
 from pmb.types import PmbArgs
 import pmb.helpers.http
 import pmb.helpers.run
@@ -126,7 +127,8 @@ def apkindex_files(arch: Optional[Arch]=None, user_repository=True,
     return ret
 
 
-def update(arch=None, force=False, existing_only=False):
+@Cache("arch", force=False)
+def update(arch: Optional[Arch]=None, force=False, existing_only=False):
     """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)

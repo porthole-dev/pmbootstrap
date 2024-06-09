@@ -5,14 +5,11 @@ from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import pmb.config
 from pmb.core.context import get_context
+from pmb.meta import Cache
 
-_cache: Dict[str, Any] = {"pkgrepo_paths": []}
 
+@Cache(skip_extras=False)
 def pkgrepo_paths(skip_extras = False) -> List[Path]:
-    global _cache
-    if not skip_extras and _cache["pkgrepo_paths"]:
-        return _cache["pkgrepo_paths"]
-
     config = get_context().config
     paths = list(map(lambda x: Path(x),
                     config.aports))
@@ -29,7 +26,6 @@ def pkgrepo_paths(skip_extras = False) -> List[Path]:
             out_paths.append(p / "extra-repos/systemd")
         out_paths.append(p)
 
-    _cache["pkgrepo_paths"] = out_paths
     return out_paths
 
 def pkgrepo_default_path() -> Path:

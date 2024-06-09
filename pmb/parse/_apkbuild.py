@@ -9,6 +9,7 @@ import re
 from collections import OrderedDict
 
 import pmb.config
+from pmb.meta import Cache
 from pmb.types import PmbArgs
 import pmb.helpers.devices
 import pmb.parse.version
@@ -313,6 +314,7 @@ def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
     subpackages[subpkgname] = ret
 
 
+@Cache("path")
 def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
     """
     Parse relevant information out of the APKBUILD file. This is not meant
@@ -332,11 +334,6 @@ def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
 
     if not path.exists():
         raise FileNotFoundError(f"{path.relative_to(get_context().config.work)} not found!")
-
-    # Try to get a cached result first (we assume that the aports don't change
-    # in one pmbootstrap call)
-    if path in pmb.helpers.other.cache["apkbuild"]:
-        return pmb.helpers.other.cache["apkbuild"][path]
 
     # Read the file and check line endings
     lines = read_file(path)
@@ -364,7 +361,6 @@ def apkbuild(path: Path, check_pkgver=True, check_pkgname=True):
                                f" APKBUILD: {path}")
 
     # Fill cache
-    pmb.helpers.other.cache["apkbuild"][path] = ret
     return ret
 
 

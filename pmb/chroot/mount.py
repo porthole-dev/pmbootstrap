@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -83,7 +84,7 @@ def mount(chroot: Chroot):
 
     # Get all mountpoints
     arch = chroot.arch
-    channel = pmb.config.pmaports.read_config(support_systemd=False)["channel"]
+    channel = pmb.config.pmaports.read_config(pkgrepo_default_path())["channel"]
     mountpoints: Dict[Path, Path] = {}
     for src_template, target_template in pmb.config.chroot_mount_bind.items():
         src_template = src_template.replace("$WORK", os.fspath(get_context().config.work))
