@@ -67,6 +67,26 @@ class log_handler(logging.StreamHandler):
                         f"{styles['GREEN']}*** ",
                         1,
                     )
+                    .replace(
+                        "@BLUE@",
+                        f"{styles['BLUE']}",
+                    )
+                    .replace(
+                        "@YELLOW@",
+                        f"{styles['YELLOW']}",
+                    )
+                    .replace(
+                        "@RED@",
+                        f"{styles['RED']}",
+                    )
+                    .replace(
+                        "@GREEN@",
+                        f"{styles['GREEN']}",
+                    )
+                    .replace(
+                        "@END@",
+                        f"{styles['END']}",
+                    )
                 )
 
                 msg_col += styles["END"]
