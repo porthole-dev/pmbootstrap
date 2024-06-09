@@ -3,6 +3,7 @@
 import subprocess
 from typing import Sequence
 from pmb.core.arch import Arch
+from pmb.core.config import Config
 from pmb.core.context import get_context
 from pmb.helpers import logging
 import os
@@ -88,10 +89,11 @@ def create_gdk_loader_cache(args: PmbArgs) -> Path:
     return chroot_native / custom_cache_path
 
 
-def command_qemu(args: PmbArgs, device: str, arch: Arch, img_path, img_path_2nd=None):
+def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2nd=None):
     """
     Generate the full qemu command with arguments to run postmarketOS
     """
+    device = config.device
     cmdline = pmb.parse.deviceinfo().kernel_cmdline or ""
     if args.cmdline:
         cmdline = args.cmdline
@@ -186,7 +188,7 @@ def command_qemu(args: PmbArgs, device: str, arch: Arch, img_path, img_path_2nd=
     command += ["-m", str(args.memory)]
 
     command += ["-serial"]
-    if args.qemu_redir_stdio:
+    if config.qemu_redir_stdio:
         command += ["mon:stdio"]
     else:
         command += ["stdio"]
@@ -333,7 +335,8 @@ def run(args: PmbArgs):
     """
     Run a postmarketOS image in qemu
     """
-    device = get_context().config.device
+    config = get_context().config
+    device = config.device
     if not device.startswith("qemu-"):
         raise RuntimeError("'pmbootstrap qemu' can be only used with one of "
                            "the QEMU device packages. Run 'pmbootstrap init' "
@@ -349,7 +352,7 @@ def run(args: PmbArgs):
         install_depends(args, arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch.qemu() + ")")
 
-    qemu, env = command_qemu(args, device, arch, img_path, img_path_2nd)
+    qemu, env = command_qemu(args, config, arch, img_path, img_path_2nd)
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root
@@ -365,16 +368,16 @@ def run(args: PmbArgs):
 
     # SSH/serial/network hints
     logging.info("Connect to the VM:")
-    logging.info("* (ssh) ssh -p {port} {user}@localhost".format(**vars(args)))
+    logging.info(f"* (ssh) ssh -p {args.port} {config.user}@localhost")
     logging.info("* (serial) in this console (stdout/stdin)")
 
-    if args.qemu_redir_stdio:
+    if config.qemu_redir_stdio:
         logging.info("NOTE: Ctrl+C is redirected to the VM! To disable this, "
                      "run: pmbootstrap config qemu_redir_stdio False")
         logging.info("NOTE: To quit QEMU with this option you can use "
                      "Ctrl-A, X.")
 
-    if args.ui == "none":
+    if config.ui == "none":
         logging.warning("WARNING: With UI=none network doesn't work"
                         " automatically: https://postmarketos.org/qemu-network")
 
