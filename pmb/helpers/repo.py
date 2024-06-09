@@ -11,10 +11,10 @@ import os
 import hashlib
 from pmb.core import get_context
 from pmb.core.arch import Arch
-from pmb.core.pkgrepo import pkgrepo_paths
+from pmb.core.pkgrepo import pkgrepo_names, pkgrepo_paths
 from pmb.helpers import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import pmb.config.pmaports
 from pmb.types import PmbArgs
@@ -50,17 +50,18 @@ def apkindex_hash(url: str, length: int=8) -> Path:
     return Path(f"APKINDEX.{ret}.tar.gz")
 
 
-def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
+# FIXME: this function gets called way too much, needs to be
+# cached
+def urls(user_repository=True, mirrors_exclude: List[str] = []):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
 
     :param user_repository: add /mnt/pmbootstrap/packages
-    :param postmarketos_mirror: add postmarketos mirror URLs
-    :param alpine: add alpine mirror URLs
+    :param mirrors_exclude: mirrors to exclude (see pmb.core.config.Mirrors)
     :returns: list of mirror strings, like ["/mnt/pmbootstrap/packages",
                                             "http://...", ...]
     """
     ret: List[str] = []
-    context = get_context()
+    config = get_context().config
 
     # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
     # the pmaports branch of the channel, no need to make it more complicated)
@@ -70,42 +71,43 @@ def urls(user_repository=True, postmarketos_mirror=True, alpine=True):
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        # FIXME: We shouldn't hardcod this here
         for channel in pmb.config.pmaports.all_channels():
             ret.append(f"/mnt/pmbootstrap/packages/{channel}")
 
-    # Upstream postmarketOS binary repository
-    if postmarketos_mirror:
-        for mirror in context.config.mirrors_postmarketos:
-            # Remove "master" mirrordir to avoid breakage until bpo is adjusted
-            # (build.postmarketos.org#63) and to give potential other users of
-            # this flag a heads up.
-            if mirror.endswith("/master"):
-                logging.warning("WARNING: 'master' at the end of"
-                                " --mirror-pmOS is deprecated, the branch gets"
-                                " added automatically now!")
-                mirror = mirror[:-1 * len("master")]
-            ret.append(f"{mirror}{mirrordir_pmos}")
+    # Don't add the systemd mirror if systemd is disabled
+    if not pmb.config.is_systemd_selected(config):
+        mirrors_exclude.append("systemd")
 
-    # Upstream Alpine Linux repositories
-    if alpine:
-        directories = ["main", "community"]
-        if mirrordir_alpine == "edge":
-            directories.append("testing")
-        for dir in directories:
-            ret.append(f"{context.config.mirror_alpine}{mirrordir_alpine}/{dir}")
+    # ["pmaports", "systemd", "alpine", "plasma-nightly"]
+    # print(f"Mirrors: repos: {pkgrepo_names()} exclude: {mirrors_exclude}")
+    for repo in pkgrepo_names() + ["alpine"]:
+        if repo in mirrors_exclude:
+            continue
+        mirror = config.mirrors[repo] # mypy: disable-error-code="literal-required"
+        mirrordirs = []
+        if repo == "alpine":
+            # FIXME: This is a bit of a mess
+            mirrordirs = [f"{mirrordir_alpine}/main", f"{mirrordir_alpine}/community"]
+            if mirrordir_alpine == "edge":
+                mirrordirs.append(f"{mirrordir_alpine}/testing")
+        else:
+            mirrordirs = [mirrordir_pmos]
+
+        for mirrordir in mirrordirs:
+            url = os.path.join(mirror, mirrordir)
+            if url not in ret:
+                ret.append(url)
 
     return ret
 
 
-def apkindex_files(arch: Optional[Arch]=None, user_repository=True, pmos=True,
-                   alpine=True) -> List[Path]:
+def apkindex_files(arch: Optional[Arch]=None, user_repository=True,
+                   exclude_mirrors: List[str] = []) -> List[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
     :param arch: defaults to native
     :param user_repository: add path to index of locally built packages
-    :param pmos: add paths to indexes of postmarketos mirrors
-    :param alpine: add paths to indexes of alpine mirrors
+    :param exclude_mirrors: list of mirrors to exclude (e.g. ["alpine", "pmaports"])
     :returns: list of absolute APKINDEX.tar.gz file paths
     """
     if not arch:
@@ -118,7 +120,7 @@ def apkindex_files(arch: Optional[Arch]=None, user_repository=True, pmos=True,
             ret.append(get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz")
 
     # Resolve the APKINDEX.$HASH.tar.gz files
-    for url in urls(False, pmos, alpine):
+    for url in urls(False, exclude_mirrors):
         ret.append(get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url))
 
     return ret
@@ -223,6 +225,6 @@ def alpine_apkindex_path(repo="main", arch: Optional[Arch]=None):
 
     # Find it on disk
     channel_cfg = pmb.config.pmaports.read_config_channel()
-    repo_link = f"{get_context().config.mirror_alpine}{channel_cfg['mirrordir_alpine']}/{repo}"
+    repo_link = f"{get_context().config.mirrors["alpine"]}{channel_cfg['mirrordir_alpine']}/{repo}"
     cache_folder = get_context().config.work / (f"cache_apk_{arch}")
     return cache_folder / apkindex_hash(repo_link)

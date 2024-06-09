@@ -106,7 +106,7 @@ def auto(args: PmbArgs, dry=False):
     """:returns: list of aport names, where the pkgrel needed to be changed"""
     ret = []
     for arch in Arch.supported():
-        paths = pmb.helpers.repo.apkindex_files(args, arch, alpine=False)
+        paths = pmb.helpers.repo.apkindex_files(arch, exclude_mirrors=["alpine"])
         for path in paths:
             logging.info(f"scan {path}")
             index = pmb.parse.apkindex.parse(path, False)

@@ -47,11 +47,6 @@ class Config():
         "pmaports": "http://mirror.postmarketos.org/postmarketos/",
         "systemd": "http://mirror.postmarketos.org/postmarketos/staging/systemd/"
     }
-    # NOTE: mirrors use http by default to leverage caching
-    mirror_alpine: str = "http://dl-cdn.alpinelinux.org/alpine/"
-    # NOTE: mirrors_postmarketos variable type is supposed to be
-    #       comma-separated string, not a python list or any other type!
-    mirrors_postmarketos: List[str] = ["http://mirror.postmarketos.org/postmarketos/"]
     qemu_redir_stdio: bool = False
     ssh_key_glob: str = "~/.ssh/id_*.pub"
     ssh_keys: bool = False

@@ -51,7 +51,8 @@ def update_repository_list(suffix: Chroot, postmarketos_mirror=True,
         pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(postmarketos_mirror=postmarketos_mirror)
+    exclude = ["pmaports"] if not postmarketos_mirror else []
+    lines_new = pmb.helpers.repo.urls(mirrors_exclude=exclude)
     if lines_old == lines_new:
         pmb.helpers.other.cache["apk_repository_list_updated"].append(suffix)
         return

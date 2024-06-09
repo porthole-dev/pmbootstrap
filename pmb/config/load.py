@@ -30,9 +30,15 @@ def load(path: Path) -> Config:
         # default values won't be set in the config file
         if key not in cfg["pmbootstrap"]:
             continue
+        elif key == "mirror_alpine":
+            # DEPRCATED: We have special handling for this below.
+            continue
         # Handle whacky type conversions
         elif key == "mirrors_postmarketos":
-            config.mirrors_postmarketos = cfg["pmbootstrap"]["mirrors_postmarketos"].split(",")
+            mirrors = cfg["pmbootstrap"]["mirrors_postmarketos"].split(",")
+            if len(mirrors) > 1:
+                logging.warning("Multiple mirrors are not supported, using the last one")
+            config.mirrors_postmarketos = [mirrors[-1].strip("/master")]
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
@@ -45,6 +51,10 @@ def load(path: Path) -> Config:
         elif key in cfg["pmbootstrap"]:
             setattr(config, key, cfg["pmbootstrap"][key])
 
+    # One time migration "mirror_alpine" -> mirrors.alpine
+    if "mirror_alpine" in cfg["pmbootstrap"]:
+        config.mirrors["alpine"] = cfg["pmbootstrap"]["mirror_alpine"]
+        save(path, config)
 
     return config
 
@@ -68,6 +78,9 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
         # this makes it possible to update the default, otherwise
         # we wouldn't be able to tell if the user overwrote it.
         if skip_defaults and Config.get_default(key) == getattr(config, key):
+            continue
+        if key == "mirror_alpine" or key == "mirrors_postmarketos":
+            # DEPRECATED: skip these
             continue
         if key == "providers":
             cfg["providers"] = config.providers
