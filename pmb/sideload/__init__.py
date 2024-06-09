@@ -1,7 +1,7 @@
 # Copyright 2023 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from typing import List
+from typing import List, Optional
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
@@ -81,7 +81,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
     pmb.helpers.run.user(command, output="tui")
 
 
-def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Arch, copy_key: bool, pkgnames):
+def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Optional[Arch], copy_key: bool, pkgnames):
     """ Build packages if necessary and install them via SSH.
 
         :param user: target device ssh username
