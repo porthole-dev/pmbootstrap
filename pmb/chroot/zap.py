@@ -149,15 +149,18 @@ def zap_pkgs_online_mismatch(confirm=True, dry=False):
     # Iterate over existing apk caches
     for path in paths:
         arch = Arch.from_str(path.name.split("_", 2)[2])
-        if arch == Arch.native():
-            suffix = Chroot.native()
+        if arch.is_native():
+            chroot = Chroot.native()
         else:
-            try:
-                suffix = Chroot.buildroot(arch)
-            except ValueError:
-                continue # Ignore invalid directory name
+            chroot = Chroot.buildroot(arch)
+
+        # Skip if chroot does not exist
+        # FIXME: should we init the buildroot to do it anyway?
+        # what if we run apk.static with --arch instead?
+        if not chroot.path.is_dir():
+            continue
 
         # Clean the cache with apk
-        logging.info(f"({suffix}) apk -v cache clean")
+        logging.info(f"({chroot}) apk -v cache clean")
         if not dry:
-            pmb.chroot.root(["apk", "-v", "cache", "clean"], suffix)
+            pmb.chroot.root(["apk", "-v", "cache", "clean"], chroot)
