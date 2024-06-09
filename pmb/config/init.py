@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core import get_context
 from pmb.core.chroot import Chroot
+from pmb.core.config import SystemdConfig
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
@@ -211,7 +212,7 @@ def ask_for_systemd(config: Config, ui):
     logging.info("Based on your UI selection, 'default' will result"
                  f" in{not_str}installing systemd.")
 
-    choices = pmb.config.allowed_values["systemd"]
+    choices = SystemdConfig.choices()
     answer = pmb.helpers.cli.ask("Install systemd?",
                                  choices,
                                  config.systemd,

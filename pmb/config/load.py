@@ -1,33 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import Any, Dict, List, Mapping, Optional
+from typing import List
 from pmb.helpers import logging
 import configparser
 import os
-import sys
-import pmb.config
 from pmb.core import Config
-
-
-def sanity_check(cfg: Config, key, allowed, path: Optional[Path] = None):
-    value = getattr(cfg, key)
-
-    if value in allowed:
-        return
-
-    logging.error(f"pmbootstrap.cfg: invalid value for {key}: '{value}'")
-    logging.error(f"Allowed: {', '.join(allowed)}")
-
-    if path:
-        logging.error(f"Fix it here and try again: {path}")
-
-    sys.exit(1)
-
-
-def sanity_checks(cfg: Config, path: Optional[Path] = None):
-    for key, allowed in pmb.config.allowed_values.items():
-        sanity_check(cfg, key, allowed, path)
 
 
 def load(path: Path) -> Config:
@@ -67,7 +45,6 @@ def load(path: Path) -> Config:
         elif key in cfg["pmbootstrap"]:
             setattr(config, key, cfg["pmbootstrap"][key])
 
-    sanity_checks(config, path)
 
     return config
 

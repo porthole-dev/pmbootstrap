@@ -228,7 +228,6 @@ def config(args: PmbArgs):
         pmb.config.save(args.config, config)
     elif args.value is not None:
         setattr(config, args.name, args.value)
-        pmb.config.sanity_checks(config)
         logging.info("Config changed: " + args.name + "='" + args.value + "'")
         pmb.config.save(args.config, config)
     elif args.name:

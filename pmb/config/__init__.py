@@ -11,7 +11,7 @@ from typing import Dict, List, Sequence
 #
 # FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
 # this functions this way
-from pmb.config.load import load, sanity_checks, save, serialize
+from pmb.config.load import load, save, serialize
 from pmb.config.sudo import which_sudo
 from pmb.config.other import is_systemd_selected
 
@@ -111,10 +111,6 @@ defaults = {
     # times on slower devices due to host systems being MUCH faster than the
     # target device (see issue #429).
     "iter_time": "200",
-}
-
-allowed_values = {
-    "systemd": ["default", "always", "never"],
 }
 
 # Whether we're connected to a TTY (which allows things like e.g. printing
