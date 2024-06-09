@@ -158,5 +158,5 @@ def check_arch(pkgname, arch, binary=True):
     if binary:
         arches = get(pkgname, arch)["arch"]
     else:
-        arches = pmb.helpers.pmaports.get(pkgname)["arch"]
+        arches = pmb.helpers.pmaports.get(pkgname, must_exist=True)["arch"]
     return pmb.helpers.pmaports.check_arches(arches, arch)
