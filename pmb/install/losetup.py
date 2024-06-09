@@ -24,7 +24,7 @@ def init():
         pmb.helpers.mount.bind_file(loopdevice, Chroot.native() / loopdevice)
 
 
-def mount(args: PmbArgs, img_path: Path):
+def mount(img_path: Path):
     """
     :param img_path: Path to the img file inside native chroot.
     """
