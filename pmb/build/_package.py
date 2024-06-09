@@ -71,7 +71,7 @@ def get_apkbuild(pkgname, arch):
                        " could not find this package in any APKINDEX!")
 
 
-def check_build_for_arch(pkgname, arch):
+def check_build_for_arch(pkgname: str, arch: Arch):
     """Check if pmaport can be built or exists as binary for a specific arch.
 
     :returns: * True when it can be built
@@ -93,7 +93,7 @@ def check_build_for_arch(pkgname, arch):
         logging.debug(pkgname + ": found pmaport (" + pmaport_version + ") and"
                       " binary package (" + binary["version"] + ", from"
                       " postmarketOS or Alpine), but pmaport can't be built"
-                      " for " + arch + " -> using binary package")
+                      f" for {arch} -> using binary package")
         return False
 
     # No binary package exists and can't build it
