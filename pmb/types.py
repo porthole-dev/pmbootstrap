@@ -39,7 +39,7 @@ class PmbArgs(Namespace):
     apkindex_path: Path
     aports: Optional[Path]
     _aports_real: str
-    arch: Arch
+    arch: Optional[Arch]
     as_root: str
     assume_yes: str
     auto: str
