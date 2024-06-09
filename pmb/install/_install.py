@@ -1237,15 +1237,10 @@ def create_device_rootfs(args: PmbArgs, step, steps):
     # Install uninstallable "dependencies" by default
     install_packages += get_recommends(args, install_packages)
 
-    # Explicitly call build on the install packages, to re-build them or any
-    # dependency, in case the version increased
-    if config.build_pkgs_on_install:
-        for pkgname in install_packages:
-            pmb.build.package(context, pkgname, pmb.parse.deviceinfo().arch)
-
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
     # installed a hook without pmbootstrap - see #69 for more info)
+    # Packages will be built if necessary as part of this step
     pmb.chroot.apk.install(install_packages, chroot)
     flavor = pmb.chroot.other.kernel_flavor_installed(chroot)
     pmb.chroot.initfs.build(flavor, chroot)
