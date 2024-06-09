@@ -815,7 +815,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     device = chroot.name()
     # Partition and fill image file/disk block device
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
-    pmb.chroot.shutdown(True)
+    pmb.helpers.mount.umount_all(chroot.path)
     (size_boot, size_root) = get_subpartitions_size(chroot)
     layout = get_partition_layout(size_reserve, pmb.parse.deviceinfo().cgpt_kpart \
              and args.install_cgpt)
@@ -832,6 +832,9 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
         pmb.install.partitions_mount(device, layout, disk)
 
     pmb.install.format(args, layout, boot_label, root_label, disk)
+
+    # Since we shut down the chroot we need to mount it again
+    pmb.chroot.mount(chroot)
 
     # Create /etc/fstab and /etc/crypttab
     logging.info("(native) create /etc/fstab")

@@ -4,6 +4,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 from typing import Dict
+import pmb.chroot.binfmt
 import pmb.config
 import pmb.helpers.run
 import pmb.parse
@@ -95,6 +96,19 @@ def mount(chroot: Chroot):
         target_outer = chroot / target
         if not pmb.helpers.mount.ismount(target_outer):
             pmb.helpers.mount.bind(source, target_outer)
+
+
+    # Set up binfmt
+    if not arch.cpu_emulation_required():
+        return
+
+    arch_qemu = arch.qemu()
+
+    # mount --bind the qemu-user binary
+    pmb.chroot.binfmt.register(arch)
+    pmb.helpers.mount.bind_file(Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
+                                chroot / f"usr/bin/qemu-{arch_qemu}-static",
+                                create_folders=True)
 
 
 def mount_native_into_foreign(chroot: Chroot):

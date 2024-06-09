@@ -55,20 +55,6 @@ def mark_in_chroot(chroot: Chroot=Chroot.native()):
         pmb.helpers.run.root(["touch", in_chroot_file])
 
 
-def setup_qemu_emulation(chroot: Chroot):
-    arch = chroot.arch
-    if not arch.cpu_emulation_required():
-        return
-
-    arch_qemu = arch.qemu()
-
-    # mount --bind the qemu-user binary
-    pmb.chroot.binfmt.register(arch)
-    pmb.helpers.mount.bind_file(Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
-                                chroot / f"usr/bin/qemu-{arch_qemu}-static",
-                                create_folders=True)
-
-
 def init_keys():
     """
     All Alpine and postmarketOS repository keys are shipped with pmbootstrap.
@@ -131,7 +117,6 @@ def init(chroot: Chroot=Chroot.native(), usr_merge=UsrMerge.AUTO,
         return
 
     pmb.chroot.mount(chroot)
-    setup_qemu_emulation(chroot)
     mark_in_chroot(chroot)
     if (chroot / "bin/sh").is_symlink():
         pmb.config.workdir.chroot_check_channel(chroot)
