@@ -95,8 +95,8 @@ def mount(chroot: Chroot):
     # Mount if necessary
     for source, target in mountpoints.items():
         target_outer = chroot / target
-        #raise RuntimeError("test")
-        pmb.helpers.mount.bind(source, target_outer)
+        if not pmb.helpers.mount.ismount(target_outer):
+            pmb.helpers.mount.bind(source, target_outer)
 
 
 def mount_native_into_foreign(chroot: Chroot):
