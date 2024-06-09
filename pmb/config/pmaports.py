@@ -137,6 +137,7 @@ def all_channels() -> List[str]:
     for repo in pkgrepo_paths():
         ret.add(read_config(repo)["channel"])
 
+    logging.verbose(f"all_chanels: {ret}")
     return list(ret)
 
 
