@@ -121,7 +121,7 @@ def mount_native_into_foreign(chroot: Chroot):
     if not musl_link.is_symlink():
         pmb.helpers.run.root(["ln", "-s", "/native/lib/" + musl,
                                     musl_link])
-        pmb.helpers.run.root(args, ["ln", "-sf", "/native/usr/bin/pigz", "/usr/local/bin/pigz"])
+        # pmb.helpers.run.root(["ln", "-sf", "/native/usr/bin/pigz", "/usr/local/bin/pigz"])
 
 def remove_mnt_pmbootstrap(chroot: Chroot):
     """ Safely remove /mnt/pmbootstrap directories from the chroot, without
