@@ -6,7 +6,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List
+from typing import List, Optional
 
 import pmb.build
 import pmb.chroot
@@ -21,6 +21,7 @@ import pmb.parse.apkindex
 import pmb.parse.depends
 import pmb.parse.version
 from pmb.core import Chroot, get_context
+from pmb.types import PathString
 
 
 @Cache("chroot")
@@ -139,7 +140,7 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
     return ret
 
 
-def install_run_apk(to_add, to_add_local, to_del, chroot: Chroot):
+def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[str], chroot: Chroot):
     """
     Run apk to add packages, and ensure only the desired packages get
     explicitly marked as installed.
@@ -154,16 +155,17 @@ def install_run_apk(to_add, to_add_local, to_del, chroot: Chroot):
     context = get_context()
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
-    for package in to_add + [os.fspath(p) for p in to_add_local] + to_del:
+    local_add = [os.fspath(p) for p in to_add_local]
+    for package in to_add + local_add + to_del:
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands = [["add"] + to_add]
+    commands: List[List[PathString]] = [["add"] + to_add]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
     if to_add_local:
-        commands += [["add", "-u", "--virtual", ".pmbootstrap"] + to_add_local,
+        commands += [["add", "-u", "--virtual", ".pmbootstrap"] + local_add,
                      ["del", ".pmbootstrap"]]
 
     if to_del:
@@ -225,23 +227,24 @@ def install(packages, chroot: Chroot, build=True):
     # Initialize chroot
     check_min_version(chroot)
 
+    if any(p.startswith("!") for p in packages):
+        msg = f"({chroot}) install: packages with '!' are not supported!\n{', '.join(packages)}"
+        raise ValueError(msg)
+
     installed_pkgs = pmb.chroot.user(["apk", "info", "-e"] + packages, chroot, output_return=True, check=False)
     if installed_pkgs is not None and installed_pkgs.strip().split("\n") == packages:
         logging.debug(f"({chroot}) all packages already installed")
         return
 
-    packages_with_depends = pmb.parse.depends.recurse(packages, chroot)
-    to_add, to_del = packages_split_to_add_del(packages_with_depends)
+    to_add, to_del = packages_split_to_add_del(packages)
 
     if build and context.config.build_pkgs_on_install:
-        for package in to_add:
-            pmb.build.package(context, package, arch)
+        pmb.build.packages(context, to_add, arch)
 
     to_add_local = packages_get_locally_built_apks(to_add, arch)
-    to_add_no_deps, _ = packages_split_to_add_del(packages)
 
-    logging.info(f"({chroot}) install {' '.join(to_add_no_deps)}")
-    install_run_apk(to_add_no_deps, to_add_local, to_del, chroot)
+    logging.info(f"({chroot}) install {' '.join(packages)}")
+    install_run_apk(packages, to_add_local, to_del, chroot)
 
 
 def installed(suffix: Chroot=Chroot.native()):
