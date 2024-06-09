@@ -547,10 +547,6 @@ def qemu(args: PmbArgs):
     pmb.qemu.run(args)
 
 
-def shutdown(args: PmbArgs):
-    pmb.chroot.shutdown(args)
-
-
 def stats(args: PmbArgs):
     # Chroot suffix
     chroot = Chroot.native()

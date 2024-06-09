@@ -12,13 +12,13 @@ from .base import Command
 from .log import Log
 from .index import Index
 from .repo_bootstrap import RepoBootstrap
+from .shutdown import Shutdown
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "shutdown",
     "work_migrate",
     "repo_missing",
     "kconfig",
@@ -66,6 +66,8 @@ def run_command(args: PmbArgs):
         command = Index()
     elif args.action == "repo_bootstrap":
         command = RepoBootstrap(args.arch, args.repository)
+    elif args.action == "shutdown":
+        command = Shutdown()
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 
