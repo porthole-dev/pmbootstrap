@@ -1088,7 +1088,7 @@ def get_selected_providers(args: PmbArgs, packages):
 
     for package in packages:
         if package in get_selected_providers_visited:
-            logging.debug(f"get_selected_providers: {package}: already visited")
+            logging.verbose(f"get_selected_providers: {package}: already visited")
             continue
         get_selected_providers_visited += [package]
 
@@ -1102,7 +1102,7 @@ def get_selected_providers(args: PmbArgs, packages):
         for select in apkbuild['_pmb_select']:
             if select in get_context().config.providers:
                 ret += [get_context().config.providers[select]]
-                logging.debug(f"{package}: install selected_providers:"
+                logging.verbose(f"{package}: install selected_providers:"
                               f" {', '.join(ret)}")
         # Also iterate through dependencies to collect any providers they have
         depends = apkbuild["depends"]
