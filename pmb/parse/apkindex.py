@@ -284,7 +284,6 @@ def providers(package, arch: Optional[Arch]=None, must_exist=True, indexes=None)
         block is the return value from parse_next_block() above.
     """
     if not indexes:
-        arch = arch or Arch.native()
         indexes = pmb.helpers.repo.apkindex_files(arch)
 
     package = pmb.helpers.package.remove_operators(package)
