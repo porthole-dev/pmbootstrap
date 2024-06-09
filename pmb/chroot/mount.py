@@ -5,8 +5,6 @@ import os
 from pathlib import Path
 from typing import Dict
 import pmb.config
-import pmb.chroot.apk
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse
 import pmb.helpers.mount
@@ -111,7 +109,7 @@ def mount_native_into_foreign(chroot: Chroot):
                                     musl_link])
         pmb.helpers.run.root(args, ["ln", "-sf", "/native/usr/bin/pigz", "/usr/local/bin/pigz"])
 
-def remove_mnt_pmbootstrap(args: PmbArgs, chroot: Chroot):
+def remove_mnt_pmbootstrap(chroot: Chroot):
     """ Safely remove /mnt/pmbootstrap directories from the chroot, without
         running rm -r as root and potentially removing data inside the
         mountpoint in case it was still mounted (bug in pmbootstrap, or user
