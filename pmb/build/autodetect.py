@@ -86,7 +86,7 @@ def chroot(apkbuild: Dict[str, str], arch: Arch) -> Chroot:
     return Chroot.buildroot(arch)
 
 
-def crosscompile(apkbuild, arch: Arch, suffix: Chroot):
+def crosscompile(apkbuild, arch: Arch):
     """
         :returns: None, "native", "crossdirect"
     """
@@ -94,7 +94,7 @@ def crosscompile(apkbuild, arch: Arch, suffix: Chroot):
         return None
     if not arch.cpu_emulation_required():
         return None
-    if suffix.type == ChrootType.NATIVE:
+    if arch.is_native() or "pmb:cross-native" in apkbuild["options"]:
         return "native"
     if "!pmb:crossdirect" in apkbuild["options"]:
         return None

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set, TypedDict
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_relative_path
@@ -17,6 +17,7 @@ import pmb.config.pmaports
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.mount
+from pmb.meta import Cache
 import pmb.parse
 import pmb.parse.apkindex
 from pmb.helpers.exceptions import BuildFailedError
@@ -30,23 +31,6 @@ class BootstrapStage(enum.IntEnum):
     """
     NONE = 0
     # We don't need explicit representations of the other numbers.
-
-
-def skip_already_built(pkgname, arch):
-    """Check if the package was already built in this session.
-
-    Add it to the cache in case it was not built yet.
-
-    :returns: True when it can be skipped or False
-    """
-    if arch not in pmb.helpers.other.cache["built"]:
-        pmb.helpers.other.cache["built"][arch] = []
-    if pkgname in pmb.helpers.other.cache["built"][arch]:
-        return True
-
-    logging.verbose(f"{pkgname}: marking as already built")
-    pmb.helpers.other.cache["built"][arch].append(pkgname)
-    return False
 
 
 def get_apkbuild(pkgname, arch):
@@ -102,8 +86,7 @@ def check_build_for_arch(pkgname: str, arch: Arch):
         logging.info("NOTE: Alternatively, use --arch to build for another"
                      " architecture ('pmbootstrap build --arch=armhf " +
                      pkgname + "')")
-    raise RuntimeError("Can't build '" + pkgname + "' for architecture " +
-                       arch)
+    raise RuntimeError(f"Can't build '{pkgname}' for architecture {arch}")
 
 
 def get_depends(context: Context, apkbuild):
@@ -130,124 +113,10 @@ def get_depends(context: Context, apkbuild):
             logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on"
                             " itself: " + pkgname)
             ret.remove(pkgname)
+
+    # FIXME: is this needed? is this sensible?
+    ret = list(filter(lambda x: not x.startswith("!"), ret))
     return ret
-
-
-def build_depends(context: Context, apkbuild, arch, strict):
-    """Get and build dependencies with verbose logging messages.
-
-    :returns: (depends, depends_built)
-    """
-    # Get dependencies
-    pkgname = apkbuild["pkgname"]
-    depends = get_depends(context, apkbuild)
-    logging.verbose(pkgname + ": build/install dependencies: " +
-                    ", ".join(depends))
-
-    # --no-depends: check for binary packages
-    depends_built = []
-    if context.no_depends:
-        pmb.helpers.repo.update(arch)
-        for depend in depends:
-            # Ignore conflicting dependencies
-            if depend.startswith("!"):
-                continue
-            # Check if binary package is missing
-            if not pmb.parse.apkindex.package(depend, arch, False):
-                raise RuntimeError("Missing binary package for dependency '" +
-                                   depend + "' of '" + pkgname + "', but"
-                                   " pmbootstrap won't build any depends since"
-                                   " it was started with --no-depends.")
-            # Check if binary package is outdated
-            _, apkbuild_dep = get_apkbuild(depend, arch)
-            if apkbuild_dep and \
-               pmb.build.is_necessary(arch, apkbuild_dep):
-                raise RuntimeError(f"Binary package for dependency '{depend}'"
-                                   f" of '{pkgname}' is outdated, but"
-                                   f" pmbootstrap won't build any depends"
-                                   f" since it was started with --no-depends.")
-    else:
-        # Build the dependencies
-        for depend in depends:
-            if depend.startswith("!"):
-                continue
-            if package(context, depend, arch, strict=strict):
-                depends_built += [depend]
-        logging.verbose(pkgname + ": build dependencies: done, built: " +
-                        ", ".join(depends_built))
-
-    return (depends, depends_built)
-
-
-def is_necessary_warn_depends(apkbuild, arch, force, depends_built):
-    """Check if a build is necessary, and warn if it is not, but there were dependencies built.
-
-    :returns: True or False
-    """
-    pkgname = apkbuild["pkgname"]
-
-    # Check if necessary (this warns about binary version > aport version, so
-    # call it even in force mode)
-    ret = pmb.build.is_necessary(arch, apkbuild)
-    if force:
-        ret = True
-
-    if not ret and len(depends_built):
-        logging.verbose(f"{pkgname}: depends on rebuilt package(s): "
-                        f" {', '.join(depends_built)}")
-
-    logging.verbose(pkgname + ": build necessary: " + str(ret))
-    return ret
-
-
-def init_buildenv(context: Context, apkbuild, arch, strict=False, force=False, cross=None,
-                  chroot: Chroot = Chroot.native(), skip_init_buildenv=False, src=None):
-    """Build all dependencies.
-
-    Check if we need to build at all (otherwise we've
-    just initialized the build environment for nothing) and then setup the
-    whole build environment (abuild, gcc, dependencies, cross-compiler).
-
-    :param cross: None, "native", or "crossdirect"
-    :param skip_init_buildenv: can be set to False to avoid initializing the
-                               build environment. Use this when building
-                               something during initialization of the build
-                               environment (e.g. qemu aarch64 bug workaround)
-    :param src: override source used to build the package with a local folder
-    :returns: True when the build is necessary (otherwise False)
-    """
-
-    depends_arch = arch
-    if cross == "native":
-        depends_arch = Arch.native()
-
-    # Build dependencies
-    depends, built = build_depends(context, apkbuild, depends_arch, strict)
-
-    # Check if build is necessary
-    if not is_necessary_warn_depends(apkbuild, arch, force, built):
-        return False
-
-    # Install and configure abuild, ccache, gcc, dependencies
-    if not skip_init_buildenv:
-        pmb.build.init(chroot)
-        pmb.build.other.configure_abuild(chroot)
-        if context.ccache:
-            pmb.build.other.configure_ccache(chroot)
-            if "rust" in depends or "cargo" in depends:
-                pmb.chroot.apk.install(["sccache"], chroot)
-    if not strict and "pmb:strict" not in apkbuild["options"] and len(depends):
-        pmb.chroot.apk.install(depends, chroot)
-    if src:
-        pmb.chroot.apk.install(["rsync"], chroot)
-
-    # Cross-compiler init
-    if cross:
-        pmb.build.init_compiler(context, depends, cross, arch)
-    if cross == "crossdirect":
-        pmb.chroot.mount_native_into_foreign(chroot)
-
-    return True
 
 
 def get_pkgver(original_pkgver, original_source=False, now=None):
@@ -420,14 +289,6 @@ def run_abuild(context: Context, apkbuild, channel, arch, strict=False, force=Fa
                       ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}",
                      "/home/pmos/packages/pmos"]], suffix)
 
-    # Pretty log message
-    pkgver = get_pkgver(apkbuild["pkgver"], src is None)
-    output = output_path(arch, apkbuild["pkgname"], pkgver, apkbuild["pkgrel"])
-    message = f"({suffix}) build {channel}/{output}"
-    if src:
-        message += " (source: " + src + ")"
-    logging.info(message)
-
     # Environment variables
     env = {"CARCH": arch,
            "SUDO_APK": "abuild-apk --no-progress"}
@@ -474,13 +335,12 @@ def run_abuild(context: Context, apkbuild, channel, arch, strict=False, force=Fa
 
     # Copy the aport to the chroot and build it
     pmb.build.copy_to_buildpath(apkbuild["pkgname"], suffix)
-    override_source(apkbuild, pkgver, src, suffix)
+    override_source(apkbuild, apkbuild["pkgver"], src, suffix)
     link_to_git_dir(suffix)
     pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
-    return (output, cmd, env)
 
 
-def finish(apkbuild, channel, arch, output: str, chroot: Chroot, strict=False):
+def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
     """Various finishing tasks that need to be done after a build."""
     # Verify output file
     out_dir = (get_context().config.work / "packages" / channel)
@@ -501,17 +361,35 @@ def finish(apkbuild, channel, arch, output: str, chroot: Chroot, strict=False):
         # abuild will have removed the postmarketOS repository key (pma#1230)
         pmb.chroot.init_keys()
 
+_package_cache: Dict[str, List[str]] = {}
+
+def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
+    """Check if a package is in the built packages cache, if not
+    then mark it as built. We must mark as built before building
+    to break cyclical dependency loops."""
+    if arch not in _package_cache:
+        _package_cache[str(arch)] = []
+
+    ret = pkgname in _package_cache.get(str(arch), [])
+    if not ret:
+        _package_cache[str(arch)].append(pkgname)
+    return ret
+
+
+class BuildQueueItem(TypedDict):
+        name: str
+        aports: str
+        apkbuild: Dict[str, Any]
+        depends: List[str]
+        cross: str
+        chroot: Chroot
+
 
 def package(context: Context, pkgname, arch: Optional[Arch]=None, force=False, strict=False,
             skip_init_buildenv=False, src=None,
             bootstrap_stage=BootstrapStage.NONE):
     """
     Build a package and its dependencies with Alpine Linux' abuild.
-
-    If this function is called multiple times on the same pkgname but first
-    with force=False and then force=True the force argument will be ignored due
-    to the package cache.
-    See the skip_already_built() call below.
 
     :param pkgname: package name to be built, as specified in the APKBUILD
     :param arch: architecture we're building for (default: native)
@@ -527,35 +405,121 @@ def package(context: Context, pkgname, arch: Optional[Arch]=None, force=False, s
     :returns: None if the build was not necessary
               output path relative to the packages folder ("armhf/ab-1-r2.apk")
     """
+    arch = Arch.native() if arch is None else arch
 
-    # Once per session is enough
-    arch = arch or Arch.native()
-    # the order of checks here is intentional,
-    # skip_already_built() has side effects!
-    if skip_already_built(pkgname, arch) and not force:
+    build_queue: List[BuildQueueItem] = []
+
+    # Add a package to the build queue, fetch it's dependency, and
+    # add record build helpers to installed (e.g. sccache)
+    def queue_build(aports: str, apkbuild: Dict[str, Any], cross: Optional[str] = None) -> List[str]:
+        depends = get_depends(context, apkbuild)
+        chroot = pmb.build.autodetect.chroot(apkbuild, arch)
+        cross = cross or pmb.build.autodetect.crosscompile(apkbuild, arch)
+        build_queue.append({
+            "name": apkbuild["pkgname"],
+            "aports": aports, # the pmaports source repo (e.g. "systemd")
+            "apkbuild": apkbuild,
+            "depends": depends,
+            "chroot": chroot,
+            "cross": cross
+        })
+
+        return depends
+
+    if is_cached_or_cache(arch, pkgname) and not force:
+        logging.verbose(f"Skipping build for {arch}/{pkgname}, already built")
         return
 
     # Only build when APKBUILD exists
     aports, apkbuild = get_apkbuild(pkgname, arch)
     if not apkbuild:
         return
-
-    channel: str = pmb.config.pmaports.read_config(aports)["channel"]
+    
+    if not pmb.build.is_necessary(arch, apkbuild) and not force:
+        return
 
     # Detect the build environment (skip unnecessary builds)
     if not check_build_for_arch(pkgname, arch):
         return
-    chroot = pmb.build.autodetect.chroot(apkbuild, arch)
-    cross = pmb.build.autodetect.crosscompile(apkbuild, arch, chroot)
-    if not init_buildenv(context, apkbuild, arch, strict, force, cross, chroot,
-                         skip_init_buildenv, src):
+
+    logging.debug(f"{arch}/{pkgname}: Generating dependency tree")
+    # Add the package to the build queue
+    depends = queue_build(aports.name, apkbuild)
+    parent = pkgname
+    while len(depends):
+        dep = depends.pop(0)
+        if is_cached_or_cache(arch, dep):
+            continue
+        cross = None
+
+        aports, apkbuild = get_apkbuild(dep, arch)
+        if not apkbuild:
+            continue
+
+        if context.no_depends:
+            pmb.helpers.repo.update(arch)
+            cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
+            _dep_arch = Arch.native() if cross == "native" else arch
+            if not pmb.parse.apkindex.package(dep, _dep_arch, False):
+                raise RuntimeError("Missing binary package for dependency '" +
+                                dep + "' of '" + parent + "', but"
+                                " pmbootstrap won't build any depends since"
+                                " it was started with --no-depends.")
+
+        if pmb.build.is_necessary(arch, apkbuild):
+            if context.no_depends:
+                raise RuntimeError(f"Binary package for dependency '{dep}'"
+                                   f" of '{parent}' is outdated, but"
+                                   f" pmbootstrap won't build any depends"
+                                   f" since it was started with --no-depends.")
+            logging.verbose(f"{arch}/{dep}: build necessary")
+            deps = queue_build(aports.name, apkbuild, cross)
+
+            logging.verbose(f"{arch}/{dep}: Inserting {len(deps)} dependencies")
+            depends = deps + depends
+            parent = dep
+
+    if not len(build_queue):
         return
 
-    # Build and finish up
-    try:
-        (output, cmd, env) = run_abuild(context, apkbuild, channel, arch, strict, force, cross,
-                                        chroot, src, bootstrap_stage)
-    except RuntimeError:
-        raise BuildFailedError(f"Build for {arch}/{pkgname} failed!")
-    finish(apkbuild, channel, arch, output, chroot, strict)
+    channel: str = pmb.config.pmaports.read_config(aports)["channel"]
+
+    logging.info(f"{len(build_queue)} package(s) to build")
+
+    cross = None
+
+    while len(build_queue):
+        pkg = build_queue.pop()
+        chroot = pkg["chroot"]
+
+        output = output_path(arch, pkg["name"], pkg["apkbuild"]["pkgver"], pkg["apkbuild"]["pkgrel"])
+        logging.info(f"*** Build {channel}/{output}")
+
+        # One time chroot initialization
+        if pmb.build.init(chroot):
+            pmb.build.other.configure_abuild(chroot)
+            pmb.build.other.configure_ccache(chroot)
+            if "rust" in depends or "cargo" in depends:
+                pmb.chroot.apk.install(["sccache"], chroot)
+            if src:
+                pmb.chroot.apk.install(["rsync"], chroot)
+
+        # We only need to init cross compiler stuff once
+        if not cross:
+            cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], arch)
+            if cross:
+                pmb.build.init_compiler(context, depends, cross, arch)
+            if cross == "crossdirect":
+                pmb.chroot.mount_native_into_foreign(chroot)
+
+        if not strict and "pmb:strict" not in pkg["apkbuild"]["options"] and len(pkg["depends"]):
+            pmb.chroot.apk.install(pkg["depends"], chroot)
+
+        # Build and finish up
+        try:
+            run_abuild(context, pkg["apkbuild"], channel, arch, strict, force, cross,
+                                            chroot, src, bootstrap_stage)
+        except RuntimeError:
+            raise BuildFailedError(f"Couldn't build {output}!")
+        finish(pkg["apkbuild"], channel, arch, output, chroot, strict)
     return output

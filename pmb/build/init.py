@@ -37,11 +37,11 @@ def init_abuild_minimal(chroot: Chroot=Chroot.native()):
     pathlib.Path(marker).touch()
 
 
-def init(chroot: Chroot=Chroot.native()):
+def init(chroot: Chroot=Chroot.native()) -> bool:
     """Initialize a chroot for building packages with abuild."""
     marker = chroot / "tmp/pmb_chroot_build_init_done"
     if marker.exists():
-        return
+        return False
 
     # Initialize chroot, install packages
     pmb.chroot.init(Chroot.native())
@@ -109,6 +109,7 @@ def init(chroot: Chroot=Chroot.native()):
                            "/etc/abuild.conf"], chroot)
 
     pathlib.Path(marker).touch()
+    return True
 
 
 def init_compiler(context: Context, depends, cross, arch: Arch):
