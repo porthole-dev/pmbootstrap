@@ -37,6 +37,7 @@ class PmbArgs(Namespace):
     all_git: str
     all_stable: str
     android_recovery_zip: str
+    apkindex_path: Path
     aports: Optional[Path]
     _aports_real: str
     arch: Arch

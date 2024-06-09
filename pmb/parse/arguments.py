@@ -666,7 +666,7 @@ def get_parser():
     parser.add_argument("-B", "--boot-size",
                         help="specify an integer with your preferred boot"
                              "partition size on target machine in MB (default"
-                             " 128)")
+                             f" {Config.get_default('boot_size')})")
     parser.add_argument("-p", "--aports",
                         help="postmarketos aports (pmaports) path",
                         type=lambda x: [Path(p.strip()) for p in x.split(",")])
@@ -914,7 +914,7 @@ def get_parser():
 
     # Action: apkindex_parse
     apkindex_parse = sub.add_parser("apkindex_parse")
-    apkindex_parse.add_argument("apkindex_path")
+    apkindex_parse.add_argument("apkindex_path", type=lambda x: Path(x))
     add_packages_arg(apkindex_parse, "package", nargs="?")
 
     # Action: config
