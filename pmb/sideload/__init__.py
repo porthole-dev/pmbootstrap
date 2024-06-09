@@ -98,17 +98,22 @@ def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Arch, copy_ke
         arch = ssh_find_arch(args, user, host, port)
 
     context = get_context()
+    to_build = []
     for pkgname in pkgnames:
         data_repo = pmb.parse.apkindex.package(pkgname, arch, True)
         apk_file = f"{pkgname}-{data_repo['version']}.apk"
         host_path = context.config.work / "packages" / channel / arch / apk_file
         if not host_path.is_file():
-            pmb.build.package(context, pkgname, arch, force=True)
-
-        if not host_path.is_file():
-            raise RuntimeError(f"The package '{pkgname}' could not be built")
+            to_build.append(pkgname)
 
         paths.append(host_path)
+    
+    if to_build:
+        pmb.build.packages(context, to_build, arch, force=True)
+        # Check all the packages actually got builts
+        for path in paths:
+            if not path.is_file():
+                raise RuntimeError(f"The package '{pkgname}' could not be built")
 
     if copy_key:
         scp_abuild_key(args, user, host, port)

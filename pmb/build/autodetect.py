@@ -3,16 +3,17 @@
 from pathlib import Path
 from pmb.core.arch import Arch
 from pmb.helpers import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import pmb.config
 import pmb.chroot.apk
 import pmb.helpers.pmaports
 from pmb.core import Chroot, ChrootType, get_context
+from pmb.meta import Cache
 
 
 # FIXME (#2324): type hint Arch
-def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[str]:
+def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[Arch]:
     """
     The device- packages are noarch packages. But it only makes sense to build
     them for the device's architecture, which is specified in the deviceinfo
@@ -31,14 +32,17 @@ def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[str]:
     # Return its arch
     device = pkgname.split("-", 1)[1]
     arch = pmb.parse.deviceinfo(device).arch
-    logging.verbose(pkgname + ": arch from deviceinfo: " + arch)
+    logging.verbose(f"{pkgname}: arch from deviceinfo: {arch}")
     return arch
 
 
-def arch(pkgname: str):
+@Cache("package")
+def arch(package: Union[str, Dict[str, Any]]):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
+    
+    :param package: The name of the package or parsed APKBUILD
 
     :returns: arch string like "x86_64" or "armhf". Preferred order, depending
               on what is supported by the APKBUILD:
@@ -46,6 +50,7 @@ def arch(pkgname: str):
               * device arch (this will be preferred instead if build_default_device_arch is true)
               * first arch in the APKBUILD
     """
+    pkgname = package["pkgname"] if isinstance(package, dict) else package
     aport = pmb.helpers.pmaports.find(pkgname)
     if not aport:
         raise FileNotFoundError(f"APKBUILD not found for {pkgname}")
@@ -53,7 +58,7 @@ def arch(pkgname: str):
     if ret:
         return ret
 
-    apkbuild = pmb.parse.apkbuild(aport)
+    apkbuild = pmb.parse.apkbuild(aport) if isinstance(package, str) else package
     arches = apkbuild["arch"]
     deviceinfo = pmb.parse.deviceinfo()
 
@@ -71,9 +76,10 @@ def arch(pkgname: str):
         return preferred_arch_2nd
 
     try:
-        return apkbuild["arch"][0]
+        arch_str = apkbuild["arch"][0]
+        return Arch.from_str(arch_str) if arch_str else Arch.native()
     except IndexError:
-        return None
+        return Arch.native()
 
 
 def chroot(apkbuild: Dict[str, str], arch: Arch) -> Chroot:

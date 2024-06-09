@@ -6,4 +6,5 @@ from pmb.build.kconfig import menuconfig
 from pmb.build.newapkbuild import newapkbuild
 from pmb.build.other import copy_to_buildpath, is_necessary, \
     index_repo
-from pmb.build._package import BootstrapStage, mount_pmaports, package, output_path
+from pmb.build._package import BootstrapStage, mount_pmaports, packages, \
+    output_path, BuildQueueItem, get_apkbuild

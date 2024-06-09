@@ -487,7 +487,7 @@ def print_firewall_info(disabled: bool, arch: Arch):
 
     kernel = get_kernel_package(get_context().config)
     if kernel:
-        kernel_apkbuild = pmb.build._package.get_apkbuild(kernel[0], arch)
+        _, kernel_apkbuild = pmb.build.get_apkbuild(kernel[0])
         if kernel_apkbuild:
             opts = kernel_apkbuild["options"]
             apkbuild_has_opt = "pmb:kconfigcheck-nftables" in opts

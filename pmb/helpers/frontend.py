@@ -125,10 +125,11 @@ def build(args: PmbArgs):
 
     context = get_context()
     # Build all packages
-    for package in args.packages:
-        arch_package = args.arch or pmb.build.autodetect.arch(package)
-        if not pmb.build.package(context, package, arch_package, force,
-                                 args.strict, src=src):
+    built = pmb.build.packages(context, args.packages, args.arch, force,
+                                 strict=args.strict, src=src)
+
+    # Notify about packages that weren't built
+    for package in set(args.packages) - set(built):
             logging.info("NOTE: Package '" + package + "' is up to date. Use"
                          " 'pmbootstrap build " + package + " --force'"
                          " if needed.")

@@ -10,6 +10,7 @@ import glob
 import pmb.config.pmaports
 import pmb.helpers.repo
 import pmb.build
+from pmb.build import BuildQueueItem
 from pmb.core import Config
 from pmb.core import get_context
 
@@ -112,11 +113,14 @@ class RepoBootstrap(commands.Command):
             # Initialize without pmOS binary package repo
             pmb.chroot.init(chroot, usr_merge, postmarketos_mirror=False)
 
-            for package in self.get_packages(bootstrap_line):
-                self.log_progress(f"building {package}")
-                bootstrap_stage = int(step.split("bootstrap_", 1)[1])
-                pmb.build.package(self.context, package, self.arch, force=True,
-                                strict=True, bootstrap_stage=bootstrap_stage)
+            bootstrap_stage = int(step.split("bootstrap_", 1)[1])
+            def log_wrapper(pkg: BuildQueueItem):
+                self.log_progress(f"building {pkg['name']}")
+
+            packages = self.get_packages(bootstrap_line)
+            pmb.build.packages(self.context, packages, self.arch, force=True,
+                                strict=True, bootstrap_stage=bootstrap_stage,
+                                log_callback=log_wrapper)
 
         self.log_progress("bootstrap complete!")
 
