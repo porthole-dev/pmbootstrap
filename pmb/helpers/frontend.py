@@ -616,7 +616,7 @@ def lint(args: PmbArgs):
     if not packages:
         packages = pmb.helpers.pmaports.get_list()
 
-    pmb.helpers.lint.check(args, packages)
+    pmb.helpers.lint.check(packages)
 
 
 def status(args: PmbArgs) -> None:

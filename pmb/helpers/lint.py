@@ -1,7 +1,7 @@
 # Copyright 2023 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Sequence
 from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs, pkgrepo_names, pkgrepo_relative_path
 from pmb.helpers import logging
@@ -15,7 +15,7 @@ import pmb.helpers.run
 import pmb.helpers.pmaports
 
 
-def check(args: PmbArgs, pkgnames: List[str]):
+def check(pkgnames: Sequence[str]):
     """Run apkbuild-lint on the supplied packages.
 
     :param pkgnames: Names of the packages to lint
