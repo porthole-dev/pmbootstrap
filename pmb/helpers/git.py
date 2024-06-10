@@ -100,7 +100,7 @@ def get_upstream_remote(aports: Path):
     name_repo = aports.parts[-1]
     urls = pmb.config.git_repos[name_repo]
     command = ["git", "remote", "-v"]
-    output = pmb.helpers.run.user_output(command, aports)
+    output = pmb.helpers.run.user_output(command, aports, output="null")
     for line in output.split("\n"):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
@@ -125,8 +125,7 @@ def parse_channels_cfg(aports: Path):
     cfg = configparser.ConfigParser()
     remote = get_upstream_remote(aports)
     command = ["git", "show", f"{remote}/master:channels.cfg"]
-    stdout = pmb.helpers.run.user_output(command, aports,
-                                    check=False)
+    stdout = pmb.helpers.run.user_output(command, aports, output="null", check=False)
     try:
         cfg.read_string(stdout)
     except configparser.MissingSectionHeaderError:

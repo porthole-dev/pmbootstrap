@@ -57,7 +57,7 @@ def sanity_checks(output="log", output_return=False, check=None):
 
     (all parameters are described in core() below).
     """
-    vals = ["log", "stdout", "interactive", "tui", "background", "pipe"]
+    vals = ["log", "stdout", "interactive", "tui", "background", "pipe", "null"]
     if output not in vals:
         raise RuntimeError("Invalid output value: " + str(output))
 
@@ -90,7 +90,7 @@ def pipe(cmd, working_dir=None):
 
 
 # FIXME (#2324): These types make no sense at all
-def pipe_read(process, output_to_stdout=False, output_return=False,
+def pipe_read(process, output_to_stdout=False, output_log=True, output_return=False,
               output_return_buffer=False):
     """Read all output from a subprocess, copy it to the log and optionally stdout and a buffer variable.
 
@@ -107,7 +107,8 @@ def pipe_read(process, output_to_stdout=False, output_return=False,
         # Copy available output
         out = process.stdout.readline()
         if len(out):
-            pmb.helpers.logging.logfd.buffer.write(out)
+            if output_log:
+                pmb.helpers.logging.logfd.buffer.write(out)
             if output_to_stdout:
                 sys.stdout.buffer.write(out)
             if output_return:
@@ -160,7 +161,7 @@ def kill_command(pid, sudo):
 
 
 def foreground_pipe(cmd, working_dir=None, output_to_stdout=False,
-                    output_return=False, output_timeout=True,
+                    output_return=False, output_log=True, output_timeout=True,
                     sudo=False, stdin=None):
     """Run a subprocess in foreground with redirected output.
 
@@ -217,11 +218,11 @@ def foreground_pipe(cmd, working_dir=None, output_to_stdout=False,
                 continue
 
         # Read all currently available output
-        pipe_read(process, output_to_stdout, output_return,
+        pipe_read(process, output_to_stdout, output_log, output_return,
                   output_buffer)
 
     # There may still be output after the process quit
-    pipe_read(process, output_to_stdout, output_return, output_buffer)
+    pipe_read(process, output_to_stdout, output_log, output_return, output_buffer)
 
     # Return the return code and output (the output gets built as list of
     # output chunks and combined at the end, this is faster than extending the
@@ -344,6 +345,7 @@ def core(log_message, cmd, working_dir=None, output="log",
         "tui"                               x              x     x
         "background"            x
         "pipe"
+        "null"
         =============  =======  ==========  =============  ====  ==========
 
     :param output_return: in addition to writing the program's output to the
@@ -398,6 +400,7 @@ def core(log_message, cmd, working_dir=None, output="log",
         (code, output_after_run) = foreground_pipe(cmd, working_dir,
                                                    output_to_stdout,
                                                    output_return,
+                                                   output!="null",
                                                    output_timeout,
                                                    sudo, stdin)
 
