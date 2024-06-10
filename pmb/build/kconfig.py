@@ -46,7 +46,7 @@ def get_arch(apkbuild):
     return apkbuild["arch"][0]
 
 
-def get_outputdir(args: PmbArgs, pkgname: str, apkbuild: Dict[str, Any]) -> Path:
+def get_outputdir(pkgname: str, apkbuild: Dict[str, Any]) -> Path:
     """Get the folder for the kernel compilation output.
 
     For most APKBUILDs, this is $builddir. But some older ones still use
@@ -141,7 +141,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     color = os.environ.get("MENUCONFIG_COLOR")
 
     # Run make menuconfig
-    outputdir = get_outputdir(args, pkgname, apkbuild)
+    outputdir = get_outputdir(pkgname, apkbuild)
     logging.info("(native) make " + kopt)
     env = {"ARCH": arch.kernel(),
            "DISPLAY": os.environ.get("DISPLAY"),
