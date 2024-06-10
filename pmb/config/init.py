@@ -456,9 +456,8 @@ def ask_for_device(context: Context):
     return (device, device_path is not None, kernel)
 
 
-def ask_for_additional_options(args: PmbArgs, cfg):
+def ask_for_additional_options(config):
     context = pmb.core.get_context()
-    config = context.config
     # Allow to skip additional options
     logging.info("Additional options:"
                  f" extra free space: {config.extra_space} MB,"
@@ -466,7 +465,7 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  f" parallel jobs: {config.jobs},"
                  f" ccache per arch: {config.ccache_size},"
                  f" sudo timer: {context.sudo_timer},"
-                 f" mirror: {','.join(config.mirrors_postmarketos)}")
+                 f" mirror: {config.mirrors["pmaports"]}")
 
     if not pmb.helpers.cli.confirm("Change them?",
                                    default=False):
@@ -481,21 +480,21 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  " How much extra free space do you want to add to the image"
                  " (in MB)?")
     answer = pmb.helpers.cli.ask("Extra space size", None,
-                                 args.extra_space, validation_regex="^[0-9]+$")
-    cfg["pmbootstrap"]["extra_space"] = answer
+                                 config.extra_space, validation_regex="^[0-9]+$")
+    config.extra_space = answer
 
     # Boot size
     logging.info("What should be the boot partition size (in MB)?")
-    answer = pmb.helpers.cli.ask("Boot size", None, args.boot_size,
+    answer = pmb.helpers.cli.ask("Boot size", None, config.boot_size,
                                  validation_regex="^[1-9][0-9]*$")
-    cfg["pmbootstrap"]["boot_size"] = answer
+    config.boot_size = int(answer)
 
     # Parallel job count
     logging.info("How many jobs should run parallel on this machine, when"
                  " compiling?")
-    answer = pmb.helpers.cli.ask("Jobs", None, args.jobs,
+    answer = pmb.helpers.cli.ask("Jobs", None, config.jobs,
                                  validation_regex="^[1-9][0-9]*$")
-    cfg["pmbootstrap"]["jobs"] = answer
+    config.jobs = int(answer)
 
     # Ccache size
     logging.info("We use ccache to speed up building the same code multiple"
@@ -504,10 +503,10 @@ def ask_for_additional_options(args: PmbArgs, cfg):
                  " current usage with 'pmbootstrap stats'. Answer with 0 for"
                  " infinite.")
     regex = "0|[0-9]+(k|M|G|T|Ki|Mi|Gi|Ti)"
-    answer = pmb.helpers.cli.ask("Ccache size", None, args.ccache_size,
+    answer = pmb.helpers.cli.ask("Ccache size", None, config.ccache_size,
                                  lowercase_answer=False,
                                  validation_regex=regex)
-    cfg["pmbootstrap"]["ccache_size"] = answer
+    config.ccache_size = answer
 
     # Sudo timer
     logging.info("pmbootstrap does everything in Alpine Linux chroots, so"
@@ -518,18 +517,18 @@ def ask_for_additional_options(args: PmbArgs, cfg):
     answer = pmb.helpers.cli.confirm("Enable background timer to prevent"
                                      " repeated sudo authorization?",
                                      default=context.sudo_timer)
-    cfg["pmbootstrap"]["sudo_timer"] = str(answer)
+    config.sudo_timer = str(answer)
 
     # Mirrors
     # prompt for mirror change
     logging.info("Selected mirror:"
                  f" {','.join(context.config.mirrors_postmarketos)}")
     if pmb.helpers.cli.confirm("Change mirror?", default=False):
-        mirrors = ask_for_mirror(args)
-        cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(mirrors)
+        mirror = ask_for_mirror()
+        config.mirrors["pmaports"] = mirror
 
 
-def ask_for_mirror(args: PmbArgs):
+def ask_for_mirror():
     regex = "^[1-9][0-9]*$"  # single non-zero number only
 
     json_path = pmb.helpers.http.download(
@@ -564,27 +563,24 @@ def ask_for_mirror(args: PmbArgs):
             urls.append(link_list[0])
 
     mirror_indexes = []
-    for mirror in get_context().config.mirrors_postmarketos:
-        for i in range(len(urls)):
-            if urls[i] == mirror:
-                mirror_indexes.append(str(i + 1))
-                break
+    mirror = get_context().config.mirrors["pmaports"]
+    for i in range(len(urls)):
+        if urls[i] == mirror:
+            mirror_indexes.append(str(i + 1))
+            break
 
-    mirrors_list: List[str] = []
+    mirror = ""
     # require one valid mirror index selected by user
-    while len(mirrors_list) != 1:
+    while len(mirror) == 0:
         answer = pmb.helpers.cli.ask("Select a mirror", None,
                                      ",".join(mirror_indexes),
                                      validation_regex=regex)
-        mirrors_list = []
-        for i in answer.split(","):
-            idx = int(i) - 1
-            if 0 <= idx < len(urls):
-                mirrors_list.append(urls[idx])
-        if len(mirrors_list) != 1:
+        i = int(answer)
+        if i < 1 or i > len(urls):
             logging.info("You must select one valid mirror!")
+        mirror = urls[i - 1]
 
-    return mirrors_list
+    return mirror
 
 
 def ask_for_hostname(default: Optional[str], device):
@@ -709,7 +705,7 @@ def frontend(args: PmbArgs):
 
     ask_for_provider_select_pkg(f"postmarketos-ui-{ui}",
                                 config.providers)
-    ask_for_additional_options(args, config)
+    ask_for_additional_options(config)
 
     # Extra packages to be installed to rootfs
     logging.info("Additional packages that will be installed to rootfs."

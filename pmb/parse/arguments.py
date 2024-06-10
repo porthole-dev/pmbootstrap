@@ -639,8 +639,9 @@ def get_parser():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
     arch_native = Arch.native()
     arch_choices = Arch.supported()
+    # FIXME: we should load the real config instead here
     default_config = Config()
-    mirrors_pmos_default = ",".join(default_config.mirrors_postmarketos)
+    mirrors_pmos_default = default_config.mirrors["pmaports"]
 
     # Other
     parser.add_argument("-V", "--version", action="version",
@@ -649,14 +650,14 @@ def get_parser():
                         default=pmb.config.defaults["config"],
                         help="path to pmbootstrap.cfg file (default in"
                              " ~/.config/)")
-    parser.add_argument("-mp", "--mirror-pmOS", dest="mirrors_postmarketos",
+    parser.add_argument("-mp", "--mirror-pmOS", dest="mirror_postmarketos",
                         help="postmarketOS mirror, disable with: -mp='',"
                              " specify multiple with: -mp='one' -mp='two',"
                              f" default: {mirrors_pmos_default}",
                         metavar="URL", action="append", default=[])
     parser.add_argument("-m", "--mirror-alpine", dest="mirror_alpine",
                         help="Alpine Linux mirror, default: "
-                            f"{default_config.mirror_alpine}",
+                            f"{default_config.mirrors["alpine"]}",
                         metavar="URL")
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
     parser.add_argument("-E", "--extra-space",

@@ -72,36 +72,6 @@ def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
         return cmd
 
 
-# Keys saved in the config file (mostly what we ask in 'pmbootstrap init')
-config_keys = [
-    "aports",
-    "boot_size",
-    "build_default_device_arch",
-    "build_pkgs_on_install",
-    "ccache_size",
-    "device",
-    "extra_packages",
-    "extra_space",
-    "hostname",
-    "is_default_channel",
-    "jobs",
-    "kernel",
-    "keymap",
-    "locale",
-    "mirror_alpine",
-    "mirrors_postmarketos",
-    "qemu_redir_stdio",
-    "ssh_key_glob",
-    "ssh_keys",
-    "sudo_timer",
-    "systemd",
-    "timezone",
-    "ui",
-    "ui_extras",
-    "user",
-    "work",
-]
-
 defaults = {
     "cipher": "aes-xts-plain64",
     "config": Path((os.environ.get('XDG_CONFIG_HOME') or

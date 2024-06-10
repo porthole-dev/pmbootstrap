@@ -31,14 +31,15 @@ def load(path: Path) -> Config:
         if key not in cfg["pmbootstrap"]:
             continue
         elif key == "mirror_alpine":
-            # DEPRCATED: We have special handling for this below.
+            # DEPRCATED
+            config.mirrors["alpine"] = cfg["pmbootstrap"]["mirror_alpine"]
             continue
         # Handle whacky type conversions
         elif key == "mirrors_postmarketos":
             mirrors = cfg["pmbootstrap"]["mirrors_postmarketos"].split(",")
             if len(mirrors) > 1:
                 logging.warning("Multiple mirrors are not supported, using the last one")
-            config.mirrors_postmarketos = [mirrors[-1].strip("/master")]
+            config.mirrors["pmaports"] = mirrors[-1].strip("/master")
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
@@ -52,8 +53,7 @@ def load(path: Path) -> Config:
             setattr(config, key, cfg["pmbootstrap"][key])
 
     # One time migration "mirror_alpine" -> mirrors.alpine
-    if "mirror_alpine" in cfg["pmbootstrap"]:
-        config.mirrors["alpine"] = cfg["pmbootstrap"]["mirror_alpine"]
+    if "mirror_alpine" in cfg["pmbootstrap"] or "mirrors_postmarketos" in cfg["pmbootstrap"]:
         save(path, config)
 
     return config
@@ -87,9 +87,6 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
         elif key.startswith("mirrors."):
             _key = key.split(".")[1]
             cfg["mirrors"][_key] = getattr(config, key)
-        # Handle whacky type conversions
-        elif key == "mirrors_postmarketos":
-            cfg["pmbootstrap"]["mirrors_postmarketos"] = ",".join(config.mirrors_postmarketos)
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))

@@ -94,7 +94,7 @@ class PmbArgs(Namespace):
     lines: str
     log: Path
     mirror_alpine: str
-    mirrors_postmarketos: List[str]
+    mirror_postmarketos: str
     name: str
     no_depends: str
     no_fde: str
