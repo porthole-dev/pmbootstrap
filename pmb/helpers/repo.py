@@ -51,8 +51,7 @@ def apkindex_hash(url: str, length: int=8) -> Path:
     return Path(f"APKINDEX.{ret}.tar.gz")
 
 
-# FIXME: this function gets called way too much, needs to be
-# cached
+@Cache("user_repository", "mirrors_exclude")
 def urls(user_repository=True, mirrors_exclude: List[str] = []):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
 
