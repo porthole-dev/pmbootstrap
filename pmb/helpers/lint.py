@@ -21,6 +21,7 @@ def check(pkgnames: Sequence[str]):
     :param pkgnames: Names of the packages to lint
     """
     chroot = Chroot.native()
+    pmb.chroot.init(chroot)
     pmb.chroot.apk.install(["atools"], chroot)
 
     # Mount pmaports.git inside the chroot so that we don't have to copy the
