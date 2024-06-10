@@ -146,6 +146,21 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
     # Create working directory for abuild
     pmb.build.copy_to_buildpath(pkgname)
 
+    # FIXME: duplicated from pmb.build._package.run_aports()
+    # This is needed to set up the package output directory for
+    # abuild and shouldn't really be done here.
+    channel = pmb.config.pmaports.read_config()["channel"]
+    pkgdir = context.config.work / "packages" / channel
+    if not pkgdir.exists():
+        pmb.helpers.run.root(["mkdir", "-p", pkgdir])
+        pmb.helpers.run.root(["chown", "-R", f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
+                              pkgdir.parent])
+
+    pmb.chroot.rootm([["mkdir", "-p", "/home/pmos/packages"],
+                      ["rm", "-f", "/home/pmos/packages/pmos"],
+                      ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}",
+                     "/home/pmos/packages/pmos"]], chroot)
+
     # Create symlink from abuild working directory to envkernel build directory
     if kbuild_out != "":
         if os.path.islink(chroot / "mnt/linux" / kbuild_out) and \
@@ -201,8 +216,7 @@ def package_kernel(args: PmbArgs):
     chroot = pmb.build.autodetect.chroot(apkbuild, arch)
 
     # Install package dependencies
-    depends, _ = pmb.build._package.build_depends(
-        context, apkbuild, Arch.native(), strict=False)
+    depends = pmb.build.get_depends(context, apkbuild)
     pmb.build.init(chroot)
     if arch.cpu_emulation_required():
         depends.append(f"binutils-{arch}")

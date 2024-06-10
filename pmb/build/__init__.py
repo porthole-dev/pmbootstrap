@@ -7,4 +7,4 @@ from pmb.build.newapkbuild import newapkbuild
 from pmb.build.other import copy_to_buildpath, is_necessary, \
     index_repo
 from pmb.build._package import BootstrapStage, mount_pmaports, packages, \
-    output_path, BuildQueueItem, get_apkbuild
+    output_path, BuildQueueItem, get_apkbuild, get_depends
