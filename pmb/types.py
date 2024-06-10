@@ -148,7 +148,7 @@ class PmbArgs(Namespace):
     systemd: str
     timeout: float
     value: str
-    verbose: str
+    verbose: bool
     verify: str
     work: Path
     xauth: str
