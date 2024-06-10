@@ -24,14 +24,14 @@ from pmb.core import Chroot, get_context
 from pmb.types import PathString
 
 
-@Cache("chroot")
-def update_repository_list(chroot: Chroot, postmarketos_mirror=True,
+@Cache("chroot", mirrors_exclude=[])
+def update_repository_list(chroot: Chroot, mirrors_exclude: List[str]=[],
                            check=False):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
     --mirror-alpine or --mirror-pmOS parameters).
 
-    :param postmarketos_mirror: add postmarketos mirror URLs
+    :param mirrors_exclude: mirrors to exclude from the repository list
     :param check: This function calls it self after updating the
                   /etc/apk/repositories file, to check if it was successful.
                   Only for this purpose, the "check" parameter should be set to
@@ -50,8 +50,7 @@ def update_repository_list(chroot: Chroot, postmarketos_mirror=True,
         pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
     # Up to date: Save cache, return
-    exclude = ["pmaports"] if not postmarketos_mirror else []
-    lines_new = pmb.helpers.repo.urls(mirrors_exclude=exclude)
+    lines_new = pmb.helpers.repo.urls(mirrors_exclude=mirrors_exclude)
     if lines_old == lines_new:
         return
 
@@ -66,7 +65,7 @@ def update_repository_list(chroot: Chroot, postmarketos_mirror=True,
     for line in lines_new:
         pmb.helpers.run.root(["sh", "-c", "echo "
                                     f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(chroot, postmarketos_mirror, True)
+    update_repository_list(chroot, mirrors_exclude, True)
 
 
 @Cache("chroot")

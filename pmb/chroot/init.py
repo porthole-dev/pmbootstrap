@@ -9,6 +9,7 @@ import os
 
 import pmb.chroot
 import pmb.chroot.binfmt
+import pmb.chroot.apk
 import pmb.chroot.apk_static
 import pmb.config
 import pmb.config.workdir
@@ -97,8 +98,7 @@ def warn_if_chroot_is_outdated(chroot: Chroot):
 
 
 @Cache("chroot")
-def init(chroot: Chroot, usr_merge=UsrMerge.AUTO,
-         postmarketos_mirror=True):
+def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
     """
     Initialize a chroot by copying the resolv.conf and updating
     /etc/apk/repositories. If /bin/sh is missing, create the chroot from
@@ -107,7 +107,6 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO,
     :param usr_merge: set to ON to force having a merged /usr. With AUTO it is
                       only done if the user chose to install systemd in
                       pmbootstrap init.
-    :param postmarketos_mirror: add postmarketos mirror URLs
     """
     # When already initialized: just prepare the chroot
     arch = chroot.arch
@@ -119,14 +118,14 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO,
     if (chroot / "bin/sh").is_symlink():
         pmb.config.workdir.chroot_check_channel(chroot)
         copy_resolv_conf(chroot)
-        pmb.chroot.apk.update_repository_list(chroot, postmarketos_mirror)
+        pmb.chroot.apk.update_repository_list(chroot)
         warn_if_chroot_is_outdated(chroot)
         return
 
     # Require apk-tools-static
     pmb.chroot.apk_static.init()
 
-    logging.info(f"({chroot}) install alpine-base")
+    logging.info(f"({chroot}) Creating chroot")
 
     # Initialize cache
     apk_cache = config.work / f"cache_apk_{arch}"
@@ -136,7 +135,7 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO,
     # Initialize /etc/apk/keys/, resolv.conf, repositories
     init_keys()
     copy_resolv_conf(chroot)
-    pmb.chroot.apk.update_repository_list(chroot, postmarketos_mirror)
+    pmb.chroot.apk.update_repository_list(chroot)
 
     pmb.config.workdir.chroot_save_init(chroot)
 

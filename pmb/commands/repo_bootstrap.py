@@ -10,8 +10,9 @@ import glob
 import pmb.config.pmaports
 import pmb.helpers.repo
 import pmb.build
+import pmb.chroot
+import pmb.chroot.apk
 from pmb.build import BuildQueueItem
-from pmb.core import Config
 from pmb.core import get_context
 
 from pmb import commands
@@ -111,7 +112,8 @@ class RepoBootstrap(commands.Command):
 
             self.log_progress(f"initializing {chroot} chroot (merge /usr: {usr_merge.name})")
             # Initialize without pmOS binary package repo
-            pmb.chroot.init(chroot, usr_merge, postmarketos_mirror=False)
+            pmb.chroot.apk.update_repository_list(chroot, mirrors_exclude=[self.repo])
+            pmb.chroot.init(chroot, usr_merge)
 
             bootstrap_stage = int(step.split("bootstrap_", 1)[1])
             def log_wrapper(pkg: BuildQueueItem):
