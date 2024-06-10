@@ -54,6 +54,7 @@ def load(path: Path) -> Config:
 
     # One time migration "mirror_alpine" -> mirrors.alpine
     if "mirror_alpine" in cfg["pmbootstrap"] or "mirrors_postmarketos" in cfg["pmbootstrap"]:
+        logging.info("Migrating config file to 3.0 format.")
         save(path, config)
 
     return config

@@ -12,7 +12,7 @@ from pmb.types import PmbArgs
 import pmb.helpers.apk
 import pmb.helpers.run
 import pmb.config
-import pmb.config.load
+import pmb.config.file
 import pmb.parse.apkindex
 import pmb.helpers.http
 import pmb.parse.version
