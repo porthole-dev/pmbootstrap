@@ -30,7 +30,7 @@ def get_path(name_repo: str):
     return pkgrepo_path(name_repo)
 
 
-def clone(name_repo):
+def clone(name_repo: str):
     """Clone a git repository to $WORK/cache_git/$name_repo.
 
     (or to the overridden path set in args, as with ``pmbootstrap --aports``).
@@ -43,7 +43,7 @@ def clone(name_repo):
         raise ValueError("No git repository configured for " + name_repo)
 
     path = get_path(name_repo)
-    if not os.path.exists(path):
+    if not path.exists():
         # Build git command
         url = pmb.config.git_repos[name_repo][0]
         command = ["git", "clone"]
@@ -51,13 +51,13 @@ def clone(name_repo):
 
         # Create parent dir and clone
         logging.info("Clone git repository: " + url)
-        os.makedirs(get_context().config.work / "cache_git", exist_ok=True)
+        (get_context().config.work / "cache_git").mkdir(exist_ok=True)
         pmb.helpers.run.user(command, output="stdout")
 
     # FETCH_HEAD does not exist after initial clone. Create it, so
     # is_outdated() can use it.
-    fetch_head = path + "/.git/FETCH_HEAD"
-    if not os.path.exists(fetch_head):
+    fetch_head = path / ".git/FETCH_HEAD"
+    if not fetch_head.exists():
         open(fetch_head, "w").close()
 
 
