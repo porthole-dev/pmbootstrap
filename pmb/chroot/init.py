@@ -115,7 +115,7 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
 
     pmb.chroot.mount(chroot)
     mark_in_chroot(chroot)
-    if (chroot / "bin/sh").is_symlink():
+    if chroot.exists():
         pmb.config.workdir.chroot_check_channel(chroot)
         copy_resolv_conf(chroot)
         pmb.chroot.apk.update_repository_list(chroot)

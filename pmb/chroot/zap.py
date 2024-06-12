@@ -159,7 +159,7 @@ def zap_pkgs_online_mismatch(confirm=True, dry=False):
         # Skip if chroot does not exist
         # FIXME: should we init the buildroot to do it anyway?
         # what if we run apk.static with --arch instead?
-        if not chroot.path.is_dir():
+        if not chroot.exists():
             continue
 
         # Clean the cache with apk

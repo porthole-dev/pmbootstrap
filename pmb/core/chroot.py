@@ -74,6 +74,10 @@ class Chroot:
         return Path(get_context().config.work, self.dirname)
 
 
+    def exists(self) -> bool:
+        return (self / "bin/sh").is_symlink()
+
+
     @property
     def arch(self) -> Arch:
         if self.type == ChrootType.NATIVE:
