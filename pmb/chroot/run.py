@@ -95,7 +95,7 @@ def root(cmds: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir
           disable_timeout, add_proxy_env_vars)
 
 
-def user(cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
+def userm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
          output_return=False, check=None, env={}):
     """
     Run a command inside a chroot as "user". We always use the BusyBox
@@ -114,11 +114,16 @@ def user(cmd, chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), out
     if "HOME" not in env:
         env["HOME"] = "/home/pmos"
 
-    flat_cmd = pmb.helpers.run_core.flat_cmd([cmd], env=env)
+    flat_cmd = pmb.helpers.run_core.flat_cmd(cmds, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
     return pmb.chroot.root(cmd, chroot, working_dir, output,
                            output_return, check, {},
                            add_proxy_env_vars=False)
+
+
+def user(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
+         output_return=False, check=None, env={}):
+    userm([cmd], chroot, working_dir, output, output_return, check, env)
 
 
 def exists(username, chroot: Chroot=Chroot.native()):
