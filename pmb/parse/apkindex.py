@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence, Union
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -12,8 +12,20 @@ import pmb.helpers.package
 import pmb.helpers.repo
 import pmb.parse.version
 
+apkindex_map = {
+    "A": "arch",
+    "D": "depends",
+    "o": "origin",
+    "P": "pkgname",
+    "p": "provides",
+    "k": "provider_priority",
+    "t": "timestamp",
+    "V": "version",
+}
 
-def parse_next_block(path: Path, lines, start):
+required_apkindex_keys = ["arch", "pkgname", "version"]
+
+def parse_next_block(path: Path, lines: List[str]):
     """Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
@@ -37,65 +49,56 @@ def parse_next_block(path: Path, lines, start):
     """
     # Parse until we hit an empty line or end of file
     ret: Dict[str, Any] = {}
-    mapping = {
-        "A": "arch",
-        "D": "depends",
-        "o": "origin",
-        "P": "pkgname",
-        "p": "provides",
-        "k": "provider_priority",
-        "t": "timestamp",
-        "V": "version",
-    }
-    end_of_block_found = False
-    for i in range(start[0], len(lines)):
-        # Check for empty line
-        start[0] = i + 1
-        line = lines[i]
-        if not isinstance(line, str):
-            line = line.decode()
-        if line == "\n":
-            end_of_block_found = True
-            break
-
+    required_found = 0 # Count the required keys we found
+    line = ""
+    while len(lines):
+        # We parse backwards for performance (pop(0) is super slow)
+        line = lines.pop()
+        if not line:
+            continue
         # Parse keys from the mapping
-        for letter, key in mapping.items():
-            if line.startswith(letter + ":"):
-                if key in ret:
-                    raise RuntimeError(f"Key {key} ({letter}:) specified twice"
-                        f" in block: {ret}, file: {path}")
-                ret[key] = line[2:-1]
+        k = line[0]
+        key = apkindex_map.get(k, None)
+
+        # The checksum key is always the FIRST in the block, so when we find
+        # it we know we're done.
+        if k == 'C':
+            break
+        if key:
+            if key in ret:
+                raise RuntimeError(f"Key {key} specified twice in block: {ret}, file: {path}")
+            if key in required_apkindex_keys:
+                required_found += 1
+            ret[key] = line[2:]
 
     # Format and return the block
-    if end_of_block_found:
-        # Check for required keys
-        for key in ["arch", "pkgname", "version"]:
+    if not len(lines) and not ret:
+        return None
+
+    # Check for required keys
+    if required_found != len(required_apkindex_keys):
+        for key in required_apkindex_keys:
             if key not in ret:
                 raise RuntimeError(f"Missing required key '{key}' in block "
-                                   f"{ret}, file: {path}")
+                                    f"{ret}, file: {path}")
+        raise RuntimeError(f"Expected {len(required_apkindex_keys)} required keys,"
+                           f" but found {required_found} in block: {ret}, file: {path}")
 
-        # Format optional lists
-        for key in ["provides", "depends"]:
-            if key in ret and ret[key] != "":
-                # Ignore all operators for now
-                values = ret[key].split(" ")
-                ret[key] = []
-                for value in values:
-                    for operator in [">", "=", "<", "~"]:
-                        if operator in value:
-                            value = value.split(operator)[0]
-                            break
-                    ret[key].append(value)
-            else:
-                ret[key] = []
-        return ret
-
-    # No more blocks
-    elif ret != {}:
-        raise RuntimeError(f"Last block in {path} does not end"
-                            " with a new line! Delete the file and"
-                           f" try again. Last block: {ret}")
-    return None
+    # Format optional lists
+    for key in ["provides", "depends"]:
+        if key in ret and ret[key] != "":
+            # Ignore all operators for now
+            values = ret[key].split(" ")
+            ret[key] = []
+            for value in values:
+                for operator in [">", "=", "<", "~"]:
+                    if operator in value:
+                        value = value.split(operator)[0]
+                        break
+                ret[key].append(value)
+        else:
+            ret[key] = []
+    return ret
 
 
 def parse_add_block(ret, block, alias=None, multiple_providers=True):
@@ -185,19 +188,21 @@ def parse(path: Path, multiple_providers=True):
             clear_cache(path)
 
     # Read all lines
+    lines: Sequence[str]
     if tarfile.is_tarfile(path):
         with tarfile.open(path, "r:gz") as tar:
             with tar.extractfile(tar.getmember("APKINDEX")) as handle: # type:ignore[union-attr]
-                lines = handle.readlines()
+                lines = handle.read().decode().splitlines()
     else:
         with path.open("r", encoding="utf-8") as handle:
-            lines = handle.readlines()
+            lines = handle.read().splitlines()
 
     # Parse the whole APKINDEX file
     ret: Dict[str, Any] = collections.OrderedDict()
-    start = [0]
+    if lines[-1] == "\n":
+        lines.pop() # Strip the trailing newline
     while True:
-        block = parse_next_block(path, lines, start)
+        block = parse_next_block(path, lines)
         if not block:
             break
 
@@ -236,13 +241,12 @@ def parse_blocks(path: Path):
     # Parse all lines
     with tarfile.open(path, "r:gz") as tar:
         with tar.extractfile(tar.getmember("APKINDEX")) as handle: # type:ignore[union-attr]
-            lines = handle.readlines()
+            lines = handle.read().decode().splitlines()
 
     # Parse lines into blocks
     ret: List[str] = []
-    start = [0]
     while True:
-        block = pmb.parse.apkindex.parse_next_block(path, lines, start)
+        block = pmb.parse.apkindex.parse_next_block(path, lines)
         if not block:
             return ret
         ret.append(block)
