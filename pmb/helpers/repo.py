@@ -161,7 +161,7 @@ def update(arch: Optional[Arch]=None, force=False, existing_only=False):
             # APKINDEX file name from the URL
             url_full = f"{url}/{arch}/APKINDEX.tar.gz"
             cache_apk_outside = get_context().config.work / f"cache_apk_{arch}"
-            apkindex = cache_apk_outside / f"{apkindex_hash(url)}.tar.gz"
+            apkindex = cache_apk_outside / f"{apkindex_hash(url)}"
 
             # Find update reason, possibly skip non-existing or known 404 files
             reason = None
