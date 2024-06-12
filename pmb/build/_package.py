@@ -517,8 +517,7 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
     if src and len(pkgnames) > 1:
         raise RuntimeError("Can't build multiple packages with --src")
 
-    logging.debug(f"Preparing to build {len(pkgnames)} package{'s' if len(pkgnames) > 1 else ''}:")
-    logging.verbose(f"\t{', '.join(pkgnames)}")
+    logging.verbose(f"Attempting to build: {', '.join(pkgnames)}")
 
     # We sorta-kind maybe supported building packages for multiple architectures in
     # a single called to packages(). We need to do a check to make sure that the user
@@ -542,9 +541,9 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
         return []
 
     qlen = len(build_queue)
-    logging.info(f"@BLUE@BUILD:@END@ {qlen} source package{'s' if qlen > 1 else ''}")
+    logging.info(f"@BLUE@{qlen}@END@ package{'s' if qlen > 1 else ''} to build")
     for item in build_queue:
-        logging.info(f"@BLUE@BUILD:@END@ * {item['channel']}/{item['name']}")
+        logging.debug(f"@BLUE@*@END@ {item['channel']}/{item['name']}")
 
     cross = None
 
