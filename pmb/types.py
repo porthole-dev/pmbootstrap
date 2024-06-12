@@ -31,6 +31,7 @@ class PmbArgs(Namespace):
     action_initfs: str
     action_kconfig: str
     action_netboot: str
+    action_test: str
     add: str
     all: bool
     all_git: str

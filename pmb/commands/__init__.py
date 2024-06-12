@@ -13,6 +13,7 @@ from .log import Log
 from .index import Index
 from .repo_bootstrap import RepoBootstrap
 from .shutdown import Shutdown
+from .test import Test
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -68,6 +69,8 @@ def run_command(args: PmbArgs):
         command = RepoBootstrap(args.arch, args.repository)
     elif args.action == "shutdown":
         command = Shutdown()
+    elif args.action == "test":
+        command = Test(args.action_test)
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 

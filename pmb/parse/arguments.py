@@ -564,6 +564,12 @@ def arguments_lint(subparser):
     add_packages_arg(lint, nargs="*")
 
 
+def arguments_test(subparser):
+    test = subparser.add_parser("test", help="Internal pmbootstrap test tools")
+    sub = test.add_subparsers(dest="action_test", required=True)
+    sub.add_parser("apkindex_parse_all", help="parse all APKINDEX files")
+
+
 def arguments_status(subparser):
     ret = subparser.add_parser("status",
                                help="show a config and pmaports overview")
@@ -730,6 +736,7 @@ def get_parser():
     arguments_aportupgrade(sub)
     arguments_newapkbuild(sub)
     arguments_lint(sub)
+    arguments_test(sub)
     arguments_status(sub)
     arguments_ci(sub)
 
