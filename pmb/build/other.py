@@ -8,6 +8,7 @@ import datetime
 from typing import List
 
 import pmb.chroot
+import pmb.config.pmaports
 import pmb.build
 import pmb.helpers.file
 import pmb.helpers.git
@@ -99,20 +100,21 @@ def index_repo(arch=None):
     :param arch: when not defined, re-index all repos
     """
     pmb.build.init()
-
-    channel = pmb.config.pmaports.read_config()["channel"]
-    pkgdir = (get_context().config.work / "packages" / channel)
+    
     paths: List[Path] = []
-    if arch:
-        paths = [pkgdir / arch]
-    else:
-        paths = pkgdir.glob("*")
+
+    for channel in pmb.config.pmaports.all_channels():
+        pkgdir: Path = (get_context().config.work / "packages" / channel)
+        if arch:
+            paths.append(pkgdir / arch)
+        else:
+            paths += list(pkgdir.glob("*"))
 
     for path in paths:
         if path.is_dir():
-            path_arch = path.name
-            path_repo_chroot = Path("/home/pmos/packages/pmos/") / path_arch
-            logging.debug("(native) index " + path_arch + " repository")
+            path_channel, path_arch = path.parts[-2:]
+            path_repo_chroot = Path("/mnt/pmbootstrap/packages") / path_channel / path_arch
+            logging.debug(f"(native) index {path_channel}/{path_arch} repository")
             description = str(datetime.datetime.now())
             commands = [
                 # Wrap the index command with sh so we can use '*.apk'
@@ -122,8 +124,7 @@ def index_repo(arch=None):
                 ["abuild-sign", "APKINDEX.tar.gz_"],
                 ["mv", "APKINDEX.tar.gz_", "APKINDEX.tar.gz"]
             ]
-            for command in commands:
-                pmb.chroot.user(command, working_dir=path_repo_chroot)
+            pmb.chroot.userm(commands, working_dir=path_repo_chroot)
         else:
             logging.debug(f"NOTE: Can't build index for: {path}")
         pmb.parse.apkindex.clear_cache(path / "APKINDEX.tar.gz")
