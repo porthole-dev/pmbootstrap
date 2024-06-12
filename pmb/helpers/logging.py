@@ -139,6 +139,7 @@ def init(args: PmbArgs):
         dir = os.path.dirname(context.log)
         if os.path.exists(dir):
             logfd = open(context.log, "a+")
+            logfd.write("\n\n")
         else:
             logfd = open(os.devnull, "a+")
             # FIXME: what? surely this check shouldn't be needed!
@@ -162,6 +163,12 @@ def init(args: PmbArgs):
     handler = log_handler()
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
+
+    logging.debug(f"Pmbootstrap v{pmb.__version__} (Python {sys.version})")
+    safe_args = ' '.join(sys.argv[1:])
+    if "password" in args:
+        safe_args = safe_args.replace(args.password, "[REDACTED]")
+    logging.debug(f"$ pmbootstrap {' '.join(sys.argv)}")
 
 
 def disable():
