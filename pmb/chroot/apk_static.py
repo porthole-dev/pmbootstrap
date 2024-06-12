@@ -8,9 +8,9 @@ import tarfile
 import tempfile
 import stat
 
-from pmb.types import PmbArgs
 import pmb.helpers.apk
 import pmb.helpers.run
+import pmb.helpers.repo
 import pmb.config
 import pmb.config.file
 import pmb.parse.apkindex
