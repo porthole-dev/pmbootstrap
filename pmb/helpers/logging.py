@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
+from pathlib import Path
 import sys
 from typing import TextIO
 import pmb.config
-from pmb.core.context import Context, get_context
-from pmb.types import PmbArgs
 
 logfd: TextIO
 
@@ -22,19 +21,19 @@ VERBOSE = 5
 
 class log_handler(logging.StreamHandler):
     """Write to stdout and to the already opened log file."""
-    context: Context
     
-    def __init__(self):
+    def __init__(self, details_to_stdout: bool=False, quiet: bool=False):
         super().__init__()
-        self.context = get_context()
+        self.details_to_stdout = False
+        self.quiet = False
 
     def emit(self, record):
         try:
             msg = self.format(record)
 
             # INFO or higher: Write to stdout
-            if (not self.context.details_to_stdout and
-                not self.context.quiet and
+            if (not self.details_to_stdout and
+                not self.quiet and
                     record.levelno >= logging.INFO):
                 stream = self.stream
 
@@ -124,27 +123,27 @@ def add_verbose_log_level():
                                                                **kwargs))
 
 
-def init(args: PmbArgs):
+def init(logfile: Path, verbose: bool, details_to_stdout: bool=False):
     """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
-    context = get_context()
+
+    if "logfs" in globals():
+        warning("Logging already initialized, skipping...")
+        return
+
     # Set log file descriptor (logfd)
-    if context.details_to_stdout:
+    if details_to_stdout:
         logfd = sys.stdout
     else:
         # Require containing directory to exist (so we don't create the work
         # folder and break the folder migration logic, which needs to set the
         # version upon creation)
-        dir = os.path.dirname(context.log)
+        dir = os.path.dirname(logfile)
         if os.path.exists(dir):
-            logfd = open(context.log, "a+")
+            logfd = open(logfile, "a+")
             logfd.write("\n\n")
         else:
             logfd = open(os.devnull, "a+")
-            # FIXME: what? surely this check shouldn't be needed!
-            if args.action != "init":
-                print(f"WARNING: Can't create log file in '{dir}', path"
-                      " does not exist!")
 
     # Set log format
     root_logger = logging.getLogger()
@@ -155,18 +154,17 @@ def init(args: PmbArgs):
     # Set log level
     add_verbose_log_level()
     root_logger.setLevel(logging.DEBUG)
-    if args.verbose:
+    if verbose:
         root_logger.setLevel(VERBOSE)
 
     # Add a custom log handler
-    handler = log_handler()
+    handler = log_handler(details_to_stdout=details_to_stdout)
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 
     logging.debug(f"Pmbootstrap v{pmb.__version__} (Python {sys.version})")
-    safe_args = ' '.join(sys.argv[1:])
-    if "password" in args:
-        safe_args = safe_args.replace(args.password, "[REDACTED]")
+    if "--password" in sys.argv:
+        sys.argv[sys.argv.index("--password")+1] = "[REDACTED]"
     logging.debug(f"$ pmbootstrap {' '.join(sys.argv)}")
 
 

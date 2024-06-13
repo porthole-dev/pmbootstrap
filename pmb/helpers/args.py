@@ -94,7 +94,7 @@ def init(args: PmbArgs) -> PmbArgs:
     pmb.core.context.set_context(context)
 
     # Initialize logs (we could raise errors below)
-    pmb.helpers.logging.init(args)
+    pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout)
 
     # Initialization code which may raise errors
     if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
