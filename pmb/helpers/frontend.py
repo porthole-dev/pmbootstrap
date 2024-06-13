@@ -551,9 +551,7 @@ def qemu(args: PmbArgs):
 
 def stats(args: PmbArgs):
     # Chroot suffix
-    chroot = Chroot.native()
-    if args.arch != Arch.native():
-        chroot = Chroot.buildroot(args.arch)
+    chroot = Chroot.buildroot(args.arch or Arch.native())
 
     # Install ccache and display stats
     pmb.chroot.apk.install(["ccache"], chroot)

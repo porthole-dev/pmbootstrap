@@ -6,6 +6,7 @@
 import sys
 import os
 import datetime
+from typing import Any, Dict
 
 
 sys.path.insert(0, os.path.abspath('..'))  # Allow modules to be found
@@ -41,7 +42,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 html_favicon = 'https://wiki.postmarketos.org/favicon.ico'
 
-html_theme_options = {'style_nav_header_background': '008b69',}
+html_theme_options: Dict[str, Any] = {'style_nav_header_background': '008b69',}
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pmboostrapdoc'

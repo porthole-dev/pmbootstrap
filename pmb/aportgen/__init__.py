@@ -92,4 +92,4 @@ def generate(pkgname: str, fork_alpine: bool):
     pmb.helpers.run.user(
         ["mv", aportgen, path_target])
 
-    logging.info("*** pmaport generated: " + path_target)
+    logging.info(f"*** pmaport generated: {path_target}")

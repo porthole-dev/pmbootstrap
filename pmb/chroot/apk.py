@@ -140,6 +140,8 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
     return ret
 
 
+# FIXME: List[Sequence[PathString]] weirdness
+# mypy: disable-error-code="operator"
 def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[str], chroot: Chroot):
     """
     Run apk to add packages, and ensure only the desired packages get

@@ -50,6 +50,8 @@ def apkindex_hash(url: str, length: int=8) -> Path:
     return Path(f"APKINDEX.{ret}.tar.gz")
 
 
+# FIXME: make config.mirrors a normal dict
+# mypy: disable-error-code="literal-required"
 @Cache("user_repository", "mirrors_exclude")
 def urls(user_repository=True, mirrors_exclude: List[str] = []):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
@@ -82,7 +84,7 @@ def urls(user_repository=True, mirrors_exclude: List[str] = []):
     for repo in pkgrepo_names() + ["alpine"]:
         if repo in mirrors_exclude:
             continue
-        mirror = config.mirrors[repo] # mypy: disable-error-code="literal-required"
+        mirror = config.mirrors[repo]
         mirrordirs = []
         if repo == "alpine":
             # FIXME: This is a bit of a mess

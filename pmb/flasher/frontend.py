@@ -116,6 +116,8 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str):
     # Get the lk2nd package (which is a dependency of the device package)
     device_pkg = f"device-{deviceinfo.codename}"
     apkbuild = pmb.helpers.pmaports.get(device_pkg)
+    if not apkbuild:
+        raise RuntimeError(f"Failed to find {device_pkg} in pmaports")
     lk2nd_pkg = None
     for dep in apkbuild["depends"]:
         if dep.startswith("lk2nd"):

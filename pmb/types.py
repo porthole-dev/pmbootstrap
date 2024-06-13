@@ -72,9 +72,7 @@ class PmbArgs(Namespace):
     flash_method: str
     folder: str
     force: bool
-    fork_alpine: str
-    # This is a filthy lie
-    from_argparse: "PmbArgs"
+    fork_alpine: bool
     full_disk_encryption: str
     hook: str
     host: str

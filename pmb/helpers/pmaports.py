@@ -233,7 +233,7 @@ def get_with_path(pkgname, must_exist=True, subpackages=True, skip_extra_repos=F
     return None, None
 
 
-def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Optional[Dict[str, Any]]:
+def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Dict[str, Any]:
     return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
 
 

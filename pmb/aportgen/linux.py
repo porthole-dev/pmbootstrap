@@ -60,7 +60,7 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: List[str]):
 
     makedepends.sort()
     makedepends_fmt = ("\n" + " " * 12).join(makedepends)
-    patches = ("\n" + " " * 12).join(patches)
+    patches_str = ("\n" + " " * 12).join(patches)
     content = f"""\
         # Reference: <https://postmarketos.org/vendorkernel>
         # Kernel config based on: arch/{carch}/configs/(CHANGEME!)
@@ -86,7 +86,7 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: List[str]):
         source="
             $pkgname-$_commit.tar.gz::https://github.com/LineageOS/$_repository/archive/$_commit.tar.gz
             $_config
-            {patches}
+            {patches_str}
         "
         builddir="$srcdir/$_repository-$_commit"
         _outdir="out"
