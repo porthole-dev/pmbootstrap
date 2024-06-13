@@ -26,6 +26,18 @@ class SystemdConfig(enum.Enum):
         return [e.value for e in SystemdConfig]
 
 
+class AutoZapConfig(enum.StrEnum):
+    NO = "no"
+    YES = "yes"
+    SILENTLY = "silently"
+
+    def enabled(self) -> bool:
+        return self != AutoZapConfig.NO
+
+    def noisy(self) -> bool:
+        return self == AutoZapConfig.YES
+
+
 class Config():
     aports: List[Path] = [Path(os.path.expanduser("~") +
                         "/.local/var/pmbootstrap/cache_git/pmaports")]
@@ -57,6 +69,8 @@ class Config():
     ui_extras: bool = False
     user: str = "user"
     work: Path = Path(os.path.expanduser("~") + "/.local/var/pmbootstrap")
+    # automatically zap chroots that are for the wrong channel
+    auto_zap_misconfigured_chroots: AutoZapConfig = AutoZapConfig.NO
 
     providers: Dict[str, str] = { }
 

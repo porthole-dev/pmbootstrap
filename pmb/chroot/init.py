@@ -114,10 +114,17 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
 
     config = get_context().config
 
+    # If the channel is wrong and the user has auto_zap_misconfigured_chroots
+    # enabled, zap the chroot and reinitialize it
+    if chroot.exists():
+        zap = pmb.config.workdir.chroot_check_channel(chroot)
+        if zap:
+            pmb.chroot.del_chroot(chroot.path, confirm=False)
+            pmb.config.workdir.clean()
+
     pmb.chroot.mount(chroot)
     mark_in_chroot(chroot)
     if chroot.exists():
-        pmb.config.workdir.chroot_check_channel(chroot)
         copy_resolv_conf(chroot)
         pmb.chroot.apk.update_repository_list(chroot)
         warn_if_chroot_is_outdated(chroot)

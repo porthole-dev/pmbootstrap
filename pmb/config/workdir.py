@@ -14,6 +14,7 @@ import pmb.config.pmaports
 from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
+from pmb.helpers import logging
 
 
 def chroot_save_init(suffix: Chroot):
@@ -69,9 +70,15 @@ def chroots_outdated(chroot: Optional[Chroot]=None):
     return False
 
 
-def chroot_check_channel(chroot: Chroot):
-    path = get_context().config.work / "workdir.cfg"
-    msg_again = "Run 'pmbootstrap zap' to delete your chroots and try again."
+def chroot_check_channel(chroot: Chroot) -> bool:
+    """Check the chroot channel against the current channel. Returns
+    True if the chroot should be zapped (both that it needs zapping and
+    the user has auto_zap_misconfigured_chroots enabled), False otherwise."""
+    config = get_context().config
+    path = config.work / "workdir.cfg"
+    msg_again = "Run 'pmbootstrap zap' to delete your chroots and try again." \
+        " To do this automatically, run 'pmbootstrap config" \
+        " auto_zap_misconfigured_chroots yes'."
     msg_unknown = ("Could not figure out on which release channel the"
                    f" '{chroot}' chroot is.")
     if not os.path.exists(path):
@@ -85,10 +92,23 @@ def chroot_check_channel(chroot: Chroot):
 
     channel = pmb.config.pmaports.read_config()["channel"]
     channel_cfg = cfg[key][str(chroot)]
+    msg = f"Chroot '{chroot}' is for the '{channel_cfg}' channel," \
+          f" but you are on the '{channel}' channel."
+
     if channel != channel_cfg:
-        raise RuntimeError(f"Chroot '{chroot}' was created for the"
-                           f" '{channel_cfg}' channel, but you are on the"
-                           f" '{channel}' channel now. {msg_again}")
+        if config.auto_zap_misconfigured_chroots.enabled():
+            if config.auto_zap_misconfigured_chroots.noisy():
+                logging.info(msg)
+                logging.info("Automatically zapping since"
+                             " auto_zap_misconfigured_chroots is enabled.")
+                logging.info("NOTE: You can silence this message with 'pmbootstrap"
+                             " config auto_zap_misconfigured_chroots silently'")
+            else:
+                logging.debug(f"{msg} Zapping chroot.")
+            return True
+        raise RuntimeError(f"{msg} {msg_again}")
+
+    return False
 
 
 def clean():
