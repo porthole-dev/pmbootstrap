@@ -16,7 +16,8 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
 import pmb.parse.version
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def copy_to_buildpath(package, chroot: Chroot=Chroot.native()):

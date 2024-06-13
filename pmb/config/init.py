@@ -1,6 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.chroot import Chroot
 from pmb.core.config import SystemdConfig
 from pmb.core.context import Context
@@ -457,7 +457,7 @@ def ask_for_device(context: Context):
 
 
 def ask_for_additional_options(config):
-    context = pmb.core.get_context()
+    context = pmb.core.context.get_context()
     # Allow to skip additional options
     logging.info("Additional options:"
                  f" extra free space: {config.extra_space} MB,"

@@ -7,7 +7,7 @@ See also:
 - pmb/helpers/package.py (work with both)
 """
 import glob
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging

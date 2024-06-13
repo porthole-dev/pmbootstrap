@@ -12,7 +12,7 @@ import pmb.helpers.run_core
 import pmb.parse.apkindex
 import pmb.config.pmaports
 import pmb.build
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 
 def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):

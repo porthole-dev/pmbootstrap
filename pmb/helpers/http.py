@@ -8,7 +8,7 @@ from pathlib import Path
 import shutil
 import urllib.request
 
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.types import PmbArgs
 import pmb.helpers.run
 

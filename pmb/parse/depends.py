@@ -6,7 +6,8 @@ import pmb.chroot
 import pmb.chroot.apk
 import pmb.helpers.pmaports
 import pmb.parse.apkindex
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def package_from_aports(pkgname_depend):

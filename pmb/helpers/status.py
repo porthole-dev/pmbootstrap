@@ -6,7 +6,7 @@ import pmb.config.workdir
 import pmb.helpers.git
 from pmb.core import Config
 from pmb.types import PmbArgs
-from pmb.core import get_context
+from pmb.core.context import get_context
 from typing import List, Tuple
 
 

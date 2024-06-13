@@ -10,7 +10,8 @@ import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.helpers.cli
 import pmb.config
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def previous_install(path: Path):

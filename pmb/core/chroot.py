@@ -23,6 +23,12 @@ class Chroot:
     __name: str
 
     def __init__(self, suffix_type: ChrootType, name: Optional[Union[str, Arch]] = ""):
+        # We use the native chroot as the buildroot when building for the host arch
+        if suffix_type == ChrootType.BUILDROOT and isinstance(name, Arch):
+            if name.is_native():
+                suffix_type = ChrootType.NATIVE
+                name = ""
+
         self.__type = suffix_type
         self.__name = str(name or "")
 
@@ -40,6 +46,9 @@ class Chroot:
             "armv7",
             "riscv64",
         ]
+        
+        if self.__type not in ChrootType:
+            raise ValueError(f"Invalid chroot type: '{self.__type}'")
 
         # A buildroot suffix must have a name matching one of alpines
         # architectures.
@@ -83,7 +92,7 @@ class Chroot:
         if self.type == ChrootType.NATIVE:
             return Arch.native()
         if self.type == ChrootType.BUILDROOT:
-            return Arch.from_str(self.name())
+            return Arch.from_str(self.name)
         # FIXME: this is quite delicate as it will only be valid
         # for certain pmbootstrap commands... It was like this
         # before but it should be fixed.
@@ -96,7 +105,7 @@ class Chroot:
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
-            return str(self) == other or self.path == Path(other) or self.name() == other
+            return str(self) == other or self.path == Path(other) or self.name == other
 
         if isinstance(other, PosixPath):
             return self.path == other
@@ -104,7 +113,7 @@ class Chroot:
         if not isinstance(other, Chroot):
             return NotImplemented
 
-        return self.type == other.type and self.name() == other.name()
+        return self.type == other.type and self.name == other.name
 
 
     def __truediv__(self, other: object) -> Path:
@@ -138,6 +147,7 @@ class Chroot:
         return self.__type
 
 
+    @property
     def name(self) -> str:
         return self.__name
 

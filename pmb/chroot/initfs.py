@@ -8,7 +8,8 @@ import pmb.chroot.apk
 import pmb.config.pmaports
 from pmb.types import PmbArgs
 import pmb.helpers.cli
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def build(flavor, chroot: Chroot):

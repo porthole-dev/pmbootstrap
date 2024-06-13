@@ -14,7 +14,8 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.meta import Cache
 import pmb.parse.apkindex
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def zap(confirm=True, dry=False, pkgs_local=False, http=False,

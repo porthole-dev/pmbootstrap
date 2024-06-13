@@ -7,7 +7,7 @@ from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
 import pmb.helpers.args
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 
 def indent_size(line):

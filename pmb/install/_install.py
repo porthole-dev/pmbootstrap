@@ -29,7 +29,8 @@ import pmb.install.blockdevice
 import pmb.install.recovery
 import pmb.install.ui
 import pmb.install
-from pmb.core import Chroot, ChrootType, get_context
+from pmb.core import Chroot, ChrootType
+from pmb.core.context import get_context
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion
@@ -812,7 +813,7 @@ def install_system_image(args: PmbArgs, size_reserve, chroot: Chroot, step, step
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     config = get_context().config
-    device = chroot.name()
+    device = chroot.name
     # Partition and fill image file/disk block device
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.helpers.mount.umount_all(chroot.path)

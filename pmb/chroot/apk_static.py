@@ -16,7 +16,7 @@ import pmb.config.file
 import pmb.parse.apkindex
 import pmb.helpers.http
 import pmb.parse.version
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 
 def read_signature_info(tar):

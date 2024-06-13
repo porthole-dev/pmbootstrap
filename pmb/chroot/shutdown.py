@@ -8,7 +8,8 @@ from contextlib import closing
 import pmb.chroot
 import pmb.helpers.mount
 import pmb.install.losetup
-from pmb.core import Chroot, ChrootType, get_context
+from pmb.core import Chroot, ChrootType
+from pmb.core.context import get_context
 
 
 def kill_adb():

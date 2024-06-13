@@ -5,8 +5,7 @@ import os
 import sys
 from typing import TextIO
 import pmb.config
-from pmb.core import get_context
-from pmb.core.context import Context
+from pmb.core.context import Context, get_context
 from pmb.types import PmbArgs
 
 logfd: TextIO

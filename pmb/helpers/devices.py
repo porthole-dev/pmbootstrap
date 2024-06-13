@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 from typing import Optional
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 
 

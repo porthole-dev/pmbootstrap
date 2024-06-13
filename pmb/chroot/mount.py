@@ -10,7 +10,8 @@ import pmb.config
 import pmb.helpers.run
 import pmb.parse
 import pmb.helpers.mount
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def create_device_nodes(chroot: Chroot):

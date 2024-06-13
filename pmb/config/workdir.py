@@ -11,7 +11,8 @@ from typing import Optional
 
 import pmb.config
 import pmb.config.pmaports
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 
 

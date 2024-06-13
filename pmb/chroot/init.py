@@ -16,7 +16,8 @@ import pmb.config.workdir
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.other
-from pmb.core import Chroot, ChrootType, get_context
+from pmb.core import Chroot, ChrootType
+from pmb.core.context import get_context
 
 cache_chroot_is_outdated: List[str] = []
 

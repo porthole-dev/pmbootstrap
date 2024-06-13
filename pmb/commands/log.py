@@ -7,7 +7,7 @@ from pathlib import Path, PosixPath, PurePosixPath
 from pmb import commands
 from pmb.types import PathString
 from pmb.helpers import run
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 class Log(commands.Command):
     clear_log: bool

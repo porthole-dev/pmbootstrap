@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import List
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
 import pmb.aportgen.core

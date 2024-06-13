@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.types import PathString, Env
 from pmb.helpers import logging
@@ -180,7 +180,7 @@ def foreground_pipe(cmd, working_dir=None, output_to_stdout=False,
               * output: ""
               * output: full program output string (output_return is True)
     """
-    context = pmb.core.get_context()
+    context = pmb.core.context.get_context()
     # Start process in background (stdout and stderr combined)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, cwd=working_dir,
@@ -360,7 +360,7 @@ def core(log_message, cmd, working_dir=None, output="log",
               * the program's entire output (output_return is True)
     """
     sanity_checks(output, output_return, check)
-    context = pmb.core.get_context()
+    context = pmb.core.context.get_context()
 
     if context.sudo_timer and sudo:
         sudo_timer_start()

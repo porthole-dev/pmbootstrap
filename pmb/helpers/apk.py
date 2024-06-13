@@ -12,7 +12,7 @@ import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.version
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 def _prepare_fifo():
     """Prepare the progress fifo for reading / writing.

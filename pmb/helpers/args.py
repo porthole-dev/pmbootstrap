@@ -97,7 +97,7 @@ def init(args: PmbArgs) -> PmbArgs:
     context.force = getattr(args, "force", False)
 
     # Initialize context
-    pmb.core.set_context(context)
+    pmb.core.context.set_context(context)
 
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(args)

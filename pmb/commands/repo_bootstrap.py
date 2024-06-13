@@ -13,7 +13,7 @@ import pmb.build
 import pmb.chroot
 import pmb.chroot.apk
 from pmb.build import BuildQueueItem
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 from pmb import commands
 

@@ -18,7 +18,8 @@ import pmb.helpers
 import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.parse
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def match_kbuild_out(word):

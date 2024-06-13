@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import pmb.aportgen.busybox_static

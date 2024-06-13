@@ -7,7 +7,8 @@ import pmb.chroot.apk
 import pmb.chroot.apk_static
 import pmb.helpers.run
 import pmb.parse.apkindex
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def generate(pkgname):

@@ -11,7 +11,8 @@ import pmb.config
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.helpers.run
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 
 def init_abuild_minimal(chroot: Chroot=Chroot.native()):

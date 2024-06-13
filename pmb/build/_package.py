@@ -23,7 +23,8 @@ import pmb.parse
 import pmb.parse.apkindex
 from pmb.helpers.exceptions import BuildFailedError
 
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 
 class BootstrapStage(enum.IntEnum):
     """

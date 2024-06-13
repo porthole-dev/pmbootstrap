@@ -3,7 +3,7 @@
 import copy
 from pathlib import Path
 from typing import Dict, Optional
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os

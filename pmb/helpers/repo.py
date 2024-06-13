@@ -9,7 +9,7 @@ See also:
 """
 import os
 import hashlib
-from pmb.core import get_context
+from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_names
 from pmb.helpers import logging

@@ -38,7 +38,8 @@ import pmb.netboot
 import pmb.parse
 import pmb.qemu
 import pmb.sideload
-from pmb.core import ChrootType, Chroot, get_context
+from pmb.core import ChrootType, Chroot
+from pmb.core.context import get_context
 
 
 def _parse_flavor(device: str, autoinstall=True):

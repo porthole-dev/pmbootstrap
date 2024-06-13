@@ -9,7 +9,7 @@ import sys
 
 import pmb.config
 from pmb.types import PmbArgs
-from pmb.core import get_context
+from pmb.core.context import get_context
 
 
 class ReadlineTabCompleter:

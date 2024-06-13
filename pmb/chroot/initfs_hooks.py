@@ -7,7 +7,8 @@ from pmb.helpers import logging
 
 import pmb.config
 import pmb.chroot.apk
-from pmb.core import Chroot, get_context
+from pmb.core import Chroot
+from pmb.core.context import get_context
 from pmb.types import PmbArgs
 
 

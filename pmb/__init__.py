@@ -16,7 +16,8 @@ from .helpers import frontend
 from .helpers import logging
 from .helpers import mount
 from .helpers import other
-from .core import Chroot, get_context, Config
+from .core import Chroot, Config
+from .core.context import get_context
 from .commands import run_command
 
 # pmbootstrap version
