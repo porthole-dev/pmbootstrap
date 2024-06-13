@@ -1,8 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Dict
 from pmb.parse.deviceinfo import Deviceinfo
-from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.chroot.initfs
 import pmb.helpers.args

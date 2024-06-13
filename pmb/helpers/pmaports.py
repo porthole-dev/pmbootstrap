@@ -6,7 +6,6 @@ See also:
 - pmb/helpers/repo.py (work with binary package repos)
 - pmb/helpers/package.py (work with both)
 """
-import glob
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs

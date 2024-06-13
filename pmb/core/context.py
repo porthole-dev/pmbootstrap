@@ -3,9 +3,7 @@
 
 """Global runtime context"""
 
-from typing import List, Optional
 from pathlib import Path
-from pmb.core.arch import Arch
 from .config import Config
 
 

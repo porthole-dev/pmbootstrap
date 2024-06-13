@@ -1,10 +1,9 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from argparse import Namespace
 import enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, TypedDict, Union
+from typing import List
 
 from pmb.core.chroot import ChrootType
 from pmb.types import PathString

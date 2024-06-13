@@ -11,7 +11,7 @@ import pmb.chroot.binfmt
 import pmb.helpers.run
 import pmb.helpers.run_core
 from pmb.core import Chroot
-from pmb.types import Env, PathString, PmbArgs
+from pmb.types import Env, PathString
 
 
 def executables_absolute_path():

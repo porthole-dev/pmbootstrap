@@ -7,7 +7,6 @@ import pmb.helpers.git
 from pmb.core import Config
 from pmb.types import PmbArgs
 from pmb.core.context import get_context
-from typing import List, Tuple
 
 
 def print_status_line(key: str, value: str):

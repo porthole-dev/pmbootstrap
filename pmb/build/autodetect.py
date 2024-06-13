@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Union
 import pmb.config
 import pmb.chroot.apk
 import pmb.helpers.pmaports
-from pmb.core import Chroot, ChrootType
+from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.meta import Cache
 

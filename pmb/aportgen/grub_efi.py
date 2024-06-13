@@ -6,7 +6,6 @@ import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.apk_static
 from pmb.core.arch import Arch
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot

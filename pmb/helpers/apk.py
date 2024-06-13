@@ -1,13 +1,12 @@
 # Copyright 2023 Johannes Marbach, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pathlib import Path
 from typing import List, Sequence
 
 import pmb.chroot
 import pmb.config.pmaports
 from pmb.core.arch import Arch
-from pmb.types import PathString, PmbArgs
+from pmb.types import PathString
 import pmb.helpers.cli
 import pmb.helpers.run
 import pmb.helpers.run_core

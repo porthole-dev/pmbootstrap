@@ -4,11 +4,9 @@ import configparser
 from pathlib import Path
 from typing import Dict
 from pmb.core.context import get_context
-from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_path
 from pmb.helpers import logging
 import os
-from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk

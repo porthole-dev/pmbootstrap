@@ -14,7 +14,6 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 from typing import Dict, Any
 
-from typing import Any, Dict
 
 
 def folder_size(path: Path):

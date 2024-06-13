@@ -10,7 +10,6 @@ from collections import OrderedDict
 
 import pmb.config
 from pmb.meta import Cache
-from pmb.types import PmbArgs
 import pmb.helpers.devices
 import pmb.parse.version
 

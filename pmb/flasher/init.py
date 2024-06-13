@@ -3,7 +3,6 @@
 import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
-from pmb.types import PmbArgs
 import pmb.helpers.mount
 import pmb.helpers.args
 from pmb.helpers.mount import mount_device_rootfs

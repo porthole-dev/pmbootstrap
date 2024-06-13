@@ -7,7 +7,6 @@ import os
 
 import pmb.build
 import pmb.config
-from pmb.types import PmbArgs
 import pmb.parse
 import pmb.helpers.pmaports
 from pmb.helpers.exceptions import NonBugError

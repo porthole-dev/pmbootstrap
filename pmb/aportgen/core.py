@@ -3,7 +3,6 @@
 import fnmatch
 from pmb.helpers import logging
 import re
-from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.run
 import pmb.helpers.args

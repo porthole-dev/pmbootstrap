@@ -1,11 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from argparse import Namespace
-import copy
-import json
-import os
-from pathlib import Path
-import sys
 import pmb.config
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path

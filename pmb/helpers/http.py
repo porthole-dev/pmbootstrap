@@ -9,7 +9,6 @@ import shutil
 import urllib.request
 
 from pmb.core.context import get_context
-from pmb.types import PmbArgs
 import pmb.helpers.run
 
 def cache_file(prefix: str, url: str) -> Path:

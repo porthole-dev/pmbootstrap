@@ -1,6 +1,5 @@
 # Copyright 2023 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pathlib import Path
 from typing import Dict, List, Sequence
 from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs, pkgrepo_names, pkgrepo_relative_path
@@ -10,7 +9,6 @@ import os
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.build
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 

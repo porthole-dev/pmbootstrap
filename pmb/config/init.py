@@ -10,7 +10,7 @@ import glob
 import json
 import os
 import shutil
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import pmb.aportgen
 import pmb.config

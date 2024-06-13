@@ -1,14 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import glob
 import json
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 from pmb.helpers import logging
-import os
 import time
 
-from pmb.types import PathString, PmbArgs
+from pmb.types import PathString
 import pmb.helpers.mount
 import pmb.helpers.run
 import pmb.chroot

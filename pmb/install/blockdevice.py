@@ -3,7 +3,6 @@
 from typing import Optional
 from pmb.helpers import logging
 import os
-import glob
 from pathlib import Path
 from pmb.types import PmbArgs
 import pmb.helpers.mount

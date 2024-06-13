@@ -18,7 +18,6 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.mount
 import pmb.helpers.package
-from pmb.meta import Cache
 import pmb.parse
 import pmb.parse.apkindex
 from pmb.helpers.exceptions import BuildFailedError

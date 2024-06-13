@@ -1,7 +1,7 @@
 import os
 import glob
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Tuple
+from typing import Dict, Generator, List, Optional, Tuple
 
 import pmb.config
 from pmb.core.context import get_context

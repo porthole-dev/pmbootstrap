@@ -7,7 +7,7 @@ import re
 import glob
 import shlex
 import sys
-from typing import Dict, List, Optional, Sequence, TypedDict
+from typing import Dict, List, Optional, Sequence
 from pathlib import Path
 
 import pmb.build

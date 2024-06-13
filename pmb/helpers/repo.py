@@ -14,11 +14,10 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_names
 from pmb.helpers import logging
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import List, Optional
 
 import pmb.config.pmaports
 from pmb.meta import Cache
-from pmb.types import PmbArgs
 import pmb.helpers.http
 import pmb.helpers.run
 import pmb.helpers.other

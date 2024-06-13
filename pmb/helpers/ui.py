@@ -1,8 +1,6 @@
 # Copyright 2023 Clayton Craft
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-import glob
-from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_iglob
 import pmb.helpers.pmaports
 import pmb.helpers.package

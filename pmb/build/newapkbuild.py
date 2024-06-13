@@ -5,13 +5,11 @@ from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 from pathlib import Path
 import pmb.chroot
-from pmb.types import PmbArgs
 import pmb.helpers.cli
 import pmb.parse
 import pmb.build
 
 from pmb.core import Chroot
-from pmb.core.context import get_context
 
 
 def newapkbuild(folder, args_passed, force=False):
