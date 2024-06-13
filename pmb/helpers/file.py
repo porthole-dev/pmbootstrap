@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import time
 
+from pmb.meta import Cache
 from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
@@ -46,7 +47,7 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     replace(path, "\n" + line_old + "\n", "\n" + line_new + "\n")
 
     # Verify
-    del (pmb.helpers.other.cache["apkbuild"][path])
+    Cache.clear_cache(pmb.parse.apkbuild)
     apkbuild = pmb.parse.apkbuild(path)
     if apkbuild[key] != str(new):
         raise RuntimeError("Failed to set '{}' for pmaport '{}'. Make sure"
