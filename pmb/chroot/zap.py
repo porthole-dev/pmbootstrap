@@ -79,9 +79,9 @@ def zap(confirm=True, dry=False, pkgs_local=False, http=False,
     pmb.config.workdir.clean()
 
     # Chroots were zapped, so no repo lists exist anymore
-    Cache.clear_cache(pmb.chroot.apk.update_repository_list)
+    pmb.chroot.apk.update_repository_list.cache_clear()
     # Let chroot.init be called again
-    Cache.clear_cache(pmb.chroot.init)
+    pmb.chroot.init.cache_clear()
 
     # Print amount of cleaned up space
     if dry:

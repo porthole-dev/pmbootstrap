@@ -9,9 +9,9 @@ class Wrapper:
     def __init__(self, cache: "Cache", func: Callable):
         self.cache = cache
         self.func = func
+        self.disabled = False
         self.__module__ = func.__module__
         self.__name__ = func.__name__
-        self.fhash = hash(func)
 
 
     # When someone attempts to call a cached function, they'll
@@ -19,13 +19,14 @@ class Wrapper:
     # result and if not then we do the actual function call and
     # cache it if applicable
     def __call__(self, *args, **kwargs):
-        #print(f"Cache.wrapper({args}, {kwargs})")
+        if self.disabled:
+            return self.func(*args, **kwargs)
+
         # Build the cache key from the function arguments that we
         # care about, which might be none of them
         key = self.cache.build_key(self.func, *args, **kwargs)
         # Don't cache
         if key is None:
-            # print(f"Cache: {func.__name__} NULL key!")
             return self.func(*args, **kwargs)
 
         if key not in self.cache.cache:
@@ -39,14 +40,11 @@ class Wrapper:
         #print(f"Cache: {func.__name__}({key})")
         return self.cache.cache[key]
 
+    def cache_clear(self):
+        self.cache.clear()
 
-    # This is a hacky workaround to let us fetch the hash of the
-    # underlying function, since hash(cached_func()) would just get
-    # the hash of the wrapper
-    def __getattribute__(self, name: str):
-        if name == "@realhash":
-            return self.fhash
-        return super(Wrapper, self).__getattribute__(name)
+    def cache_disable(self):
+        self.disabled = True
 
 
 class Cache:
@@ -56,7 +54,6 @@ class Cache:
     :param kwargs: these are arguments where we should only cache if the
     function is called with the given value. For example, in pmb.build._package
     we never want to use the cached result when called with force=True."""
-    _cache: Dict[int, "Cache"] = {}
 
     def __init__(self, *args, cache_deepcopy=False, **kwargs):
         for a in args:
@@ -66,7 +63,6 @@ class Cache:
         if len(args) != len(set(args)):
             raise ValueError("Duplicate cache key properties")
 
-        # print(f"Cache.__init__({args})")
         self.cache = {}
         self.params = args
         self.kwargs = kwargs
@@ -81,7 +77,6 @@ class Cache:
         if not self.params and not self.kwargs:
             return key
 
-        #print(f"Cache.build_key({func}, {args}, {kwargs})")
         argnames = list(func.__code__.co_varnames)[:func.__code__.co_argcount]
 
         # Build a dictionary of the arguments passed to the function and their values
@@ -127,10 +122,6 @@ class Cache:
 
 
     def __call__(self, func: Callable):
-        fhash = hash(func)
-        Cache._cache[fhash] = self
-        # print(f"Cache: {func.__module__}.{func.__name__} hash {fhash}")
-        # print(f"Cache.__call__({func})")
         argnames = func.__code__.co_varnames
         for a in self.params:
             if a not in argnames:
@@ -141,16 +132,3 @@ class Cache:
 
     def clear(self):
         self.cache.clear()
-
-
-    @staticmethod
-    def clear_cache(func: Callable):
-        key = None
-        try:
-            key = getattr(func, "@realhash")
-        except AttributeError:
-            return
-        cache = getattr(Cache, "_cache")
-        if key not in cache:
-            return
-        cache[key].clear()
