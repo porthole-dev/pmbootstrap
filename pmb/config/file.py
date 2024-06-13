@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import List
+from typing import Any, List, Optional
+import pmb.config
 from pmb.helpers import logging
 import configparser
 import os
@@ -104,7 +105,13 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
 
     return cfg
 
+# FIXME: we should have distinct Config and ConfigFile types
 def save(output: Path, config: Config):
+    """Save the config object to the specified path.
+    
+    IMPORTANT: The global config (available via get_context().config)
+    has invocation arguments merged into it. Do NOT call save() with
+    the global config object."""
     logging.debug(f"Save config: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.touch(0o700, exist_ok=True)
