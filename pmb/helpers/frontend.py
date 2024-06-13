@@ -105,7 +105,7 @@ def aportgen(args: PmbArgs):
 def build(args: PmbArgs):
     # Strict mode: zap everything
     if args.strict:
-        pmb.chroot.zap(args, False)
+        pmb.chroot.zap(False)
 
     if args.envkernel:
         pmb.build.envkernel.package_kernel(args)
