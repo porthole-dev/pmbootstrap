@@ -13,8 +13,8 @@ import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
 
-req_headers: Dict[str, str]
-req_headers_github: Dict[str, str]
+req_headers: Dict[str, str] = {}
+req_headers_github: Dict[str, str] = {}
 
 ANITYA_API_BASE = "https://release-monitoring.org/api/v2"
 GITHUB_API_BASE = "https://api.github.com"
@@ -31,7 +31,7 @@ def init_req_headers() -> None:
     global req_headers
     global req_headers_github
     # Only initialize them once
-    if req_headers is not None and req_headers_github is not None:
+    if req_headers and req_headers_github:
         return
     # Generic request headers
     req_headers = {
