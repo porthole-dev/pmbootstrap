@@ -6,7 +6,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List, Optional
+from typing import List, Sequence
 
 import pmb.build
 import pmb.chroot
@@ -160,7 +160,7 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands: List[List[PathString]] = [["add"] + to_add]
+    commands: List[Sequence[PathString]] = [["add"] + to_add]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
