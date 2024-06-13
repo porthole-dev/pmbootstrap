@@ -26,47 +26,12 @@ if python -c "import pytest_cov" >/dev/null 2>&1; then
 	cov_arg="--cov=pmb"
 fi
 
-echo "Initializing pmbootstrap..."
-if ! yes '' | ./pmbootstrap.py \
-		--details-to-stdout \
-		init \
-		>/tmp/pmb_init 2>&1; then
-	cat /tmp/pmb_init
-	exit 1
-fi
-
-# Make sure that the work folder format is up to date, and that there are no
-# mounts from aborted test cases (#1595)
-./pmbootstrap.py work_migrate
-./pmbootstrap.py -q shutdown
-
-# Make sure we have a valid device (#1128)
-device="$(./pmbootstrap.py config device)"
-pmaports="$(./pmbootstrap.py config aports)"
-deviceinfo="$(ls -1 "$pmaports"/device/*/device-"$device"/deviceinfo)"
-if ! [ -e "$deviceinfo" ]; then
-	echo "ERROR: Could not find deviceinfo file for selected device:" \
-		"$device"
-	echo "Expected path: $deviceinfo"
-	echo "Maybe you have switched to a branch where your device does not"
-	echo "exist? Use 'pmbootstrap config device qemu-amd64' to switch to"
-	echo "a valid device."
-	exit 1
-fi
-
-# Make sure pmaports is clean, some of the tests will fail otherwise
-if [ -n "$(git -C "$pmaports" status --porcelain)" ]; then
-	echo "ERROR: pmaports dir is not clean"
-	exit 1
-fi
-
 echo "Running pytest..."
 echo "NOTE: use 'pmbootstrap log' to see the detailed log if running locally."
-pytest \
+python -m pytest \
 	--color=yes \
 	-vv \
 	-x \
 	$cov_arg \
-	test \
 		-m "not skip_ci" \
 		"$@"

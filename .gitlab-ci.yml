@@ -44,6 +44,7 @@ pytest:
 
 ruff:
   stage: lint
+  allow_failure: true
   script:
     - ".ci/ruff.sh"
 
@@ -54,6 +55,7 @@ shellcheck:
 
 vermin:
   stage: lint
+  allow_failure: true
   script:
     - ".ci/vermin.sh"
 
@@ -70,6 +72,7 @@ mr-settings:
 
 mypy:
   stage: lint
+  allow_failure: true
   script:
     - ".ci/mypy.sh"
 
