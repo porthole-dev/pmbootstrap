@@ -4,21 +4,32 @@ import pytest
 import shutil
 
 import pmb.core
+from pmb.core.context import get_context
 from pmb.types import PmbArgs
 from pmb.helpers.args import init as init_args
 
 _testdir = Path(__file__).parent / "data/tests"
 
 @pytest.fixture
-def config_file(tmp_path_factory):
+def config_file(tmp_path_factory, request):
     """Fixture to create a temporary pmbootstrap.cfg file."""
     tmp_path = tmp_path_factory.mktemp("pmbootstrap")
+
+    flavour = "default"
+    if hasattr(request, "param") and request.param:
+        flavour = request.param
+
     out_file = tmp_path / "pmbootstrap.cfg"
     workdir = tmp_path / "work"
     workdir.mkdir()
+    
+    configs = {"default": f"aports = {workdir / 'cache_git' / 'pmaports'}",
+               "no-repos": "aports = "}
 
     file = _testdir / "pmbootstrap.cfg"
-    contents = open(file).read().format(workdir)
+    print(f"config_file: {out_file}")
+    cfg = configs[flavour]
+    contents = open(file).read().format(workdir, cfg)
 
     open(out_file, "w").write(contents)
     return out_file
@@ -53,11 +64,14 @@ def mock_devices_find_path(device_package, monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def setup_logging(tmp_path: Path):
+def logfile(tmp_path_factory):
     """Setup logging for all tests."""
-    import logging
-    logfile = tmp_path / "test.log"
-    logging.basicConfig(level=logging.DEBUG, force=True, filename=logfile)
+    from pmb.helpers import logging
+    tmp_path = tmp_path_factory.getbasetemp()
+    logfile = tmp_path / "log_testsuite.txt"
+    logging.init(logfile, verbose=True)
+    
+    return logfile
 
 
 @pytest.fixture(autouse=True)
@@ -92,7 +106,7 @@ def mock_context(monkeypatch):
 # FIXME: get_context() at runtime somehow doesn't return the
 # custom context we set up here.
 @pytest.fixture
-def pmb_args(config_file, mock_context):
+def pmb_args(config_file, mock_context, logfile):
     """This is (still) a hack, since a bunch of the codebase still
     expects some global state to be initialised. We do that here."""
 
@@ -102,14 +116,17 @@ def pmb_args(config_file, mock_context):
     args.timeout = 900
     args.details_to_stdout = False
     args.quiet = False
-    args.verbose = False
+    args.verbose = True
     args.offline = False
     args.action = "init"
     args.cross = False
-    args.log = Path()
+    args.log = logfile
 
     print("init_args")
     init_args(args)
+
+    # Sanity check
+    assert ".pytest_tmp" in get_context().config.work.parts
 
 @pytest.fixture
 def foreign_arch():
@@ -120,3 +137,22 @@ def foreign_arch():
 
     return Arch.x86_64
 
+
+@pytest.fixture
+def pmaports(pmb_args, monkeypatch):
+    """Fixture to clone pmaports."""
+    
+    from pmb.core import Config
+    from pmb.core.context import get_context
+
+    config = get_context().config
+
+    with monkeypatch.context() as m:
+        # Speed things up by cloning from the local checkout if it exists.
+        if Config.aports[0].exists():
+            m.setitem(pmb.config.git_repos, "pmaports", Config.aports)
+
+        pmb.helpers.git.clone("pmaports")
+
+    assert pmb.helpers.run.user(["git", "checkout", "master"],
+                         working_dir=config.aports[0]) == 0

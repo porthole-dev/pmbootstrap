@@ -48,7 +48,7 @@ def clone(name_repo: str):
         command += [url, path]
 
         # Create parent dir and clone
-        logging.info("Clone git repository: " + url)
+        logging.info(f"Clone git repository: {url}")
         (get_context().config.work / "cache_git").mkdir(exist_ok=True)
         pmb.helpers.run.user(command, output="stdout")
 

@@ -174,7 +174,7 @@ def init():
     read_config()
 
 
-def switch_to_channel_branch(args: PmbArgs, channel_new):
+def switch_to_channel_branch(channel_new):
     """Checkout the channel's branch in pmaports.git.
 
     :channel_new: channel name (e.g. "edge", "v21.03")
@@ -198,7 +198,7 @@ def switch_to_channel_branch(args: PmbArgs, channel_new):
                  f" '{channel_new}'...")
 
     # Make sure we don't have mounts related to the old channel
-    pmb.chroot.shutdown(args)
+    pmb.chroot.shutdown()
 
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)

@@ -663,7 +663,7 @@ def frontend(args: PmbArgs):
 
     # Choose release channel, possibly switch pmaports branch
     channel = ask_for_channel(config)
-    pmb.config.pmaports.switch_to_channel_branch(args, channel)
+    pmb.config.pmaports.switch_to_channel_branch(channel)
     # FIXME: ???
     config.is_default_channel = False
 

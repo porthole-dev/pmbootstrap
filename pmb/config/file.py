@@ -46,7 +46,11 @@ def load(path: Path) -> Config:
         # Yeah this really sucks and there isn't a better way to do it without external
         # libraries
         elif isinstance(getattr(Config, key), List) and isinstance(getattr(Config, key)[0], PosixPath):
-            setattr(config, key, [Path(p.strip()) for p in cfg["pmbootstrap"][key].split(",")])
+            value = cfg["pmbootstrap"][key]
+            if not value:
+                setattr(config, key, value)
+            else:
+                setattr(config, key, [Path(p) for p in value.split(",")])
         elif isinstance(getattr(Config, key), bool):
             setattr(config, key, cfg["pmbootstrap"][key].lower() == "true")
         elif key in cfg["pmbootstrap"]:

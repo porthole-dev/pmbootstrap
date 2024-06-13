@@ -92,3 +92,4 @@ def test_migrate_2_to_3(config_file_2_3_x, tmp_path, monkeypatch):
     # Check that save was called (which happens on a config migration)
     assert did_migrate
 
+# FIXME: add save tests and better type checks
