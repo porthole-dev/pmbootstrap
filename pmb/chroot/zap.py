@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
+from pathlib import Path
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
@@ -10,12 +11,29 @@ import pmb.config.workdir
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.config.workdir
+import pmb.helpers.cli
 import pmb.helpers.pmaports
 import pmb.helpers.run
-from pmb.meta import Cache
+import pmb.helpers.mount
 import pmb.parse.apkindex
 from pmb.core import Chroot
 from pmb.core.context import get_context
+
+
+def del_chroot(path: Path, confirm=True, dry=False):
+    if confirm and not pmb.helpers.cli.confirm(f"Remove {path}?"):
+        return
+    if dry:
+        return
+
+    # Safety first!
+    assert path.is_absolute()
+    assert path.is_relative_to(get_context().config.work)
+
+    # umount_all() will throw if any mount under path fails to unmount
+    pmb.helpers.mount.umount_all(path)
+
+    pmb.helpers.run.root(["rm", "-rf", path])
 
 
 def zap(confirm=True, dry=False, pkgs_local=False, http=False,
@@ -51,7 +69,7 @@ def zap(confirm=True, dry=False, pkgs_local=False, http=False,
     pmb.chroot.shutdown()
 
     # Deletion patterns for folders inside get_context().config.work
-    patterns = list(Chroot.iter_patterns())
+    patterns = []
     if pkgs_local:
         patterns += ["packages"]
     if http:
@@ -62,6 +80,9 @@ def zap(confirm=True, dry=False, pkgs_local=False, http=False,
         patterns += ["cache_rust"]
     if netboot:
         patterns += ["images_netboot"]
+
+    for chroot in Chroot.glob():
+        del_chroot(chroot, confirm, dry)
 
     # Delete everything matching the patterns
     for pattern in patterns:
