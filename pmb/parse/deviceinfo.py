@@ -254,7 +254,7 @@ class Deviceinfo:
             # if key not in Deviceinfo.__annotations__.keys():
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
             if key == "arch":
-                setattr(self, key, Arch(value))
+                setattr(self, key, Arch.from_str(value))
             else:
                 setattr(self, key, value)
 

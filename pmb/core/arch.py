@@ -43,7 +43,9 @@ class Arch(enum.Enum):
         try:
             return Arch(arch)
         except ValueError:
-            raise ValueError(f"Invalid architecture: {arch}")
+            raise ValueError(f"Invalid architecture: '{arch}',"
+                              " expected something like:"
+                             f" {', '.join([str(a) for a in Arch.supported()])}")
 
 
     @staticmethod
@@ -52,7 +54,6 @@ class Arch(enum.Enum):
             "i686": Arch.x86,
             "x86_64": Arch.x86_64,
             "aarch64": Arch.aarch64,
-            "arm64": Arch.aarch64,
             "armv6l": Arch.armhf,
             "armv7l": Arch.armv7,
             "armv8l": Arch.armv7,
@@ -93,9 +94,12 @@ class Arch(enum.Enum):
             Arch.x86: "x86",
             Arch.x86_64: "x86_64",
             Arch.armhf: "arm",
+            Arch.armv7: "arm",
             Arch.aarch64: "arm64",
             Arch.riscv64: "riscv",
             Arch.ppc64le: "powerpc",
+            Arch.ppc64: "powerpc",
+            Arch.ppc: "powerpc",
             Arch.s390x: "s390",
         }
         return mapping.get(self, self.value)
@@ -105,12 +109,12 @@ class Arch(enum.Enum):
             Arch.x86: "i386",
             Arch.armhf: "arm",
             Arch.armv7: "arm",
-            Arch.ppc64le: "ppc64",
         }
         return mapping.get(self, self.value)
 
 
     def alpine_triple(self):
+        """Get the cross compiler triple for this architecture on Alpine."""
         mapping = {
             Arch.aarch64: "aarch64-alpine-linux-musl",
             Arch.armel: "armv5-alpine-linux-musleabi",
