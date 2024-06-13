@@ -12,10 +12,10 @@ import pmb.helpers.pmaports
 from pmb.core import Chroot
 
 
-def update(args: PmbArgs, pkgname):
+def update(pkgname):
     """Fetch all sources and update the checksums in the APKBUILD."""
     pmb.build.init_abuild_minimal()
-    pmb.build.copy_to_buildpath(args, pkgname)
+    pmb.build.copy_to_buildpath(pkgname)
     logging.info("(native) generate checksums for " + pkgname)
     pmb.chroot.user(["abuild", "checksum"],
                     working_dir=Path("/home/pmos/build"))
@@ -26,10 +26,10 @@ def update(args: PmbArgs, pkgname):
     pmb.helpers.run.user(["cp", source, target])
 
 
-def verify(args: PmbArgs, pkgname):
+def verify(pkgname):
     """Fetch all sources and verify their checksums."""
     pmb.build.init_abuild_minimal()
-    pmb.build.copy_to_buildpath(args, pkgname)
+    pmb.build.copy_to_buildpath(pkgname)
     logging.info("(native) verify checksums for " + pkgname)
 
     # Fetch and verify sources, "fetch" alone does not verify them:

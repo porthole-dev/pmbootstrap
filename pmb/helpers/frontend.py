@@ -144,9 +144,9 @@ def build_init(args: PmbArgs):
 def checksum(args: PmbArgs):
     for package in args.packages:
         if args.verify:
-            pmb.build.checksum.verify(args, package)
+            pmb.build.checksum.verify(package)
         else:
-            pmb.build.checksum.update(args, package)
+            pmb.build.checksum.update(package)
 
 
 def sideload(args: PmbArgs):
