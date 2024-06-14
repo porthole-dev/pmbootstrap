@@ -159,7 +159,12 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
              fetch() {
                  # Update source copy
                  msg "Copying source from host system: """ + src + """\"
-                 rsync -a --exclude=".git/" --delete --ignore-errors --force \\
+                 local exclude_from=\"""" + mount_path + """/.gitignore\"
+                 local rsync_args=""
+                 if [ -f "$exclude_from" ]; then
+                     rsync_args="--exclude-from=\"$exclude_from\""
+                 fi
+                 rsync -a --exclude=".git/" $rsync_args --delete --ignore-errors --force \\
                      \"""" + mount_path + """\" "$_pmb_src_copy" || true
 
                  # Link local source files (e.g. kernel config)
