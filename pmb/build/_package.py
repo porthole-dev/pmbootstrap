@@ -347,14 +347,16 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
     then mark it as built. We must mark as built before building
     to break cyclical dependency loops."""
     global _package_cache
-    if arch not in _package_cache:
-        _package_cache[str(arch)] = []
 
-    ret = pkgname in _package_cache[str(arch)]
+    key = str(arch)
+    if key not in _package_cache:
+        _package_cache[key] = []
+
+    ret = pkgname in _package_cache[key]
     if not ret:
-        _package_cache[str(arch)].append(pkgname)
+        _package_cache[key].append(pkgname)
     else:
-        logging.debug(f"{arch}/{pkgname}: already built")
+        logging.debug(f"{key}/{pkgname}: marked for build")
     return ret
 
 
