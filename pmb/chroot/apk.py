@@ -6,7 +6,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List, Sequence
+from typing import List, Sequence, Tuple
 
 import pmb.build
 import pmb.chroot
@@ -112,7 +112,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
+def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], List[Path]]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -120,25 +120,29 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
 
     :param packages: list of pkgnames
     :param arch: architecture that the locally built packages should have
-    :returns: list of apk file paths that are valid inside the chroots, e.g.
+    :returns: Pair of lists, the first is the input packages with local apks removed.
+              the second is a list of apk file paths that are valid inside the chroots, e.g.
               ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
     """
     channel: str = pmb.config.pmaports.read_config()["channel"]
-    ret: List[Path] = []
+    local: List[Path] = []
 
+    to_add = []
     for package in packages:
         data_repo = pmb.parse.apkindex.package(package, arch, False)
         if not data_repo:
+            to_add.append(package)
             continue
 
         apk_file = f"{package}-{data_repo['version']}.apk"
         apk_path = get_context().config.work / "packages" / channel / arch / apk_file
         if not apk_path.exists():
+            to_add.append(package)
             continue
 
-        ret.append(apk_path)
+        local.append(apk_path)
 
-    return ret
+    return to_add, local
 
 
 # FIXME: List[Sequence[PathString]] weirdness
@@ -244,10 +248,10 @@ def install(packages, chroot: Chroot, build=True):
     if build and context.config.build_pkgs_on_install:
         pmb.build.packages(context, to_add, arch)
 
-    to_add_local = packages_get_locally_built_apks(to_add, arch)
+    to_add, to_add_local = packages_get_locally_built_apks(to_add, arch)
 
     logging.info(f"({chroot}) install {' '.join(packages)}")
-    install_run_apk(packages, to_add_local, to_del, chroot)
+    install_run_apk(to_add, to_add_local, to_del, chroot)
 
 
 def installed(suffix: Chroot=Chroot.native()):
