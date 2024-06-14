@@ -220,7 +220,7 @@ def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2
 
     if args.efi:
         command += ["-drive",
-                    "if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF.fd"]
+                    f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd"]
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.parse.deviceinfo().arch.is_native()
