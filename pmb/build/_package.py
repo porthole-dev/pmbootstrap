@@ -143,6 +143,8 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
     # Add src path to pkgdesc, cut it off after max length
     pkgdesc = ("[" + src + "] " + apkbuild["pkgdesc"])[:127]
 
+    pkgname = apkbuild["pkgname"]
+
     # Appended content
     append = """
              # ** Overrides below appended by pmbootstrap for --src **
@@ -164,7 +166,10 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
                  if [ -f "$exclude_from" ]; then
                      rsync_args="--exclude-from=\"$exclude_from\""
                  fi
-                 rsync -a --exclude=".git/" $rsync_args --delete --ignore-errors --force \\
+                 if ! [ \"""" + pkgname + """\" = "$(cat /tmp/src-pkgname)" ]; then
+                     rsync_args="--delete $rsync_args"
+                 fi
+                 rsync -a --exclude=".git/" $rsync_args --ignore-errors --force \\
                      \"""" + mount_path + """\" "$_pmb_src_copy" || true
 
                  # Link local source files (e.g. kernel config)
@@ -173,6 +178,8 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
                  for s in $_pmb_source_original; do
                      is_remote "$s" || ln -sf "$startdir/$s" "$srcdir/"
                  done
+                 
+                 echo \"""" + pkgname + """\" > /tmp/src-pkgname
              }
 
              unpack() {
@@ -317,9 +324,16 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
         cmd += ["-d"]  # do not install depends with abuild
     if force:
         cmd += ["-f"]
+    if src:
+        # Keep build artifacts, so repeated invocations will do incremental
+        # building.
+        cmd += ["-K"]
 
     # Copy the aport to the chroot and build it
     pmb.build.copy_to_buildpath(apkbuild["pkgname"], suffix, no_override=strict)
+    if src and strict:
+        logging.debug(f"({suffix}) Ensuring previous build artifacts are removed")
+        pmb.chroot.root(["rm", "-rf", "/tmp/pmbootstrap-local-source-copy"], suffix)
     override_source(apkbuild, apkbuild["pkgver"], src, suffix)
     link_to_git_dir(suffix)
     pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
