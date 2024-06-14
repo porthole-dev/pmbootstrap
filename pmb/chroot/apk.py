@@ -25,8 +25,8 @@ from pmb.core.context import get_context
 from pmb.types import PathString
 
 
-@Cache("chroot", mirrors_exclude=[])
-def update_repository_list(chroot: Chroot, mirrors_exclude: List[str]=[],
+@Cache("chroot", "user_repository", mirrors_exclude=[])
+def update_repository_list(chroot: Chroot, user_repository=False, mirrors_exclude: List[str]=[],
                            check=False):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
@@ -51,7 +51,7 @@ def update_repository_list(chroot: Chroot, mirrors_exclude: List[str]=[],
         pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(mirrors_exclude=mirrors_exclude)
+    lines_new = pmb.helpers.repo.urls(user_repository=user_repository, mirrors_exclude=mirrors_exclude)
     if lines_old == lines_new:
         return
 
@@ -66,7 +66,8 @@ def update_repository_list(chroot: Chroot, mirrors_exclude: List[str]=[],
     for line in lines_new:
         pmb.helpers.run.root(["sh", "-c", "echo "
                                     f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(chroot, mirrors_exclude, True)
+    update_repository_list(chroot, user_repository=user_repository,
+                           mirrors_exclude=mirrors_exclude, check=True)
 
 
 @Cache("chroot")
@@ -155,6 +156,7 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
     :param chroot: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
     context = get_context()
+    work = context.config.work
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
     local_add = [os.fspath(p) for p in to_add_local]
@@ -182,13 +184,17 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
     #     pmb.chroot.init(chroot)
     apk_static = Chroot.native() / "sbin/apk.static"
     arch = chroot.arch
-    apk_cache = get_context().config.work / f"cache_apk_{arch}"
+    apk_cache = work / f"cache_apk_{arch}"
+
+    channel = pmb.config.pmaports.read_config()["channel"]
+    user_repo = work / "packages" / channel
 
     for (i, command) in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
         # gets confused
         command += ["--no-interactive"]
-        command = ["--root", chroot.path, "--arch", arch, "--cache-dir", apk_cache] + command
+        command = ["--root", chroot.path, "--arch", arch, "--cache-dir", apk_cache,
+                   "--repository", user_repo] + command
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
