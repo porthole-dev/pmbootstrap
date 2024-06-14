@@ -70,16 +70,7 @@ def shutdown(only_install_related=False):
     shutdown_cryptsetup_device("pm_crypt")
 
     # Umount all losetup mounted images
-    if pmb.helpers.mount.ismount(chroot / "dev/loop-control"):
-        for path_outside in (chroot / "/home/pmos/rootfs").glob("*.img"):
-            path = path_outside.relative_to(chroot.path)
-            pmb.install.losetup.umount(path)
-
-    # Umount device rootfs and installer chroots
-    for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
-        chroot = Chroot(chroot_type, get_context().config.device)
-        if chroot.path.exists():
-            pmb.helpers.mount.umount_all(chroot.path)
+    pmb.install.losetup.detach_all()
 
     # Remove "in-pmbootstrap" marker from all chroots. This marker indicates
     # that pmbootstrap has set up all mount points etc. to run programs inside
@@ -89,18 +80,23 @@ def shutdown(only_install_related=False):
     for marker in get_context().config.work.glob("chroot_*/in-pmbootstrap"):
         pmb.helpers.run.root(["rm", marker])
 
-    if not only_install_related:
-        for path in Chroot.glob():
-            if path.exists():
-                pmb.helpers.mount.umount_all(path)
-        # Umount all folders inside work dir
-        # The folders are explicitly iterated over, so folders symlinked inside
-        # work dir get umounted as well (used in test_pkgrel_bump.py, #1595)
-        for path in get_context().config.work.glob("*"):
-            pmb.helpers.mount.umount_all(path)
+    # Umount device rootfs and installer chroots
+    if only_install_related:
+        for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
+            chroot = Chroot(chroot_type, get_context().config.device)
+            if chroot.path.exists():
+                pmb.helpers.mount.umount_all(chroot.path)
+        return
 
-        # Clean up the rest
-        for arch in Arch.supported():
-            if arch.cpu_emulation_required():
-                pmb.chroot.binfmt.unregister(arch)
-        logging.debug("Shutdown complete")
+    # Umount all folders inside work dir
+    # The folders are explicitly iterated over, so folders symlinked inside
+    # work dir get umounted as well (used in test_pkgrel_bump.py, #1595)
+    for path in get_context().config.work.glob("*"):
+        pmb.helpers.mount.umount_all(path)
+
+    # Clean up the rest
+    for arch in Arch.supported():
+        if arch.cpu_emulation_required():
+            pmb.chroot.binfmt.unregister(arch)
+
+    logging.debug("Shutdown complete")
