@@ -592,8 +592,9 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
             pmb.build.other.configure_ccache(chroot)
             if "rust" in all_dependencies or "cargo" in all_dependencies:
                 pmb.chroot.apk.install(["sccache"], chroot)
-            if src:
-                pmb.chroot.apk.install(["rsync"], chroot)
+        pkg_depends = pkg["depends"]
+        if src:
+            pkg_depends.append("rsync")
 
         # We only need to init cross compiler stuff once
         if not cross:
@@ -603,8 +604,8 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
             if cross == "crossdirect":
                 pmb.chroot.mount_native_into_foreign(chroot)
 
-        if not strict and "pmb:strict" not in pkg["apkbuild"]["options"] and len(pkg["depends"]):
-            pmb.chroot.apk.install(pkg["depends"], chroot, build=False)
+        if not strict and "pmb:strict" not in pkg["apkbuild"]["options"] and len(pkg_depends):
+            pmb.chroot.apk.install(pkg_depends, chroot, build=False)
 
         # Build and finish up
         try:
