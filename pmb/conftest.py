@@ -27,7 +27,7 @@ def config_file(tmp_path_factory, request):
                "no-repos": "aports = "}
 
     file = _testdir / "pmbootstrap.cfg"
-    print(f"config_file: {out_file}")
+    print(f"CONFIG: {out_file}")
     cfg = configs[flavour]
     contents = open(file).read().format(workdir, cfg)
 
@@ -122,8 +122,9 @@ def pmb_args(config_file, mock_context, logfile):
     args.cross = False
     args.log = logfile
 
-    print("init_args")
     init_args(args)
+    
+    print(f"WORK: {get_context().config.work}")
 
     # Sanity check
     assert ".pytest_tmp" in get_context().config.work.parts
