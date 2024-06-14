@@ -3,6 +3,7 @@
 import datetime
 import enum
 from typing import Any, Callable, Dict, List, Optional, Set, TypedDict
+from pmb.build.other import BuildStatus
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_relative_path
@@ -410,14 +411,31 @@ def process_package(context: Context, queue_build: Callable, pkgname: str,
 
     logging.debug(f"{arch}/{pkgname}: Generating dependency tree")
     # Add the package to the build queue
-    depends = get_depends(context, base_apkbuild)
+    base_depends = get_depends(context, base_apkbuild)
+    depends = base_depends.copy()
 
-    will_build_base = False
-    if (pmb.build.is_necessary(arch, base_apkbuild) or force) and check_build_for_arch(pkgname, arch):
-        will_build_base = True
+    base_build_status = BuildStatus.NEW if force else BuildStatus.UNNECESSARY
+    if not base_build_status.necessary():
+        base_build_status = pmb.build.get_status(arch, base_apkbuild)
+    if base_build_status.necessary() and not check_build_for_arch(pkgname, arch):
+        base_build_status = BuildStatus.UNNECESSARY
+
+    # FIXME: We descend into the package dependencies even if we aren't going to
+    # build it because this is the only way we warn about outdated packages. When
+    # you run pmbootstrap install you expect to be warned that you bumped some random
+    # utility but forgot to build it.
+    # This ought to be fixed, ideally by having the actual dependency parsing stuff
+    # here all abstracted away, then the package building code just becomes a couple
+    # of callback functions to determine if a package should be built and build it,
+    # and we can have another feature to walk the dependency graph and determine if
+    # you maybe forgot to build a package, since we only care about that during
+    # installation.
+    if base_build_status.necessary():
+        queue_build(base_aports, base_apkbuild, base_depends)
 
     parent = pkgname
     while len(depends):
+        # FIXME: pop(0) is really quite slow!
         dep = depends.pop(0)
         if is_cached_or_cache(arch, pmb.helpers.package.remove_operators(dep)):
             continue
@@ -437,7 +455,8 @@ def process_package(context: Context, queue_build: Callable, pkgname: str,
                                 " pmbootstrap won't build any depends since"
                                 " it was started with --no-depends.")
 
-        if pmb.build.is_necessary(arch, apkbuild):
+        bstatus = pmb.build.get_status(arch, apkbuild)
+        if bstatus.necessary():
             if context.no_depends:
                 raise RuntimeError(f"Binary package for dependency '{dep}'"
                                    f" of '{parent}' is outdated, but"
@@ -445,20 +464,19 @@ def process_package(context: Context, queue_build: Callable, pkgname: str,
                                    f" since it was started with --no-depends.")
 
             deps = get_depends(context, apkbuild)
-            if will_build_base:
+            # Preserve the old behaviour where we don't build second order dependencies by default
+            # unless they are NEW packages, in which case we 
+            if base_build_status.necessary() or bstatus == BuildStatus.NEW:
+                logging.debug(f"BUILDQUEUE: queue {dep} (dependency of {parent}) for build, reason: {bstatus}")
                 queue_build(aports, apkbuild, deps, cross)
             else:
-                logging.info(f"@YELLOW@SKIP:@END@ {arch}/{dep}: is a dependency of"
-                             f" {pkgname} which isn't marked for build. Call with"
-                             f" --force or consider building {dep} manually")
+                logging.info(f"@YELLOW@SKIP:@END@ NOT building {arch}/{dep}: it is a"
+                             f" dependency of {pkgname} which isn't marked for build."
+                             f" Call with --force or consider building {dep} manually")
 
             logging.verbose(f"{arch}/{dep}: Inserting {len(deps)} dependencies")
             depends = deps + depends
             parent = dep
-
-    # Queue the package itself after it's dependencies
-    if will_build_base:
-        queue_build(base_aports, base_apkbuild, depends)
 
     return depends
 
@@ -542,15 +560,18 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
     if not len(build_queue):
         return []
 
+    # We built the queue by pushing each package before it's dependencies. Now we
+    # need to go backwards through the queue and build the dependencies first.
+    build_queue.reverse()
+
     qlen = len(build_queue)
-    logging.info(f"@BLUE@{qlen}@END@ package{'s' if qlen > 1 else ''} to build")
+    logging.info(f"Building @BLUE@{qlen}@END@ package{'s' if qlen > 1 else ''}")
     for item in build_queue:
-        logging.debug(f"@BLUE@*@END@ {item['channel']}/{item['name']}")
+        logging.info(f"   @BLUE@*@END@ {item['channel']}/{item['name']}")
 
     cross = None
 
-    while len(build_queue):
-        pkg = build_queue.pop(0)
+    for pkg in build_queue:
         chroot = pkg["chroot"]
         pkg_arch = pkg["arch"]
 
@@ -579,7 +600,7 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
                 pmb.chroot.mount_native_into_foreign(chroot)
 
         if not strict and "pmb:strict" not in pkg["apkbuild"]["options"] and len(pkg["depends"]):
-            pmb.chroot.apk.install(pkg["depends"], chroot)
+            pmb.chroot.apk.install(pkg["depends"], chroot, build=False)
 
         # Build and finish up
         try:

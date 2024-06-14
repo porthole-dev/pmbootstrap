@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import enum
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -46,8 +47,20 @@ def copy_to_buildpath(package, chroot: Chroot=Chroot.native()):
     pmb.chroot.root(["chown", "-R", "pmos:pmos",
                            "/home/pmos/build"], chroot)
 
+class BuildStatus(enum.StrEnum):
+    # The binary package is outdated
+    OUTDATED = "outdated"
+    # There is no binary package
+    NEW = "new"
+    # Source package can't be built
+    CANT_BUILD = "cant_build"
+    # Building isn't needed
+    UNNECESSARY = "unnecessary"
 
-def is_necessary(arch, apkbuild, indexes=None):
+    def necessary(self):
+        return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
+
+def get_status(arch, apkbuild, indexes=None) -> BuildStatus:
     """Check if the package has already been built.
 
     Compared to abuild's check, this check also works for different architectures.
@@ -66,14 +79,14 @@ def is_necessary(arch, apkbuild, indexes=None):
                                             indexes)
     if not index_data:
         logging.debug(msg + "No binary package available")
-        return True
+        return BuildStatus.NEW
 
     # Can't build pmaport for arch: use Alpine's package (#1897)
     if arch and not pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
         logging.verbose(f"{package}: build is not necessary, because pmaport"
                         " can't be built for {arch}. Using Alpine's binary"
                         " package.")
-        return False
+        return BuildStatus.CANT_BUILD
 
     # a) Binary repo has a newer version
     version_binary = index_data["version"]
@@ -81,16 +94,16 @@ def is_necessary(arch, apkbuild, indexes=None):
         logging.warning(f"WARNING: about to install {package} {version_binary}"
                         f" (local pmaports: {version_pmaports}, consider"
                         " 'pmbootstrap pull')")
-        return False
+        return BuildStatus.UNNECESSARY
 
     # b) Local pmaports has a newer version
     if version_pmaports != version_binary:
         logging.debug(f"{msg}binary package out of date (binary: "
                       f"{version_binary}, local pmaports: {version_pmaports})")
-        return True
+        return BuildStatus.OUTDATED
 
     # Local pmaports and binary repo have the same version
-    return False
+    return BuildStatus.UNNECESSARY
 
 
 def index_repo(arch=None):

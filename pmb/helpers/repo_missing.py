@@ -19,7 +19,7 @@ def filter_missing_packages(arch, pkgnames):
         binary = pmb.parse.apkindex.package(pkgname, arch, False)
         must_exist = False if binary else True
         pmaport = pmb.helpers.pmaports.get(pkgname, must_exist)
-        if pmaport and pmb.build.is_necessary(arch, pmaport):
+        if pmaport and pmb.build.get_status(arch, pmaport).necessary():
             ret.append(pkgname)
     return ret
 
