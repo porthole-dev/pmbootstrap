@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 from typing import List
+from pmb.core.context import get_context
 from pmb.helpers import logging
 import time
 
@@ -85,3 +86,19 @@ def umount(img_path: Path):
         return
     logging.debug(f"(native) umount {device}")
     pmb.chroot.root(["losetup", "-d", device])
+
+def detach_all():
+    """
+    Detach all loop devices used by pmbootstrap
+    """
+    losetup_output = pmb.helpers.run.root(["losetup", "--json", "--list"],
+                                     output_return=True)
+    if not losetup_output:
+        return
+    losetup = json.loads(losetup_output)
+    work = get_context().config.work
+    for loopdevice in losetup["loopdevices"]:
+        print(loopdevice["back-file"])
+        if Path(loopdevice["back-file"]).is_relative_to(work):
+            pmb.chroot.root(["losetup", "-d", loopdevice["name"]])
+    return
