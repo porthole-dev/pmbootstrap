@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.core.chroot import ChrootType
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import os
@@ -9,10 +10,35 @@ import pmb.chroot.binfmt
 import pmb.config
 import pmb.helpers.run
 import pmb.parse
+import pmb.install.losetup
 import pmb.helpers.mount
 from pmb.core import Chroot
 from pmb.core.context import get_context
 
+
+def mount_chroot_image(chroot: Chroot):
+    """Mount an IMAGE type chroot, to modify an existing rootfs image. This
+    doesn't support split images yet!"""
+    # Make sure everything is nicely unmounted just to be super safe
+    # this is definitely overkill
+    pmb.chroot.shutdown()
+    pmb.install.losetup.detach_all()
+
+    chroot_native = Chroot.native()
+    pmb.chroot.init(chroot_native)
+
+    loopdev = pmb.install.losetup.mount(Path("/") / Path(chroot.name).relative_to(chroot_native.path))
+    pmb.helpers.mount.bind_file(loopdev, chroot_native / "dev/install")
+    # Set up device mapper bits
+    pmb.chroot.root(["kpartx", "-u", "/dev/install"], chroot_native)
+    chroot.path.mkdir(exist_ok=True)
+    # # The name of the IMAGE chroot is the path to the rootfs image
+    pmb.helpers.run.root(["mount", "/dev/mapper/install2", chroot.path])
+    pmb.helpers.run.root(["mount", "/dev/mapper/install1", chroot.path / "boot"])
+
+    pmb.config.workdir.chroot_save_init(chroot)
+
+    logging.info(f"({chroot}) mounted {chroot.name}")
 
 def create_device_nodes(chroot: Chroot):
     """
@@ -80,6 +106,9 @@ def mount_dev_tmpfs(chroot: Chroot=Chroot.native()):
 
 
 def mount(chroot: Chroot):
+    if chroot.type == ChrootType.IMAGE and not pmb.mount.ismount(chroot.path):
+        mount_chroot_image(chroot)
+
     # Mount tmpfs as the chroot's /dev
     mount_dev_tmpfs(chroot)
 

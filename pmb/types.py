@@ -78,6 +78,7 @@ class PmbArgs(Namespace):
     host: str
     host_qemu: str
     image_size: str
+    image: bool
     install_base: str
     install_blockdev: str
     install_cgpt: str

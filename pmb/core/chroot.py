@@ -14,6 +14,7 @@ class ChrootType(enum.Enum):
     BUILDROOT = "buildroot"
     INSTALLER = "installer"
     NATIVE = "native"
+    IMAGE = "image"
 
     def __str__(self) -> str:
         return self.name
@@ -65,9 +66,12 @@ class Chroot:
             raise ValueError(f"The native suffix can't have a name but got: "
                              f"'{self.__name}'")
 
+        if self.__type == ChrootType.IMAGE and not Path(self.__name).exists():
+            raise ValueError(f"Image file '{self.__name}' does not exist")
+
 
     def __str__(self) -> str:
-        if len(self.__name) > 0:
+        if len(self.__name) > 0 and self.type != ChrootType.IMAGE:
             return f"{self.__type.value}_{self.__name}"
         else:
             return self.__type.value

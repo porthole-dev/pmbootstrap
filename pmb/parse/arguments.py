@@ -812,6 +812,8 @@ def get_parser():
                         " 'stdout', 'interactive', 'tui' (default),"
                         " 'background'. Details: pmb/helpers/run_core.py",
                         default="tui")
+    chroot.add_argument("--image", help="Mount the rootfs image and treat"
+                        " it like a normal chroot.", action="store_true")
     chroot.add_argument("command", default=["sh", "-i"], help="command"
                         " to execute inside the chroot. default: sh",
                         nargs='*')
