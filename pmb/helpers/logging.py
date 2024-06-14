@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import TextIO
+from typing import Dict, TextIO
 import pmb.config
 
 logfd: TextIO
@@ -24,7 +24,7 @@ class log_handler(logging.StreamHandler):
     
     def __init__(self, details_to_stdout: bool=False, quiet: bool=False):
         super().__init__()
-        self.details_to_stdout = False
+        self.details_to_stdout = details_to_stdout
         self.quiet = False
 
     def emit(self, record):
@@ -32,9 +32,9 @@ class log_handler(logging.StreamHandler):
             msg = self.format(record)
 
             # INFO or higher: Write to stdout
-            if (not self.details_to_stdout and
-                not self.quiet and
-                    record.levelno >= logging.INFO):
+            if (self.details_to_stdout or
+                (not self.quiet and
+                    record.levelno >= logging.INFO)):
                 stream = self.stream
 
                 styles = pmb.config.styles
@@ -65,27 +65,12 @@ class log_handler(logging.StreamHandler):
                         f"{styles['GREEN']}*** ",
                         1,
                     )
-                    .replace(
-                        "@BLUE@",
-                        f"{styles['BLUE']}",
-                    )
-                    .replace(
-                        "@YELLOW@",
-                        f"{styles['YELLOW']}",
-                    )
-                    .replace(
-                        "@RED@",
-                        f"{styles['RED']}",
-                    )
-                    .replace(
-                        "@GREEN@",
-                        f"{styles['GREEN']}",
-                    )
-                    .replace(
-                        "@END@",
-                        f"{styles['END']}",
-                    )
                 )
+
+                for key, value in styles.items():
+                    msg_col = msg_col.replace(f"@{key}@", value)
+                    # Strip from the normal log message
+                    msg = msg.replace(f"@{key}@", "")
 
                 msg_col += styles["END"]
 
@@ -94,9 +79,10 @@ class log_handler(logging.StreamHandler):
                 self.flush()
 
             # Everything: Write to logfd
-            msg = "(" + str(os.getpid()).zfill(6) + ") " + msg
-            logfd.write(msg + "\n")
-            logfd.flush()
+            if not self.details_to_stdout:
+                msg = "(" + str(os.getpid()).zfill(6) + ") " + msg
+                logfd.write(msg + "\n")
+                logfd.flush()
 
         except (KeyboardInterrupt, SystemExit):
             raise
@@ -131,19 +117,16 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool=False):
         warning("Logging already initialized, skipping...")
         return
 
-    # Set log file descriptor (logfd)
-    if details_to_stdout:
+    # Require containing directory to exist (so we don't create the work
+    # folder and break the folder migration logic, which needs to set the
+    # version upon creation)
+    if not details_to_stdout and logfile.parent.exists():
+        logfd = open(logfile, "a+")
+        logfd.write("\n\n")
+    elif details_to_stdout:
         logfd = sys.stdout
     else:
-        # Require containing directory to exist (so we don't create the work
-        # folder and break the folder migration logic, which needs to set the
-        # version upon creation)
-        dir = os.path.dirname(logfile)
-        if os.path.exists(dir):
-            logfd = open(logfile, "a+")
-            logfd.write("\n\n")
-        else:
-            logfd = open(os.devnull, "a+")
+        logfd = open(os.devnull, "w")
 
     # Set log format
     root_logger = logging.getLogger()
