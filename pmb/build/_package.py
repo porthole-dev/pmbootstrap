@@ -314,10 +314,14 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
         cmd += ["-f"]
 
     # Copy the aport to the chroot and build it
-    pmb.build.copy_to_buildpath(apkbuild["pkgname"], suffix)
+    pmb.build.copy_to_buildpath(apkbuild["pkgname"], suffix, no_override=strict)
     override_source(apkbuild, apkbuild["pkgver"], src, suffix)
     link_to_git_dir(suffix)
     pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
+
+    if (suffix / "tmp/apkbuild_verify_failed").exists():
+        logging.info("WARNING: Some checksums didn't match, run"
+                    f" 'pmbootstrap checksum {apkbuild['pkgname']}' to fix them.")
 
 
 def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):

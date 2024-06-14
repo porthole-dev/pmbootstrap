@@ -21,7 +21,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def copy_to_buildpath(package, chroot: Chroot=Chroot.native()):
+def copy_to_buildpath(package, chroot: Chroot=Chroot.native(), no_override: bool=False):
     # Sanity check
     aport = pmb.helpers.pmaports.find(package)
     if not os.path.exists(aport / "APKBUILD"):
@@ -44,8 +44,23 @@ def copy_to_buildpath(package, chroot: Chroot=Chroot.native()):
             continue
         pmb.helpers.run.root(["cp", "-rL", aport / file, build / file])
 
+    if not no_override:
+        abuild_overrides(build / "APKBUILD")
+
     pmb.chroot.root(["chown", "-R", "pmos:pmos",
                            "/home/pmos/build"], chroot)
+
+
+def abuild_overrides(apkbuild: Path):
+    """Override some abuild functions by patching the APKBUILD file."""
+
+    if apkbuild.is_relative_to(get_context().config.work / "cache_git"):
+        raise ValueError(f"Refusing to patch file in pmaports repo: {apkbuild}")
+
+    # Patch the APKBUILD file
+    override_path = pmb.config.pmb_src / "pmb/data/abuild_overrides.sh"
+    pmb.helpers.run.root(["sh", "-c", f"cat {override_path} >> {apkbuild}"])
+
 
 class BuildStatus(enum.StrEnum):
     # The binary package is outdated
