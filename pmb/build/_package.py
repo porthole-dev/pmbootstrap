@@ -250,6 +250,22 @@ def output_path(arch: Arch, pkgname: str, pkgver: str, pkgrel: str) -> Path:
     return arch / f"{pkgname}-{pkgver}-r{pkgrel}.apk"
 
 
+def handle_csum_failure(apkbuild, chroot: Chroot):
+    csum_fail_path = chroot / "tmp/apkbuild_verify_failed"
+    if not csum_fail_path.exists():
+        return
+
+    reason = csum_fail_path.open().read().strip()
+    if reason == "local":
+        logging.info("WARNING: Some checksums didn't match, run"
+                    f" 'pmbootstrap checksum {apkbuild['pkgname']}' to fix them.")
+    else:
+        logging.error(f"ERROR: Remote checksum mismatch for {apkbuild['pkgname']}")
+        logging.error("NOTE: If you just modified this package:")
+        logging.error(f" * run 'pmbootstrap checksum {apkbuild['pkgname']}' to update the checksums.")
+        logging.error("If you didn't modify it, try building again to re-download the sources.") 
+        raise RuntimeError(f"Remote checksum mismatch for {apkbuild['pkgname']}")
+
 def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, force=False, cross=None,
                suffix: Chroot=Chroot.native(), src=None, bootstrap_stage=BootstrapStage.NONE):
     """
@@ -336,11 +352,11 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
         pmb.chroot.root(["rm", "-rf", "/tmp/pmbootstrap-local-source-copy"], suffix)
     override_source(apkbuild, apkbuild["pkgver"], src, suffix)
     link_to_git_dir(suffix)
-    pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
 
-    if (suffix / "tmp/apkbuild_verify_failed").exists():
-        logging.info("WARNING: Some checksums didn't match, run"
-                    f" 'pmbootstrap checksum {apkbuild['pkgname']}' to fix them.")
+    try:
+        pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
+    finally:
+        handle_csum_failure(apkbuild, suffix)
 
 
 def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
