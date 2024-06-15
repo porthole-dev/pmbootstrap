@@ -55,3 +55,12 @@ def test_invalid_chroots(pmb_args):
         Chroot(5)
     assert str(excinfo.value) == "Invalid chroot type: '5'"
 
+
+@pytest.mark.xfail
+def test_untested_chroots():
+    # IMAGE type is untested, name should be a valid path in this case
+    tested_chroot_types = [ChrootType.ROOTFS, ChrootType.BUILDROOT, ChrootType.NATIVE,
+                           ChrootType.INSTALLER]
+    for ct in ChrootType:
+        if ct not in tested_chroot_types:
+            raise ValueError(f"ChrootType {ct} is untested!")
