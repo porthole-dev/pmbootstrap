@@ -197,6 +197,11 @@ def parse(path: Path, multiple_providers=True):
         with path.open("r", encoding="utf-8") as handle:
             lines = handle.read().splitlines()
 
+    # The APKINDEX might be empty, for example if you run "pmbootstrap index" and have no local
+    # packages
+    if not lines:
+        return {}
+
     # Parse the whole APKINDEX file
     ret: Dict[str, Any] = collections.OrderedDict()
     if lines[-1] == "\n":
