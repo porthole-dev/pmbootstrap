@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import time
 
-from pmb.meta import Cache
 from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports

@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import Dict, TextIO
+from typing import TextIO
 import pmb.config
 
 logfd: TextIO

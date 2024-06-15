@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pmb.chroot
 import pmb.build
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 from pmb.core import Chroot

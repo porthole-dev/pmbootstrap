@@ -10,7 +10,6 @@ import sys
 
 import pmb.config
 from pmb.meta import Cache
-from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.pmaports
 import pmb.parse.version

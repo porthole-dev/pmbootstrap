@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Optional
-from pmb.core.config import Config
 from pmb.helpers import logging
 import os
 from pathlib import Path
