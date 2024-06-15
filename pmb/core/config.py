@@ -26,10 +26,13 @@ class SystemdConfig(enum.Enum):
         return [e.value for e in SystemdConfig]
 
 
-class AutoZapConfig(enum.StrEnum):
+class AutoZapConfig(enum.Enum):
     NO = "no"
     YES = "yes"
     SILENTLY = "silently"
+
+    def __str__(self) -> str:
+        return self.value
 
     def enabled(self) -> bool:
         return self != AutoZapConfig.NO

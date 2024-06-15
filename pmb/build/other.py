@@ -62,7 +62,7 @@ def abuild_overrides(apkbuild: Path):
     pmb.helpers.run.root(["sh", "-c", f"cat {override_path} >> {apkbuild}"])
 
 
-class BuildStatus(enum.StrEnum):
+class BuildStatus(enum.Enum):
     # The binary package is outdated
     OUTDATED = "outdated"
     # There is no binary package
@@ -71,6 +71,9 @@ class BuildStatus(enum.StrEnum):
     CANT_BUILD = "cant_build"
     # Building isn't needed
     UNNECESSARY = "unnecessary"
+
+    def __str__(self) -> str:
+        return self.value
 
     def necessary(self):
         return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
