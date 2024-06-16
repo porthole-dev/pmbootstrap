@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import List
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
@@ -15,7 +16,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def init_abuild_minimal(chroot: Chroot=Chroot.native()):
+def init_abuild_minimal(chroot: Chroot=Chroot.native(), additional_pkgs: List[str]=[]):
     """Initialize a minimal chroot with abuild where one can do 'abuild checksum'."""
     marker = chroot / "tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):
@@ -24,7 +25,7 @@ def init_abuild_minimal(chroot: Chroot=Chroot.native()):
     # pigz is multithreaded and makes compression must faster, we install it in the native
     # chroot and then symlink it into the buildroot so we aren't running it through QEMU.
     # pmb.chroot.apk.install(["pigz"], Chroot.native(), build=False)
-    pmb.chroot.apk.install(["abuild"], chroot, build=False)
+    pmb.chroot.apk.install(["abuild"] + additional_pkgs, chroot, build=False)
 
     # Fix permissions
     pmb.chroot.root(["chown", "root:abuild",
@@ -44,13 +45,12 @@ def init(chroot: Chroot=Chroot.native()) -> bool:
     if marker.exists():
         return False
 
+    logging.info(f"Initializing {chroot.arch} buildroot")
+
     # Initialize chroot, install packages
     pmb.chroot.init(Chroot.native())
     pmb.chroot.init(chroot)
-    init_abuild_minimal(chroot)
-
-    pmb.chroot.apk.install(pmb.config.build_packages, chroot,
-                           build=False)
+    init_abuild_minimal(chroot, additional_pkgs=pmb.config.build_packages)
 
     # Generate package signing keys
     if not os.path.exists(get_context().config.work / "config_abuild/abuild.conf"):
