@@ -380,6 +380,8 @@ def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
         # abuild will have removed the postmarketOS repository key (pma#1230)
         pmb.chroot.init_keys()
 
+    logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
+
 _package_cache: Dict[str, List[str]] = {}
 
 def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
@@ -617,7 +619,7 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
         channel = pkg["channel"]
         output = pkg["output_path"]
         if not log_callback:
-            logging.info(f"*** Building {channel}/{output} ***")
+            logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Installing dependencies")
         else:
             log_callback(pkg)
 
@@ -643,6 +645,7 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
             pmb.chroot.apk.install(pkg_depends, chroot, build=False)
 
         # Build and finish up
+        logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package")
         try:
             run_abuild(context, pkg["apkbuild"], channel, pkg_arch, strict, force, cross,
                                             chroot, src, bootstrap_stage)
@@ -652,5 +655,8 @@ def packages(context: Context, pkgnames: List[str], arch: Optional[Arch]=None, f
 
     # Clear package cache for the next run
     _package_cache = {}
+
+    if built_packages:
+        logging.info("@YELLOW@=>@END@ @GREEN@Finished building packages")
 
     return list(built_packages)
