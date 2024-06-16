@@ -963,10 +963,9 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
         logging.info("* pmbootstrap flasher flash_kernel")
         logging.info("  Flashes the kernel + initramfs to your device:")
         if requires_split:
-            logging.info(f"  {Chroot.native()}/home/pmos/rootfs/"
-                         f"{device}-boot.img")
+            logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}-boot.img")
         else:
-            logging.info(f"  {Chroot(ChrootType.ROOTFS, device)}/boot")
+            logging.info(f"  {Chroot(ChrootType.ROOTFS, device) / 'boot'}")
 
     if "boot" in flasher_actions:
         logging.info("  (NOTE: " + method + " also supports booting"
