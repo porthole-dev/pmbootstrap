@@ -207,7 +207,8 @@ def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2
     command += ["-device", "virtio-net-pci,netdev=net"]
 
     if arch == Arch.x86_64:
-        command += ["-device", "virtio-vga-gl"]
+        if args.qemu_display != "none":
+            command += ["-device", "virtio-vga-gl"]
     elif arch == Arch.aarch64:
         command += ["-M", "virt"]
         command += ["-cpu", "cortex-a57"]
