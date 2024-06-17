@@ -124,7 +124,7 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
               the second is a list of apk file paths that are valid inside the chroots, e.g.
               ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
     """
-    channel: str = pmb.config.pmaports.read_config()["channel"]
+    channels: List[str] = pmb.config.pmaports.all_channels()
     local: List[Path] = []
 
     to_add = []
@@ -135,12 +135,16 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
             continue
 
         apk_file = f"{package}-{data_repo['version']}.apk"
-        apk_path = get_context().config.work / "packages" / channel / arch / apk_file
-        if not apk_path.exists():
+        # FIXME: we should know what channel we expect this package to be in
+        # this will have weird behaviour if you build gnome-shell for edge and
+        # then checkout out the systemd branch... But there isn't
+        for channel in channels:
+            apk_path = get_context().config.work / "packages" / channel / arch / apk_file
+            if apk_path.exists():
+                local.append(apk_path)
+                break
+        else:
             to_add.append(package)
-            continue
-
-        local.append(apk_path)
 
     return to_add, local
 
