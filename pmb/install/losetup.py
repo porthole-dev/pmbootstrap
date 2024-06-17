@@ -47,7 +47,12 @@ def mount(img_path: Path):
 
         pmb.chroot.root(losetup_cmd, check=False)
 
-        return device_by_back_file(img_path)
+        try:
+            return device_by_back_file(img_path)
+        except RuntimeError as e:
+            if i == 4:
+                raise e
+            pass
 
 
 def device_by_back_file(back_file: Path) -> Path:
