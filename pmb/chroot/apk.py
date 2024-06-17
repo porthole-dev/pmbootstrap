@@ -6,7 +6,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Set, Tuple
 
 import pmb.build
 import pmb.chroot
@@ -127,14 +127,18 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
     channels: List[str] = pmb.config.pmaports.all_channels()
     local: List[Path] = []
 
+    packages = set(packages)
+
     to_add = []
-    for package in packages:
+    walked: Set[str] = set()
+    while len(packages):
+        package = packages.pop()
         data_repo = pmb.parse.apkindex.package(package, arch, False)
         if not data_repo:
             to_add.append(package)
             continue
 
-        apk_file = f"{package}-{data_repo['version']}.apk"
+        apk_file = f"{data_repo['pkgname']}-{data_repo['version']}.apk"
         # FIXME: we should know what channel we expect this package to be in
         # this will have weird behaviour if you build gnome-shell for edge and
         # then checkout out the systemd branch... But there isn't
@@ -145,6 +149,13 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
                 break
         else:
             to_add.append(package)
+
+        # Record all the packages we have visited so far
+        walked |= set([data_repo['pkgname'], package])
+        # Add all dependencies to the list of packages to check, excluding
+        # meta-deps like cmd:* and so:* as well as conflicts (!).
+        packages |= set(filter(lambda x: ":" not in x and "!" not in x,
+                               data_repo["depends"])) - walked
 
     return to_add, local
 
