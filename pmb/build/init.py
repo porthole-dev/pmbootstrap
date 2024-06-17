@@ -25,7 +25,7 @@ def init_abuild_minimal(chroot: Chroot=Chroot.native(), additional_pkgs: List[st
     # pigz is multithreaded and makes compression must faster, we install it in the native
     # chroot and then symlink it into the buildroot so we aren't running it through QEMU.
     # pmb.chroot.apk.install(["pigz"], Chroot.native(), build=False)
-    pmb.chroot.apk.install(["abuild"] + additional_pkgs, chroot, build=False)
+    pmb.chroot.apk.install(["abuild", "pigz"] + additional_pkgs, chroot, build=False)
 
     # Fix permissions
     pmb.chroot.root(["chown", "root:abuild",
