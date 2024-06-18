@@ -36,13 +36,12 @@ def package(args: PmbArgs, pkgname, reason="", dry=False):
     pmb.helpers.file.replace(path, old, new)
 
     # Verify
-    del pmb.helpers.other.cache["apkbuild"][path]
+    pmb.parse.apkbuild.cache_clear()
     apkbuild = pmb.parse.apkbuild(path)
     if int(apkbuild["pkgrel"]) != pkgrel_new:
-        raise RuntimeError("Failed to bump pkgrel for package '" + pkgname +
-                           "'. Make sure that there's a line with exactly the"
-                           " string '" + old + "' and nothing else in: " +
-                           path)
+        raise RuntimeError(f"Failed to bump pkgrel for package '{pkgname}'."
+                           " Make sure that there's a line with exactly the"
+                           f" string '{old.strip()}' and nothing else in: {path}")
 
 
 def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
