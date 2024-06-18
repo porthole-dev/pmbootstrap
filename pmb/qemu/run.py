@@ -108,7 +108,7 @@ def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2
 
     chroot = Chroot(ChrootType.ROOTFS, device)
     chroot_native = Chroot.native()
-    flavor = pmb.chroot.other.kernel_flavor_installed(chroot)
+    flavor = pmb.chroot.other.kernel_flavor_installed(chroot, autoinstall=False)
     flavor_suffix = f"-{flavor}"
     # Backwards compatibility with old mkinitfs (pma#660)
     pmaports_cfg = pmb.config.pmaports.read_config()
