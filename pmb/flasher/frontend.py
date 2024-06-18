@@ -89,7 +89,7 @@ def sideload(deviceinfo: Deviceinfo, method: str):
                            Chroot.native().path / mountpoint)
 
     # Missing recovery zip error
-    if not (Chroot.native() / mountpoint / "/var/lib/postmarketos-android-recovery-installer"
+    if not (Chroot.native() / mountpoint / "var/lib/postmarketos-android-recovery-installer"
             / f"pmos-{deviceinfo.codename}.zip").exists():
         raise RuntimeError("The recovery zip has not been generated yet,"
                            " please run 'pmbootstrap install' with the"

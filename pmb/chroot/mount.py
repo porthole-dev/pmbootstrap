@@ -137,7 +137,7 @@ def mount(chroot: Chroot):
 
     # mount --bind the qemu-user binary
     pmb.chroot.binfmt.register(arch)
-    pmb.helpers.mount.bind_file(Chroot.native() / f"/usr/bin/qemu-{arch_qemu}",
+    pmb.helpers.mount.bind_file(Chroot.native() / f"usr/bin/qemu-{arch_qemu}",
                                 chroot / f"usr/bin/qemu-{arch_qemu}-static",
                                 create_folders=True)
 

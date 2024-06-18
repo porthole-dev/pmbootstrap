@@ -123,7 +123,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
 
     # Remove empty qemu-user binary stub (where the binary was bind-mounted)
     arch_qemu = pmb.parse.deviceinfo().arch.qemu()
-    qemu_binary = mountpoint_outside / ("/usr/bin/qemu-" + arch_qemu + "-static")
+    qemu_binary = mountpoint_outside / f"usr/bin/qemu-{arch_qemu}-static"
     if os.path.exists(qemu_binary):
         pmb.helpers.run.root(["rm", qemu_binary])
 
@@ -973,7 +973,7 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
                      " Use 'pmbootstrap flasher boot' to do that.)")
 
     if "flash_lk2nd" in flasher_actions and \
-            (Chroot(ChrootType.ROOTFS, device) / "/boot/lk2nd.img").exists():
+            (Chroot(ChrootType.ROOTFS, device) / "boot/lk2nd.img").exists():
         logging.info("* Your device supports and may even require"
                      " flashing lk2nd. You should flash it before"
                      " flashing anything else. Use 'pmbootstrap flasher"
