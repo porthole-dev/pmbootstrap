@@ -21,7 +21,7 @@ from .core.context import get_context
 from .commands import run_command
 
 # pmbootstrap version
-__version__ = "2.3.1"
+__version__ = "3.0.0_alpha"
 
 # Python version check
 version = sys.version_info
