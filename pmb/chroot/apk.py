@@ -112,7 +112,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], List[Path]]:
+def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -129,13 +129,11 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
 
     packages = set(packages)
 
-    to_add = []
     walked: Set[str] = set()
     while len(packages):
         package = packages.pop()
         data_repo = pmb.parse.apkindex.package(package, arch, False)
         if not data_repo:
-            to_add.append(package)
             continue
 
         apk_file = f"{data_repo['pkgname']}-{data_repo['version']}.apk"
@@ -147,8 +145,6 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
             if apk_path.exists():
                 local.append(apk_path)
                 break
-        else:
-            to_add.append(package)
 
         # Record all the packages we have visited so far
         walked |= set([data_repo['pkgname'], package])
@@ -157,7 +153,7 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> Tuple[List[str], Li
         packages |= set(filter(lambda x: ":" not in x and "!" not in x,
                                data_repo["depends"])) - walked
 
-    return to_add, local
+    return local
 
 
 # FIXME: List[Sequence[PathString]] weirdness
@@ -263,7 +259,7 @@ def install(packages, chroot: Chroot, build=True):
     if build and context.config.build_pkgs_on_install:
         pmb.build.packages(context, to_add, arch)
 
-    to_add, to_add_local = packages_get_locally_built_apks(to_add, arch)
+    to_add_local = packages_get_locally_built_apks(to_add, arch)
 
     logging.info(f"({chroot}) install {' '.join(packages)}")
     install_run_apk(to_add, to_add_local, to_del, chroot)
