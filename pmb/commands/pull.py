@@ -33,6 +33,6 @@ class Pull(commands.Command):
         logging.info("")
         logging.info("Fix and try again:")
         for name_repo in failed:
-            logging.info("* " + pmb.helpers.git.get_path(name_repo))
+            logging.info(f"* {pmb.helpers.git.get_path(name_repo)}")
         logging.info("---")
         return False
