@@ -14,6 +14,7 @@ from .index import Index
 from .repo_bootstrap import RepoBootstrap
 from .shutdown import Shutdown
 from .test import Test
+from .pull import Pull
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -49,7 +50,6 @@ unmigrated_commands = [
     "apkindex_parse",
     "config",
     "bootimg_analyze",
-    "pull",
 ]
 
 def run_command(args: PmbArgs):
@@ -71,6 +71,8 @@ def run_command(args: PmbArgs):
         command = Shutdown()
     elif args.action == "test":
         command = Test(args.action_test)
+    elif args.action == "pull":
+        command = Pull()
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 
