@@ -1,4 +1,4 @@
-# Copyright 2023 Oliver Smith
+# Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from pathlib import Path
@@ -7,6 +7,7 @@ from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_path
 from pmb.helpers import logging
 import os
+import re
 
 import pmb.build
 import pmb.chroot.apk
@@ -14,6 +15,9 @@ import pmb.config
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.meta import Cache
+
+re_branch_aports = re.compile(r"^\d+\.\d\d+-stable$")
+re_branch_pmaports = re.compile(r"^v\d\d\.\d\d$")
 
 
 def get_path(name_repo: str):
@@ -154,22 +158,21 @@ def parse_channels_cfg(aports: Path):
     return ret
 
 
-def get_branches_official(repo: Path):
-    """Get all branches that point to official release channels.
+def branch_looks_official(repo: Path, branch):
+    """Check if a given branch follows the patterns of official branches in
+       pmaports or aports.
 
-    :returns: list of supported branches, e.g. ["master", "3.11"]
+    :returns: True if it looks official, False otherwise
     """
-    # This functions gets called with pmaports and aports_upstream, because
-    # both are displayed in "pmbootstrap status". But it only makes sense
-    # to display pmaports there, related code will be refactored soon (#1903).
-    if repo.parts[-1] != "pmaports":
-        return ["master"]
-
-    channels_cfg = parse_channels_cfg(repo)
-    ret = []
-    for channel, channel_data in channels_cfg["channels"].items():
-        ret.append(channel_data["branch_pmaports"])
-    return ret
+    if branch == "master":
+        return True
+    if repo.parts[-1] == "pmaports":
+        if re_branch_pmaports.match(branch):
+            return True
+    else:
+        if re_branch_aports.match(branch):
+            return True
+    return False
 
 
 def pull(repo_name: str):
@@ -182,7 +185,6 @@ def pull(repo_name: str):
     :returns: integer, >= 0 on success, < 0 on error
     """
     repo = get_path(repo_name)
-    branches_official = get_branches_official(repo)
 
     # Skip if repo wasn't cloned
     if not os.path.exists(repo):
@@ -192,10 +194,13 @@ def pull(repo_name: str):
     # Skip if not on official branch
     branch = rev_parse(repo, extra_args=["--abbrev-ref"])
     msg_start = "{} (branch: {}):".format(repo_name, branch)
-    if branch not in branches_official:
-        logging.warning("{} not on one of the official branches ({}), skipping"
-                        " pull!"
-                        "".format(msg_start, ", ".join(branches_official)))
+    if not branch_looks_official(repo, branch):
+        if repo.parts[-1] == "pmaports":
+            official_looking_branches = "master, v24.06, …"
+        else:
+            official_looking_branches = "master, 3.20-stable, …"
+        logging.warning(f"{msg_start} not on one of the official branches"
+                        f" ({official_looking_branches}), skipping pull!")
         return -1
 
     # Skip if workdir is not clean
