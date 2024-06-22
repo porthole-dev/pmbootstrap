@@ -7,7 +7,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List, Sequence, Set, Tuple
+from typing import List, Sequence, Set
 
 import pmb.build
 import pmb.chroot

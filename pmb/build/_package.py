@@ -1,12 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
-import enum
 from typing import Any, Callable, Dict, List, Optional, Set, TypedDict
 from pmb.build.other import BuildStatus
 from pmb.core.arch import Arch
 from pmb.core.context import Context
-from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_relative_path
+from pmb.core.pkgrepo import pkgrepo_relative_path
 from pmb.helpers import logging
 from pathlib import Path
 

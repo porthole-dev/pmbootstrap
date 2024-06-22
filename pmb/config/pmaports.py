@@ -155,7 +155,7 @@ def read_config_channel():
     remote = pmb.helpers.git.get_upstream_remote(aports)
     logging.info("NOTE: fix the error by rebasing or cherry picking relevant"
                  " commits from this branch onto a branch that is on a"
-                 f" supported channel: master, v24.06, …")
+                 " supported channel: master, v24.06, …")
     logging.info("NOTE: as workaround, you may pass --config-channels with a"
                  " custom channels.cfg. Reference:"
                  " https://postmarketos.org/channels.cfg")
