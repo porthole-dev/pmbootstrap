@@ -74,7 +74,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
                '-S', 'apk', '--wait', '30', 'add'] + remote_paths
     add_cmd = pmb.helpers.run_core.flat_cmd([add_cmd])
     clean_cmd = pmb.helpers.run_core.flat_cmd([['rm'] + remote_paths])
-    add_cmd_complete = shlex.quote(f"{add_cmd}; rc=$?; {clean_cmd}; exit $rc")
+    add_cmd_complete = shlex.quote(f"{add_cmd} rc=$?; {clean_cmd} exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
     command = ['ssh', '-t', '-p', port, f'{user}@{host}',
                f'sh -c {add_cmd_complete}']
