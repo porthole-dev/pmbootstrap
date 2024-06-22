@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Optional
 import pmb.config.pmaports
+from pmb.core.chroot import Chroot
 from pmb.core.context import get_context
 from pmb.types import PmbArgs
 
@@ -91,10 +92,10 @@ def variables(args: PmbArgs, flavor: str, method: str):
         "$PARTITION_VBMETA": _partition_vbmeta,
         "$PARTITION_DTBO": _partition_dtbo,
         "$FLASH_PAGESIZE": flash_pagesize,
-        "$RECOVERY_ZIP": "/mnt/buildroot_" + deviceinfo.arch +
+        "$RECOVERY_ZIP": f"/mnt/{Chroot.buildroot(deviceinfo.arch)}"
                          "/var/lib/postmarketos-android-recovery-installer"
-                         "/pmos-" + device + ".zip",
-        "$UUU_SCRIPT": "/mnt/rootfs_" + deviceinfo.codename +
+                         f"/pmos-{device}.zip",
+        "$UUU_SCRIPT": f"/mnt/{Chroot.rootfs(deviceinfo.codename)}"
                        "/usr/share/uuu/flash_script.lst",
         "$NO_REBOOT": _no_reboot,
         "$RESUME": _resume
