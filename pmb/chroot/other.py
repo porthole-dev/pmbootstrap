@@ -23,6 +23,8 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
     """
     # Automatically install the selected kernel
     if autoinstall:
+        if not chroot.is_mounted():
+            pmb.chroot.init(chroot)
         config = get_context().config
         packages = ([f"device-{config.device}"] +
                     pmb.install.get_kernel_package(config))

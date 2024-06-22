@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pathlib import Path
+import traceback
 import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
@@ -203,6 +204,15 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
 
     channel = pmb.config.pmaports.read_config()["channel"]
     user_repo = work / "packages" / channel
+
+    # There are still some edgecases where we manage to get here while the chroot is not
+    # initialized. To not break the build, we initialize it here but print a big warning
+    # and a stack trace so hopefully folks report it.
+    if not chroot.is_mounted():
+        logging.warning(f"({chroot}) chroot not initialized! This is a bug! Please report it.")
+        logging.warning(f"({chroot}) initializing the chroot for you...")
+        traceback.print_stack(file=logging.logfd)
+        pmb.chroot.init(chroot)
 
     for (i, command) in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
