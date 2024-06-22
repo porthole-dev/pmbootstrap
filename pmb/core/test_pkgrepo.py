@@ -8,6 +8,7 @@ from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_default_path
 @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)
 def test_pkgrepo_paths_no_repos(pmb_args):
     """Test pkgrepo_paths() with no repositories. Should raise a RuntimeError."""
+    pkgrepo_paths.cache_disable()
     with pytest.raises(RuntimeError):
         paths = pkgrepo_paths()
         print(paths)
