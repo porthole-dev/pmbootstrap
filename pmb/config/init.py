@@ -45,7 +45,7 @@ def require_programs():
         )
 
 
-def ask_for_username(args: PmbArgs, default_user: str):
+def ask_for_username(default_user: str):
     """Ask for a reasonable username for the non-root user.
 
     :returns: the username
@@ -235,16 +235,16 @@ def ask_for_systemd(config: Config, ui):
     return answer
 
 
-def ask_for_keymaps(args: PmbArgs, deviceinfo: Deviceinfo):
+def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo):
     if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
         return ""
     options = deviceinfo.keymaps.split(" ")
     logging.info(f"Available keymaps for device ({len(options)}): " f"{', '.join(options)}")
-    if args.keymap == "":
-        args.keymap = options[0]
+    if config.keymap == "":
+        config.keymap = options[0]
 
     while True:
-        ret = pmb.helpers.cli.ask("Keymap", None, args.keymap, True, complete=options)
+        ret = pmb.helpers.cli.ask("Keymap", None, config.keymap, True, complete=options)
         if ret in options:
             return ret
         logging.fatal("ERROR: Invalid keymap specified, please type in" " one from the list above.")
@@ -711,9 +711,9 @@ def frontend(args: PmbArgs):
 
     # Device keymap
     if device_exists:
-        config.keymap = ask_for_keymaps(args, deviceinfo)
+        config.keymap = ask_for_keymaps(config, deviceinfo)
 
-    config.user = ask_for_username(args, config.user)
+    config.user = ask_for_username(config.user)
     ask_for_provider_select_pkg("postmarketos-base", config.providers)
     ask_for_provider_select_pkg("postmarketos-base-ui", config.providers)
 
