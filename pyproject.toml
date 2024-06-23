@@ -33,8 +33,7 @@ line-length=100
 # Assume Python 3.9
 target-version = "py39"
 # E402: module import not on top of file, not possible for testcases
-# E722: do not use bare except
-lint.ignore=["E402", "E722"]
+lint.ignore=["E402"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 # F401: imported but unused, common for __init__.py files

@@ -263,7 +263,7 @@ def ask_for_timezone():
             if os.path.exists(tzpath):
                 try:
                     _, tz = tzpath.split(zoneinfo_path)
-                except:
+                except BaseException:
                     pass
         if tz:
             logging.info(f"Your host timezone: {tz}")
