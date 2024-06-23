@@ -30,8 +30,8 @@ exclude = ["aports", "docs", "keys", "test", "test.pmb_test"]
 
 [tool.ruff]
 line-length=100
-# Assume Python 3.8
-target-version = "py38"
+# Assume Python 3.9
+target-version = "py39"
 # E402: module import not on top of file, not possible for testcases
 # E722: do not use bare except
 lint.ignore=["E402", "E722"]
