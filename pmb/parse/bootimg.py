@@ -128,28 +128,28 @@ def bootimg(path: Path):
     # Get base, offsets, pagesize, cmdline and qcdt info
     # This file does not exist for example for qcdt images
     if os.path.isfile(f"{bootimg_path}-header_version"):
-        with open(f"{bootimg_path}-header_version", "r") as f:
+        with open(f"{bootimg_path}-header_version") as f:
             header_version = int(f.read().replace("\n", ""))
             output["header_version"] = str(header_version)
 
     if header_version >= 3:
         output["pagesize"] = "4096"
     else:
-        with open(f"{bootimg_path}-base", "r") as f:
+        with open(f"{bootimg_path}-base") as f:
             output["base"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
-        with open(f"{bootimg_path}-kernel_offset", "r") as f:
+        with open(f"{bootimg_path}-kernel_offset") as f:
             output["kernel_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
-        with open(f"{bootimg_path}-ramdisk_offset", "r") as f:
+        with open(f"{bootimg_path}-ramdisk_offset") as f:
             output["ramdisk_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
-        with open(f"{bootimg_path}-second_offset", "r") as f:
+        with open(f"{bootimg_path}-second_offset") as f:
             output["second_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
-        with open(f"{bootimg_path}-tags_offset", "r") as f:
+        with open(f"{bootimg_path}-tags_offset") as f:
             output["tags_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
-        with open(f"{bootimg_path}-pagesize", "r") as f:
+        with open(f"{bootimg_path}-pagesize") as f:
             output["pagesize"] = f.read().replace("\n", "")
 
         if header_version == 2:
-            with open(f"{bootimg_path}-dtb_offset", "r") as f:
+            with open(f"{bootimg_path}-dtb_offset") as f:
                 output["dtb_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
 
     if get_mtk_label(f"{bootimg_path}-kernel") is not None:
@@ -168,7 +168,7 @@ def bootimg(path: Path):
 
     output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else "false"
 
-    with open(f"{bootimg_path}-cmdline", "r") as f:
+    with open(f"{bootimg_path}-cmdline") as f:
         output["cmdline"] = f.read().replace("\n", "")
 
     # Cleanup

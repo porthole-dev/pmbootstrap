@@ -12,7 +12,7 @@ def binfmt_info(arch_qemu):
     full = {}
     info = pmb.config.pmb_src / "pmb/data/qemu-user-binfmt.txt"
     logging.verbose(f"parsing: {info}")
-    with open(info, "r") as handle:
+    with open(info) as handle:
         for line in handle:
             if line.startswith("#") or "=" not in line:
                 continue

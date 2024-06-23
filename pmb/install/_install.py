@@ -302,7 +302,7 @@ def copy_ssh_keys(config: Config):
         return
     keys = []
     for key in glob.glob(os.path.expanduser(config.ssh_key_glob)):
-        with open(key, "r") as infile:
+        with open(key) as infile:
             keys += infile.readlines()
 
     if not len(keys):
@@ -607,9 +607,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot):
             step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size)
         except ValueError:
             raise RuntimeError(
-                "Value for " "deviceinfo_sd_embed_firmware_step_size " "is not valid: {}".format(
-                    step
-                )
+                "Value for " "deviceinfo_sd_embed_firmware_step_size " f"is not valid: {step}"
             )
 
     device_rootfs = mount_device_rootfs(suffix)
@@ -619,9 +617,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot):
     for binary, offset in binary_list:
         binary_file = os.path.join("/usr/share", binary)
         logging.info(
-            "Embed firmware {} in the SD card image at offset {} with" " step size {}".format(
-                binary, offset, step
-            )
+            f"Embed firmware {binary} in the SD card image at offset {offset} with" f" step size {step}"
         )
         filename = os.path.join(device_rootfs, binary_file.lstrip("/"))
         pmb.chroot.root(
@@ -666,8 +662,8 @@ def sanity_check_disk(args: PmbArgs):
     device_name = os.path.basename(device)
     if not os.path.exists(device):
         raise RuntimeError(f"{device} doesn't exist, is the disk plugged?")
-    if os.path.isdir("/sys/class/block/{}".format(device_name)):
-        with open("/sys/class/block/{}/ro".format(device_name), "r") as handle:
+    if os.path.isdir(f"/sys/class/block/{device_name}"):
+        with open(f"/sys/class/block/{device_name}/ro") as handle:
             ro = handle.read()
         if ro == "1\n":
             raise RuntimeError(f"{device} is read-only, maybe a locked SD card?")
@@ -686,7 +682,7 @@ def sanity_check_disk_size(args: PmbArgs):
 
     # Size is in 512-byte blocks
     size = int(raw.strip())
-    human = "{:.2f} GiB".format(size / 2 / 1024 / 1024)
+    human = f"{size / 2 / 1024 / 1024:.2f} GiB"
 
     # Warn if the size is larger than 100GiB
     if not args.assume_yes and size > (100 * 2 * 1024 * 1024):

@@ -73,14 +73,14 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
     compare = pmb.parse.version.compare(version_aport, version_apk)
     if compare == -1:
         logging.warning(
-            "{}: skipping, because the aport version {} is lower"
-            " than the binary version {}".format(pkgname, version_aport, version_apk)
+            f"{pkgname}: skipping, because the aport version {version_aport} is lower"
+            f" than the binary version {version_apk}"
         )
         return
     if compare == 1:
         logging.verbose(
-            "{}: skipping, because the aport version {} is higher"
-            " than the binary version {}".format(pkgname, version_aport, version_apk)
+            f"{pkgname}: skipping, because the aport version {version_aport} is higher"
+            f" than the binary version {version_apk}"
         )
         return
 
@@ -123,7 +123,7 @@ def auto(args: PmbArgs, dry=False):
                     continue
                 aport_path = pmb.helpers.pmaports.find_optional(origin)
                 if not aport_path:
-                    logging.warning("{}: origin '{}' aport not found".format(pkgname, origin))
+                    logging.warning(f"{pkgname}: origin '{origin}' aport not found")
                     continue
                 aport = pmb.parse.apkbuild(aport_path)
                 if auto_apkindex_package(args, arch, aport, apk, dry):

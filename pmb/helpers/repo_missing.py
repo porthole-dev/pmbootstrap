@@ -132,7 +132,7 @@ def generate(arch, overview, pkgname=None, built=False):
     """
     # Log message
     packages_str = pkgname if pkgname else "all packages"
-    logging.info("Calculate packages that need to be built ({}, {})" "".format(packages_str, arch))
+    logging.info(f"Calculate packages that need to be built ({packages_str}, {arch})")
 
     # Order relevant packages
     ret = get_relevant_packages(arch, pkgname, built)

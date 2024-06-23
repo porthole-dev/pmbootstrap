@@ -6,7 +6,7 @@ from functools import lru_cache
 from typing import Optional
 
 
-@lru_cache()
+@lru_cache
 def which_sudo() -> Optional[str]:
     """Return a command required to run commands as root, if any.
 

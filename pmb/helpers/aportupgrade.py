@@ -49,7 +49,7 @@ def init_req_headers() -> None:
 
 
 def get_package_version_info_github(repo_name: str, ref: Optional[str]):
-    logging.debug("Trying GitHub repository: {}".format(repo_name))
+    logging.debug(f"Trying GitHub repository: {repo_name}")
 
     # Get the URL argument to request a special ref, if needed
     ref_arg = ""
@@ -71,7 +71,7 @@ def get_package_version_info_github(repo_name: str, ref: Optional[str]):
 
 
 def get_package_version_info_gitlab(gitlab_host: str, repo_name: str, ref: Optional[str]):
-    logging.debug("Trying GitLab repository: {}".format(repo_name))
+    logging.debug(f"Trying GitLab repository: {repo_name}")
 
     repo_name_safe = urllib.parse.quote(repo_name, safe="")
 
@@ -125,7 +125,7 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package) -> None:
 
     if verinfo is None:
         # ignore for now
-        logging.warning("{}: source not handled: {}".format(pkgname, source))
+        logging.warning(f"{pkgname}: source not handled: {source}")
         return
 
     # Get the new commit sha
@@ -151,10 +151,10 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package) -> None:
     pkgrel_new = 0
 
     if sha == sha_new:
-        logging.info("{}: up-to-date".format(pkgname))
+        logging.info(f"{pkgname}: up-to-date")
         return
 
-    logging.info("{}: upgrading pmaport".format(pkgname))
+    logging.info(f"{pkgname}: upgrading pmaport")
     if args.dry:
         logging.info(f"  Would change _commit from {sha} to {sha_new}")
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
@@ -216,14 +216,14 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
 
     # Check that we got a version number
     if len(project["stable_versions"]) < 1:
-        logging.warning("{}: got no version number, ignoring".format(pkgname))
+        logging.warning(f"{pkgname}: got no version number, ignoring")
         return
 
     version = project["stable_versions"][0]
 
     # Compare the pmaports version with the project version
     if package["pkgver"] == version:
-        logging.info("{}: up-to-date".format(pkgname))
+        logging.info(f"{pkgname}: up-to-date")
         return
 
     if package["pkgver"] == "9999":
@@ -240,7 +240,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
         logging.warning(f"{pkgname}: would upgrade to invalid pkgver:" f" {pkgver_new}, ignoring")
         return
 
-    logging.info("{}: upgrading pmaport".format(pkgname))
+    logging.info(f"{pkgname}: upgrading pmaport")
     if args.dry:
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")

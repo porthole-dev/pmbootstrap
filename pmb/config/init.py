@@ -417,9 +417,9 @@ def ask_for_device(context: Context):
         codenames = []
         if new_vendor:
             logging.info(
-                "The specified vendor ({}) could not be found in"
+                f"The specified vendor ({vendor}) could not be found in"
                 " existing ports, do you want to start a new"
-                " port?".format(vendor)
+                " port?"
             )
             if not pmb.helpers.cli.confirm(default=True):
                 continue
@@ -451,7 +451,7 @@ def ask_for_device(context: Context):
                 continue
 
             # New port creation confirmed
-            logging.info("Generating new aports for: {}...".format(device))
+            logging.info(f"Generating new aports for: {device}...")
             pmb.aportgen.generate(f"device-{device}", False)
             pmb.aportgen.generate(f"linux-{device}", False)
         elif any("archived" == x for x in device_path.parts):
@@ -551,7 +551,7 @@ def ask_for_mirror():
     json_path = pmb.helpers.http.download(
         "https://postmarketos.org/mirrors.json", "pmos_mirrors", cache=False
     )
-    with open(json_path, "rt") as handle:
+    with open(json_path) as handle:
         s = handle.read()
 
     logging.info("List of available mirrors:")
@@ -635,7 +635,7 @@ def ask_build_pkgs_on_install(default: bool) -> bool:
 def get_locales():
     ret = []
     list_path = f"{pmb.config.pmb_src}/pmb/data/locales"
-    with open(list_path, "r") as handle:
+    with open(list_path) as handle:
         for line in handle:
             ret += [line.rstrip()]
     return ret

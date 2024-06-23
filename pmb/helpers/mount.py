@@ -14,7 +14,7 @@ def ismount(folder: Path):
     Workaround for: https://bugs.python.org/issue29707
     """
     folder = folder.resolve()
-    with open("/proc/mounts", "r") as handle:
+    with open("/proc/mounts") as handle:
         for line in handle:
             words = line.split()
             if len(words) >= 2 and Path(words[1]) == folder:

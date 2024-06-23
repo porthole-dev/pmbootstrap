@@ -36,11 +36,11 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
 
     # Prepare old/new strings
     if in_quotes:
-        line_old = '{}="{}"'.format(key, old)
-        line_new = '{}="{}"'.format(key, new)
+        line_old = f'{key}="{old}"'
+        line_new = f'{key}="{new}"'
     else:
-        line_old = "{}={}".format(key, old)
-        line_new = "{}={}".format(key, new)
+        line_old = f"{key}={old}"
+        line_new = f"{key}={new}"
 
     # Replace
     replace(path, "\n" + line_old + "\n", "\n" + line_new + "\n")
@@ -50,9 +50,9 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     apkbuild = pmb.parse.apkbuild(path)
     if apkbuild[key] != str(new):
         raise RuntimeError(
-            "Failed to set '{}' for pmaport '{}'. Make sure"
-            " that there's a line with exactly the string '{}'"
-            " and nothing else in: {}".format(key, pkgname, line_old, path)
+            f"Failed to set '{key}' for pmaport '{pkgname}'. Make sure"
+            f" that there's a line with exactly the string '{line_old}'"
+            f" and nothing else in: {path}"
         )
 
 

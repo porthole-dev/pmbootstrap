@@ -84,7 +84,7 @@ def migrate_work_folder(args: PmbArgs):
     current = 0
     path = context.config.work / "version"
     if os.path.exists(path):
-        with open(path, "r") as f:
+        with open(path) as f:
             current = int(f.read().rstrip())
 
     # Compare version, print warning or do nothing
@@ -168,7 +168,7 @@ def migrate_work_folder(args: PmbArgs):
         # Require git, set cache_git ownership
         pmb.config.init.require_programs()
         if os.path.exists(path):
-            uid_gid = "{}:{}".format(os.getuid(), os.getgid())
+            uid_gid = f"{os.getuid()}:{os.getgid()}"
             pmb.helpers.run.root(["chown", "-R", uid_gid, path])
         else:
             os.makedirs(path, 0o700, True)

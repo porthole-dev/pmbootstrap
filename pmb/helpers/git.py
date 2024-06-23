@@ -107,9 +107,7 @@ def get_upstream_remote(aports: Path):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
     raise RuntimeError(
-        "{}: could not find remote name for any URL '{}' in git" " repository: {}".format(
-            name_repo, urls, aports
-        )
+        f"{name_repo}: could not find remote name for any URL '{urls}' in git" f" repository: {aports}"
     )
 
 
@@ -198,7 +196,7 @@ def pull(repo_name: str):
 
     # Skip if not on official branch
     branch = rev_parse(repo, extra_args=["--abbrev-ref"])
-    msg_start = "{} (branch: {}):".format(repo_name, branch)
+    msg_start = f"{repo_name} (branch: {branch}):"
     if not branch_looks_official(repo, branch):
         if repo.parts[-1] == "pmaports":
             official_looking_branches = "master, v24.06, …"
@@ -220,9 +218,7 @@ def pull(repo_name: str):
     remote_ref = rev_parse(repo, branch + "@{u}", ["--abbrev-ref"])
     if remote_ref != branch_upstream:
         logging.warning(
-            "{} is tracking unexpected remote branch '{}' instead" " of '{}'".format(
-                msg_start, remote_ref, branch_upstream
-            )
+            f"{msg_start} is tracking unexpected remote branch '{remote_ref}' instead" f" of '{branch_upstream}'"
         )
         return -3
 
@@ -239,9 +235,8 @@ def pull(repo_name: str):
     # Skip if we can't fast-forward
     if not can_fast_forward(repo, branch_upstream):
         logging.warning(
-            "{} can't fast-forward to {}, looks like you changed"
+            f"{msg_start} can't fast-forward to {branch_upstream}, looks like you changed"
             " the git history of your local branch. Skipping pull!"
-            "".format(msg_start, branch_upstream)
         )
         return -4
 
