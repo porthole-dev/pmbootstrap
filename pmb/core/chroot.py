@@ -70,6 +70,10 @@ class Chroot:
         if self.__type == ChrootType.IMAGE and not Path(self.__name).exists():
             raise ValueError(f"Image file '{self.__name}' does not exist")
 
+        # rootfs suffixes must have a valid device name
+        if self.__type == ChrootType.ROOTFS and (len(self.__name) < 3 or "-" not in self.__name):
+            raise ValueError(f"Invalid device name: '{self.__name}'")
+
     def __str__(self) -> str:
         if len(self.__name) > 0 and self.type != ChrootType.IMAGE:
             return f"{self.__type.value}_{self.__name}"
