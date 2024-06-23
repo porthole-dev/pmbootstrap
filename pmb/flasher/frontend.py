@@ -144,7 +144,7 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str):
 def frontend(args: PmbArgs):
     context = get_context()
     action = args.action_flasher
-    device = context.device
+    device = context.config.device
     deviceinfo = pmb.parse.deviceinfo()
     method = args.flash_method or deviceinfo.flash_method
 

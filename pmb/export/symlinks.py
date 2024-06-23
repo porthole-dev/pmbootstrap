@@ -18,8 +18,8 @@ def symlinks(flavor, folder: Path):
     Create convenience symlinks to the rootfs and boot files.
     """
 
-    context = get_context()
-    arch = pmb.parse.deviceinfo(context.device).arch
+    device = get_context().config.device
+    arch = pmb.parse.deviceinfo(device).arch
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix = f"-{flavor}"
@@ -38,16 +38,16 @@ def symlinks(flavor, folder: Path):
         f"uInitrd{suffix}": "Initramfs, legacy u-boot image format",
         f"uImage{suffix}": "Kernel, legacy u-boot image format",
         f"vmlinuz{suffix}": "Linux kernel",
-        f"{context.device}.img": "Rootfs with partitions for /boot and /",
-        f"{context.device}-boot.img": "Boot partition image",
-        f"{context.device}-root.img": "Root partition image",
-        f"pmos-{context.device}.zip": "Android recovery flashable zip",
+        f"{device}.img": "Rootfs with partitions for /boot and /",
+        f"{device}-boot.img": "Boot partition image",
+        f"{device}-root.img": "Root partition image",
+        f"pmos-{device}.zip": "Android recovery flashable zip",
         "lk2nd.img": "Secondary Android bootloader",
     }
 
     # Generate a list of patterns
     chroot_native = Chroot.native()
-    path_boot = Chroot(ChrootType.ROOTFS, context.device) / "boot"
+    path_boot = Chroot(ChrootType.ROOTFS, device) / "boot"
     chroot_buildroot = Chroot.buildroot(arch)
     files: list[Path] = [
         path_boot / f"boot.img{suffix}",
@@ -55,12 +55,10 @@ def symlinks(flavor, folder: Path):
         path_boot / f"uImage{suffix}",
         path_boot / f"vmlinuz{suffix}",
         path_boot / "dtbo.img",
-        chroot_native / "home/pmos/rootfs" / f"{context.device}.img",
-        chroot_native / "home/pmos/rootfs" / f"{context.device}-boot.img",
-        chroot_native / "home/pmos/rootfs" / f"{context.device}-root.img",
-        chroot_buildroot
-        / "var/libpostmarketos-android-recovery-installer"
-        / f"pmos-{context.device}.zip",
+        chroot_native / "home/pmos/rootfs" / f"{device}.img",
+        chroot_native / "home/pmos/rootfs" / f"{device}-boot.img",
+        chroot_native / "home/pmos/rootfs" / f"{device}-root.img",
+        chroot_buildroot / "var/libpostmarketos-android-recovery-installer" / f"pmos-{device}.zip",
         path_boot / "lk2nd.img",
     ]
 

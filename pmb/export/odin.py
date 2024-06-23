@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.context import Context
 from pmb.helpers import logging
 from pathlib import Path
 
@@ -12,15 +11,15 @@ import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
 
 
-def odin(context: Context, flavor, folder: Path):
+def odin(device: str, flavor, folder: Path):
     """
     Create Odin flashable tar file with kernel and initramfs
     for devices configured with the flasher method 'heimdall-isorec'
     and with boot.img for devices with 'heimdall-bootimg'
     """
-    pmb.flasher.init(context.device, "heimdall-isorec")
-    suffix = Chroot(ChrootType.ROOTFS, context.device)
-    deviceinfo = pmb.parse.deviceinfo(context.device)
+    pmb.flasher.init(device, "heimdall-isorec")
+    suffix = Chroot(ChrootType.ROOTFS, device)
+    deviceinfo = pmb.parse.deviceinfo(device)
 
     # Backwards compatibility with old mkinitfs (pma#660)
     suffix_flavor = f"-{flavor}"
@@ -50,12 +49,12 @@ def odin(context: Context, flavor, folder: Path):
     # Odin flashable tar generation script
     # (because redirecting stdin/stdout is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
-    odin_script = Chroot(ChrootType.ROOTFS, context.device) / "tmp/_odin.sh"
+    odin_script = Chroot(ChrootType.ROOTFS, device) / "tmp/_odin.sh"
     with odin_script.open("w") as handle:
         odin_kernel_md5 = f"{partition_kernel}.bin.md5"
         odin_initfs_md5 = f"{partition_initfs}.bin.md5"
-        odin_device_tar = f"{context.device}.tar"
-        odin_device_tar_md5 = f"{context.device}.tar.md5"
+        odin_device_tar = f"{device}.tar"
+        odin_device_tar_md5 = f"{device}.tar.md5"
 
         handle.write("#!/bin/sh\n" f"cd {temp_folder}\n")
         if method == "heimdall-isorec":
@@ -97,7 +96,7 @@ def odin(context: Context, flavor, folder: Path):
         pmb.chroot.root(
             [
                 "mv",
-                f"/mnt/rootfs_{context.device}{temp_folder}" f"/{odin_device_tar_md5}",
+                f"/mnt/rootfs_{device}{temp_folder}" f"/{odin_device_tar_md5}",
                 "/home/pmos/rootfs/",
             ]
         ),

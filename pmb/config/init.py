@@ -439,7 +439,7 @@ def ask_for_device(context: Context):
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(device, "deviceinfo")
         if device_path is None:
-            if device == context.device:
+            if device == context.config.device:
                 raise RuntimeError(
                     "This device does not exist anymore, check"
                     " <https://postmarketos.org/renamed>"

@@ -21,11 +21,6 @@ class Context:
     # Operate offline
     offline: bool = False
 
-    # Device we are operating on
-    # FIXME: should not be in global context, only
-    # specific actions actually depend on this
-    device: str = ""
-
     # The pmbootstrap subcommand
     command: str = ""
 
