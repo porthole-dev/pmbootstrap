@@ -33,6 +33,9 @@ line-length=100
 # Assume Python 3.9
 target-version = "py39"
 
+[tool.ruff.lint]
+extend-select = ["UP"]
+
 [tool.ruff.lint.extend-per-file-ignores]
 # F401: imported but unused, common for __init__.py files
 "__init__.py" = ["F401"]
