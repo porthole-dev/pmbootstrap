@@ -316,7 +316,7 @@ def copy_ssh_keys(config: Config):
     authorized_keys = Chroot.native() / "tmp/authorized_keys"
     outfile = open(authorized_keys, "w")
     for key in keys:
-        outfile.write("%s" % key)
+        outfile.write(f"{key}")
     outfile.close()
 
     target = Chroot.native() / "mnt/install/home/" / config.user / ".ssh"
@@ -617,7 +617,8 @@ def embed_firmware(args: PmbArgs, suffix: Chroot):
     for binary, offset in binary_list:
         binary_file = os.path.join("/usr/share", binary)
         logging.info(
-            f"Embed firmware {binary} in the SD card image at offset {offset} with" f" step size {step}"
+            f"Embed firmware {binary} in the SD card image at offset {offset} with"
+            f" step size {step}"
         )
         filename = os.path.join(device_rootfs, binary_file.lstrip("/"))
         pmb.chroot.root(

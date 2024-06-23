@@ -107,7 +107,8 @@ def get_upstream_remote(aports: Path):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
     raise RuntimeError(
-        f"{name_repo}: could not find remote name for any URL '{urls}' in git" f" repository: {aports}"
+        f"{name_repo}: could not find remote name for any URL '{urls}' in git"
+        f" repository: {aports}"
     )
 
 
@@ -218,7 +219,8 @@ def pull(repo_name: str):
     remote_ref = rev_parse(repo, branch + "@{u}", ["--abbrev-ref"])
     if remote_ref != branch_upstream:
         logging.warning(
-            f"{msg_start} is tracking unexpected remote branch '{remote_ref}' instead" f" of '{branch_upstream}'"
+            f"{msg_start} is tracking unexpected remote branch '{remote_ref}' instead"
+            f" of '{branch_upstream}'"
         )
         return -3
 

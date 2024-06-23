@@ -136,21 +136,21 @@ def bootimg(path: Path):
         output["pagesize"] = "4096"
     else:
         with open(f"{bootimg_path}-base") as f:
-            output["base"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+            output["base"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
         with open(f"{bootimg_path}-kernel_offset") as f:
-            output["kernel_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+            output["kernel_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
         with open(f"{bootimg_path}-ramdisk_offset") as f:
-            output["ramdisk_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+            output["ramdisk_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
         with open(f"{bootimg_path}-second_offset") as f:
-            output["second_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+            output["second_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
         with open(f"{bootimg_path}-tags_offset") as f:
-            output["tags_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+            output["tags_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
         with open(f"{bootimg_path}-pagesize") as f:
             output["pagesize"] = f.read().replace("\n", "")
 
         if header_version == 2:
             with open(f"{bootimg_path}-dtb_offset") as f:
-                output["dtb_offset"] = "0x%08x" % int(f.read().replace("\n", ""), 16)
+                output["dtb_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
 
     if get_mtk_label(f"{bootimg_path}-kernel") is not None:
         output["mtk_label_kernel"] = get_mtk_label(f"{bootimg_path}-kernel")
