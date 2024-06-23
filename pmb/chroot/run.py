@@ -176,7 +176,7 @@ def user(
     check=None,
     env={},
 ):
-    userm([cmd], chroot, working_dir, output, output_return, check, env)
+    return userm([cmd], chroot, working_dir, output, output_return, check, env)
 
 
 def exists(username, chroot: Chroot = Chroot.native()):
