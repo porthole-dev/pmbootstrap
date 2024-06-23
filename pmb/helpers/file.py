@@ -39,8 +39,8 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
         line_old = '{}="{}"'.format(key, old)
         line_new = '{}="{}"'.format(key, new)
     else:
-        line_old = '{}={}'.format(key, old)
-        line_new = '{}={}'.format(key, new)
+        line_old = "{}={}".format(key, old)
+        line_new = "{}={}".format(key, new)
 
     # Replace
     replace(path, "\n" + line_old + "\n", "\n" + line_new + "\n")
@@ -49,10 +49,11 @@ def replace_apkbuild(args: PmbArgs, pkgname, key, new, in_quotes=False):
     pmb.parse.apkbuild.cache_clear()
     apkbuild = pmb.parse.apkbuild(path)
     if apkbuild[key] != str(new):
-        raise RuntimeError("Failed to set '{}' for pmaport '{}'. Make sure"
-                           " that there's a line with exactly the string '{}'"
-                           " and nothing else in: {}".format(key, pkgname,
-                                                             line_old, path))
+        raise RuntimeError(
+            "Failed to set '{}' for pmaport '{}'. Make sure"
+            " that there's a line with exactly the string '{}'"
+            " and nothing else in: {}".format(key, pkgname, line_old, path)
+        )
 
 
 def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
@@ -67,8 +68,7 @@ def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
     """
 
     if path_target and lastmod_target:
-        raise RuntimeError(
-            "Specify path_target *or* lastmod_target, not both!")
+        raise RuntimeError("Specify path_target *or* lastmod_target, not both!")
 
     lastmod_source = None
     for path_source in path_sources:
@@ -93,8 +93,7 @@ def is_older_than(path, seconds):
 def symlink(file: Path, link: Path):
     """Check if the symlink is already present, otherwise create it."""
     if os.path.exists(link):
-        if (os.path.islink(link) and
-                os.path.realpath(os.readlink(link)) == os.path.realpath(file)):
+        if os.path.islink(link) and os.path.realpath(os.readlink(link)) == os.path.realpath(file):
             return
         raise RuntimeError(f"File exists: {link}")
     elif link.is_symlink():

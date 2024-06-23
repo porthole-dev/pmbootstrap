@@ -10,6 +10,7 @@ from pmb.helpers.args import init as init_args
 
 _testdir = Path(__file__).parent / "data/tests"
 
+
 @pytest.fixture
 def config_file(tmp_path_factory, request):
     """Fixture to create a temporary pmbootstrap.cfg file."""
@@ -22,9 +23,8 @@ def config_file(tmp_path_factory, request):
     out_file = tmp_path / "pmbootstrap.cfg"
     workdir = tmp_path / "work"
     workdir.mkdir()
-    
-    configs = {"default": f"aports = {workdir / 'cache_git' / 'pmaports'}",
-               "no-repos": "aports = "}
+
+    configs = {"default": f"aports = {workdir / 'cache_git' / 'pmaports'}", "no-repos": "aports = "}
 
     file = _testdir / "pmbootstrap.cfg"
     print(f"CONFIG: {out_file}")
@@ -43,8 +43,7 @@ def device_package(config_file):
     pkgdir.mkdir()
 
     for file in ["APKBUILD", "deviceinfo"]:
-        shutil.copy(_testdir / f"{file}.{MOCK_DEVICE}",
-                    pkgdir / file)
+        shutil.copy(_testdir / f"{file}.{MOCK_DEVICE}", pkgdir / file)
 
     return pkgdir
 
@@ -52,7 +51,8 @@ def device_package(config_file):
 @pytest.fixture
 def mock_devices_find_path(device_package, monkeypatch):
     """Fixture to mock pmb.helpers.devices.find_path()"""
-    def mock_find_path(device, file=''):
+
+    def mock_find_path(device, file=""):
         print(f"mock_find_path({device}, {file})")
         out = device_package / file
         if not out.exists():
@@ -67,10 +67,11 @@ def mock_devices_find_path(device_package, monkeypatch):
 def logfile(tmp_path_factory):
     """Setup logging for all tests."""
     from pmb.helpers import logging
+
     tmp_path = tmp_path_factory.getbasetemp()
     logfile = tmp_path / "log_testsuite.txt"
     logging.init(logfile, verbose=True)
-    
+
     return logfile
 
 
@@ -79,8 +80,14 @@ def setup_mock_ask(monkeypatch):
     """Common setup to mock cli.ask() to avoid reading from stdin"""
     import pmb.helpers.cli
 
-    def mock_ask(question="Continue?", choices=["y", "n"], default="n",
-                 lowercase_answer=True, validation_regex=None, complete=None):
+    def mock_ask(
+        question="Continue?",
+        choices=["y", "n"],
+        default="n",
+        lowercase_answer=True,
+        validation_regex=None,
+        complete=None,
+    ):
         return default
 
     monkeypatch.setattr(pmb.helpers.cli, "ask", mock_ask)
@@ -123,16 +130,18 @@ def pmb_args(config_file, mock_context, logfile):
     args.log = logfile
 
     init_args(args)
-    
+
     print(f"WORK: {get_context().config.work}")
 
     # Sanity check
     assert ".pytest_tmp" in get_context().config.work.parts
 
+
 @pytest.fixture
 def foreign_arch():
     """Fixture to return the foreign arch."""
     from pmb.core.arch import Arch
+
     if os.uname().machine == "x86_64":
         return Arch.aarch64
 
@@ -142,7 +151,7 @@ def foreign_arch():
 @pytest.fixture
 def pmaports(pmb_args, monkeypatch):
     """Fixture to clone pmaports."""
-    
+
     from pmb.core import Config
     from pmb.core.context import get_context
 
@@ -155,5 +164,4 @@ def pmaports(pmb_args, monkeypatch):
 
         pmb.helpers.git.clone("pmaports")
 
-    assert pmb.helpers.run.user(["git", "checkout", "master"],
-                         working_dir=config.aports[0]) == 0
+    assert pmb.helpers.run.user(["git", "checkout", "master"], working_dir=config.aports[0]) == 0

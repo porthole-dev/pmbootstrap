@@ -71,15 +71,19 @@ def get_relevant_packages(arch, pkgname=None, built=False):
     if built:
         ret = filter_aport_packages(ret)
         if not len(ret):
-            logging.info("NOTE: no aport found for any package in the"
-                         " dependency tree, it seems they are all provided by"
-                         " upstream (Alpine).")
+            logging.info(
+                "NOTE: no aport found for any package in the"
+                " dependency tree, it seems they are all provided by"
+                " upstream (Alpine)."
+            )
     else:
         ret = filter_missing_packages(arch, ret)
         if not len(ret):
-            logging.info("NOTE: all relevant packages are up to date, use"
-                         " --built to include the ones that have already been"
-                         " built.")
+            logging.info(
+                "NOTE: all relevant packages are up to date, use"
+                " --built to include the ones that have already been"
+                " built."
+            )
 
     # Sort alphabetically (to get a deterministic build order)
     ret.sort()
@@ -105,10 +109,14 @@ def generate_output_format(arch, pkgnames):
     ret = []
     for pkgname in pkgnames:
         entry = pmb.helpers.package.get(pkgname, arch, True)
-        ret += [{"pkgname": entry["pkgname"],
-                 "repo": pmb.helpers.pmaports.get_repo(pkgname),
-                 "version": entry["version"],
-                 "depends": entry["depends"]}]
+        ret += [
+            {
+                "pkgname": entry["pkgname"],
+                "repo": pmb.helpers.pmaports.get_repo(pkgname),
+                "version": entry["version"],
+                "depends": entry["depends"],
+            }
+        ]
     return ret
 
 
@@ -124,8 +132,7 @@ def generate(arch, overview, pkgname=None, built=False):
     """
     # Log message
     packages_str = pkgname if pkgname else "all packages"
-    logging.info("Calculate packages that need to be built ({}, {})"
-                 "".format(packages_str, arch))
+    logging.info("Calculate packages that need to be built ({}, {})" "".format(packages_str, arch))
 
     # Order relevant packages
     ret = get_relevant_packages(arch, pkgname, built)

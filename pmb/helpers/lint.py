@@ -12,6 +12,7 @@ import pmb.build
 import pmb.helpers.run
 import pmb.helpers.pmaports
 
+
 # FIXME: dest_paths[repo], repo expected to be a Literal.
 # We should really make Config.mirrors not a TypedDict.
 # mypy: disable-error-code="index"
@@ -57,8 +58,11 @@ def check(pkgnames: Sequence[str]):
 
     # For each pkgrepo run the linter on the relevant packages
     for pkgrepo, apkbuild_paths in apkbuilds.items():
-        pmb.chroot.root(["apkbuild-lint"] + apkbuild_paths,
-                        check=False, output="stdout",
-                        output_return=True,
-                        working_dir=dest_paths[repo],
-                        env={"CUSTOM_VALID_OPTIONS": " ".join(options)})
+        pmb.chroot.root(
+            ["apkbuild-lint"] + apkbuild_paths,
+            check=False,
+            output="stdout",
+            output_return=True,
+            working_dir=dest_paths[repo],
+            env={"CUSTOM_VALID_OPTIONS": " ".join(options)},
+        )

@@ -52,6 +52,7 @@ unmigrated_commands = [
     "bootimg_analyze",
 ]
 
+
 def run_command(args: PmbArgs):
     # Handle deprecated command format
     if args.action in unmigrated_commands:

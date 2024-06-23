@@ -1,9 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-""" Save, read, verify workdir state related information in $WORK/workdir.cfg,
-    for example the init dates of the chroots. This is not saved in
-    pmbootstrap.cfg, because pmbootstrap.cfg is not tied to a specific work
-    dir. """
+"""Save, read, verify workdir state related information in $WORK/workdir.cfg,
+for example the init dates of the chroots. This is not saved in
+pmbootstrap.cfg, because pmbootstrap.cfg is not tied to a specific work
+dir."""
+
 import configparser
 import os
 import time
@@ -39,7 +40,7 @@ def chroot_save_init(suffix: Chroot):
         cfg.write(handle)
 
 
-def chroots_outdated(chroot: Optional[Chroot]=None):
+def chroots_outdated(chroot: Optional[Chroot] = None):
     """Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 
@@ -75,11 +76,12 @@ def chroot_check_channel(chroot: Chroot) -> bool:
     the user has auto_zap_misconfigured_chroots enabled), False otherwise."""
     config = get_context().config
     path = config.work / "workdir.cfg"
-    msg_again = "Run 'pmbootstrap zap' to delete your chroots and try again." \
-        " To do this automatically, run 'pmbootstrap config" \
+    msg_again = (
+        "Run 'pmbootstrap zap' to delete your chroots and try again."
+        " To do this automatically, run 'pmbootstrap config"
         " auto_zap_misconfigured_chroots yes'."
-    msg_unknown = ("Could not figure out on which release channel the"
-                   f" '{chroot}' chroot is.")
+    )
+    msg_unknown = "Could not figure out on which release channel the" f" '{chroot}' chroot is."
     if not os.path.exists(path):
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
@@ -91,17 +93,22 @@ def chroot_check_channel(chroot: Chroot) -> bool:
 
     channel = pmb.config.pmaports.read_config()["channel"]
     channel_cfg = cfg[key][str(chroot)]
-    msg = f"Chroot '{chroot}' is for the '{channel_cfg}' channel," \
-          f" but you are on the '{channel}' channel."
+    msg = (
+        f"Chroot '{chroot}' is for the '{channel_cfg}' channel,"
+        f" but you are on the '{channel}' channel."
+    )
 
     if channel != channel_cfg:
         if config.auto_zap_misconfigured_chroots.enabled():
             if config.auto_zap_misconfigured_chroots.noisy():
                 logging.info(msg)
-                logging.info("Automatically zapping since"
-                             " auto_zap_misconfigured_chroots is enabled.")
-                logging.info("NOTE: You can silence this message with 'pmbootstrap"
-                             " config auto_zap_misconfigured_chroots silently'")
+                logging.info(
+                    "Automatically zapping since" " auto_zap_misconfigured_chroots is enabled."
+                )
+                logging.info(
+                    "NOTE: You can silence this message with 'pmbootstrap"
+                    " config auto_zap_misconfigured_chroots silently'"
+                )
             else:
                 logging.debug(f"{msg} Zapping chroot.")
             return True

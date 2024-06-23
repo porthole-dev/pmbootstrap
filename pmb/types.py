@@ -14,15 +14,18 @@ Env = Dict[str, PathString]
 # state of things so that we can improve our type hinting coverage and make
 # future refactoring efforts easier.
 
+
 class PartitionLayout(TypedDict):
     kernel: Optional[int]
     boot: int
     reserve: Optional[int]
     root: int
 
+
 class AportGenEntry(TypedDict):
     prefixes: List[str]
     confirm_overwrite: bool
+
 
 # Property list generated with:
 # $ rg --vimgrep "((^|\s)args\.\w+)" --only-matching | cut -d"." -f3 | sort | uniq
@@ -153,4 +156,3 @@ class PmbArgs(Namespace):
     work: Path
     xauth: str
     zap: str
-

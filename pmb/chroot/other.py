@@ -26,8 +26,7 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
         if not chroot.is_mounted():
             pmb.chroot.init(chroot)
         config = get_context().config
-        packages = ([f"device-{config.device}"] +
-                    pmb.install.get_kernel_package(config))
+        packages = [f"device-{config.device}"] + pmb.install.get_kernel_package(config)
         pmb.chroot.apk.install(packages, chroot)
 
     glob_result = list((chroot / "usr/share/kernel").glob("*"))
@@ -37,7 +36,7 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
 
 
 # FIXME: this function has ONE user, does it need to exist?
-def tempfolder(path: Path, chroot: Chroot=Chroot.native()):
+def tempfolder(path: Path, chroot: Chroot = Chroot.native()):
     """
     Create a temporary folder inside the chroot that belongs to "user".
     The folder gets deleted, if it already exists.
@@ -59,19 +58,22 @@ def copy_xauthority(args: PmbArgs):
     # Check $DISPLAY
     logging.info("(native) copy host Xauthority")
     if not os.environ.get("DISPLAY"):
-        raise RuntimeError("Your $DISPLAY variable is not set. If you have an"
-                           " X11 server running as your current user, try"
-                           " 'export DISPLAY=:0' and run your last"
-                           " pmbootstrap command again.")
+        raise RuntimeError(
+            "Your $DISPLAY variable is not set. If you have an"
+            " X11 server running as your current user, try"
+            " 'export DISPLAY=:0' and run your last"
+            " pmbootstrap command again."
+        )
 
     # Check $XAUTHORITY
     original = os.environ.get("XAUTHORITY")
     if not original:
-        original = os.path.join(os.environ['HOME'], '.Xauthority')
+        original = os.path.join(os.environ["HOME"], ".Xauthority")
     if not os.path.exists(original):
-        raise RuntimeError("Could not find your Xauthority file, try to export"
-                           " your $XAUTHORITY correctly. Looked here: " +
-                           original)
+        raise RuntimeError(
+            "Could not find your Xauthority file, try to export"
+            " your $XAUTHORITY correctly. Looked here: " + original
+        )
 
     # Copy to chroot and chown
     copy = Chroot.native() / "home/pmos/.Xauthority"

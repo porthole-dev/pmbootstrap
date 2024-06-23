@@ -45,7 +45,9 @@ def load(path: Path) -> Config:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
         # Yeah this really sucks and there isn't a better way to do it without external
         # libraries
-        elif isinstance(getattr(Config, key), List) and isinstance(getattr(Config, key)[0], PosixPath):
+        elif isinstance(getattr(Config, key), List) and isinstance(
+            getattr(Config, key)[0], PosixPath
+        ):
             value = cfg["pmbootstrap"][key]
             if not value:
                 setattr(config, key, value)
@@ -67,7 +69,7 @@ def load(path: Path) -> Config:
 def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
     """Serialize the config object into a ConfigParser to write it out
     in the pmbootstrap.cfg INI format.
-    
+
     :param config: The config object to serialize
     :param skip_defaults: Skip writing out default values
     """
@@ -95,7 +97,9 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))
-        elif isinstance(getattr(Config, key), List) and isinstance(getattr(Config, key)[0], PosixPath):
+        elif isinstance(getattr(Config, key), List) and isinstance(
+            getattr(Config, key)[0], PosixPath
+        ):
             cfg["pmbootstrap"][key] = ",".join(os.fspath(p) for p in getattr(config, key))
         elif isinstance(getattr(Config, key), bool):
             cfg["pmbootstrap"][key] = str(getattr(config, key))
@@ -104,17 +108,18 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
 
     return cfg
 
+
 # FIXME: we should have distinct Config and ConfigFile types
 def save(output: Path, config: Config):
     """Save the config object to the specified path.
-    
+
     IMPORTANT: The global config (available via get_context().config)
     has invocation arguments merged into it. Do NOT call save() with
     the global config object."""
     logging.debug(f"Save config: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.touch(0o700, exist_ok=True)
-    
+
     cfg = serialize(config)
 
     with output.open("w") as handle:

@@ -12,6 +12,7 @@ import pmb.helpers.other
 import pmb.helpers.devices
 from pmb.meta import Cache
 
+
 # FIXME: It feels weird to handle this at parse time.
 # we should instead have the Deviceinfo object store
 # the attributes for all kernels and require the user
@@ -58,6 +59,7 @@ def _parse_kernel_suffix(info, device, kernel):
 
     return ret
 
+
 @Cache("device", "kernel")
 def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
     """
@@ -70,14 +72,16 @@ def deviceinfo(device=None, kernel=None) -> "Deviceinfo":
     if not kernel:
         kernel = context.config.kernel
 
-    path = pmb.helpers.devices.find_path(device, 'deviceinfo')
+    path = pmb.helpers.devices.find_path(device, "deviceinfo")
     if not path:
         raise RuntimeError(
             "Device '" + device + "' not found. Run 'pmbootstrap init' to"
             " start a new device port or to choose another device. It may have"
-            " been renamed, see <https://postmarketos.org/renamed>")
+            " been renamed, see <https://postmarketos.org/renamed>"
+        )
 
     return Deviceinfo(path, kernel)
+
 
 class Deviceinfo:
     """Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
@@ -85,6 +89,7 @@ class Deviceinfo:
     on the wiki are missing. Eventually this class and associated code should
     be moved to a separate library and become the authoritative source of truth
     for the deviceinfo format."""
+
     path: Path
     # general
     format_version: str
@@ -111,17 +116,17 @@ class Deviceinfo:
     flash_heimdall_partition_kernel: Optional[str] = ""
     flash_heimdall_partition_initfs: Optional[str] = ""
     flash_heimdall_partition_rootfs: Optional[str] = ""
-    flash_heimdall_partition_system: Optional[str] = "" # deprecated
+    flash_heimdall_partition_system: Optional[str] = ""  # deprecated
     flash_heimdall_partition_vbmeta: Optional[str] = ""
     flash_heimdall_partition_dtbo: Optional[str] = ""
     flash_fastboot_partition_kernel: Optional[str] = ""
     flash_fastboot_partition_rootfs: Optional[str] = ""
-    flash_fastboot_partition_system: Optional[str] = "" # deprecated
+    flash_fastboot_partition_system: Optional[str] = ""  # deprecated
     flash_fastboot_partition_vbmeta: Optional[str] = ""
     flash_fastboot_partition_dtbo: Optional[str] = ""
     flash_rk_partition_kernel: Optional[str] = ""
     flash_rk_partition_rootfs: Optional[str] = ""
-    flash_rk_partition_system: Optional[str] = "" # deprecated
+    flash_rk_partition_system: Optional[str] = ""  # deprecated
     flash_mtkclient_partition_kernel: Optional[str] = ""
     flash_mtkclient_partition_rootfs: Optional[str] = ""
     flash_mtkclient_partition_vbmeta: Optional[str] = ""
@@ -131,7 +136,7 @@ class Deviceinfo:
     generate_bootimg: Optional[str] = ""
     header_version: Optional[str] = ""
     bootimg_qcdt: Optional[str] = ""
-    bootimg_mtk_mkimage: Optional[str] = "" # deprecated
+    bootimg_mtk_mkimage: Optional[str] = ""  # deprecated
     bootimg_mtk_label_kernel: Optional[str] = ""
     bootimg_mtk_label_ramdisk: Optional[str] = ""
     bootimg_dtb_second: Optional[str] = ""
@@ -171,47 +176,56 @@ class Deviceinfo:
 
         # Legacy errors
         if "flash_methods" in info:
-            raise RuntimeError("deviceinfo_flash_methods has been renamed to"
-                            " deviceinfo_flash_method. Please adjust your"
-                            f" deviceinfo file: {path}")
+            raise RuntimeError(
+                "deviceinfo_flash_methods has been renamed to"
+                " deviceinfo_flash_method. Please adjust your"
+                f" deviceinfo file: {path}"
+            )
         if "external_disk" in info or "external_disk_install" in info:
-            raise RuntimeError("Instead of deviceinfo_external_disk and"
-                            " deviceinfo_external_disk_install, please use the"
-                            " new variable deviceinfo_external_storage in your"
-                            f" deviceinfo file: {path}")
+            raise RuntimeError(
+                "Instead of deviceinfo_external_disk and"
+                " deviceinfo_external_disk_install, please use the"
+                " new variable deviceinfo_external_storage in your"
+                f" deviceinfo file: {path}"
+            )
         if "msm_refresher" in info:
-            raise RuntimeError("It is enough to specify 'msm-fb-refresher' in the"
-                            " depends of your device's package now. Please"
-                            " delete the deviceinfo_msm_refresher line in: "
-                            f"{path}")
+            raise RuntimeError(
+                "It is enough to specify 'msm-fb-refresher' in the"
+                " depends of your device's package now. Please"
+                " delete the deviceinfo_msm_refresher line in: "
+                f"{path}"
+            )
         if "flash_fastboot_vendor_id" in info:
-            raise RuntimeError("Fastboot doesn't allow specifying the vendor ID"
-                            " anymore (#1830). Try removing the"
-                            " 'deviceinfo_flash_fastboot_vendor_id' line in: "
-                            f"{path} (if you are sure that you need this, then"
-                            " we can probably bring it back to fastboot, just"
-                            " let us know in the postmarketOS issues!)")
+            raise RuntimeError(
+                "Fastboot doesn't allow specifying the vendor ID"
+                " anymore (#1830). Try removing the"
+                " 'deviceinfo_flash_fastboot_vendor_id' line in: "
+                f"{path} (if you are sure that you need this, then"
+                " we can probably bring it back to fastboot, just"
+                " let us know in the postmarketOS issues!)"
+            )
         if "nonfree" in info:
-            raise RuntimeError("deviceinfo_nonfree is unused. "
-                            f"Please delete it in: {path}")
+            raise RuntimeError("deviceinfo_nonfree is unused. " f"Please delete it in: {path}")
         if "dev_keyboard" in info:
-            raise RuntimeError("deviceinfo_dev_keyboard is unused. "
-                            f"Please delete it in: {path}")
+            raise RuntimeError("deviceinfo_dev_keyboard is unused. " f"Please delete it in: {path}")
         if "date" in info:
-            raise RuntimeError("deviceinfo_date was replaced by deviceinfo_year. "
-                            f"Set it to the release year in: {path}")
+            raise RuntimeError(
+                "deviceinfo_date was replaced by deviceinfo_year. "
+                f"Set it to the release year in: {path}"
+            )
 
         # "codename" is required
         codename = os.path.basename(os.path.dirname(path))[7:]
         if "codename" not in info or info["codename"] != codename:
-            raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' "
-                            f"to: {path}")
+            raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' " f"to: {path}")
 
         # "chassis" is required
         chassis_types = pmb.config.deviceinfo_chassis_types
         if "chassis" not in info or not info["chassis"]:
-            logging.info("NOTE: the most commonly used chassis types in"
-                        " postmarketOS are 'handset' (for phones) and 'tablet'.")
+            logging.info(
+                "NOTE: the most commonly used chassis types in"
+                " postmarketOS are 'handset' (for phones) and 'tablet'."
+            )
             raise RuntimeError(f"Please add 'deviceinfo_chassis' to: {path}")
 
         # "arch" is required
@@ -219,19 +233,21 @@ class Deviceinfo:
             raise RuntimeError(f"Please add 'deviceinfo_arch' to: {path}")
 
         arch = Arch.from_str(info["arch"])
-        if (not arch.is_native() and
-                arch not in Arch.supported()):
-            raise ValueError(f"Arch '{arch}' is not available in"
-                            " postmarketOS. If you would like to add it, see:"
-                            " <https://postmarketos.org/newarch>")
+        if not arch.is_native() and arch not in Arch.supported():
+            raise ValueError(
+                f"Arch '{arch}' is not available in"
+                " postmarketOS. If you would like to add it, see:"
+                " <https://postmarketos.org/newarch>"
+            )
 
         # "chassis" validation
         chassis_type = info["chassis"]
         if chassis_type not in chassis_types:
-            raise RuntimeError(f"Unknown chassis type '{chassis_type}', should"
-                            f" be one of {', '.join(chassis_types)}. Fix this"
-                            f" and try again: {path}")
-
+            raise RuntimeError(
+                f"Unknown chassis type '{chassis_type}', should"
+                f" be one of {', '.join(chassis_types)}. Fix this"
+                f" and try again: {path}"
+            )
 
     def __init__(self, path: Path, kernel: Optional[str] = None):
         ret = {}
@@ -242,8 +258,8 @@ class Deviceinfo:
                 if "=" not in line:
                     raise SyntaxError(f"{path}: No '=' found:\n\t{line}")
                 split = line.split("=", 1)
-                key = split[0][len("deviceinfo_"):]
-                value = split[1].replace("\"", "").replace("\n", "")
+                key = split[0][len("deviceinfo_") :]
+                value = split[1].replace('"', "").replace("\n", "")
                 ret[key] = value
 
         ret = _parse_kernel_suffix(ret, ret["codename"], kernel)

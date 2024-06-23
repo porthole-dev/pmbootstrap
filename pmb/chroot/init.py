@@ -21,11 +21,13 @@ from pmb.core.context import get_context
 
 cache_chroot_is_outdated: List[str] = []
 
+
 class UsrMerge(enum.Enum):
     """
     Merge /usr while initializing chroot.
     https://systemd.io/THE_CASE_FOR_THE_USR_MERGE/
     """
+
     AUTO = 0
     ON = 1
     OFF = 2
@@ -47,7 +49,7 @@ def copy_resolv_conf(chroot: Chroot):
         pmb.helpers.run.root(["touch", resolv_path])
 
 
-def mark_in_chroot(chroot: Chroot=Chroot.native()):
+def mark_in_chroot(chroot: Chroot = Chroot.native()):
     """
     Touch a flag so we can know when we're running in chroot (and
     don't accidentally flash partitions on our host). This marker
@@ -78,8 +80,7 @@ def init_keys():
 def init_usr_merge(chroot: Chroot):
     logging.info(f"({chroot}) merge /usr")
     script = f"{pmb.config.pmb_src}/pmb/data/merge-usr.sh"
-    pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB",
-                                chroot.path])
+    pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB", chroot.path])
 
 
 def warn_if_chroot_is_outdated(chroot: Chroot):
@@ -91,9 +92,11 @@ def warn_if_chroot_is_outdated(chroot: Chroot):
 
     if pmb.config.workdir.chroots_outdated(chroot):
         days_warn = int(pmb.config.chroot_outdated / 3600 / 24)
-        logging.warning(f"WARNING: Your {chroot} chroot is older than"
-                        f" {days_warn} days. Consider running"
-                        " 'pmbootstrap zap'.")
+        logging.warning(
+            f"WARNING: Your {chroot} chroot is older than"
+            f" {days_warn} days. Consider running"
+            " 'pmbootstrap zap'."
+        )
 
     cache_chroot_is_outdated += [str(chroot)]
 
@@ -137,8 +140,7 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
 
     # Initialize cache
     apk_cache = config.work / f"cache_apk_{arch}"
-    pmb.helpers.run.root(["ln", "-s", "-f", "/var/cache/apk",
-                                chroot / "etc/apk/cache"])
+    pmb.helpers.run.root(["ln", "-s", "-f", "/var/cache/apk", chroot / "etc/apk/cache"])
 
     # Initialize /etc/apk/keys/, resolv.conf, repositories
     init_keys()
@@ -155,10 +157,9 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
     # way to install/run it.
     if chroot.type == ChrootType.NATIVE:
         pkgs += ["apk-tools-static"]
-    pmb.chroot.apk_static.run(["--root", chroot.path,
-                                     "--cache-dir", apk_cache,
-                                     "--initdb", "--arch", arch,
-                                     "add"] + pkgs)
+    pmb.chroot.apk_static.run(
+        ["--root", chroot.path, "--cache-dir", apk_cache, "--initdb", "--arch", arch, "add"] + pkgs
+    )
 
     # Merge /usr
     if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):
@@ -168,9 +169,7 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
     if not chroot.type == ChrootType.ROOTFS:
-        pmb.chroot.root(["adduser", "-D", "pmos", "-u",
-                               pmb.config.chroot_uid_user],
-                        chroot)
+        pmb.chroot.root(["adduser", "-D", "pmos", "-u", pmb.config.chroot_uid_user], chroot)
 
         # Create the links (with subfolders if necessary)
         for target, link_name in pmb.config.chroot_home_symlinks.items():

@@ -6,6 +6,7 @@ from pmb.core.config import SystemdConfig
 
 """Test the config file serialization and deserialization."""
 
+
 def test_load(config_file):
     config = pmb.config.load(config_file)
     assert config.build_default_device_arch
@@ -75,6 +76,7 @@ def test_migrate_2_to_3(config_file_2_3_x, tmp_path, monkeypatch):
     tmp_path = tmp_path / "pmbootstrap-new.cfg"
 
     did_migrate = False
+
     def mock_save(path, config):
         nonlocal did_migrate
         did_migrate = True
@@ -91,5 +93,6 @@ def test_migrate_2_to_3(config_file_2_3_x, tmp_path, monkeypatch):
 
     # Check that save was called (which happens on a config migration)
     assert did_migrate
+
 
 # FIXME: add save tests and better type checks

@@ -22,16 +22,26 @@ def executables_absolute_path():
     for binary in ["sh", "chroot"]:
         path = shutil.which(binary, path=pmb.config.chroot_host_path)
         if not path:
-            raise RuntimeError(f"Could not find the '{binary}'"
-                               " executable. Make sure that it is in"
-                               " your current user's PATH.")
+            raise RuntimeError(
+                f"Could not find the '{binary}'"
+                " executable. Make sure that it is in"
+                " your current user's PATH."
+            )
         ret[binary] = path
     return ret
 
 
-def rootm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
-         output_return=False, check=None, env={},
-         disable_timeout=False, add_proxy_env_vars=True):
+def rootm(
+    cmds: Sequence[Sequence[PathString]],
+    chroot: Chroot = Chroot.native(),
+    working_dir: PurePath = PurePath("/"),
+    output="log",
+    output_return=False,
+    check=None,
+    env={},
+    disable_timeout=False,
+    add_proxy_env_vars=True,
+):
     """
     Run a list of commands inside a chroot as root.
 
@@ -59,14 +69,16 @@ def rootm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), 
     msg += "; ".join([" ".join(cmd_str) for cmd_str in cmd_strs])
 
     # Merge env with defaults into env_all
-    env_all: Env = {"CHARSET": "UTF-8",
-               "HISTFILE": "~/.ash_history",
-               "HOME": "/root",
-               "LANG": "UTF-8",
-               "PATH": pmb.config.chroot_path,
-               "PYTHONUNBUFFERED": "1",
-               "SHELL": "/bin/ash",
-               "TERM": "xterm"}
+    env_all: Env = {
+        "CHARSET": "UTF-8",
+        "HISTFILE": "~/.ash_history",
+        "HOME": "/root",
+        "LANG": "UTF-8",
+        "PATH": pmb.config.chroot_path,
+        "PYTHONUNBUFFERED": "1",
+        "SHELL": "/bin/ash",
+        "TERM": "xterm",
+    }
     for key, value in env.items():
         env_all[key] = value
     if add_proxy_env_vars:
@@ -77,26 +89,60 @@ def rootm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), 
     # cmd_chroot: ["/sbin/chroot", "/..._native", "/bin/sh", "-c", "echo test"]
     # cmd_sudo: ["sudo", "env", "-i", "sh", "-c", "PATH=... /sbin/chroot ..."]
     executables = executables_absolute_path()
-    cmd_chroot = [executables["chroot"], chroot.path, "/bin/sh", "-c",
-                  pmb.helpers.run_core.flat_cmd(cmd_strs, Path(working_dir))]
-    cmd_sudo = pmb.config.sudo([
-        "env", "-i", executables["sh"], "-c",
-        pmb.helpers.run_core.flat_cmd([cmd_chroot], env=env_all)]
+    cmd_chroot = [
+        executables["chroot"],
+        chroot.path,
+        "/bin/sh",
+        "-c",
+        pmb.helpers.run_core.flat_cmd(cmd_strs, Path(working_dir)),
+    ]
+    cmd_sudo = pmb.config.sudo(
+        [
+            "env",
+            "-i",
+            executables["sh"],
+            "-c",
+            pmb.helpers.run_core.flat_cmd([cmd_chroot], env=env_all),
+        ]
     )
-    return pmb.helpers.run_core.core(msg, cmd_sudo, None, output,
-                                     output_return, check, True,
-                                     disable_timeout)
+    return pmb.helpers.run_core.core(
+        msg, cmd_sudo, None, output, output_return, check, True, disable_timeout
+    )
 
 
-def root(cmds: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: PurePath=PurePath("/"), output="log",
-         output_return=False, check=None, env={},
-         disable_timeout=False, add_proxy_env_vars=True):
-    return rootm([cmds], chroot, working_dir, output, output_return, check, env,
-          disable_timeout, add_proxy_env_vars)
+def root(
+    cmds: Sequence[PathString],
+    chroot: Chroot = Chroot.native(),
+    working_dir: PurePath = PurePath("/"),
+    output="log",
+    output_return=False,
+    check=None,
+    env={},
+    disable_timeout=False,
+    add_proxy_env_vars=True,
+):
+    return rootm(
+        [cmds],
+        chroot,
+        working_dir,
+        output,
+        output_return,
+        check,
+        env,
+        disable_timeout,
+        add_proxy_env_vars,
+    )
 
 
-def userm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
-         output_return=False, check=None, env={}):
+def userm(
+    cmds: Sequence[Sequence[PathString]],
+    chroot: Chroot = Chroot.native(),
+    working_dir: Path = Path("/"),
+    output="log",
+    output_return=False,
+    check=None,
+    env={},
+):
     """
     Run a command inside a chroot as "user". We always use the BusyBox
     implementation of 'su', because other implementations may override the PATH
@@ -116,24 +162,31 @@ def userm(cmds: Sequence[Sequence[PathString]], chroot: Chroot=Chroot.native(), 
 
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmds, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
-    return pmb.chroot.root(cmd, chroot, working_dir, output,
-                           output_return, check, {},
-                           add_proxy_env_vars=False)
+    return pmb.chroot.root(
+        cmd, chroot, working_dir, output, output_return, check, {}, add_proxy_env_vars=False
+    )
 
 
-def user(cmd: Sequence[PathString], chroot: Chroot=Chroot.native(), working_dir: Path = Path("/"), output="log",
-         output_return=False, check=None, env={}):
+def user(
+    cmd: Sequence[PathString],
+    chroot: Chroot = Chroot.native(),
+    working_dir: Path = Path("/"),
+    output="log",
+    output_return=False,
+    check=None,
+    env={},
+):
     userm([cmd], chroot, working_dir, output, output_return, check, env)
 
 
-def exists(username, chroot: Chroot=Chroot.native()):
+def exists(username, chroot: Chroot = Chroot.native()):
     """
     Checks if username exists in the system
 
     :param username: User name
     :returns: bool
     """
-    output = pmb.chroot.root(["getent", "passwd", username],
-                             chroot, output_return=True, check=False)
+    output = pmb.chroot.root(
+        ["getent", "passwd", username], chroot, output_return=True, check=False
+    )
     return len(output) > 0
-

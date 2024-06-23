@@ -42,7 +42,7 @@ def arch(package: Union[str, Dict[str, Any]]):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
-    
+
     :param package: The name of the package or parsed APKBUILD
 
     :returns: arch string like "x86_64" or "armhf". Preferred order, depending
@@ -95,7 +95,7 @@ def chroot(apkbuild: Dict[str, str], arch: Arch) -> Chroot:
 
 def crosscompile(apkbuild, arch: Arch):
     """
-        :returns: None, "native", "crossdirect"
+    :returns: None, "native", "crossdirect"
     """
     if not get_context().cross:
         return None

@@ -16,8 +16,9 @@ import pmb.parse.version
 
 
 def clone():
-    logging.info("Setting up the native chroot and cloning the package build"
-                 " recipes (pmaports)...")
+    logging.info(
+        "Setting up the native chroot and cloning the package build" " recipes (pmaports)..."
+    )
 
     # Set up the native chroot and clone pmaports
     pmb.helpers.git.clone("pmaports")
@@ -30,8 +31,14 @@ def check_version_pmaports(real):
         return
 
     # Outated error
-    logging.info("NOTE: your pmaports folder has version " + real + ", but" +
-                 " version " + min + " is required.")
+    logging.info(
+        "NOTE: your pmaports folder has version "
+        + real
+        + ", but"
+        + " version "
+        + min
+        + " is required."
+    )
     raise RuntimeError("Run 'pmbootstrap pull' to update your pmaports.")
 
 
@@ -42,26 +49,31 @@ def check_version_pmbootstrap(min_ver):
         return
 
     # Show versions
-    logging.info(f"NOTE: you are using pmbootstrap version {real}, but"
-                 f" version {min_ver} is required.")
+    logging.info(
+        f"NOTE: you are using pmbootstrap version {real}, but" f" version {min_ver} is required."
+    )
 
     # Error for git clone
     pmb_src = pmb.config.pmb_src
     if os.path.exists(pmb_src / ".git"):
-        raise RuntimeError("Please update your local pmbootstrap repository."
-                          f" Usually with: 'git -C \"{pmb_src}\" pull'")
+        raise RuntimeError(
+            "Please update your local pmbootstrap repository."
+            f" Usually with: 'git -C \"{pmb_src}\" pull'"
+        )
 
     # Error for package manager installation
-    raise RuntimeError("Please update your pmbootstrap version (with your"
-                       " distribution's package manager, or with pip, "
-                       " depending on how you have installed it). If that is"
-                       " not possible, consider cloning the latest version"
-                       " of pmbootstrap from git.")
+    raise RuntimeError(
+        "Please update your pmbootstrap version (with your"
+        " distribution's package manager, or with pip, "
+        " depending on how you have installed it). If that is"
+        " not possible, consider cloning the latest version"
+        " of pmbootstrap from git."
+    )
 
 
 @Cache()
 def read_config_repos():
-    """ Read the sections starting with "repo:" from pmaports.cfg. """
+    """Read the sections starting with "repo:" from pmaports.cfg."""
 
     cfg = configparser.ConfigParser()
     cfg.read(f"{pkgrepo_default_path()}/pmaports.cfg")
@@ -100,8 +112,7 @@ def read_config(aports: Optional[Path] = None):
     # Require the config
     path_cfg = aports / "pmaports.cfg"
     if not os.path.exists(path_cfg):
-        raise RuntimeError("Invalid pmaports repository, could not find the"
-                          f" config: {path_cfg}")
+        raise RuntimeError("Invalid pmaports repository, could not find the" f" config: {path_cfg}")
 
     # Load the config
     cfg = configparser.ConfigParser()
@@ -150,19 +161,24 @@ def read_config_channel():
         return channels_cfg["channels"][channel]
 
     # Channel not in channels.cfg, try to be helpful
-    branch = pmb.helpers.git.rev_parse(aports,
-                                       extra_args=["--abbrev-ref"])
+    branch = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])
     remote = pmb.helpers.git.get_upstream_remote(aports)
-    logging.info("NOTE: fix the error by rebasing or cherry picking relevant"
-                 " commits from this branch onto a branch that is on a"
-                 " supported channel: master, v24.06, …")
-    logging.info("NOTE: as workaround, you may pass --config-channels with a"
-                 " custom channels.cfg. Reference:"
-                 " https://postmarketos.org/channels.cfg")
-    raise RuntimeError(f"Current branch '{branch}' of pmaports.git is on"
-                       f" channel '{channel}', but this channel was not"
-                       f" found in channels.cfg (of {remote}/master"
-                       " branch). Looks like a very old branch.")
+    logging.info(
+        "NOTE: fix the error by rebasing or cherry picking relevant"
+        " commits from this branch onto a branch that is on a"
+        " supported channel: master, v24.06, …"
+    )
+    logging.info(
+        "NOTE: as workaround, you may pass --config-channels with a"
+        " custom channels.cfg. Reference:"
+        " https://postmarketos.org/channels.cfg"
+    )
+    raise RuntimeError(
+        f"Current branch '{branch}' of pmaports.git is on"
+        f" channel '{channel}', but this channel was not"
+        f" found in channels.cfg (of {remote}/master"
+        " branch). Looks like a very old branch."
+    )
 
 
 def init():
@@ -187,23 +203,24 @@ def switch_to_channel_branch(channel_new):
     # List current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
-    branch_current = pmb.helpers.git.rev_parse(aports,
-                                               extra_args=["--abbrev-ref"])
-    logging.info(f"Currently checked out branch '{branch_current}' of"
-                 f" pmaports.git is on channel '{channel_current}'.")
-    logging.info(f"Switching to branch '{branch_new}' on channel"
-                 f" '{channel_new}'...")
+    branch_current = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])
+    logging.info(
+        f"Currently checked out branch '{branch_current}' of"
+        f" pmaports.git is on channel '{channel_current}'."
+    )
+    logging.info(f"Switching to branch '{branch_new}' on channel" f" '{channel_new}'...")
 
     # Make sure we don't have mounts related to the old channel
     pmb.chroot.shutdown()
 
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
-    if pmb.helpers.run.user(["git", "checkout", branch_new],
-                            aports, "interactive", check=False):
-        raise RuntimeError("Failed to switch branch. Go to your pmaports and"
-                           " fix what git complained about, then try again: "
-                           f"{aports}")
+    if pmb.helpers.run.user(["git", "checkout", branch_new], aports, "interactive", check=False):
+        raise RuntimeError(
+            "Failed to switch branch. Go to your pmaports and"
+            " fix what git complained about, then try again: "
+            f"{aports}"
+        )
 
     # Verify pmaports.cfg on new branch
     read_config()

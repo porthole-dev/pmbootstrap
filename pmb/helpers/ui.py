@@ -13,9 +13,14 @@ def list_ui(arch):
     :param arch: device architecture, for which the UIs must be available
     :returns: [("none", "No graphical..."), ("weston", "Wayland reference...")]
     """
-    ret = [("none", "Bare minimum OS image for testing and manual"
-                    " customization. The \"console\" UI should be selected if"
-                    " a graphical UI is not desired.")]
+    ret = [
+        (
+            "none",
+            "Bare minimum OS image for testing and manual"
+            ' customization. The "console" UI should be selected if'
+            " a graphical UI is not desired.",
+        )
+    ]
     for path in sorted(pkgrepo_iglob("main/postmarketos-ui-*")):
         apkbuild = pmb.parse.apkbuild(path)
         ui = os.path.basename(path).split("-", 2)[2]
@@ -29,5 +34,7 @@ def check_option(ui, option, skip_extra_repos=False):
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
     """
     pkgname = f"postmarketos-ui-{ui}"
-    apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False, skip_extra_repos=skip_extra_repos)
+    apkbuild = pmb.helpers.pmaports.get(
+        pkgname, subpackages=False, skip_extra_repos=skip_extra_repos
+    )
     return option in apkbuild["options"]

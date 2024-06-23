@@ -8,11 +8,13 @@ from typing import List
 from pmb.core.chroot import ChrootType
 from pmb.types import PathString
 
+
 class CrossToolTarget(enum.Enum):
     BUILDROOT = 0
     ROOTFS = 1
 
-class CrossTool():
+
+class CrossTool:
     __target: CrossToolTarget
     __package: str
     __paths: List[Path]
@@ -36,7 +38,11 @@ class CrossTool():
     def should_install(self, target: ChrootType) -> bool:
         if target == ChrootType.BUILDROOT and self.__target == CrossToolTarget.BUILDROOT:
             return True
-        if target == ChrootType.ROOTFS or target == ChrootType.INSTALLER and self.__target == CrossToolTarget.ROOTFS:
+        if (
+            target == ChrootType.ROOTFS
+            or target == ChrootType.INSTALLER
+            and self.__target == CrossToolTarget.ROOTFS
+        ):
             return True
-        
+
         return False

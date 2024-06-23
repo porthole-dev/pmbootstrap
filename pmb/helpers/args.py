@@ -55,8 +55,9 @@ def init(args: PmbArgs) -> PmbArgs:
     config = pmb.config.load(args.config)
 
     if args.aports and not args.aports.exists():
-        raise ValueError("pmaports path (specified with --aports) does"
-                        f" not exist: {args.aports}")
+        raise ValueError(
+            "pmaports path (specified with --aports) does" f" not exist: {args.aports}"
+        )
 
     # Override config at runtime with command line arguments
     for key, _ in vars(config).items():
@@ -97,8 +98,16 @@ def init(args: PmbArgs) -> PmbArgs:
     pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout)
 
     # Initialization code which may raise errors
-    if args.action not in ["init", "checksum", "config", "bootimg_analyze", "log",
-                           "pull", "shutdown", "zap"]:
+    if args.action not in [
+        "init",
+        "checksum",
+        "config",
+        "bootimg_analyze",
+        "log",
+        "pull",
+        "shutdown",
+        "zap",
+    ]:
         pmb.config.pmaports.read_config()
         pmb.helpers.git.parse_channels_cfg(pkgrepo_default_path())
 
@@ -112,15 +121,15 @@ def init(args: PmbArgs) -> PmbArgs:
         delattr(args, "force")
     if hasattr(args, "device"):
         delattr(args, "device")
-    
+
     # Copy all properties from args to out that don't start with underscores
     for key, value in vars(args).items():
         if not key.startswith("_") and not key == "from_argparse":
             setattr(__args, key, value)
 
-    #print(json.dumps(__args.__dict__))
+    # print(json.dumps(__args.__dict__))
 
-    #sys.exit(0)
+    # sys.exit(0)
 
     return __args
 
@@ -143,8 +152,10 @@ def init(args: PmbArgs) -> PmbArgs:
 #     for key in vars(args_new):
 #         setattr(args, key, getattr(args_new, key))
 
+
 def please_i_really_need_args() -> PmbArgs:
     import traceback
+
     traceback.print_stack()
     print("FIXME: retrieved args where it shouldn't be needed!")
     return __args

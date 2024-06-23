@@ -6,9 +6,9 @@ from . import Cache, Wrapper
 def test_cache_hits_basic():
     def multiply_2(x: int) -> int:
         return x * 2
-    
+
     multiply_2_cached = Cache("x")(multiply_2)
-    
+
     assert isinstance(multiply_2_cached, Wrapper)
 
     assert multiply_2(2) == 4
@@ -27,6 +27,7 @@ def test_cache_hits_basic():
 
     assert multiply_2_cached(3) == 6
     assert multiply_2_cached.hits == 2
+
 
 def test_cache_hits_kwargs():
     def multiply_2(x: int, y: int = 2, z: List[int] = []) -> int:
@@ -56,7 +57,7 @@ def test_cache_hits_kwargs():
 
     assert multiply_2_cached_y3(1, 1, [1, 1]) == 3
     assert multiply_2_cached_y3.misses == 1
-    
+
     assert multiply_2_cached_y3(1, 1, [1, 1]) == 3
     assert multiply_2_cached_y3.misses == 2
 
@@ -64,6 +65,7 @@ def test_cache_hits_kwargs():
     assert multiply_2_cached_y3.misses == 3
     assert multiply_2_cached_y3(1, 3, [4, 1]) == 8
     assert multiply_2_cached_y3.hits == 1
+
 
 def test_build_key():
     def multiply_2(x: int, y: int = 2, z: List[int] = []) -> int:

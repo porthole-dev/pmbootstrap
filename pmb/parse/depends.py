@@ -25,14 +25,11 @@ def package_from_aports(pkgname_depend):
     version = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
 
     # Return the dict
-    logging.verbose(
-        f"{pkgname_depend}: provided by: {pkgname}-{version} in {aport}")
-    return {"pkgname": pkgname,
-            "depends": apkbuild["depends"],
-            "version": version}
+    logging.verbose(f"{pkgname_depend}: provided by: {pkgname}-{version} in {aport}")
+    return {"pkgname": pkgname, "depends": apkbuild["depends"], "version": version}
 
 
-def package_provider(pkgname, pkgnames_install, suffix: Chroot=Chroot.native()):
+def package_provider(pkgname, pkgnames_install, suffix: Chroot = Chroot.native()):
     """
     :param pkgnames_install: packages to be installed
     :returns: a block from the apkindex: {"pkgname": "...", ...}
@@ -53,36 +50,40 @@ def package_provider(pkgname, pkgnames_install, suffix: Chroot=Chroot.native()):
 
     # 2. Provider with the same package name
     if pkgname in providers:
-        logging.verbose(f"{pkgname}: choosing package of the same name as "
-                        "provider")
+        logging.verbose(f"{pkgname}: choosing package of the same name as " "provider")
         return providers[pkgname]
 
     # 3. Pick a package that will be installed anyway
     for provider_pkgname, provider in providers.items():
         if provider_pkgname in pkgnames_install:
-            logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}"
-                            "', because it will be installed anyway")
+            logging.verbose(
+                f"{pkgname}: choosing provider '{provider_pkgname}"
+                "', because it will be installed anyway"
+            )
             return provider
 
     # 4. Pick a package that is already installed
     installed = pmb.chroot.apk.installed(suffix)
     for provider_pkgname, provider in providers.items():
         if provider_pkgname in installed:
-            logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}"
-                            f"', because it is installed in the '{suffix}' "
-                            "chroot already")
+            logging.verbose(
+                f"{pkgname}: choosing provider '{provider_pkgname}"
+                f"', because it is installed in the '{suffix}' "
+                "chroot already"
+            )
             return provider
 
     # 5. Pick an explicitly selected provider
     provider_pkgname = get_context().config.providers.get(pkgname, "")
     if provider_pkgname in providers:
-        logging.verbose(f"{pkgname}: choosing provider '{provider_pkgname}', "
-                        "because it was explicitly selected.")
+        logging.verbose(
+            f"{pkgname}: choosing provider '{provider_pkgname}', "
+            "because it was explicitly selected."
+        )
         return providers[provider_pkgname]
 
     # 6. Pick the provider(s) with the highest priority
-    providers = pmb.parse.apkindex.provider_highest_priority(
-        providers, pkgname)
+    providers = pmb.parse.apkindex.provider_highest_priority(providers, pkgname)
     if len(providers) == 1:
         return list(providers.values())[0]
 
@@ -90,8 +91,9 @@ def package_provider(pkgname, pkgnames_install, suffix: Chroot=Chroot.native()):
     return pmb.parse.apkindex.provider_shortest(providers, pkgname)
 
 
-def package_from_index(pkgname_depend, pkgnames_install, package_aport,
-                       suffix: Chroot=Chroot.native()):
+def package_from_index(
+    pkgname_depend, pkgnames_install, package_aport, suffix: Chroot = Chroot.native()
+):
     """
     :returns: None when there is no aport and no binary package, or a dict with
               the keys pkgname, depends, version from either the aport or the
@@ -103,14 +105,18 @@ def package_from_index(pkgname_depend, pkgnames_install, package_aport,
         return package_aport
 
     # Binary package outdated
-    if (package_aport and pmb.parse.version.compare(package_aport["version"],
-                                                    provider["version"]) == 1):
+    if (
+        package_aport
+        and pmb.parse.version.compare(package_aport["version"], provider["version"]) == 1
+    ):
         logging.verbose(pkgname_depend + ": binary package is outdated")
         return package_aport
 
     # Binary up to date (#893: overrides aport, so we have sonames in depends)
     if package_aport:
-        logging.verbose(pkgname_depend + ": binary package is"
-                        " up to date, using binary dependencies"
-                        " instead of the ones from the aport")
+        logging.verbose(
+            pkgname_depend + ": binary package is"
+            " up to date, using binary dependencies"
+            " instead of the ones from the aport"
+        )
     return provider

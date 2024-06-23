@@ -13,6 +13,7 @@ import pmb.helpers.run_core
 import pmb.parse.version
 from pmb.core.context import get_context
 
+
 def _prepare_fifo():
     """Prepare the progress fifo for reading / writing.
 
@@ -54,7 +55,7 @@ def _compute_progress(line):
     """
     if not line:
         return 1
-    cur_tot = line.rstrip().split('/')
+    cur_tot = line.rstrip().split("/")
     if len(cur_tot) != 2:
         return 0
     cur = float(cur_tot[0])
@@ -80,17 +81,14 @@ def apk_with_progress(command: Sequence[PathString]):
             _command.append(os.fspath(c))
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
-    with pmb.helpers.run.root(['cat', fifo],
-              output="pipe") as p_cat:
-        with pmb.helpers.run.root(command_with_progress,
-                  output="background") as p_apk:
+    with pmb.helpers.run.root(["cat", fifo], output="pipe") as p_cat:
+        with pmb.helpers.run.root(command_with_progress, output="background") as p_apk:
             while p_apk.poll() is None:
-                line = p_cat.stdout.readline().decode('utf-8')
+                line = p_cat.stdout.readline().decode("utf-8")
                 progress = _compute_progress(line)
                 pmb.helpers.cli.progress_print(progress)
             pmb.helpers.cli.progress_flush()
-            pmb.helpers.run_core.check_return_code(p_apk.returncode,
-                                                   log_msg)
+            pmb.helpers.run_core.check_return_code(p_apk.returncode, log_msg)
 
 
 def check_outdated(version_installed, action_msg):
@@ -111,6 +109,8 @@ def check_outdated(version_installed, action_msg):
     if pmb.parse.version.compare(version_installed, version_min) >= 0:
         return
 
-    raise RuntimeError("Found an outdated version of the 'apk' package"
-                       f" manager ({version_installed}, expected at least:"
-                       f" {version_min}). {action_msg}")
+    raise RuntimeError(
+        "Found an outdated version of the 'apk' package"
+        f" manager ({version_installed}, expected at least:"
+        f" {version_min}). {action_msg}"
+    )

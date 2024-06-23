@@ -33,8 +33,7 @@ def mount(img_path: Path):
     for i in range(0, 5):
         # Retry
         if i > 0:
-            logging.debug("loop module might not be initialized yet, retry in"
-                          " one second...")
+            logging.debug("loop module might not be initialized yet, retry in" " one second...")
             time.sleep(1)
 
         # Mount and return on success
@@ -61,8 +60,7 @@ def device_by_back_file(back_file: Path) -> Path:
     """
 
     # Get list from losetup
-    losetup_output = pmb.chroot.root(["losetup", "--json", "--list"],
-                                     output_return=True)
+    losetup_output = pmb.chroot.root(["losetup", "--json", "--list"], output_return=True)
     if not losetup_output:
         raise RuntimeError("losetup failed")
 
@@ -86,12 +84,12 @@ def umount(img_path: Path):
     logging.debug(f"(native) umount {device}")
     pmb.chroot.root(["losetup", "-d", device])
 
+
 def detach_all():
     """
     Detach all loop devices used by pmbootstrap
     """
-    losetup_output = pmb.helpers.run.root(["losetup", "--json", "--list"],
-                                     output_return=True)
+    losetup_output = pmb.helpers.run.root(["losetup", "--json", "--list"], output_return=True)
     if not losetup_output:
         return
     losetup = json.loads(losetup_output)

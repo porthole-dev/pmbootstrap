@@ -52,13 +52,13 @@ def _parse_flavor(device: str, autoinstall=True):
     # "postmarketos-<manufacturer>-<device/chip>", e.g.
     # "postmarketos-qcom-sdm845"
     chroot = Chroot(ChrootType.ROOTFS, device)
-    flavor = pmb.chroot.other.kernel_flavor_installed(
-        chroot, autoinstall)
+    flavor = pmb.chroot.other.kernel_flavor_installed(chroot, autoinstall)
 
     if not flavor:
         raise RuntimeError(
-           f"No kernel flavors installed in chroot '{chroot}'! Please let"
-            " your device package depend on a package starting with 'linux-'.")
+            f"No kernel flavors installed in chroot '{chroot}'! Please let"
+            " your device package depend on a package starting with 'linux-'."
+        )
     return flavor
 
 
@@ -93,11 +93,13 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: List[Tuple[str, str]]
             if chroot_dest_cp == chroot_dest:
                 return
 
-    raise ValueError(f"--no-rootfs set, but rootfs.img not found in install"
-                     " chroot. Either run 'pmbootstrap install' without"
-                     " --no-rootfs first to let it generate the postmarketOS"
-                     " rootfs once, or supply a rootfs file with:"
-                     f" --cp os.img:{chroot_dest}")
+    raise ValueError(
+        f"--no-rootfs set, but rootfs.img not found in install"
+        " chroot. Either run 'pmbootstrap install' without"
+        " --no-rootfs first to let it generate the postmarketOS"
+        " rootfs once, or supply a rootfs file with:"
+        f" --cp os.img:{chroot_dest}"
+    )
 
 
 def aportgen(args: PmbArgs):
@@ -116,8 +118,7 @@ def build(args: PmbArgs):
         return
 
     # Set src and force
-    src = os.path.realpath(os.path.expanduser(args.src[0])) \
-        if args.src else None
+    src = os.path.realpath(os.path.expanduser(args.src[0])) if args.src else None
     force = True if src else get_context().force
     if src and not os.path.exists(src):
         raise RuntimeError("Invalid path specified for --src: " + src)
@@ -125,19 +126,21 @@ def build(args: PmbArgs):
     # Ensure repo_bootstrap is done for all arches we intend to build for
     for package in args.packages:
         arch_package = args.arch or pmb.build.autodetect.arch(package)
-        pmb.helpers.pmaports.require_bootstrap(arch_package,
-            f"build {package} for {arch_package}")
+        pmb.helpers.pmaports.require_bootstrap(arch_package, f"build {package} for {arch_package}")
 
     context = get_context()
     # Build all packages
-    built = pmb.build.packages(context, args.packages, args.arch, force,
-                                 strict=args.strict, src=src)
+    built = pmb.build.packages(
+        context, args.packages, args.arch, force, strict=args.strict, src=src
+    )
 
     # Notify about packages that weren't built
     for package in set(args.packages) - set(built):
-            logging.info("NOTE: Package '" + package + "' is up to date. Use"
-                         " 'pmbootstrap build " + package + " --force'"
-                         " if needed.")
+        logging.info(
+            "NOTE: Package '" + package + "' is up to date. Use"
+            " 'pmbootstrap build " + package + " --force'"
+            " if needed."
+        )
 
 
 def build_init(args: PmbArgs):
@@ -157,8 +160,7 @@ def sideload(args: PmbArgs):
     arch = args.arch
     user = get_context().config.user
     host = args.host
-    pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key,
-                          args.packages)
+    pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key, args.packages)
 
 
 def netboot(args: PmbArgs):
@@ -171,10 +173,12 @@ def chroot(args: PmbArgs):
     # Suffix
     chroot = _parse_suffix(args)
     user = args.user
-    if (user and chroot != Chroot.native() and
-            chroot.type not in [ChrootType.BUILDROOT, ChrootType.IMAGE]):
-        raise RuntimeError("--user is only supported for native or"
-                           " buildroot_* chroots.")
+    if (
+        user
+        and chroot != Chroot.native()
+        and chroot.type not in [ChrootType.BUILDROOT, ChrootType.IMAGE]
+    ):
+        raise RuntimeError("--user is only supported for native or" " buildroot_* chroots.")
     if args.xauth and chroot != Chroot.native():
         raise RuntimeError("--xauth is only supported for native chroot.")
 
@@ -197,28 +201,26 @@ def chroot(args: PmbArgs):
 
     # Install blockdevice
     if args.install_blockdev:
-        logging.warning("--install-blockdev is deprecated for the chroot command"
-                        " and will be removed in a future release. If you need this"
-                        " for some reason, please open an issue on"
-                        " https://gitlab.com/postmarketOS/pmbootstrap.git")
+        logging.warning(
+            "--install-blockdev is deprecated for the chroot command"
+            " and will be removed in a future release. If you need this"
+            " for some reason, please open an issue on"
+            " https://gitlab.com/postmarketOS/pmbootstrap.git"
+        )
         size_boot = 128  # 128 MiB
         size_root = 4096  # 4 GiB
         size_reserve = 2048  # 2 GiB
-        pmb.install.blockdevice.create_and_mount_image(args, size_boot,
-                                                       size_root, size_reserve)
+        pmb.install.blockdevice.create_and_mount_image(args, size_boot, size_root, size_reserve)
 
     pmb.chroot.apk.update_repository_list(chroot, user_repository=True)
 
     # Run the command as user/root
     if user:
-        logging.info(f"({chroot}) % su pmos -c '" +
-                     " ".join(args.command) + "'")
-        pmb.chroot.user(args.command, chroot, output=args.output,
-                        env=env)
+        logging.info(f"({chroot}) % su pmos -c '" + " ".join(args.command) + "'")
+        pmb.chroot.user(args.command, chroot, output=args.output, env=env)
     else:
         logging.info(f"({chroot}) % " + " ".join(args.command))
-        pmb.chroot.root(args.command, chroot, output=args.output,
-                        env=env)
+        pmb.chroot.root(args.command, chroot, output=args.output, env=env)
 
 
 def config(args: PmbArgs):
@@ -259,8 +261,7 @@ def config(args: PmbArgs):
 
 
 def repo_missing(args: PmbArgs):
-    missing = pmb.helpers.repo_missing.generate(args.arch, args.overview,
-                                                args.package, args.built)
+    missing = pmb.helpers.repo_missing.generate(args.arch, args.overview, args.package, args.built)
     print(json.dumps(missing, indent=4))
 
 
@@ -273,52 +274,52 @@ def install(args: PmbArgs):
     device = config.device
     deviceinfo = pmb.parse.deviceinfo(device)
     if args.no_fde:
-        logging.warning("WARNING: --no-fde is deprecated,"
-                        " as it is now the default.")
+        logging.warning("WARNING: --no-fde is deprecated," " as it is now the default.")
     if args.rsync and args.full_disk_encryption:
-        raise ValueError("Installation using rsync is not compatible with full"
-                         " disk encryption.")
+        raise ValueError("Installation using rsync is not compatible with full" " disk encryption.")
     if args.rsync and not args.disk:
         raise ValueError("Installation using rsync only works with --disk.")
 
     if args.rsync and args.filesystem == "btrfs":
-        raise ValueError("Installation using rsync"
-                        " is not currently supported on btrfs filesystem.")
+        raise ValueError(
+            "Installation using rsync" " is not currently supported on btrfs filesystem."
+        )
 
-    pmb.helpers.pmaports.require_bootstrap(deviceinfo.arch,
-        f"do 'pmbootstrap install' for {deviceinfo.arch}"
-        " (deviceinfo_arch)")
+    pmb.helpers.pmaports.require_bootstrap(
+        deviceinfo.arch, f"do 'pmbootstrap install' for {deviceinfo.arch}" " (deviceinfo_arch)"
+    )
 
     # On-device installer checks
     # Note that this can't be in the mutually exclusive group that has most of
     # the conflicting options, because then it would not work with --disk.
     if args.on_device_installer:
         if args.full_disk_encryption:
-            raise ValueError("--on-device-installer cannot be combined with"
-                             " --fde. The user can choose to encrypt their"
-                             " installation later in the on-device installer.")
+            raise ValueError(
+                "--on-device-installer cannot be combined with"
+                " --fde. The user can choose to encrypt their"
+                " installation later in the on-device installer."
+            )
         if args.android_recovery_zip:
-            raise ValueError("--on-device-installer cannot be combined with"
-                             " --android-recovery-zip (patches welcome)")
+            raise ValueError(
+                "--on-device-installer cannot be combined with"
+                " --android-recovery-zip (patches welcome)"
+            )
         if args.no_image:
-            raise ValueError("--on-device-installer cannot be combined with"
-                             " --no-image")
+            raise ValueError("--on-device-installer cannot be combined with" " --no-image")
         if args.rsync:
-            raise ValueError("--on-device-installer cannot be combined with"
-                             " --rsync")
+            raise ValueError("--on-device-installer cannot be combined with" " --rsync")
         if args.filesystem:
-            raise ValueError("--on-device-installer cannot be combined with"
-                             " --filesystem")
+            raise ValueError("--on-device-installer cannot be combined with" " --filesystem")
 
         if deviceinfo.cgpt_kpart:
-            raise ValueError("--on-device-installer cannot be used with"
-                             " ChromeOS devices")
+            raise ValueError("--on-device-installer cannot be used with" " ChromeOS devices")
     else:
         if args.ondev_cp:
             raise ValueError("--cp can only be combined with --ondev")
         if args.ondev_no_rootfs:
-            raise ValueError("--no-rootfs can only be combined with --ondev."
-                             " Do you mean --no-image?")
+            raise ValueError(
+                "--no-rootfs can only be combined with --ondev." " Do you mean --no-image?"
+            )
     if args.ondev_no_rootfs:
         _install_ondev_verify_no_rootfs(device, args.ondev_cp)
 
@@ -330,9 +331,11 @@ def install(args: PmbArgs):
         # optionally add a new user for SSH that must not have the same
         # username etc.)
         if config.user != "user":
-            logging.warning(f"WARNING: custom username '{config.user}' will be"
-                            " replaced with 'user' for the on-device"
-                            " installer.")
+            logging.warning(
+                f"WARNING: custom username '{config.user}' will be"
+                " replaced with 'user' for the on-device"
+                " installer."
+            )
             config.user = "user"
 
     if not args.disk and args.split is None:
@@ -343,17 +346,24 @@ def install(args: PmbArgs):
 
     # Android recovery zip related
     if args.android_recovery_zip and args.filesystem:
-        raise ValueError("--android-recovery-zip cannot be combined with"
-                         " --filesystem (patches welcome)")
+        raise ValueError(
+            "--android-recovery-zip cannot be combined with" " --filesystem (patches welcome)"
+        )
     if args.android_recovery_zip and args.full_disk_encryption:
-        logging.info("WARNING: --fde is rarely used in combination with"
-                     " --android-recovery-zip. If this does not work, consider"
-                     " using another method (e.g. installing via netcat)")
-        logging.info("WARNING: the kernel of the recovery system (e.g. TWRP)"
-                     f" must support the cryptsetup cipher '{args.cipher}'.")
-        logging.info("If you know what you are doing, consider setting a"
-                     " different cipher with 'pmbootstrap install --cipher=..."
-                     " --fde --android-recovery-zip'.")
+        logging.info(
+            "WARNING: --fde is rarely used in combination with"
+            " --android-recovery-zip. If this does not work, consider"
+            " using another method (e.g. installing via netcat)"
+        )
+        logging.info(
+            "WARNING: the kernel of the recovery system (e.g. TWRP)"
+            f" must support the cryptsetup cipher '{args.cipher}'."
+        )
+        logging.info(
+            "If you know what you are doing, consider setting a"
+            " different cipher with 'pmbootstrap install --cipher=..."
+            " --fde --android-recovery-zip'."
+        )
 
     # Don't install locally compiled packages and package signing keys
     if not args.install_local_pkgs:
@@ -363,9 +373,11 @@ def install(args: PmbArgs):
 
         # Safest way to avoid installing local packages is having none
         if (config.work / "packages").glob("*"):
-            raise ValueError("--no-local-pkgs specified, but locally built"
-                             " packages found. Consider 'pmbootstrap zap -p'"
-                             " to delete them.")
+            raise ValueError(
+                "--no-local-pkgs specified, but locally built"
+                " packages found. Consider 'pmbootstrap zap -p'"
+                " to delete them."
+            )
 
     # Verify that the root filesystem is supported by current pmaports branch
     pmb.install.get_root_filesystem(args)
@@ -384,12 +396,16 @@ def export(args: PmbArgs):
 def update(args: PmbArgs):
     existing_only = not args.non_existing
     if not pmb.helpers.repo.update(args.arch, True, existing_only):
-        logging.info("No APKINDEX files exist, so none have been updated."
-                     " The pmbootstrap command downloads the APKINDEX files on"
-                     " demand.")
-        logging.info("If you want to force downloading the APKINDEX files for"
-                     " all architectures (not recommended), use:"
-                     " pmbootstrap update --non-existing")
+        logging.info(
+            "No APKINDEX files exist, so none have been updated."
+            " The pmbootstrap command downloads the APKINDEX files on"
+            " demand."
+        )
+        logging.info(
+            "If you want to force downloading the APKINDEX files for"
+            " all architectures (not recommended), use:"
+            " pmbootstrap update --non-existing"
+        )
 
 
 def newapkbuild(args: PmbArgs):
@@ -402,8 +418,9 @@ def newapkbuild(args: PmbArgs):
 
     # Sanity check: -n is only allowed with SRCURL
     if args.pkgname and not is_url:
-        raise RuntimeError("You can only specify a pkgname (-n) when using"
-                           " SRCURL as last parameter.")
+        raise RuntimeError(
+            "You can only specify a pkgname (-n) when using" " SRCURL as last parameter."
+        )
 
     # Passthrough: Strings (e.g. -d "my description")
     pass_through = []
@@ -413,8 +430,10 @@ def newapkbuild(args: PmbArgs):
             pass_through += [entry[0], value]
 
     # Passthrough: Switches (e.g. -C for CMake)
-    for entry in (pmb.config.newapkbuild_arguments_switches_pkgtypes +
-                  pmb.config.newapkbuild_arguments_switches_other):
+    for entry in (
+        pmb.config.newapkbuild_arguments_switches_pkgtypes
+        + pmb.config.newapkbuild_arguments_switches_other
+    ):
         if getattr(args, entry[1]) is True:
             pass_through.append(entry[0])
 
@@ -434,8 +453,7 @@ def kconfig(args: PmbArgs):
 
         # Handle passing a file directly
         if args.file:
-            if pmb.parse.kconfig.check_file(args.file, components_list,
-                                            details=details):
+            if pmb.parse.kconfig.check_file(args.file, components_list, details=details):
                 logging.info("kconfig check succeeded!")
                 return
             raise RuntimeError("kconfig check failed!")
@@ -458,15 +476,13 @@ def kconfig(args: PmbArgs):
         packages.sort()
         for package in packages:
             if not get_context().force:
-                pkgname = package if package.startswith("linux-") \
-                    else "linux-" + package
+                pkgname = package if package.startswith("linux-") else "linux-" + package
                 aport = pmb.helpers.pmaports.find(pkgname)
                 apkbuild = pmb.parse.apkbuild(aport)
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(package, components_list,
-                                           details=details):
+            if not pmb.parse.kconfig.check(package, components_list, details=details):
                 error = True
 
         # At least one failure
@@ -474,8 +490,10 @@ def kconfig(args: PmbArgs):
             raise RuntimeError("kconfig check failed!")
         else:
             if skipped:
-                logging.info("NOTE: " + str(skipped) + " kernel(s) was skipped"
-                             " (consider 'pmbootstrap kconfig check -f')")
+                logging.info(
+                    "NOTE: " + str(skipped) + " kernel(s) was skipped"
+                    " (consider 'pmbootstrap kconfig check -f')"
+                )
             logging.info("kconfig check succeeded!")
     elif args.action_kconfig in ["edit", "migrate"]:
         if args.package:
@@ -496,8 +514,7 @@ def deviceinfo_parse(args: PmbArgs):
     kernel = args.deviceinfo_parse_kernel
     for device in devices:
         print(f"{device}, with kernel={kernel}:")
-        print(json.dumps(pmb.parse.deviceinfo(device, kernel), indent=4,
-                         sort_keys=True))
+        print(json.dumps(pmb.parse.deviceinfo(device, kernel), indent=4, sort_keys=True))
 
 
 def apkbuild_parse(args: PmbArgs):
@@ -510,8 +527,7 @@ def apkbuild_parse(args: PmbArgs):
     for package in packages:
         print(package + ":")
         aport = pmb.helpers.pmaports.find(package)
-        print(json.dumps(pmb.parse.apkbuild(aport), indent=4,
-                         sort_keys=True))
+        print(json.dumps(pmb.parse.apkbuild(aport), indent=4, sort_keys=True))
 
 
 def apkindex_parse(args: PmbArgs):
@@ -574,11 +590,16 @@ def work_migrate(args: PmbArgs):
 
 
 def zap(args: PmbArgs):
-    pmb.chroot.zap(dry=args.dry, http=args.http,
-                   distfiles=args.distfiles, pkgs_local=args.pkgs_local,
-                   pkgs_local_mismatch=args.pkgs_local_mismatch,
-                   pkgs_online_mismatch=args.pkgs_online_mismatch,
-                   rust=args.rust, netboot=args.netboot)
+    pmb.chroot.zap(
+        dry=args.dry,
+        http=args.http,
+        distfiles=args.distfiles,
+        pkgs_local=args.pkgs_local,
+        pkgs_local_mismatch=args.pkgs_local_mismatch,
+        pkgs_online_mismatch=args.pkgs_online_mismatch,
+        rust=args.rust,
+        netboot=args.netboot,
+    )
 
     # Don't write the "Done" message
     pmb.helpers.logging.disable()
@@ -587,8 +608,7 @@ def zap(args: PmbArgs):
 def bootimg_analyze(args: PmbArgs):
     bootimg = pmb.parse.bootimg(args.path)
     tmp_output = "Put these variables in the deviceinfo file of your device:\n"
-    for line in pmb.aportgen.device.\
-            generate_deviceinfo_fastboot_content(bootimg).split("\n"):
+    for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(bootimg).split("\n"):
         tmp_output += "\n" + line.lstrip()
     logging.info(tmp_output)
 
@@ -611,28 +631,33 @@ def status(args: PmbArgs) -> None:
 def ci(args: PmbArgs):
     topdir = pmb.helpers.git.get_topdir(Path.cwd())
     if not os.path.exists(topdir):
-        logging.error("ERROR: change your current directory to a git"
-                      " repository (e.g. pmbootstrap, pmaports) before running"
-                      " 'pmbootstrap ci'.")
+        logging.error(
+            "ERROR: change your current directory to a git"
+            " repository (e.g. pmbootstrap, pmaports) before running"
+            " 'pmbootstrap ci'."
+        )
         exit(1)
 
     scripts_available = pmb.ci.get_ci_scripts(topdir)
     scripts_available = pmb.ci.sort_scripts_by_speed(scripts_available)
     if not scripts_available:
-        logging.error("ERROR: no supported CI scripts found in current git"
-                      " repository, see https://postmarketos.org/pmb-ci")
+        logging.error(
+            "ERROR: no supported CI scripts found in current git"
+            " repository, see https://postmarketos.org/pmb-ci"
+        )
         exit(1)
 
     scripts_selected = {}
     if args.scripts:
         if args.all:
-            raise RuntimeError("Combining --all with script names doesn't"
-                               " make sense")
+            raise RuntimeError("Combining --all with script names doesn't" " make sense")
         for script in args.scripts:
             if script not in scripts_available:
-                logging.error(f"ERROR: script '{script}' not found in git"
-                              " repository, found these:"
-                              f" {', '.join(scripts_available.keys())}")
+                logging.error(
+                    f"ERROR: script '{script}' not found in git"
+                    " repository, found these:"
+                    f" {', '.join(scripts_available.keys())}"
+                )
                 exit(1)
             scripts_selected[script] = scripts_available[script]
     elif args.all:

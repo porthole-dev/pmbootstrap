@@ -14,7 +14,7 @@ def binfmt_info(arch_qemu):
     logging.verbose(f"parsing: {info}")
     with open(info, "r") as handle:
         for line in handle:
-            if line.startswith('#') or "=" not in line:
+            if line.startswith("#") or "=" not in line:
                 continue
             split = line.split("=")
             key = split[0].strip()
@@ -26,8 +26,7 @@ def binfmt_info(arch_qemu):
     for type in ["mask", "magic"]:
         key = arch_qemu + "_" + type
         if key not in full:
-            raise RuntimeError(
-                f"Could not find key {key} in binfmt info file: {info}")
+            raise RuntimeError(f"Could not find key {key} in binfmt info file: {info}")
         ret[type] = full[key]
     logging.verbose("=> " + str(ret))
     return ret

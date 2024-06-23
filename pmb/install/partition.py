@@ -40,13 +40,16 @@ def partitions_mount(device: str, layout, disk: Optional[Path]):
         if os.path.exists(f"{partition_prefix}1"):
             found = True
             break
-        logging.debug(f"NOTE: ({i + 1}/{tries}) failed to find the install "
-                      "partition. Retrying...")
+        logging.debug(
+            f"NOTE: ({i + 1}/{tries}) failed to find the install " "partition. Retrying..."
+        )
         time.sleep(0.1)
 
     if not found:
-        raise RuntimeError(f"Unable to find the first partition of {disk}, "
-                           f"expected it to be at {partition_prefix}1!")
+        raise RuntimeError(
+            f"Unable to find the first partition of {disk}, "
+            f"expected it to be at {partition_prefix}1!"
+        )
 
     partitions = [layout["boot"], layout["root"]]
 
@@ -77,8 +80,10 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
     mb_boot = f"{round(size_boot)}M"
     mb_reserved = f"{round(size_reserve)}M"
     mb_root_start = f"{round(size_boot) + round(size_reserve)}M"
-    logging.info(f"(native) partition /dev/install (boot: {mb_boot},"
-                 f" reserved: {mb_reserved}, root: the rest)")
+    logging.info(
+        f"(native) partition /dev/install (boot: {mb_boot},"
+        f" reserved: {mb_reserved}, root: the rest)"
+    )
 
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
 
@@ -92,7 +97,7 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
 
     commands = [
         ["mktable", partition_type],
-        ["mkpart", "primary", filesystem, boot_part_start + 's', mb_boot],
+        ["mkpart", "primary", filesystem, boot_part_start + "s", mb_boot],
     ]
 
     if size_reserve:
@@ -101,7 +106,7 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
 
     commands += [
         ["mkpart", "primary", mb_root_start, "100%"],
-        ["set", str(layout["boot"]), "boot", "on"]
+        ["set", str(layout["boot"]), "boot", "on"],
     ]
 
     # Not strictly necessary if the device doesn't use EFI boot, but marking
@@ -114,8 +119,7 @@ def partition(args: PmbArgs, layout, size_boot, size_reserve):
         commands += [["set", str(layout["boot"]), "esp", "on"]]
 
     for command in commands:
-        pmb.chroot.root(["parted", "-s", "/dev/install"] +
-                        command, check=False)
+        pmb.chroot.root(["parted", "-s", "/dev/install"] + command, check=False)
 
 
 def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
@@ -131,68 +135,88 @@ def partition_cgpt(args: PmbArgs, layout, size_boot, size_reserve):
     pmb.chroot.apk.install(["cgpt"], Chroot.native(), build=False)
 
     cgpt = {
-        'kpart_start': pmb.parse.deviceinfo().cgpt_kpart_start,
-        'kpart_size': pmb.parse.deviceinfo().cgpt_kpart_size,
+        "kpart_start": pmb.parse.deviceinfo().cgpt_kpart_start,
+        "kpart_size": pmb.parse.deviceinfo().cgpt_kpart_size,
     }
 
     # Convert to MB and print info
     mb_boot = f"{round(size_boot)}M"
     mb_reserved = f"{round(size_reserve)}M"
-    logging.info(f"(native) partition /dev/install (boot: {mb_boot},"
-                 f" reserved: {mb_reserved}, root: the rest)")
+    logging.info(
+        f"(native) partition /dev/install (boot: {mb_boot},"
+        f" reserved: {mb_reserved}, root: the rest)"
+    )
 
-    boot_part_start = str(int(cgpt['kpart_start']) + int(cgpt['kpart_size']))
+    boot_part_start = str(int(cgpt["kpart_start"]) + int(cgpt["kpart_size"]))
 
     # Convert to sectors
     s_boot = str(int(size_boot * 1024 * 1024 / 512))
-    s_root_start = str(int(
-        int(boot_part_start) + int(s_boot) + size_reserve * 1024 * 1024 / 512
-    ))
+    s_root_start = str(int(int(boot_part_start) + int(s_boot) + size_reserve * 1024 * 1024 / 512))
 
     commands = [
         ["parted", "-s", "/dev/install", "mktable", "gpt"],
         ["cgpt", "create", "/dev/install"],
         [
-            "cgpt", "add",
-            "-i", str(layout["kernel"]),
-            "-t", "kernel",
-            "-b", cgpt['kpart_start'],
-            "-s", cgpt['kpart_size'],
-            "-l", "pmOS_kernel",
-            "-S", "1",  # Successful flag
-            "-T", "5",  # Tries flag
-            "-P", "10",  # Priority flag
-            "/dev/install"
+            "cgpt",
+            "add",
+            "-i",
+            str(layout["kernel"]),
+            "-t",
+            "kernel",
+            "-b",
+            cgpt["kpart_start"],
+            "-s",
+            cgpt["kpart_size"],
+            "-l",
+            "pmOS_kernel",
+            "-S",
+            "1",  # Successful flag
+            "-T",
+            "5",  # Tries flag
+            "-P",
+            "10",  # Priority flag
+            "/dev/install",
         ],
         [
-            "cgpt", "add",
+            "cgpt",
+            "add",
             # pmOS_boot is second partition, the first will be ChromeOS kernel
             # partition
-            "-i", str(layout["boot"]),  # Partition number
-            "-t", "efi", # Mark this partition as bootable for u-boot
-            "-b", boot_part_start,
-            "-s", s_boot,
-            "-l", "pmOS_boot",
-            "/dev/install"
+            "-i",
+            str(layout["boot"]),  # Partition number
+            "-t",
+            "efi",  # Mark this partition as bootable for u-boot
+            "-b",
+            boot_part_start,
+            "-s",
+            s_boot,
+            "-l",
+            "pmOS_boot",
+            "/dev/install",
         ],
     ]
 
-    dev_size = pmb.chroot.root(
-        ["blockdev", "--getsz", "/dev/install"], output_return=True)
+    dev_size = pmb.chroot.root(["blockdev", "--getsz", "/dev/install"], output_return=True)
     # 33: Sec GPT table (32) + Sec GPT header (1)
     root_size = str(int(dev_size) - int(s_root_start) - 33)
 
     commands += [
         [
-            "cgpt", "add",
-            "-i", str(layout["root"]),
-            "-t", "data",
-            "-b", s_root_start,
-            "-s", root_size,
-            "-l", "pmOS_root",
-            "/dev/install"
+            "cgpt",
+            "add",
+            "-i",
+            str(layout["root"]),
+            "-t",
+            "data",
+            "-b",
+            s_root_start,
+            "-s",
+            root_size,
+            "-l",
+            "pmOS_root",
+            "/dev/install",
         ],
-        ["partx", "-a", "/dev/install"]
+        ["partx", "-a", "/dev/install"],
     ]
 
     for command in commands:

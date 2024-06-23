@@ -17,7 +17,6 @@ class Wrapper:
         self.hits = 0
         self.misses = 0
 
-
     # When someone attempts to call a cached function, they'll
     # actually end up here. We first check if we have a cached
     # result and if not then we do the actual function call and
@@ -74,7 +73,6 @@ class Cache:
         self.kwargs = kwargs
         self.cache_deepcopy = cache_deepcopy
 
-
     # Build the cache key, or return None to not cache in the case where
     # we only cache when an argument has a specific value
     def build_key(self, func: Callable, *args, **kwargs) -> Optional[str]:
@@ -95,12 +93,16 @@ class Cache:
                 elif val.default != inspect.Parameter.empty:
                     passed_args[k] = val.default
                 else:
-                    raise ValueError(f"Invalid cache key argument {k}"
-                                     f" in function {func.__module__}.{func.__name__}")
+                    raise ValueError(
+                        f"Invalid cache key argument {k}"
+                        f" in function {func.__module__}.{func.__name__}"
+                    )
 
         for k, v in self.kwargs.items():
             if k not in signature.parameters.keys():
-                raise ValueError(f"Cache key attribute {k} is not a valid parameter to {func.__name__}()")
+                raise ValueError(
+                    f"Cache key attribute {k} is not a valid parameter to {func.__name__}()"
+                )
             passed_val = passed_args[k]
             if passed_val != v:
                 # Don't cache
@@ -114,20 +116,22 @@ class Cache:
                     if v.__str__ != object.__str__:
                         key += f"{v}~"
                     else:
-                        raise ValueError(f"Cache key argument {k} to function"
-                                         f" {func.__name__} must be a stringable type")
+                        raise ValueError(
+                            f"Cache key argument {k} to function"
+                            f" {func.__name__} must be a stringable type"
+                        )
 
         return key
-
 
     def __call__(self, func: Callable):
         argnames = func.__code__.co_varnames
         for a in self.params:
             if a not in argnames:
-                raise ValueError(f"Cache key attribute {a} is not a valid parameter to {func.__name__}()")
+                raise ValueError(
+                    f"Cache key attribute {a} is not a valid parameter to {func.__name__}()"
+                )
 
         return Wrapper(self, func)
-
 
     def clear(self):
         self.cache.clear()

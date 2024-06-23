@@ -21,7 +21,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def copy_to_buildpath(package, chroot: Chroot=Chroot.native(), no_override: bool=False):
+def copy_to_buildpath(package, chroot: Chroot = Chroot.native(), no_override: bool = False):
     # Sanity check
     aport = pmb.helpers.pmaports.find(package)
     if not os.path.exists(aport / "APKBUILD"):
@@ -47,8 +47,7 @@ def copy_to_buildpath(package, chroot: Chroot=Chroot.native(), no_override: bool
     if not no_override:
         abuild_overrides(build / "APKBUILD")
 
-    pmb.chroot.root(["chown", "-R", "pmos:pmos",
-                           "/home/pmos/build"], chroot)
+    pmb.chroot.root(["chown", "-R", "pmos:pmos", "/home/pmos/build"], chroot)
 
 
 def abuild_overrides(apkbuild: Path):
@@ -78,6 +77,7 @@ class BuildStatus(enum.Enum):
     def necessary(self):
         return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
 
+
 def get_status(arch, apkbuild, indexes=None) -> BuildStatus:
     """Check if the package has already been built.
 
@@ -93,31 +93,36 @@ def get_status(arch, apkbuild, indexes=None) -> BuildStatus:
     msg = "Build is necessary for package '" + package + "': "
 
     # Get version from APKINDEX
-    index_data = pmb.parse.apkindex.package(package, arch, False,
-                                            indexes)
+    index_data = pmb.parse.apkindex.package(package, arch, False, indexes)
     if not index_data:
         logging.debug(msg + "No binary package available")
         return BuildStatus.NEW
 
     # Can't build pmaport for arch: use Alpine's package (#1897)
     if arch and not pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
-        logging.verbose(f"{package}: build is not necessary, because pmaport"
-                        " can't be built for {arch}. Using Alpine's binary"
-                        " package.")
+        logging.verbose(
+            f"{package}: build is not necessary, because pmaport"
+            " can't be built for {arch}. Using Alpine's binary"
+            " package."
+        )
         return BuildStatus.CANT_BUILD
 
     # a) Binary repo has a newer version
     version_binary = index_data["version"]
     if pmb.parse.version.compare(version_binary, version_pmaports) == 1:
-        logging.warning(f"WARNING: about to install {package} {version_binary}"
-                        f" (local pmaports: {version_pmaports}, consider"
-                        " 'pmbootstrap pull')")
+        logging.warning(
+            f"WARNING: about to install {package} {version_binary}"
+            f" (local pmaports: {version_pmaports}, consider"
+            " 'pmbootstrap pull')"
+        )
         return BuildStatus.UNNECESSARY
 
     # b) Local pmaports has a newer version
     if version_pmaports != version_binary:
-        logging.debug(f"{msg}binary package out of date (binary: "
-                      f"{version_binary}, local pmaports: {version_pmaports})")
+        logging.debug(
+            f"{msg}binary package out of date (binary: "
+            f"{version_binary}, local pmaports: {version_pmaports})"
+        )
         return BuildStatus.OUTDATED
 
     # Local pmaports and binary repo have the same version
@@ -132,11 +137,11 @@ def index_repo(arch=None):
     :param arch: when not defined, re-index all repos
     """
     pmb.build.init()
-    
+
     paths: List[Path] = []
 
     for channel in pmb.config.pmaports.all_channels():
-        pkgdir: Path = (get_context().config.work / "packages" / channel)
+        pkgdir: Path = get_context().config.work / "packages" / channel
         if arch:
             paths.append(pkgdir / arch)
         else:
@@ -150,11 +155,15 @@ def index_repo(arch=None):
             description = str(datetime.datetime.now())
             commands = [
                 # Wrap the index command with sh so we can use '*.apk'
-                ["sh", "-c", "apk -q index --output APKINDEX.tar.gz_"
-                 " --description " + shlex.quote(description) + ""
-                 " --rewrite-arch " + shlex.quote(path_arch) + " *.apk"],
+                [
+                    "sh",
+                    "-c",
+                    "apk -q index --output APKINDEX.tar.gz_"
+                    " --description " + shlex.quote(description) + ""
+                    " --rewrite-arch " + shlex.quote(path_arch) + " *.apk",
+                ],
                 ["abuild-sign", "APKINDEX.tar.gz_"],
-                ["mv", "APKINDEX.tar.gz_", "APKINDEX.tar.gz"]
+                ["mv", "APKINDEX.tar.gz_", "APKINDEX.tar.gz"],
             ]
             pmb.chroot.userm(commands, working_dir=path_repo_chroot)
         else:
@@ -176,19 +185,21 @@ def configure_abuild(chroot: Chroot, verify=False):
                 continue
             if line != (prefix + jobs + "\n"):
                 if verify:
-                    raise RuntimeError(f"Failed to configure abuild: {path}"
-                                       "\nTry to delete the file"
-                                       "(or zap the chroot).")
-                pmb.chroot.root(["sed", "-i", "-e",
-                                       f"s/^{prefix}.*/{prefix}{jobs}/",
-                                       "/etc/abuild.conf"],
-                                chroot)
+                    raise RuntimeError(
+                        f"Failed to configure abuild: {path}"
+                        "\nTry to delete the file"
+                        "(or zap the chroot)."
+                    )
+                pmb.chroot.root(
+                    ["sed", "-i", "-e", f"s/^{prefix}.*/{prefix}{jobs}/", "/etc/abuild.conf"],
+                    chroot,
+                )
                 configure_abuild(chroot, True)
             return
     pmb.chroot.root(["sed", "-i", f"$ a\\{prefix}{jobs}", "/etc/abuild.conf"], chroot)
 
 
-def configure_ccache(chroot: Chroot=Chroot.native(), verify=False):
+def configure_ccache(chroot: Chroot = Chroot.native(), verify=False):
     """Set the maximum ccache size.
 
     :param verify: internally used to test if changing the config has worked.
@@ -203,10 +214,10 @@ def configure_ccache(chroot: Chroot=Chroot.native(), verify=False):
                 if line == ("max_size = " + config.ccache_size + "\n"):
                     return
     if verify:
-        raise RuntimeError(f"Failed to configure ccache: {path}\nTry to"
-                           " delete the file (or zap the chroot).")
+        raise RuntimeError(
+            f"Failed to configure ccache: {path}\nTry to" " delete the file (or zap the chroot)."
+        )
 
     # Set the size and verify
-    pmb.chroot.user(["ccache", "--max-size", config.ccache_size],
-                    chroot)
+    pmb.chroot.user(["ccache", "--max-size", config.ccache_size], chroot)
     configure_ccache(chroot, True)

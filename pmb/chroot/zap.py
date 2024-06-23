@@ -36,9 +36,17 @@ def del_chroot(path: Path, confirm=True, dry=False):
     pmb.helpers.run.root(["rm", "-rf", path])
 
 
-def zap(confirm=True, dry=False, pkgs_local=False, http=False,
-        pkgs_local_mismatch=False, pkgs_online_mismatch=False, distfiles=False,
-        rust=False, netboot=False):
+def zap(
+    confirm=True,
+    dry=False,
+    pkgs_local=False,
+    http=False,
+    pkgs_local_mismatch=False,
+    pkgs_online_mismatch=False,
+    distfiles=False,
+    rust=False,
+    netboot=False,
+):
     """
     Shutdown everything inside the chroots (e.g. adb), umount
     everything and then safely remove folders from the work-directory.
@@ -90,8 +98,7 @@ def zap(confirm=True, dry=False, pkgs_local=False, http=False,
         pattern = os.path.realpath(f"{get_context().config.work}/{pattern}")
         matches = glob.glob(pattern)
         for match in matches:
-            if (not confirm or
-                    pmb.helpers.cli.confirm(f"Remove {match}?")):
+            if not confirm or pmb.helpers.cli.confirm(f"Remove {match}?"):
                 logging.info(f"% rm -rf {match}")
                 if not dry:
                     pmb.helpers.run.root(["rm", "-rf", match])
@@ -114,13 +121,17 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
     if not os.path.exists(f"{get_context().config.work}/packages/{channel}"):
         return
 
-    question = "Remove binary packages that are newer than the corresponding" \
-               f" pmaports (channel '{channel}')?"
+    question = (
+        "Remove binary packages that are newer than the corresponding"
+        f" pmaports (channel '{channel}')?"
+    )
     if confirm and not pmb.helpers.cli.confirm(question):
         return
 
     reindex = False
-    for apkindex_path in (get_context().config.work / "packages" / channel).glob("*/APKINDEX.tar.gz"):
+    for apkindex_path in (get_context().config.work / "packages" / channel).glob(
+        "*/APKINDEX.tar.gz"
+    ):
         # Delete packages without same version in aports
         blocks = pmb.parse.apkindex.parse_blocks(apkindex_path)
         for block in blocks:
@@ -133,15 +144,13 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
             apk_path_short = f"{arch}/{pkgname}-{version}.apk"
             apk_path = f"{get_context().config.work}/packages/{channel}/{apk_path_short}"
             if not os.path.exists(apk_path):
-                logging.info("WARNING: Package mentioned in index not"
-                             f" found: {apk_path_short}")
+                logging.info("WARNING: Package mentioned in index not" f" found: {apk_path_short}")
                 continue
 
             # Aport path
             aport_path = pmb.helpers.pmaports.find_optional(origin)
             if not aport_path:
-                logging.info(f"% rm {apk_path_short}"
-                             f" ({origin} aport not found)")
+                logging.info(f"% rm {apk_path_short}" f" ({origin} aport not found)")
                 if not dry:
                     pmb.helpers.run.root(["rm", apk_path])
                     reindex = True
@@ -151,8 +160,7 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
             apkbuild = pmb.parse.apkbuild(aport_path)
             version_aport = f"{apkbuild['pkgver']}-r{apkbuild['pkgrel']}"
             if version != version_aport:
-                logging.info(f"% rm {apk_path_short}"
-                             f" ({origin} aport: {version_aport})")
+                logging.info(f"% rm {apk_path_short}" f" ({origin} aport: {version_aport})")
                 if not dry:
                     pmb.helpers.run.root(["rm", apk_path])
                     reindex = True
@@ -166,8 +174,7 @@ def zap_pkgs_online_mismatch(confirm=True, dry=False):
     paths = list(get_context().config.work.glob("cache_apk_*"))
     if not len(paths):
         return
-    if (confirm and not pmb.helpers.cli.confirm("Remove outdated"
-                                                " binary packages?")):
+    if confirm and not pmb.helpers.cli.confirm("Remove outdated" " binary packages?"):
         return
 
     # Iterate over existing apk caches

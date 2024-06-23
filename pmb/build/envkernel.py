@@ -33,14 +33,14 @@ def match_kbuild_out(word):
               empty string when a separate build output directory isn't used.
               None, when no output directory is found.
     """
-    prefix = "^\\\"?\\$({?builddir}?|{?srcdir}?)\\\"?/"
+    prefix = '^\\"?\\$({?builddir}?|{?srcdir}?)\\"?/'
     kbuild_out = "(.*\\/)*"
 
-    postfix = "(arch\\/.*\\/boot.*)\\\"?$"
+    postfix = '(arch\\/.*\\/boot.*)\\"?$'
     match = re.match(prefix + kbuild_out + postfix, word)
 
     if match is None:
-        postfix = "(include\\/config\\/kernel\\.release)\\\"?$"
+        postfix = '(include\\/config\\/kernel\\.release)\\"?$'
         match = re.match(prefix + kbuild_out + postfix, word)
 
     if match is None:
@@ -83,15 +83,19 @@ def find_kbuild_output_dir(function_body):
     it = iter(guesses)
     first = next(it, None)
     if first is None:
-        raise RuntimeError("Couldn't find a kbuild out directory. Is your "
-                           "APKBUILD messed up? If not, then consider "
-                           "adjusting the patterns in pmb/build/envkernel.py "
-                           "to work with your APKBUILD, or submit an issue.")
+        raise RuntimeError(
+            "Couldn't find a kbuild out directory. Is your "
+            "APKBUILD messed up? If not, then consider "
+            "adjusting the patterns in pmb/build/envkernel.py "
+            "to work with your APKBUILD, or submit an issue."
+        )
     if all(first == rest for rest in it):
         return first
-    raise RuntimeError("Multiple kbuild out directories found. Can you modify "
-                       "your APKBUILD so it only has one output path? If you "
-                       "can't resolve it, please open an issue.")
+    raise RuntimeError(
+        "Multiple kbuild out directories found. Can you modify "
+        "your APKBUILD so it only has one output path? If you "
+        "can't resolve it, please open an issue."
+    )
 
 
 def modify_apkbuild(pkgname: str, aport: Path):
@@ -103,15 +107,15 @@ def modify_apkbuild(pkgname: str, aport: Path):
         pmb.helpers.run.user(["rm", "-r", work / "aportgen"])
 
     pmb.helpers.run.user(["mkdir", work / "aportgen"])
-    pmb.helpers.run.user(["cp", "-r", apkbuild_path,
-                         work / "aportgen"])
+    pmb.helpers.run.user(["cp", "-r", apkbuild_path, work / "aportgen"])
 
-    pkgver = pmb.build._package.get_pkgver(apkbuild["pkgver"],
-                                           original_source=False)
-    fields = {"pkgver": pkgver,
-              "pkgrel": "0",
-              "subpackages": "",
-              "builddir": "/home/pmos/build/src"}
+    pkgver = pmb.build._package.get_pkgver(apkbuild["pkgver"], original_source=False)
+    fields = {
+        "pkgver": pkgver,
+        "pkgrel": "0",
+        "subpackages": "",
+        "builddir": "/home/pmos/build/src",
+    }
 
     pmb.aportgen.core.rewrite(pkgname, apkbuild_path, fields=fields)
 
@@ -137,12 +141,14 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
     pmb.helpers.mount.bind(Path("."), chroot / "mnt/linux")
 
     if not os.path.exists(chroot / kbuild_out_source):
-        raise RuntimeError("No '.output' dir found in your kernel source dir. "
-                           "Compile the " + context.config.device + " kernel first and "
-                           "then try again. See https://postmarketos.org/envkernel"
-                           "for details. If building on your host and only using "
-                           "--envkernel for packaging, make sure you have O=.output "
-                           "as an argument to make.")
+        raise RuntimeError(
+            "No '.output' dir found in your kernel source dir. "
+            "Compile the " + context.config.device + " kernel first and "
+            "then try again. See https://postmarketos.org/envkernel"
+            "for details. If building on your host and only using "
+            "--envkernel for packaging, make sure you have O=.output "
+            "as an argument to make."
+        )
 
     # Create working directory for abuild
     pmb.build.copy_to_buildpath(pkgname)
@@ -154,32 +160,43 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
     pkgdir = context.config.work / "packages" / channel
     if not pkgdir.exists():
         pmb.helpers.run.root(["mkdir", "-p", pkgdir])
-        pmb.helpers.run.root(["chown", "-R", f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
-                              pkgdir.parent])
+        pmb.helpers.run.root(
+            [
+                "chown",
+                "-R",
+                f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
+                pkgdir.parent,
+            ]
+        )
 
-    pmb.chroot.rootm([["mkdir", "-p", "/home/pmos/packages"],
-                      ["rm", "-f", "/home/pmos/packages/pmos"],
-                      ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}",
-                     "/home/pmos/packages/pmos"]], chroot)
+    pmb.chroot.rootm(
+        [
+            ["mkdir", "-p", "/home/pmos/packages"],
+            ["rm", "-f", "/home/pmos/packages/pmos"],
+            ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}", "/home/pmos/packages/pmos"],
+        ],
+        chroot,
+    )
 
     # Create symlink from abuild working directory to envkernel build directory
     if kbuild_out != "":
-        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and \
-                os.path.lexists(chroot / "mnt/linux" / kbuild_out):
+        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
+            chroot / "mnt/linux" / kbuild_out
+        ):
             pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
-        pmb.chroot.root(["ln", "-s", "/mnt/linux",
-                        build_path / "src"])
-    pmb.chroot.root(["ln", "-s", kbuild_out_source,
-                    build_path / "src" / kbuild_out])
+        pmb.chroot.root(["ln", "-s", "/mnt/linux", build_path / "src"])
+    pmb.chroot.root(["ln", "-s", kbuild_out_source, build_path / "src" / kbuild_out])
 
     cmd: List[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
     pmb.helpers.run.root(cmd)
 
     # Create the apk package
-    env = {"CARCH": str(arch),
-           "CHOST": str(arch),
-           "CBUILD": Arch.native(),
-           "SUDO_APK": "abuild-apk --no-progress"}
+    env = {
+        "CARCH": str(arch),
+        "CHOST": str(arch),
+        "CBUILD": Arch.native(),
+        "SUDO_APK": "abuild-apk --no-progress",
+    }
     cmd = ["abuild", "rootpkg"]
     pmb.chroot.user(cmd, working_dir=build_path, env=env)
 
@@ -188,8 +205,9 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
 
     # Clean up symlinks
     if kbuild_out != "":
-        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and \
-                os.path.lexists(chroot / "mnt/linux" / kbuild_out):
+        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
+            chroot / "mnt/linux" / kbuild_out
+        ):
             pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
     pmb.chroot.root(["rm", build_path / "src"])
 
@@ -198,8 +216,7 @@ def package_kernel(args: PmbArgs):
     """Frontend for 'pmbootstrap build --envkernel': creates a package from envkernel output."""
     pkgname = args.packages[0]
     if len(args.packages) > 1 or not pkgname.startswith("linux-"):
-        raise RuntimeError("--envkernel needs exactly one linux-* package as "
-                           "argument.")
+        raise RuntimeError("--envkernel needs exactly one linux-* package as " "argument.")
 
     aport = pmb.helpers.pmaports.find(pkgname)
     context = get_context()
@@ -223,8 +240,9 @@ def package_kernel(args: PmbArgs):
         depends.append(f"binutils-{arch}")
     pmb.chroot.apk.install(depends, chroot)
 
-    output = pmb.build.output_path(arch, apkbuild["pkgname"], apkbuild["pkgver"],
-                                   apkbuild["pkgrel"])
+    output = pmb.build.output_path(
+        arch, apkbuild["pkgname"], apkbuild["pkgver"], apkbuild["pkgrel"]
+    )
     message = f"({chroot}) build {output}"
     logging.info(message)
 

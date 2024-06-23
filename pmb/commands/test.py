@@ -11,6 +11,7 @@ import time
 
 """Various internal test commands for performance testing and debugging."""
 
+
 def apkindex_parse_all():
     indexes = pmb.helpers.repo.apkindex_files(Arch.native())
 
@@ -31,4 +32,3 @@ class Test(commands.Command):
     def run(self):
         if self.action == "apkindex_parse_all":
             apkindex_parse_all()
-

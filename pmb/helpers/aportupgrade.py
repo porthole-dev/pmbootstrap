@@ -34,17 +34,18 @@ def init_req_headers() -> None:
     if req_headers and req_headers_github:
         return
     # Generic request headers
-    req_headers = {
-        'User-Agent': f'pmbootstrap/{pmb.__version__} aportupgrade'}
+    req_headers = {"User-Agent": f"pmbootstrap/{pmb.__version__} aportupgrade"}
 
     # Request headers specific to GitHub
     req_headers_github = dict(req_headers)
     if os.getenv("GITHUB_TOKEN") is not None:
         token = os.getenv("GITHUB_TOKEN")
-        req_headers_github['Authorization'] = f'token {token}'
+        req_headers_github["Authorization"] = f"token {token}"
     else:
-        logging.info("NOTE: Consider using a GITHUB_TOKEN environment variable"
-                     " to increase your rate limit")
+        logging.info(
+            "NOTE: Consider using a GITHUB_TOKEN environment variable"
+            " to increase your rate limit"
+        )
 
 
 def get_package_version_info_github(repo_name: str, ref: Optional[str]):
@@ -57,8 +58,8 @@ def get_package_version_info_github(repo_name: str, ref: Optional[str]):
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        f"{GITHUB_API_BASE}/repos/{repo_name}/commits{ref_arg}",
-        headers=req_headers_github)
+        f"{GITHUB_API_BASE}/repos/{repo_name}/commits{ref_arg}", headers=req_headers_github
+    )
     latest_commit = commits[0]
     commit_date = latest_commit["commit"]["committer"]["date"]
     # Extract the time from the field
@@ -69,11 +70,10 @@ def get_package_version_info_github(repo_name: str, ref: Optional[str]):
     }
 
 
-def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
-                                    ref: Optional[str]):
+def get_package_version_info_gitlab(gitlab_host: str, repo_name: str, ref: Optional[str]):
     logging.debug("Trying GitLab repository: {}".format(repo_name))
 
-    repo_name_safe = urllib.parse.quote(repo_name, safe='')
+    repo_name_safe = urllib.parse.quote(repo_name, safe="")
 
     # Get the URL argument to request a special ref, if needed
     ref_arg = ""
@@ -82,9 +82,9 @@ def get_package_version_info_gitlab(gitlab_host: str, repo_name: str,
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository"
-        f"/commits{ref_arg}",
-        headers=req_headers)
+        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository" f"/commits{ref_arg}",
+        headers=req_headers,
+    )
     latest_commit = commits[0]
     commit_date = latest_commit["committed_date"]
     # Extract the time from the field
@@ -108,21 +108,20 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package) -> None:
     if 1 <= len(source) <= 2:
         source = source[-1]
     else:
-        raise RuntimeError("Unhandled number of source elements. Please open"
-                           f" a bug report: {source}")
+        raise RuntimeError(
+            "Unhandled number of source elements. Please open" f" a bug report: {source}"
+        )
 
     verinfo = None
 
-    github_match = re.match(
-        r"https://github\.com/(.+)/(?:archive|releases)", source)
-    gitlab_match = re.match(
-        fr"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
+    github_match = re.match(r"https://github\.com/(.+)/(?:archive|releases)", source)
+    gitlab_match = re.match(rf"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
     if github_match:
-        verinfo = get_package_version_info_github(
-            github_match.group(1), args.ref)
+        verinfo = get_package_version_info_github(github_match.group(1), args.ref)
     elif gitlab_match:
         verinfo = get_package_version_info_gitlab(
-            gitlab_match.group(1), gitlab_match.group(2), args.ref)
+            gitlab_match.group(1), gitlab_match.group(2), args.ref
+        )
 
     if verinfo is None:
         # ignore for now
@@ -183,11 +182,13 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
     # Looking up if there's a custom mapping from postmarketOS package name
     # to Anitya project name.
     mappings = pmb.helpers.http.retrieve_json(
-        f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS"
-        f"&name={pkgname}", headers=req_headers)
+        f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS" f"&name={pkgname}",
+        headers=req_headers,
+    )
     if mappings["total_items"] < 1:
         projects = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers)
+            f"{ANITYA_API_BASE}/projects/?name={pkgname}", headers=req_headers
+        )
         if projects["total_items"] < 1:
             logging.warning(f"{pkgname}: failed to get Anitya project")
             return
@@ -195,17 +196,19 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
         project_name = mappings["items"][0]["project"]
         ecosystem = mappings["items"][0]["ecosystem"]
         projects = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/projects/?name={project_name}&"
-            f"ecosystem={ecosystem}",
-            headers=req_headers)
+            f"{ANITYA_API_BASE}/projects/?name={project_name}&" f"ecosystem={ecosystem}",
+            headers=req_headers,
+        )
 
     if projects["total_items"] < 1:
         logging.warning(f"{pkgname}: didn't find any projects, can't upgrade!")
         return
     if projects["total_items"] > 1:
-        logging.warning(f"{pkgname}: found more than one project, can't "
-                        f"upgrade! Please create an explicit mapping of "
-                        f"\"project\" to the package name.")
+        logging.warning(
+            f"{pkgname}: found more than one project, can't "
+            f"upgrade! Please create an explicit mapping of "
+            f'"project" to the package name.'
+        )
         return
 
     # Get the first, best-matching item
@@ -234,8 +237,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package) -> None:
     pkgrel_new = 0
 
     if not pmb.parse.version.validate(pkgver_new):
-        logging.warning(f"{pkgname}: would upgrade to invalid pkgver:"
-                        f" {pkgver_new}, ignoring")
+        logging.warning(f"{pkgname}: would upgrade to invalid pkgver:" f" {pkgver_new}, ignoring")
         return
 
     logging.info("{}: upgrading pmaport".format(pkgname))
@@ -285,5 +287,4 @@ def upgrade_all(args: PmbArgs) -> None:
         if skip:
             continue
 
-        upgrade(args, pkgname, args.all or args.all_git,
-                args.all or args.all_stable)
+        upgrade(args, pkgname, args.all or args.all_git, args.all or args.all_stable)

@@ -30,7 +30,7 @@ def token_value(string):
         "suffix": 3,
         "suffix_no": 4,
         "revision_no": 5,
-        "end": 6
+        "end": 6,
     }
     return order[string]
 
@@ -81,9 +81,11 @@ def next_token(previous, rest):
     # Validate current token
     # Check if the transition from previous to current is valid
     if token_value(next) < token_value(previous):
-        if not ((next == "digit_or_zero" and previous == "digit") or
-                (next == "suffix" and previous == "suffix_no") or
-                (next == "digit" and previous == "letter")):
+        if not (
+            (next == "digit_or_zero" and previous == "digit")
+            or (next == "suffix" and previous == "suffix_no")
+            or (next == "digit" and previous == "letter")
+        ):
             next = "invalid"
     return (next, rest)
 
@@ -108,16 +110,18 @@ def parse_suffix(rest):
     C equivalent: get_token(), case TOKEN_SUFFIX
     """
 
-    name_suffixes = collections.OrderedDict([
-        ("pre", ["alpha", "beta", "pre", "rc"]),
-        ("post", ["cvs", "svn", "git", "hg", "p"]),
-    ])
+    name_suffixes = collections.OrderedDict(
+        [
+            ("pre", ["alpha", "beta", "pre", "rc"]),
+            ("post", ["cvs", "svn", "git", "hg", "p"]),
+        ]
+    )
 
     for name, suffixes in name_suffixes.items():
         for i, suffix in enumerate(suffixes):
             if not rest.startswith(suffix):
                 continue
-            rest = rest[len(suffix):]
+            rest = rest[len(suffix) :]
             value = i
             if name == "pre":
                 value = value - len(suffixes)
@@ -157,8 +161,7 @@ def get_token(previous, rest):
         next = "digit"
 
     # Add up numeric values
-    elif previous in ["digit_or_zero", "digit", "suffix_no",
-                      "revision_no"]:
+    elif previous in ["digit_or_zero", "digit", "suffix_no", "revision_no"]:
         for i in range(len(rest)):
             while len(rest) and rest[0].isdigit():
                 value *= 10
@@ -231,8 +234,7 @@ def compare(a_version: str, b_version: str, fuzzy=False):
 
     # Parse A and B one token at a time, until one string ends, or the
     # current token has a different type/value
-    while (a_token == b_token and a_token not in ["end", "invalid"] and
-           a_value == b_value):
+    while a_token == b_token and a_token not in ["end", "invalid"] and a_value == b_value:
         (a_token, a_value, a_rest) = get_token(a_token, a_rest)
         (b_token, b_value, b_rest) = get_token(b_token, b_rest)
 
@@ -287,23 +289,24 @@ def check_string(a_version, rule):
 
     """
     # Operators and the expected returns of compare(a,b)
-    operator_results = {">=": [1, 0],
-                        "<": [-1]}
+    operator_results = {">=": [1, 0], "<": [-1]}
 
     # Find the operator
     b_version = None
     expected_results = None
     for operator in operator_results:
         if rule.startswith(operator):
-            b_version = rule[len(operator):]
+            b_version = rule[len(operator) :]
             expected_results = operator_results[operator]
             break
 
     # No operator found
     if not b_version:
-        raise RuntimeError("Could not find operator in '" + rule + "'. You"
-                           " probably need to adjust check_string() in"
-                           " pmb/parse/version.py.")
+        raise RuntimeError(
+            "Could not find operator in '" + rule + "'. You"
+            " probably need to adjust check_string() in"
+            " pmb/parse/version.py."
+        )
 
     # Compare
     result = compare(a_version, b_version)

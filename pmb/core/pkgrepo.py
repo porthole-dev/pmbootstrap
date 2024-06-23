@@ -9,10 +9,9 @@ from pmb.meta import Cache
 
 
 @Cache(skip_extras=False)
-def pkgrepo_paths(skip_extras = False) -> List[Path]:
+def pkgrepo_paths(skip_extras=False) -> List[Path]:
     config = get_context().config
-    paths = list(map(lambda x: Path(x),
-                    config.aports))
+    paths = list(map(lambda x: Path(x), config.aports))
     if not paths:
         raise RuntimeError("No package repositories specified?")
 
@@ -28,14 +27,17 @@ def pkgrepo_paths(skip_extras = False) -> List[Path]:
 
     return out_paths
 
+
 def pkgrepo_default_path() -> Path:
     return pkgrepo_paths(skip_extras=True)[0]
 
-def pkgrepo_names(skip_exras = False) -> List[str]:
+
+def pkgrepo_names(skip_exras=False) -> List[str]:
     """
     Return a list of all the package repository names.
     """
     return [aports.name for aports in pkgrepo_paths(skip_exras)]
+
 
 def pkgrepo_path(name: str) -> Path:
     """
@@ -46,6 +48,7 @@ def pkgrepo_path(name: str) -> Path:
             return aports
     raise RuntimeError(f"aports '{name}' not found")
 
+
 def pkgrepo_name_from_subdir(subdir: Path) -> str:
     """
     Return the name of the package repository for the given directory.
@@ -55,6 +58,7 @@ def pkgrepo_name_from_subdir(subdir: Path) -> str:
         if subdir.is_relative_to(aports):
             return aports.name
     raise RuntimeError(f"aports subdir '{subdir}' not found")
+
 
 def pkgrepo_glob_one(path: str) -> Optional[Path]:
     """
@@ -102,8 +106,10 @@ def pkgrepo_iter_package_dirs(skip_extra_repos=False) -> Generator[Path, None, N
                 continue
             pkg = os.path.basename(pdir)
             if pkg in seen[repo.name]:
-                raise RuntimeError(f"Package {pkg} found in multiple aports "
-                               "subfolders. Please put it only in one folder.")
+                raise RuntimeError(
+                    f"Package {pkg} found in multiple aports "
+                    "subfolders. Please put it only in one folder."
+                )
             if pkg in [x for li in seen.values() for x in li]:
                 continue
             seen[repo.name].append(pkg)

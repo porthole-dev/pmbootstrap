@@ -50,7 +50,7 @@ def is_set_str(config, option, string):
     :param string: the expected string
     :returns: True if the check passed, False otherwise
     """
-    match = re.search("^CONFIG_" + option + "=\"(.*)\"$", config, re.M)
+    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.M)
     if match:
         return string == match.group(1)
     else:
@@ -66,7 +66,7 @@ def is_in_array(config, option, string):
     :param string: the string expected to be an element of the array
     :returns: True if the check passed, False otherwise
     """
-    match = re.search("^CONFIG_" + option + "=\"(.*)\"$", config, re.M)
+    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.M)
     if match:
         values = match.group(1).split(",")
         return string in values
@@ -74,8 +74,7 @@ def is_in_array(config, option, string):
         return False
 
 
-def check_option(component, details, config, config_path, option,
-                 option_value):
+def check_option(component, details, config, config_path, option, option_value):
     """
     Check, whether one kernel config option has a given value.
 
@@ -87,16 +86,21 @@ def check_option(component, details, config, config_path, option,
     :param option_value: expected value, e.g. True, "str", ["str1", "str2"]
     :returns: True if the check passed, False otherwise
     """
+
     def warn_ret_false(should_str):
         config_name = os.path.basename(config_path)
         if details:
-            logging.warning(f"WARNING: {config_name}: CONFIG_{option} should"
-                            f" {should_str} ({component}):"
-                            f" https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}")
+            logging.warning(
+                f"WARNING: {config_name}: CONFIG_{option} should"
+                f" {should_str} ({component}):"
+                f" https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}"
+            )
         else:
-            logging.warning(f"WARNING: {config_name} isn't configured properly"
-                            f" ({component}), run 'pmbootstrap kconfig check'"
-                            " for details!")
+            logging.warning(
+                f"WARNING: {config_name} isn't configured properly"
+                f" ({component}), run 'pmbootstrap kconfig check'"
+                " for details!"
+            )
         return False
 
     if isinstance(option_value, list):
@@ -110,15 +114,18 @@ def check_option(component, details, config, config_path, option,
         if option_value != is_set(config, option):
             return warn_ret_false("be set" if option_value else "*not* be set")
     else:
-        raise RuntimeError("kconfig check code can only handle booleans,"
-                           f" strings and arrays. Given value {option_value}"
-                           " is not supported. If you need this, please patch"
-                           " pmbootstrap or open an issue.")
+        raise RuntimeError(
+            "kconfig check code can only handle booleans,"
+            f" strings and arrays. Given value {option_value}"
+            " is not supported. If you need this, please patch"
+            " pmbootstrap or open an issue."
+        )
     return True
 
 
-def check_config_options_set(config, config_path, config_arch, options,
-                             component, pkgver, details=False):
+def check_config_options_set(
+    config, config_path, config_arch, options, component, pkgver, details=False
+):
     """
     Check, whether all the kernel config passes all rules of one component.
 
@@ -161,8 +168,7 @@ def check_config_options_set(config, config_path, config_arch, options,
                     continue
 
             for option, option_value in options.items():
-                if not check_option(component, details, config, config_path,
-                                    option, option_value):
+                if not check_option(component, details, config, config_path, option, option_value):
                     ret = False
                     # Stop after one non-detailed error
                     if not details:
@@ -170,8 +176,9 @@ def check_config_options_set(config, config_path, config_arch, options,
     return ret
 
 
-def check_config(config_path, config_arch, pkgver, components_list=[],
-                 details=False, enforce_check=True):
+def check_config(
+    config_path, config_arch, pkgver, components_list=[], details=False, enforce_check=True
+):
     """
     Check, whether one kernel config passes the rules of multiple components.
 
@@ -219,8 +226,9 @@ def check_config(config_path, config_arch, pkgver, components_list=[],
 
     results = []
     for component, options in components.items():
-        result = check_config_options_set(config, config_path, config_arch,
-                                          options, component, pkgver, details)
+        result = check_config_options_set(
+            config, config_path, config_arch, options, component, pkgver, details
+        )
         # We always enforce "postmarketOS" component and when explicitly
         # requested
         if enforce_check or component == "postmarketOS":
@@ -266,8 +274,7 @@ def check(pkgname, components_list=[], details=False, must_exist=True):
     enforce_check = aport.parts[-2] in ["community", "main"]
 
     for name in get_all_component_names():
-        if f"pmb:kconfigcheck-{name}" in apkbuild["options"] and \
-                name not in components_list:
+        if f"pmb:kconfigcheck-{name}" in apkbuild["options"] and name not in components_list:
             components_list += [name]
 
     for config_path in aport.glob("config-*"):
@@ -277,16 +284,24 @@ def check(pkgname, components_list=[], details=False, must_exist=True):
         config_name_split = config_name.split(".")
 
         if len(config_name_split) != 2:
-            raise NonBugError(f"{config_name} is not a valid kernel config"
-                              "name. Ensure that the _config property in your "
-                              "kernel APKBUILD has a . before the "
-                              "architecture name, e.g. .aarch64 or .armv7, "
-                              "and that there is no excess punctuation "
-                              "elsewhere in the name.")
+            raise NonBugError(
+                f"{config_name} is not a valid kernel config"
+                "name. Ensure that the _config property in your "
+                "kernel APKBUILD has a . before the "
+                "architecture name, e.g. .aarch64 or .armv7, "
+                "and that there is no excess punctuation "
+                "elsewhere in the name."
+            )
 
         config_arch = config_name_split[1]
-        ret &= check_config(config_path, config_arch, pkgver, components_list,
-                            details=details, enforce_check=enforce_check)
+        ret &= check_config(
+            config_path,
+            config_arch,
+            pkgver,
+            components_list,
+            details=details,
+            enforce_check=enforce_check,
+        )
     return ret
 
 
@@ -335,7 +350,7 @@ def check_file(config_path, components_list=[], details=False):
     """
     arch = extract_arch(config_path)
     version = extract_version(config_path)
-    logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from "
-                  f"file: {config_path}")
-    return check_config(config_path, arch, version, components_list,
-                        details=details)
+    logging.debug(
+        f"Check kconfig: parsed arch={arch}, version={version} from " f"file: {config_path}"
+    )
+    return check_config(config_path, arch, version, components_list, details=details)

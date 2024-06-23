@@ -1,10 +1,10 @@
-
 from copy import deepcopy
 import enum
 import multiprocessing
 from typing import Any, List, Dict, TypedDict
 from pathlib import Path
 import os
+
 
 class Mirrors(TypedDict):
     alpine: str
@@ -16,7 +16,6 @@ class SystemdConfig(enum.Enum):
     DEFAULT = "default"
     ALWAYS = "always"
     NEVER = "never"
-
 
     def __str__(self) -> str:
         return self.value
@@ -41,13 +40,14 @@ class AutoZapConfig(enum.Enum):
         return self == AutoZapConfig.YES
 
 
-class Config():
-    aports: List[Path] = [Path(os.path.expanduser("~") +
-                        "/.local/var/pmbootstrap/cache_git/pmaports")]
+class Config:
+    aports: List[Path] = [
+        Path(os.path.expanduser("~") + "/.local/var/pmbootstrap/cache_git/pmaports")
+    ]
     boot_size: int = 256
     build_default_device_arch: bool = False
     build_pkgs_on_install: bool = True
-    ccache_size: str = "5G" # yeahhhh this one has a suffix
+    ccache_size: str = "5G"  # yeahhhh this one has a suffix
     device: str = "qemu-amd64"
     extra_packages: str = "none"
     extra_space: int = 0
@@ -60,7 +60,7 @@ class Config():
     mirrors: Mirrors = {
         "alpine": "http://dl-cdn.alpinelinux.org/alpine/",
         "pmaports": "http://mirror.postmarketos.org/postmarketos/",
-        "systemd": "http://mirror.postmarketos.org/postmarketos/staging/systemd/"
+        "systemd": "http://mirror.postmarketos.org/postmarketos/staging/systemd/",
     }
     qemu_redir_stdio: bool = False
     ssh_key_glob: str = "~/.ssh/id_*.pub"
@@ -75,14 +75,12 @@ class Config():
     # automatically zap chroots that are for the wrong channel
     auto_zap_misconfigured_chroots: AutoZapConfig = AutoZapConfig.NO
 
-    providers: Dict[str, str] = { }
-
+    providers: Dict[str, str] = {}
 
     def __init__(self):
         # Make sure we aren't modifying the class defaults
         for key in Config.__annotations__.keys():
             setattr(self, key, deepcopy(Config.get_default(key)))
-
 
     @staticmethod
     def keys() -> List[str]:
@@ -90,7 +88,6 @@ class Config():
         keys.remove("mirrors")
         keys += [f"mirrors.{k}" for k in Mirrors.__annotations__.keys()]
         return sorted(keys)
-
 
     @staticmethod
     def get_default(dotted_key: str) -> Any:
@@ -103,7 +100,6 @@ class Config():
             return getattr(Config, keys[0])[keys[1]]
         else:
             raise ValueError(f"Invalid dotted key: {dotted_key}")
-
 
     def __setattr__(self, key: str, value: Any):
         """Allow for setattr() to be used with a dotted key
@@ -125,7 +121,6 @@ class Config():
             super(Config, self).__getattribute__(keys[0])[keys[1]] = value
         else:
             raise ValueError(f"Invalid dotted key: {key}")
-
 
     def __getattribute__(self, key: str) -> Any:
         """Allow for getattr() to be used with a dotted key

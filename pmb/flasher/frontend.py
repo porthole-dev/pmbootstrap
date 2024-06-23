@@ -33,14 +33,14 @@ def kernel(deviceinfo: Deviceinfo, method: str, boot: bool = False, autoinstall:
     else:
         logging.info("(native) flash kernel " + flavor)
         pmb.flasher.run(deviceinfo, method, "flash_kernel", flavor)
-    logging.info("You will get an IP automatically assigned to your "
-                 "USB interface shortly.")
-    logging.info("Then you can connect to your device using ssh after pmOS has"
-                 " booted:")
+    logging.info("You will get an IP automatically assigned to your " "USB interface shortly.")
+    logging.info("Then you can connect to your device using ssh after pmOS has" " booted:")
     logging.info(f"ssh {get_context().config.user}@{pmb.config.default_ip}")
-    logging.info("NOTE: If you enabled full disk encryption, you should make"
-                 " sure that Unl0kr has been properly configured for your"
-                 " device")
+    logging.info(
+        "NOTE: If you enabled full disk encryption, you should make"
+        " sure that Unl0kr has been properly configured for your"
+        " device"
+    )
 
 
 def list_flavors(device: str):
@@ -57,17 +57,16 @@ def rootfs(deviceinfo: Deviceinfo, method: str):
 
     img_path = Chroot.native() / "home/pmos/rootfs" / f"{deviceinfo.codename}{suffix}"
     if not img_path.exists():
-        raise RuntimeError("The rootfs has not been generated yet, please run"
-                           " 'pmbootstrap install' first.")
+        raise RuntimeError(
+            "The rootfs has not been generated yet, please run" " 'pmbootstrap install' first."
+        )
 
     # Do not flash if using fastboot & image is too large
-    if method.startswith("fastboot") \
-            and deviceinfo.flash_fastboot_max_size:
+    if method.startswith("fastboot") and deviceinfo.flash_fastboot_max_size:
         img_size = img_path.stat().st_size / 1024**2
         max_size = int(deviceinfo.flash_fastboot_max_size)
         if img_size > max_size:
-            raise RuntimeError("The rootfs is too large for fastboot to"
-                               " flash.")
+            raise RuntimeError("The rootfs is too large for fastboot to" " flash.")
 
     # Run the flasher
     logging.info("(native) flash rootfs image")
@@ -85,15 +84,20 @@ def sideload(deviceinfo: Deviceinfo, method: str):
     # Mount the buildroot
     chroot = Chroot.buildroot(deviceinfo.arch)
     mountpoint = "/mnt/" / chroot
-    pmb.helpers.mount.bind(chroot.path,
-                           Chroot.native().path / mountpoint)
+    pmb.helpers.mount.bind(chroot.path, Chroot.native().path / mountpoint)
 
     # Missing recovery zip error
-    if not (Chroot.native() / mountpoint / "var/lib/postmarketos-android-recovery-installer"
-            / f"pmos-{deviceinfo.codename}.zip").exists():
-        raise RuntimeError("The recovery zip has not been generated yet,"
-                           " please run 'pmbootstrap install' with the"
-                           " '--android-recovery-zip' parameter first!")
+    if not (
+        Chroot.native()
+        / mountpoint
+        / "var/lib/postmarketos-android-recovery-installer"
+        / f"pmos-{deviceinfo.codename}.zip"
+    ).exists():
+        raise RuntimeError(
+            "The recovery zip has not been generated yet,"
+            " please run 'pmbootstrap install' with the"
+            " '--android-recovery-zip' parameter first!"
+        )
 
     pmb.flasher.run(deviceinfo, method, "sideload")
 
@@ -105,13 +109,16 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str):
         # manually since supporting the codepath with heimdall requires more effort.
         pmb.flasher.init(deviceinfo.codename, method)
         logging.info("(native) checking current fastboot product")
-        output = pmb.chroot.root(["fastboot", "getvar", "product"],
-                                 output="interactive", output_return=True)
+        output = pmb.chroot.root(
+            ["fastboot", "getvar", "product"], output="interactive", output_return=True
+        )
         # Variable "product" is e.g. "LK2ND_MSM8974" or "lk2nd-msm8226" depending
         # on the lk2nd version.
         if "lk2nd" in output.lower():
-            raise RuntimeError("You are currently running lk2nd. Please reboot into the regular"
-                               " bootloader mode to re-flash lk2nd.")
+            raise RuntimeError(
+                "You are currently running lk2nd. Please reboot into the regular"
+                " bootloader mode to re-flash lk2nd."
+            )
 
     # Get the lk2nd package (which is a dependency of the device package)
     device_pkg = f"device-{deviceinfo.codename}"
@@ -141,8 +148,7 @@ def frontend(args: PmbArgs):
     deviceinfo = pmb.parse.deviceinfo()
     method = args.flash_method or deviceinfo.flash_method
 
-    if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs",
-                                       "flash_lk2nd"]:
+    if method == "none" and action in ["boot", "flash_kernel", "flash_rootfs", "flash_lk2nd"]:
         logging.info("This device doesn't support any flash method.")
         return
 

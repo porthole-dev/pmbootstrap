@@ -11,29 +11,30 @@ from pmb.core import Chroot, ChrootType
 
 def install_depends(method: str) -> None:
     if method not in pmb.config.flashers:
-        raise RuntimeError(f"Flash method {method} is not supported by the"
-                           " current configuration. However, adding a new"
-                           " flash method is not that hard, when the flashing"
-                           " application already exists.\n"
-                           "Make sure, it is packaged for Alpine Linux, or"
-                           " package it yourself, and then add it to"
-                           " pmb/config/__init__.py.")
+        raise RuntimeError(
+            f"Flash method {method} is not supported by the"
+            " current configuration. However, adding a new"
+            " flash method is not that hard, when the flashing"
+            " application already exists.\n"
+            "Make sure, it is packaged for Alpine Linux, or"
+            " package it yourself, and then add it to"
+            " pmb/config/__init__.py."
+        )
     depends = pmb.config.flashers[method]["depends"]
 
     # Depends for some flash methods may be different for various pmaports
     # branches, so read them from pmaports.cfg.
     if method == "fastboot":
         pmaports_cfg = pmb.config.pmaports.read_config()
-        depends = pmaports_cfg.get("supported_fastboot_depends",
-                                   "android-tools,avbtool").split(",")
+        depends = pmaports_cfg.get("supported_fastboot_depends", "android-tools,avbtool").split(",")
     elif method == "heimdall-bootimg":
         pmaports_cfg = pmb.config.pmaports.read_config()
-        depends = pmaports_cfg.get("supported_heimdall_depends",
-                                   "heimdall,avbtool").split(",")
+        depends = pmaports_cfg.get("supported_heimdall_depends", "heimdall,avbtool").split(",")
     elif method == "mtkclient":
         pmaports_cfg = pmb.config.pmaports.read_config()
-        depends = pmaports_cfg.get("supported_mtkclient_depends",
-                                   "mtkclient,android-tools").split(",")
+        depends = pmaports_cfg.get("supported_mtkclient_depends", "mtkclient,android-tools").split(
+            ","
+        )
 
     pmb.chroot.apk.install(depends, Chroot.native())
 

@@ -8,6 +8,7 @@ See also:
 
     - pmb/helpers/repo.py (work with binary package repos)
 """
+
 import copy
 from typing import Any, Dict
 from pmb.core.arch import Arch
@@ -52,11 +53,13 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     ret: Dict[str, Any] = {}
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
     if pmaport:
-        ret = {"arch": pmaport["arch"],
-               "depends": pmb.build._package.get_depends(get_context(), pmaport),
-               "pkgname": pmaport["pkgname"],
-               "provides": pmaport["provides"],
-               "version": pmaport["pkgver"] + "-r" + pmaport["pkgrel"]}
+        ret = {
+            "arch": pmaport["arch"],
+            "depends": pmb.build._package.get_depends(get_context(), pmaport),
+            "pkgname": pmaport["pkgname"],
+            "provides": pmaport["provides"],
+            "version": pmaport["pkgver"] + "-r" + pmaport["pkgrel"],
+        }
 
     # Find in APKINDEX (given arch)
     if not ret or not pmb.helpers.pmaports.check_arches(ret["arch"], arch):
@@ -93,8 +96,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
         for depend in ret["depends"]:
             depend_data = get(depend, arch, must_exist=False)
             if not depend_data:
-                logging.warning(f"WARNING: {pkgname}: failed to resolve"
-                                f" dependency '{depend}'")
+                logging.warning(f"WARNING: {pkgname}: failed to resolve" f" dependency '{depend}'")
                 # Can't replace potential subpkgname
                 if depend not in depends_new:
                     depends_new += [depend]
@@ -111,8 +113,10 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     # Could not find the package
     if not must_exist:
         return None
-    raise RuntimeError("Package '" + pkgname + "': Could not find aport, and"
-                       " could not find this package in any APKINDEX!")
+    raise RuntimeError(
+        "Package '" + pkgname + "': Could not find aport, and"
+        " could not find this package in any APKINDEX!"
+    )
 
 
 @Cache("pkgname", "arch")

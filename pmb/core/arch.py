@@ -12,6 +12,7 @@ _cached_native_arch: "Arch"
 class Arch(enum.Enum):
     """Supported architectures according to the Alpine
     APKBUILD format."""
+
     x86 = "x86"
     x86_64 = "x86_64"
     armhf = "armhf"
@@ -33,20 +34,19 @@ class Arch(enum.Enum):
     ppc64 = "ppc64"
     riscv32 = "riscv32"
 
-
     def __str__(self) -> str:
         return self.value
-
 
     @staticmethod
     def from_str(arch: str) -> "Arch":
         try:
             return Arch(arch)
         except ValueError:
-            raise ValueError(f"Invalid architecture: '{arch}',"
-                              " expected something like:"
-                             f" {', '.join([str(a) for a in Arch.supported()])}")
-
+            raise ValueError(
+                f"Invalid architecture: '{arch}',"
+                " expected something like:"
+                f" {', '.join([str(a) for a in Arch.supported()])}"
+            )
 
     @staticmethod
     def from_machine_type(machine_type: str) -> "Arch":
@@ -60,16 +60,13 @@ class Arch(enum.Enum):
         }
         return mapping[machine_type]
 
-
     @staticmethod
     def native() -> "Arch":
         global _cached_native_arch
         return _cached_native_arch
 
-
     def is_native(self):
         return self == Arch.native()
-
 
     @staticmethod
     def supported() -> Set["Arch"]:
@@ -78,16 +75,17 @@ class Arch(enum.Enum):
         we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use
         "pmbootstrap aportgen musl-armhf" etc.)."""
         # FIXME: cache?
-        return set([
-            Arch.armhf,
-            Arch.armv7,
-            Arch.aarch64,
-            Arch.x86_64,
-            Arch.x86,
-            Arch.riscv64,
-            Arch.native(),
-        ])
-
+        return set(
+            [
+                Arch.armhf,
+                Arch.armv7,
+                Arch.aarch64,
+                Arch.x86_64,
+                Arch.x86,
+                Arch.riscv64,
+                Arch.native(),
+            ]
+        )
 
     def kernel(self):
         mapping = {
@@ -111,7 +109,6 @@ class Arch(enum.Enum):
             Arch.armv7: "arm",
         }
         return mapping.get(self, self.value)
-
 
     def alpine_triple(self):
         """Get the cross compiler triple for this architecture on Alpine."""
@@ -140,9 +137,7 @@ class Arch(enum.Enum):
         if self in mapping:
             return mapping[self]
 
-        raise ValueError(f"Can not map Alpine architecture '{self}'"
-                     " to the right hostspec value")
-
+        raise ValueError(f"Can not map Alpine architecture '{self}'" " to the right hostspec value")
 
     def cpu_emulation_required(self):
         # Obvious case: host arch is target arch
@@ -162,7 +157,6 @@ class Arch(enum.Enum):
         # No match: then it's required
         return True
 
-
     # Magic to let us use an arch as a Path element
     def __truediv__(self, other: object) -> Path:
         if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
@@ -181,7 +175,6 @@ class Arch(enum.Enum):
 
         return NotImplemented
 
-
     def __rtruediv__(self, other: object) -> Path:
         if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
             # Important to produce a new Path object here, otherwise we
@@ -191,5 +184,6 @@ class Arch(enum.Enum):
         # We don't support str / Arch since that is a weird pattern
 
         return NotImplemented
+
 
 _cached_native_arch = Arch.from_machine_type(platform.machine())

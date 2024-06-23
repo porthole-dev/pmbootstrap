@@ -18,7 +18,7 @@ def symlinks(flavor, folder: Path):
     """
     Create convenience symlinks to the rootfs and boot files.
     """
-    
+
     context = get_context()
     arch = pmb.parse.deviceinfo(context.device).arch
 
@@ -30,8 +30,9 @@ def symlinks(flavor, folder: Path):
 
     # File descriptions
     info = {
-        f"boot.img{suffix}": ("Fastboot compatible boot.img file,"
-                              " contains initramfs and kernel"),
+        f"boot.img{suffix}": (
+            "Fastboot compatible boot.img file," " contains initramfs and kernel"
+        ),
         "dtbo.img": "Fastboot compatible dtbo image",
         f"initramfs{suffix}": "Initramfs",
         f"initramfs{suffix}-extra": "Extra initramfs files in /boot",
@@ -54,13 +55,14 @@ def symlinks(flavor, folder: Path):
         path_boot / f"uInitrd{suffix}",
         path_boot / f"uImage{suffix}",
         path_boot / f"vmlinuz{suffix}",
-        path_boot /  "dtbo.img",
+        path_boot / "dtbo.img",
         chroot_native / "home/pmos/rootfs" / f"{context.device}.img",
         chroot_native / "home/pmos/rootfs" / f"{context.device}-boot.img",
         chroot_native / "home/pmos/rootfs" / f"{context.device}-root.img",
-        chroot_buildroot / "var/libpostmarketos-android-recovery-installer" /
-            f"pmos-{context.device}.zip",
-        path_boot / "lk2nd.img"
+        chroot_buildroot
+        / "var/libpostmarketos-android-recovery-installer"
+        / f"pmos-{context.device}.zip",
+        path_boot / "lk2nd.img",
     ]
 
     files += list(path_boot.glob(f"initramfs{suffix}*"))

@@ -6,6 +6,7 @@ See also:
 - pmb/helpers/repo.py (work with binary package repos)
 - pmb/helpers/package.py (work with both)
 """
+
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
@@ -15,6 +16,7 @@ from typing import Any, Optional, Sequence, Dict, Tuple
 
 from pmb.meta import Cache
 import pmb.parse
+
 
 def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
     # Try to get a cached result first (we assume that the aports don't change
@@ -27,8 +29,10 @@ def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
     for package in pkgrepo_iter_package_dirs(skip_extra_repos=skip_extra_repos):
         pkgname = package.name
         if pkgname in apkbuilds:
-            raise RuntimeError(f"Package {pkgname} found in multiple aports "
-                               "subfolders. Please put it only in one folder.")
+            raise RuntimeError(
+                f"Package {pkgname} found in multiple aports "
+                "subfolders. Please put it only in one folder."
+            )
         apkbuilds[pkgname] = package / "APKBUILD"
 
     # Sort dictionary so we don't need to do it over and over again in
@@ -42,7 +46,7 @@ def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
 
 
 def get_list() -> Sequence[str]:
-    """ :returns: list of all pmaport pkgnames (["hello-world", ...]) """
+    """:returns: list of all pmaport pkgnames (["hello-world", ...])"""
     return list(_find_apkbuilds().keys())
 
 
@@ -57,13 +61,18 @@ def guess_main_dev(subpkgname) -> Optional[Path]:
     pkgname = subpkgname[:-4]
     path = _find_apkbuilds().get(pkgname)
     if path:
-        logging.verbose(subpkgname + ": guessed to be a subpackage of " +
-                        pkgname + " (just removed '-dev')")
+        logging.verbose(
+            subpkgname + ": guessed to be a subpackage of " + pkgname + " (just removed '-dev')"
+        )
         return path.parent
 
-    logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname +
-                    ", which we can't find in pmaports, so it's probably in"
-                    " Alpine")
+    logging.verbose(
+        subpkgname
+        + ": guessed to be a subpackage of "
+        + pkgname
+        + ", which we can't find in pmaports, so it's probably in"
+        " Alpine"
+    )
     return None
 
 
@@ -99,11 +108,11 @@ def guess_main(subpkgname) -> Optional[Path]:
         # Look in pmaports
         path = _find_apkbuilds().get(pkgname)
         if path:
-            logging.verbose(subpkgname + ": guessed to be a subpackage of " +
-                            pkgname)
+            logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname)
             return path.parent
 
     return None
+
 
 def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     """Look through subpackages and all provides to see if the APKBUILD at the specified path
@@ -190,8 +199,7 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
 
     # Crash when necessary
     if ret is None and must_exist:
-        raise RuntimeError("Could not find aport for package: " +
-                           package)
+        raise RuntimeError("Could not find aport for package: " + package)
 
     return ret
 
@@ -205,7 +213,9 @@ def find_optional(package: str) -> Optional[Path]:
 
 # The only caller with subpackages=False is ui.check_option()
 @Cache("pkgname", subpackages=True)
-def get_with_path(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
+def get_with_path(
+    pkgname, must_exist=True, subpackages=True, skip_extra_repos=False
+) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
@@ -229,7 +239,7 @@ def get_with_path(pkgname, must_exist=True, subpackages=True, skip_extra_repos=F
     pkgname = pmb.helpers.package.remove_operators(pkgname)
     pmaport = find(pkgname, must_exist, subpackages, skip_extra_repos)
     if pmaport:
-            return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
+        return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
     return None, None
 
 
@@ -237,7 +247,7 @@ def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> D
     return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
 
 
-def find_providers( provide):
+def find_providers(provide):
     """Search for providers of the specified (virtual) package in pmaports.
 
     Note: Currently only providers from a single APKBUILD are returned.
@@ -257,8 +267,7 @@ def find_providers( provide):
             if provides.split("=", 1)[0] == provide:
                 providers[subpkgname] = subpkg
 
-    return sorted(providers.items(), reverse=True,
-                  key=lambda p: p[1].get('provider_priority', 0))
+    return sorted(providers.items(), reverse=True, key=lambda p: p[1].get("provider_priority", 0))
 
 
 # FIXME (#2324): split into an _optional variant or drop must_exist
@@ -315,6 +324,7 @@ def get_channel_new(channel: str) -> str:
         return ret
     return channel
 
+
 def require_bootstrap_error(repo, arch, trigger_str):
     """
     Tell the user that they need to do repo_bootstrap, with some context.
@@ -323,10 +333,13 @@ def require_bootstrap_error(repo, arch, trigger_str):
     :param arch: for which architecture
     :param trigger_str: message for the user to understand what caused this
     """
-    logging.info(f"ERROR: Trying to {trigger_str} with {repo} enabled, but the"
-                 f" {repo} repo needs to be bootstrapped first.")
-    raise RuntimeError(f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}'"
-                       " and then try again.")
+    logging.info(
+        f"ERROR: Trying to {trigger_str} with {repo} enabled, but the"
+        f" {repo} repo needs to be bootstrapped first."
+    )
+    raise RuntimeError(
+        f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}'" " and then try again."
+    )
 
 
 def require_bootstrap(arch, trigger_str):
@@ -338,8 +351,6 @@ def require_bootstrap(arch, trigger_str):
     """
     if pmb.config.other.is_systemd_selected(get_context().config):
         pmb.helpers.repo.update(arch)
-        pkg = pmb.parse.apkindex.package("postmarketos-base-systemd",
-                                         arch, False)
+        pkg = pmb.parse.apkindex.package("postmarketos-base-systemd", arch, False)
         if not pkg:
             require_bootstrap_error("systemd", arch, trigger_str)
-

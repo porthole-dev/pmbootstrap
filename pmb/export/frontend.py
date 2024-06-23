@@ -10,7 +10,7 @@ import pmb.export
 from pmb.core import Chroot, ChrootType
 
 
-def frontend(args: PmbArgs): # FIXME: ARGS_REFACTOR
+def frontend(args: PmbArgs):  # FIXME: ARGS_REFACTOR
     context = get_context()
     # Create the export folder
     target = args.export_folder
@@ -21,8 +21,10 @@ def frontend(args: PmbArgs): # FIXME: ARGS_REFACTOR
     chroot = Chroot.native()
     rootfs_dir = chroot / "home/pmos/rootfs" / context.device
     if not rootfs_dir.glob("*.img"):
-        logging.info("NOTE: To export the rootfs image, run 'pmbootstrap"
-                     " install' first (without the 'disk' parameter).")
+        logging.info(
+            "NOTE: To export the rootfs image, run 'pmbootstrap"
+            " install' first (without the 'disk' parameter)."
+        )
 
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(context.device, args.autoinstall)

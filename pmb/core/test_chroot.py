@@ -4,6 +4,7 @@ from .arch import Arch
 from .context import get_context
 from .chroot import Chroot, ChrootType
 
+
 def test_valid_chroots(pmb_args, mock_devices_find_path):
     """Test that Chroot objects work as expected"""
 
@@ -16,12 +17,12 @@ def test_valid_chroots(pmb_args, mock_devices_find_path):
     assert not chroot.exists()  # Shouldn't be created
     assert chroot.path == work / "chroot_native"
     assert str(chroot) == "native"
-    
+
     chroot = Chroot.buildroot(Arch.aarch64)
     assert chroot.type == ChrootType.BUILDROOT
     assert chroot.name == "aarch64"
     assert chroot.arch == Arch.aarch64
-    assert not chroot.exists() # Shouldn't be created
+    assert not chroot.exists()  # Shouldn't be created
     assert chroot.path == work / "chroot_buildroot_aarch64"
     assert str(chroot) == "buildroot_aarch64"
 
@@ -30,7 +31,7 @@ def test_valid_chroots(pmb_args, mock_devices_find_path):
     assert chroot.type == ChrootType.ROOTFS
     assert chroot.name == "qemu-amd64"
     assert chroot.arch == Arch.x86_64
-    assert not chroot.exists() # Shouldn't be created
+    assert not chroot.exists()  # Shouldn't be created
     assert chroot.path == work / "chroot_rootfs_qemu-amd64"
     assert str(chroot) == "rootfs_qemu-amd64"
 
@@ -59,8 +60,12 @@ def test_invalid_chroots(pmb_args):
 @pytest.mark.xfail
 def test_untested_chroots():
     # IMAGE type is untested, name should be a valid path in this case
-    tested_chroot_types = [ChrootType.ROOTFS, ChrootType.BUILDROOT, ChrootType.NATIVE,
-                           ChrootType.INSTALLER]
+    tested_chroot_types = [
+        ChrootType.ROOTFS,
+        ChrootType.BUILDROOT,
+        ChrootType.NATIVE,
+        ChrootType.INSTALLER,
+    ]
     for ct in ChrootType:
         if ct not in tested_chroot_types:
             raise ValueError(f"ChrootType {ct} is untested!")

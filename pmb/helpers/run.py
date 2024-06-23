@@ -9,8 +9,15 @@ from typing import Optional, Sequence
 from pmb.types import Env, PathString
 
 
-def user(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: str = "log", output_return: bool = False,
-         check: Optional[bool] = None, env: Env = {}, sudo: bool = False) -> str | int | subprocess.Popen:
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Optional[Path] = None,
+    output: str = "log",
+    output_return: bool = False,
+    check: Optional[bool] = None,
+    env: Env = {},
+    sudo: bool = False,
+) -> str | int | subprocess.Popen:
     """
     Run a command on the host system as user.
 
@@ -40,12 +47,20 @@ def user(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: 
     pmb.helpers.run_core.add_proxy_env_vars(env)
     if env:
         cmd_parts = ["sh", "-c", pmb.helpers.run_core.flat_cmd([cmd_parts], env=env)]
-    return pmb.helpers.run_core.core(msg, cmd_parts, working_dir, output,
-                                     output_return, check, sudo)
+    return pmb.helpers.run_core.core(
+        msg, cmd_parts, working_dir, output, output_return, check, sudo
+    )
+
 
 # FIXME: should probably use some kind of wrapper class / builder pattern for all these parameters...
-def user_output(cmd: Sequence[PathString], working_dir: Optional[Path] = None, output: str = "log",
-                check: Optional[bool] = None, env: Env = {}, sudo: bool = False) -> str:
+def user_output(
+    cmd: Sequence[PathString],
+    working_dir: Optional[Path] = None,
+    output: str = "log",
+    check: Optional[bool] = None,
+    env: Env = {},
+    sudo: bool = False,
+) -> str:
     ret = user(cmd, working_dir, output, output_return=True, check=check, env=env, sudo=sudo)
     if not isinstance(ret, str):
         raise TypeError("Expected str output, got " + str(ret))
@@ -53,8 +68,14 @@ def user_output(cmd: Sequence[PathString], working_dir: Optional[Path] = None, o
     return ret
 
 
-def root(cmd: Sequence[PathString], working_dir=None, output="log", output_return=False,
-         check=None, env={}):
+def root(
+    cmd: Sequence[PathString],
+    working_dir=None,
+    output="log",
+    output_return=False,
+    check=None,
+    env={},
+):
     """Run a command on the host system as root, with sudo or doas.
 
     :param env: dict of environment variables to be passed to the command, e.g.
@@ -70,5 +91,4 @@ def root(cmd: Sequence[PathString], working_dir=None, output="log", output_retur
         cmd = ["sh", "-c", pmb.helpers.run_core.flat_cmd([cmd], env=env)]
     cmd = pmb.config.sudo(cmd)
 
-    return user(cmd, working_dir, output, output_return, check, env,
-                True)
+    return user(cmd, working_dir, output, output_return, check, env, True)

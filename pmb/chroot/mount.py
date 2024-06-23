@@ -27,7 +27,9 @@ def mount_chroot_image(chroot: Chroot):
     chroot_native = Chroot.native()
     pmb.chroot.init(chroot_native)
 
-    loopdev = pmb.install.losetup.mount(Path("/") / Path(chroot.name).relative_to(chroot_native.path))
+    loopdev = pmb.install.losetup.mount(
+        Path("/") / Path(chroot.name).relative_to(chroot_native.path)
+    )
     pmb.helpers.mount.bind_file(loopdev, chroot_native / "dev/install")
     # Set up device mapper bits
     pmb.chroot.root(["kpartx", "-u", "/dev/install"], chroot_native)
@@ -40,6 +42,7 @@ def mount_chroot_image(chroot: Chroot):
 
     logging.info(f"({chroot}) mounted {chroot.name}")
 
+
 def create_device_nodes(chroot: Chroot):
     """
     Create device nodes for null, zero, full, random, urandom in the chroot.
@@ -49,13 +52,17 @@ def create_device_nodes(chroot: Chroot):
         for dev in pmb.config.chroot_device_nodes:
             path = chroot / "dev" / str(dev[4])
             if not path.exists():
-                pmb.helpers.run.root(["mknod",
-                                            "-m", str(dev[0]),  # permissions
-                                            path,  # name
-                                            str(dev[1]),  # type
-                                            str(dev[2]),  # major
-                                            str(dev[3]),  # minor
-                                            ])
+                pmb.helpers.run.root(
+                    [
+                        "mknod",
+                        "-m",
+                        str(dev[0]),  # permissions
+                        path,  # name
+                        str(dev[1]),  # type
+                        str(dev[2]),  # major
+                        str(dev[3]),  # minor
+                    ]
+                )
 
         # Verify major and minor numbers of created nodes
         for dev in pmb.config.chroot_device_nodes:
@@ -68,7 +75,7 @@ def create_device_nodes(chroot: Chroot):
         # Verify /dev/zero reading and writing
         path = chroot / "dev/zero"
         with open(path, "r+b", 0) as handle:
-            assert handle.write(bytes([0xff])), f"Write failed for {path}"
+            assert handle.write(bytes([0xFF])), f"Write failed for {path}"
             assert handle.read(1) == bytes([0x00]), f"Read failed for {path}"
 
     # On failure: Show filesystem-related error
@@ -77,7 +84,7 @@ def create_device_nodes(chroot: Chroot):
         raise RuntimeError(f"Failed to create device nodes in the '{chroot}' chroot.")
 
 
-def mount_dev_tmpfs(chroot: Chroot=Chroot.native()):
+def mount_dev_tmpfs(chroot: Chroot = Chroot.native()):
     """
     Mount tmpfs inside the chroot's dev folder to make sure we can create
     device nodes, even if the filesystem of the work folder does not support
@@ -90,15 +97,13 @@ def mount_dev_tmpfs(chroot: Chroot=Chroot.native()):
 
     # Create the $chroot/dev folder and mount tmpfs there
     pmb.helpers.run.root(["mkdir", "-p", dev])
-    pmb.helpers.run.root(["mount", "-t", "tmpfs",
-                                "-o", "size=1M,noexec,dev",
-                                "tmpfs", dev])
+    pmb.helpers.run.root(["mount", "-t", "tmpfs", "-o", "size=1M,noexec,dev", "tmpfs", dev])
 
     # Create pts, shm folders and device nodes
     pmb.helpers.run.root(["mkdir", "-p", dev / "pts", dev / "shm"])
-    pmb.helpers.run.root(["mount", "-t", "tmpfs",
-                                "-o", "nodev,nosuid,noexec",
-                                "tmpfs", dev / "shm"])
+    pmb.helpers.run.root(
+        ["mount", "-t", "tmpfs", "-o", "nodev,nosuid,noexec", "tmpfs", dev / "shm"]
+    )
     create_device_nodes(chroot)
 
     # Setup /dev/fd as a symlink
@@ -128,7 +133,6 @@ def mount(chroot: Chroot):
         if not pmb.helpers.mount.ismount(target_outer):
             pmb.helpers.mount.bind(source, target_outer)
 
-
     # Set up binfmt
     if not arch.cpu_emulation_required():
         return
@@ -137,9 +141,11 @@ def mount(chroot: Chroot):
 
     # mount --bind the qemu-user binary
     pmb.chroot.binfmt.register(arch)
-    pmb.helpers.mount.bind_file(Chroot.native() / f"usr/bin/qemu-{arch_qemu}",
-                                chroot / f"usr/bin/qemu-{arch_qemu}-static",
-                                create_folders=True)
+    pmb.helpers.mount.bind_file(
+        Chroot.native() / f"usr/bin/qemu-{arch_qemu}",
+        chroot / f"usr/bin/qemu-{arch_qemu}-static",
+        create_folders=True,
+    )
 
 
 def mount_native_into_foreign(chroot: Chroot):
@@ -148,19 +154,19 @@ def mount_native_into_foreign(chroot: Chroot):
     pmb.helpers.mount.bind(source, target)
 
     musl = next(source.glob("lib/ld-musl-*.so.1")).name
-    musl_link = (chroot / "lib" / musl)
+    musl_link = chroot / "lib" / musl
     if not musl_link.is_symlink():
-        pmb.helpers.run.root(["ln", "-s", "/native/lib/" + musl,
-                                    musl_link])
+        pmb.helpers.run.root(["ln", "-s", "/native/lib/" + musl, musl_link])
         # pmb.helpers.run.root(["ln", "-sf", "/native/usr/bin/pigz", "/usr/local/bin/pigz"])
 
+
 def remove_mnt_pmbootstrap(chroot: Chroot):
-    """ Safely remove /mnt/pmbootstrap directories from the chroot, without
-        running rm -r as root and potentially removing data inside the
-        mountpoint in case it was still mounted (bug in pmbootstrap, or user
-        ran pmbootstrap 2x in parallel). This is similar to running 'rm -r -d',
-        but we don't assume that the host's rm has the -d flag (busybox does
-        not). """
+    """Safely remove /mnt/pmbootstrap directories from the chroot, without
+    running rm -r as root and potentially removing data inside the
+    mountpoint in case it was still mounted (bug in pmbootstrap, or user
+    ran pmbootstrap 2x in parallel). This is similar to running 'rm -r -d',
+    but we don't assume that the host's rm has the -d flag (busybox does
+    not)."""
     mnt_dir = chroot / "mnt/pmbootstrap"
 
     if not mnt_dir.exists():

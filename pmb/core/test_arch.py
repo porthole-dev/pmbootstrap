@@ -5,6 +5,7 @@ import pytest
 
 from .arch import Arch
 
+
 def test_valid_arches():
     # Silly test
     assert Arch.native().is_native()
@@ -14,7 +15,7 @@ def test_valid_arches():
     assert Arch.from_str("x86_64") == Arch.x86_64
     assert Arch.from_str("aarch64") == Arch.aarch64
     assert Arch.from_str("armhf") == Arch.armhf
-    
+
     # Test from_machine_type
     assert Arch.from_machine_type("i686") == Arch.x86
     assert Arch.from_machine_type("x86_64") == Arch.x86_64
@@ -30,7 +31,7 @@ def test_valid_arches():
     # kernel arch
     assert Arch.x86.kernel() == "x86"
     assert Arch.x86_64.kernel() == "x86_64"
-    assert Arch.aarch64.kernel() == "arm64" # The fun one
+    assert Arch.aarch64.kernel() == "arm64"  # The fun one
     assert Arch.armhf.kernel() == "arm"
     assert Arch.armv7.kernel() == "arm"
 
@@ -57,6 +58,7 @@ def test_valid_arches():
     assert isinstance(Arch.aarch64 / "beep", Path)
     assert (Arch.aarch64 / "beep").name == "beep"
     assert Path("boop") / Arch.aarch64 == Path("boop/aarch64")
+
 
 def test_invalid_arches():
     excinfo: Any

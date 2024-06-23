@@ -6,7 +6,7 @@ from typing import Optional
 from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 
 
-def find_path(codename: str, file='') -> Optional[Path]:
+def find_path(codename: str, file="") -> Optional[Path]:
     """Find path to device APKBUILD under `device/*/device-`.
 
     :param codename: device codename
@@ -29,10 +29,10 @@ def list_codenames(vendor=None, archived=True):
     """
     ret = []
     for path in pkgrepo_iglob("device/*/device-*"):
-        if not archived and 'archived' in path.parts:
+        if not archived and "archived" in path.parts:
             continue
         device = os.path.basename(path).split("-", 1)[1]
-        if (vendor is None) or device.startswith(vendor + '-'):
+        if (vendor is None) or device.startswith(vendor + "-"):
             ret.append(device)
     return ret
 

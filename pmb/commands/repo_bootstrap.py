@@ -17,6 +17,7 @@ from pmb.core.context import get_context
 
 from pmb import commands
 
+
 class RepoBootstrap(commands.Command):
     arch: Arch
     repo: str
@@ -33,13 +34,14 @@ class RepoBootstrap(commands.Command):
             return
 
         if not cfg:
-            raise ValueError("pmaports.cfg of current branch does not have any"
-                                " sections starting with 'repo:'")
+            raise ValueError(
+                "pmaports.cfg of current branch does not have any" " sections starting with 'repo:'"
+            )
 
         logging.info(f"Valid repositories: {', '.join(cfg.keys())}")
-        raise ValueError(f"Couldn't find section 'repo:{self.repo}' in pmaports.cfg of"
-                            " current branch")
-
+        raise ValueError(
+            f"Couldn't find section 'repo:{self.repo}' in pmaports.cfg of" " current branch"
+        )
 
     def __init__(self, arch: Optional[Arch], repository: str):
         context = get_context()
@@ -56,7 +58,6 @@ class RepoBootstrap(commands.Command):
 
         self.check_repo_arg()
 
-
     def get_packages(self, bootstrap_line):
         ret = []
         for word in bootstrap_line.split(" "):
@@ -64,7 +65,6 @@ class RepoBootstrap(commands.Command):
                 continue
             ret += [word]
         return ret
-
 
     def set_progress_total(self, steps):
         self.progress_total = 0
@@ -80,13 +80,11 @@ class RepoBootstrap(commands.Command):
         if self.arch.cpu_emulation_required():
             self.progress_total += len(steps)
 
-
     def log_progress(self, msg):
         percent = int(100 * self.progress_done / self.progress_total)
         logging.info(f"*** {percent}% [{self.progress_step}] {msg} ***")
 
         self.progress_done += 1
-
 
     def run_steps(self, steps):
         chroot: Chroot
@@ -116,16 +114,22 @@ class RepoBootstrap(commands.Command):
             pmb.chroot.init(chroot, usr_merge)
 
             bootstrap_stage = int(step.split("bootstrap_", 1)[1])
+
             def log_wrapper(pkg: BuildQueueItem):
                 self.log_progress(f"building {pkg['name']}")
 
             packages = self.get_packages(bootstrap_line)
-            pmb.build.packages(self.context, packages, self.arch, force=True,
-                                strict=True, bootstrap_stage=bootstrap_stage,
-                                log_callback=log_wrapper)
+            pmb.build.packages(
+                self.context,
+                packages,
+                self.arch,
+                force=True,
+                strict=True,
+                bootstrap_stage=bootstrap_stage,
+                log_callback=log_wrapper,
+            )
 
         self.log_progress("bootstrap complete!")
-
 
     def check_existing_pkgs(self):
         channel = pmb.config.pmaports.read_config()["channel"]
@@ -134,14 +138,17 @@ class RepoBootstrap(commands.Command):
         if glob.glob(f"{path}/*"):
             logging.info(f"Packages path: {path}")
 
-            msg = f"Found previously built packages for {channel}/{self.arch}, run" \
+            msg = (
+                f"Found previously built packages for {channel}/{self.arch}, run"
                 " 'pmbootstrap zap -p' first"
+            )
             if self.arch.cpu_emulation_required():
-                msg += " or remove the path manually (to keep cross compilers if" \
+                msg += (
+                    " or remove the path manually (to keep cross compilers if"
                     " you just built them)"
+                )
 
             raise RuntimeError(f"{msg}!")
-
 
     def get_steps(self):
         cfg = pmb.config.pmaports.read_config_repos()
@@ -153,14 +160,15 @@ class RepoBootstrap(commands.Command):
                 continue
 
             step = int(key.split("bootstrap_", 1)[1])
-            assert step == prev_step + 1, (f"{key}: wrong order of steps, expected"
-                f" bootstrap_{prev_step + 1} (previous: bootstrap_{prev_step})")
+            assert step == prev_step + 1, (
+                f"{key}: wrong order of steps, expected"
+                f" bootstrap_{prev_step + 1} (previous: bootstrap_{prev_step})"
+            )
             prev_step = step
 
             ret[key] = packages
 
         return ret
-
 
     def run(self):  # noqa: F821
         self.check_existing_pkgs()

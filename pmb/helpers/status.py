@@ -53,8 +53,8 @@ def print_systemd(config: Config) -> None:
 
 
 def print_status(args: PmbArgs) -> None:
-    """ :param details: if True, print each passing check instead of a summary
-        :returns: True if all checks passed, False otherwise """
+    """:param details: if True, print each passing check instead of a summary
+    :returns: True if all checks passed, False otherwise"""
     config = get_context().config
     print_channel(config)
     print_device(config)

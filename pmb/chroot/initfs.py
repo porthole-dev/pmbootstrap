@@ -23,12 +23,10 @@ def build(flavor, chroot: Chroot):
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         pmb.chroot.root(["mkinitfs"], chroot)
     else:
-        release_file = (chroot / "usr/share/kernel" / flavor / "kernel.release")
+        release_file = chroot / "usr/share/kernel" / flavor / "kernel.release"
         with release_file.open() as handle:
             release = handle.read().rstrip()
-            pmb.chroot.root(["mkinitfs", "-o",
-                                   f"/boot/initramfs-{flavor}", release],
-                            chroot)
+            pmb.chroot.root(["mkinitfs", "-o", f"/boot/initramfs-{flavor}", release], chroot)
 
 
 def extract(flavor, chroot: Chroot, extra=False):
@@ -50,27 +48,26 @@ def extract(flavor, chroot: Chroot, extra=False):
 
     outside = chroot / inside
     if outside.exists():
-        if not pmb.helpers.cli.confirm(f"Extraction folder {outside}"
-                                       " already exists."
-                                       " Do you want to overwrite it?"):
+        if not pmb.helpers.cli.confirm(
+            f"Extraction folder {outside}" " already exists." " Do you want to overwrite it?"
+        ):
             raise RuntimeError("Aborted!")
         pmb.chroot.root(["rm", "-r", inside], chroot)
 
     # Extraction script (because passing a file to stdin is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
     with (chroot / "tmp/_extract.sh").open("w") as handle:
-        handle.write(
-            "#!/bin/sh\n"
-            f"cd {inside} && cpio -i < _initfs\n")
+        handle.write("#!/bin/sh\n" f"cd {inside} && cpio -i < _initfs\n")
 
     # Extract
-    commands = [["mkdir", "-p", inside],
-                ["cp", initfs_file, f"{inside}/_initfs.gz"],
-                ["gzip", "-d", f"{inside}/_initfs.gz"],
-                ["cat", "/tmp/_extract.sh"],  # for the log
-                ["sh", "/tmp/_extract.sh"],
-                ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"]
-                ]
+    commands = [
+        ["mkdir", "-p", inside],
+        ["cp", initfs_file, f"{inside}/_initfs.gz"],
+        ["gzip", "-d", f"{inside}/_initfs.gz"],
+        ["cat", "/tmp/_extract.sh"],  # for the log
+        ["sh", "/tmp/_extract.sh"],
+        ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"],
+    ]
     for command in commands:
         pmb.chroot.root(command, chroot)
 
@@ -78,7 +75,7 @@ def extract(flavor, chroot: Chroot, extra=False):
     return outside
 
 
-def ls( flavor, suffix, extra=False):
+def ls(flavor, suffix, extra=False):
     tmp = "/tmp/initfs-extracted"
     if extra:
         tmp = "/tmp/initfs-extra-extracted"

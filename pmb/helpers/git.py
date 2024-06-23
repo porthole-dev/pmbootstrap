@@ -106,8 +106,11 @@ def get_upstream_remote(aports: Path):
     for line in output.split("\n"):
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
-    raise RuntimeError("{}: could not find remote name for any URL '{}' in git"
-                       " repository: {}".format(name_repo, urls, aports))
+    raise RuntimeError(
+        "{}: could not find remote name for any URL '{}' in git" " repository: {}".format(
+            name_repo, urls, aports
+        )
+    )
 
 
 @Cache("aports")
@@ -131,11 +134,14 @@ def parse_channels_cfg(aports: Path):
     try:
         cfg.read_string(stdout)
     except configparser.MissingSectionHeaderError:
-        logging.info("NOTE: fix this by fetching your pmaports.git, e.g."
-                        " with 'pmbootstrap pull'")
-        raise RuntimeError("Failed to read channels.cfg from"
-                            f" '{remote}/master' branch of your local"
-                            " pmaports clone")
+        logging.info(
+            "NOTE: fix this by fetching your pmaports.git, e.g." " with 'pmbootstrap pull'"
+        )
+        raise RuntimeError(
+            "Failed to read channels.cfg from"
+            f" '{remote}/master' branch of your local"
+            " pmaports clone"
+        )
 
     # Meta section
     ret: Dict[str, Dict[str, str | Dict[str, str]]] = {"channels": {}}
@@ -149,11 +155,10 @@ def parse_channels_cfg(aports: Path):
         channel_new = pmb.helpers.pmaports.get_channel_new(channel)
 
         ret["channels"][channel_new] = {}
-        for key in ["description", "branch_pmaports", "branch_aports",
-                    "mirrordir_alpine"]:
+        for key in ["description", "branch_pmaports", "branch_aports", "mirrordir_alpine"]:
             value = cfg.get(channel, key)
             # FIXME: how to type this properly??
-            ret["channels"][channel_new][key] = value # type: ignore[index]
+            ret["channels"][channel_new][key] = value  # type: ignore[index]
 
     return ret
 
@@ -199,8 +204,10 @@ def pull(repo_name: str):
             official_looking_branches = "master, v24.06, …"
         else:
             official_looking_branches = "master, 3.20-stable, …"
-        logging.warning(f"{msg_start} not on one of the official branches"
-                        f" ({official_looking_branches}), skipping pull!")
+        logging.warning(
+            f"{msg_start} not on one of the official branches"
+            f" ({official_looking_branches}), skipping pull!"
+        )
         return -1
 
     # Skip if workdir is not clean
@@ -212,9 +219,11 @@ def pull(repo_name: str):
     branch_upstream = get_upstream_remote(repo) + "/" + branch
     remote_ref = rev_parse(repo, branch + "@{u}", ["--abbrev-ref"])
     if remote_ref != branch_upstream:
-        logging.warning("{} is tracking unexpected remote branch '{}' instead"
-                        " of '{}'".format(msg_start, remote_ref,
-                                          branch_upstream))
+        logging.warning(
+            "{} is tracking unexpected remote branch '{}' instead" " of '{}'".format(
+                msg_start, remote_ref, branch_upstream
+            )
+        )
         return -3
 
     # Fetch (exception on failure, meaning connection to server broke)
@@ -229,9 +238,11 @@ def pull(repo_name: str):
 
     # Skip if we can't fast-forward
     if not can_fast_forward(repo, branch_upstream):
-        logging.warning("{} can't fast-forward to {}, looks like you changed"
-                        " the git history of your local branch. Skipping pull!"
-                        "".format(msg_start, branch_upstream))
+        logging.warning(
+            "{} can't fast-forward to {}, looks like you changed"
+            " the git history of your local branch. Skipping pull!"
+            "".format(msg_start, branch_upstream)
+        )
         return -4
 
     # Fast-forward now (should not fail due to checks above, so it's fine to
@@ -247,8 +258,9 @@ def get_topdir(repo: Path):
     :returns: a string with the top dir of the git repository,
         or an empty string if it's not a git repository.
     """
-    res = pmb.helpers.run.user(["git", "rev-parse", "--show-toplevel"],
-                                repo, output_return=True, check=False)
+    res = pmb.helpers.run.user(
+        ["git", "rev-parse", "--show-toplevel"], repo, output_return=True, check=False
+    )
     if not isinstance(res, str):
         raise RuntimeError("Not a git repository: " + str(repo))
     return res.strip()
@@ -265,9 +277,9 @@ def get_files(repo: Path):
     """
     ret = []
     files = pmb.helpers.run.user_output(["git", "ls-files"], repo).split("\n")
-    files += pmb.helpers.run.user_output(["git", "ls-files",
-                                                "--exclude-standard", "--other"],
-                                         repo).split("\n")
+    files += pmb.helpers.run.user_output(
+        ["git", "ls-files", "--exclude-standard", "--other"], repo
+    ).split("\n")
     for file in files:
         if os.path.exists(f"{repo}/{file}"):
             ret += [file]

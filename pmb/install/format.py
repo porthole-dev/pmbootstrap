@@ -7,7 +7,7 @@ from pmb.types import PmbArgs
 
 
 def install_fsprogs(filesystem):
-    """ Install the package required to format a specific filesystem. """
+    """Install the package required to format a specific filesystem."""
     fsprogs = pmb.config.filesystems.get(filesystem)
     if not fsprogs:
         raise RuntimeError(f"Unsupported filesystem: {filesystem}")
@@ -25,20 +25,15 @@ def format_and_mount_boot(args: PmbArgs, device, boot_label):
     mountpoint = "/mnt/install/boot"
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
     install_fsprogs(filesystem)
-    logging.info(f"(native) format {device} (boot, {filesystem}), mount to"
-                 f" {mountpoint}")
+    logging.info(f"(native) format {device} (boot, {filesystem}), mount to" f" {mountpoint}")
     if filesystem == "fat16":
-        pmb.chroot.root(["mkfs.fat", "-F", "16", "-n", boot_label,
-                               device])
+        pmb.chroot.root(["mkfs.fat", "-F", "16", "-n", boot_label, device])
     elif filesystem == "fat32":
-        pmb.chroot.root(["mkfs.fat", "-F", "32", "-n", boot_label,
-                               device])
+        pmb.chroot.root(["mkfs.fat", "-F", "32", "-n", boot_label, device])
     elif filesystem == "ext2":
-        pmb.chroot.root(["mkfs.ext2", "-F", "-q", "-L", boot_label,
-                               device])
+        pmb.chroot.root(["mkfs.ext2", "-F", "-q", "-L", boot_label, device])
     elif filesystem == "btrfs":
-        pmb.chroot.root(["mkfs.btrfs", "-f", "-q", "-L", boot_label,
-                               device])
+        pmb.chroot.root(["mkfs.btrfs", "-f", "-q", "-L", boot_label, device])
     else:
         raise RuntimeError("Filesystem " + filesystem + " is not supported!")
     pmb.chroot.root(["mkdir", "-p", mountpoint])
@@ -51,21 +46,27 @@ def format_luks_root(args: PmbArgs, device):
     """
     mountpoint = "/dev/mapper/pm_crypt"
 
-    logging.info(f"(native) format {device} (root, luks), mount to"
-                 f" {mountpoint}")
+    logging.info(f"(native) format {device} (root, luks), mount to" f" {mountpoint}")
     logging.info(" *** TYPE IN THE FULL DISK ENCRYPTION PASSWORD (TWICE!) ***")
 
     # Avoid cryptsetup warning about missing locking directory
     pmb.chroot.root(["mkdir", "-p", "/run/cryptsetup"])
 
-    pmb.chroot.root(["cryptsetup", "luksFormat",
-                           "-q",
-                           "--cipher", args.cipher,
-                           "--iter-time", args.iter_time,
-                           "--use-random",
-                           device], output="interactive")
-    pmb.chroot.root(["cryptsetup", "luksOpen", device, "pm_crypt"],
-                    output="interactive")
+    pmb.chroot.root(
+        [
+            "cryptsetup",
+            "luksFormat",
+            "-q",
+            "--cipher",
+            args.cipher,
+            "--iter-time",
+            args.iter_time,
+            "--use-random",
+            device,
+        ],
+        output="interactive",
+    )
+    pmb.chroot.root(["cryptsetup", "luksOpen", device, "pm_crypt"], output="interactive")
 
     if not (Chroot.native() / mountpoint).exists():
         raise RuntimeError("Failed to open cryptdevice!")
@@ -79,11 +80,13 @@ def get_root_filesystem(args: PmbArgs):
     supported_list = supported.split(",")
 
     if ret not in supported_list:
-        raise ValueError(f"Root filesystem {ret} is not supported by your"
-                         " currently checked out pmaports branch. Update your"
-                         " branch ('pmbootstrap pull'), change it"
-                         " ('pmbootstrap init'), or select one of these"
-                         f" filesystems: {', '.join(supported_list)}")
+        raise ValueError(
+            f"Root filesystem {ret} is not supported by your"
+            " currently checked out pmaports branch. Update your"
+            " branch ('pmbootstrap pull'), change it"
+            " ('pmbootstrap init'), or select one of these"
+            f" filesystems: {', '.join(supported_list)}"
+        )
     return ret
 
 
@@ -99,32 +102,29 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     /snapshots should be a separate subvol so that changing the root subvol
     doesn't affect snapshots
     """
-    subvolume_list = ["@",
-                      "@home",
-                      "@root",
-                      "@snapshots",
-                      "@srv",
-                      "@tmp",
-                      "@var"]
+    subvolume_list = ["@", "@home", "@root", "@snapshots", "@srv", "@tmp", "@var"]
 
     for subvolume in subvolume_list:
-        pmb.chroot.root(["btrfs", "subvol", "create",
-                         f"{mountpoint}/{subvolume}"])
+        pmb.chroot.root(["btrfs", "subvol", "create", f"{mountpoint}/{subvolume}"])
 
     # Set the default root subvolume to be separate from top level btrfs
     # subvol. This lets us easily swap out current root subvol with an
     # earlier snapshot.
-    pmb.chroot.root(["btrfs", "subvol", "set-default",  f"{mountpoint}/@"])
+    pmb.chroot.root(["btrfs", "subvol", "set-default", f"{mountpoint}/@"])
 
     # Make directories to mount subvols onto
     pmb.chroot.root(["umount", mountpoint])
     pmb.chroot.root(["mount", device, mountpoint])
-    pmb.chroot.root(["mkdir",
-                            f"{mountpoint}/home",
-                            f"{mountpoint}/root",
-                            f"{mountpoint}/.snapshots",
-                            f"{mountpoint}/srv",
-                            f"{mountpoint}/var"])
+    pmb.chroot.root(
+        [
+            "mkdir",
+            f"{mountpoint}/home",
+            f"{mountpoint}/root",
+            f"{mountpoint}/.snapshots",
+            f"{mountpoint}/srv",
+            f"{mountpoint}/var",
+        ]
+    )
 
     # snapshots contain sensitive information,
     # and should only be readable by root.
@@ -132,16 +132,11 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     pmb.chroot.root(["chmod", "700", f"{mountpoint}/.snapshots"])
 
     # Mount subvols
-    pmb.chroot.root(["mount", "-o", "subvol=@var",
-                        device, f"{mountpoint}/var"])
-    pmb.chroot.root(["mount", "-o", "subvol=@home",
-                        device, f"{mountpoint}/home"])
-    pmb.chroot.root(["mount", "-o", "subvol=@root",
-                        device, f"{mountpoint}/root"])
-    pmb.chroot.root(["mount", "-o", "subvol=@srv",
-                        device, f"{mountpoint}/srv"])
-    pmb.chroot.root(["mount", "-o", "subvol=@snapshots",
-                        device, f"{mountpoint}/.snapshots"])
+    pmb.chroot.root(["mount", "-o", "subvol=@var", device, f"{mountpoint}/var"])
+    pmb.chroot.root(["mount", "-o", "subvol=@home", device, f"{mountpoint}/home"])
+    pmb.chroot.root(["mount", "-o", "subvol=@root", device, f"{mountpoint}/root"])
+    pmb.chroot.root(["mount", "-o", "subvol=@srv", device, f"{mountpoint}/srv"])
+    pmb.chroot.root(["mount", "-o", "subvol=@snapshots", device, f"{mountpoint}/.snapshots"])
 
     # Disable CoW for /var, to avoid write multiplication
     # and slowdown on databases, containers and VM images.
@@ -162,8 +157,7 @@ def format_and_mount_root(args: PmbArgs, device, root_label, disk):
             # Some downstream kernels don't support metadata_csum (#1364).
             # When changing the options of mkfs.ext4, also change them in the
             # recovery zip code (see 'grep -r mkfs\.ext4')!
-            mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F",
-                              "-q", "-L", root_label]
+            mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F", "-q", "-L", root_label]
             # When we don't know the file system size before hand like
             # with non-block devices, we need to explicitly set a number of
             # inodes. See #1717 and #1845 for details

@@ -20,23 +20,25 @@ from pmb.config.other import is_systemd_selected
 # Exported variables (internal configuration)
 #
 pmb_src: Path = Path(Path(__file__) / "../../..").resolve()
-apk_keys_path: Path = (pmb_src / "pmb/data/keys")
+apk_keys_path: Path = pmb_src / "pmb/data/keys"
 
 # apk-tools minimum version
 # https://pkgs.alpinelinux.org/packages?name=apk-tools&branch=edge
 # Update this frequently to prevent a MITM attack with an outdated version
 # (which may contain a vulnerable apk/openssl, and allows an attacker to
 # exploit the system!)
-apk_tools_min_version = {"edge": "2.14.4-r0",
-                         "v3.20": "2.14.4-r0",
-                         "v3.19": "2.14.4-r0",
-                         "v3.18": "2.14.4-r0",
-                         "v3.17": "2.12.14-r0",
-                         "v3.16": "2.12.9-r3",
-                         "v3.15": "2.12.7-r3",
-                         "v3.14": "2.12.7-r0",
-                         "v3.13": "2.12.7-r0",
-                         "v3.12": "2.10.8-r1"}
+apk_tools_min_version = {
+    "edge": "2.14.4-r0",
+    "v3.20": "2.14.4-r0",
+    "v3.19": "2.14.4-r0",
+    "v3.18": "2.14.4-r0",
+    "v3.17": "2.12.14-r0",
+    "v3.16": "2.12.9-r3",
+    "v3.15": "2.12.7-r3",
+    "v3.14": "2.12.7-r0",
+    "v3.13": "2.12.7-r0",
+    "v3.12": "2.10.8-r1",
+}
 
 # postmarketOS aports compatibility (checked against "version" in pmaports.cfg)
 pmaports_min_version = "7"
@@ -74,8 +76,9 @@ def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
 
 defaults: Dict[str, PathString] = {
     "cipher": "aes-xts-plain64",
-    "config": Path((os.environ.get('XDG_CONFIG_HOME') or
-               os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"),
+    "config": Path(
+        (os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"
+    ),
     # A higher value is typically desired, but this can lead to VERY long open
     # times on slower devices due to host systems being MUCH faster than the
     # target device (see issue #429).
@@ -84,19 +87,17 @@ defaults: Dict[str, PathString] = {
 
 # Whether we're connected to a TTY (which allows things like e.g. printing
 # progress bars)
-is_interactive = sys.stdout.isatty() and \
-    sys.stderr.isatty() and \
-    sys.stdin.isatty()
+is_interactive = sys.stdout.isatty() and sys.stderr.isatty() and sys.stdin.isatty()
 
 
 # ANSI escape codes to highlight stdout
 styles = {
-    "BLUE": '\033[94m',
-    "BOLD": '\033[1m',
-    "GREEN": '\033[92m',
-    "RED": '\033[91m',
-    "YELLOW": '\033[93m',
-    "END": '\033[0m'
+    "BLUE": "\033[94m",
+    "BOLD": "\033[1m",
+    "GREEN": "\033[92m",
+    "RED": "\033[91m",
+    "YELLOW": "\033[93m",
+    "END": "\033[0m",
 }
 
 if "NO_COLOR" in os.environ:
@@ -104,16 +105,17 @@ if "NO_COLOR" in os.environ:
         styles[style] = ""
 
 # Supported filesystems and their fstools packages
-filesystems = {"btrfs": "btrfs-progs",
-               "ext2": "e2fsprogs",
-               "ext4": "e2fsprogs",
-               "f2fs": "f2fs-tools",
-               "fat16": "dosfstools",
-               "fat32": "dosfstools"}
+filesystems = {
+    "btrfs": "btrfs-progs",
+    "ext2": "e2fsprogs",
+    "ext4": "e2fsprogs",
+    "f2fs": "f2fs-tools",
+    "fat16": "dosfstools",
+    "fat32": "dosfstools",
+}
 
 # Legacy channels and their new names (pmb#2015)
-pmaports_channels_legacy = {"stable": "v20.05",
-                            "stable-next": "v21.03"}
+pmaports_channels_legacy = {"stable": "v20.05", "stable-next": "v21.03"}
 #
 # CHROOT
 #
@@ -124,14 +126,16 @@ pmaports_channels_legacy = {"stable": "v20.05",
 chroot_uid_user = "12345"
 
 # The PATH variable used inside all chroots
-chroot_path = ":".join([
-    "/usr/lib/ccache/bin",
-    "/usr/local/sbin",
-    "/usr/local/bin",
-    "/usr/sbin:/usr/bin",
-    "/sbin",
-    "/bin"
-])
+chroot_path = ":".join(
+    [
+        "/usr/lib/ccache/bin",
+        "/usr/local/sbin",
+        "/usr/local/bin",
+        "/usr/sbin:/usr/bin",
+        "/sbin",
+        "/bin",
+    ]
+)
 
 # The PATH variable used on the host, to find the "chroot" and "sh"
 # executables. As pmbootstrap runs as user, not as root, the location
@@ -176,7 +180,7 @@ chroot_home_symlinks = {
     "/mnt/pmbootstrap/ccache": "/home/pmos/.ccache",
     "/mnt/pmbootstrap/go/gocache": "/home/pmos/.cache/go-build",
     "/mnt/pmbootstrap/go/gomodcache": "/home/pmos/go/pkg/mod",
-    #"/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
+    # "/mnt/pmbootstrap/packages": "/home/pmos/packages/pmos",
     "/mnt/pmbootstrap/rust/git/db": "/home/pmos/.cargo/git/db",
     "/mnt/pmbootstrap/rust/registry/cache": "/home/pmos/.cargo/registry/cache",
     "/mnt/pmbootstrap/rust/registry/index": "/home/pmos/.cargo/registry/index",
@@ -269,11 +273,7 @@ kconfig_options = {
             "TZDEV": False,
         }
     },
-    "<5.2.0": {
-        "armhf armv7 x86": {
-            "LBDAF": True
-        }
-    }
+    "<5.2.0": {"armhf armv7 x86": {"LBDAF": True}},
 }
 
 # Necessary waydroid kernel config options (android app support)
@@ -319,7 +319,7 @@ kconfig_options_waydroid = {
         "all": {
             "ASHMEM": True,
         }
-    }
+    },
 }
 
 # Necessary iwd kernel config options (inet wireless daemon)
@@ -453,7 +453,7 @@ kconfig_options_containers = {
         "x86 x86_64": {  # only for x86, x86_64 (and sparc64, ia64)
             "HUGETLB_PAGE": True,
             "CGROUP_HUGETLB": True,  # Optional section
-        }
+        },
     },
     ">=3.6 <6.1_rc1": {  # option has been dropped
         "all": {
@@ -595,7 +595,7 @@ kconfig_options_community = {
             "UCLAMP_TASK_GROUP": True,  # Scheduler hints
             "UHID": True,  # e.g. Bluetooth input devices
             "USB_STORAGE": True,  # USB mass storage devices
-            "RT_GROUP_SCHED": False, # https://gitlab.com/postmarketOS/pmaports/-/issues/2652
+            "RT_GROUP_SCHED": False,  # https://gitlab.com/postmarketOS/pmaports/-/issues/2652
         },
     },
 }
@@ -641,18 +641,15 @@ apkbuild_package_attributes = {
     "provider_priority": {"int": True},
     "install": {"array": True},
     "triggers": {"array": True},
-
     # Packages can specify soft dependencies in "_pmb_recommends" to be
     # explicitly installed by default, and not implicitly as a hard dependency
     # of the package ("depends"). This makes these apps uninstallable, without
     # removing the meta-package. (#1933). To disable this feature, use:
     # "pmbootstrap install --no-recommends".
     "_pmb_recommends": {"array": True},
-
     # UI meta-packages can specify groups to which the user must be added
     # to access specific hardware such as LED indicators.
     "_pmb_groups": {"array": True},
-
     # postmarketos-base, UI and device packages can use _pmb_select to provide
     # additional configuration options in "pmbootstrap init" that allow
     # selecting alternative providers for a virtual APK package.
@@ -662,7 +659,6 @@ apkbuild_package_attributes = {
 # Variables in APKBUILD files that get parsed
 apkbuild_attributes = {
     **apkbuild_package_attributes,
-
     "arch": {"array": True},
     "depends_dev": {"array": True},
     "makedepends": {"array": True},
@@ -675,35 +671,28 @@ apkbuild_attributes = {
     "sha512sums": {},
     "subpackages": {},
     "url": {},
-
     # cross-compilers
     "makedepends_build": {"array": True},
     "makedepends_host": {"array": True},
-
     # kernels
     "_flavor": {},
     "_device": {},
     "_kernver": {},
     "_outdir": {},
     "_config": {},
-
     # linux-edge
     "_depends_dev": {"array": True},
-
     # mesa
     "_llvmver": {},
-
     # Overridden packages
     "_pkgver": {},
     "_pkgname": {},
-
     # git commit
     "_commit": {},
     "source": {"array": True},
-
     # gcc
     "_pkgbase": {},
-    "_pkgsnap": {}
+    "_pkgsnap": {},
 }
 
 # Reference: https://postmarketos.org/apkbuild-options
@@ -736,7 +725,7 @@ deviceinfo_chassis_types = [
     "handset",
     "watch",
     "embedded",
-    "vm"
+    "vm",
 ]
 
 #
@@ -800,24 +789,26 @@ flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = 
         "depends": [],  # pmaports.cfg: supported_fastboot_depends
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
-            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS",
-                              "$IMAGE"]],
-            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
-                              "$BOOT/boot.img$FLAVOR"]],
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS", "$IMAGE"]],
+            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL", "$BOOT/boot.img$FLAVOR"]],
             "flash_vbmeta": [
                 # Generate vbmeta image with "disable verification" flag
-                ["avbtool", "make_vbmeta_image", "--flags", "2",
-                    "--padding_size", "$FLASH_PAGESIZE",
-                    "--output", "/vbmeta.img"],
+                [
+                    "avbtool",
+                    "make_vbmeta_image",
+                    "--flags",
+                    "2",
+                    "--padding_size",
+                    "$FLASH_PAGESIZE",
+                    "--output",
+                    "/vbmeta.img",
+                ],
                 ["fastboot", "flash", "$PARTITION_VBMETA", "/vbmeta.img"],
-                ["rm", "-f", "/vbmeta.img"]
+                ["rm", "-f", "/vbmeta.img"],
             ],
-            "flash_dtbo": [["fastboot", "flash", "$PARTITION_DTBO",
-                            "$BOOT/dtbo.img"]],
-            "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE",
-                      "boot", "$BOOT/boot.img$FLAVOR"]],
-            "flash_lk2nd": [["fastboot", "flash", "$PARTITION_KERNEL",
-                             "$BOOT/lk2nd.img"]]
+            "flash_dtbo": [["fastboot", "flash", "$PARTITION_DTBO", "$BOOT/dtbo.img"]],
+            "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE", "boot", "$BOOT/boot.img$FLAVOR"]],
+            "flash_lk2nd": [["fastboot", "flash", "$PARTITION_KERNEL", "$BOOT/lk2nd.img"]],
         },
     },
     # Some devices provide Fastboot but using Android boot images is not
@@ -831,10 +822,8 @@ flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = 
         "depends": ["android-tools"],
         "actions": {
             "list_devices": [["fastboot", "devices", "-l"]],
-            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS",
-                              "$IMAGE_SPLIT_ROOT"]],
-            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL",
-                              "$IMAGE_SPLIT_BOOT"]],
+            "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS", "$IMAGE_SPLIT_ROOT"]],
+            "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL", "$IMAGE_SPLIT_BOOT"]],
             # TODO: Add support for boot
         },
     },
@@ -849,11 +838,17 @@ flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = 
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"]],
-            "flash_kernel": [["heimdall_flash_kernel.sh",
-                              "$BOOT/initramfs$FLAVOR", "$PARTITION_INITFS",
-                              "$BOOT/vmlinuz$FLAVOR$DTB",
-                              "$PARTITION_KERNEL"]]
+                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"],
+            ],
+            "flash_kernel": [
+                [
+                    "heimdall_flash_kernel.sh",
+                    "$BOOT/initramfs$FLAVOR",
+                    "$PARTITION_INITFS",
+                    "$BOOT/vmlinuz$FLAVOR$DTB",
+                    "$PARTITION_KERNEL",
+                ]
+            ],
         },
     },
     # Some Samsung devices need a 'boot.img' file, just like the one generated
@@ -864,34 +859,63 @@ flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = 
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE",
-                 "$NO_REBOOT", "$RESUME"]],
+                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE", "$NO_REBOOT", "$RESUME"],
+            ],
             "flash_kernel": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_KERNEL",
-                 "$BOOT/boot.img$FLAVOR", "$NO_REBOOT", "$RESUME"]],
+                [
+                    "heimdall",
+                    "flash",
+                    "--$PARTITION_KERNEL",
+                    "$BOOT/boot.img$FLAVOR",
+                    "$NO_REBOOT",
+                    "$RESUME",
+                ],
+            ],
             "flash_vbmeta": [
-                ["avbtool", "make_vbmeta_image", "--flags", "2",
-                    "--padding_size", "$FLASH_PAGESIZE",
-                    "--output", "/vbmeta.img"],
-                ["heimdall", "flash", "--$PARTITION_VBMETA", "/vbmeta.img",
-                 "$NO_REBOOT", "$RESUME"],
-                ["rm", "-f", "/vbmeta.img"]],
+                [
+                    "avbtool",
+                    "make_vbmeta_image",
+                    "--flags",
+                    "2",
+                    "--padding_size",
+                    "$FLASH_PAGESIZE",
+                    "--output",
+                    "/vbmeta.img",
+                ],
+                [
+                    "heimdall",
+                    "flash",
+                    "--$PARTITION_VBMETA",
+                    "/vbmeta.img",
+                    "$NO_REBOOT",
+                    "$RESUME",
+                ],
+                ["rm", "-f", "/vbmeta.img"],
+            ],
             "flash_lk2nd": [
                 ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_KERNEL", "$BOOT/lk2nd.img",
-                 "$NO_REBOOT", "$RESUME"]]
+                [
+                    "heimdall",
+                    "flash",
+                    "--$PARTITION_KERNEL",
+                    "$BOOT/lk2nd.img",
+                    "$NO_REBOOT",
+                    "$RESUME",
+                ],
+            ],
         },
     },
     "adb": {
         "depends": ["android-tools"],
         "actions": {
             "list_devices": [["adb", "-P", "5038", "devices"]],
-            "sideload": [["echo", "< wait for any device >"],
-                         ["adb", "-P", "5038", "wait-for-usb-sideload"],
-                         ["adb", "-P", "5038", "sideload",
-                          "$RECOVERY_ZIP"]],
-        }
+            "sideload": [
+                ["echo", "< wait for any device >"],
+                ["adb", "-P", "5038", "wait-for-usb-sideload"],
+                ["adb", "-P", "5038", "sideload", "$RECOVERY_ZIP"],
+            ],
+        },
     },
     "uuu": {
         "depends": ["nxp-mfgtools-uuu"],
@@ -910,46 +934,51 @@ flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = 
         "actions": {
             "list_devices": [["rkdeveloptool", "list"]],
             "flash_rootfs": [
-                ["rkdeveloptool", "write-partition", "$PARTITION_ROOTFS",
-                    "$IMAGE_SPLIT_ROOT"]
+                ["rkdeveloptool", "write-partition", "$PARTITION_ROOTFS", "$IMAGE_SPLIT_ROOT"]
             ],
             "flash_kernel": [
-                ["rkdeveloptool", "write-partition", "$PARTITION_KERNEL",
-                    "$IMAGE_SPLIT_BOOT"]
+                ["rkdeveloptool", "write-partition", "$PARTITION_KERNEL", "$IMAGE_SPLIT_BOOT"]
             ],
         },
     },
     "mtkclient": {
         "depends": ["mtkclient"],
         "actions": {
-            "flash_rootfs": [["mtk", "w", "$PARTITION_ROOTFS",
-                              "$IMAGE"]],
-            "flash_kernel": [["mtk", "w", "$PARTITION_KERNEL",
-                              "$BOOT/boot.img$FLAVOR"]],
+            "flash_rootfs": [["mtk", "w", "$PARTITION_ROOTFS", "$IMAGE"]],
+            "flash_kernel": [["mtk", "w", "$PARTITION_KERNEL", "$BOOT/boot.img$FLAVOR"]],
             "flash_vbmeta": [
                 # Generate vbmeta image with "disable verification" flag
-                ["avbtool", "make_vbmeta_image", "--flags", "2",
-                    "--padding_size", "$FLASH_PAGESIZE",
-                    "--output", "/vbmeta.img"],
+                [
+                    "avbtool",
+                    "make_vbmeta_image",
+                    "--flags",
+                    "2",
+                    "--padding_size",
+                    "$FLASH_PAGESIZE",
+                    "--output",
+                    "/vbmeta.img",
+                ],
                 ["mtk", "w", "$PARTITION_VBMETA", "/vbmeta.img"],
-                ["rm", "-f", "/vbmeta.img"]
+                ["rm", "-f", "/vbmeta.img"],
             ],
-            "flash_dtbo": [["mtk", "w", "$PARTITION_DTBO",
-                            "$BOOT/dtbo.img"]],
-            "flash_lk2nd": [["mtk", "w", "$PARTITION_KERNEL",
-                             "$BOOT/lk2nd.img"]]
-        }
-    }
+            "flash_dtbo": [["mtk", "w", "$PARTITION_DTBO", "$BOOT/dtbo.img"]],
+            "flash_lk2nd": [["mtk", "w", "$PARTITION_KERNEL", "$BOOT/lk2nd.img"]],
+        },
+    },
 }
 
 #
 # GIT
 #
 git_repos = {
-    "aports_upstream": ["https://gitlab.alpinelinux.org/alpine/aports.git",
-                        "git@gitlab.alpinelinux.org:alpine/aports.git"],
-    "pmaports": ["https://gitlab.com/postmarketOS/pmaports.git",
-                 "git@gitlab.com:postmarketos/pmaports.git"],
+    "aports_upstream": [
+        "https://gitlab.alpinelinux.org/alpine/aports.git",
+        "git@gitlab.alpinelinux.org:alpine/aports.git",
+    ],
+    "pmaports": [
+        "https://gitlab.com/postmarketOS/pmaports.git",
+        "git@gitlab.com:postmarketos/pmaports.git",
+    ],
 }
 
 #
@@ -963,7 +992,7 @@ aportgen: Dict[str, AportGenEntry] = {
     "device/testing": {
         "prefixes": ["device", "linux"],
         "confirm_overwrite": True,
-    }
+    },
 }
 
 # Use a deterministic mirror URL instead of CDN for aportgen. Otherwise we may
@@ -982,8 +1011,7 @@ aportgen_mirror_alpine = "http://dl-4.alpinelinux.org/alpine/"
 newapkbuild_arguments_strings = [
     ["-n", "pkgname", "set package name (only use with SRCURL)"],
     ["-d", "pkgdesc", "set package description"],
-    ["-l", "license", "set package license identifier from"
-                      " <https://spdx.org/licenses/>"],
+    ["-l", "license", "set package license identifier from" " <https://spdx.org/licenses/>"],
     ["-u", "url", "set package URL"],
 ]
 newapkbuild_arguments_switches_pkgtypes = [
@@ -1005,8 +1033,16 @@ newapkbuild_arguments_switches_other = [
 #
 # Patterns of package names to ignore for automatic pmaport upgrading
 # ("pmbootstrap aportupgrade --all")
-upgrade_ignore = ["device-*", "firmware-*", "linux-*", "postmarketos-*",
-                  "*-aarch64", "*-armhf", "*-armv7", "*-riscv64"]
+upgrade_ignore = [
+    "device-*",
+    "firmware-*",
+    "linux-*",
+    "postmarketos-*",
+    "*-aarch64",
+    "*-armhf",
+    "*-armv7",
+    "*-riscv64",
+]
 
 #
 # SIDELOAD

@@ -27,8 +27,7 @@ class ReadlineTabCompleter:
         # First time: build match list
         if iteration == 0:
             if input_text:
-                self.matches = [s for s in self.options
-                                if s and s.startswith(input_text)]
+                self.matches = [s for s in self.options if s and s.startswith(input_text)]
             else:
                 self.matches = self.options[:]
 
@@ -38,8 +37,14 @@ class ReadlineTabCompleter:
         return None
 
 
-def ask(question="Continue?", choices=["y", "n"], default="n",
-        lowercase_answer=True, validation_regex=None, complete=None):
+def ask(
+    question="Continue?",
+    choices=["y", "n"],
+    default="n",
+    lowercase_answer=True,
+    validation_regex=None,
+    complete=None,
+):
     """Ask a question on the terminal.
 
     :param question: display prompt
@@ -62,13 +67,12 @@ def ask(question="Continue?", choices=["y", "n"], default="n",
         line = f"[{date}] {line}"
 
         if complete:
-            readline.parse_and_bind('tab: complete')
+            readline.parse_and_bind("tab: complete")
             delims = readline.get_completer_delims()
-            if '-' in delims:
-                delims = delims.replace('-', '')
+            if "-" in delims:
+                delims = delims.replace("-", "")
                 readline.set_completer_delims(delims)
-            readline.set_completer(
-                ReadlineTabCompleter(complete).completer_func)
+            readline.set_completer(ReadlineTabCompleter(complete).completer_func)
 
         ret = input(f"{line_color}: ")
 
@@ -93,8 +97,11 @@ def ask(question="Continue?", choices=["y", "n"], default="n",
         if pattern.match(ret):
             return ret
 
-        logging.fatal("ERROR: Input did not pass validation (regex: " +
-                      validation_regex + "). Please try again.")
+        logging.fatal(
+            "ERROR: Input did not pass validation (regex: "
+            + validation_regex
+            + "). Please try again."
+        )
 
 
 def confirm(question="Continue?", default=False, no_assumptions=False):

@@ -24,40 +24,36 @@ def variables(args: PmbArgs, flavor: str, method: str):
     _partition_rootfs: Optional[str]
 
     if method.startswith("fastboot"):
-        _partition_kernel = deviceinfo.flash_fastboot_partition_kernel\
-            or "boot"
-        _partition_rootfs = deviceinfo.flash_fastboot_partition_rootfs\
-            or deviceinfo.flash_fastboot_partition_system or "userdata"
-        _partition_vbmeta = deviceinfo.flash_fastboot_partition_vbmeta\
-            or None
-        _partition_dtbo = deviceinfo.flash_fastboot_partition_dtbo\
-            or None
+        _partition_kernel = deviceinfo.flash_fastboot_partition_kernel or "boot"
+        _partition_rootfs = (
+            deviceinfo.flash_fastboot_partition_rootfs
+            or deviceinfo.flash_fastboot_partition_system
+            or "userdata"
+        )
+        _partition_vbmeta = deviceinfo.flash_fastboot_partition_vbmeta or None
+        _partition_dtbo = deviceinfo.flash_fastboot_partition_dtbo or None
     # Require that the partitions are specified in deviceinfo for now
     elif method.startswith("rkdeveloptool"):
-        _partition_kernel = deviceinfo.flash_rk_partition_kernel\
-            or None
-        _partition_rootfs = deviceinfo.flash_rk_partition_rootfs\
-            or deviceinfo.flash_rk_partition_system or None
+        _partition_kernel = deviceinfo.flash_rk_partition_kernel or None
+        _partition_rootfs = (
+            deviceinfo.flash_rk_partition_rootfs or deviceinfo.flash_rk_partition_system or None
+        )
         _partition_vbmeta = None
         _partition_dtbo = None
     elif method.startswith("mtkclient"):
-        _partition_kernel = deviceinfo.flash_mtkclient_partition_kernel\
-            or "boot"
-        _partition_rootfs = deviceinfo.flash_mtkclient_partition_rootfs\
-            or "userdata"
-        _partition_vbmeta = deviceinfo.flash_mtkclient_partition_vbmeta\
-            or None
-        _partition_dtbo = deviceinfo.flash_mtkclient_partition_dtbo\
-            or None
+        _partition_kernel = deviceinfo.flash_mtkclient_partition_kernel or "boot"
+        _partition_rootfs = deviceinfo.flash_mtkclient_partition_rootfs or "userdata"
+        _partition_vbmeta = deviceinfo.flash_mtkclient_partition_vbmeta or None
+        _partition_dtbo = deviceinfo.flash_mtkclient_partition_dtbo or None
     else:
-        _partition_kernel = deviceinfo.flash_heimdall_partition_kernel\
-            or "KERNEL"
-        _partition_rootfs = deviceinfo.flash_heimdall_partition_rootfs\
-            or deviceinfo.flash_heimdall_partition_system or "SYSTEM"
-        _partition_vbmeta = deviceinfo.flash_heimdall_partition_vbmeta\
-            or None
-        _partition_dtbo = deviceinfo.flash_heimdall_partition_dtbo\
-            or None
+        _partition_kernel = deviceinfo.flash_heimdall_partition_kernel or "KERNEL"
+        _partition_rootfs = (
+            deviceinfo.flash_heimdall_partition_rootfs
+            or deviceinfo.flash_heimdall_partition_system
+            or "SYSTEM"
+        )
+        _partition_vbmeta = deviceinfo.flash_heimdall_partition_vbmeta or None
+        _partition_dtbo = deviceinfo.flash_heimdall_partition_dtbo or None
 
     if "partition" in args and args.partition:
         # Only one operation is done at same time so it doesn't matter
@@ -72,11 +68,11 @@ def variables(args: PmbArgs, flavor: str, method: str):
         _dtb = "-dtb"
 
     _no_reboot = ""
-    if getattr(args, 'no_reboot', False):
+    if getattr(args, "no_reboot", False):
         _no_reboot = "--no-reboot"
 
     _resume = ""
-    if getattr(args,'resume', False):
+    if getattr(args, "resume", False):
         _resume = "--resume"
 
     fvars = {
@@ -93,12 +89,12 @@ def variables(args: PmbArgs, flavor: str, method: str):
         "$PARTITION_DTBO": _partition_dtbo,
         "$FLASH_PAGESIZE": flash_pagesize,
         "$RECOVERY_ZIP": f"/mnt/{Chroot.buildroot(deviceinfo.arch)}"
-                         "/var/lib/postmarketos-android-recovery-installer"
-                         f"/pmos-{device}.zip",
+        "/var/lib/postmarketos-android-recovery-installer"
+        f"/pmos-{device}.zip",
         "$UUU_SCRIPT": f"/mnt/{Chroot.rootfs(deviceinfo.codename)}"
-                       "/usr/share/uuu/flash_script.lst",
+        "/usr/share/uuu/flash_script.lst",
         "$NO_REBOOT": _no_reboot,
-        "$RESUME": _resume
+        "$RESUME": _resume,
     }
 
     # Backwards compatibility with old mkinitfs (pma#660)

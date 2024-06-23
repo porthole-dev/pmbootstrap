@@ -19,7 +19,7 @@ def start_nbd_server(device: str, replace: bool, ip="172.16.42.2", port=9999):
     :param port: port of nbd server
     """
 
-    pmb.chroot.apk.install(['nbd'], Chroot.native())
+    pmb.chroot.apk.install(["nbd"], Chroot.native())
 
     chroot = Chroot.native()
 
@@ -27,18 +27,20 @@ def start_nbd_server(device: str, replace: bool, ip="172.16.42.2", port=9999):
     if not (chroot / rootfs_path).exists() or replace:
         rootfs_path2 = Path("/home/pmos/rootfs") / f"{device}.img"
         if not (chroot / rootfs_path2).exists():
-            raise RuntimeError("The rootfs has not been generated yet, please "
-                               "run 'pmbootstrap install' first.")
-        if replace and not \
-                pmb.helpers.cli.confirm(f"Are you sure you want to "
-                                              f"replace the rootfs for "
-                                              f"{device}?"):
+            raise RuntimeError(
+                "The rootfs has not been generated yet, please " "run 'pmbootstrap install' first."
+            )
+        if replace and not pmb.helpers.cli.confirm(
+            f"Are you sure you want to " f"replace the rootfs for " f"{device}?"
+        ):
             return
         pmb.chroot.root(["cp", rootfs_path2, rootfs_path])
-        logging.info(f"NOTE: Copied device image to {get_context().config.work}"
-                     f"/images_netboot/. The image will persist \"pmbootstrap "
-                     f"zap\" for your convenience. Use \"pmbootstrap netboot "
-                     f"serve --help\" for more options.")
+        logging.info(
+            f"NOTE: Copied device image to {get_context().config.work}"
+            f'/images_netboot/. The image will persist "pmbootstrap '
+            f'zap" for your convenience. Use "pmbootstrap netboot '
+            f'serve --help" for more options.'
+        )
 
     logging.info(f"Running nbd server for {device} on {ip} port {port}.")
 
@@ -62,8 +64,9 @@ def start_nbd_server(device: str, replace: bool, ip="172.16.42.2", port=9999):
             break
 
         logging.info("Found postmarketOS device, serving image...")
-        pmb.chroot.root(["nbd-server", f"{ip}@{port}", rootfs_path, "-d"],
-            check=False, disable_timeout=True)
+        pmb.chroot.root(
+            ["nbd-server", f"{ip}@{port}", rootfs_path, "-d"], check=False, disable_timeout=True
+        )
         logging.info("nbd-server quit. Connection lost?")
         # On a reboot nbd-server will quit, but the IP address sticks around
         # for a bit longer, so wait.

@@ -19,10 +19,11 @@ DEBUG = logging.DEBUG
 NOTSET = logging.NOTSET
 VERBOSE = 5
 
+
 class log_handler(logging.StreamHandler):
     """Write to stdout and to the already opened log file."""
-    
-    def __init__(self, details_to_stdout: bool=False, quiet: bool=False):
+
+    def __init__(self, details_to_stdout: bool = False, quiet: bool = False):
         super().__init__()
         self.details_to_stdout = details_to_stdout
         self.quiet = False
@@ -32,9 +33,7 @@ class log_handler(logging.StreamHandler):
             msg = self.format(record)
 
             # INFO or higher: Write to stdout
-            if (self.details_to_stdout or
-                (not self.quiet and
-                    record.levelno >= logging.INFO)):
+            if self.details_to_stdout or (not self.quiet and record.levelno >= logging.INFO):
                 stream = self.stream
 
                 styles = pmb.config.styles
@@ -102,14 +101,17 @@ def add_verbose_log_level():
     """
     setattr(logging, "VERBOSE", VERBOSE)
     logging.addLevelName(VERBOSE, "VERBOSE")
-    setattr(logging.Logger, "verbose", lambda inst, msg, * \
-        args, **kwargs: inst.log(VERBOSE, msg, *args, **kwargs))
-    setattr(logging, "verbose", lambda msg, *args, **kwargs: logging.log(VERBOSE,
-                                                               msg, *args,
-                                                               **kwargs))
+    setattr(
+        logging.Logger,
+        "verbose",
+        lambda inst, msg, *args, **kwargs: inst.log(VERBOSE, msg, *args, **kwargs),
+    )
+    setattr(
+        logging, "verbose", lambda msg, *args, **kwargs: logging.log(VERBOSE, msg, *args, **kwargs)
+    )
 
 
-def init(logfile: Path, verbose: bool, details_to_stdout: bool=False):
+def init(logfile: Path, verbose: bool, details_to_stdout: bool = False):
     """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
 
@@ -131,8 +133,7 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool=False):
     # Set log format
     root_logger = logging.getLogger()
     root_logger.handlers = []
-    formatter = logging.Formatter("[%(asctime)s] %(message)s",
-                                  datefmt="%H:%M:%S")
+    formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%H:%M:%S")
 
     # Set log level
     add_verbose_log_level()
@@ -147,7 +148,7 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool=False):
 
     logging.debug(f"Pmbootstrap v{pmb.__version__} (Python {sys.version})")
     if "--password" in sys.argv:
-        sys.argv[sys.argv.index("--password")+1] = "[REDACTED]"
+        sys.argv[sys.argv.index("--password") + 1] = "[REDACTED]"
     logging.debug(f"$ pmbootstrap {' '.join(sys.argv)}")
 
 
@@ -158,6 +159,7 @@ def disable():
 
 # We have our own logging wrappers so we can make mypy happy
 # by not calling the (undefined) logging.verbose() function.
+
 
 def critical(msg: object, *args, **kwargs):
     logging.critical(msg, *args, **kwargs)
@@ -184,7 +186,7 @@ def debug(msg: object, *args, **kwargs):
 
 
 def verbose(msg: object, *args, **kwargs):
-    logging.verbose(msg, *args, **kwargs) # type: ignore[attr-defined]
+    logging.verbose(msg, *args, **kwargs)  # type: ignore[attr-defined]
 
 
 def log(level: int, msg: object, *args, **kwargs):

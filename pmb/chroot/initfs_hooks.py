@@ -15,7 +15,7 @@ def list_chroot(suffix: Chroot, remove_prefix=True):
     for pkgname in pmb.chroot.apk.installed(suffix).keys():
         if pkgname.startswith(prefix):
             if remove_prefix:
-                ret.append(pkgname[len(prefix):])
+                ret.append(pkgname[len(prefix) :])
             else:
                 ret.append(pkgname)
     return ret
@@ -25,7 +25,7 @@ def list_aports():
     ret = []
     prefix = pmb.config.initfs_hook_prefix
     for path in pkgrepo_iglob(f"*/{prefix}*"):
-        ret.append(os.path.basename(path)[len(prefix):])
+        ret.append(os.path.basename(path)[len(prefix) :])
     return ret
 
 
@@ -40,9 +40,9 @@ def ls(suffix: Chroot):
 
 def add(hook, suffix: Chroot):
     if hook not in list_aports():
-        raise RuntimeError("Invalid hook name!"
-                           " Run 'pmbootstrap initfs hook_ls'"
-                           " to get a list of all hooks.")
+        raise RuntimeError(
+            "Invalid hook name!" " Run 'pmbootstrap initfs hook_ls'" " to get a list of all hooks."
+        )
     prefix = pmb.config.initfs_hook_prefix
     pmb.chroot.apk.install([f"{prefix}{hook}"], suffix)
 

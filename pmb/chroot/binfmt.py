@@ -48,8 +48,7 @@ def register(arch: Arch):
     mask = info["mask"]
     interpreter = "/usr/bin/qemu-" + arch_qemu + "-static"
     flags = "C"
-    code = ":".join(["", name, type, offset, magic, mask, interpreter,
-                     flags])
+    code = ":".join(["", name, type, offset, magic, mask, interpreter, flags])
 
     # Register in binfmt_misc
     logging.info("Register qemu binfmt (" + arch_qemu + ")")

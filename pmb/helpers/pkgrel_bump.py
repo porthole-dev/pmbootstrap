@@ -25,8 +25,16 @@ def package(args: PmbArgs, pkgname, reason="", dry=False):
     pkgrel_new = pkgrel + 1
 
     # Display the message, bail out in dry mode
-    logging.info("Increase '" + pkgname + "' pkgrel (" + str(pkgrel) + " -> " +
-                 str(pkgrel_new) + ")" + reason)
+    logging.info(
+        "Increase '"
+        + pkgname
+        + "' pkgrel ("
+        + str(pkgrel)
+        + " -> "
+        + str(pkgrel_new)
+        + ")"
+        + reason
+    )
     if dry:
         return
 
@@ -39,9 +47,11 @@ def package(args: PmbArgs, pkgname, reason="", dry=False):
     pmb.parse.apkbuild.cache_clear()
     apkbuild = pmb.parse.apkbuild(path)
     if int(apkbuild["pkgrel"]) != pkgrel_new:
-        raise RuntimeError(f"Failed to bump pkgrel for package '{pkgname}'."
-                           " Make sure that there's a line with exactly the"
-                           f" string '{old.strip()}' and nothing else in: {path}")
+        raise RuntimeError(
+            f"Failed to bump pkgrel for package '{pkgname}'."
+            " Make sure that there's a line with exactly the"
+            f" string '{old.strip()}' and nothing else in: {path}"
+        )
 
 
 def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
@@ -62,42 +72,38 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
     # Skip when aport version != binary package version
     compare = pmb.parse.version.compare(version_aport, version_apk)
     if compare == -1:
-        logging.warning("{}: skipping, because the aport version {} is lower"
-                        " than the binary version {}".format(pkgname,
-                                                             version_aport,
-                                                             version_apk))
+        logging.warning(
+            "{}: skipping, because the aport version {} is lower"
+            " than the binary version {}".format(pkgname, version_aport, version_apk)
+        )
         return
     if compare == 1:
-        logging.verbose("{}: skipping, because the aport version {} is higher"
-                        " than the binary version {}".format(pkgname,
-                                                             version_aport,
-                                                             version_apk))
+        logging.verbose(
+            "{}: skipping, because the aport version {} is higher"
+            " than the binary version {}".format(pkgname, version_aport, version_apk)
+        )
         return
 
     # Find missing depends
     depends = apk["depends"]
-    logging.verbose("{}: checking depends: {}".format(pkgname,
-                                                      ", ".join(depends)))
+    logging.verbose("{}: checking depends: {}".format(pkgname, ", ".join(depends)))
     missing = []
     for depend in depends:
         if depend.startswith("!"):
             # Ignore conflict-dependencies
             continue
 
-        providers = pmb.parse.apkindex.providers(depend, arch,
-                                                 must_exist=False)
+        providers = pmb.parse.apkindex.providers(depend, arch, must_exist=False)
         if providers == {}:
             # We're only interested in missing depends starting with "so:"
             # (which means dynamic libraries that the package was linked
             # against) and packages for which no aport exists.
-            if (depend.startswith("so:") or
-                    not pmb.helpers.pmaports.find_optional(depend)):
+            if depend.startswith("so:") or not pmb.helpers.pmaports.find_optional(depend):
                 missing.append(depend)
 
     # Increase pkgrel
     if len(missing):
-        package(args, pkgname, reason=", missing depend(s): " +
-                ", ".join(missing), dry=dry)
+        package(args, pkgname, reason=", missing depend(s): " + ", ".join(missing), dry=dry)
         return True
 
 
@@ -113,13 +119,11 @@ def auto(args: PmbArgs, dry=False):
                 origin = apk["origin"]
                 # Only increase once!
                 if origin in ret:
-                    logging.verbose(
-                        f"{pkgname}: origin '{origin}' found again")
+                    logging.verbose(f"{pkgname}: origin '{origin}' found again")
                     continue
                 aport_path = pmb.helpers.pmaports.find_optional(origin)
                 if not aport_path:
-                    logging.warning("{}: origin '{}' aport not found".format(
-                                    pkgname, origin))
+                    logging.warning("{}: origin '{}' aport not found".format(pkgname, origin))
                     continue
                 aport = pmb.parse.apkbuild(aport_path)
                 if auto_apkindex_package(args, arch, aport, apk, dry):

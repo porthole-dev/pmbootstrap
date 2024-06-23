@@ -16,26 +16,34 @@ from pmb.core.context import get_context
 
 
 def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
-    """ Copy the building key of the local installation to the target device,
-        so it trusts the apks that were signed here.
-        :param user: target device ssh username
-        :param host: target device ssh hostname
-        :param port: target device ssh port """
+    """Copy the building key of the local installation to the target device,
+    so it trusts the apks that were signed here.
+    :param user: target device ssh username
+    :param host: target device ssh hostname
+    :param port: target device ssh port"""
 
     keys = list((get_context().config.work / "config_abuild").glob("*.pub"))
     key = keys[0]
     key_name = os.path.basename(key)
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
-    command: List[PathString] = ['scp', '-P', port, key, f'{user}@{host}:/tmp']
+    command: List[PathString] = ["scp", "-P", port, key, f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
-    remote_cmd_l: List[PathString] = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
-                  '-S', 'mv', '-n', keyname, "/etc/apk/keys/"]
+    remote_cmd_l: List[PathString] = [
+        "sudo",
+        "-p",
+        pmb.config.sideload_sudo_prompt,
+        "-S",
+        "mv",
+        "-n",
+        keyname,
+        "/etc/apk/keys/",
+    ]
     remote_cmd = pmb.helpers.run_core.flat_cmd([remote_cmd_l])
-    command = ['ssh', '-t', '-p', port, f'{user}@{host}', remote_cmd]
+    command = ["ssh", "-t", "-p", port, f"{user}@{host}", remote_cmd]
     pmb.helpers.run.user(command, output="tui")
 
 
@@ -54,42 +62,51 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
 
 
 def ssh_install_apks(args: PmbArgs, user, host, port, paths):
-    """ Copy binary packages via SCP and install them via SSH.
-        :param user: target device ssh username
-        :param host: target device ssh hostname
-        :param port: target device ssh port
-        :param paths: list of absolute paths to locally stored apks
-        :type paths: list """
+    """Copy binary packages via SCP and install them via SSH.
+    :param user: target device ssh username
+    :param host: target device ssh hostname
+    :param port: target device ssh port
+    :param paths: list of absolute paths to locally stored apks
+    :type paths: list"""
 
     remote_paths = []
     for path in paths:
-        remote_paths.append(os.path.join('/tmp', os.path.basename(path)))
+        remote_paths.append(os.path.join("/tmp", os.path.basename(path)))
 
     logging.info(f"Copying packages to {user}@{host}")
-    command = ['scp', '-P', port] + paths + [f'{user}@{host}:/tmp']
+    command = ["scp", "-P", port] + paths + [f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing packages at {user}@{host}")
-    add_cmd = ['sudo', '-p', pmb.config.sideload_sudo_prompt,
-               '-S', 'apk', '--wait', '30', 'add'] + remote_paths
+    add_cmd = [
+        "sudo",
+        "-p",
+        pmb.config.sideload_sudo_prompt,
+        "-S",
+        "apk",
+        "--wait",
+        "30",
+        "add",
+    ] + remote_paths
     add_cmd = pmb.helpers.run_core.flat_cmd([add_cmd])
-    clean_cmd = pmb.helpers.run_core.flat_cmd([['rm'] + remote_paths])
+    clean_cmd = pmb.helpers.run_core.flat_cmd([["rm"] + remote_paths])
     add_cmd_complete = shlex.quote(f"{add_cmd} rc=$?; {clean_cmd} exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
-    command = ['ssh', '-t', '-p', port, f'{user}@{host}',
-               f'sh -c {add_cmd_complete}']
+    command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {add_cmd_complete}"]
     pmb.helpers.run.user(command, output="tui")
 
 
-def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Optional[Arch], copy_key: bool, pkgnames):
-    """ Build packages if necessary and install them via SSH.
+def sideload(
+    args: PmbArgs, user: str, host: str, port: str, arch: Optional[Arch], copy_key: bool, pkgnames
+):
+    """Build packages if necessary and install them via SSH.
 
-        :param user: target device ssh username
-        :param host: target device ssh hostname
-        :param port: target device ssh port
-        :param arch: target device architecture
-        :param copy_key: copy the abuild key too
-        :param pkgnames: list of pkgnames to be built """
+    :param user: target device ssh username
+    :param host: target device ssh hostname
+    :param port: target device ssh port
+    :param arch: target device architecture
+    :param copy_key: copy the abuild key too
+    :param pkgnames: list of pkgnames to be built"""
 
     paths = []
     channel: str = pmb.config.pmaports.read_config()["channel"]
@@ -107,7 +124,7 @@ def sideload(args: PmbArgs, user: str, host: str, port: str, arch: Optional[Arch
             to_build.append(pkgname)
 
         paths.append(host_path)
-    
+
     if to_build:
         pmb.build.packages(context, to_build, arch, force=True)
         # Check all the packages actually got builts

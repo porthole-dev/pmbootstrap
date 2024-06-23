@@ -9,10 +9,11 @@ from pmb.helpers import run
 from pmb.core.context import get_context
 import pmb.config
 
+
 class Log(commands.Command):
     clear_log: bool
     lines: int
-    
+
     def __init__(self, clear_log: bool, lines: int):
         self.clear_log = clear_log
         self.lines = lines
@@ -38,4 +39,3 @@ class Log(commands.Command):
         cmd += [context.log]
 
         run.user(cmd, output="tui")
-

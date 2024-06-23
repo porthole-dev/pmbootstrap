@@ -13,6 +13,7 @@ def test_pkgrepo_paths_no_repos(pmb_args):
         paths = pkgrepo_paths()
         print(paths)
 
+
 def test_pkgrepo_pmaports(pmaports, monkeypatch):
     """Test pkgrepo_paths() with pmaports repository and systemd extra repo"""
 
@@ -23,14 +24,18 @@ def test_pkgrepo_pmaports(pmaports, monkeypatch):
     print(f"[master] pkgrepo_paths: {paths}")
     assert len(paths) == 1
     assert "pmaports" in paths[0].name
-    
+
     default_path = pkgrepo_default_path()
 
     assert default_path.name == "pmaports"
 
     # Test extra-repos
-    assert pmb.helpers.run.user(["git", "checkout", "master_staging_systemd"],
-                         working_dir=default_path) == 0
+    assert (
+        pmb.helpers.run.user(
+            ["git", "checkout", "master_staging_systemd"], working_dir=default_path
+        )
+        == 0
+    )
 
     paths = pkgrepo_paths()
     assert len(paths) == 2

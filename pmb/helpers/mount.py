@@ -69,11 +69,10 @@ def bind_file(source: Path, destination: Path, create_folders=False):
         pmb.helpers.run.root(["touch", destination])
 
     # Mount
-    pmb.helpers.run.root(["mount", "--bind", source,
-                                destination])
+    pmb.helpers.run.root(["mount", "--bind", source, destination])
 
 
-def umount_all_list(prefix: Path, source: Path=Path("/proc/mounts")) -> List[Path]:
+def umount_all_list(prefix: Path, source: Path = Path("/proc/mounts")) -> List[Path]:
     """Parse `/proc/mounts` for all folders beginning with a prefix.
 
     :source: can be changed for testcases
@@ -89,7 +88,7 @@ def umount_all_list(prefix: Path, source: Path=Path("/proc/mounts")) -> List[Pat
             if len(words) < 2:
                 raise RuntimeError(f"Failed to parse line in {source}: {line}")
             mountpoint = Path(words[1].replace(r"\040(deleted)", ""))
-            if mountpoint.is_relative_to(prefix): # is subpath
+            if mountpoint.is_relative_to(prefix):  # is subpath
                 ret.append(mountpoint)
     ret.sort(reverse=True)
     return ret
@@ -112,6 +111,5 @@ def mount_device_rootfs(chroot_rootfs: Chroot) -> PurePath:
     :returns: the mountpoint (relative to the native chroot)
     """
     mountpoint = PurePath("/mnt", chroot_rootfs.dirname)
-    pmb.helpers.mount.bind(chroot_rootfs.path,
-                           Chroot.native() / mountpoint)
+    pmb.helpers.mount.bind(chroot_rootfs.path, Chroot.native() / mountpoint)
     return mountpoint

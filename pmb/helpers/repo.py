@@ -7,6 +7,7 @@ See also:
 - pmb/helpers/pmaports.py (work with pmaports)
 - pmb/helpers/package.py (work with both)
 """
+
 import os
 import hashlib
 from pmb.core.context import get_context
@@ -23,7 +24,7 @@ import pmb.helpers.run
 import pmb.helpers.other
 
 
-def apkindex_hash(url: str, length: int=8) -> Path:
+def apkindex_hash(url: str, length: int = 8) -> Path:
     r"""Generate the hash that APK adds to the APKINDEX and apk packages in its apk cache folder.
 
     It is the "12345678" part in this example:
@@ -44,8 +45,8 @@ def apkindex_hash(url: str, length: int=8) -> Path:
 
     ret = ""
     for i in range(csum_bytes):
-        ret += xd[(binary[i] >> 4) & 0xf]
-        ret += xd[binary[i] & 0xf]
+        ret += xd[(binary[i] >> 4) & 0xF]
+        ret += xd[binary[i] & 0xF]
 
     return Path(f"APKINDEX.{ret}.tar.gz")
 
@@ -102,8 +103,9 @@ def urls(user_repository=False, mirrors_exclude: List[str] = []):
     return ret
 
 
-def apkindex_files(arch: Optional[Arch]=None, user_repository=True,
-                   exclude_mirrors: List[str] = []) -> List[Path]:
+def apkindex_files(
+    arch: Optional[Arch] = None, user_repository=True, exclude_mirrors: List[str] = []
+) -> List[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
     :param arch: defaults to native
@@ -128,7 +130,7 @@ def apkindex_files(arch: Optional[Arch]=None, user_repository=True,
 
 
 @Cache("arch", force=False)
-def update(arch: Optional[Arch]=None, force=False, existing_only=False):
+def update(arch: Optional[Arch] = None, force=False, existing_only=False):
     """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
@@ -190,14 +192,18 @@ def update(arch: Optional[Arch]=None, force=False, existing_only=False):
     # Bail out or show log message
     if not len(outdated):
         return False
-    logging.info("Update package index for " + ", ".join([str(a) for a in outdated_arches]) +
-                 " (" + str(len(outdated)) + " file(s))")
+    logging.info(
+        "Update package index for "
+        + ", ".join([str(a) for a in outdated_arches])
+        + " ("
+        + str(len(outdated))
+        + " file(s))"
+    )
 
     # Download and move to right location
-    for (i, (url, target)) in enumerate(outdated.items()):
+    for i, (url, target) in enumerate(outdated.items()):
         pmb.helpers.cli.progress_print(i / len(outdated))
-        temp = pmb.helpers.http.download(url, "APKINDEX", False,
-                                         logging.DEBUG, True)
+        temp = pmb.helpers.http.download(url, "APKINDEX", False, logging.DEBUG, True)
         if not temp:
             pmb.helpers.other.cache[cache_key]["404"].append(url)
             continue
@@ -210,7 +216,7 @@ def update(arch: Optional[Arch]=None, force=False, existing_only=False):
     return True
 
 
-def alpine_apkindex_path(repo="main", arch: Optional[Arch]=None):
+def alpine_apkindex_path(repo="main", arch: Optional[Arch] = None):
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")

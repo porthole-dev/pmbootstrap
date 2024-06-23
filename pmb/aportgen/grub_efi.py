@@ -26,8 +26,7 @@ def generate(pkgname):
     tempdir = Path("/tmp/aportgen")
     aportgen = context.config.work / "aportgen"
     pmb.chroot.root(["rm", "-rf", tempdir])
-    pmb.helpers.run.user(["mkdir", "-p", aportgen,
-                                Chroot.native() / tempdir])
+    pmb.helpers.run.user(["mkdir", "-p", aportgen, Chroot.native() / tempdir])
 
     # Write the APKBUILD
     channel_cfg = pmb.config.pmaports.read_config_channel()

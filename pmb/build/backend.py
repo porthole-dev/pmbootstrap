@@ -1,4 +1,3 @@
-
 import enum
 from pathlib import Path
 from typing import Dict
@@ -17,11 +16,12 @@ class BootstrapStage(enum.IntEnum):
     Pass a BOOTSTRAP= environment variable with the given value to abuild. See
     bootstrap_1 etc. at https://postmarketos.org/pmaports.cfg for details.
     """
+
     NONE = 0
     # We don't need explicit representations of the other numbers.
 
 
-def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
+def override_source(apkbuild, pkgver, src, chroot: Chroot = Chroot.native()):
     """Mount local source inside chroot and append new functions (prepare() etc.)
     to the APKBUILD to make it use the local source.
     """
@@ -45,11 +45,16 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
     pkgname = apkbuild["pkgname"]
 
     # Appended content
-    append = """
+    append = (
+        """
              # ** Overrides below appended by pmbootstrap for --src **
 
-             pkgver=\"""" + pkgver + """\"
-             pkgdesc=\"""" + pkgdesc + """\"
+             pkgver=\""""
+        + pkgver
+        + """\"
+             pkgdesc=\""""
+        + pkgdesc
+        + """\"
              _pmb_src_copy="/tmp/pmbootstrap-local-source-copy"
 
              # Empty $source avoids patching in prepare()
@@ -59,17 +64,25 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
 
              fetch() {
                  # Update source copy
-                 msg "Copying source from host system: """ + src + """\"
-                 local exclude_from=\"""" + mount_path + """/.gitignore\"
+                 msg "Copying source from host system: """
+        + src
+        + """\"
+                 local exclude_from=\""""
+        + mount_path
+        + """/.gitignore\"
                  local rsync_args=""
                  if [ -f "$exclude_from" ]; then
                      rsync_args="--exclude-from=\"$exclude_from\""
                  fi
-                 if ! [ \"""" + pkgname + """\" = "$(cat /tmp/src-pkgname)" ]; then
+                 if ! [ \""""
+        + pkgname
+        + """\" = "$(cat /tmp/src-pkgname)" ]; then
                      rsync_args="--delete $rsync_args"
                  fi
                  rsync -a --exclude=".git/" $rsync_args --ignore-errors --force \\
-                     \"""" + mount_path + """\" "$_pmb_src_copy" || true
+                     \""""
+        + mount_path
+        + """\" "$_pmb_src_copy" || true
 
                  # Link local source files (e.g. kernel config)
                  mkdir "$srcdir"
@@ -78,13 +91,16 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
                      is_remote "$s" || ln -sf "$startdir/$s" "$srcdir/"
                  done
                  
-                 echo \"""" + pkgname + """\" > /tmp/src-pkgname
+                 echo \""""
+        + pkgname
+        + """\" > /tmp/src-pkgname
              }
 
              unpack() {
                  ln -sv "$_pmb_src_copy" "$builddir"
              }
              """
+    )
 
     # Write and log append file
     with open(append_path_outside, "w", encoding="utf-8") as handle:
@@ -94,15 +110,12 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot=Chroot.native()):
 
     # Append it to the APKBUILD
     apkbuild_path = "/home/pmos/build/APKBUILD"
-    shell_cmd = ("cat " + apkbuild_path + " " + append_path + " > " +
-                 append_path + "_")
+    shell_cmd = "cat " + apkbuild_path + " " + append_path + " > " + append_path + "_"
     pmb.chroot.user(["sh", "-c", shell_cmd], chroot)
     pmb.chroot.user(["mv", append_path + "_", apkbuild_path], chroot)
 
 
-
-
-def mount_pmaports(chroot: Chroot=Chroot.native()) -> Dict[str, Path]:
+def mount_pmaports(chroot: Chroot = Chroot.native()) -> Dict[str, Path]:
     """
     Mount pmaports.git in chroot.
 
@@ -115,13 +128,12 @@ def mount_pmaports(chroot: Chroot=Chroot.native()) -> Dict[str, Path]:
         outside_destination = chroot / destination
         pmb.helpers.mount.bind(repo, outside_destination, umount=True)
         dest_paths[repo.name] = destination
-        
+
     return dest_paths
 
 
-
 def link_to_git_dir(chroot: Chroot):
-    """ Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
+    """Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
     symlink so abuild does not fail (#1841).
 
     abuild expects the current working directory to be a subdirectory of a
@@ -143,9 +155,7 @@ def link_to_git_dir(chroot: Chroot):
 
     # Create .git symlink
     pmb.chroot.user(["mkdir", "-p", "/home/pmos/build"], chroot)
-    pmb.chroot.user(["ln", "-sf", dest_paths["pmaports"] / ".git",
-                           "/home/pmos/build/.git"], chroot)
-
+    pmb.chroot.user(["ln", "-sf", dest_paths["pmaports"] / ".git", "/home/pmos/build/.git"], chroot)
 
 
 def handle_csum_failure(apkbuild, chroot: Chroot):
@@ -155,18 +165,32 @@ def handle_csum_failure(apkbuild, chroot: Chroot):
 
     reason = csum_fail_path.open().read().strip()
     if reason == "local":
-        logging.info("WARNING: Some checksums didn't match, run"
-                    f" 'pmbootstrap checksum {apkbuild['pkgname']}' to fix them.")
+        logging.info(
+            "WARNING: Some checksums didn't match, run"
+            f" 'pmbootstrap checksum {apkbuild['pkgname']}' to fix them."
+        )
     else:
         logging.error(f"ERROR: Remote checksum mismatch for {apkbuild['pkgname']}")
         logging.error("NOTE: If you just modified this package:")
-        logging.error(f" * run 'pmbootstrap checksum {apkbuild['pkgname']}' to update the checksums.")
-        logging.error("If you didn't modify it, try building again to re-download the sources.") 
+        logging.error(
+            f" * run 'pmbootstrap checksum {apkbuild['pkgname']}' to update the checksums."
+        )
+        logging.error("If you didn't modify it, try building again to re-download the sources.")
         raise RuntimeError(f"Remote checksum mismatch for {apkbuild['pkgname']}")
 
 
-def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, force=False, cross=None,
-               suffix: Chroot=Chroot.native(), src=None, bootstrap_stage=BootstrapStage.NONE):
+def run_abuild(
+    context: Context,
+    apkbuild,
+    channel,
+    arch: Arch,
+    strict=False,
+    force=False,
+    cross=None,
+    suffix: Chroot = Chroot.native(),
+    src=None,
+    bootstrap_stage=BootstrapStage.NONE,
+):
     """
     Set up all environment variables and construct the abuild command (all
     depending on the cross-compiler method and target architecture), copy
@@ -182,30 +206,40 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
     """
     # Sanity check
     if cross == "native" and "!tracedeps" not in apkbuild["options"]:
-        logging.info("WARNING: Option !tracedeps is not set, but we're"
-                     " cross-compiling in the native chroot. This will"
-                     " probably fail!")
+        logging.info(
+            "WARNING: Option !tracedeps is not set, but we're"
+            " cross-compiling in the native chroot. This will"
+            " probably fail!"
+        )
     pkgdir = context.config.work / "packages" / channel
     if not pkgdir.exists():
         pmb.helpers.run.root(["mkdir", "-p", pkgdir])
-        pmb.helpers.run.root(["chown", "-R", f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
-                              pkgdir.parent])
+        pmb.helpers.run.root(
+            [
+                "chown",
+                "-R",
+                f"{pmb.config.chroot_uid_user}:{pmb.config.chroot_uid_user}",
+                pkgdir.parent,
+            ]
+        )
 
-    pmb.chroot.rootm([["mkdir", "-p", "/home/pmos/packages"],
-                      ["rm", "-f", "/home/pmos/packages/pmos"],
-                      ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}",
-                     "/home/pmos/packages/pmos"]], suffix)
+    pmb.chroot.rootm(
+        [
+            ["mkdir", "-p", "/home/pmos/packages"],
+            ["rm", "-f", "/home/pmos/packages/pmos"],
+            ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}", "/home/pmos/packages/pmos"],
+        ],
+        suffix,
+    )
 
     # Environment variables
-    env = {"CARCH": arch,
-           "SUDO_APK": "abuild-apk --no-progress"}
+    env = {"CARCH": arch, "SUDO_APK": "abuild-apk --no-progress"}
     if cross == "native":
         hostspec = arch.alpine_triple()
         env["CROSS_COMPILE"] = hostspec + "-"
         env["CC"] = hostspec + "-gcc"
     if cross == "crossdirect":
-        env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}",
-                                pmb.config.chroot_path])
+        env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}", pmb.config.chroot_path])
     if not context.ccache:
         env["CCACHE_DISABLE"] = "1"
 
@@ -232,8 +266,9 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
     cmd = ["abuild", "-D", "postmarketOS"]
     if strict or "pmb:strict" in apkbuild["options"]:
         if not strict:
-            logging.debug(apkbuild["pkgname"] + ": 'pmb:strict' found in"
-                          " options, building in strict mode")
+            logging.debug(
+                apkbuild["pkgname"] + ": 'pmb:strict' found in" " options, building in strict mode"
+            )
         cmd += ["-r"]  # install depends with abuild
     else:
         cmd += ["-d"]  # do not install depends with abuild
@@ -256,4 +291,3 @@ def run_abuild(context: Context, apkbuild, channel, arch: Arch, strict=False, fo
         pmb.chroot.user(cmd, suffix, Path("/home/pmos/build"), env=env)
     finally:
         handle_csum_failure(apkbuild, suffix)
-

@@ -7,7 +7,7 @@ from pathlib import Path
 from .config import Config
 
 
-class Context():
+class Context:
     details_to_stdout: bool = False
     quiet: bool = False
     command_timeout: float = 900
@@ -46,8 +46,9 @@ class Context():
 
 __context: Context
 
+
 # mypy: disable-error-code="return-value"
-def get_context(allow_failure: bool=False) -> Context:
+def get_context(allow_failure: bool = False) -> Context:
     """Get immutable global runtime context."""
     global __context
 
@@ -59,6 +60,7 @@ def get_context(allow_failure: bool=False) -> Context:
         raise RuntimeError("Context not loaded yet")
     return __context
 
+
 def set_context(context: Context):
     """Set global runtime context."""
     global __context
@@ -67,5 +69,3 @@ def set_context(context: Context):
         raise RuntimeError("Context already loaded")
 
     __context = context
-
-

@@ -27,8 +27,9 @@ from pmb.types import PathString
 
 
 @Cache("chroot", "user_repository", mirrors_exclude=[])
-def update_repository_list(chroot: Chroot, user_repository=False, mirrors_exclude: List[str]=[],
-                           check=False):
+def update_repository_list(
+    chroot: Chroot, user_repository=False, mirrors_exclude: List[str] = [], check=False
+):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
     --mirror-alpine or --mirror-pmOS parameters).
@@ -52,7 +53,9 @@ def update_repository_list(chroot: Chroot, user_repository=False, mirrors_exclud
         pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(user_repository=user_repository, mirrors_exclude=mirrors_exclude)
+    lines_new = pmb.helpers.repo.urls(
+        user_repository=user_repository, mirrors_exclude=mirrors_exclude
+    )
     if lines_old == lines_new:
         return
 
@@ -65,14 +68,14 @@ def update_repository_list(chroot: Chroot, user_repository=False, mirrors_exclud
     if path.exists():
         pmb.helpers.run.root(["rm", path])
     for line in lines_new:
-        pmb.helpers.run.root(["sh", "-c", "echo "
-                                    f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(chroot, user_repository=user_repository,
-                           mirrors_exclude=mirrors_exclude, check=True)
+        pmb.helpers.run.root(["sh", "-c", "echo " f"{shlex.quote(line)} >> {path}"])
+    update_repository_list(
+        chroot, user_repository=user_repository, mirrors_exclude=mirrors_exclude, check=True
+    )
 
 
 @Cache("chroot")
-def check_min_version(chroot: Chroot=Chroot.native()):
+def check_min_version(chroot: Chroot = Chroot.native()):
     """
     Check the minimum apk version, before running it the first time in the
     current session (lifetime of one pmbootstrap call).
@@ -80,16 +83,18 @@ def check_min_version(chroot: Chroot=Chroot.native()):
 
     # Skip if apk is not installed yet
     if not (chroot / "sbin/apk").exists():
-        logging.debug(f"NOTE: Skipped apk version check for chroot '{chroot}'"
-                      ", because it is not installed yet!")
+        logging.debug(
+            f"NOTE: Skipped apk version check for chroot '{chroot}'"
+            ", because it is not installed yet!"
+        )
         return
 
     # Compare
     version_installed = installed(chroot)["apk-tools"]["version"]
     pmb.helpers.apk.check_outdated(
         version_installed,
-        "Delete your http cache and zap all chroots, then try again:"
-        " 'pmbootstrap zap -hc'")
+        "Delete your http cache and zap all chroots, then try again:" " 'pmbootstrap zap -hc'",
+    )
 
 
 def packages_split_to_add_del(packages):
@@ -148,11 +153,12 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
                 break
 
         # Record all the packages we have visited so far
-        walked |= set([data_repo['pkgname'], package])
+        walked |= set([data_repo["pkgname"], package])
         # Add all dependencies to the list of packages to check, excluding
         # meta-deps like cmd:* and so:* as well as conflicts (!).
-        packages |= set(filter(lambda x: ":" not in x and "!" not in x,
-                               data_repo["depends"])) - walked
+        packages |= (
+            set(filter(lambda x: ":" not in x and "!" not in x, data_repo["depends"])) - walked
+        )
 
     return local
 
@@ -185,8 +191,10 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
     if to_add_local:
-        commands += [["add", "-u", "--virtual", ".pmbootstrap"] + local_add,
-                     ["del", ".pmbootstrap"]]
+        commands += [
+            ["add", "-u", "--virtual", ".pmbootstrap"] + local_add,
+            ["del", ".pmbootstrap"],
+        ]
 
     if to_del:
         commands += [["del"] + to_del]
@@ -214,12 +222,20 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
         traceback.print_stack(file=logging.logfd)
         pmb.chroot.init(chroot)
 
-    for (i, command) in enumerate(commands):
+    for i, command in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
         # gets confused
         command += ["--no-interactive"]
-        command = ["--root", chroot.path, "--arch", arch, "--cache-dir", apk_cache,
-                   "--repository", user_repo] + command
+        command = [
+            "--root",
+            chroot.path,
+            "--arch",
+            arch,
+            "--cache-dir",
+            apk_cache,
+            "--repository",
+            user_repo,
+        ] + command
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
@@ -253,8 +269,7 @@ def install(packages, chroot: Chroot, build=True):
     context = get_context()
 
     if not packages:
-        logging.verbose("pmb.chroot.apk.install called with empty packages list,"
-                        " ignoring")
+        logging.verbose("pmb.chroot.apk.install called with empty packages list," " ignoring")
         return
 
     # Initialize chroot
@@ -275,7 +290,7 @@ def install(packages, chroot: Chroot, build=True):
     install_run_apk(to_add, to_add_local, to_del, chroot)
 
 
-def installed(suffix: Chroot=Chroot.native()):
+def installed(suffix: Chroot = Chroot.native()):
     """
     Read the list of installed packages (which has almost the same format, as
     an APKINDEX, but with more keys).

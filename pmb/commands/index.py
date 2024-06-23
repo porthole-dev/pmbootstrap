@@ -5,10 +5,10 @@ from __future__ import annotations
 from pmb import commands
 import pmb.build.other
 
+
 class Index(commands.Command):
     def __init__(self):
         pass
 
     def run(self):
         pmb.build.other.index_repo()
-
