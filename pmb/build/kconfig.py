@@ -180,6 +180,3 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     target = aport / config
     pmb.helpers.run.user(["cp", source, target])
     pmb.build.checksum.update(pkgname)
-
-    # Check config
-    pmb.parse.kconfig.check(args, apkbuild["_flavor"], details=True)
