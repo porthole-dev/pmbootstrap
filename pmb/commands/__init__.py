@@ -16,6 +16,8 @@ from .repo_bootstrap import RepoBootstrap
 from .shutdown import Shutdown
 from .test import Test
 from .pull import Pull
+from .kconfig_check import KConfigCheck
+from .kconfig_edit import KConfigEdit
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -24,7 +26,6 @@ unmigrated_commands = [
     "init",
     "work_migrate",
     "repo_missing",
-    "kconfig",
     "export",
     "sideload",
     "netboot",
@@ -75,6 +76,10 @@ def run_command(args: PmbArgs):
         command = Test(args.action_test)
     elif args.action == "pull":
         command = Pull()
+    elif args.action == "kconfig" and args.action_kconfig == "check":
+        command = KConfigCheck(args.kconfig_check_details, args.file, args.package)
+    elif args.action == "kconfig" and args.action_kconfig in ["edit", "migrate"]:
+        command = KConfigEdit(args.package, args.action_kconfig == "migrate")
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 

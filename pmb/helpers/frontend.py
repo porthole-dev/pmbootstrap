@@ -457,65 +457,6 @@ def newapkbuild(args: PmbArgs):
     pmb.build.newapkbuild(args.folder, pass_through, args.force)
 
 
-def kconfig(args: PmbArgs):
-    if args.action_kconfig == "check":
-        details = args.kconfig_check_details
-        # Build the components list from cli arguments (--waydroid etc.)
-        components_list = []
-
-        # Handle passing a file directly
-        if args.file:
-            if pmb.parse.kconfig.check_file(args.file, components_list, details=details):
-                logging.info("kconfig check succeeded!")
-                return
-            raise RuntimeError("kconfig check failed!")
-
-        # Default to all kernel packages
-        packages: list[str]
-        # FIXME (#2324): figure out the args.package vs args.packages situation
-        if isinstance(args.package, list):
-            packages = args.package
-        else:
-            packages = [args.package]
-        if not args.package:
-            for pkg in pmb.helpers.pmaports.get_list():
-                if pkg.startswith("linux-"):
-                    packages.append(pkg.split("linux-")[1])
-
-        # Iterate over all kernels
-        error = False
-        skipped = 0
-        packages.sort()
-        for package in packages:
-            if not get_context().force:
-                pkgname = package if package.startswith("linux-") else "linux-" + package
-                aport = pmb.helpers.pmaports.find(pkgname)
-                apkbuild = pmb.parse.apkbuild(aport)
-                if "!pmb:kconfigcheck" in apkbuild["options"]:
-                    skipped += 1
-                    continue
-            if not pmb.parse.kconfig.check(package, components_list, details=details):
-                error = True
-
-        # At least one failure
-        if error:
-            raise RuntimeError("kconfig check failed!")
-        else:
-            if skipped:
-                logging.info(
-                    "NOTE: " + str(skipped) + " kernel(s) was skipped"
-                    " (consider 'pmbootstrap kconfig check -f')"
-                )
-            logging.info("kconfig check succeeded!")
-    elif args.action_kconfig in ["edit", "migrate"]:
-        if args.package:
-            pkgname = args.package if isinstance(args.package, str) else args.package[0]
-        else:
-            pkgname = get_context().config.device
-        use_oldconfig = args.action_kconfig == "migrate"
-        pmb.build.menuconfig(args, pkgname, use_oldconfig)
-
-
 def deviceinfo_parse(args: PmbArgs):
     # Default to all devices
     devices = args.devices
