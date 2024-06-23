@@ -9,24 +9,8 @@ import pmb.build
 import pmb.config
 import pmb.parse
 import pmb.helpers.pmaports
+import pmb.parse.kconfigcheck
 from pmb.helpers.exceptions import NonBugError
-
-
-def get_all_component_names():
-    """
-    Get the component names from kconfig_options variables in
-    pmb/config/__init__.py. This does not include the base options.
-
-    :returns: a list of component names, e.g. ["waydroid", "iwd", "nftables"]
-    """
-    prefix = "kconfig_options_"
-    ret = []
-
-    for key in pmb.config.__dict__.keys():
-        if key.startswith(prefix):
-            ret += [key.split(prefix, 1)[1]]
-
-    return ret
 
 
 def is_set(config, option):
@@ -176,65 +160,39 @@ def check_config_options_set(
     return ret
 
 
-def check_config(
-    config_path, config_arch, pkgver, components_list=[], details=False, enforce_check=True
-):
+def check_config(config_path, config_arch, pkgver, categories: list, details=False):
     """
     Check, whether one kernel config passes the rules of multiple components.
 
     :param config_path: full path to kernel config file
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
     :param pkgver: kernel version
-    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param categories: what to check for, e.g. ["waydroid", "iwd"]
     :param details: print all warnings if True, otherwise one per component
-    :param enforce_check: set to False to not fail kconfig check as long as
-                          everything in kconfig_options is set correctly, even
-                          if additional components are checked
     :returns: True if the check passed, False otherwise
     """
     logging.debug(f"Check kconfig: {config_path}")
     with open(config_path) as handle:
         config = handle.read()
 
-    # Devices in all categories need basic options
-    # https://wiki.postmarketos.org/wiki/Device_categorization
-    components_list = ["postmarketOS"] + components_list
+    if "default" not in categories:
+        categories += ["default"]
 
-    # Devices in "community" or "main" need additional options
-    if "community" in components_list:
-        components_list += [
-            "containers",
-            "filesystems",
-            "iwd",
-            "netboot",
-            "nftables",
-            "usb_gadgets",
-            "waydroid",
-            "wireguard",
-            "zram",
+    # Get all rules
+    rules: dict = {}
+    for category in categories:
+        rules |= pmb.parse.kconfigcheck.read_category(category)
+
+    # Check the rules of each category
+    ret = []
+    for category in rules.keys():
+        ret += [
+            check_config_options_set(
+                config, config_path, config_arch, rules[category], category, pkgver, details
+            )
         ]
 
-    components = {}
-    for name in components_list:
-        if name == "postmarketOS":
-            pmb_config_var = "kconfig_options"
-        else:
-            pmb_config_var = f"kconfig_options_{name}"
-
-        components[name] = getattr(pmb.config, pmb_config_var, None)
-        assert components[name], f"invalid kconfig component name: {name}"
-
-    results = []
-    for component, options in components.items():
-        result = check_config_options_set(
-            config, config_path, config_arch, options, component, pkgver, details
-        )
-        # We always enforce "postmarketOS" component and when explicitly
-        # requested
-        if enforce_check or component == "postmarketOS":
-            results += [result]
-
-    return all(results)
+    return all(ret)
 
 
 def check(pkgname, components_list=[], details=False, must_exist=True):
@@ -270,12 +228,13 @@ def check(pkgname, components_list=[], details=False, must_exist=True):
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     pkgver = apkbuild["pkgver"]
 
-    # We only enforce optional checks for community & main devices
-    enforce_check = aport.parts[-2] in ["community", "main"]
-
-    for name in get_all_component_names():
-        if f"pmb:kconfigcheck-{name}" in apkbuild["options"] and name not in components_list:
-            components_list += [name]
+    # Get categories from the APKBUILD
+    categories = []
+    for option in apkbuild["options"]:
+        if not option.startswith("pmb:kconfigcheck-"):
+            continue
+        category = option.split("-", 1)[1]
+        categories += [category]
 
     for config_path in aport.glob("config-*"):
         # The architecture of the config is in the name, so it just needs to be
@@ -298,9 +257,8 @@ def check(pkgname, components_list=[], details=False, must_exist=True):
             config_path,
             config_arch,
             pkgver,
-            components_list,
+            categories,
             details=details,
-            enforce_check=enforce_check,
         )
     return ret
 

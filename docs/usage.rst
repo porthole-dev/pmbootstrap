@@ -42,6 +42,7 @@ pmbootstrap requires the following:
 
 
   * Python 3.9+
+  * For python3 <= 3.10: tomli
   * OpenSSL
   * git
   * ps
