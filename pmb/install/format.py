@@ -99,14 +99,17 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device, mountpoint):
     /snapshots should be a separate subvol so that changing the root subvol
     doesn't affect snapshots
     """
-    pmb.chroot.root(["btrfs", "subvol", "create",
-                        f"{mountpoint}/@",
-                        f"{mountpoint}/@home",
-                        f"{mountpoint}/@root",
-                        f"{mountpoint}/@snapshots",
-                        f"{mountpoint}/@srv",
-                        f"{mountpoint}/@tmp",
-                        f"{mountpoint}/@var"])
+    subvolume_list = ["@",
+                      "@home",
+                      "@root",
+                      "@snapshots",
+                      "@srv",
+                      "@tmp",
+                      "@var"]
+
+    for subvolume in subvolume_list:
+        pmb.chroot.root(["btrfs", "subvol", "create",
+                         f"{mountpoint}/{subvolume}"])
 
     # Set the default root subvolume to be separate from top level btrfs
     # subvol. This lets us easily swap out current root subvol with an
