@@ -659,13 +659,6 @@ def arguments_kconfig(subparser):
         help="print one generic error per component instead of"
         " listing each option that needs to be adjusted",
     )
-    for name in pmb.parse.kconfig.get_all_component_names():
-        check.add_argument(
-            f"--{name}",
-            action="store_true",
-            dest=f"kconfig_check_{name}",
-            help=f"check options needed for {name} too",
-        )
     add_kernel_arg(check, nargs="*")
 
     # "pmbootstrap kconfig edit"

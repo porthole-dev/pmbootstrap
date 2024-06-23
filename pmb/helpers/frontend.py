@@ -462,9 +462,6 @@ def kconfig(args: PmbArgs):
         details = args.kconfig_check_details
         # Build the components list from cli arguments (--waydroid etc.)
         components_list = []
-        for name in pmb.parse.kconfig.get_all_component_names():
-            if getattr(args, f"kconfig_check_{name}"):
-                components_list += [name]
 
         # Handle passing a file directly
         if args.file:
