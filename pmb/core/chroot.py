@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 import enum
-from typing import Generator, Optional, Union
+from typing import Generator
 from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
 from pmb.core.arch import Arch
@@ -25,7 +25,7 @@ class Chroot:
     __type: ChrootType
     __name: str
 
-    def __init__(self, suffix_type: ChrootType, name: Optional[Union[str, Arch]] = ""):
+    def __init__(self, suffix_type: ChrootType, name: str | Arch | None = ""):
         # We use the native chroot as the buildroot when building for the host arch
         if suffix_type == ChrootType.BUILDROOT and isinstance(name, Arch):
             if name.is_native():

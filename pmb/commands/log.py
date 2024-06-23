@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from typing import List
 from pmb import commands
 from pmb.types import PathString
 from pmb.helpers import run
@@ -26,7 +25,7 @@ class Log(commands.Command):
             run.user(["truncate", "-s", "0", context.log])
             run.user(["truncate", "-s", "0", log_testsuite])
 
-        cmd: List[PathString] = ["tail", "-n", str(self.lines), "-F"]
+        cmd: list[PathString] = ["tail", "-n", str(self.lines), "-F"]
 
         # Follow the testsuite's log file too if it exists. It will be created when
         # starting a test case that writes to it (git -C test grep log_testsuite).
