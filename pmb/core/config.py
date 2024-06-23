@@ -108,7 +108,7 @@ class Config:
         if len(keys) == 1:
             _type = type(getattr(Config, key))
             try:
-                super(Config, self).__setattr__(key, _type(value))
+                super().__setattr__(key, _type(value))
             except ValueError:
                 msg = f"Invalid value for '{key}': '{value}' "
                 if issubclass(_type, enum.Enum):
@@ -118,7 +118,7 @@ class Config:
                     msg += f"(expected {_type}, got {type(value)})"
                 raise ValueError(msg)
         elif len(keys) == 2:
-            super(Config, self).__getattribute__(keys[0])[keys[1]] = value
+            super().__getattribute__(keys[0])[keys[1]] = value
         else:
             raise ValueError(f"Invalid dotted key: {key}")
 
@@ -127,8 +127,8 @@ class Config:
         to get nested dictionaries (e.g. "mirrors.alpine")."""
         keys = key.split(".")
         if len(keys) == 1:
-            return super(Config, self).__getattribute__(key)
+            return super().__getattribute__(key)
         elif len(keys) == 2:
-            return super(Config, self).__getattribute__(keys[0])[keys[1]]
+            return super().__getattribute__(keys[0])[keys[1]]
         else:
             raise ValueError(f"Invalid dotted key: {key}")
