@@ -6,7 +6,7 @@
 import sys
 import os
 import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 sys.path.insert(0, os.path.abspath(".."))  # Allow modules to be found
@@ -47,7 +47,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_rtd_theme"
 html_favicon = "https://wiki.postmarketos.org/favicon.ico"
 
-html_theme_options: Dict[str, Any] = {
+html_theme_options: dict[str, Any] = {
     "style_nav_header_background": "008b69",
 }
 

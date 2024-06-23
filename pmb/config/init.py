@@ -124,7 +124,7 @@ def ask_for_channel(config: Config):
     channels_cfg = pmb.helpers.git.parse_channels_cfg(pkgrepo_default_path())
     count = len(channels_cfg["channels"])
 
-    # List channels
+    # list channels
     logging.info("Choose the postmarketOS release channel.")
     logging.info(f"Available ({count}):")
     # Only show the first 3 releases. This includes edge, the latest supported
@@ -377,7 +377,7 @@ def ask_for_device_kernel(config: Config, device: str):
             " downstream kernels."
         )
 
-    # List kernels
+    # list kernels
     logging.info(f"Available kernels ({len(kernels)}):")
     for type in sorted(kernels.keys()):
         logging.info(f"* {type}: {kernels[type]}")
@@ -554,7 +554,7 @@ def ask_for_mirror():
     with open(json_path) as handle:
         s = handle.read()
 
-    logging.info("List of available mirrors:")
+    logging.info("list of available mirrors:")
     mirrors = json.loads(s)
     keys = mirrors.keys()
     i = 1

@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
-from typing import List, Sequence, Tuple
+from collections.abc import Sequence
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import os
@@ -82,7 +82,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.NATIVE)
 
 
-def _install_ondev_verify_no_rootfs(device: str, ondev_cp: List[Tuple[str, str]]):
+def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]):
     chroot_dest = "/var/lib/rootfs.img"
     dest = Chroot(ChrootType.INSTALLER, device) / chroot_dest
     if dest.exists():
@@ -459,7 +459,7 @@ def kconfig(args: PmbArgs):
             raise RuntimeError("kconfig check failed!")
 
         # Default to all kernel packages
-        packages: List[str]
+        packages: list[str]
         # FIXME (#2324): figure out the args.package vs args.packages situation
         if isinstance(args.package, list):
             packages = args.package

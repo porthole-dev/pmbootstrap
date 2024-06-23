@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_paths, pkgrepo_relative_path
 from pmb.helpers import logging
 import os
@@ -132,7 +132,7 @@ def read_config(aports: Optional[Path] = None):
     return ret
 
 
-def all_channels() -> List[str]:
+def all_channels() -> list[str]:
     """Get a list of all channels for all pkgrepos."""
     ret = set()
     for repo in pkgrepo_paths():
@@ -200,7 +200,7 @@ def switch_to_channel_branch(channel_new):
         return False
 
     aports = pkgrepo_default_path()
-    # List current and new branches/channels
+    # list current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
     branch_current = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])

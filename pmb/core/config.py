@@ -1,7 +1,7 @@
 from copy import deepcopy
 import enum
 import multiprocessing
-from typing import Any, List, Dict, TypedDict
+from typing import Any, TypedDict
 from pathlib import Path
 import os
 
@@ -21,7 +21,7 @@ class SystemdConfig(enum.Enum):
         return self.value
 
     @staticmethod
-    def choices() -> List[str]:
+    def choices() -> list[str]:
         return [e.value for e in SystemdConfig]
 
 
@@ -41,7 +41,7 @@ class AutoZapConfig(enum.Enum):
 
 
 class Config:
-    aports: List[Path] = [
+    aports: list[Path] = [
         Path(os.path.expanduser("~") + "/.local/var/pmbootstrap/cache_git/pmaports")
     ]
     boot_size: int = 256
@@ -75,7 +75,7 @@ class Config:
     # automatically zap chroots that are for the wrong channel
     auto_zap_misconfigured_chroots: AutoZapConfig = AutoZapConfig.NO
 
-    providers: Dict[str, str] = {}
+    providers: dict[str, str] = {}
 
     def __init__(self):
         # Make sure we aren't modifying the class defaults
@@ -83,7 +83,7 @@ class Config:
             setattr(self, key, deepcopy(Config.get_default(key)))
 
     @staticmethod
-    def keys() -> List[str]:
+    def keys() -> list[str]:
         keys = list(Config.__annotations__.keys())
         keys.remove("mirrors")
         keys += [f"mirrors.{k}" for k in Mirrors.__annotations__.keys()]

@@ -1,7 +1,7 @@
 # Copyright 2023 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from typing import List, Optional
+from typing import Optional
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
@@ -27,12 +27,12 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
     key_name = os.path.basename(key)
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
-    command: List[PathString] = ["scp", "-P", port, key, f"{user}@{host}:/tmp"]
+    command: list[PathString] = ["scp", "-P", port, key, f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
-    remote_cmd_l: List[PathString] = [
+    remote_cmd_l: list[PathString] = [
         "sudo",
         "-p",
         pmb.config.sideload_sudo_prompt,

@@ -1,19 +1,18 @@
 # Copyright 2023 Dylan Van Assche
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import List
 from pmb.helpers import logging
 
 from pmb.core import Config
 import pmb.helpers.pmaports
 
 
-def get_groups(config: Config) -> List[str]:
+def get_groups(config: Config) -> list[str]:
     """Get all groups to which the user additionally must be added.
     The list of groups are listed in _pmb_groups of the UI and
     UI-extras package.
 
     :returns: list of groups, e.g. ["feedbackd", "udev"]"""
-    ret: List[str] = []
+    ret: list[str] = []
     if config.ui == "none":
         return ret
 

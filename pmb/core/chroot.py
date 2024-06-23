@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 import enum
-from typing import Generator
+from collections.abc import Generator
 from pathlib import Path, PosixPath, PurePosixPath
 import pmb.config
 from pmb.core.arch import Arch

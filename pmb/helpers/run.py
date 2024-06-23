@@ -5,7 +5,8 @@ from pathlib import Path
 import subprocess
 from pmb.core.arch import Arch
 import pmb.helpers.run_core
-from typing import Optional, Sequence
+from typing import Optional
+from collections.abc import Sequence
 from pmb.types import Env, PathString
 
 

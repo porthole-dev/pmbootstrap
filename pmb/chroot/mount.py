@@ -5,7 +5,6 @@ from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import os
 from pathlib import Path
-from typing import Dict
 import pmb.chroot.binfmt
 import pmb.config
 import pmb.helpers.run
@@ -120,7 +119,7 @@ def mount(chroot: Chroot):
     # Get all mountpoints
     arch = chroot.arch
     channel = pmb.config.pmaports.read_config(pkgrepo_default_path())["channel"]
-    mountpoints: Dict[Path, Path] = {}
+    mountpoints: dict[Path, Path] = {}
     for src_template, target_template in pmb.config.chroot_mount_bind.items():
         src_template = src_template.replace("$WORK", os.fspath(get_context().config.work))
         src_template = src_template.replace("$ARCH", str(arch))

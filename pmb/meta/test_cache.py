@@ -1,5 +1,3 @@
-from typing import List
-
 from . import Cache, Wrapper
 
 
@@ -30,7 +28,7 @@ def test_cache_hits_basic():
 
 
 def test_cache_hits_kwargs():
-    def multiply_2(x: int, y: int = 2, z: List[int] = []) -> int:
+    def multiply_2(x: int, y: int = 2, z: list[int] = []) -> int:
         return x * y + sum(z)
 
     multiply_2_cached = Cache("x", "y", "z")(multiply_2)
@@ -68,7 +66,7 @@ def test_cache_hits_kwargs():
 
 
 def test_build_key():
-    def multiply_2(x: int, y: int = 2, z: List[int] = []) -> int:
+    def multiply_2(x: int, y: int = 2, z: list[int] = []) -> int:
         return x * y + sum(z)
 
     multiply_2_cached = Cache("x", "y", "z")(multiply_2)

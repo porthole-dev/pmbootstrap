@@ -109,7 +109,7 @@ def bootimg(path: Path):
             )
             if (
                 "linux kernel" in file_output.lower()
-                or "ARM OpenFirmware FORTH Dictionary" in file_output
+                or "ARM OpenFirmware FORTH dictionary" in file_output
             ):
                 raise RuntimeError(
                     "File is a Kernel image, you might need the"

@@ -1,6 +1,5 @@
 # Copyright 2023 Robert Yang
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import List
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
@@ -187,7 +186,7 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
         pmb.chroot.root(["ln", "-s", "/mnt/linux", build_path / "src"])
     pmb.chroot.root(["ln", "-s", kbuild_out_source, build_path / "src" / kbuild_out])
 
-    cmd: List[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
+    cmd: list[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
     pmb.helpers.run.root(cmd)
 
     # Create the apk package

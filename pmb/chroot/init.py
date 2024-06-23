@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import enum
 import filecmp
-from typing import List
 from pmb.meta import Cache
 from pmb.helpers import logging
 import os
@@ -19,7 +18,7 @@ import pmb.helpers.other
 from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 
-cache_chroot_is_outdated: List[str] = []
+cache_chroot_is_outdated: list[str] = []
 
 
 class UsrMerge(enum.Enum):

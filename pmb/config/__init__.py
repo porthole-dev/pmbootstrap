@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from pmb.types import AportGenEntry, PathString
 import sys
-from typing import Dict, List, Sequence
+from collections.abc import Sequence
 
 #
 # Exported functions
@@ -74,7 +74,7 @@ def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
         return cmd
 
 
-defaults: Dict[str, PathString] = {
+defaults: dict[str, PathString] = {
     "cipher": "aes-xts-plain64",
     "config": Path(
         (os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"
@@ -784,7 +784,7 @@ Fastboot specific: $KERNEL_CMDLINE
 Heimdall specific: $PARTITION_INITFS
 uuu specific: $UUU_SCRIPT
 """
-flashers: Dict[str, Dict[str, bool | List[str] | Dict[str, List[List[str]]]]] = {
+flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = {
     "fastboot": {
         "depends": [],  # pmaports.cfg: supported_fastboot_depends
         "actions": {
@@ -984,7 +984,7 @@ git_repos = {
 #
 # APORTGEN
 #
-aportgen: Dict[str, AportGenEntry] = {
+aportgen: dict[str, AportGenEntry] = {
     "cross": {
         "prefixes": ["busybox-static", "gcc", "musl", "grub-efi"],
         "confirm_overwrite": False,

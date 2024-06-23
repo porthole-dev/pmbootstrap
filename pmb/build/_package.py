@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
-from typing import Any, Callable, Dict, List, Optional, Set, TypedDict
+from typing import Any, Callable, Optional, TypedDict
 from pmb.build.other import BuildStatus
 from pmb.core.arch import Arch
 from pmb.core.context import Context
@@ -149,7 +149,7 @@ def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
     logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
 
 
-_package_cache: Dict[str, List[str]] = {}
+_package_cache: dict[str, list[str]] = {}
 
 
 def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
@@ -192,10 +192,10 @@ class BuildQueueItem(TypedDict):
     name: str
     arch: Arch  # Arch to build for
     aports: str
-    apkbuild: Dict[str, Any]
+    apkbuild: dict[str, Any]
     output_path: Path
     channel: str
-    depends: List[str]
+    depends: list[str]
     cross: str
     chroot: Chroot
 
@@ -208,7 +208,7 @@ def process_package(
     arch: Optional[Arch],
     fallback_arch: Arch,
     force: bool,
-) -> List[str]:
+) -> list[str]:
     # Only build when APKBUILD exists
     base_aports, base_apkbuild = get_apkbuild(pkgname)
     if not base_apkbuild:
@@ -306,14 +306,14 @@ def process_package(
 
 def packages(
     context: Context,
-    pkgnames: List[str],
+    pkgnames: list[str],
     arch: Optional[Arch] = None,
     force=False,
     strict=False,
     src=None,
     bootstrap_stage=BootstrapStage.NONE,
     log_callback: Optional[Callable] = None,
-) -> List[str]:
+) -> list[str]:
     """
     Build a package and its dependencies with Alpine Linux' abuild.
 
@@ -331,14 +331,14 @@ def packages(
     """
     global _package_cache
 
-    build_queue: List[BuildQueueItem] = []
-    built_packages: Set[str] = set()
+    build_queue: list[BuildQueueItem] = []
+    built_packages: set[str] = set()
 
     # Add a package to the build queue, fetch it's dependency, and
     # add record build helpers to installed (e.g. sccache)
     def queue_build(
-        aports: Path, apkbuild: Dict[str, Any], depends: List[str], cross: Optional[str] = None
-    ) -> List[str]:
+        aports: Path, apkbuild: dict[str, Any], depends: list[str], cross: Optional[str] = None
+    ) -> list[str]:
         # Skip if already queued
         name = apkbuild["pkgname"]
         if any(item["name"] == name for item in build_queue):
@@ -389,7 +389,7 @@ def packages(
 
     # Process the packages we've been asked to build, queuing up any
     # dependencies that need building as well as the package itself
-    all_dependencies: List[str] = []
+    all_dependencies: list[str] = []
     for pkgname in pkgnames:
         all_dependencies += process_package(
             context, queue_build, pkgname, arch, fallback_arch, force

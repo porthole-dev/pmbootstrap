@@ -7,7 +7,7 @@ import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
-from typing import List, Sequence, Set
+from collections.abc import Sequence
 
 import pmb.build
 import pmb.chroot
@@ -28,7 +28,7 @@ from pmb.types import PathString
 
 @Cache("chroot", "user_repository", mirrors_exclude=[])
 def update_repository_list(
-    chroot: Chroot, user_repository=False, mirrors_exclude: List[str] = [], check=False
+    chroot: Chroot, user_repository=False, mirrors_exclude: list[str] = [], check=False
 ):
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
@@ -42,7 +42,7 @@ def update_repository_list(
     """
     # Read old entries or create folder structure
     path = chroot / "etc/apk/repositories"
-    lines_old: List[str] = []
+    lines_old: list[str] = []
     if path.exists():
         # Read all old lines
         lines_old = []
@@ -118,7 +118,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
+def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -130,12 +130,12 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
               the second is a list of apk file paths that are valid inside the chroots, e.g.
               ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
     """
-    channels: List[str] = pmb.config.pmaports.all_channels()
-    local: List[Path] = []
+    channels: list[str] = pmb.config.pmaports.all_channels()
+    local: list[Path] = []
 
     packages = set(packages)
 
-    walked: Set[str] = set()
+    walked: set[str] = set()
     while len(packages):
         package = packages.pop()
         data_repo = pmb.parse.apkindex.package(package, arch, False)
@@ -163,9 +163,9 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> List[Path]:
     return local
 
 
-# FIXME: List[Sequence[PathString]] weirdness
+# FIXME: list[Sequence[PathString]] weirdness
 # mypy: disable-error-code="operator"
-def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[str], chroot: Chroot):
+def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[str], chroot: Chroot):
     """
     Run apk to add packages, and ensure only the desired packages get
     explicitly marked as installed.
@@ -186,7 +186,7 @@ def install_run_apk(to_add: List[str], to_add_local: List[Path], to_del: List[st
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands: List[Sequence[PathString]] = [["add"] + to_add]
+    commands: list[Sequence[PathString]] = [["add"] + to_add]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local

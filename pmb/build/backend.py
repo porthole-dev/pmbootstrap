@@ -1,6 +1,5 @@
 import enum
 from pathlib import Path
-from typing import Dict
 from pmb.core.pkgrepo import pkgrepo_paths
 import pmb.helpers.run
 import pmb.chroot
@@ -115,12 +114,12 @@ def override_source(apkbuild, pkgver, src, chroot: Chroot = Chroot.native()):
     pmb.chroot.user(["mv", append_path + "_", apkbuild_path], chroot)
 
 
-def mount_pmaports(chroot: Chroot = Chroot.native()) -> Dict[str, Path]:
+def mount_pmaports(chroot: Chroot = Chroot.native()) -> dict[str, Path]:
     """
     Mount pmaports.git in chroot.
 
     :param chroot: chroot to target
-    :returns: Dictionary mapping pkgrepo name to dest path
+    :returns: dictionary mapping pkgrepo name to dest path
     """
     dest_paths = {}
     for repo in pkgrepo_paths(skip_extras=True):

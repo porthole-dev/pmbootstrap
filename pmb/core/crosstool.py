@@ -3,7 +3,6 @@
 
 import enum
 from pathlib import Path
-from typing import List
 
 from pmb.core.chroot import ChrootType
 from pmb.types import PathString
@@ -17,9 +16,9 @@ class CrossToolTarget(enum.Enum):
 class CrossTool:
     __target: CrossToolTarget
     __package: str
-    __paths: List[Path]
+    __paths: list[Path]
 
-    def __init__(self, target: CrossToolTarget, package: str, paths: List[PathString]):
+    def __init__(self, target: CrossToolTarget, package: str, paths: list[PathString]):
         self.__target = target
         self.__package = package
         self.__paths = list(map(lambda p: Path(p) if isinstance(p, str) else p, paths))
@@ -32,7 +31,7 @@ class CrossTool:
         return self.__package
 
     @property
-    def paths(self) -> List[Path]:
+    def paths(self) -> list[Path]:
         return self.__paths
 
     def should_install(self, target: ChrootType) -> bool:

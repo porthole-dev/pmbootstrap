@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
 from pathlib import Path
-from typing import List
 from pmb.core.context import get_context
 from pmb.helpers import logging
 import time
@@ -39,7 +38,7 @@ def mount(img_path: Path):
         # Mount and return on success
         init()
 
-        losetup_cmd: List[PathString] = ["losetup", "-f", img_path]
+        losetup_cmd: list[PathString] = ["losetup", "-f", img_path]
         sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
         if sector_size:
             losetup_cmd += ["-b", str(int(sector_size))]

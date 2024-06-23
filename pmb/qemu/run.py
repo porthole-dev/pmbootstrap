@@ -1,7 +1,7 @@
 # Copyright 2023 Pablo Castellano, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import subprocess
-from typing import Sequence
+from collections.abc import Sequence
 from pmb.core.arch import Arch
 from pmb.core.config import Config
 from pmb.core.context import get_context

@@ -3,7 +3,7 @@
 from pathlib import Path
 from pmb.core.arch import Arch
 from pmb.helpers import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 import pmb.config
 import pmb.chroot.apk
@@ -38,7 +38,7 @@ def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[Arch]:
 
 
 @Cache("package")
-def arch(package: Union[str, Dict[str, Any]]):
+def arch(package: Union[str, dict[str, Any]]):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
@@ -83,7 +83,7 @@ def arch(package: Union[str, Dict[str, Any]]):
         return Arch.native()
 
 
-def chroot(apkbuild: Dict[str, str], arch: Arch) -> Chroot:
+def chroot(apkbuild: dict[str, str], arch: Arch) -> Chroot:
     if arch == Arch.native():
         return Chroot.native()
 

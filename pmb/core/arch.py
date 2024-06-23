@@ -3,7 +3,6 @@
 import enum
 from pathlib import Path, PosixPath, PurePosixPath
 import platform
-from typing import Set
 
 # Initialised at the bottom
 _cached_native_arch: "Arch"
@@ -69,7 +68,7 @@ class Arch(enum.Enum):
         return self == Arch.native()
 
     @staticmethod
-    def supported() -> Set["Arch"]:
+    def supported() -> set["Arch"]:
         """Officially supported host/target architectures for postmarketOS. Only
         specify architectures supported by Alpine here. For cross-compiling,
         we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use

@@ -1,7 +1,7 @@
 # Copyright 2023 Johannes Marbach, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from typing import List, Sequence
+from collections.abc import Sequence
 
 import pmb.chroot
 import pmb.config.pmaports
@@ -73,7 +73,7 @@ def apk_with_progress(command: Sequence[PathString]):
     :raises RuntimeError: when the apk command fails
     """
     fifo, fifo_outside = _prepare_fifo()
-    _command: List[str] = []
+    _command: list[str] = []
     for c in command:
         if isinstance(c, Arch):
             _command.append(str(c))

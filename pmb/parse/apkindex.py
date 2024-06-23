@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Optional
+from collections.abc import Sequence
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -26,7 +27,7 @@ apkindex_map = {
 required_apkindex_keys = ["arch", "pkgname", "version"]
 
 
-def parse_next_block(path: Path, lines: List[str]):
+def parse_next_block(path: Path, lines: list[str]):
     """Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
@@ -34,7 +35,7 @@ def parse_next_block(path: Path, lines: List[str]):
                   function. Wrapped into a list, so it can be modified
                   "by reference". Example: [5]
     :param lines: all lines from the "APKINDEX" file inside the archive
-    :returns: Dictionary with the following structure:
+    :returns: dictionary with the following structure:
               ``{ "arch": "noarch", "depends": ["busybox-extras", "lddtree", ... ],
               "origin": "postmarketos-mkinitfs",
               "pkgname": "postmarketos-mkinitfs",
@@ -49,7 +50,7 @@ def parse_next_block(path: Path, lines: List[str]):
     :returns: None, when there are no more blocks
     """
     # Parse until we hit an empty line or end of file
-    ret: Dict[str, Any] = {}
+    ret: dict[str, Any] = {}
     required_found = 0  # Count the required keys we found
     line = ""
     while len(lines):
@@ -207,7 +208,7 @@ def parse(path: Path, multiple_providers=True):
         return {}
 
     # Parse the whole APKINDEX file
-    ret: Dict[str, Any] = collections.OrderedDict()
+    ret: dict[str, Any] = collections.OrderedDict()
     if lines[-1] == "\n":
         lines.pop()  # Strip the trailing newline
     while True:
@@ -252,7 +253,7 @@ def parse_blocks(path: Path):
             lines = handle.read().decode().splitlines()
 
     # Parse lines into blocks
-    ret: List[str] = []
+    ret: list[str] = []
     while True:
         block = pmb.parse.apkindex.parse_next_block(path, lines)
         if not block:
@@ -302,7 +303,7 @@ def providers(package, arch: Optional[Arch] = None, must_exist=True, indexes=Non
 
     package = pmb.helpers.package.remove_operators(package)
 
-    ret: Dict[str, Any] = collections.OrderedDict()
+    ret: dict[str, Any] = collections.OrderedDict()
     for path in indexes:
         # Skip indexes not providing the package
         index_packages = parse(path)

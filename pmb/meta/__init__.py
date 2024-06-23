@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
-from typing import Callable, Dict, Optional
+from typing import Callable, Optional
 
 import inspect
 
@@ -83,7 +83,7 @@ class Cache:
 
         signature = inspect.signature(func)
 
-        passed_args: Dict[str, str] = {}
+        passed_args: dict[str, str] = {}
         for i, (k, val) in enumerate(signature.parameters.items()):
             if k in self.params or k in self.kwargs:
                 if i < len(args):

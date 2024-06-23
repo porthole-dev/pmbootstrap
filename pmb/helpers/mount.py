@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pathlib import Path, PurePath
-from typing import List
 import pmb.helpers
 from pmb.core import Chroot
 import pmb.helpers.run
@@ -72,7 +71,7 @@ def bind_file(source: Path, destination: Path, create_folders=False):
     pmb.helpers.run.root(["mount", "--bind", source, destination])
 
 
-def umount_all_list(prefix: Path, source: Path = Path("/proc/mounts")) -> List[Path]:
+def umount_all_list(prefix: Path, source: Path = Path("/proc/mounts")) -> list[Path]:
     """Parse `/proc/mounts` for all folders beginning with a prefix.
 
     :source: can be changed for testcases

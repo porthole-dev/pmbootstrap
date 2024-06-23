@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
@@ -170,7 +170,7 @@ class Deviceinfo:
     keymaps: Optional[str] = ""
 
     @staticmethod
-    def __validate(info: Dict[str, str], path: Path):
+    def __validate(info: dict[str, str], path: Path):
         # Resolve path for more readable error messages
         path = path.resolve()
 

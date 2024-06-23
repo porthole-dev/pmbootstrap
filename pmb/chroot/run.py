@@ -3,7 +3,7 @@
 import os
 from pathlib import Path, PurePath
 import shutil
-from typing import Sequence
+from collections.abc import Sequence
 
 import pmb.config
 import pmb.chroot

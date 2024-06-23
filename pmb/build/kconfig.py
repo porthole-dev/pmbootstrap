@@ -4,7 +4,7 @@ import os
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pmb.build
 import pmb.build.autodetect
@@ -50,7 +50,7 @@ def get_arch(apkbuild):
     return apkbuild["arch"][0]
 
 
-def get_outputdir(pkgname: str, apkbuild: Dict[str, Any]) -> Path:
+def get_outputdir(pkgname: str, apkbuild: dict[str, Any]) -> Path:
     """Get the folder for the kernel compilation output.
 
     For most APKBUILDs, this is $builddir. But some older ones still use

@@ -3,12 +3,12 @@
 
 from argparse import Namespace
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, TypedDict, Union
+from typing import Optional, TypedDict, Union
 
 from pmb.core.arch import Arch
 
 PathString = Union[Path, str]
-Env = Dict[str, PathString]
+Env = dict[str, PathString]
 
 # These types are not definitive / API, they exist to describe the current
 # state of things so that we can improve our type hinting coverage and make
@@ -23,7 +23,7 @@ class PartitionLayout(TypedDict):
 
 
 class AportGenEntry(TypedDict):
-    prefixes: List[str]
+    prefixes: list[str]
     confirm_overwrite: bool
 
 
@@ -108,13 +108,13 @@ class PmbArgs(Namespace):
     no_sshd: str
     odin_flashable_tar: str
     offline: bool
-    ondev_cp: List[Tuple[str, str]]
+    ondev_cp: list[tuple[str, str]]
     on_device_installer: str
     ondev_no_rootfs: str
     overview: str
     # FIXME (#2324): figure out the args.package vs args.packages situation
-    package: str | List[str]
-    packages: List[str]
+    package: str | list[str]
+    packages: list[str]
     partition: str
     password: str
     path: Path
@@ -140,7 +140,7 @@ class PmbArgs(Namespace):
     rsync: str
     scripts: str
     second_storage: str
-    selected_providers: Dict[str, str]
+    selected_providers: dict[str, str]
     sparse: str
     split: bool
     src: str

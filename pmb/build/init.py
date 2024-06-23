@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import List
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
@@ -16,7 +15,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def init_abuild_minimal(chroot: Chroot = Chroot.native(), additional_pkgs: List[str] = []):
+def init_abuild_minimal(chroot: Chroot = Chroot.native(), additional_pkgs: list[str] = []):
     """Initialize a minimal chroot with abuild where one can do 'abuild checksum'."""
     marker = chroot / "tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):

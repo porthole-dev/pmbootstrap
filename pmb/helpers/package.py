@@ -10,7 +10,7 @@ See also:
 """
 
 import copy
-from typing import Any, Dict
+from typing import Any
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -50,7 +50,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
         * None if the package was not found
     """
     # Find in pmaports
-    ret: Dict[str, Any] = {}
+    ret: dict[str, Any] = {}
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
     if pmaport:
         ret = {

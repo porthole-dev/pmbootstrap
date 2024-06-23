@@ -1,7 +1,8 @@
 import os
 import glob
 from pathlib import Path
-from typing import Dict, Generator, List, Optional, Tuple
+from typing import Optional
+from collections.abc import Generator
 
 import pmb.config
 from pmb.core.context import get_context
@@ -9,7 +10,7 @@ from pmb.meta import Cache
 
 
 @Cache(skip_extras=False)
-def pkgrepo_paths(skip_extras=False) -> List[Path]:
+def pkgrepo_paths(skip_extras=False) -> list[Path]:
     config = get_context().config
     paths = list(map(lambda x: Path(x), config.aports))
     if not paths:
@@ -32,7 +33,7 @@ def pkgrepo_default_path() -> Path:
     return pkgrepo_paths(skip_extras=True)[0]
 
 
-def pkgrepo_names(skip_exras=False) -> List[str]:
+def pkgrepo_names(skip_exras=False) -> list[str]:
     """
     Return a list of all the package repository names.
     """
@@ -97,7 +98,7 @@ def pkgrepo_iter_package_dirs(skip_extra_repos=False) -> Generator[Path, None, N
     Detect duplicates within the same aports repository but otherwise
     ignore all but the first. This allows for overriding packages.
     """
-    seen: Dict[str, List[str]] = dict(map(lambda a: (a, []), pkgrepo_names(skip_extra_repos)))
+    seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(skip_extra_repos)))
     for repo in pkgrepo_paths(skip_extra_repos):
         for g in glob.iglob(os.path.join(repo, "**/*/APKBUILD"), recursive=True):
             pdir = Path(g).parent
@@ -116,7 +117,7 @@ def pkgrepo_iter_package_dirs(skip_extra_repos=False) -> Generator[Path, None, N
             yield pdir
 
 
-def pkgrepo_relative_path(path: Path) -> Tuple[Path, Path]:
+def pkgrepo_relative_path(path: Path) -> tuple[Path, Path]:
     """
     Return the path relative to the first aports repository.
     """

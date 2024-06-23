@@ -7,7 +7,8 @@ import re
 import glob
 import shlex
 import sys
-from typing import Dict, List, Optional, Sequence
+from typing import Optional
+from collections.abc import Sequence
 from pathlib import Path
 
 import pmb.build
@@ -34,8 +35,8 @@ from pmb.core.context import get_context
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion
-get_recommends_visited: List[str] = []
-get_selected_providers_visited: List[str] = []
+get_recommends_visited: list[str] = []
+get_selected_providers_visited: list[str] = []
 
 
 def get_subpartitions_size(chroot: Chroot):
@@ -135,7 +136,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot):
         pmb.helpers.run.root(["rm", fifo])
 
     # Get all folders inside the device rootfs (except for home)
-    folders: List[str] = []
+    folders: list[str] = []
     for path in mountpoint_outside.glob("*"):
         if path.name == "home":
             continue
@@ -542,7 +543,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step):
                    rootfs_{args.device} or installer_{args.device}
     :param step: partition step size in bytes
     """
-    binary_ranges: Dict[int, int] = {}
+    binary_ranges: dict[int, int] = {}
     binary_list = []
     binaries = pmb.parse.deviceinfo().sd_embed_firmware.split(",")
 
@@ -1188,7 +1189,7 @@ def get_recommends(args: PmbArgs, packages) -> Sequence[str]:
     """
     global get_recommends_visited
 
-    ret: List[str] = []
+    ret: list[str] = []
     if not args.install_recommends:
         return ret
 
@@ -1229,7 +1230,7 @@ def get_recommends(args: PmbArgs, packages) -> Sequence[str]:
 
 
 def create_device_rootfs(args: PmbArgs, step, steps):
-    # List all packages to be installed (including the ones specified by --add)
+    # list all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
     context = get_context()
     config = context.config

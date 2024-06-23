@@ -12,7 +12,7 @@ import pmb.config.init
 from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
-from typing import Dict, Any
+from typing import Any
 
 
 def folder_size(path: Path):
@@ -291,7 +291,7 @@ def lookup(key):
     pmb.helpers.other.cache["mycache"][key] = ret
     return ret
 """
-cache: Dict[str, Any] = {
+cache: dict[str, Any] = {
     "apkindex": {},
     "pmb.helpers.repo.update": {"404": [], "offline_msg_shown": False},
 }

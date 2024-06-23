@@ -1,6 +1,6 @@
 # Copyright 2023 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Dict, List, Sequence
+from collections.abc import Sequence
 from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs, pkgrepo_names, pkgrepo_relative_path
 from pmb.helpers import logging
@@ -31,7 +31,7 @@ def check(pkgnames: Sequence[str]):
 
     # Locate all APKBUILDs and make the paths be relative to the pmaports
     # root
-    apkbuilds: Dict[str, List[str]] = dict(map(lambda x: (x, []), pkgrepo_names()))
+    apkbuilds: dict[str, list[str]] = dict(map(lambda x: (x, []), pkgrepo_names()))
     found_pkgnames = set()
     # If a package exists in multiple aports we will lint all of them
     # since.. well, what else do we do?

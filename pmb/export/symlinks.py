@@ -3,7 +3,6 @@
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
-from typing import List
 
 import pmb.build
 import pmb.chroot.apk
@@ -50,7 +49,7 @@ def symlinks(flavor, folder: Path):
     chroot_native = Chroot.native()
     path_boot = Chroot(ChrootType.ROOTFS, context.device) / "boot"
     chroot_buildroot = Chroot.buildroot(arch)
-    files: List[Path] = [
+    files: list[Path] = [
         path_boot / f"boot.img{suffix}",
         path_boot / f"uInitrd{suffix}",
         path_boot / f"uImage{suffix}",

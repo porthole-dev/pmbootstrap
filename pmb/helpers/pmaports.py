@@ -12,13 +12,14 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Any, Optional, Sequence, Dict, Tuple
+from typing import Any, Optional
+from collections.abc import Sequence
 
 from pmb.meta import Cache
 import pmb.parse
 
 
-def _find_apkbuilds(skip_extra_repos=False) -> Dict[str, Path]:
+def _find_apkbuilds(skip_extra_repos=False) -> dict[str, Path]:
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
     apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
@@ -215,7 +216,7 @@ def find_optional(package: str) -> Optional[Path]:
 @Cache("pkgname", subpackages=True)
 def get_with_path(
     pkgname, must_exist=True, subpackages=True, skip_extra_repos=False
-) -> Tuple[Optional[Path], Optional[Dict[str, Any]]]:
+) -> tuple[Optional[Path], Optional[dict[str, Any]]]:
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
@@ -243,7 +244,7 @@ def get_with_path(
     return None, None
 
 
-def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> Dict[str, Any]:
+def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> dict[str, Any]:
     return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
 
 

@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path, PosixPath
-from typing import List
 from pmb.helpers import logging
 import configparser
 import os
@@ -45,7 +44,7 @@ def load(path: Path) -> Config:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
         # Yeah this really sucks and there isn't a better way to do it without external
         # libraries
-        elif isinstance(getattr(Config, key), List) and isinstance(
+        elif isinstance(getattr(Config, key), list) and isinstance(
             getattr(Config, key)[0], PosixPath
         ):
             value = cfg["pmbootstrap"][key]
@@ -97,7 +96,7 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
         # Convert strings to paths
         elif type(getattr(Config, key)) == PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))
-        elif isinstance(getattr(Config, key), List) and isinstance(
+        elif isinstance(getattr(Config, key), list) and isinstance(
             getattr(Config, key)[0], PosixPath
         ):
             cfg["pmbootstrap"][key] = ",".join(os.fspath(p) for p in getattr(config, key))

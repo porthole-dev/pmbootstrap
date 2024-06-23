@@ -6,15 +6,15 @@ from pmb.helpers import logging
 import os
 import re
 import urllib.parse
-from typing import Dict, Optional
+from typing import Optional
 
 from pmb.types import PmbArgs
 import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
 
-req_headers: Dict[str, str] = {}
-req_headers_github: Dict[str, str] = {}
+req_headers: dict[str, str] = {}
+req_headers_github: dict[str, str] = {}
 
 ANITYA_API_BASE = "https://release-monitoring.org/api/v2"
 GITHUB_API_BASE = "https://api.github.com"

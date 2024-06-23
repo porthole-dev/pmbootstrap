@@ -15,7 +15,7 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_names
 from pmb.helpers import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import pmb.config.pmaports
 from pmb.meta import Cache
@@ -54,7 +54,7 @@ def apkindex_hash(url: str, length: int = 8) -> Path:
 # FIXME: make config.mirrors a normal dict
 # mypy: disable-error-code="literal-required"
 @Cache("user_repository", "mirrors_exclude")
-def urls(user_repository=False, mirrors_exclude: List[str] = []):
+def urls(user_repository=False, mirrors_exclude: list[str] = []):
     """Get a list of repository URLs, as they are in /etc/apk/repositories.
 
     :param user_repository: add /mnt/pmbootstrap/packages
@@ -62,7 +62,7 @@ def urls(user_repository=False, mirrors_exclude: List[str] = []):
     :returns: list of mirror strings, like ["/mnt/pmbootstrap/packages",
                                             "http://...", ...]
     """
-    ret: List[str] = []
+    ret: list[str] = []
     config = get_context().config
 
     # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
@@ -104,8 +104,8 @@ def urls(user_repository=False, mirrors_exclude: List[str] = []):
 
 
 def apkindex_files(
-    arch: Optional[Arch] = None, user_repository=True, exclude_mirrors: List[str] = []
-) -> List[Path]:
+    arch: Optional[Arch] = None, user_repository=True, exclude_mirrors: list[str] = []
+) -> list[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
     :param arch: defaults to native
@@ -158,7 +158,7 @@ def update(arch: Optional[Arch] = None, force=False, existing_only=False):
     # outdated: {URL: apkindex_path, ... }
     # outdated_arches: ["armhf", "x86_64", ... ]
     outdated = {}
-    outdated_arches: List[Arch] = []
+    outdated_arches: list[Arch] = []
     for url in urls(False):
         for arch in architectures:
             # APKINDEX file name from the URL

@@ -13,7 +13,8 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Optional, Sequence
+from typing import Optional
+from collections.abc import Sequence
 import pmb.helpers.run
 
 """For a detailed description of all output modes, read the description of

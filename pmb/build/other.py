@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 import shlex
 import datetime
-from typing import List
 
 import pmb.chroot
 import pmb.config.pmaports
@@ -138,7 +137,7 @@ def index_repo(arch=None):
     """
     pmb.build.init()
 
-    paths: List[Path] = []
+    paths: list[Path] = []
 
     for channel in pmb.config.pmaports.all_channels():
         pkgdir: Path = get_context().config.work / "packages" / channel

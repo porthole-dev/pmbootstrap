@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from pathlib import Path
-from typing import Dict
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_path
 from pmb.helpers import logging
@@ -143,7 +142,7 @@ def parse_channels_cfg(aports: Path):
         )
 
     # Meta section
-    ret: Dict[str, Dict[str, str | Dict[str, str]]] = {"channels": {}}
+    ret: dict[str, dict[str, str | dict[str, str]]] = {"channels": {}}
     ret["meta"] = {"recommended": cfg.get("channels.cfg", "recommended")}
 
     # Channels
