@@ -16,7 +16,6 @@ vermin \
 	--backport enum \
 	--backport typing \
 	--lint \
-	--no-parse-comments \
 	--eval-annotations \
 	$(find . -name '*.py' \
 		-a -not -path "./.venv/*" \
