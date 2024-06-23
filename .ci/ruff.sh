@@ -17,3 +17,6 @@ ruff check --ignore "F401" $(find . -not -path '*/venv/*' -name '__init__.py')
 
 # Check all other files
 ruff check --exclude=__init__.py .
+
+# Check formatting
+ruff format --check
