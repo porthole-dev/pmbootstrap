@@ -201,7 +201,6 @@ class BuildQueueItem(TypedDict):
     chroot: Chroot
 
 
-# arch is set if we should build for a specific arch
 def process_package(
     context: Context,
     queue_build: Callable,
@@ -210,6 +209,9 @@ def process_package(
     fallback_arch: Arch,
     force: bool,
 ) -> list[str]:
+    """
+    :param arch: Set if we should build for a specific arch.
+    """
     # Only build when APKBUILD exists
     base_aports, base_apkbuild = get_apkbuild(pkgname)
     if not base_apkbuild:
