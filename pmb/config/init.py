@@ -476,7 +476,7 @@ def ask_for_additional_options(config):
         f" parallel jobs: {config.jobs},"
         f" ccache per arch: {config.ccache_size},"
         f" sudo timer: {context.sudo_timer},"
-        f" mirror: {config.mirrors["pmaports"]}"
+        f" mirror: {config.mirrors['pmaports']}"
     )
 
     if not pmb.helpers.cli.confirm("Change them?", default=False):

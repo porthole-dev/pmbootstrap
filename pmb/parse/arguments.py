@@ -841,7 +841,7 @@ def get_parser():
         "-m",
         "--mirror-alpine",
         dest="mirror_alpine",
-        help="Alpine Linux mirror, default: " f"{default_config.mirrors["alpine"]}",
+        help="Alpine Linux mirror, default: " f"{default_config.mirrors['alpine']}",
         metavar="URL",
     )
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")

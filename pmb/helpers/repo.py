@@ -233,6 +233,6 @@ def alpine_apkindex_path(repo="main", arch: Optional[Arch] = None):
 
     # Find it on disk
     channel_cfg = pmb.config.pmaports.read_config_channel()
-    repo_link = f"{get_context().config.mirrors["alpine"]}{channel_cfg['mirrordir_alpine']}/{repo}"
+    repo_link = f"{get_context().config.mirrors['alpine']}{channel_cfg['mirrordir_alpine']}/{repo}"
     cache_folder = get_context().config.work / (f"cache_apk_{arch}")
     return cache_folder / apkindex_hash(repo_link)
