@@ -96,7 +96,7 @@ def get_outputdir(pkgname: str, apkbuild: dict[str, Any]) -> Path:
     )
 
 
-def extract_and_patch_sources(pkgname: str, arch):
+def extract_and_patch_sources(pkgname: str, arch) -> None:
     pmb.build.copy_to_buildpath(pkgname)
     logging.info("(native) extract kernel source")
     pmb.chroot.user(["abuild", "unpack"], working_dir=Path("/home/pmos/build"))
@@ -109,7 +109,7 @@ def extract_and_patch_sources(pkgname: str, arch):
     )
 
 
-def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
+def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig) -> None:
     # Pkgname: allow omitting "linux-" prefix
     if not pkgname.startswith("linux-"):
         pkgname = "linux-" + pkgname
