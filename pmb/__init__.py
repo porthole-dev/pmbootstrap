@@ -4,9 +4,12 @@
 import sys
 import os
 import traceback
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 from pmb.helpers.exceptions import BuildFailedError, NonBugError
+
+if TYPE_CHECKING:
+    from pmb.types import PmbArgs
 
 from . import config
 from . import parse
@@ -48,8 +51,7 @@ def print_log_hint() -> None:
 def main() -> int:
     # Wrap everything to display nice error messages
 
-    # FIXME: can't use PmbArgs here because it creates a circular import
-    args: Any
+    args: PmbArgs
     try:
         # Parse arguments, set up logging
         args = parse.arguments()
