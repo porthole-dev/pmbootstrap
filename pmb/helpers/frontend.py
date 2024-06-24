@@ -7,6 +7,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 import sys
+from typing import Any
 
 import pmb.aportgen
 import pmb.build
@@ -248,7 +249,21 @@ def config(args: PmbArgs):
             value = getattr(config, args.name)
         else:
             value = ""
-        print(value)
+
+        def to_shell_friendly_representation(value: Any) -> str:
+            friendly_representation: str
+
+            if isinstance(value, list) and len(value) == 1:
+                value = value[0]
+
+            if isinstance(value, Path):
+                friendly_representation = value.as_posix()
+            else:
+                friendly_representation = str(value)
+
+            return friendly_representation
+
+        print(to_shell_friendly_representation(value))
     else:
         # Serialize the entire config including default values for
         # the user. Even though the defaults aren't actually written
