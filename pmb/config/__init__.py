@@ -529,7 +529,7 @@ kconfig_options_netboot = {
 }
 
 # Necessary wireguard & wg-quick kernel config options
-# From https://gitweb.gentoo.org/repo/gentoo.git/tree/net-vpn/wireguard-tools/wireguard-tools-1.0.20210914.ebuild?id=76aaa1eeb6f001baaa68e6946f917ebb091bbd9d # noqa
+# From https://gitweb.gentoo.org/repo/gentoo.git/tree/net-vpn/wireguard-tools/wireguard-tools-1.0.20210914.ebuild?id=76aaa1eeb6f001baaa68e6946f917ebb091bbd9d
 kconfig_options_wireguard = {
     ">=5.6_rc1": {  # all versions
         "all": {  # all arches

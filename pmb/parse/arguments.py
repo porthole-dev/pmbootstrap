@@ -1285,7 +1285,7 @@ def get_parser():
 
 def arguments():
     # Parse and extend arguments (also backup unmodified result from argparse)
-    args: PmbArgs = get_parser().parse_args()  # type: ignore
+    args: PmbArgs = get_parser().parse_args()
 
     # setattr(args, "from_argparse", copy.deepcopy(args))
     # setattr(args.from_argparse, "from_argparse", args.from_argparse)
