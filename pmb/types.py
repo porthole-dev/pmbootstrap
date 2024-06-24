@@ -3,10 +3,11 @@
 
 from argparse import Namespace
 from pathlib import Path
-from typing import Optional, TypedDict, Union
+from typing import Literal, Optional, TypedDict, Union
 
 from pmb.core.arch import Arch
 
+CrossCompileType = Optional[Union[Literal["native"], Literal["crossdirect"]]]
 PathString = Union[Path, str]
 Env = dict[str, PathString]
 

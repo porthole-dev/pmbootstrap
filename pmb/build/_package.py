@@ -7,6 +7,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_relative_path
 from pmb.helpers import logging
+from pmb.types import CrossCompileType
 from pathlib import Path
 
 import pmb.build
@@ -196,7 +197,7 @@ class BuildQueueItem(TypedDict):
     output_path: Path
     channel: str
     depends: list[str]
-    cross: str
+    cross: CrossCompileType
     chroot: Chroot
 
 
@@ -337,7 +338,10 @@ def packages(
     # Add a package to the build queue, fetch it's dependency, and
     # add record build helpers to installed (e.g. sccache)
     def queue_build(
-        aports: Path, apkbuild: dict[str, Any], depends: list[str], cross: Optional[str] = None
+        aports: Path,
+        apkbuild: dict[str, Any],
+        depends: list[str],
+        cross: CrossCompileType = None,
     ) -> list[str]:
         # Skip if already queued
         name = apkbuild["pkgname"]

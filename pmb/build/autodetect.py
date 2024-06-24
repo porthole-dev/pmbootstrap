@@ -11,6 +11,7 @@ import pmb.helpers.pmaports
 from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.meta import Cache
+from pmb.types import CrossCompileType
 
 
 # FIXME (#2324): type hint Arch
@@ -93,10 +94,8 @@ def chroot(apkbuild: dict[str, str], arch: Arch) -> Chroot:
     return Chroot.buildroot(arch)
 
 
-def crosscompile(apkbuild, arch: Arch):
-    """
-    :returns: None, "native", "crossdirect"
-    """
+def crosscompile(apkbuild, arch: Arch) -> CrossCompileType:
+    """Decide the type of compilation necessary to build a given APKBUILD."""
     if not get_context().cross:
         return None
     if not arch.cpu_emulation_required():
