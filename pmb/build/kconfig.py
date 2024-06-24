@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
@@ -19,7 +20,7 @@ import pmb.parse
 from pmb.core import Chroot
 
 
-def get_arch(apkbuild):
+def get_arch(apkbuild) -> Arch:
     """Take the architecture from the APKBUILD or complain if it's ambiguous.
 
     This function only gets called if --arch is not set.
@@ -47,7 +48,7 @@ def get_arch(apkbuild):
             " '--arch' to specify the desired architecture."
         )
 
-    return apkbuild["arch"][0]
+    return Arch.from_str(apkbuild["arch"][0])
 
 
 def get_outputdir(pkgname: str, apkbuild: dict[str, Any]) -> Path:
