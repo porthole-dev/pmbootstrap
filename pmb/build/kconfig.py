@@ -127,7 +127,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig):
     if cross:
         pmb.build.init_compiler(get_context(), [], cross, arch)
 
-    depends = apkbuild["makedepends"]
+    depends = apkbuild["makedepends"] + ["gcc", "make"]
     copy_xauth = False
 
     if use_oldconfig:
