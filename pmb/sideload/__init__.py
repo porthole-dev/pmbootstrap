@@ -64,13 +64,13 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     return alpine_architecture
 
 
-def ssh_install_apks(args: PmbArgs, user, host, port, paths) -> None:
+def ssh_install_apks(args: PmbArgs, user, host, port, paths: list) -> None:
     """Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
     :param paths: list of absolute paths to locally stored apks
-    :type paths: list"""
+    """
 
     remote_paths = []
     for path in paths:

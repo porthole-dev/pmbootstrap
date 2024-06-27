@@ -32,7 +32,7 @@ from pmb.parse.deviceinfo import Deviceinfo
 import pmb.parse._apkbuild
 
 
-def require_programs():
+def require_programs() -> None:
     missing = []
     for program in pmb.config.required_programs:
         if not shutil.which(program):
@@ -273,7 +273,7 @@ def ask_for_timezone():
     return "GMT"
 
 
-def ask_for_provider_select(apkbuild, providers_cfg):
+def ask_for_provider_select(apkbuild, providers_cfg) -> None:
     """Ask for selectable providers that are specified using "_pmb_select" in a APKBUILD.
 
     :param apkbuild: the APKBUILD with the _pmb_select
@@ -331,7 +331,7 @@ def ask_for_provider_select(apkbuild, providers_cfg):
             )
 
 
-def ask_for_provider_select_pkg(pkgname, providers_cfg):
+def ask_for_provider_select_pkg(pkgname, providers_cfg) -> None:
     """Look up the APKBUILD for the specified pkgname and ask for selectable
     providers that are specified using "_pmb_select".
 
@@ -466,7 +466,7 @@ def ask_for_device(context: Context):
     return (device, device_path is not None, kernel)
 
 
-def ask_for_additional_options(config):
+def ask_for_additional_options(config) -> None:
     context = pmb.core.context.get_context()
     # Allow to skip additional options
     logging.info(
@@ -646,7 +646,7 @@ def get_locales():
     return ret
 
 
-def ask_for_locale(current_locale: str):
+def ask_for_locale(current_locale: str) -> str:
     locales = get_locales()
     logging.info(
         "Choose your preferred locale, like e.g. en_US. Only UTF-8"
@@ -672,7 +672,7 @@ def ask_for_locale(current_locale: str):
         return f"{ret}.UTF-8"
 
 
-def frontend(args: PmbArgs):
+def frontend(args: PmbArgs) -> None:
     require_programs()
 
     # Work folder (needs to be first, so we can create chroots early)

@@ -7,7 +7,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 import sys
-from typing import Any
+from typing import Any, NoReturn
 
 import pmb.aportgen
 import pmb.build
@@ -43,7 +43,7 @@ from pmb.core import ChrootType, Chroot
 from pmb.core.context import get_context
 
 
-def _parse_flavor(device: str, autoinstall=True):
+def _parse_flavor(device: str, autoinstall=True) -> str:
     """Verify the flavor argument if specified, or return a default value.
 
     :param autoinstall: make sure that at least one kernel flavor is installed
@@ -83,7 +83,7 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         return Chroot(ChrootType.NATIVE)
 
 
-def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]):
+def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]) -> None:
     chroot_dest = "/var/lib/rootfs.img"
     dest = Chroot(ChrootType.INSTALLER, device) / chroot_dest
     if dest.exists():
@@ -103,13 +103,13 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]
     )
 
 
-def aportgen(args: PmbArgs):
+def aportgen(args: PmbArgs) -> None:
     for package in args.packages:
         logging.info("Generate aport: " + package)
         pmb.aportgen.generate(package, args.fork_alpine)
 
 
-def build(args: PmbArgs):
+def build(args: PmbArgs) -> None:
     # Strict mode: zap everything
     if args.strict:
         pmb.chroot.zap(False)
@@ -144,12 +144,12 @@ def build(args: PmbArgs):
         )
 
 
-def build_init(args: PmbArgs):
+def build_init(args: PmbArgs) -> None:
     chroot = _parse_suffix(args)
     pmb.build.init(chroot)
 
 
-def checksum(args: PmbArgs):
+def checksum(args: PmbArgs) -> None:
     pmb.chroot.init(Chroot.native())
     for package in args.packages:
         if args.verify:
@@ -158,20 +158,20 @@ def checksum(args: PmbArgs):
             pmb.build.checksum.update(package)
 
 
-def sideload(args: PmbArgs):
+def sideload(args: PmbArgs) -> None:
     arch = args.arch
     user = get_context().config.user
     host = args.host
     pmb.sideload.sideload(args, user, host, args.port, arch, args.install_key, args.packages)
 
 
-def netboot(args: PmbArgs):
+def netboot(args: PmbArgs) -> None:
     if args.action_netboot == "serve":
         device = get_context().config.device
         pmb.netboot.start_nbd_server(device, args.replace)
 
 
-def chroot(args: PmbArgs):
+def chroot(args: PmbArgs) -> None:
     # Suffix
     chroot = _parse_suffix(args)
     user = args.user
@@ -225,7 +225,7 @@ def chroot(args: PmbArgs):
         pmb.chroot.root(args.command, chroot, output=args.output, env=env)
 
 
-def config(args: PmbArgs):
+def config(args: PmbArgs) -> None:
     keys = Config.keys()
     if args.name and args.name not in keys:
         logging.info("NOTE: Valid config keys: " + ", ".join(keys))
@@ -284,16 +284,16 @@ def config(args: PmbArgs):
     pmb.helpers.logging.disable()
 
 
-def repo_missing(args: PmbArgs):
+def repo_missing(args: PmbArgs) -> None:
     missing = pmb.helpers.repo_missing.generate(args.arch, args.overview, args.package, args.built)
     print(json.dumps(missing, indent=4))
 
 
-def initfs(args: PmbArgs):
+def initfs(args: PmbArgs) -> None:
     pmb.chroot.initfs.frontend(args)
 
 
-def install(args: PmbArgs):
+def install(args: PmbArgs) -> None:
     config = get_context().config
     device = config.device
     deviceinfo = pmb.parse.deviceinfo(device)
@@ -409,15 +409,15 @@ def install(args: PmbArgs):
     pmb.install.install(args)
 
 
-def flasher(args: PmbArgs):
+def flasher(args: PmbArgs) -> None:
     pmb.flasher.frontend(args)
 
 
-def export(args: PmbArgs):
+def export(args: PmbArgs) -> None:
     pmb.export.frontend(args)
 
 
-def update(args: PmbArgs):
+def update(args: PmbArgs) -> None:
     existing_only = not args.non_existing
     if not pmb.helpers.repo.update(args.arch, True, existing_only):
         logging.info(
@@ -432,7 +432,7 @@ def update(args: PmbArgs):
         )
 
 
-def newapkbuild(args: PmbArgs):
+def newapkbuild(args: PmbArgs) -> None:
     # Check for SRCURL usage
     is_url = False
     for prefix in ["http://", "https://", "ftp://"]:
@@ -466,7 +466,7 @@ def newapkbuild(args: PmbArgs):
     pmb.build.newapkbuild(args.folder, pass_through, args.force)
 
 
-def deviceinfo_parse(args: PmbArgs):
+def deviceinfo_parse(args: PmbArgs) -> None:
     # Default to all devices
     devices = args.devices
     if not devices:
@@ -479,7 +479,7 @@ def deviceinfo_parse(args: PmbArgs):
         print(json.dumps(pmb.parse.deviceinfo(device, kernel), indent=4, sort_keys=True))
 
 
-def apkbuild_parse(args: PmbArgs):
+def apkbuild_parse(args: PmbArgs) -> None:
     # Default to all packages
     packages: Sequence[str] = args.packages
     if not packages:
@@ -492,7 +492,7 @@ def apkbuild_parse(args: PmbArgs):
         print(json.dumps(pmb.parse.apkbuild(aport), indent=4, sort_keys=True))
 
 
-def apkindex_parse(args: PmbArgs):
+def apkindex_parse(args: PmbArgs) -> None:
     result = pmb.parse.apkindex.parse(args.apkindex_path)
     if args.package:
         if args.package not in result:
@@ -501,10 +501,10 @@ def apkindex_parse(args: PmbArgs):
     print(json.dumps(result, indent=4))
 
 
-def pkgrel_bump(args: PmbArgs):
+def pkgrel_bump(args: PmbArgs) -> None:
     would_bump = True
     if args.auto:
-        would_bump = pmb.helpers.pkgrel_bump.auto(args, args.dry)
+        would_bump = bool(pmb.helpers.pkgrel_bump.auto(args, args.dry))
     else:
         # Each package must exist
         for package in args.packages:
@@ -519,7 +519,7 @@ def pkgrel_bump(args: PmbArgs):
         sys.exit(1)
 
 
-def aportupgrade(args: PmbArgs):
+def aportupgrade(args: PmbArgs) -> None:
     if args.all or args.all_stable or args.all_git:
         pmb.helpers.aportupgrade.upgrade_all(args)
     else:
@@ -532,11 +532,11 @@ def aportupgrade(args: PmbArgs):
             pmb.helpers.aportupgrade.upgrade(args, package)
 
 
-def qemu(args: PmbArgs):
+def qemu(args: PmbArgs) -> None:
     pmb.qemu.run(args)
 
 
-def stats(args: PmbArgs):
+def stats(args: PmbArgs) -> None:
     # Chroot suffix
     chroot = Chroot.buildroot(args.arch or Arch.native())
 
@@ -546,12 +546,12 @@ def stats(args: PmbArgs):
     pmb.chroot.user(["ccache", "-s"], chroot, output="stdout")
 
 
-def work_migrate(args: PmbArgs):
+def work_migrate(args: PmbArgs) -> None:
     # do nothing (pmb/__init__.py already did the migration)
     pmb.helpers.logging.disable()
 
 
-def zap(args: PmbArgs):
+def zap(args: PmbArgs) -> None:
     pmb.chroot.zap(
         dry=args.dry,
         http=args.http,
@@ -567,7 +567,7 @@ def zap(args: PmbArgs):
     pmb.helpers.logging.disable()
 
 
-def bootimg_analyze(args: PmbArgs):
+def bootimg_analyze(args: PmbArgs) -> None:
     bootimg = pmb.parse.bootimg(args.path)
     tmp_output = "Put these variables in the deviceinfo file of your device:\n"
     for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(bootimg).split("\n"):
@@ -575,7 +575,7 @@ def bootimg_analyze(args: PmbArgs):
     logging.info(tmp_output)
 
 
-def lint(args: PmbArgs):
+def lint(args: PmbArgs) -> None:
     packages: Sequence[str] = args.packages
     if not packages:
         packages = pmb.helpers.pmaports.get_list()
@@ -583,14 +583,14 @@ def lint(args: PmbArgs):
     pmb.helpers.lint.check(packages)
 
 
-def status(args: PmbArgs) -> None:
+def status(args: PmbArgs) -> NoReturn:
     pmb.helpers.status.print_status(args)
 
     # Do not print the DONE! line
     sys.exit(0)
 
 
-def ci(args: PmbArgs):
+def ci(args: PmbArgs) -> None:
     topdir = pmb.helpers.git.get_topdir(Path.cwd())
     if not os.path.exists(topdir):
         logging.error(

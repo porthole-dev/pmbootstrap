@@ -9,7 +9,7 @@ import pmb.install
 from pmb.core import Chroot
 
 
-def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
+def kernel_flavor_installed(chroot: Chroot, autoinstall=True) -> str | None:
     """
     Get installed kernel flavor. Optionally install the device's kernel
     beforehand.
@@ -34,7 +34,7 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
     return glob_result[0].name if glob_result else None
 
 
-def copy_xauthority(args: PmbArgs):
+def copy_xauthority(args: PmbArgs) -> None:
     """
     Copy the host system's Xauthority file to the pmos user inside the chroot,
     so we can start X11 applications from there.

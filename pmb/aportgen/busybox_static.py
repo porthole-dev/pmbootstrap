@@ -11,7 +11,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def generate(pkgname: str):
+def generate(pkgname: str) -> None:
     arch = pkgname.split("-")[2]
     context = get_context()
 

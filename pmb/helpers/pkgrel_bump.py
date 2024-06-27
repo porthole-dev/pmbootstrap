@@ -11,7 +11,7 @@ import pmb.parse
 import pmb.parse.apkindex
 
 
-def package(args: PmbArgs, pkgname, reason="", dry=False):
+def package(args: PmbArgs, pkgname: str, reason="", dry: bool = False) -> None:
     """Increase the pkgrel in the APKBUILD of a specific package.
 
     :param pkgname: name of the package
@@ -54,7 +54,7 @@ def package(args: PmbArgs, pkgname, reason="", dry=False):
         )
 
 
-def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
+def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry: bool = False) -> bool:
     """Bump the pkgrel of a specific package if it is outdated in the given APKINDEX.
 
     :param arch: the architecture, e.g. "armhf"
@@ -76,13 +76,13 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
             f"{pkgname}: skipping, because the aport version {version_aport} is lower"
             f" than the binary version {version_apk}"
         )
-        return
+        return False
     if compare == 1:
         logging.verbose(
             f"{pkgname}: skipping, because the aport version {version_aport} is higher"
             f" than the binary version {version_apk}"
         )
-        return
+        return False
 
     # Find missing depends
     depends = apk["depends"]
@@ -106,8 +106,10 @@ def auto_apkindex_package(args: PmbArgs, arch, aport, apk, dry=False):
         package(args, pkgname, reason=", missing depend(s): " + ", ".join(missing), dry=dry)
         return True
 
+    return False
 
-def auto(args: PmbArgs, dry=False):
+
+def auto(args: PmbArgs, dry=False) -> list[str]:
     """:returns: list of aport names, where the pkgrel needed to be changed"""
     ret = []
     for arch in Arch.supported():

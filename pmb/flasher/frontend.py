@@ -1,5 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
+
 from pmb.core.context import get_context
 from pmb.helpers import logging
 
@@ -17,7 +19,12 @@ import pmb.parse.kconfig
 from pmb.core import Chroot, ChrootType
 
 
-def kernel(deviceinfo: Deviceinfo, method: str, boot: bool = False, autoinstall: bool = False):
+def kernel(
+    deviceinfo: Deviceinfo,
+    method: str,
+    boot: bool = False,
+    autoinstall: bool = False,
+) -> None:
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(deviceinfo.codename, autoinstall)
     if autoinstall:
@@ -43,13 +50,13 @@ def kernel(deviceinfo: Deviceinfo, method: str, boot: bool = False, autoinstall:
     )
 
 
-def list_flavors(device: str):
+def list_flavors(device: str) -> None:
     chroot = Chroot(ChrootType.ROOTFS, device)
     logging.info(f"({chroot}) installed kernel flavors:")
-    logging.info("* " + pmb.chroot.other.kernel_flavor_installed(chroot))
+    logging.info("* " + str(pmb.chroot.other.kernel_flavor_installed(chroot)))
 
 
-def rootfs(deviceinfo: Deviceinfo, method: str):
+def rootfs(deviceinfo: Deviceinfo, method: str) -> None:
     # Generate rootfs, install flasher
     suffix = ".img"
     if pmb.config.flashers.get(method, {}).get("split", False):
@@ -73,11 +80,11 @@ def rootfs(deviceinfo: Deviceinfo, method: str):
     pmb.flasher.run(deviceinfo, method, "flash_rootfs")
 
 
-def list_devices(deviceinfo: Deviceinfo, method: str):
+def list_devices(deviceinfo: Deviceinfo, method: str) -> None:
     pmb.flasher.run(deviceinfo, method, "list_devices")
 
 
-def sideload(deviceinfo: Deviceinfo, method: str):
+def sideload(deviceinfo: Deviceinfo, method: str) -> None:
     # Install depends
     pmb.flasher.install_depends(method)
 
@@ -102,7 +109,7 @@ def sideload(deviceinfo: Deviceinfo, method: str):
     pmb.flasher.run(deviceinfo, method, "sideload")
 
 
-def flash_lk2nd(deviceinfo: Deviceinfo, method: str):
+def flash_lk2nd(deviceinfo: Deviceinfo, method: str) -> None:
     if method == "fastboot":
         # In the future this could be expanded to use "fastboot flash lk2nd $img"
         # which reflashes/updates lk2nd from itself. For now let the user handle this
@@ -141,7 +148,7 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str):
     pmb.flasher.run(deviceinfo, method, "flash_lk2nd")
 
 
-def frontend(args: PmbArgs):
+def frontend(args: PmbArgs) -> None:
     context = get_context()
     action = args.action_flasher
     device = context.config.device
