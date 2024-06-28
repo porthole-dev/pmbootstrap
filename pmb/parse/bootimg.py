@@ -84,7 +84,8 @@ def bootimg(path: Path):
     )
     pmb.chroot.apk.install(["file", "unpackbootimg"], Chroot.native())
 
-    temp_path = pmb.chroot.other.tempfolder(Path("/tmp/bootimg_parser"))
+    temp_path = Path("/tmp/bootimg_parser")
+    pmb.chroot.user(["mkdir", "-p", temp_path])
     bootimg_path = Chroot.native() / temp_path / "boot.img"
 
     # Copy the boot.img into the chroot temporary folder

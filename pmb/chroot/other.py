@@ -3,7 +3,6 @@
 import os
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pathlib import Path
 import pmb.chroot.apk
 from pmb.types import PmbArgs
 import pmb.install
@@ -33,21 +32,6 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall=True):
 
     # There should be only one directory here
     return glob_result[0].name if glob_result else None
-
-
-# FIXME: this function has ONE user, does it need to exist?
-def tempfolder(path: Path, chroot: Chroot = Chroot.native()):
-    """
-    Create a temporary folder inside the chroot that belongs to "user".
-    The folder gets deleted, if it already exists.
-
-    :param path: of the temporary folder inside the chroot
-    :returns: the path
-    """
-    if chroot / path:
-        pmb.chroot.root(["rm", "-r", path])
-    pmb.chroot.user(["mkdir", "-p", path])
-    return path
 
 
 def copy_xauthority(args: PmbArgs):
