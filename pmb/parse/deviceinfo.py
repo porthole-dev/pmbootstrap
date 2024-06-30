@@ -104,6 +104,7 @@ class Deviceinfo:
     chassis: str
     keyboard: Optional[str] = ""
     external_storage: Optional[str] = ""
+    gpu_accelerated: Optional[bool] = False
     dev_touchscreen: Optional[str] = ""
     dev_touchscreen_calibration: Optional[str] = ""
     append_dtb: Optional[str] = ""
