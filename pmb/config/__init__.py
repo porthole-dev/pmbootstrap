@@ -83,6 +83,7 @@ defaults: dict[str, PathString] = {
     # times on slower devices due to host systems being MUCH faster than the
     # target device (see issue #429).
     "iter_time": "200",
+    "ui": "console",
 }
 
 # Whether we're connected to a TTY (which allows things like e.g. printing
