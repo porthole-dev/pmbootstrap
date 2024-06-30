@@ -442,7 +442,7 @@ def packages(
         if not cross:
             cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
             if cross:
-                pmb.build.init_compiler(context, all_dependencies, cross, pkg_arch)
+                pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
             if cross == "crossdirect":
                 pmb.chroot.mount_native_into_foreign(chroot)
 
