@@ -42,7 +42,7 @@ class PmbArgs(Namespace):
     all_stable: str
     android_recovery_zip: str
     apkindex_path: Path
-    aports: Optional[Path]
+    aports: Optional[list[Path]]
     arch: Optional[Arch]
     as_root: str
     assume_yes: str
