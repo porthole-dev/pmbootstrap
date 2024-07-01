@@ -54,10 +54,13 @@ def init(args: PmbArgs) -> PmbArgs:
     # sys.exit(0)
     config = pmb.config.load(args.config)
 
-    if args.aports and not args.aports.exists():
-        raise ValueError(
-            "pmaports path (specified with --aports) does" f" not exist: {args.aports}"
-        )
+    if args.aports:
+        for pmaports_dir in args.aports:
+            if pmaports_dir.exists():
+                continue
+            raise ValueError(
+                f"pmaports path (specified with --aports) does not exist: {pmaports_dir}"
+            )
 
     # Override config at runtime with command line arguments
     for key, _ in vars(config).items():
