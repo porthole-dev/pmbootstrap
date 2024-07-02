@@ -18,8 +18,6 @@ import pmb.helpers.other
 from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 
-cache_chroot_is_outdated: list[str] = []
-
 
 class UsrMerge(enum.Enum):
     """
@@ -82,23 +80,27 @@ def init_usr_merge(chroot: Chroot):
     pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB", chroot.path])
 
 
-def warn_if_chroot_is_outdated(chroot: Chroot):
-    global cache_chroot_is_outdated
-
-    # Only check / display the warning once per session
-    if str(chroot) in cache_chroot_is_outdated:
-        return
-
-    if pmb.config.workdir.chroots_outdated(chroot):
+@Cache()
+def warn_if_chroots_outdated():
+    outdated = pmb.config.workdir.chroots_outdated()
+    if outdated:
         days_warn = int(pmb.config.chroot_outdated / 3600 / 24)
+        msg = ""
+        if Chroot.native() in outdated:
+            msg += "your native"
+            if Chroot.rootfs(get_context().config.device) in outdated:
+                msg += " and rootfs chroots are"
+            else:
+                msg += " chroot is"
+        elif Chroot.rootfs(get_context().config.device) in outdated:
+            msg += "your rootfs chroot is"
+        else:
+            msg += "some of your chroots are"
         logging.warning(
-            f"WARNING: Your {chroot} chroot is older than"
+            f"WARNING: {msg} older than"
             f" {days_warn} days. Consider running"
             " 'pmbootstrap zap'."
         )
-
-    cache_chroot_is_outdated += [str(chroot)]
-
 
 @Cache("chroot")
 def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
@@ -129,7 +131,7 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
     if chroot.exists():
         copy_resolv_conf(chroot)
         pmb.chroot.apk.update_repository_list(chroot)
-        warn_if_chroot_is_outdated(chroot)
+        warn_if_chroots_outdated()
         return
 
     # Require apk-tools-static
