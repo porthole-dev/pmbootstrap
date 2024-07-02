@@ -3,6 +3,7 @@
 import pmb.config
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path
+from pmb.helpers import logging
 from pmb.types import PmbArgs
 import pmb.helpers.git
 import pmb.helpers.args
@@ -159,6 +160,6 @@ def init(args: PmbArgs) -> PmbArgs:
 def please_i_really_need_args() -> PmbArgs:
     import traceback
 
-    traceback.print_stack()
-    print("FIXME: retrieved args where it shouldn't be needed!")
+    traceback.print_stack(file=logging.logfd)
+    logging.warning("FIXME: retrieved args where it shouldn't be needed!")
     return __args
