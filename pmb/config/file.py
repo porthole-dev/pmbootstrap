@@ -40,7 +40,7 @@ def load(path: Path) -> Config:
                 logging.warning("Multiple mirrors are not supported, using the last one")
             config.mirrors["pmaports"] = mirrors[-1].strip("/master")
         # Convert strings to paths
-        elif type(getattr(Config, key)) == PosixPath:
+        elif type(getattr(Config, key)) is PosixPath:
             setattr(config, key, Path(cfg["pmbootstrap"][key]))
         # Yeah this really sucks and there isn't a better way to do it without external
         # libraries
@@ -94,7 +94,7 @@ def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
             _key = key.split(".")[1]
             cfg["mirrors"][_key] = getattr(config, key)
         # Convert strings to paths
-        elif type(getattr(Config, key)) == PosixPath:
+        elif type(getattr(Config, key)) is PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))
         elif isinstance(getattr(Config, key), list) and isinstance(
             getattr(Config, key)[0], PosixPath
