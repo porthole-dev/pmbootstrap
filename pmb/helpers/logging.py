@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 from typing import TextIO
 import pmb.config
+from pmb.meta import Cache
 
 logfd: TextIO
 
@@ -176,6 +177,10 @@ def error(msg: object, *args, **kwargs):
 def warning(msg: object, *args, **kwargs):
     logging.warning(msg, *args, **kwargs)
 
+
+@Cache("msg")
+def warn_once(msg: str):
+    logging.warning(msg)
 
 def info(msg: object, *args, **kwargs):
     logging.info(msg, *args, **kwargs)
