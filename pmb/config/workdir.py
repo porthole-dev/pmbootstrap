@@ -8,7 +8,7 @@ dir."""
 import configparser
 import os
 import time
-from typing import Optional
+from typing import Optional, overload
 
 import pmb.config
 import pmb.config.pmaports
@@ -40,34 +40,48 @@ def chroot_save_init(suffix: Chroot):
         cfg.write(handle)
 
 
+@overload
+def chroots_outdated() -> list[Chroot]:
+    ...
+
+
+@overload
+def chroots_outdated(chroot: Chroot) -> bool:
+    ...
+
+
 def chroots_outdated(chroot: Optional[Chroot] = None):
     """Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 
     :param suffix: only check a specific chroot suffix
 
-    :returns: True if any of the chroots are outdated and should be zapped,
+    :returns: A list of all outdated chroots if chroot is None, if a specific
+              chroot is given, instead it returns True if the chroot is outdated,
               False otherwise
     """
     # Skip if workdir.cfg doesn't exist
     path = get_context().config.work / "workdir.cfg"
     if not os.path.exists(path):
-        return False
+        return False if chroot else []
 
     cfg = configparser.ConfigParser()
     cfg.read(path)
     key = "chroot-init-dates"
     if key not in cfg:
-        return False
+        return False if chroot else []
 
+    outdated: list[Chroot] = []
     date_outdated = time.time() - pmb.config.chroot_outdated
     for cfg_suffix in cfg[key]:
         if chroot and cfg_suffix != str(chroot):
             continue
         date_init = int(cfg[key][cfg_suffix])
         if date_init <= date_outdated:
-            return True
-    return False
+            if chroot:
+                return True
+            outdated.append(Chroot.from_str(cfg_suffix))
+    return False if chroot else outdated
 
 
 def chroot_check_channel(chroot: Chroot) -> bool:
