@@ -142,11 +142,8 @@ def update(arch: Optional[Arch] = None, force=False, existing_only=False):
     :returns: True when files have been downloaded, False otherwise
     """
     # Skip in offline mode, only show once
-    cache_key = "pmb.helpers.repo.update"
     if get_context().offline:
-        if not pmb.helpers.other.cache[cache_key]["offline_msg_shown"]:
-            logging.info("NOTE: skipping package index update (offline mode)")
-            pmb.helpers.other.cache[cache_key]["offline_msg_shown"] = True
+        logging.warn_once("NOTE: skipping package index update (offline mode)")
         return False
 
     # Architectures and retention time
@@ -168,11 +165,7 @@ def update(arch: Optional[Arch] = None, force=False, existing_only=False):
 
             # Find update reason, possibly skip non-existing or known 404 files
             reason = None
-            if url_full in pmb.helpers.other.cache[cache_key]["404"]:
-                # We already attempted to download this file once in this
-                # session
-                continue
-            elif not os.path.exists(apkindex):
+            if not os.path.exists(apkindex):
                 if existing_only:
                     continue
                 reason = "file does not exist yet"
@@ -204,9 +197,6 @@ def update(arch: Optional[Arch] = None, force=False, existing_only=False):
     for i, (url, target) in enumerate(outdated.items()):
         pmb.helpers.cli.progress_print(i / len(outdated))
         temp = pmb.helpers.http.download(url, "APKINDEX", False, logging.DEBUG, True)
-        if not temp:
-            pmb.helpers.other.cache[cache_key]["404"].append(url)
-            continue
         target_folder = os.path.dirname(target)
         if not os.path.exists(target_folder):
             pmb.helpers.run.root(["mkdir", "-p", target_folder])

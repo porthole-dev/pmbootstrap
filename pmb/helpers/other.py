@@ -293,5 +293,4 @@ def lookup(key):
 """
 cache: dict[str, Any] = {
     "apkindex": {},
-    "pmb.helpers.repo.update": {"404": [], "offline_msg_shown": False},
 }
