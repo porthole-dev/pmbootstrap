@@ -23,7 +23,8 @@ class Log(commands.Command):
 
         if self.clear_log:
             run.user(["truncate", "-s", "0", context.log])
-            run.user(["truncate", "-s", "0", log_testsuite])
+            if log_testsuite.exists():
+                run.user(["truncate", "-s", "0", log_testsuite])
 
         cmd: list[PathString] = ["tail", "-n", str(self.lines), "-F"]
 
