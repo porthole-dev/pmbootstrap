@@ -816,8 +816,9 @@ def get_parser():
         "-c",
         "--config",
         dest="config",
+        type=lambda x: Path(x),
         default=pmb.config.defaults["config"],
-        help="path to pmbootstrap.cfg file (default in" " ~/.config/)",
+        help="path to pmbootstrap.cfg file (default in ~/.config/)",
     )
     parser.add_argument(
         "-mp",
