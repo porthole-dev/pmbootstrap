@@ -33,6 +33,11 @@ def check_option(ui, option, skip_extra_repos=False):
     """
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
     """
+    if ui == "none":
+        # Users can select "none" as UI in "pmbootstrap init", which does not
+        # have a UI package.
+        return False
+
     pkgname = f"postmarketos-ui-{ui}"
     apkbuild = pmb.helpers.pmaports.get(
         pkgname, subpackages=False, skip_extra_repos=skip_extra_repos
