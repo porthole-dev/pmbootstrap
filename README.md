@@ -275,7 +275,7 @@ the `ssh_key_glob` configuration parameter in the pmbootstrap config file to a
 string containing a glob that is to match the file or files you wish to
 include.
 
-For example, a `~/.config/pmbootstrap.cfg` may contain:
+For example, a `~/.config/pmbootstrap_v3.cfg` may contain:
 
     [pmbootstrap]
     # ...

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Save, read, verify workdir state related information in $WORK/workdir.cfg,
 for example the init dates of the chroots. This is not saved in
-pmbootstrap.cfg, because pmbootstrap.cfg is not tied to a specific work
+pmbootstrap_v3.cfg, because pmbootstrap_v3.cfg is not tied to a specific work
 dir."""
 
 import configparser

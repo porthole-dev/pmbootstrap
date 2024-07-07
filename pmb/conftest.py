@@ -13,20 +13,20 @@ _testdir = Path(__file__).parent / "data/tests"
 
 @pytest.fixture
 def config_file(tmp_path_factory, request):
-    """Fixture to create a temporary pmbootstrap.cfg file."""
+    """Fixture to create a temporary pmbootstrap_v3.cfg file."""
     tmp_path = tmp_path_factory.mktemp("pmbootstrap")
 
     flavour = "default"
     if hasattr(request, "param") and request.param:
         flavour = request.param
 
-    out_file = tmp_path / "pmbootstrap.cfg"
+    out_file = tmp_path / "pmbootstrap_v3.cfg"
     workdir = tmp_path / "work"
     workdir.mkdir()
 
     configs = {"default": f"aports = {workdir / 'cache_git' / 'pmaports'}", "no-repos": "aports = "}
 
-    file = _testdir / "pmbootstrap.cfg"
+    file = _testdir / "pmbootstrap_v3.cfg"
     print(f"CONFIG: {out_file}")
     cfg = configs[flavour]
     contents = open(file).read().format(workdir, cfg)

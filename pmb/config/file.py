@@ -67,7 +67,7 @@ def load(path: Path) -> Config:
 
 def serialize(config: Config, skip_defaults=True) -> configparser.ConfigParser:
     """Serialize the config object into a ConfigParser to write it out
-    in the pmbootstrap.cfg INI format.
+    in the pmbootstrap_v3.cfg INI format.
 
     :param config: The config object to serialize
     :param skip_defaults: Skip writing out default values

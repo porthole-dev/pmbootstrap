@@ -30,8 +30,8 @@ def test_load(config_file):
 
 @pytest.fixture
 def config_file_2_3_x(tmp_path: Path):
-    """Fixture to create a temporary pmbootstrap.cfg file with 2.3.x format."""
-    file = tmp_path / "pmbootstrap.cfg"
+    """Fixture to create a temporary pmbootstrap_v3.cfg file with 2.3.x format."""
+    file = tmp_path / "pmbootstrap_v3.cfg"
     contents = """[pmbootstrap]
 aports = /home/user/.local/var/pmbootstrap/cache_git/pmaports
 ccache_size = 32G

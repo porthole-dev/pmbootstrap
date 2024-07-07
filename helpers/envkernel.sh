@@ -85,7 +85,7 @@ set_alias_pmbootstrap() {
 		return 1
 	fi
 
-	if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}"/pmbootstrap.cfg ]; then
+	if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}"/pmbootstrap_v3.cfg ]; then
 		"$pmbootstrap" work_migrate
 	else
 		echo "NOTE: First run of pmbootstrap, running 'pmbootstrap init'"

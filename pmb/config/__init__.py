@@ -77,7 +77,8 @@ def sudo(cmd: Sequence[PathString]) -> Sequence[PathString]:
 defaults: dict[str, PathString] = {
     "cipher": "aes-xts-plain64",
     "config": Path(
-        (os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")) + "/pmbootstrap.cfg"
+        (os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"))
+        + "/pmbootstrap_v3.cfg"
     ),
     # A higher value is typically desired, but this can lead to VERY long open
     # times on slower devices due to host systems being MUCH faster than the
