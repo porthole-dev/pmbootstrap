@@ -131,30 +131,7 @@ def init(args: PmbArgs) -> PmbArgs:
         if not key.startswith("_") and not key == "from_argparse":
             setattr(__args, key, value)
 
-    # print(json.dumps(__args.__dict__))
-
-    # sys.exit(0)
-
     return __args
-
-
-# def update_work(args: PmbArgs, work):
-#     """Update the work path in args.work and wherever $WORK was used."""
-#     # Start with the unmodified args from argparse
-#     args_new = copy.deepcopy(args.from_argparse)
-
-#     # Keep from the modified args:
-#     # * the unmodified args from argparse (to check if --aports was specified)
-#     args_new.from_argparse = args.from_argparse
-
-#     # Generate modified args again, replacing $WORK with the new work folder
-#     # When args.log is different, this also opens the log in the new location
-#     args_new.work = work
-#     args_new = pmb.helpers.args.init(args_new)
-
-#     # Overwrite old attributes of args with the new attributes
-#     for key in vars(args_new):
-#         setattr(args, key, getattr(args_new, key))
 
 
 def please_i_really_need_args() -> PmbArgs:

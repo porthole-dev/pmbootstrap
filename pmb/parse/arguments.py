@@ -1277,11 +1277,7 @@ def get_parser():
 
 
 def arguments():
-    # Parse and extend arguments (also backup unmodified result from argparse)
     args: PmbArgs = get_parser().parse_args()
-
-    # setattr(args, "from_argparse", copy.deepcopy(args))
-    # setattr(args.from_argparse, "from_argparse", args.from_argparse)
 
     if getattr(args, "fork_alpine_retain_branch", False):
         # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so
