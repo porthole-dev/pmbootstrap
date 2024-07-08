@@ -149,6 +149,10 @@ def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
 
     logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
 
+    if apkbuild["pkgname"] == "abuild":
+        logging.info("NOTE: re-installing abuild since it was just built")
+        pmb.chroot.apk.install(["abuild"], chroot, build=False)
+
 
 _package_cache: dict[str, list[str]] = {}
 
@@ -232,6 +236,12 @@ def process_package(
     logging.debug(f"{arch}/{pkgname}: Generating dependency tree")
     # Add the package to the build queue
     base_depends = get_depends(context, base_apkbuild)
+
+    # We use a fork of abuild for systemd, make sure it gets built if necessary by adding
+    # it as a dependency of the first package
+    if "abuild" not in base_depends:
+        base_depends.insert(0, "abuild")
+
     depends = base_depends.copy()
 
     base_build_status = BuildStatus.NEW if force else BuildStatus.UNNECESSARY
