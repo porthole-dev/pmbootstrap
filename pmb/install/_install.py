@@ -866,9 +866,9 @@ def install_system_image(
         pmb.install.blockdevice.create(args, size_boot, size_root, size_reserve, split, disk)
         if not split:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
-                pmb.install.partition_cgpt(args, layout, size_boot, size_reserve)
+                pmb.install.partition_cgpt(layout, size_boot, size_reserve)
             else:
-                pmb.install.partition(args, layout, size_boot, size_reserve)
+                pmb.install.partition(layout, size_boot, size_reserve)
     if not split:
         pmb.install.partitions_mount(device, layout, disk)
 
