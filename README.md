@@ -43,8 +43,8 @@ Issues are being tracked
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
   * Note: kernel versions between 5.8.8 and 6.0 might 
     [have issues with parted](https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2309).
-* Python 3.9+
-* For python3 <= 3.10: tomli
+* Python 3.10+
+* For python3 < 3.11: tomli
 * OpenSSL
 * git
 * ps
