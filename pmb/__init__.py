@@ -80,7 +80,7 @@ def main() -> int:
 
         # Migrate work folder if necessary
         if args.action not in ["shutdown", "zap", "log"]:
-            other.migrate_work_folder(args)
+            other.migrate_work_folder()
 
         # Run the function with the action's name (in pmb/helpers/frontend.py)
         if args.action:

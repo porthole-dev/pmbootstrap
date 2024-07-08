@@ -679,7 +679,7 @@ def frontend(args: PmbArgs):
     pmb.config.save(args.config, config)
 
     # Migrate work dir if necessary
-    pmb.helpers.other.migrate_work_folder(args)
+    pmb.helpers.other.migrate_work_folder()
 
     # Clone pmaports
     pmb.config.pmaports.init()

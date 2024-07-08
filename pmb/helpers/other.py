@@ -9,7 +9,6 @@ import re
 import pmb.chroot
 import pmb.config
 import pmb.config.init
-from pmb.types import PmbArgs
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from typing import Any
@@ -78,7 +77,7 @@ def migrate_success(work: Path, version):
         handle.write(str(version) + "\n")
 
 
-def migrate_work_folder(args: PmbArgs):
+def migrate_work_folder():
     # Read current version
     context = get_context()
     current = 0
@@ -104,7 +103,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("Migration will do the following:")
         logging.info("* Zap your chroots")
         logging.info(f"* Adjust '{context.config.work / 'config_abuild/abuild.conf'}'")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Zap and update abuild.conf
@@ -123,7 +122,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("* Fix: cache_distfiles was writable for everyone")
         logging.info("Migration will do the following:")
         logging.info(f"* Fix permissions of '{context.config.work / 'cache_distfiles'}'")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Fix permissions
@@ -143,7 +142,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("* Device chroots have a different user UID (#1576)")
         logging.info("Migration will do the following:")
         logging.info("* Zap your chroots")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Zap chroots
@@ -162,7 +161,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("Migration will do the following:")
         logging.info("* Check if 'git' is installed")
         logging.info(f"* Change ownership to your user: {path}")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Require git, set cache_git ownership
@@ -184,7 +183,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info("Migration will do the following:")
         logging.info("* Move existing packages to edge subdir (if any)")
         logging.info("* Zap your chroots")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Zap chroots
@@ -222,7 +221,7 @@ def migrate_work_folder(args: PmbArgs):
         logging.info(f"  {context.config.work}/packages")
         logging.info("  stable => v20.05")
         logging.info("  stable-next => v21.03")
-        if not pmb.helpers.cli.confirm(args):
+        if not pmb.helpers.cli.confirm():
             raise RuntimeError("Aborted.")
 
         # Zap chroots to avoid potential "ERROR: Chroot 'native' was created
