@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from collections.abc import Sequence
+from pathlib import Path
+from typing import Optional
 
 import pmb.chroot
 import pmb.config.pmaports
 from pmb.core.arch import Arch
+from pmb.core.chroot import Chroot
 from pmb.types import PathString
 import pmb.helpers.cli
 import pmb.helpers.run
@@ -14,7 +17,23 @@ import pmb.parse.version
 from pmb.core.context import get_context
 
 
-def _prepare_fifo():
+def _run(command, chroot: Optional[Chroot], output="log"):
+    """Run a command.
+
+    :param command: command in list form
+    :param chroot: whether to run the command inside the chroot or on the host
+    :param suffix: chroot suffix. Only applies if the "chroot" parameter is
+                   set to True.
+
+    See pmb.helpers.run_core.core() for a detailed description of all other
+    arguments and the return value.
+    """
+    if chroot:
+        return pmb.chroot.root(command, output=output, chroot=chroot, disable_timeout=True)
+    return pmb.helpers.run.root(command, output=output)
+
+
+def _prepare_fifo(chroot: Optional[Chroot]):
     """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
@@ -25,11 +44,16 @@ def _prepare_fifo():
               path of the fifo as needed by cat to read from it (always
               relative to the host)
     """
-    pmb.helpers.run.root(["mkdir", "-p", get_context().config.work / "tmp"])
-    fifo = fifo_outside = get_context().config.work / "tmp/apk_progress_fifo"
+    if chroot:
+        fifo = Path("tmp/apk_progress_fifo")
+        fifo_outside = chroot / fifo
+    else:
+        pmb.helpers.run.root(["mkdir", "-p", get_context().config.work / "tmp"])
+        fifo = fifo_outside = get_context().config.work / "tmp/apk_progress_fifo"
     if os.path.exists(fifo_outside):
         pmb.helpers.run.root(["rm", "-f", fifo_outside])
-    pmb.helpers.run.root(["mkfifo", fifo_outside])
+
+    _run(["mkfifo", fifo], chroot)
     return (fifo, fifo_outside)
 
 
@@ -63,7 +87,7 @@ def _compute_progress(line):
     return cur / tot if tot > 0 else 0
 
 
-def apk_with_progress(command: Sequence[PathString]):
+def apk_with_progress(command: Sequence[PathString], chroot: Optional[Chroot] = None):
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
@@ -72,7 +96,7 @@ def apk_with_progress(command: Sequence[PathString]):
                    set to True.
     :raises RuntimeError: when the apk command fails
     """
-    fifo, fifo_outside = _prepare_fifo()
+    fifo, _ = _prepare_fifo(chroot)
     _command: list[str] = []
     for c in command:
         if isinstance(c, Arch):
@@ -81,8 +105,8 @@ def apk_with_progress(command: Sequence[PathString]):
             _command.append(os.fspath(c))
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
-    with pmb.helpers.run.root(["cat", fifo], output="pipe") as p_cat:
-        with pmb.helpers.run.root(command_with_progress, output="background") as p_apk:
+    with _run(["cat", fifo], chroot, output="pipe") as p_cat:
+        with _run(command_with_progress, chroot, output="background") as p_apk:
             while p_apk.poll() is None:
                 line = p_cat.stdout.readline().decode("utf-8")
                 progress = _compute_progress(line)

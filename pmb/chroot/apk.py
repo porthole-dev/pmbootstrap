@@ -199,17 +199,6 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
     if to_del:
         commands += [["del"] + to_del]
 
-    # For systemd we use a fork of apk-tools, to easily handle this
-    # we expect apk.static to be installed in the native chroot (which
-    # will be the systemd version if building for systemd) and run
-    # it from there.
-    # pmb.chroot.init(Chroot.native())
-    # if chroot != Chroot.native():
-    #     pmb.chroot.init(chroot)
-    apk_static = Chroot.native() / "sbin/apk.static"
-    arch = chroot.arch
-    apk_cache = work / f"cache_apk_{arch}"
-
     channel = pmb.config.pmaports.read_config()["channel"]
     user_repo = work / "packages" / channel
 
@@ -227,12 +216,6 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         # gets confused
         command += ["--no-interactive"]
         command = [
-            "--root",
-            chroot.path,
-            "--arch",
-            arch,
-            "--cache-dir",
-            apk_cache,
             "--repository",
             user_repo,
         ] + command
@@ -244,12 +227,12 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         if context.offline:
             command = ["--no-network"] + command
         if i == 0:
-            pmb.helpers.apk.apk_with_progress([apk_static] + command)
+            pmb.helpers.apk.apk_with_progress(["apk"] + command, chroot)
         else:
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
             # They finish up almost instantly, so don't display a progress bar.
-            pmb.helpers.run.root([apk_static, "--no-progress"] + command)
+            pmb.chroot.root(["apk", "--no-progress"] + command, chroot)
 
 
 def install(packages, chroot: Chroot, build=True):
