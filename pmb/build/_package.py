@@ -94,7 +94,7 @@ def get_depends(context: Context, apkbuild):
     return ret
 
 
-def get_pkgver(original_pkgver, original_source=False, now=None):
+def get_pkgver(original_pkgver: str, original_source=False):
     """Get the original pkgver when using the original source.
 
     Otherwise, get the pkgver with an appended suffix of current date and time.
@@ -112,7 +112,7 @@ def get_pkgver(original_pkgver, original_source=False, now=None):
 
     # Append current date
     no_suffix = original_pkgver.split("_", 1)[0]
-    now = now if now else datetime.datetime.now()
+    now = datetime.datetime.now()
     new_suffix = "_p" + now.strftime("%Y%m%d%H%M%S")
     return no_suffix + new_suffix
 
@@ -194,6 +194,7 @@ class BuildQueueItem(TypedDict):
     arch: Arch  # Arch to build for
     aports: str
     apkbuild: dict[str, Any]
+    pkgver: str
     output_path: Path
     channel: str
     depends: list[str]
@@ -353,14 +354,16 @@ def packages(
         pkg_arch = pmb.build.autodetect.arch(apkbuild) if arch is None else arch
         chroot = pmb.build.autodetect.chroot(apkbuild, pkg_arch)
         cross = cross or pmb.build.autodetect.crosscompile(apkbuild, pkg_arch)
+        pkgver = get_pkgver(apkbuild["pkgver"], src is None)
         build_queue.append(
             {
                 "name": name,
                 "arch": pkg_arch,
                 "aports": aports.name,  # the pmaports source repo (e.g. "systemd")
                 "apkbuild": apkbuild,
+                "pkgver": pkgver,
                 "output_path": output_path(
-                    pkg_arch, apkbuild["pkgname"], apkbuild["pkgver"], apkbuild["pkgrel"]
+                    pkg_arch, apkbuild["pkgname"], pkgver, apkbuild["pkgrel"]
                 ),
                 "channel": pmb.config.pmaports.read_config(aports)["channel"],
                 "depends": depends,
@@ -455,6 +458,7 @@ def packages(
             run_abuild(
                 context,
                 pkg["apkbuild"],
+                pkg["pkgver"],
                 channel,
                 pkg_arch,
                 strict,

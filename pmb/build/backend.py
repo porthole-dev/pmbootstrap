@@ -1,5 +1,6 @@
 import enum
 from pathlib import Path
+from typing import Any
 from pmb.core.pkgrepo import pkgrepo_paths
 import pmb.helpers.run
 import pmb.chroot
@@ -180,7 +181,8 @@ def handle_csum_failure(apkbuild, chroot: Chroot):
 
 def run_abuild(
     context: Context,
-    apkbuild,
+    apkbuild: dict[str, Any],
+    pkgver: str,
     channel,
     arch: Arch,
     strict=False,
@@ -283,7 +285,7 @@ def run_abuild(
     if src and strict:
         logging.debug(f"({suffix}) Ensuring previous build artifacts are removed")
         pmb.chroot.root(["rm", "-rf", "/tmp/pmbootstrap-local-source-copy"], suffix)
-    override_source(apkbuild, apkbuild["pkgver"], src, suffix)
+    override_source(apkbuild, pkgver, src, suffix)
     link_to_git_dir(suffix)
 
     try:
