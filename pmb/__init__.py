@@ -28,6 +28,13 @@ from .commands import run_command
 __version__ = "3.0.0_alpha"
 
 # Python version check
+# === CHECKLIST FOR UPGRADING THE REQUIRED PYTHON VERSION ===
+# * .ci/vermin.sh
+# * README.md
+# * docs/usage.rst
+# * pmb/__init__.py (you are here)
+# * pyproject.toml
+# * when upgrading to python 3.11: pmb/helpers/toml.py and remove this line
 version = sys.version_info
 if version < (3, 10):
     print("You need at least Python 3.10 to run pmbootstrap")
