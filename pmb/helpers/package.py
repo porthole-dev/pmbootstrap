@@ -10,7 +10,7 @@ See also:
 """
 
 import copy
-from typing import Any
+from typing import Any, overload
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -27,6 +27,15 @@ def remove_operators(package):
             package = package.split(operator)[0]
             break
     return package
+
+@overload
+def get(pkgname: str, arch: Arch, replace_subpkgnames: bool=False) -> dict[str, Any]:
+    ...
+
+
+@overload
+def get(pkgname: str, arch: Arch, replace_subpkgnames: bool=False, must_exist: bool=True) -> dict[str, Any] | None:
+    ...
 
 
 @Cache("pkgname", "arch", "replace_subpkgnames")
