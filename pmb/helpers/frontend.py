@@ -150,6 +150,7 @@ def build_init(args: PmbArgs):
 
 
 def checksum(args: PmbArgs):
+    pmb.chroot.init(Chroot.native())
     for package in args.packages:
         if args.verify:
             pmb.build.checksum.verify(package)
