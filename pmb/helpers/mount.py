@@ -109,6 +109,6 @@ def mount_device_rootfs(chroot_rootfs: Chroot) -> PurePath:
                           "rootfs_qemu-amd64")
     :returns: the mountpoint (relative to the native chroot)
     """
-    mountpoint = PurePath("/mnt", chroot_rootfs.dirname)
+    mountpoint = PurePath("/mnt", str(chroot_rootfs))
     pmb.helpers.mount.bind(chroot_rootfs.path, Chroot.native() / mountpoint)
     return mountpoint
