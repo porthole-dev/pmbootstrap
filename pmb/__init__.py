@@ -5,6 +5,7 @@ import sys
 import os
 import traceback
 from typing import Any, Optional, TYPE_CHECKING
+from pathlib import Path
 
 from pmb.helpers.exceptions import BuildFailedError, NonBugError
 
@@ -70,13 +71,23 @@ def main() -> int:
         if args.action == "init":
             return config_init.frontend(args)
         elif not os.path.exists(args.config):
-            raise RuntimeError(
-                "Please specify a config file, or run" " 'pmbootstrap init' to generate one."
+            if args.config != config.defaults["config"]:
+                raise NonBugError(f"Couldn't find file passed with --config: {args.config}")
+            old_config = (
+                Path(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"))
+                / "pmbootstrap.cfg"
+            )
+            if os.path.exists(old_config):
+                raise NonBugError(
+                    f"Thanks for upgrading to pmbootstrap {__version__}!"
+                    " The config file format has changed, please generate a new config with"
+                    " 'pmbootstrap init'."
+                )
+            raise NonBugError(
+                "Run 'pmbootstrap init' first to generate a config file (or use --config)."
             )
         elif not os.path.exists(context.config.work):
-            raise RuntimeError(
-                "Work path not found, please run 'pmbootstrap" " init' to create it."
-            )
+            raise NonBugError("Work path not found, please run 'pmbootstrap init' to create it.")
 
         # Migrate work folder if necessary
         if args.action not in ["shutdown", "zap", "log"]:
