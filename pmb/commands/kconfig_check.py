@@ -4,6 +4,7 @@
 from __future__ import annotations
 from pmb import commands
 from pmb.core.context import get_context
+import pmb.parse.kconfig
 import pmb.helpers.git
 import pmb.config
 import logging
@@ -21,7 +22,7 @@ class KConfigCheck(commands.Command):
 
     def run(self):
         # Build the components list from cli arguments (--waydroid etc.)
-        components_list = []
+        components_list: list[str] = []
 
         # Handle passing a file directly
         if self.file:

@@ -545,7 +545,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step):
     """
     binary_ranges: dict[int, int] = {}
     binary_list = []
-    binaries = pmb.parse.deviceinfo().sd_embed_firmware.split(",")
+    binaries = (pmb.parse.deviceinfo().sd_embed_firmware or "").split(",")
 
     for binary_offset in binaries:
         binary, _offset = binary_offset.split(":")
@@ -605,7 +605,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot):
     step = 1024
     if pmb.parse.deviceinfo().sd_embed_firmware_step_size:
         try:
-            step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size)
+            step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size or "invalid")
         except ValueError:
             raise RuntimeError(
                 "Value for " "deviceinfo_sd_embed_firmware_step_size " f"is not valid: {step}"
@@ -638,7 +638,7 @@ def write_cgpt_kpart(args: PmbArgs, layout, suffix: Chroot):
         return
 
     device_rootfs = mount_device_rootfs(suffix)
-    filename = f"{device_rootfs}{pmb.parse.deviceinfo()['cgpt_kpart']}"
+    filename = f"{device_rootfs}{pmb.parse.deviceinfo().cgpt_kpart}"
     pmb.chroot.root(["dd", f"if={filename}", f"of=/dev/installp{layout['kernel']}"])
 
 
@@ -700,7 +700,7 @@ def sanity_check_disk_size(args: PmbArgs):
 
 def get_ondev_pkgver(args: PmbArgs):
     arch = pmb.parse.deviceinfo().arch
-    package = pmb.helpers.package.get(args, "postmarketos-ondev", arch)
+    package = pmb.helpers.package.get("postmarketos-ondev", arch)
     return package["version"].split("-r")[0]
 
 
