@@ -132,9 +132,9 @@ def partition_cgpt(layout, size_boot, size_reserve):
     """
 
     pmb.chroot.apk.install(["cgpt"], Chroot.native(), build=False)
-    
+
     deviceinfo = pmb.parse.deviceinfo()
-    
+
     if deviceinfo.cgpt_kpart_start is None or deviceinfo.cgpt_kpart_size is None:
         raise RuntimeError("cgpt_kpart_start or cgpt_kpart_size not found in deviceinfo")
 

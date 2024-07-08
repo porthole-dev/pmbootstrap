@@ -9,6 +9,7 @@ import inspect
 FuncArgs = TypeVar("FuncArgs")
 FuncReturn = TypeVar("FuncReturn")
 
+
 class Wrapper(Generic[FuncArgs, FuncReturn]):
     def __init__(self, cache: "Cache", func: Callable[[FuncArgs], FuncReturn]):
         self.cache = cache
@@ -126,12 +127,10 @@ class Cache:
         return key
 
     @overload
-    def __call__(self, func: Callable[..., FuncReturn]) -> Wrapper[None, FuncReturn]:
-        ...
+    def __call__(self, func: Callable[..., FuncReturn]) -> Wrapper[None, FuncReturn]: ...
 
     @overload
-    def __call__(self, func: Callable[[FuncArgs], FuncReturn]) -> Wrapper[FuncArgs, FuncReturn]:
-        ...
+    def __call__(self, func: Callable[[FuncArgs], FuncReturn]) -> Wrapper[FuncArgs, FuncReturn]: ...
 
     def __call__(self, func: Callable[[FuncArgs], FuncReturn]) -> Wrapper[FuncArgs, FuncReturn]:
         argnames = func.__code__.co_varnames

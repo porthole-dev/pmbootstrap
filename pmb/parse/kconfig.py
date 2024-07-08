@@ -297,7 +297,7 @@ def extract_version(config_path):
     return "unknown"
 
 
-def check_file(config_path, components_list: list[str]=[], details=False):
+def check_file(config_path, components_list: list[str] = [], details=False):
     """
     Check for necessary kernel config options in a kconfig file.
 

@@ -102,6 +102,7 @@ def warn_if_chroots_outdated():
             " 'pmbootstrap zap'."
         )
 
+
 @Cache("chroot")
 def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
     """

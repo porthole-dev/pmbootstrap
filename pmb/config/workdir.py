@@ -41,13 +41,11 @@ def chroot_save_init(suffix: Chroot):
 
 
 @overload
-def chroots_outdated() -> list[Chroot]:
-    ...
+def chroots_outdated() -> list[Chroot]: ...
 
 
 @overload
-def chroots_outdated(chroot: Chroot) -> bool:
-    ...
+def chroots_outdated(chroot: Chroot) -> bool: ...
 
 
 def chroots_outdated(chroot: Optional[Chroot] = None):

@@ -204,8 +204,14 @@ def switch_to_channel_branch(channel_new):
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
     branch_current = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])
-    if branch_current == "master_staging_systemd" and channel_new == "edge" and pmb.config.is_systemd_selected():
-        logging.info("NOTE: systemd enabled and currently on the master_staging_systemd branch, not switching to edge")
+    if (
+        branch_current == "master_staging_systemd"
+        and channel_new == "edge"
+        and pmb.config.is_systemd_selected()
+    ):
+        logging.info(
+            "NOTE: systemd enabled and currently on the master_staging_systemd branch, not switching to edge"
+        )
         return False
 
     logging.info(

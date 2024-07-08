@@ -28,14 +28,15 @@ def remove_operators(package):
             break
     return package
 
+
 @overload
-def get(pkgname: str, arch: Arch, replace_subpkgnames: bool=False) -> dict[str, Any]:
-    ...
+def get(pkgname: str, arch: Arch, replace_subpkgnames: bool = False) -> dict[str, Any]: ...
 
 
 @overload
-def get(pkgname: str, arch: Arch, replace_subpkgnames: bool=False, must_exist: bool=True) -> dict[str, Any] | None:
-    ...
+def get(
+    pkgname: str, arch: Arch, replace_subpkgnames: bool = False, must_exist: bool = True
+) -> dict[str, Any] | None: ...
 
 
 @Cache("pkgname", "arch", "replace_subpkgnames")
