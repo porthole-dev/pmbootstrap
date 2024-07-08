@@ -46,7 +46,7 @@ pmaports_min_version = "7"
 # Version of the work folder (as asked during 'pmbootstrap init'). Increase
 # this number, whenever migration is required and provide the migration code,
 # see migrate_work_folder()).
-work_version = 6
+work_version = 7
 
 # Minimum required version of postmarketos-ondev (pmbootstrap install --ondev).
 # Try to support the current versions of all channels (edge, v21.03). When

@@ -238,6 +238,22 @@ def migrate_work_folder():
         migrate_success(context.config.work, 6)
         current = 6
 
+    if current == 6:
+        # Ask for confirmation
+        logging.info("Changelog:")
+        logging.info("* Major refactor for pmb 3.0.0")
+        logging.info("Migration will do the following:")
+        logging.info("* Zap your chroots")
+        if not pmb.helpers.cli.confirm():
+            raise RuntimeError("Aborted.")
+
+        # Zap chroots
+        pmb.chroot.zap(False)
+
+        # Update version file
+        migrate_success(context.config.work, 7)
+        current = 7
+
     # Can't migrate, user must delete it
     if current != required:
         raise RuntimeError(
