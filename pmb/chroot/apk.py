@@ -149,7 +149,9 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
         for channel in channels:
             apk_path = get_context().config.work / "packages" / channel / arch / apk_file
             if apk_path.exists():
-                local.append(apk_path)
+                # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
+                # local.append(apk_path)
+                local.append(Path("/mnt/pmbootstrap/packages/") / channel / arch / apk_file)
                 break
 
         # Record all the packages we have visited so far
@@ -178,7 +180,6 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
     :param chroot: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
     context = get_context()
-    work = context.config.work
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
     local_add = [os.fspath(p) for p in to_add_local]
@@ -200,7 +201,9 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         commands += [["del"] + to_del]
 
     channel = pmb.config.pmaports.read_config()["channel"]
-    user_repo = work / "packages" / channel
+    # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
+    # user_repo = work / "packages" / channel
+    user_repo = os.path.join("/mnt/pmbootstrap/packages/", channel)
 
     # There are still some edgecases where we manage to get here while the chroot is not
     # initialized. To not break the build, we initialize it here but print a big warning
