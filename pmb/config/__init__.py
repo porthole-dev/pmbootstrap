@@ -421,8 +421,7 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
         "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
-                ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE"],
+                ["heimdall", "flash", "--wait", "--$PARTITION_ROOTFS", "$IMAGE"],
             ],
             "flash_kernel": [
                 [
@@ -442,14 +441,21 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
         "actions": {
             "list_devices": [["heimdall", "detect"]],
             "flash_rootfs": [
-                ["heimdall_wait_for_device.sh"],
-                ["heimdall", "flash", "--$PARTITION_ROOTFS", "$IMAGE", "$NO_REBOOT", "$RESUME"],
-            ],
-            "flash_kernel": [
-                ["heimdall_wait_for_device.sh"],
                 [
                     "heimdall",
                     "flash",
+                    "--wait",
+                    "--$PARTITION_ROOTFS",
+                    "$IMAGE",
+                    "$NO_REBOOT",
+                    "$RESUME",
+                ],
+            ],
+            "flash_kernel": [
+                [
+                    "heimdall",
+                    "flash",
+                    "--wait",
                     "--$PARTITION_KERNEL",
                     "$BOOT/boot.img$FLAVOR",
                     "$NO_REBOOT",
@@ -478,10 +484,10 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
                 ["rm", "-f", "/vbmeta.img"],
             ],
             "flash_lk2nd": [
-                ["heimdall_wait_for_device.sh"],
                 [
                     "heimdall",
                     "flash",
+                    "--wait",
                     "--$PARTITION_KERNEL",
                     "$BOOT/lk2nd.img",
                     "$NO_REBOOT",
