@@ -62,9 +62,7 @@ def variables(args: PmbArgs, flavor: str, method: str):
         _partition_vbmeta = args.partition
         _partition_dtbo = args.partition
 
-    _dtb = ""
-    if deviceinfo.append_dtb == "true":
-        _dtb = "-dtb"
+    _dtb = deviceinfo.dtb + ".dtb"
 
     _no_reboot = ""
     if getattr(args, "no_reboot", False):

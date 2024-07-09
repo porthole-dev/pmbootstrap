@@ -356,7 +356,7 @@ flash_mount_bind = [
 Flasher abstraction. Allowed variables:
 
 $BOOT: Path to the /boot partition
-$DTB: Set to "-dtb" if deviceinfo_append_dtb is set, otherwise ""
+$DTB: Name of device dtb without .dtb extension
 $FLAVOR: Backwards compatibility with old mkinitfs (pma#660)
 $IMAGE: Path to the combined boot/rootfs image
 $IMAGE_SPLIT_BOOT: Path to the (split) boot image
@@ -425,11 +425,12 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
             ],
             "flash_kernel": [
                 [
-                    "heimdall_flash_kernel.sh",
+                    "heimdall_flash_isorec_kernel.sh",
                     "$BOOT/initramfs$FLAVOR",
                     "$PARTITION_INITFS",
-                    "$BOOT/vmlinuz$FLAVOR$DTB",
+                    "$BOOT/vmlinuz$FLAVOR",
                     "$PARTITION_KERNEL",
+                    "$BOOT/$DTB",
                 ]
             ],
         },
