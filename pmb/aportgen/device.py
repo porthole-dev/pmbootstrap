@@ -3,6 +3,7 @@
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
+from pathlib import Path
 import os
 import pmb.helpers.cli
 import pmb.helpers.run
@@ -113,7 +114,7 @@ def ask_for_bootimg():
 
     while True:
         response = pmb.helpers.cli.ask("Path", None, "", False)
-        path = os.path.expanduser(response)
+        path = Path(os.path.expanduser(response))
         if not path:
             return None
         try:
