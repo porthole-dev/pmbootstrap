@@ -19,6 +19,7 @@ For further information, please check out the `postmarketOS-wiki`_.
    installation
    usage
    api/modules
+   mirrors
 
 
 
