@@ -149,9 +149,14 @@ def finish(apkbuild, channel, arch, output: Path, chroot: Chroot, strict=False):
 
     logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
 
-    if apkbuild["pkgname"] == "abuild":
-        logging.info("NOTE: re-installing abuild since it was just built")
-        pmb.chroot.apk.install(["abuild"], chroot, build=False)
+    # If we just built a package which is used to build other packages, then
+    # update the buildroot to use the newly built version.
+    if apkbuild["pkgname"] in pmb.config.build_packages:
+        logging.info(
+            f"NOTE: Updating package {apkbuild['pkgname']} in buildroot since it's"
+            " used for building..."
+        )
+        pmb.chroot.apk.install([apkbuild["pkgname"]], chroot, build=False, quiet=True)
 
 
 _package_cache: dict[str, list[str]] = {}
