@@ -10,15 +10,22 @@ Find the currently selected mirrors in the output of `pmbootstrap status`, as we
 
 ## Advanced
 
-Some advanced use cases are supported by configuring the mirrors directly, either by editing
-`pmbootstrap_v3.cfg` or running `pmbootstrap config`. Find the lists of mirrors at
-[mirrors.alpinelinux.org](https://mirrors.alpinelinux.org) and
+Some advanced use cases are supported by configuring the mirrors directly, either by running the
+non-interactive `pmbootstrap config` command or by editing `pmbootstrap_v3.cfg`. Find the lists of
+mirrors at [mirrors.alpinelinux.org](https://mirrors.alpinelinux.org) and
 [mirrors.postmarketos.org](https://mirrors.postmarketos.org).
 
-### Change the Alpine Linux mirror
+### Change the mirrors non-interactively
 
 ```
 $ pmbootstrap config mirrors.alpine http://uk.alpinelinux.org/alpine/
+$ pmbootstrap config mirrors.pmaports http://postmarketos.craftyguy.net/
+```
+
+Reset to default works as with all config options:
+```
+$ pmbootstrap config -r mirrors.alpine
+$ pmbootstrap config -r mirrors.pmaports
 ```
 
 ### Disable the postmarketOS mirror

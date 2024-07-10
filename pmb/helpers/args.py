@@ -75,14 +75,6 @@ def init(args: PmbArgs) -> PmbArgs:
         if hasattr(args, key):
             delattr(args, key)
 
-    # Handle --mirror-alpine and --mirror-pmos
-    value = getattr(args, "mirror_alpine", None)
-    if value:
-        config.mirrors["alpine"] = value
-    value = getattr(args, "mirror_postmarketos", None)
-    if value:
-        config.mirrors["pmaports"] = value
-
     # Configure runtime context
     context = Context(config)
     context.command_timeout = args.timeout

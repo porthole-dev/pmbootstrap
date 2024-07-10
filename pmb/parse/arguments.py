@@ -8,6 +8,7 @@ import sys
 from pmb.core.arch import Arch
 from pmb.core import Config
 from pmb.types import PmbArgs
+from pmb.helpers.exceptions import NonBugError
 
 try:
     import argcomplete  # type:ignore[import-untyped]
@@ -806,9 +807,6 @@ def get_parser():
     parser = argparse.ArgumentParser(prog="pmbootstrap")
     arch_native = Arch.native()
     arch_choices = Arch.supported()
-    # FIXME: we should load the real config instead here
-    default_config = Config()
-    mirrors_pmos_default = default_config.mirrors["pmaports"]
 
     # Other
     parser.add_argument("-V", "--version", action="version", version=pmb.__version__)
@@ -823,20 +821,15 @@ def get_parser():
     parser.add_argument(
         "-mp",
         "--mirror-pmOS",
-        dest="mirror_postmarketos",
-        help="postmarketOS mirror, disable with: -mp='',"
-        " specify multiple with: -mp='one' -mp='two',"
-        f" default: {mirrors_pmos_default}",
-        metavar="URL",
+        dest="deprecated_mp",
+        help=argparse.SUPPRESS,
         action="append",
-        default=[],
     )
     parser.add_argument(
         "-m",
         "--mirror-alpine",
-        dest="mirror_alpine",
-        help="Alpine Linux mirror, default: " f"{default_config.mirrors['alpine']}",
-        metavar="URL",
+        dest="deprecated_m",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument("-j", "--jobs", help="parallel jobs when compiling")
     parser.add_argument(
@@ -1286,6 +1279,12 @@ def arguments():
         args.fork_alpine = args.fork_alpine_retain_branch
 
     pmb.helpers.args.init(args)
+
+    if getattr(args, "deprecated_mp", None) or getattr(args, "deprecated_m", None):
+        raise NonBugError(
+            "Arguments --mirror-pmOS and --mirror-alpine have been removed. See docs/mirrors.md"
+            " regarding how to set mirrors now."
+        )
 
     if getattr(args, "go_mod_cache", None) is None:
         gomodcache = True if getattr(args, "src", None) else False
