@@ -238,7 +238,7 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
             pmb.chroot.root(["apk", "--no-progress"] + command, chroot)
 
 
-def install(packages, chroot: Chroot, build=True):
+def install(packages, chroot: Chroot, build=True, quiet: bool = False):
     """
     Install packages from pmbootstrap's local package index or the pmOS/Alpine
     binary package mirrors. Iterate over all dependencies recursively, and
@@ -272,7 +272,8 @@ def install(packages, chroot: Chroot, build=True):
 
     to_add_local = packages_get_locally_built_apks(to_add, arch)
 
-    logging.info(f"({chroot}) install {' '.join(packages)}")
+    if not quiet:
+        logging.info(f"({chroot}) install {' '.join(packages)}")
     install_run_apk(to_add, to_add_local, to_del, chroot)
 
 
