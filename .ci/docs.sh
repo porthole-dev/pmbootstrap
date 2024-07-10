@@ -4,10 +4,11 @@
 # https://postmarketos.org/pmb-ci
 
 
-# Ensure sphinx_rtd_theme is installed
+# Install sphinx + extensions when running in CI
 if [ "$(id -u)" = 0 ]; then
 	set -x
 	apk -q add \
+		py3-myst-parser \
 		py3-sphinx_rtd_theme \
 		py3-sphinxcontrib-autoprogram
 	exec su "${TESTUSER:-build}" -c "sh -e $0"
