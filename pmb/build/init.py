@@ -15,16 +15,19 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def init_abuild_minimal(chroot: Chroot = Chroot.native(), additional_pkgs: list[str] = []):
+def init_abuild_minimal(chroot: Chroot = Chroot.native(), build_pkgs: list[str] = []):
     """Initialize a minimal chroot with abuild where one can do 'abuild checksum'."""
     marker = chroot / "tmp/pmb_chroot_abuild_init_done"
     if os.path.exists(marker):
         return
 
+    if not build_pkgs:
+        build_pkgs = pmb.config.build_packages
+
     # pigz is multithreaded and makes compression must faster, we install it in the native
     # chroot and then symlink it into the buildroot so we aren't running it through QEMU.
     # pmb.chroot.apk.install(["pigz"], Chroot.native(), build=False)
-    pmb.chroot.apk.install(["abuild"] + additional_pkgs, chroot, build=False)
+    pmb.chroot.apk.install(build_pkgs, chroot, build=False)
 
     # Fix permissions
     pmb.chroot.root(["chown", "root:abuild", "/var/cache/distfiles"], chroot)
@@ -47,7 +50,7 @@ def init(chroot: Chroot = Chroot.native()) -> bool:
     # Initialize chroot, install packages
     pmb.chroot.init(Chroot.native())
     pmb.chroot.init(chroot)
-    init_abuild_minimal(chroot, additional_pkgs=pmb.config.build_packages)
+    init_abuild_minimal(chroot)
 
     # Generate package signing keys
     if not os.path.exists(get_context().config.work / "config_abuild/abuild.conf"):

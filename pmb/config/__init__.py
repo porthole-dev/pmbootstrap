@@ -209,7 +209,7 @@ chroot_outdated = 3600 * 24 * 2
 
 # Packages that will be installed in a chroot before it builds packages
 # for the first time
-build_packages = ["abuild", "build-base", "ccache", "git"]
+build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git"]
 
 #
 # PARSE
