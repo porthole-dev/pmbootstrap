@@ -154,14 +154,10 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
     # Install alpine-base
     pmb.helpers.repo.update(arch)
     pkgs = ["alpine-base"]
-    # install apk static in the native chroot so we can run it
-    # we have a forked apk for systemd and this is the easiest
-    # way to install/run it.
-    if chroot.type == ChrootType.NATIVE:
-        pkgs += ["apk-tools-static"]
-    pmb.chroot.apk_static.run(
-        ["--root", chroot.path, "--cache-dir", apk_cache, "--initdb", "--arch", arch, "add"] + pkgs
-    )
+    cmd = ["--root", chroot.path, "--cache-dir", apk_cache, "--initdb", "--arch", arch]
+    for channel in pmb.config.pmaports.all_channels():
+        cmd += ["--repository", config.work / "packages" / channel]
+    pmb.chroot.apk_static.run(cmd + ["add", *pkgs])
 
     # Merge /usr
     if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):
@@ -182,13 +178,3 @@ def init(chroot: Chroot, usr_merge=UsrMerge.AUTO):
                 pmb.chroot.root(["mkdir", "-p", target], chroot)
             pmb.chroot.user(["ln", "-s", target, link_name], chroot)
             pmb.chroot.root(["chown", "pmos:pmos", target], chroot)
-
-    # Upgrade packages in the chroot, in case alpine-base, apk, etc. have been
-    # built from source with pmbootstrap
-    command = ["--no-network", "upgrade", "-a"]
-
-    # Ignore missing repos before initial build (bpo#137)
-    if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
-        command = ["--force-missing-repositories"] + command
-
-    pmb.chroot.root(["apk"] + command, chroot)
