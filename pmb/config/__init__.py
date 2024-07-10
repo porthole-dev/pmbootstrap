@@ -209,6 +209,8 @@ chroot_outdated = 3600 * 24 * 2
 
 # Packages that will be installed in a chroot before it builds packages
 # for the first time
+# IMPORTANT: the order here matters, it is the order these packages will
+# be built in (if needed). abuild must be first!
 build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git"]
 
 #

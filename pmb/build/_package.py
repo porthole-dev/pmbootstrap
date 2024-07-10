@@ -242,11 +242,6 @@ def process_package(
     # Add the package to the build queue
     base_depends = get_depends(context, base_apkbuild)
 
-    # We use a fork of abuild for systemd, make sure it gets built if necessary by adding
-    # it as a dependency of the first package
-    if "abuild" not in base_depends:
-        base_depends.insert(0, "abuild")
-
     depends = base_depends.copy()
 
     base_build_status = BuildStatus.NEW if force else BuildStatus.UNNECESSARY
@@ -353,6 +348,11 @@ def packages(
     build_queue: list[BuildQueueItem] = []
     built_packages: set[str] = set()
 
+    # We want to build packages in the order they're given here. Due to how we
+    # walk the package dependencies, reverse the list so that when we later
+    # reverse the build queue we'll be back in the right order.
+    pkgnames.reverse()
+
     # Add a package to the build queue, fetch it's dependency, and
     # add record build helpers to installed (e.g. sccache)
     def queue_build(
@@ -421,6 +421,26 @@ def packages(
 
     if not len(build_queue):
         return []
+
+    # If any of our common build packages need to be built and are missing, then add them
+    # to the queue so they're built first. This is necessary so that our abuild fork is
+    # always built first (for example). For now assume that if building in strict mode we
+    # should skip this step, but we might want to revisit this later.
+    if not src:
+        for pkgname in pmb.config.build_packages:
+            if pkgname not in pkgnames:
+                aport, apkbuild = get_apkbuild(pkgname)
+                if not aport:
+                    continue
+                bstatus = pmb.build.get_status(arch, apkbuild)
+                if bstatus.necessary():
+                    if strict:
+                        raise RuntimeError(
+                            f"Strict mode enabled and build package {pkgname} needs building."
+                            " Please build it manually first or build without --strict to build"
+                            " it automatically."
+                        )
+                    queue_build(aport, apkbuild, get_depends(context, apkbuild))
 
     # We built the queue by pushing each package before it's dependencies. Now we
     # need to go backwards through the queue and build the dependencies first.
