@@ -11,7 +11,7 @@ import pmb.chroot.apk
 from pmb.core import Chroot
 
 
-def is_dtb(path):
+def is_dtb(path) -> bool:
     if not os.path.isfile(path):
         return False
     with open(path, "rb") as f:
@@ -19,7 +19,7 @@ def is_dtb(path):
         return f.read(4) == b"\xd0\x0d\xfe\xed"
 
 
-def get_mtk_label(path):
+def get_mtk_label(path) -> str | None:
     """Read the label from the MediaTek header of the kernel or ramdisk inside
     an extracted boot.img.
     :param path: to either the kernel or ramdisk extracted from boot.img
@@ -51,7 +51,7 @@ def get_mtk_label(path):
             return label
 
 
-def get_qcdt_type(path):
+def get_qcdt_type(path) -> str | None:
     """Get the dt.img type by reading the first four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
     :returns: * None: dt.img is of unknown type
@@ -73,7 +73,7 @@ def get_qcdt_type(path):
             return None
 
 
-def bootimg(path: Path):
+def bootimg(path: Path) -> dict[str, str]:
     if not path.exists():
         raise RuntimeError(f"Could not find file '{path}'")
 
@@ -136,43 +136,48 @@ def bootimg(path: Path):
     if header_version >= 3:
         output["pagesize"] = "4096"
     else:
-        with open(f"{bootimg_path}-base") as f:
-            output["base"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
-        with open(f"{bootimg_path}-kernel_offset") as f:
-            output["kernel_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
-        with open(f"{bootimg_path}-ramdisk_offset") as f:
-            output["ramdisk_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
-        with open(f"{bootimg_path}-second_offset") as f:
-            output["second_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
-        with open(f"{bootimg_path}-tags_offset") as f:
-            output["tags_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
-        with open(f"{bootimg_path}-pagesize") as f:
-            output["pagesize"] = f.read().replace("\n", "")
-
+        addresses = {
+            "base": f"{bootimg_path}-base",
+            "kernel_offset": f"{bootimg_path}-kernel_offset",
+            "ramdisk_offset": f"{bootimg_path}-ramdisk_offset",
+            "second_offset": f"{bootimg_path}-second_offset",
+            "tags_offset": f"{bootimg_path}-tags_offset",
+        }
         if header_version == 2:
-            with open(f"{bootimg_path}-dtb_offset") as f:
-                output["dtb_offset"] = "0x{:08x}".format(int(f.read().replace("\n", ""), 16))
+            addresses["dtb_offset"] = f"{bootimg_path}-dtb_offset"
+        for key, file in addresses.items():
+            with open(file) as f:
+                output[key] = f"0x{int(trim_input(f), 16):08x}"
 
-    if get_mtk_label(f"{bootimg_path}-kernel") is not None:
-        output["mtk_label_kernel"] = get_mtk_label(f"{bootimg_path}-kernel")
-    if get_mtk_label(f"{bootimg_path}-ramdisk") is not None:
-        output["mtk_label_ramdisk"] = get_mtk_label(f"{bootimg_path}-ramdisk")
+        with open(f"{bootimg_path}-pagesize") as f:
+            output["pagesize"] = trim_input(f)
 
     output["qcdt"] = (
         "true"
         if os.path.isfile(f"{bootimg_path}-dt") and os.path.getsize(f"{bootimg_path}-dt") > 0
         else "false"
     )
-
-    if get_qcdt_type(f"{bootimg_path}-dt") is not None:
-        output["qcdt_type"] = get_qcdt_type(f"{bootimg_path}-dt")
-
+    output.update(
+        {
+            key: value
+            for key, value in {
+                "mtk_label_kernel": get_mtk_label(f"{bootimg_path}-kernel"),
+                "mtk_label_ramdisk": get_mtk_label(f"{bootimg_path}-ramdisk"),
+                "qcdt_type": get_qcdt_type(f"{bootimg_path}-dt"),
+            }.items()
+            if value is not None
+        }
+    )
     output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else "false"
 
     with open(f"{bootimg_path}-cmdline") as f:
-        output["cmdline"] = f.read().replace("\n", "")
+        output["cmdline"] = trim_input(f)
 
     # Cleanup
     pmb.chroot.user(["rm", "-r", temp_path])
 
     return output
+
+
+def trim_input(f) -> str:
+    return f.read().replace("\n", "")
