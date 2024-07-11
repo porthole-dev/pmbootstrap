@@ -83,20 +83,35 @@ def urls(user_repository=False, mirrors_exclude: list[str] = []):
     for repo in pkgrepo_names() + ["alpine"]:
         if repo in mirrors_exclude:
             continue
-        mirror = config.mirrors[repo]
-        mirrordirs = []
-        if repo == "alpine":
-            # FIXME: This is a bit of a mess
-            mirrordirs = [f"{mirrordir_alpine}/main", f"{mirrordir_alpine}/community"]
-            if mirrordir_alpine == "edge":
-                mirrordirs.append(f"{mirrordir_alpine}/testing")
-        else:
-            mirrordirs = [mirrordir_pmos]
 
-        for mirrordir in mirrordirs:
-            url = os.path.join(mirror, mirrordir)
-            if url not in ret:
-                ret.append(url)
+        # Allow adding a custom mirror infront of the real mirror. This is used
+        # in bpo to build with a WIP repository in addition to the final
+        # repository.
+        for suffix in ["_custom", ""]:
+            mirror = config.mirrors[f"{repo}{suffix}"]
+
+            # During bootstrap / bpo testing we run without a pmOS binary repo
+            if mirror.lower() == "none":
+                if suffix != "_custom":
+                    logging.warn_once(
+                        f"NOTE: Skipping mirrors.{repo} for /etc/apk/repositories (is configured"
+                        ' as "none")'
+                    )
+                continue
+
+            mirrordirs = []
+            if repo == "alpine":
+                # FIXME: This is a bit of a mess
+                mirrordirs = [f"{mirrordir_alpine}/main", f"{mirrordir_alpine}/community"]
+                if mirrordir_alpine == "edge":
+                    mirrordirs.append(f"{mirrordir_alpine}/testing")
+            else:
+                mirrordirs = [mirrordir_pmos]
+
+            for mirrordir in mirrordirs:
+                url = os.path.join(mirror, mirrordir)
+                if url not in ret:
+                    ret.append(url)
 
     return ret
 

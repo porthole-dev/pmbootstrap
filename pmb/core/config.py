@@ -7,8 +7,11 @@ import os
 
 
 class Mirrors(TypedDict):
+    alpine_custom: str
     alpine: str
+    pmaports_custom: str
     pmaports: str
+    systemd_custom: str
     systemd: str
 
 
@@ -58,8 +61,11 @@ class Config:
     keymap: str = ""
     locale: str = "en_US.UTF-8"
     mirrors: Mirrors = {
+        "alpine_custom": "none",
         "alpine": "http://dl-cdn.alpinelinux.org/alpine/",
+        "pmaports_custom": "none",
         "pmaports": "http://mirror.postmarketos.org/postmarketos/",
+        "systemd_custom": "none",
         "systemd": "http://mirror.postmarketos.org/postmarketos/staging/systemd/",
     }
     qemu_redir_stdio: bool = False
