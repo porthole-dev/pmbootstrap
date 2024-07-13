@@ -69,7 +69,6 @@ def init(args: PmbArgs) -> PmbArgs:
             continue
         value = getattr(args, key, None)
         if value:
-            print(f"Overriding config.{key} with {value}")
             setattr(config, key, value)
 
         # Deny accessing the attribute via args
