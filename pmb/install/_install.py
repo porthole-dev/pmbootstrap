@@ -1040,7 +1040,7 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
 def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps):
     logging.info(f"*** ({steps}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     chroot = Chroot(ChrootType.BUILDROOT, arch)
-    mount_device_rootfs(Chroot.rootfs(device))
+    mount_device_rootfs(Chroot.rootfs(device), chroot)
     pmb.install.recovery.create_zip(args, chroot, device)
 
     # Flash information

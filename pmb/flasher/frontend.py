@@ -88,7 +88,7 @@ def sideload(deviceinfo: Deviceinfo, method: str):
 
     # Missing recovery zip error
     if not (
-        Chroot.native()
+        chroot
         / mountpoint
         / "var/lib/postmarketos-android-recovery-installer"
         / f"pmos-{deviceinfo.codename}.zip"

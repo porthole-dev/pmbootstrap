@@ -101,14 +101,15 @@ def umount_all(folder: Path):
             raise RuntimeError(f"Failed to umount: {mountpoint}")
 
 
-def mount_device_rootfs(chroot_rootfs: Chroot) -> PurePath:
+def mount_device_rootfs(chroot_rootfs: Chroot, chroot_base: Chroot = Chroot.native()) -> PurePath:
     """
     Mount the device rootfs.
     :param chroot_rootfs: the chroot where the rootfs that will be
                           installed on the device has been created (e.g.
                           "rootfs_qemu-amd64")
-    :returns: the mountpoint (relative to the native chroot)
+    :param chroot_base: the chroot rootfs mounted to
+    :returns: the mountpoint (relative to the chroot)
     """
     mountpoint = PurePath("/mnt", str(chroot_rootfs))
-    pmb.helpers.mount.bind(chroot_rootfs.path, Chroot.native() / mountpoint)
+    pmb.helpers.mount.bind(chroot_rootfs.path, chroot_base / mountpoint)
     return mountpoint
