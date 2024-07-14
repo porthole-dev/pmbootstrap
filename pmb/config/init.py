@@ -539,7 +539,7 @@ def ask_for_additional_options(config):
 
     # Mirrors
     # prompt for mirror change
-    logging.info("Selected mirror:" f" {','.join(context.config.mirrors_postmarketos)}")
+    logging.info("Selected mirror:" f" {context.config.mirrors['pmaports']}")
     if pmb.helpers.cli.confirm("Change mirror?", default=False):
         mirror = ask_for_mirror()
         config.mirrors["pmaports"] = mirror
