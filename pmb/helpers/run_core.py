@@ -21,9 +21,7 @@ import pmb.helpers.run
    called by core(). """
 
 
-def flat_cmd(
-    cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}
-):
+def flat_cmd(cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}):
     """Convert a shell command passed as list into a flat shell string with proper escaping.
 
     :param cmds: list of commands as list, e.g. ["echo", "string with spaces"]
