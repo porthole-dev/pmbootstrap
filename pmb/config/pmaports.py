@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from pathlib import Path
-from typing import Optional
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_paths, pkgrepo_relative_path
 from pmb.helpers import logging
 import os
@@ -89,7 +88,7 @@ def read_config_repos():
 
 
 @Cache("aports")
-def read_config(aports: Optional[Path] = None):
+def read_config(aports: Path | None = None):
     """Read and verify pmaports.cfg. If aports is not
     specified and systemd is enabled, the returned channel
     will be the systemd one (e.g. systemd-edge instead of edge)

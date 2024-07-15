@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Sequence
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
@@ -284,7 +284,7 @@ def clear_cache(path: Path):
         return False
 
 
-def providers(package, arch: Optional[Arch] = None, must_exist=True, indexes=None):
+def providers(package, arch: Arch | None = None, must_exist=True, indexes=None):
     """
     Get all packages, which provide one package.
 
@@ -380,7 +380,7 @@ def provider_shortest(providers, pkgname):
     return providers[ret]
 
 
-def package(package, arch: Optional[Arch] = None, must_exist=True, indexes=None):
+def package(package, arch: Arch | None = None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
 

@@ -10,7 +10,7 @@ import glob
 import json
 import os
 import shutil
-from typing import Any, Optional
+from typing import Any
 
 import pmb.aportgen
 import pmb.config
@@ -600,7 +600,7 @@ def ask_for_mirror():
     return mirror
 
 
-def ask_for_hostname(default: Optional[str], device):
+def ask_for_hostname(default: str | None, device):
     while True:
         ret = pmb.helpers.cli.ask(
             "Device hostname (short form, e.g. 'foo')", None, (default or device), True

@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Optional
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -122,7 +121,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve, sp
         pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 
 
-def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Optional[Path]):
+def create(args: PmbArgs, size_boot, size_root, size_reserve, split, disk: Path | None):
     """
     Create /dev/install (the "install blockdevice").
 

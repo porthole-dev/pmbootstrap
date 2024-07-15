@@ -5,17 +5,16 @@ from pathlib import Path
 import subprocess
 from pmb.core.arch import Arch
 import pmb.helpers.run_core
-from typing import Optional
 from collections.abc import Sequence
 from pmb.types import Env, PathString
 
 
 def user(
     cmd: Sequence[PathString],
-    working_dir: Optional[Path] = None,
+    working_dir: Path | None = None,
     output: str = "log",
     output_return: bool = False,
-    check: Optional[bool] = None,
+    check: bool | None = None,
     env: Env = {},
     sudo: bool = False,
 ) -> str | int | subprocess.Popen:
@@ -56,9 +55,9 @@ def user(
 # FIXME: should probably use some kind of wrapper class / builder pattern for all these parameters...
 def user_output(
     cmd: Sequence[PathString],
-    working_dir: Optional[Path] = None,
+    working_dir: Path | None = None,
     output: str = "log",
-    check: Optional[bool] = None,
+    check: bool | None = None,
     env: Env = {},
     sudo: bool = False,
 ) -> str:

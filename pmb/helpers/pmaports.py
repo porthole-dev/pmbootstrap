@@ -12,7 +12,7 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Sequence
 
 from pmb.meta import Cache
@@ -51,7 +51,7 @@ def get_list() -> Sequence[str]:
     return list(_find_apkbuilds().keys())
 
 
-def guess_main_dev(subpkgname) -> Optional[Path]:
+def guess_main_dev(subpkgname) -> Path | None:
     """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
@@ -77,7 +77,7 @@ def guess_main_dev(subpkgname) -> Optional[Path]:
     return None
 
 
-def guess_main(subpkgname) -> Optional[Path]:
+def guess_main(subpkgname) -> Path | None:
     """Find the main package by assuming it is a prefix of the subpkgname.
 
     We do that, because in some APKBUILDs the subpkgname="" variable gets
@@ -165,7 +165,7 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
     """
     # Try to get a cached result first (we assume that the aports don't change
     # in one pmbootstrap call)
-    ret: Optional[Path] = None
+    ret: Path | None = None
     # Sanity check
     if "*" in package:
         raise RuntimeError("Invalid pkgname: " + package)
@@ -205,7 +205,7 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
     return ret
 
 
-def find_optional(package: str) -> Optional[Path]:
+def find_optional(package: str) -> Path | None:
     try:
         return find(package)
     except RuntimeError:
@@ -216,7 +216,7 @@ def find_optional(package: str) -> Optional[Path]:
 @Cache("pkgname", subpackages=True)
 def get_with_path(
     pkgname, must_exist=True, subpackages=True, skip_extra_repos=False
-) -> tuple[Optional[Path], Optional[dict[str, Any]]]:
+) -> tuple[Path | None, dict[str, Any] | None]:
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
@@ -272,7 +272,7 @@ def find_providers(provide):
 
 
 # FIXME (#2324): split into an _optional variant or drop must_exist
-def get_repo(pkgname, must_exist=True) -> Optional[str]:
+def get_repo(pkgname, must_exist=True) -> str | None:
     """Get the repository folder of an aport.
 
     :pkgname: package name
@@ -280,7 +280,7 @@ def get_repo(pkgname, must_exist=True) -> Optional[str]:
     :returns: a string like "main", "device", "cross", ...
                   or None when the aport could not be found
     """
-    aport: Optional[Path]
+    aport: Path | None
     if must_exist:
         aport = find(pkgname)
     else:

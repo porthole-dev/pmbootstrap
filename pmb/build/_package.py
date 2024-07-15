@@ -1,7 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
-from typing import Any, Callable, Optional, TypedDict
+from typing import Any, TypedDict
+from collections.abc import Callable
 from pmb.build.other import BuildStatus
 from pmb.core.arch import Arch
 from pmb.core.context import Context
@@ -215,7 +216,7 @@ def process_package(
     context: Context,
     queue_build: Callable,
     pkgname: str,
-    arch: Optional[Arch],
+    arch: Arch | None,
     fallback_arch: Arch,
     force: bool,
 ) -> list[str]:
@@ -321,12 +322,12 @@ def process_package(
 def packages(
     context: Context,
     pkgnames: list[str],
-    arch: Optional[Arch] = None,
+    arch: Arch | None = None,
     force=False,
     strict=False,
     src=None,
     bootstrap_stage=BootstrapStage.NONE,
-    log_callback: Optional[Callable] = None,
+    log_callback: Callable | None = None,
 ) -> list[str]:
     """
     Build a package and its dependencies with Alpine Linux' abuild.

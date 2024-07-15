@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Optional
 import pmb.config.pmaports
 from pmb.core.chroot import Chroot
 from pmb.core.context import get_context
@@ -20,8 +19,8 @@ def variables(args: PmbArgs, flavor: str, method: str):
     # updated and minimum pmbootstrap version bumped.
     # See also https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2243
 
-    _partition_kernel: Optional[str]
-    _partition_rootfs: Optional[str]
+    _partition_kernel: str | None
+    _partition_rootfs: str | None
 
     if method.startswith("fastboot"):
         _partition_kernel = deviceinfo.flash_fastboot_partition_kernel or "boot"

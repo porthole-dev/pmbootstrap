@@ -7,7 +7,7 @@ from typing import Literal, Optional, TypedDict, Union
 
 from pmb.core.arch import Arch
 
-CrossCompileType = Optional[Union[Literal["native"], Literal["crossdirect"]]]
+CrossCompileType = Optional[Literal["native"] | Literal["crossdirect"]]
 PathString = Union[Path, str]
 Env = dict[str, PathString]
 
@@ -17,9 +17,9 @@ Env = dict[str, PathString]
 
 
 class PartitionLayout(TypedDict):
-    kernel: Optional[int]
+    kernel: int | None
     boot: int
-    reserve: Optional[int]
+    reserve: int | None
     root: int
 
 
@@ -42,8 +42,8 @@ class PmbArgs(Namespace):
     all_stable: bool
     android_recovery_zip: bool
     apkindex_path: Path
-    aports: Optional[list[Path]]
-    arch: Optional[Arch]
+    aports: list[Path] | None
+    arch: Arch | None
     as_root: bool
     assume_yes: bool
     auto: bool

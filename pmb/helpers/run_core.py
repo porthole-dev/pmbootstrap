@@ -13,7 +13,6 @@ import subprocess
 import sys
 import threading
 import time
-from typing import Optional
 from collections.abc import Sequence
 import pmb.helpers.run
 
@@ -23,7 +22,7 @@ import pmb.helpers.run
 
 
 def flat_cmd(
-    cmds: Sequence[Sequence[PathString]], working_dir: Optional[Path] = None, env: Env = {}
+    cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}
 ):
     """Convert a shell command passed as list into a flat shell string with proper escaping.
 

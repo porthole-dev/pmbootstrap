@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pathlib import Path
-from typing import Optional
 from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 
 
-def find_path(codename: str, file="") -> Optional[Path]:
+def find_path(codename: str, file="") -> Path | None:
     """Find path to device APKBUILD under `device/*/device-`.
 
     :param codename: device codename

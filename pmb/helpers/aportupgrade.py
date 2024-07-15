@@ -6,7 +6,6 @@ from pmb.helpers import logging
 import os
 import re
 import urllib.parse
-from typing import Optional
 
 from pmb.types import PmbArgs
 import pmb.helpers.file
@@ -48,7 +47,7 @@ def init_req_headers() -> None:
         )
 
 
-def get_package_version_info_github(repo_name: str, ref: Optional[str]):
+def get_package_version_info_github(repo_name: str, ref: str | None):
     logging.debug(f"Trying GitHub repository: {repo_name}")
 
     # Get the URL argument to request a special ref, if needed
@@ -70,7 +69,7 @@ def get_package_version_info_github(repo_name: str, ref: Optional[str]):
     }
 
 
-def get_package_version_info_gitlab(gitlab_host: str, repo_name: str, ref: Optional[str]):
+def get_package_version_info_gitlab(gitlab_host: str, repo_name: str, ref: str | None):
     logging.debug(f"Trying GitLab repository: {repo_name}")
 
     repo_name_safe = urllib.parse.quote(repo_name, safe="")

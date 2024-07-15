@@ -1,7 +1,6 @@
 import os
 import glob
 from pathlib import Path
-from typing import Optional
 from collections.abc import Generator
 
 import pmb.config
@@ -61,7 +60,7 @@ def pkgrepo_name_from_subdir(subdir: Path) -> str:
     raise RuntimeError(f"aports subdir '{subdir}' not found")
 
 
-def pkgrepo_glob_one(path: str) -> Optional[Path]:
+def pkgrepo_glob_one(path: str) -> Path | None:
     """
     Search for the file denoted by path in all aports repositories.
     path can be a glob.

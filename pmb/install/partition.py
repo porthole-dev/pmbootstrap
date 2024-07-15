@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
-from typing import Optional
 from pmb.helpers import logging
 import os
 import time
@@ -13,7 +12,7 @@ from pmb.core import Chroot
 
 # FIXME (#2324): this function drops disk to a string because it's easier
 # to manipulate, this is probably bad.
-def partitions_mount(device: str, layout, disk: Optional[Path]):
+def partitions_mount(device: str, layout, disk: Path | None):
     """
     Mount blockdevices of partitions inside native chroot
     :param layout: partition layout from get_partition_layout()

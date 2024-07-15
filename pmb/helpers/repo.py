@@ -15,7 +15,6 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_names
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Optional
 
 import pmb.config.pmaports
 from pmb.meta import Cache
@@ -104,7 +103,7 @@ def urls(user_repository=False, mirrors_exclude: list[str] = []):
 
 
 def apkindex_files(
-    arch: Optional[Arch] = None, user_repository=True, exclude_mirrors: list[str] = []
+    arch: Arch | None = None, user_repository=True, exclude_mirrors: list[str] = []
 ) -> list[Path]:
     """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
@@ -130,7 +129,7 @@ def apkindex_files(
 
 
 @Cache("arch", force=False)
-def update(arch: Optional[Arch] = None, force=False, existing_only=False):
+def update(arch: Arch | None = None, force=False, existing_only=False):
     """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
@@ -206,7 +205,7 @@ def update(arch: Optional[Arch] = None, force=False, existing_only=False):
     return True
 
 
-def alpine_apkindex_path(repo="main", arch: Optional[Arch] = None):
+def alpine_apkindex_path(repo="main", arch: Arch | None = None):
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")

@@ -97,7 +97,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
 
 
 def sideload(
-    args: PmbArgs, user: str, host: str, port: str, arch: Optional[Arch], copy_key: bool, pkgnames
+    args: PmbArgs, user: str, host: str, port: str, arch: Arch | None, copy_key: bool, pkgnames
 ):
     """Build packages if necessary and install them via SSH.
 

@@ -8,7 +8,7 @@ dir."""
 import configparser
 import os
 import time
-from typing import Optional, overload
+from typing import overload
 
 import pmb.config
 import pmb.config.pmaports
@@ -48,7 +48,7 @@ def chroots_outdated() -> list[Chroot]: ...
 def chroots_outdated(chroot: Chroot) -> bool: ...
 
 
-def chroots_outdated(chroot: Optional[Chroot] = None):
+def chroots_outdated(chroot: Chroot | None = None):
     """Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 

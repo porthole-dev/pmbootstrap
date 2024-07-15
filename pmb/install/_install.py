@@ -7,7 +7,6 @@ import re
 import glob
 import shlex
 import sys
-from typing import Optional
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -388,7 +387,7 @@ def setup_timezone(chroot: Chroot, timezone: str):
     pmb.chroot.root(setup_tz_cmd, chroot)
 
 
-def setup_hostname(device: str, hostname: Optional[str]):
+def setup_hostname(device: str, hostname: str | None):
     """
     Set the hostname and update localhost address in /etc/hosts
     """
@@ -840,7 +839,7 @@ def install_system_image(
     boot_label="pmOS_boot",
     root_label="pmOS_root",
     split=False,
-    disk: Optional[Path] = None,
+    disk: Path | None = None,
 ):
     """
     :param size_reserve: empty partition between root and boot in MiB (pma#463)

@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
 from pathlib import Path
-from typing import Optional
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
@@ -102,73 +101,73 @@ class Deviceinfo:
 
     # device
     chassis: str
-    keyboard: Optional[str] = ""
-    external_storage: Optional[str] = ""
-    gpu_accelerated: Optional[bool] = False
-    dev_touchscreen: Optional[str] = ""
-    dev_touchscreen_calibration: Optional[str] = ""
-    append_dtb: Optional[str] = ""
+    keyboard: str | None = ""
+    external_storage: str | None = ""
+    gpu_accelerated: bool | None = False
+    dev_touchscreen: str | None = ""
+    dev_touchscreen_calibration: str | None = ""
+    append_dtb: str | None = ""
 
     # bootloader
     flash_method: str = ""
-    boot_filesystem: Optional[str] = ""
+    boot_filesystem: str | None = ""
 
     # flash
-    flash_heimdall_partition_kernel: Optional[str] = ""
-    flash_heimdall_partition_initfs: Optional[str] = ""
-    flash_heimdall_partition_rootfs: Optional[str] = ""
-    flash_heimdall_partition_system: Optional[str] = ""  # deprecated
-    flash_heimdall_partition_vbmeta: Optional[str] = ""
-    flash_heimdall_partition_dtbo: Optional[str] = ""
-    flash_fastboot_partition_kernel: Optional[str] = ""
-    flash_fastboot_partition_rootfs: Optional[str] = ""
-    flash_fastboot_partition_system: Optional[str] = ""  # deprecated
-    flash_fastboot_partition_vbmeta: Optional[str] = ""
-    flash_fastboot_partition_dtbo: Optional[str] = ""
-    flash_rk_partition_kernel: Optional[str] = ""
-    flash_rk_partition_rootfs: Optional[str] = ""
-    flash_rk_partition_system: Optional[str] = ""  # deprecated
-    flash_mtkclient_partition_kernel: Optional[str] = ""
-    flash_mtkclient_partition_rootfs: Optional[str] = ""
-    flash_mtkclient_partition_vbmeta: Optional[str] = ""
-    flash_mtkclient_partition_dtbo: Optional[str] = ""
-    generate_legacy_uboot_initfs: Optional[str] = ""
-    kernel_cmdline: Optional[str] = ""
-    generate_bootimg: Optional[str] = ""
-    header_version: Optional[str] = ""
-    bootimg_qcdt: Optional[str] = ""
-    bootimg_mtk_mkimage: Optional[str] = ""  # deprecated
-    bootimg_mtk_label_kernel: Optional[str] = ""
-    bootimg_mtk_label_ramdisk: Optional[str] = ""
-    bootimg_dtb_second: Optional[str] = ""
-    bootimg_custom_args: Optional[str] = ""
-    flash_offset_base: Optional[str] = ""
-    flash_offset_dtb: Optional[str] = ""
-    flash_offset_kernel: Optional[str] = ""
-    flash_offset_ramdisk: Optional[str] = ""
-    flash_offset_second: Optional[str] = ""
-    flash_offset_tags: Optional[str] = ""
-    flash_pagesize: Optional[str] = ""
-    flash_fastboot_max_size: Optional[str] = ""
-    flash_sparse: Optional[str] = ""
-    flash_sparse_samsung_format: Optional[str] = ""
-    rootfs_image_sector_size: Optional[str] = ""
-    sd_embed_firmware: Optional[str] = ""
-    sd_embed_firmware_step_size: Optional[str] = ""
-    partition_blacklist: Optional[str] = ""
-    boot_part_start: Optional[str] = ""
-    partition_type: Optional[str] = ""
-    root_filesystem: Optional[str] = ""
-    flash_kernel_on_update: Optional[str] = ""
-    cgpt_kpart: Optional[str] = ""
-    cgpt_kpart_start: Optional[str] = ""
-    cgpt_kpart_size: Optional[str] = ""
+    flash_heimdall_partition_kernel: str | None = ""
+    flash_heimdall_partition_initfs: str | None = ""
+    flash_heimdall_partition_rootfs: str | None = ""
+    flash_heimdall_partition_system: str | None = ""  # deprecated
+    flash_heimdall_partition_vbmeta: str | None = ""
+    flash_heimdall_partition_dtbo: str | None = ""
+    flash_fastboot_partition_kernel: str | None = ""
+    flash_fastboot_partition_rootfs: str | None = ""
+    flash_fastboot_partition_system: str | None = ""  # deprecated
+    flash_fastboot_partition_vbmeta: str | None = ""
+    flash_fastboot_partition_dtbo: str | None = ""
+    flash_rk_partition_kernel: str | None = ""
+    flash_rk_partition_rootfs: str | None = ""
+    flash_rk_partition_system: str | None = ""  # deprecated
+    flash_mtkclient_partition_kernel: str | None = ""
+    flash_mtkclient_partition_rootfs: str | None = ""
+    flash_mtkclient_partition_vbmeta: str | None = ""
+    flash_mtkclient_partition_dtbo: str | None = ""
+    generate_legacy_uboot_initfs: str | None = ""
+    kernel_cmdline: str | None = ""
+    generate_bootimg: str | None = ""
+    header_version: str | None = ""
+    bootimg_qcdt: str | None = ""
+    bootimg_mtk_mkimage: str | None = ""  # deprecated
+    bootimg_mtk_label_kernel: str | None = ""
+    bootimg_mtk_label_ramdisk: str | None = ""
+    bootimg_dtb_second: str | None = ""
+    bootimg_custom_args: str | None = ""
+    flash_offset_base: str | None = ""
+    flash_offset_dtb: str | None = ""
+    flash_offset_kernel: str | None = ""
+    flash_offset_ramdisk: str | None = ""
+    flash_offset_second: str | None = ""
+    flash_offset_tags: str | None = ""
+    flash_pagesize: str | None = ""
+    flash_fastboot_max_size: str | None = ""
+    flash_sparse: str | None = ""
+    flash_sparse_samsung_format: str | None = ""
+    rootfs_image_sector_size: str | None = ""
+    sd_embed_firmware: str | None = ""
+    sd_embed_firmware_step_size: str | None = ""
+    partition_blacklist: str | None = ""
+    boot_part_start: str | None = ""
+    partition_type: str | None = ""
+    root_filesystem: str | None = ""
+    flash_kernel_on_update: str | None = ""
+    cgpt_kpart: str | None = ""
+    cgpt_kpart_start: str | None = ""
+    cgpt_kpart_size: str | None = ""
 
     # weston
-    weston_pixman_type: Optional[str] = ""
+    weston_pixman_type: str | None = ""
 
     # keymaps
-    keymaps: Optional[str] = ""
+    keymaps: str | None = ""
 
     @staticmethod
     def __validate(info: dict[str, str], path: Path):
@@ -250,7 +249,7 @@ class Deviceinfo:
                 f" and try again: {path}"
             )
 
-    def __init__(self, path: Path, kernel: Optional[str] = None):
+    def __init__(self, path: Path, kernel: str | None = None):
         ret = {}
         with open(path) as handle:
             for line in handle:

@@ -1,6 +1,5 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Optional
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot, ChrootType
 from pmb.core.context import Context
@@ -43,7 +42,7 @@ class RepoBootstrap(commands.Command):
             f"Couldn't find section 'repo:{self.repo}' in pmaports.cfg of" " current branch"
         )
 
-    def __init__(self, arch: Optional[Arch], repository: str):
+    def __init__(self, arch: Arch | None, repository: str):
         context = get_context()
         if arch:
             self.arch = arch

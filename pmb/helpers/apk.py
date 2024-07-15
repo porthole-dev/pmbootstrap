@@ -3,7 +3,6 @@
 import os
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional
 
 import pmb.chroot
 import pmb.config.pmaports
@@ -17,7 +16,7 @@ import pmb.parse.version
 from pmb.core.context import get_context
 
 
-def _run(command, chroot: Optional[Chroot], output="log"):
+def _run(command, chroot: Chroot | None, output="log"):
     """Run a command.
 
     :param command: command in list form
@@ -33,7 +32,7 @@ def _run(command, chroot: Optional[Chroot], output="log"):
     return pmb.helpers.run.root(command, output=output)
 
 
-def _prepare_fifo(chroot: Optional[Chroot]):
+def _prepare_fifo(chroot: Chroot | None):
     """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
@@ -87,7 +86,7 @@ def _compute_progress(line):
     return cur / tot if tot > 0 else 0
 
 
-def apk_with_progress(command: Sequence[PathString], chroot: Optional[Chroot] = None):
+def apk_with_progress(command: Sequence[PathString], chroot: Chroot | None = None):
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form

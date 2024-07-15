@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
-from typing import Callable, Generic, Optional, TypeVar, overload
+from typing import Generic, Optional, TypeVar, overload
+from collections.abc import Callable
 
 import inspect
 
@@ -78,7 +79,7 @@ class Cache:
 
     # Build the cache key, or return None to not cache in the case where
     # we only cache when an argument has a specific value
-    def build_key(self, func: Callable, *args, **kwargs) -> Optional[str]:
+    def build_key(self, func: Callable, *args, **kwargs) -> str | None:
         key = "~"
         # Easy case: cache irrelevant of arguments
         if not self.params and not self.kwargs:

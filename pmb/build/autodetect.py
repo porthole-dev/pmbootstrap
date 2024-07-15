@@ -3,7 +3,7 @@
 from pathlib import Path
 from pmb.core.arch import Arch
 from pmb.helpers import logging
-from typing import Any, Optional, Union
+from typing import Any
 
 import pmb.config
 import pmb.chroot.apk
@@ -15,7 +15,7 @@ from pmb.types import CrossCompileType
 
 
 # FIXME (#2324): type hint Arch
-def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[Arch]:
+def arch_from_deviceinfo(pkgname, aport: Path) -> Arch | None:
     """
     The device- packages are noarch packages. But it only makes sense to build
     them for the device's architecture, which is specified in the deviceinfo
@@ -39,7 +39,7 @@ def arch_from_deviceinfo(pkgname, aport: Path) -> Optional[Arch]:
 
 
 @Cache("package")
-def arch(package: Union[str, dict[str, Any]]):
+def arch(package: str | dict[str, Any]):
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
