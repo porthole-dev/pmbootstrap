@@ -961,7 +961,7 @@ def get_parser():
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")
-    log.add_argument("-n", "--lines", default="60", help="count of initial output lines")
+    log.add_argument("-n", "--lines", type=int, default=60, help="count of initial output lines")
     log.add_argument("-c", "--clear", help="clear the log", action="store_true", dest="clear_log")
 
     # Action: zap

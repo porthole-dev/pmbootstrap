@@ -38,20 +38,21 @@ class PmbArgs(Namespace):
     action_test: str
     add: str
     all: bool
-    all_git: str
-    all_stable: str
-    android_recovery_zip: str
+    all_git: bool
+    all_stable: bool
+    android_recovery_zip: bool
     apkindex_path: Path
     aports: Optional[list[Path]]
     arch: Optional[Arch]
-    as_root: str
-    assume_yes: str
-    auto: str
-    autoinstall: str
+    as_root: bool
+    assume_yes: bool
+    auto: bool
+    autoinstall: bool
     boot_size: str
     build_default_device_arch: str
     buildroot: str
-    built: str
+    built: bool
+    ccache: bool
     ccache_size: str
     cipher: str
     clear_log: bool
@@ -64,54 +65,61 @@ class PmbArgs(Namespace):
     deviceinfo_parse_kernel: str
     devices: str
     disk: Path
-    dry: str
-    efi: str
-    envkernel: str
+    dry: bool
+    efi: bool
+    envkernel: bool
     export_folder: Path
     extra_space: str
-    fast: str
+    fast: bool
     file: str
     filesystem: str
     flash_method: str
     folder: str
     force: bool
     fork_alpine: bool
-    full_disk_encryption: str
+    fork_alpine_retain_branch: bool
+    full_disk_encryption: bool
+    go_mod_cache: bool
     hook: str
     host: str
-    host_qemu: str
+    host_qemu: bool
+    http: bool
+    ignore_depends: bool
     image_size: str
     image: bool
-    install_base: str
-    install_blockdev: str
-    install_cgpt: str
+    install_base: bool
+    install_blockdev: bool
+    install_cgpt: bool
     install_key: bool
-    install_local_pkgs: str
-    install_recommends: str
+    install_local_pkgs: bool
+    install_recommends: bool
     is_default_channel: str
     iter_time: str
     jobs: str
-    kconfig_check_details: str
+    kconfig_check_details: bool
     kernel: str
     keymap: str
-    lines: str
+    lines: int
     log: Path
     mirror_alpine: str
     mirror_postmarketos: str
     name: str
-    no_depends: str
-    no_fde: str
+    nconfig: bool
+    netboot: bool
+    no_depends: bool
+    no_fde: bool
     no_firewall: bool
-    no_image: str
+    no_image: bool
+    no_reboot: bool
+    no_sshd: bool
     non_existing: str
-    no_reboot: str
-    no_sshd: str
-    odin_flashable_tar: str
+    odin_flashable_tar: bool
     offline: bool
+    on_device_installer: bool
     ondev_cp: list[tuple[str, str]]
-    on_device_installer: str
-    ondev_no_rootfs: str
-    overview: str
+    ondev_no_rootfs: bool
+    output: str
+    overview: bool
     # FIXME (#2324): figure out the args.package vs args.packages situation
     package: str | list[str]
     packages: list[str]
@@ -120,39 +128,44 @@ class PmbArgs(Namespace):
     path: Path
     pkgname: str
     pkgname_pkgver_srcurl: str
+    pkgs_local: bool
+    pkgs_local_mismatch: bool
+    pkgs_online_mismatch: bool
     port: str
     qemu_audio: str
     qemu_cpu: str
     qemu_display: str
-    qemu_gl: str
-    qemu_kvm: str
+    qemu_gl: bool
+    qemu_kvm: bool
     qemu_redir_stdio: str
-    qemu_tablet: str
+    qemu_tablet: bool
     qemu_video: str
-    recovery_flash_kernel: str
+    recovery_flash_kernel: bool
     recovery_install_partition: str
     ref: str
     replace: bool
     repository: str
-    reset: str
-    resume: str
-    rootfs: str
-    rsync: str
+    reset: bool
+    resume: bool
+    rootfs: bool
+    rsync: bool
     scripts: str
     second_storage: str
     selected_providers: dict[str, str]
-    sparse: str
+    sparse: bool
     split: bool
     src: str
     ssh_keys: str
-    strict: str
+    strict: bool
     sudo_timer: bool
     suffix: str
     systemd: str
     timeout: float
+    user: str
     value: str
     verbose: bool
-    verify: str
+    verify: bool
     work: Path
-    xauth: str
-    zap: str
+    xauth: bool
+    xconfig: bool
+    zap: bool

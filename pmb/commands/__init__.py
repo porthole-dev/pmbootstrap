@@ -64,7 +64,7 @@ def run_command(args: PmbArgs):
     command: Command
     # Would be nice to use match case but we support Python 3.8
     if args.action == "log":
-        command = Log(args.clear_log, int(args.lines))
+        command = Log(args.clear_log, args.lines)
     elif args.action == "index":
         # FIXME: should index support --arch?
         command = Index()
