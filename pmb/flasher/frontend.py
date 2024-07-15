@@ -153,7 +153,7 @@ def frontend(args: PmbArgs):
         return
 
     if action in ["boot", "flash_kernel"]:
-        kernel(deviceinfo, method)
+        kernel(deviceinfo, method, action == "boot", args.autoinstall)
     elif action == "flash_rootfs":
         rootfs(deviceinfo, method)
     elif action == "flash_vbmeta":
