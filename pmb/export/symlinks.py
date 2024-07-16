@@ -58,7 +58,7 @@ def symlinks(flavor, folder: Path):
         chroot_native / "home/pmos/rootfs" / f"{device}.img",
         chroot_native / "home/pmos/rootfs" / f"{device}-boot.img",
         chroot_native / "home/pmos/rootfs" / f"{device}-root.img",
-        chroot_buildroot / "var/libpostmarketos-android-recovery-installer" / f"pmos-{device}.zip",
+        chroot_buildroot / "var/lib/postmarketos-android-recovery-installer" / f"pmos-{device}.zip",
         path_boot / "lk2nd.img",
     ]
 
