@@ -242,7 +242,10 @@ def config(args: PmbArgs):
         logging.info(f"Config changed to default: {args.name}='{def_value}'")
         pmb.config.save(args.config, config)
     elif args.value is not None:
-        setattr(config, args.name, args.value)
+        if isinstance(getattr(Config, args.name), list):
+            setattr(config, args.name, args.value.split(","))
+        else:
+            setattr(config, args.name, args.value)
         logging.info("Config changed: " + args.name + "='" + args.value + "'")
         pmb.config.save(args.config, config)
     elif args.name:
