@@ -420,9 +420,6 @@ def packages(
             context, queue_build, pkgname, arch, fallback_arch, force
         )
 
-    if not len(build_queue):
-        return []
-
     # If any of our common build packages need to be built and are missing, then add them
     # to the queue so they're built first. This is necessary so that our abuild fork is
     # always built first (for example). For now assume that if building in strict mode we
@@ -442,6 +439,9 @@ def packages(
                             " it automatically."
                         )
                     queue_build(aport, apkbuild, get_depends(context, apkbuild))
+
+    if not len(build_queue):
+        return []
 
     # We built the queue by pushing each package before it's dependencies. Now we
     # need to go backwards through the queue and build the dependencies first.
