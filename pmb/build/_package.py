@@ -82,6 +82,12 @@ def get_depends(context: Context, apkbuild):
         ret += apkbuild["checkdepends"]
     if not context.ignore_depends:
         ret += apkbuild["depends"]
+        for subpkgname, subpkg in apkbuild["subpackages"].items():
+            if not subpkg:
+                continue
+            logging.verbose(f"{apkbuild['pkgname']}: adding subpackage depends: {subpkgname}")
+            ret += subpkg["depends"]
+
     ret = sorted(set(ret))
 
     # Don't recurse forever when a package depends on itself (#948)
