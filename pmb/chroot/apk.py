@@ -201,10 +201,6 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         commands += [["del"] + to_del]
 
     channel = pmb.config.pmaports.read_config()["channel"]
-    # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
-    # user_repo = work / "packages" / channel
-    user_repo = os.path.join("/mnt/pmbootstrap/packages/", channel)
-
     # There are still some edgecases where we manage to get here while the chroot is not
     # initialized. To not break the build, we initialize it here but print a big warning
     # and a stack trace so hopefully folks report it.
@@ -214,14 +210,16 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         traceback.print_stack(file=logging.logfd)
         pmb.chroot.init(chroot)
 
+    # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
+    user_repo = []
+    for channel in pmb.config.pmaports.all_channels():
+        user_repo += ["--repository", Path("/mnt/pmbootstrap/packages") / channel]
+
     for i, command in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
         # gets confused
         command += ["--no-interactive"]
-        command = [
-            "--repository",
-            user_repo,
-        ] + command
+        command = user_repo + command
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
