@@ -972,7 +972,7 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
         logging.info("* pmbootstrap flasher flash_rootfs")
         logging.info("  Flashes the generated rootfs image to your device:")
         if split:
-            logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}-rootfs.img")
+            logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}-root.img")
         else:
             logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}.img")
             logging.info(
