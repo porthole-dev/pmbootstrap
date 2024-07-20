@@ -1010,6 +1010,12 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
         else:
             logging.info(f"  {Chroot(ChrootType.ROOTFS, device) / 'boot'}")
 
+    if "flash_boot" in flasher_actions and (Chroot.rootfs(device) / "boot/boot.img").exists():
+        logging.info("* pmbootstrap flasher flash_boot")
+        logging.info("  Flashes the generated Android boot image to your device:")
+        logging.info(f"  {Chroot.rootfs(device) / 'boot/boot.img'}")
+        logging.info("  (NOTE: This is not necessary if using a custom bootloader like U-Boot)")
+
     if "boot" in flasher_actions:
         logging.info(
             "  (NOTE: " + method + " also supports booting"
