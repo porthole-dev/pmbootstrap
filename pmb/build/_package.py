@@ -312,8 +312,13 @@ def process_package(
                     f" Call with --force or consider building {dep} manually"
                 )
 
-            logging.verbose(f"{arch}/{dep}: Inserting {len(deps)} dependencies")
-            depends = deps + depends
+            subpkg_deps: list[str] = sum(
+                map(lambda sp: sp["depends"] if sp else [], apkbuild["subpackages"].values()), []
+            )
+            logging.verbose(
+                f"{arch}/{dep}: Inserting {len(deps)} dependencies and {len(subpkg_deps)} from subpackages"
+            )
+            depends = subpkg_deps + deps + depends
             parent = dep
 
     return depends
