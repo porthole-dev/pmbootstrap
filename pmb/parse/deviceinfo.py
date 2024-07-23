@@ -96,7 +96,7 @@ class Deviceinfo:
     manufacturer: str
     codename: str
     year: str
-    dtb: str
+    dtb: str = ""
     arch: Arch
 
     # device
