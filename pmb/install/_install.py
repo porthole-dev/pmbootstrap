@@ -1255,9 +1255,6 @@ def create_device_rootfs(args: PmbArgs, step, steps):
     if config.ui.lower() != "none":
         install_packages += ["postmarketos-ui-" + config.ui]
 
-    if pmb.config.other.is_systemd_selected(context.config):
-        install_packages += ["postmarketos-base-systemd"]
-
     # Add additional providers of base/device/UI package
     install_packages += get_selected_providers(args, install_packages)
 
@@ -1297,6 +1294,11 @@ def create_device_rootfs(args: PmbArgs, step, steps):
 
     # Install uninstallable "dependencies" by default
     install_packages += get_recommends(args, install_packages)
+
+    # Install the base-systemd package first to make sure presets are available
+    # when services are installed later
+    if pmb.config.other.is_systemd_selected(context.config):
+        pmb.chroot.apk.install(["postmarketos-base-systemd"], chroot)
 
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
