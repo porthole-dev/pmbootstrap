@@ -14,11 +14,13 @@ class KConfigCheck(commands.Command):
     details: bool
     file: str
     packages: list[str]
+    keep_going: bool
 
-    def __init__(self, details, file, packages):
+    def __init__(self, details, file, packages, keep_going):
         self.details = details
         self.file = file
         self.packages = packages
+        self.keep_going = keep_going
 
     def run(self):
         # Build the components list from cli arguments (--waydroid etc.)
@@ -51,6 +53,8 @@ class KConfigCheck(commands.Command):
                     continue
             if not pmb.parse.kconfig.check(package, components_list, details=self.details):
                 error = True
+                if not self.keep_going:
+                    break
 
         # At least one failure
         if error:

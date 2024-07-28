@@ -660,6 +660,12 @@ def arguments_kconfig(subparser):
         help="print one generic error per component instead of"
         " listing each option that needs to be adjusted",
     )
+    check.add_argument(
+        "-k",
+        "--keep-going",
+        action="store_true",
+        help="continue on errors instead of aborting on the first error",
+    )
     add_kernel_arg(check, nargs="*")
 
     # "pmbootstrap kconfig edit"

@@ -99,6 +99,7 @@ class PmbArgs(Namespace):
     kconfig_check_details: bool
     kernel: str
     keymap: str
+    keep_going: bool
     lines: int
     log: Path
     mirror_alpine: str

@@ -77,7 +77,7 @@ def run_command(args: PmbArgs):
     elif args.action == "pull":
         command = Pull()
     elif args.action == "kconfig" and args.action_kconfig == "check":
-        command = KConfigCheck(args.kconfig_check_details, args.file, args.package)
+        command = KConfigCheck(args.kconfig_check_details, args.file, args.package, args.keep_going)
     elif args.action == "kconfig" and args.action_kconfig in ["edit", "migrate"]:
         command = KConfigEdit(args.package[0], args.action_kconfig == "migrate")
     else:
