@@ -242,7 +242,12 @@ def config(args: PmbArgs):
         logging.info(f"Config changed to default: {args.name}='{def_value}'")
         pmb.config.save(args.config, config)
     elif args.value is not None:
-        if isinstance(getattr(Config, args.name), list):
+        if args.name.startswith("mirrors."):
+            name = args.name.split(".", 1)[1]
+            # Ignore mypy 'error: TypedDict key must be a string literal'.
+            # Argparse already ensures 'name' is a valid Config.Mirrors key.
+            config.mirrors[name] = args.value  # type: ignore
+        elif isinstance(getattr(Config, args.name), list):
             setattr(config, args.name, args.value.split(","))
         else:
             setattr(config, args.name, args.value)
