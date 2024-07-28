@@ -65,10 +65,10 @@ def _parse_flavor(device: str, autoinstall=True):
 
 def _parse_suffix(args: PmbArgs) -> Chroot:
     deviceinfo = pmb.parse.deviceinfo()
-    if args.image:
+    if getattr(args, "image", None):
         rootfs = Chroot.native() / f"home/pmos/rootfs/{deviceinfo.codename}.img"
         return Chroot(ChrootType.IMAGE, str(rootfs))
-    if "rootfs" in args and args.rootfs:
+    if getattr(args, "rootfs", None):
         return Chroot(ChrootType.ROOTFS, get_context().config.device)
     elif args.buildroot:
         if args.buildroot == "device":
