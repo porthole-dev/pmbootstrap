@@ -4,6 +4,7 @@
 from __future__ import annotations
 from pmb import commands
 from pmb.core.context import get_context
+from pmb.helpers.exceptions import NonBugError
 import pmb.parse.kconfig
 import pmb.helpers.git
 import pmb.config
@@ -58,7 +59,7 @@ class KConfigCheck(commands.Command):
 
         # At least one failure
         if error:
-            raise RuntimeError("kconfig check failed!")
+            raise NonBugError("kconfig check failed!")
         else:
             if skipped:
                 logging.info(
