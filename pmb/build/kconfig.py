@@ -176,7 +176,7 @@ def menuconfig(args: PmbArgs, pkgname: str, use_oldconfig) -> None:
         raise RuntimeError(f"No kernel config generated: {source}")
 
     # Update the aport (config and checksum)
-    logging.info("Copy kernel config back to aport-folder")
+    logging.info("Copy kernel config back to pmaports dir")
     config = f"config-{apkbuild['_flavor']}.{arch}"
     target = aport / config
     pmb.helpers.run.user(["cp", source, target])
