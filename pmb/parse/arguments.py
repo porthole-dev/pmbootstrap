@@ -677,7 +677,7 @@ def arguments_kconfig(subparser):
         action="store_true",
         help="use nconfig rather than menuconfig for kernel" " configuration",
     )
-    add_kernel_arg(edit)
+    add_kernel_arg(edit, nargs=1)
 
     # "pmbootstrap kconfig migrate"
     migrate = sub.add_parser(
@@ -690,7 +690,7 @@ def arguments_kconfig(subparser):
     migrate.add_argument(
         "--arch", choices=arch_choices, dest="arch", type=lambda x: Arch.from_str(x)
     )
-    add_kernel_arg(migrate)
+    add_kernel_arg(migrate, nargs=1)
 
 
 def arguments_repo_bootstrap(subparser):
@@ -797,7 +797,7 @@ def add_packages_arg(subparser, name="packages", *args, **kwargs):
 
 def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
     arg = subparser.add_argument(
-        "package", nargs=nargs, help="kernel package" " (e.g. linux-postmarketos-allwinner)"
+        name, nargs=nargs, help="kernel package" " (e.g. linux-postmarketos-allwinner)"
     )
     if "argcomplete" in sys.modules:
         arg.completer = kernel_completer

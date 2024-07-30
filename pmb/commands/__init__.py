@@ -79,7 +79,7 @@ def run_command(args: PmbArgs):
     elif args.action == "kconfig" and args.action_kconfig == "check":
         command = KConfigCheck(args.kconfig_check_details, args.file, args.package)
     elif args.action == "kconfig" and args.action_kconfig in ["edit", "migrate"]:
-        command = KConfigEdit(args.package, args.action_kconfig == "migrate")
+        command = KConfigEdit(args.package[0], args.action_kconfig == "migrate")
     else:
         raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 
