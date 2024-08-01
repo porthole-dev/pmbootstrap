@@ -304,19 +304,10 @@ def process_package(
                 )
 
             deps = get_depends(context, apkbuild)
-            # Preserve the old behaviour where we don't build second order dependencies by default
-            # unless they are NEW packages, in which case we
-            if base_build_status.necessary() or bstatus == BuildStatus.NEW:
-                logging.debug(
-                    f"BUILDQUEUE: queue {dep} (dependency of {parent}) for build, reason: {bstatus}"
-                )
-                queue_build(aports, apkbuild, deps, cross)
-            else:
-                logging.info(
-                    f"@YELLOW@SKIP:@END@ NOT building {arch}/{dep}: it is a"
-                    f" dependency of {pkgname} which isn't marked for build."
-                    f" Call with --force or consider building {dep} manually"
-                )
+            logging.debug(
+                f"BUILDQUEUE: queue {dep} (dependency of {parent}) for build, reason: {bstatus}"
+            )
+            queue_build(aports, apkbuild, deps, cross)
 
             subpkg_deps: list[str] = sum(
                 map(lambda sp: sp["depends"] if sp else [], apkbuild["subpackages"].values()), []
