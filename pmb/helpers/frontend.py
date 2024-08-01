@@ -463,7 +463,7 @@ def newapkbuild(args: PmbArgs) -> None:
 
     # Passthrough: PKGNAME[-PKGVER] | SRCURL
     pass_through.append(args.pkgname_pkgver_srcurl)
-    pmb.build.newapkbuild(args.folder, pass_through, args.force)
+    pmb.build.newapkbuild(args.folder, pass_through, get_context().force)
 
 
 def deviceinfo_parse(args: PmbArgs) -> None:
