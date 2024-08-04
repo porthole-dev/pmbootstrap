@@ -77,7 +77,7 @@ class BuildStatus(enum.Enum):
         return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
 
 
-def get_status(arch, apkbuild, indexes=None) -> BuildStatus:
+def get_status(arch, apkbuild) -> BuildStatus:
     """Check if the package has already been built.
 
     Compared to abuild's check, this check also works for different architectures.
@@ -92,7 +92,7 @@ def get_status(arch, apkbuild, indexes=None) -> BuildStatus:
     msg = "Build is necessary for package '" + package + "': "
 
     # Get version from APKINDEX
-    index_data = pmb.parse.apkindex.package(package, arch, False, indexes)
+    index_data = pmb.parse.apkindex.package(package, arch, False)
     if not index_data:
         logging.debug(msg + "No binary package available")
         return BuildStatus.NEW
