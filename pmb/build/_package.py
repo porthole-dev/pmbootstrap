@@ -164,8 +164,8 @@ _package_cache: dict[str, list[str]] = {}
 
 
 def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
-    """Check if a package is in the built packages cache, if not
-    then mark it as built. We must mark as built before building
+    """Check if a package is in the visited packages cache, if not
+    then mark it as visited. We must mark as visited before building
     to break cyclical dependency loops."""
     global _package_cache
 
@@ -173,12 +173,12 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
     if key not in _package_cache:
         _package_cache[key] = []
 
-    ret = pkgname in _package_cache[key]
-    if not ret:
+    visited = pkgname in _package_cache[key]
+    if not visited:
         _package_cache[key].append(pkgname)
     else:
         logging.debug(f"{key}/{pkgname}: marked for build")
-    return ret
+    return visited
 
 
 def get_apkbuild(pkgname):
