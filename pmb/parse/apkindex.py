@@ -380,6 +380,7 @@ def provider_shortest(providers, pkgname):
     return providers[ret]
 
 
+# This can't be cached because the APKINDEX can change during pmbootstrap build!
 def package(package, arch: Arch | None = None, must_exist=True, indexes=None):
     """
     Get a specific package's data from an apkindex.
