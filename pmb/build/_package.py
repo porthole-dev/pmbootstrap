@@ -294,7 +294,7 @@ def process_package(
                 )
 
         bstatus = pmb.build.get_status(arch, apkbuild)
-        if bstatus.necessary():
+        if bstatus.necessary() and dep not in pmb.config.build_packages:
             if context.no_depends:
                 raise RuntimeError(
                     f"Binary package for dependency '{dep}'"
