@@ -15,7 +15,7 @@ import pmb.build
 from pmb.core.context import get_context
 
 
-def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str):
+def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
     """Copy the building key of the local installation to the target device,
     so it trusts the apks that were signed here.
     :param user: target device ssh username
@@ -61,7 +61,7 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     return alpine_architecture
 
 
-def ssh_install_apks(args: PmbArgs, user, host, port, paths):
+def ssh_install_apks(args: PmbArgs, user, host, port, paths) -> None:
     """Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
@@ -98,7 +98,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths):
 
 def sideload(
     args: PmbArgs, user: str, host: str, port: str, arch: Arch | None, copy_key: bool, pkgnames
-):
+) -> None:
     """Build packages if necessary and install them via SSH.
 
     :param user: target device ssh username
