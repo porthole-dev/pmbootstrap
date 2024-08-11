@@ -50,7 +50,10 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
 def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     """Connect to a device via ssh and query the architecture."""
     logging.info(f"Querying architecture of {user}@{host}")
-    command = ["ssh", "-p", port, f"{user}@{host}", "uname -m"]
+    # Run command in a subshell in case the foreign device has a weird uname
+    # implementation, e.g. Nushell.
+    architecture_cmd = shlex.quote("uname -m")
+    command = ["ssh", "-p", port, f"{user}@{host}", f"sh -c {architecture_cmd}"]
     output = pmb.helpers.run.user_output(command)
     # Split by newlines so we can pick out any irrelevant output, e.g. the "permanently
     # added to list of known hosts" warnings.
