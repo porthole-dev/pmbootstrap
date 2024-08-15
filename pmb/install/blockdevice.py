@@ -116,7 +116,7 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve, sp
 
     for img_path, mount_point in mount_image_paths.items():
         logging.info(f"(native) mount {mount_point} ({img_path.name})")
-        pmb.install.losetup.mount(img_path)
+        pmb.install.losetup.mount(img_path, args.sector_size)
         device = pmb.install.losetup.device_by_back_file(img_path)
         pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 

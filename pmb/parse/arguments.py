@@ -102,6 +102,13 @@ def arguments_install(subparser):
         default=True,
     )
     ret.add_argument("--zap", help="zap chroots before installing", action="store_true")
+    ret.add_argument(
+        "--sector-size",
+        help="set the sector size for the image file",
+        type=int,
+        default=None,
+        choices=[512, 2048, 4096],
+    )
 
     # Image type
     group_desc = ret.add_argument_group(

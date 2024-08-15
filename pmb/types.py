@@ -152,6 +152,7 @@ class PmbArgs(Namespace):
     rsync: bool
     scripts: str
     second_storage: str
+    sector_size: int | None
     selected_providers: dict[str, str]
     sparse: bool
     split: bool

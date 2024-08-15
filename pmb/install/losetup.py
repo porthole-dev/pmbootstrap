@@ -22,7 +22,7 @@ def init():
         pmb.helpers.mount.bind_file(loopdevice, Chroot.native() / loopdevice)
 
 
-def mount(img_path: Path):
+def mount(img_path: Path, _sector_size: int | None = None):
     """
     :param img_path: Path to the img file inside native chroot.
     """
@@ -38,8 +38,12 @@ def mount(img_path: Path):
         # Mount and return on success
         init()
 
+        sector_size = None
+        if _sector_size:
+            sector_size = str(_sector_size)
+        sector_size = sector_size or pmb.parse.deviceinfo().rootfs_image_sector_size
+
         losetup_cmd: list[PathString] = ["losetup", "-f", img_path]
-        sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
         if sector_size:
             losetup_cmd += ["-b", str(int(sector_size))]
 
