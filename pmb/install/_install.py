@@ -198,8 +198,8 @@ def configure_apk(args: PmbArgs):
         pmb.helpers.run.root(["cp", f, rootfs / "var/cache/apk/"])
 
     # Disable pmbootstrap repository
-    pmb.helpers.run.root(
-        ["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d", rootfs / "etc/apk/repositories"]
+    pmb.chroot.root(
+        ["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d", "/mnt/install/etc/apk/repositories"]
     )
     pmb.helpers.run.user(["cat", rootfs / "etc/apk/repositories"])
 

@@ -54,12 +54,19 @@ def create_device_nodes(chroot: Chroot):
                 pmb.helpers.run.root(
                     [
                         "mknod",
-                        "-m",
-                        str(dev[0]),  # permissions
                         path,  # name
                         str(dev[1]),  # type
                         str(dev[2]),  # major
                         str(dev[3]),  # minor
+                    ]
+                )
+                # chmod needs to be split from mknod to accommodate
+                # for FreeBSD mknod not including -m
+                pmb.helpers.run.root(
+                    [
+                        "chmod",
+                        str(dev[0]),  # permissions
+                        path,  # name
                     ]
                 )
 
