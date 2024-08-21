@@ -10,4 +10,4 @@ fi
 
 set -x
 
-mypy pmbootstrap.py
+mypy --color-output pmbootstrap.py
