@@ -394,7 +394,7 @@ def setup_hostname(device: str, hostname: str | None):
     # Default to device name. If device name is not a valid hostname then
     # default to a static default.
     if not hostname:
-        hostname = device
+        hostname = pmb.helpers.other.normalize_hostname(device)
         if not pmb.helpers.other.validate_hostname(hostname):
             # A valid host name, see:
             # https://datatracker.ietf.org/doc/html/rfc1035#section-2.3.1

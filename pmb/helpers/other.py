@@ -266,6 +266,25 @@ def migrate_work_folder():
         )
 
 
+def normalize_hostname(hostname: str) -> str:
+    """Fixup default hostnames so that they don't fail validate_hostname()
+
+    This should not be called on user-chosen hostnames as those should fail
+    """
+    # Truncate length
+    if len(hostname) > 63:
+        hostname = hostname[:63]
+
+    # Replace underscores with dashes
+    if "_" in hostname:
+        hostname = hostname.replace("_", "-")
+
+    # We shouldn't have to fix the rest of the regex because the APKBUILDs'
+    # device names shouldn't have any more invalid characters
+
+    return hostname
+
+
 def validate_hostname(hostname):
     """Check whether the string is a valid hostname.
 

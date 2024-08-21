@@ -606,6 +606,8 @@ def ask_for_mirror():
 
 
 def ask_for_hostname(default: str | None, device):
+    if device:
+        device = pmb.helpers.other.normalize_hostname(device)
     while True:
         ret = pmb.helpers.cli.ask(
             "Device hostname (short form, e.g. 'foo')", None, (default or device), True
