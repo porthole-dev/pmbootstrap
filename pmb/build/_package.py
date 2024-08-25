@@ -212,6 +212,72 @@ class BuildQueueItem(TypedDict):
     chroot: Chroot
 
 
+def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueItem]:
+    """
+    Figure out The Correct Order to build packages in, or bail.
+    """
+
+    queue: list[BuildQueueItem] = []
+    stuck = False
+    # (name, depends) of the last unmet dependency
+    last_unmet: tuple[str, str] | None = None
+
+    # build our base build packages first. This relies on
+    # the build_packages array being in the correct order!
+    for pkgname in pmb.config.build_packages:
+        for item in disarray:
+            if item["name"] == pkgname:
+                queue.append(item)
+                disarray.remove(item)
+                break
+
+    all_pkgnames = []
+    for item in disarray:
+        all_pkgnames.append(item["name"])
+        all_pkgnames += item["apkbuild"]["subpackages"].keys()
+
+    def queue_item(item: BuildQueueItem):
+        nonlocal stuck, last_unmet
+        queue.append(item)
+        disarray.remove(item)
+        all_pkgnames.remove(item["name"])
+        for subpkg in item["apkbuild"]["subpackages"].keys():
+            all_pkgnames.remove(subpkg)
+
+        stuck = False
+        last_unmet = None
+
+    while disarray and not stuck:
+        stuck = True
+        for item in disarray:
+            if not item["depends"]:
+                queue_item(item)
+                break
+
+            # If a dependency hasn't been queued yet, skip until it has been
+            deps_are_unmet = False
+            for dep in item["depends"]:
+                if dep in all_pkgnames:
+                    last_unmet = (item["name"], dep)
+                    deps_are_unmet = True
+                    break
+
+            if deps_are_unmet:
+                continue
+
+            # We're probably good to go??
+            queue_item(item)
+            break
+
+    if stuck:
+        assert last_unmet is not None
+        # FIXME: check if binary version of last_unmet[1] exists, print a warning, and continue anyway
+        # this logic will have to be lifted up into the while loop above...
+        raise NonBugError(f"Cyclical dependency: {last_unmet[0]} depends on on {last_unmet[1]}")
+
+    return queue
+
+
 def process_package(
     context: Context,
     queue_build: Callable,
@@ -236,7 +302,7 @@ def process_package(
         arch = pmb.build.autodetect.arch(base_apkbuild)
 
     if is_cached_or_cache(arch, pkgname) and not force:
-        logging.verbose(f"Skipping build for {arch}/{pkgname}, already built")
+        logging.verbose(f"S{arch}/{pkgname}: already queued")
         return []
 
     logging.debug(f"{arch}/{pkgname}: Generating dependency tree")
@@ -415,7 +481,7 @@ def packages(
     if src and len(pkgnames) > 1:
         raise RuntimeError("Can't build multiple packages with --src")
 
-    logging.verbose(f"Attempting to build: {', '.join(pkgnames)}")
+    logging.debug(f"Attempting to build: {', '.join(pkgnames)}")
 
     # We sorta-kind maybe supported building packages for multiple architectures in
     # a single called to packages(). We need to do a check to make sure that the user
@@ -460,9 +526,7 @@ def packages(
     if not len(build_queue):
         return []
 
-    # We built the queue by pushing each package before it's dependencies. Now we
-    # need to go backwards through the queue and build the dependencies first.
-    build_queue.reverse()
+    build_queue = prioritise_build_queue(build_queue)
 
     qlen = len(build_queue)
     logging.info(f"Building @BLUE@{qlen}@END@ package{'s' if qlen > 1 else ''}")
