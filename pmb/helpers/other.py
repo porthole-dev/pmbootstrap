@@ -11,6 +11,7 @@ import pmb.config.init
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from typing import Any
+from pmb.helpers.exceptions import NonBugError
 
 
 def folder_size(path: Path):
@@ -112,7 +113,7 @@ def migrate_work_folder():
 
     # Can't migrate, user must delete it
     if current != required:
-        raise RuntimeError(
+        raise NonBugError(
             "Sorry, we can't migrate that automatically. Please"
             " run 'pmbootstrap shutdown', then delete your"
             " current work folder manually ('sudo rm -rf "
