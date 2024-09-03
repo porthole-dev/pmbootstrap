@@ -62,10 +62,6 @@ def ask_for_chassis():
     )
 
 
-def ask_for_keyboard() -> bool:
-    return pmb.helpers.cli.confirm("Does the device have a hardware" " keyboard?")
-
-
 def ask_for_external_storage() -> bool:
     return pmb.helpers.cli.confirm(
         "Does the device have a sdcard or" " other external storage medium?"
@@ -191,7 +187,6 @@ def generate_deviceinfo(
     year: str,
     arch: Arch,
     chassis: str,
-    has_keyboard: bool,
     has_external_storage: bool,
     flash_method: str,
     bootimg=None,
@@ -214,7 +209,6 @@ def generate_deviceinfo(
 
         # Device related
         deviceinfo_chassis="{chassis}"
-        deviceinfo_keyboard="{"true" if has_keyboard else "false"}"
         deviceinfo_external_storage="{external_storage}"
 
         # Bootloader related
@@ -339,7 +333,6 @@ def generate(pkgname: str):
     name = ask_for_name(manufacturer)
     year = ask_for_year()
     chassis = ask_for_chassis()
-    has_keyboard = ask_for_keyboard()
     has_external_storage = ask_for_external_storage()
     flash_method = ask_for_flash_method()
     bootimg = None
@@ -353,7 +346,6 @@ def generate(pkgname: str):
         year,
         arch,
         chassis,
-        has_keyboard,
         has_external_storage,
         flash_method,
         bootimg,

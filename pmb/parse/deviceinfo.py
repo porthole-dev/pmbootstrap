@@ -101,7 +101,7 @@ class Deviceinfo:
 
     # device
     chassis: str
-    keyboard: str | None = ""
+    keyboard: str | None = ""  # deprecated
     external_storage: str | None = ""
     gpu_accelerated: bool | None = False
     dev_touchscreen: str | None = ""
