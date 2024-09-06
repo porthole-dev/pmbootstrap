@@ -63,6 +63,6 @@ def check(pkgnames: Sequence[str]):
             check=False,
             output="stdout",
             output_return=True,
-            working_dir=dest_paths[repo],
+            working_dir=dest_paths[repo.name],
             env={"CUSTOM_VALID_OPTIONS": " ".join(options)},
         )
