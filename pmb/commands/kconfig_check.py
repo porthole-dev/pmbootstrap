@@ -32,7 +32,7 @@ class KConfigCheck(commands.Command):
             if pmb.parse.kconfig.check_file(self.file, components_list, details=self.details):
                 logging.info("kconfig check succeeded!")
                 return
-            raise RuntimeError("kconfig check failed!")
+            raise NonBugError("kconfig check failed!")
 
         # Default to all kernel packages
         if not self.packages:
