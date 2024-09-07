@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs, pkgrepo_names, pkgrepo_relative_path
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 
 import pmb.chroot
@@ -57,12 +58,16 @@ def check(pkgnames: Sequence[str]):
     options = pmb.config.apkbuild_custom_valid_options
 
     # For each pkgrepo run the linter on the relevant packages
+    has_failed = False
     for pkgrepo, apkbuild_paths in apkbuilds.items():
-        pmb.chroot.root(
+        if pmb.chroot.root(
             ["apkbuild-lint"] + apkbuild_paths,
             check=False,
             output="stdout",
-            output_return=True,
             working_dir=dest_paths[repo.name],
             env={"CUSTOM_VALID_OPTIONS": " ".join(options)},
-        )
+        ):
+            has_failed = True
+
+    if has_failed:
+        raise NonBugError("Linter failed!")
