@@ -75,9 +75,7 @@ def check_option(component, details, config, config_path, option, option_value):
         config_name = os.path.basename(config_path)
         if details:
             logging.warning(
-                f"WARNING: {config_name}: CONFIG_{option} should"
-                f" {should_str} ({component}):"
-                f" https://wiki.postmarketos.org/wiki/kconfig#CONFIG_{option}"
+                f"WARNING: {config_name}: CONFIG_{option} should {should_str} ({component})"
             )
         else:
             logging.warning(

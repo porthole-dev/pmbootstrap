@@ -26,13 +26,14 @@ class KConfigCheck(commands.Command):
     def run(self):
         # Build the components list from cli arguments (--waydroid etc.)
         components_list: list[str] = []
+        error_msg = "kconfig check failed! More info: https://postmarketos.org/kconfig"
 
         # Handle passing a file directly
         if self.file:
             if pmb.parse.kconfig.check_file(self.file, components_list, details=self.details):
                 logging.info("kconfig check succeeded!")
                 return
-            raise NonBugError("kconfig check failed!")
+            raise NonBugError(error_msg)
 
         # Default to all kernel packages
         if not self.packages:
@@ -59,7 +60,7 @@ class KConfigCheck(commands.Command):
 
         # At least one failure
         if error:
-            raise NonBugError("kconfig check failed!")
+            raise NonBugError(error_msg)
         else:
             if skipped:
                 logging.info(
