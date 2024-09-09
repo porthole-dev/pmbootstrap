@@ -477,6 +477,8 @@ def packages(
 
     cross = None
 
+    total_pkgs = len(build_queue)
+    count = 1
     for pkg in build_queue:
         chroot = pkg["chroot"]
         pkg_arch = pkg["arch"]
@@ -485,7 +487,7 @@ def packages(
         output = pkg["output_path"]
         if not log_callback:
             logging.info(
-                f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Installing dependencies"
+                f"@YELLOW@=> ({count}/{total_pkgs})@END@ @BLUE@{channel}/{pkg['name']}@END@: Installing dependencies"
             )
         else:
             log_callback(pkg)
