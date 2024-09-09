@@ -22,7 +22,7 @@ import pmb.helpers.mount
 import pmb.helpers.package
 import pmb.parse
 import pmb.parse.apkindex
-from pmb.helpers.exceptions import BuildFailedError
+from pmb.helpers.exceptions import BuildFailedError, NonBugError
 
 from .backend import run_abuild
 from .backend import BootstrapStage
@@ -373,6 +373,21 @@ def packages(
         chroot = pmb.build.autodetect.chroot(apkbuild, pkg_arch)
         cross = cross or pmb.build.autodetect.crosscompile(apkbuild, pkg_arch)
         pkgver = get_pkgver(apkbuild["pkgver"], src is None)
+        channel = pmb.config.pmaports.read_config(aports)["channel"]
+        index_data = pmb.parse.apkindex.package(name, arch, False)
+        # Make sure we aren't building a package that will never be used! This can happen if
+        # building with --src with an outdated pmaports checkout.
+        if (
+            index_data
+            and pmb.parse.version.compare(index_data["version"], f"{pkgver}-r{apkbuild['pkgrel']}")
+            == 1
+        ):
+            raise NonBugError(
+                f"A binary package for {name} has a newer version ({index_data['version']})"
+                f" than the source ({pkgver}). Please ensure your pmaports branch is up"
+                " to date and that you don't have a newer version of the package in your local"
+                f" binary repo ({context.config.work / 'packages' / channel / arch})."
+            )
         build_queue.append(
             {
                 "name": name,
@@ -383,7 +398,7 @@ def packages(
                 "output_path": output_path(
                     pkg_arch, apkbuild["pkgname"], pkgver, apkbuild["pkgrel"]
                 ),
-                "channel": pmb.config.pmaports.read_config(aports)["channel"],
+                "channel": channel,
                 "depends": depends,
                 "chroot": chroot,
                 "cross": cross,
