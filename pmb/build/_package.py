@@ -204,6 +204,7 @@ class BuildQueueItem(TypedDict):
     arch: Arch  # Arch to build for
     aports: str
     apkbuild: dict[str, Any]
+    has_binary: bool  # A binary package exists (even if outdated)
     pkgver: str
     output_path: Path
     channel: str
@@ -219,8 +220,8 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
 
     queue: list[BuildQueueItem] = []
     stuck = False
-    # (name, depends) of the last unmet dependency
-    last_unmet: tuple[str, str] | None = None
+    # (name, unmet_dep) of all unmet dependencies
+    unmet_deps: dict[str, list[str]] = {}
 
     # build our base build packages first. This relies on
     # the build_packages array being in the correct order!
@@ -237,7 +238,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
         all_pkgnames += item["apkbuild"]["subpackages"].keys()
 
     def queue_item(item: BuildQueueItem):
-        nonlocal stuck, last_unmet
+        nonlocal stuck
         queue.append(item)
         disarray.remove(item)
         all_pkgnames.remove(item["name"])
@@ -245,7 +246,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
             all_pkgnames.remove(subpkg)
 
         stuck = False
-        last_unmet = None
+        unmet_deps.pop(item["name"], None)
 
     while disarray and not stuck:
         stuck = True
@@ -255,14 +256,23 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 break
 
             # If a dependency hasn't been queued yet, skip until it has been
-            deps_are_unmet = False
+            do_continue = False
             for dep in item["depends"]:
                 if dep in all_pkgnames:
-                    last_unmet = (item["name"], dep)
-                    deps_are_unmet = True
-                    break
+                    unmet_deps.setdefault(item["name"], []).append(dep)
+                    do_continue = True
+                    if any(
+                        x in unmet_deps.get(dep, [])
+                        for x in [item["name"]] + list(item["apkbuild"]["subpackages"].keys())
+                    ):
+                        # We have a cyclical dependency between item and dep!
+                        # If a binary package exists for item, we can queue it
+                        # safely and dep will be queued on a future iteration
+                        if item["has_binary"]:
+                            queue_item(item)
+                            break
 
-            if deps_are_unmet:
+            if do_continue:
                 continue
 
             # We're probably good to go??
@@ -270,10 +280,9 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
             break
 
     if stuck:
-        assert last_unmet is not None
         # FIXME: check if binary version of last_unmet[1] exists, print a warning, and continue anyway
         # this logic will have to be lifted up into the while loop above...
-        raise NonBugError(f"Cyclical dependency: {last_unmet[0]} depends on on {last_unmet[1]}")
+        raise NonBugError(f"Cyclical dependency: {unmet_deps}")
 
     return queue
 
@@ -460,6 +469,7 @@ def packages(
                 "arch": pkg_arch,
                 "aports": aports.name,  # the pmaports source repo (e.g. "systemd")
                 "apkbuild": apkbuild,
+                "has_binary": bool(index_data),
                 "pkgver": pkgver,
                 "output_path": output_path(
                     pkg_arch, apkbuild["pkgname"], pkgver, apkbuild["pkgrel"]
