@@ -636,11 +636,6 @@ upgrade_ignore = [
 ]
 
 #
-# SIDELOAD
-#
-sideload_sudo_prompt = "[sudo] password for %u@%h: "
-
-#
 # CI
 #
 # Valid options for 'pmbootstrap ci', see https://postmarketos.org/pmb-ci
