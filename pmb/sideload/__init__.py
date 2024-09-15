@@ -15,12 +15,13 @@ import pmb.build
 from pmb.core.context import get_context
 
 
-def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
+def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str, su: str) -> None:
     """Copy the building key of the local installation to the target device,
     so it trusts the apks that were signed here.
     :param user: target device ssh username
     :param host: target device ssh hostname
-    :param port: target device ssh port"""
+    :param port: target device ssh port
+    :param su: target device su binary"""
 
     keys = list((get_context().config.work / "config_abuild").glob("*.pub"))
     key = keys[0]
@@ -33,10 +34,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
     remote_cmd_l: list[PathString] = [
-        "sudo",
-        "-p",
-        pmb.config.sideload_sudo_prompt,
-        "-S",
+        su,
         "mv",
         "-n",
         keyname,
@@ -45,6 +43,24 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
     remote_cmd = pmb.helpers.run_core.flat_cmd([remote_cmd_l])
     command = ["ssh", "-t", "-p", port, f"{user}@{host}", remote_cmd]
     pmb.helpers.run.user(command, output="tui")
+
+
+def ssh_find_su(args: PmbArgs, user: str, host: str, port: str) -> str:
+    """Connect to a device via ssh and query the su binary."""
+    logging.info(f"Querying su binary of {user}@{host}")
+    query_doas = shlex.quote("which doas || true")
+    query_sudo = shlex.quote("which sudo || true")
+    command_doas = ["ssh", "-p", port, f"{user}@{host}", f"sh -c {query_doas}"]
+    command_sudo = ["ssh", "-p", port, f"{user}@{host}", f"sh -c {query_sudo}"]
+    output_doas = pmb.helpers.run.user_output(command_doas)
+    output_sudo = pmb.helpers.run.user_output(command_sudo)
+    if output_doas != "":
+        return "doas"
+    elif output_sudo != "":
+        return "sudo"
+    else:
+        logging.error('ERROR: Failed to find supported su binary (tried "doas" and "sudo")')
+        return "error"
 
 
 def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
@@ -64,11 +80,12 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     return alpine_architecture
 
 
-def ssh_install_apks(args: PmbArgs, user, host, port, paths: list) -> None:
+def ssh_install_apks(args: PmbArgs, user, host, port, su: str, paths: list) -> None:
     """Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
+    :param su: target device su binary
     :param paths: list of absolute paths to locally stored apks
     """
 
@@ -82,10 +99,7 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths: list) -> None:
 
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd = [
-        "sudo",
-        "-p",
-        pmb.config.sideload_sudo_prompt,
-        "-S",
+        su,
         "apk",
         "--wait",
         "30",
@@ -117,6 +131,8 @@ def sideload(
     if arch is None:
         arch = ssh_find_arch(args, user, host, port)
 
+    su = ssh_find_su(args, user, host, port)
+
     context = get_context()
     to_build = []
     for pkgname in pkgnames:
@@ -136,6 +152,6 @@ def sideload(
                 raise RuntimeError(f"The package '{pkgname}' could not be built")
 
     if copy_key:
-        scp_abuild_key(args, user, host, port)
+        scp_abuild_key(args, user, host, port, su)
 
-    ssh_install_apks(args, user, host, port, paths)
+    ssh_install_apks(args, user, host, port, su, paths)
