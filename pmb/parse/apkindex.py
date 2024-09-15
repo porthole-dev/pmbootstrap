@@ -284,7 +284,9 @@ def clear_cache(path: Path):
         return False
 
 
-def providers(package, arch: Arch | None = None, must_exist=True, indexes=None):
+def providers(
+    package, arch: Arch | None = None, must_exist=True, indexes=None, user_repository=True
+):
     """
     Get all packages, which provide one package.
 
@@ -294,12 +296,13 @@ def providers(package, arch: Arch | None = None, must_exist=True, indexes=None):
                        not provided at all.
     :param indexes: list of APKINDEX.tar.gz paths, defaults to all index files
                     (depending on arch)
+    :param user_repository: add path to index of locally built packages
     :returns: list of parsed packages. Example for package="so:libGL.so.1":
         ``{"mesa-egl": block, "libhybris": block}``
         block is the return value from parse_next_block() above.
     """
     if not indexes:
-        indexes = pmb.helpers.repo.apkindex_files(arch)
+        indexes = pmb.helpers.repo.apkindex_files(arch, user_repository=user_repository)
 
     package = pmb.helpers.package.remove_operators(package)
 
@@ -381,7 +384,7 @@ def provider_shortest(providers, pkgname):
 
 
 # This can't be cached because the APKINDEX can change during pmbootstrap build!
-def package(package, arch: Arch | None = None, must_exist=True, indexes=None):
+def package(package, arch: Arch | None = None, must_exist=True, indexes=None, user_repository=True):
     """
     Get a specific package's data from an apkindex.
 
@@ -391,6 +394,7 @@ def package(package, arch: Arch | None = None, must_exist=True, indexes=None):
                        not provided at all.
     :param indexes: list of APKINDEX.tar.gz paths, defaults to all index files
                     (depending on arch)
+    :param user_repository: add path to index of locally built packages
     :returns: a dictionary with the following structure:
               { "arch": "noarch",
               "depends": ["busybox-extras", "lddtree", ... ],
@@ -400,7 +404,9 @@ def package(package, arch: Arch | None = None, must_exist=True, indexes=None):
               or None when the package was not found.
     """
     # Provider with the same package
-    package_providers = providers(package, arch, must_exist, indexes)
+    package_providers = providers(
+        package, arch, must_exist, indexes, user_repository=user_repository
+    )
     if package in package_providers:
         return package_providers[package]
 
