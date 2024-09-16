@@ -17,22 +17,16 @@ if [ -L "$CHROOT"/bin ]; then
 	exit 1
 fi
 
-# /bin -> /usr/bin
-mv "$CHROOT"/bin/* "$CHROOT"/usr/bin/
-rmdir "$CHROOT"/bin
-ln -s usr/bin "$CHROOT"/bin
+merge() {
+	local src="$1"
+	local dest="$2"
 
-# /sbin -> /usr/bin
-mv "$CHROOT"/sbin/* "$CHROOT"/usr/bin/
-rmdir "$CHROOT"/sbin
-ln -s usr/bin "$CHROOT"/sbin
+	mv "$CHROOT/$src/"* "$CHROOT/$dest/"
+	rmdir "$CHROOT/$src"
+	ln -s "/$dest" "$CHROOT/$src"
+}
 
-# /lib -> /usr/lib
-mv "$CHROOT"/lib/* "$CHROOT"/usr/lib/
-rmdir "$CHROOT"/lib
-ln -s usr/lib "$CHROOT"/lib
-
-# /usr/sbin -> /usr/bin
-mv "$CHROOT"/usr/sbin/* "$CHROOT"/usr/bin/
-rmdir "$CHROOT"/usr/sbin
-ln -s bin "$CHROOT"/usr/sbin
+merge bin usr/bin
+merge sbin usr/bin
+merge lib usr/lib
+merge usr/sbin usr/bin
