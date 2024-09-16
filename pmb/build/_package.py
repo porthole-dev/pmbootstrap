@@ -268,9 +268,16 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                         # If a binary package exists for item, we can queue it
                         # safely and dep will be queued on a future iteration
                         if item["has_binary"]:
+                            logging.warning(
+                                f"WARNING: cyclical build dependency: building {item['name']} with binary package of {dep}"
+                            )
                             queue_item(item)
                             stuck = False
                             break
+                        else:
+                            logging.warning(
+                                "WARNING: cyclical build dependency: can't build {item['name']}, no binary package for {dep}"
+                            )
 
             if do_continue:
                 continue
