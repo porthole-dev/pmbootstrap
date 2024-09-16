@@ -24,6 +24,7 @@ import pmb.parse.version
 from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.types import PathString
+from pmb.helpers.exceptions import NonBugError
 
 
 @Cache("chroot", "user_repository", mirrors_exclude=[])
@@ -89,8 +90,15 @@ def check_min_version(chroot: Chroot = Chroot.native()):
         )
         return
 
+    installed_pkgs = installed(chroot)
+
+    if "apk-tools" not in installed_pkgs:
+        raise NonBugError(
+            "ERROR: could not find apk-tools in chroot, run 'pmbootstrap zap' and try again"
+        )
+
     # Compare
-    version_installed = installed(chroot)["apk-tools"]["version"]
+    version_installed = installed_pkgs["apk-tools"]["version"]
     pmb.helpers.apk.check_outdated(
         version_installed,
         "Delete your http cache and zap all chroots, then try again:" " 'pmbootstrap zap -hc'",
