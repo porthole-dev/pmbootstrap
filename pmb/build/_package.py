@@ -255,11 +255,11 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 break
 
             # If a dependency hasn't been queued yet, skip until it has been
-            do_continue = False
+            missing_deps = False
             for dep in item["depends"]:
                 if dep in all_pkgnames:
                     unmet_deps.setdefault(item["name"], []).append(dep)
-                    do_continue = True
+                    missing_deps = True
                     if any(
                         x in unmet_deps.get(dep, [])
                         for x in [item["name"]] + list(item["apkbuild"]["subpackages"].keys())
@@ -279,7 +279,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                                 "WARNING: cyclical build dependency: can't build {item['name']}, no binary package for {dep}"
                             )
 
-            if do_continue:
+            if missing_deps:
                 continue
 
             # We're probably good to go??
