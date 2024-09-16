@@ -219,7 +219,6 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
     """
 
     queue: list[BuildQueueItem] = []
-    stuck = False
     # (name, unmet_dep) of all unmet dependencies
     unmet_deps: dict[str, list[str]] = {}
 
@@ -238,21 +237,21 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
         all_pkgnames += item["apkbuild"]["subpackages"].keys()
 
     def queue_item(item: BuildQueueItem):
-        nonlocal stuck
         queue.append(item)
         disarray.remove(item)
         all_pkgnames.remove(item["name"])
         for subpkg in item["apkbuild"]["subpackages"].keys():
             all_pkgnames.remove(subpkg)
 
-        stuck = False
         unmet_deps.pop(item["name"], None)
 
+    stuck = False
     while disarray and not stuck:
         stuck = True
         for item in disarray:
             if not item["depends"]:
                 queue_item(item)
+                stuck = False
                 break
 
             # If a dependency hasn't been queued yet, skip until it has been
@@ -270,6 +269,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                         # safely and dep will be queued on a future iteration
                         if item["has_binary"]:
                             queue_item(item)
+                            stuck = False
                             break
 
             if do_continue:
@@ -277,6 +277,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
 
             # We're probably good to go??
             queue_item(item)
+            stuck = False
             break
 
     if stuck:
