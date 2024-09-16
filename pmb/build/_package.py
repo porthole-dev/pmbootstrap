@@ -267,6 +267,10 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
             # If a dependency hasn't been queued yet, skip until it has been
             missing_deps = False
             for dep in item["depends"]:
+                # This might be a subpkgname, replace with the main pkgname
+                # (e.g."linux-pam-dev" -> "linux-pam")
+                dep = pmb.helpers.package.get(dep, item["arch"])["pkgname"]
+
                 if dep in all_pkgnames:
                     unmet_deps.setdefault(item["name"], []).append(dep)
                     missing_deps = True
