@@ -17,12 +17,41 @@ if [ -L "$CHROOT"/bin ]; then
 	exit 1
 fi
 
+dir_is_empty() {
+	local dir="$1"
+	local i
+
+	for i in "$dir"/*; do
+		if [ "$i" = "$dir/*" ]; then
+			return 0
+		else
+			return 1
+		fi
+	done
+}
+
 merge() {
 	local src="$1"
 	local dest="$2"
+	local dir
 
-	mv "$CHROOT/$src/"* "$CHROOT/$dest/"
-	rmdir "$CHROOT/$src"
+	cd "$CHROOT/$src"
+
+	for dir in $(find . -type d | sort -r); do
+		mkdir -p "$CHROOT/$dest/$dir"
+
+		if ! dir_is_empty "$dir"; then
+			mv "$dir"/* "$CHROOT/$dest/$dir"
+		fi
+
+		if [ "$dir" != "." ]; then
+			rmdir "$dir"
+		fi
+	done
+
+	cd "$CHROOT"
+	rmdir "$src"
+
 	ln -s "/$dest" "$CHROOT/$src"
 }
 
