@@ -39,8 +39,18 @@ def get(
 ) -> dict[str, Any] | None: ...
 
 
-@Cache("pkgname", "arch", "replace_subpkgnames")
-def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
+@overload
+def get(
+    pkgname: str,
+    arch: Arch,
+    replace_subpkgnames: bool = False,
+    must_exist: bool = True,
+    try_other_arches: bool = True,
+) -> dict[str, Any] | None: ...
+
+
+@Cache("pkgname", "arch", "replace_subpkgnames", "try_other_arches")
+def get(pkgname, arch, replace_subpkgnames=False, must_exist=True, try_other_arches=True):
     """Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
 
     :param pkgname: package name (e.g. "hello-world")
@@ -51,6 +61,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
     :param replace_subpkgnames: replace all subpkgnames with their main pkgnames in the depends
         (see #1733)
     :param must_exist: raise an exception, if not found
+    :param try_other_arches: set to False to not attempt to find other arches
 
     :returns: * data from the parsed APKBUILD or APKINDEX in the following format:
                     {"arch": ["noarch"], "depends": ["busybox-extras", "lddtree", ...],
@@ -83,7 +94,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True):
             ret = ret_repo
 
     # Find in APKINDEX (other arches)
-    if not ret:
+    if not ret and try_other_arches:
         pmb.helpers.repo.update()
         for arch_i in Arch.supported():
             if arch_i != arch:

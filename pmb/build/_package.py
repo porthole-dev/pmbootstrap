@@ -269,7 +269,12 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
             for dep in item["depends"]:
                 # This might be a subpkgname, replace with the main pkgname
                 # (e.g."linux-pam-dev" -> "linux-pam")
-                dep = pmb.helpers.package.get(dep, item["arch"])["pkgname"]
+                dep_data = pmb.helpers.package.get(
+                    dep, item["arch"], must_exist=False, try_other_arches=False
+                )
+                if not dep_data:
+                    raise NonBugError(f"{item['name']}: dependency not found: {dep}")
+                dep = dep_data["pkgname"]
 
                 if dep in all_pkgnames:
                     unmet_deps.setdefault(item["name"], []).append(dep)
