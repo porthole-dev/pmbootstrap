@@ -213,6 +213,16 @@ class BuildQueueItem(TypedDict):
     chroot: Chroot
 
 
+def has_cyclical_dependency(unmet_deps: dict[str, list[str]], item: BuildQueueItem, dep: str):
+    pkgnames = [item["name"]] + list(item["apkbuild"]["subpackages"].keys())
+
+    for pkgname in pkgnames:
+        if pkgname in unmet_deps.get(dep, []):
+            return True
+
+    return False
+
+
 def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueItem]:
     """
     Figure out The Correct Order to build packages in, or bail.
@@ -260,11 +270,8 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 if dep in all_pkgnames:
                     unmet_deps.setdefault(item["name"], []).append(dep)
                     missing_deps = True
-                    if any(
-                        x in unmet_deps.get(dep, [])
-                        for x in [item["name"]] + list(item["apkbuild"]["subpackages"].keys())
-                    ):
-                        # We have a cyclical dependency between item and dep!
+
+                    if has_cyclical_dependency(unmet_deps, item, dep):
                         # If a binary package exists for item, we can queue it
                         # safely and dep will be queued on a future iteration
                         if item["has_binary"]:
