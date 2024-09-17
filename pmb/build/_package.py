@@ -581,8 +581,9 @@ def packages(
     cross = None
 
     total_pkgs = len(build_queue)
-    count = 1
+    count = 0
     for pkg in build_queue:
+        count += 1
         chroot = pkg["chroot"]
         pkg_arch = pkg["arch"]
 
