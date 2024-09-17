@@ -308,8 +308,6 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
             break
 
     if stuck:
-        # FIXME: check if binary version of last_unmet[1] exists, print a warning, and continue anyway
-        # this logic will have to be lifted up into the while loop above...
         logging.error("Remaining packages:")
         for unmet_dep in unmet_deps:
             logging.error(f"* {unmet_dep}")
