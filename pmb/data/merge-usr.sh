@@ -52,10 +52,10 @@ merge() {
 	cd "$CHROOT"
 	rmdir "$src"
 
-	ln -s "/$dest" "$CHROOT/$src"
+	ln -s "$dest" "$CHROOT/$src"
 }
 
 merge bin usr/bin
 merge sbin usr/bin
 merge lib usr/lib
-merge usr/sbin usr/bin
+merge usr/sbin bin
