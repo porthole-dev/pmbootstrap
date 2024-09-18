@@ -292,7 +292,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                             break
                         else:
                             logging.warning(
-                                "WARNING: cyclical build dependency: can't build {item['name']}, no binary package for {dep}"
+                                f"WARNING: cyclical build dependency: can't build {item['name']}, no binary package for {dep}"
                             )
                     else:
                         logging.debug(
