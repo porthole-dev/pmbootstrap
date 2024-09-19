@@ -396,7 +396,7 @@ def install(args: PmbArgs) -> None:
         config.build_pkgs_on_install = False
 
         # Safest way to avoid installing local packages is having none
-        if (config.work / "packages").glob("*"):
+        if list((config.work / "packages").glob("*")):
             raise ValueError(
                 "--no-local-pkgs specified, but locally built"
                 " packages found. Consider 'pmbootstrap zap -p'"
