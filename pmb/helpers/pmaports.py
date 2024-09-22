@@ -275,12 +275,16 @@ def get_repo(pkgname) -> str | None:
     """Get the repository folder of an aport.
 
     :pkgname: package name
-    :returns: a string like "main", "device", "cross", ...
-                  or None when the aport could not be found
+    :returns: * None if pkgname is not in extra-repos/
+              * "systemd" if the pkgname is in extra-repos/systemd/
     """
     aport: Path
     aport = find(pkgname)
-    return aport.parent.name
+
+    if aport.parent.parent.name == "extra-repos":
+        return aport.parent.name
+
+    return None
 
 
 def check_arches(arches, arch: Arch):
