@@ -108,7 +108,7 @@ def generate_output_format(arch, pkgnames):
     """
     ret = []
     for pkgname in pkgnames:
-        entry = pmb.helpers.package.get(pkgname, arch, True)
+        entry = pmb.helpers.package.get(pkgname, arch, True, try_other_arches=False)
         ret += [
             {
                 "pkgname": entry["pkgname"],
