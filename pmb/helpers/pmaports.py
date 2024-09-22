@@ -271,22 +271,15 @@ def find_providers(provide):
     return sorted(providers.items(), reverse=True, key=lambda p: p[1].get("provider_priority", 0))
 
 
-# FIXME (#2324): split into an _optional variant or drop must_exist
-def get_repo(pkgname, must_exist=True) -> str | None:
+def get_repo(pkgname) -> str | None:
     """Get the repository folder of an aport.
 
     :pkgname: package name
-    :must_exist: raise an exception when it can't be found
     :returns: a string like "main", "device", "cross", ...
                   or None when the aport could not be found
     """
-    aport: Path | None
-    if must_exist:
-        aport = find(pkgname)
-    else:
-        aport = find_optional(pkgname)
-    if not aport:
-        return None
+    aport: Path
+    aport = find(pkgname)
     return aport.parent.name
 
 
