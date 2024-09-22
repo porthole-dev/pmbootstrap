@@ -115,7 +115,7 @@ def get(pkgname, arch, replace_subpkgnames=False, must_exist=True, try_other_arc
     if replace_subpkgnames:
         depends_new = []
         for depend in ret["depends"]:
-            depend_data = get(depend, arch, must_exist=False)
+            depend_data = get(depend, arch, must_exist=False, try_other_arches=try_other_arches)
             if not depend_data:
                 logging.warning(f"WARNING: {pkgname}: failed to resolve" f" dependency '{depend}'")
                 # Can't replace potential subpkgname
