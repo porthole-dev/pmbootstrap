@@ -737,20 +737,21 @@ def arguments_repo_bootstrap(subparser: argparse._SubParsersAction) -> argparse.
 
 
 def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
-    ret = subparser.add_parser("repo_missing")
-    package = ret.add_argument(
-        "package", nargs="?", help="only look at a specific package and its dependencies"
+    ret = subparser.add_parser(
+        "repo_missing",
+        help="list all packages + depends from pmaports for building the repository (used by bpo)",
     )
-    if "argcomplete" in sys.modules:
-        package.completer = package_completer
     ret.add_argument(
         "--arch", choices=Arch.supported(), default=Arch.native(), type=lambda x: Arch.from_str(x)
     )
+    # Deprecated argument that is currently kept so pmbootstrap can be called
+    # the same way for repo_missing by bpo with pmbv2 and pmbv3. Once we drop
+    # support for pmbv2 in bpo (can do that after v24.06 is EOL), we can adjust
+    # bpo to not use --built and remove this parameter from pmbootstrap.
     ret.add_argument(
-        "--built", action="store_true", help="include packages which exist in the binary repos"
-    )
-    ret.add_argument(
-        "--overview", action="store_true", help="only print the pkgnames without any details"
+        "--built",
+        action="store_true",
+        help=argparse.SUPPRESS,
     )
     return ret
 

@@ -285,9 +285,13 @@ def config(args: PmbArgs) -> None:
 
 
 def repo_missing(args: PmbArgs) -> None:
-    if args.arch is None or isinstance(args.package, list):
+    if args.arch is None:
         raise AssertionError
-    missing = pmb.helpers.repo_missing.generate(args.arch, args.overview, args.package, args.built)
+    if args.built:
+        logging.warning(
+            "WARNING: --built is deprecated (bpo#148: this warning is expected on build.postmarketos.org for now)"
+        )
+    missing = pmb.helpers.repo_missing.generate(args.arch)
     print(json.dumps(missing, indent=4))
 
 
