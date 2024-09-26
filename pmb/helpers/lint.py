@@ -5,6 +5,7 @@ from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs, pkgrepo_names, pkgrepo_relative_path
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.toml import load_toml_file
 import os
 
 import pmb.chroot
@@ -12,6 +13,33 @@ import pmb.chroot.apk
 import pmb.build
 import pmb.helpers.run
 import pmb.helpers.pmaports
+
+
+def get_custom_valid_options() -> list[str]:
+    """Build a list of custom valid APKBUILD options that apkbuild-lint should
+    not complain about. The list consists of hardcoded options from
+    pmb.config.apkbuild_custom_valid_options like pmb:gpu-accel, as well as
+    dynamically generated options from kconfigcheck.toml
+    (pmb:kconfigcheck-libcamera etc.)."""
+    ret = list(pmb.config.apkbuild_custom_valid_options)
+
+    # Load kconfigcheck.toml from current branch
+    kconfigcheck_toml = load_toml_file(pmb.parse.kconfigcheck.get_path())
+    pmb.parse.kconfigcheck.sanity_check(kconfigcheck_toml)
+
+    # Add options like "pmb:kconfigcheck-libcamera"
+    for section in kconfigcheck_toml.keys():
+        if not section.startswith("category:"):
+            continue
+        # section looks like: "category:input.>=0.0.0.all"
+        category = section.split(".")[0].replace("category:", "", 1)
+        ret += [f"pmb:kconfigcheck-{category}"]
+
+    # Add aliases like "pmb:kconfigcheck-community"
+    for alias in kconfigcheck_toml["aliases"].keys():
+        ret += [f"pmb:kconfigcheck-{alias}"]
+
+    return ret
 
 
 # FIXME: dest_paths[repo], repo expected to be a Literal.
@@ -55,7 +83,6 @@ def check(pkgnames: Sequence[str]):
     # each violation.
     pkgstr = ", ".join(pkgnames)
     logging.info(f"(native) linting {pkgstr} with apkbuild-lint")
-    options = pmb.config.apkbuild_custom_valid_options
 
     # apkbuild-lint output is not colorized, make it easier to spot
     logging.info("*** apkbuild-lint output ***")
@@ -68,7 +95,7 @@ def check(pkgnames: Sequence[str]):
             check=False,
             output="stdout",
             working_dir=dest_paths[repo.name],
-            env={"CUSTOM_VALID_OPTIONS": " ".join(options)},
+            env={"CUSTOM_VALID_OPTIONS": " ".join(get_custom_valid_options())},
         ):
             has_failed = True
 

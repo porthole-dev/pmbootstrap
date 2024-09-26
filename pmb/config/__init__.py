@@ -283,17 +283,12 @@ apkbuild_attributes = {
 }
 
 # Reference: https://postmarketos.org/apkbuild-options
+# In addition to these, pmbootstrap adds "pmb:kconfigcheck-community" etc.
+# dynamically based on kconfigcheck.toml in the currently checked out pmaports
+# branch
 apkbuild_custom_valid_options = [
     "!pmb:crossdirect",
     "!pmb:kconfigcheck",
-    "pmb:kconfigcheck-community",
-    "pmb:kconfigcheck-containers",
-    "pmb:kconfigcheck-iwd",
-    "pmb:kconfigcheck-netboot",
-    "pmb:kconfigcheck-nftables",
-    "pmb:kconfigcheck-uefi",
-    "pmb:kconfigcheck-waydroid",
-    "pmb:kconfigcheck-zram",
     "pmb:cross-native",
     "pmb:gpu-accel",
     "pmb:strict",
