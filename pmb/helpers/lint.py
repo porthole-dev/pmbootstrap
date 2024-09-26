@@ -60,7 +60,7 @@ def check(pkgnames: Sequence[str]):
     # For each pkgrepo run the linter on the relevant packages
     has_failed = False
     for pkgrepo, apkbuild_paths in apkbuilds.items():
-        if pmb.chroot.root(
+        if pmb.chroot.user(
             ["apkbuild-lint"] + apkbuild_paths,
             check=False,
             output="stdout",
