@@ -57,6 +57,9 @@ def check(pkgnames: Sequence[str]):
     logging.info(f"(native) linting {pkgstr} with apkbuild-lint")
     options = pmb.config.apkbuild_custom_valid_options
 
+    # apkbuild-lint output is not colorized, make it easier to spot
+    logging.info("*** apkbuild-lint output ***")
+
     # For each pkgrepo run the linter on the relevant packages
     has_failed = False
     for pkgrepo, apkbuild_paths in apkbuilds.items():
@@ -68,6 +71,8 @@ def check(pkgnames: Sequence[str]):
             env={"CUSTOM_VALID_OPTIONS": " ".join(options)},
         ):
             has_failed = True
+
+    logging.info("*** apkbuild-lint output ***")
 
     if has_failed:
         raise NonBugError("Linter failed!")
