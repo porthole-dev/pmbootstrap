@@ -26,6 +26,7 @@ def get_ci_scripts(topdir):
         is_pmb_ci_script = False
         description = ""
         options = []
+        artifacts = None
 
         with open(script) as handle:
             for line in handle:
@@ -35,6 +36,8 @@ def get_ci_scripts(topdir):
                     description = line.split(": ", 1)[1].rstrip()
                 elif line.startswith("# Options: "):
                     options = line.split(": ", 1)[1].rstrip().split(" ")
+                elif line.startswith("# Artifacts: "):
+                    artifacts = line.split(": ", 1)[1].strip()
                 elif not line.startswith("#"):
                     # Stop parsing after the block of comments on top
                     break
@@ -54,7 +57,7 @@ def get_ci_scripts(topdir):
                 )
 
         short_name = os.path.basename(script).split(".", -1)[0]
-        ret[short_name] = {"description": description, "options": options}
+        ret[short_name] = {"description": description, "options": options, "artifacts": artifacts}
     return ret
 
 
@@ -180,3 +183,11 @@ def run_scripts(topdir, scripts):
         if rc:
             logging.error(f"ERROR: CI script failed: {script_name}")
             exit(1)
+
+        if script["artifacts"]:
+            logging.info(f"Copy CI artifacts to ./ci-artifacts/{script_name}")
+            path = Chroot.native().path / "home/pmos/ci" / script["artifacts"]
+            target = topdir / "ci-artifacts" / script_name
+            pmb.helpers.run.user(["rm", "-rf", target])
+            pmb.helpers.run.user(["mkdir", "-p", target])
+            pmb.helpers.run.user(["cp", "-r", path, target])
