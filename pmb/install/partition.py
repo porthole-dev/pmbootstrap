@@ -8,6 +8,7 @@ import pmb.chroot
 import pmb.config
 import pmb.install.losetup
 from pmb.core import Chroot
+import pmb.core.dps
 
 
 # FIXME (#2324): this function drops disk to a string because it's easier
@@ -91,7 +92,7 @@ def partition(layout, size_boot, size_reserve):
     # will stop there (see #463).
     boot_part_start = pmb.parse.deviceinfo().boot_part_start or "2048"
 
-    partition_type = pmb.parse.deviceinfo().partition_type or "msdos"
+    partition_type = pmb.parse.deviceinfo().partition_type or "gpt"
 
     commands = [
         ["mktable", partition_type],
@@ -102,19 +103,20 @@ def partition(layout, size_boot, size_reserve):
         mb_reserved_end = f"{round(size_reserve + size_boot)}M"
         commands += [["mkpart", "primary", mb_boot, mb_reserved_end]]
 
+    arch = str(pmb.parse.deviceinfo().arch)
+
     commands += [
         ["mkpart", "primary", mb_root_start, "100%"],
-        ["set", str(layout["boot"]), "boot", "on"],
+        ["type", str(layout["root"]), pmb.core.dps.root[arch][1]],
+        # esp is an alias for boot on GPT
+        # setting this should be fine for msdos since we set boot later
+        ["set", str(layout["boot"]), "esp", "on"],
+        ["type", str(layout["boot"]), pmb.core.dps.boot["esp"][1]],
     ]
 
-    # Not strictly necessary if the device doesn't use EFI boot, but marking
-    # it as an ESP will cover all situations where the device does use EFI
-    # boot. Marking it as ESP is helpful for EFI fw when it's looking for EFI
-    # system partitions. It's assumed that setting this bit is unlikely to
-    # cause problems for other situations, like when using Legacy BIOS boot
-    # or u-boot.
-    if partition_type.lower() == "gpt":
-        commands += [["set", str(layout["boot"]), "esp", "on"]]
+    # Some devices still use MBR and will not work with only esp set
+    if partition_type.lower() == "msdos":
+        commands += [["set", str(layout["boot"]), "boot", "on"]]
 
     for command in commands:
         pmb.chroot.root(["parted", "-s", "/dev/install"] + command, check=False)
@@ -123,7 +125,8 @@ def partition(layout, size_boot, size_reserve):
 def partition_cgpt(layout, size_boot, size_reserve):
     """
     This function does similar functionality to partition(), but this
-    one is for ChromeOS devices which use special GPT.
+    one is for ChromeOS devices which use special GPT. We don't follow
+    the Discoverable Partitions Specification here for that exact reason.
 
     :param layout: partition layout from get_partition_layout()
     :param size_boot: size of the boot partition in MiB
