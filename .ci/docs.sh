@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # Description: create documentation with sphinx
-# Options: native
+# Artifacts: public/
 # https://postmarketos.org/pmb-ci
 
 
