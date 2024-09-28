@@ -22,7 +22,7 @@ re_branch_aports = re.compile(r"^\d+\.\d\d+-stable$")
 re_branch_pmaports = re.compile(r"^v\d\d\.\d\d$")
 
 
-def get_path(name_repo: str):
+def get_path(name_repo: str) -> Path:
     """Get the path to the repository.
 
     The path is either the default one in the work dir, or a user-specified one in args.
@@ -34,7 +34,7 @@ def get_path(name_repo: str):
     return pkgrepo_path(name_repo)
 
 
-def clone(name_repo: str):
+def clone(name_repo: str) -> None:
     """Clone a git repository to $WORK/cache_git/$name_repo.
 
     (or to the overridden path set in args, as with ``pmbootstrap --aports``).
@@ -51,7 +51,7 @@ def clone(name_repo: str):
         # Build git command
         url = pmb.config.git_repos[name_repo][0]
         command = ["git", "clone"]
-        command += [url, path]
+        command += [url, str(path)]
 
         # Create parent dir and clone
         logging.info(f"Clone git repository: {url}")
@@ -65,7 +65,7 @@ def clone(name_repo: str):
         open(fetch_head, "w").close()
 
 
-def rev_parse(path: Path, revision="HEAD", extra_args: list = []):
+def rev_parse(path: Path, revision="HEAD", extra_args: list = []) -> str:
     """Run "git rev-parse" in a specific repository dir.
 
     :param path: to the git repository
@@ -79,7 +79,7 @@ def rev_parse(path: Path, revision="HEAD", extra_args: list = []):
     return rev.rstrip()
 
 
-def can_fast_forward(path, branch_upstream, branch="HEAD"):
+def can_fast_forward(path, branch_upstream, branch="HEAD") -> bool:
     command = ["git", "merge-base", "--is-ancestor", branch, branch_upstream]
     ret = pmb.helpers.run.user(command, path, check=False)
     if ret == 0:
@@ -90,7 +90,7 @@ def can_fast_forward(path, branch_upstream, branch="HEAD"):
         raise RuntimeError("Unexpected exit code from git: " + str(ret))
 
 
-def clean_worktree(path: Path):
+def clean_worktree(path: Path) -> bool:
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
     return pmb.helpers.run.user_output(command, path) == ""
@@ -102,7 +102,7 @@ def list_remotes(aports: Path) -> list[str]:
     return output.splitlines()
 
 
-def get_upstream_remote(aports: Path):
+def get_upstream_remote(aports: Path) -> str:
     """Find the remote, which matches the git URL from the config.
 
     Usually "origin", but the user may have set up their git repository differently.
@@ -195,7 +195,7 @@ def migrate_upstream_remote() -> None:
 
 
 @Cache("aports")
-def parse_channels_cfg(aports: Path):
+def parse_channels_cfg(aports: Path) -> dict:
     """Parse channels.cfg from pmaports.git, origin/master branch.
 
     Reference: https://postmarketos.org/channels.cfg
@@ -244,7 +244,7 @@ def parse_channels_cfg(aports: Path):
     return ret
 
 
-def branch_looks_official(repo: Path, branch):
+def branch_looks_official(repo: Path, branch) -> bool:
     """Check if a given branch follows the patterns of official branches in
        pmaports or aports.
 
@@ -261,7 +261,7 @@ def branch_looks_official(repo: Path, branch):
     return False
 
 
-def pull(repo_name: str):
+def pull(repo_name: str) -> int:
     """Check if on official branch and essentially try ``git pull --ff-only``.
 
     Instead of really doing ``git pull --ff-only``, do it in multiple steps
@@ -331,7 +331,7 @@ def pull(repo_name: str):
     return 0
 
 
-def get_topdir(repo: Path):
+def get_topdir(repo: Path) -> str:
     """Get top-dir of git repo.
 
     :returns: a string with the top dir of the git repository,
