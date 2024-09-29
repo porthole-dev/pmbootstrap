@@ -123,7 +123,7 @@ def auto_apkindex_package(arch, aport, apk, dry: bool = False) -> bool:
     return False
 
 
-def auto(dry=False) -> list[str]:
+def auto(dry: bool = False) -> list[str]:
     """:returns: list of aport names, where the pkgrel needed to be changed"""
     ret = []
     for arch in Arch.supported():
@@ -132,11 +132,19 @@ def auto(dry=False) -> list[str]:
             logging.info(f"scan {path}")
             index = pmb.parse.apkindex.parse(path, False)
             for pkgname, apk in index.items():
-                origin = apk["origin"]
+                if isinstance(apk, dict):
+                    raise AssertionError("pmb.parse.apkindex.parse returned an illegal structure")
+
+                origin = apk.origin
                 # Only increase once!
                 if origin in ret:
                     logging.verbose(f"{pkgname}: origin '{origin}' found again")
                     continue
+
+                if origin is None:
+                    logging.warning(f"{pkgname}: skipping, is a virtual package")
+                    continue
+
                 aport_path = pmb.helpers.pmaports.find_optional(origin)
                 if not aport_path:
                     logging.warning(f"{pkgname}: origin '{origin}' aport not found")

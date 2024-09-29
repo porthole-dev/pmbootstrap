@@ -116,7 +116,7 @@ def zap(
         logging.info("Dry run: nothing has been deleted")
 
 
-def zap_pkgs_local_mismatch(confirm=True, dry=False):
+def zap_pkgs_local_mismatch(confirm: bool = True, dry: bool = False) -> None:
     channel = pmb.config.pmaports.read_config()["channel"]
     if not os.path.exists(f"{get_context().config.work}/packages/{channel}"):
         return
@@ -135,10 +135,10 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
         # Delete packages without same version in aports
         blocks = pmb.parse.apkindex.parse_blocks(apkindex_path)
         for block in blocks:
-            pkgname = block["pkgname"]
-            origin = block["origin"]
-            version = block["version"]
-            arch = block["arch"]
+            pkgname = block.pkgname
+            origin = block.origin
+            version = block.version
+            arch = block.arch
 
             # Apk path
             apk_path_short = f"{arch}/{pkgname}-{version}.apk"
@@ -146,6 +146,9 @@ def zap_pkgs_local_mismatch(confirm=True, dry=False):
             if not os.path.exists(apk_path):
                 logging.info("WARNING: Package mentioned in index not" f" found: {apk_path_short}")
                 continue
+
+            if origin is None:
+                raise RuntimeError("Can't handle virtual packages")
 
             # Aport path
             aport_path = pmb.helpers.pmaports.find_optional(origin)

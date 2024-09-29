@@ -215,7 +215,7 @@ def find_optional(package: str) -> Path | None:
 # The only caller with subpackages=False is ui.check_option()
 @Cache("pkgname", subpackages=True)
 def get_with_path(
-    pkgname, must_exist=True, subpackages=True, skip_extra_repos=False
+    pkgname: str, must_exist: bool = True, subpackages: bool = True, skip_extra_repos: bool = False
 ) -> tuple[Path | None, dict[str, Any] | None]:
     """Find and parse an APKBUILD file.
 

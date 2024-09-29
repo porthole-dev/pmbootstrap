@@ -1,8 +1,9 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
-from typing import Any
+from typing import cast, overload, Any, Literal
 from collections.abc import Sequence
+from pmb.core.apkindex_block import ApkindexBlock
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -27,7 +28,7 @@ apkindex_map = {
 required_apkindex_keys = ["arch", "pkgname", "version"]
 
 
-def parse_next_block(path: Path, lines: list[str]):
+def parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
     """Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
@@ -35,18 +36,7 @@ def parse_next_block(path: Path, lines: list[str]):
                   function. Wrapped into a list, so it can be modified
                   "by reference". Example: [5]
     :param lines: all lines from the "APKINDEX" file inside the archive
-    :returns: dictionary with the following structure:
-              ``{ "arch": "noarch", "depends": ["busybox-extras", "lddtree", ... ],
-              "origin": "postmarketos-mkinitfs",
-              "pkgname": "postmarketos-mkinitfs",
-              "provides": ["mkinitfs=0.0.1"],
-              "timestamp": "1500000000",
-              "version": "0.0.4-r10" }``
-
-              NOTE: "depends" is not set for packages without any dependencies, e.g. ``musl``.
-
-              NOTE: "timestamp" and "origin" are not set for virtual packages (#1273).
-              We use that information to skip these virtual packages in parse().
+    :returns: ApkindexBlock
     :returns: None, when there are no more blocks
     """
     # Parse until we hit an empty line or end of file
@@ -101,10 +91,42 @@ def parse_next_block(path: Path, lines: list[str]):
                 ret[key].append(value)
         else:
             ret[key] = []
-    return ret
+    return ApkindexBlock(
+        arch=Arch.from_str(ret["arch"]),
+        depends=ret["depends"],
+        origin=ret["origin"],
+        pkgname=ret["pkgname"],
+        provides=ret["provides"],
+        provider_priority=ret.get("provider_priority"),
+        timestamp=ret["timestamp"],
+        version=ret["version"],
+    )
 
 
-def parse_add_block(ret, block, alias=None, multiple_providers=True):
+@overload
+def parse_add_block(
+    ret: dict[str, ApkindexBlock],
+    block: ApkindexBlock,
+    alias: str | None = ...,
+    multiple_providers: bool = ...,  # FIXME: Type should be Literal[False], but mypy complains?
+) -> None: ...
+
+
+@overload
+def parse_add_block(
+    ret: dict[str, dict[str, ApkindexBlock]],
+    block: ApkindexBlock,
+    alias: str | None = ...,
+    multiple_providers: Literal[True] = ...,
+) -> None: ...
+
+
+def parse_add_block(
+    ret: dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]],
+    block: ApkindexBlock,
+    alias: str | None = None,
+    multiple_providers: bool = True,
+) -> None:
     """Add one block to the return dictionary of parse().
 
     :param ret: dictionary of all packages in the APKINDEX that is
@@ -118,33 +140,58 @@ def parse_add_block(ret, block, alias=None, multiple_providers=True):
                                not when parsing apk's installed packages DB.
     """
     # Defaults
-    pkgname = block["pkgname"]
+    pkgname = block.pkgname
     alias = alias or pkgname
 
     # Get an existing block with the same alias
     block_old = None
-    if multiple_providers and alias in ret and pkgname in ret[alias]:
-        block_old = ret[alias][pkgname]
-    elif not multiple_providers and alias in ret:
-        block_old = ret[alias]
+    if multiple_providers:
+        ret = cast(dict[str, dict[str, ApkindexBlock]], ret)
+        if alias in ret and pkgname in ret[alias]:
+            picked_aliases = ret[alias]
+            if not isinstance(picked_aliases, dict):
+                raise AssertionError
+            block_old = picked_aliases[pkgname]
+    elif not multiple_providers:
+        if alias in ret:
+            ret = cast(dict[str, ApkindexBlock], ret)
+            picked_alias = ret[alias]
+            if not isinstance(picked_alias, ApkindexBlock):
+                raise AssertionError
+            block_old = picked_alias
 
     # Ignore the block, if the block we already have has a higher version
     if block_old:
-        version_old = block_old["version"]
-        version_new = block["version"]
+        version_old = block_old.version
+        version_new = block.version
         if pmb.parse.version.compare(version_old, version_new) == 1:
             return
 
     # Add it to the result set
     if multiple_providers:
+        ret = cast(dict[str, dict[str, ApkindexBlock]], ret)
         if alias not in ret:
             ret[alias] = {}
-        ret[alias][pkgname] = block
+        picked_aliases = cast(dict[str, ApkindexBlock], ret[alias])
+        picked_aliases[pkgname] = block
     else:
+        ret = cast(dict[str, ApkindexBlock], ret)
         ret[alias] = block
 
 
-def parse(path: Path, multiple_providers=True):
+@overload
+def parse(path: Path, multiple_providers: Literal[False] = ...) -> dict[str, ApkindexBlock]: ...
+
+
+@overload
+def parse(
+    path: Path, multiple_providers: Literal[True] = ...
+) -> dict[str, dict[str, ApkindexBlock]]: ...
+
+
+def parse(
+    path: Path, multiple_providers: bool = True
+) -> dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]]:
     r"""Parse an APKINDEX.tar.gz file, and return its content as dictionary.
 
     :param path: path to an APKINDEX.tar.gz file or apk package database
@@ -156,18 +203,18 @@ def parse(path: Path, multiple_providers=True):
     :returns: (without multiple_providers)
 
     Generic format:
-        ``{ pkgname: block, ... }``
+        ``{ pkgname: ApkindexBlock, ... }``
 
     Example:
-        ``{ "postmarketos-mkinitfs": block, "so:libGL.so.1": block, ...}``
+        ``{ "postmarketos-mkinitfs": ApkindexBlock, "so:libGL.so.1": ApkindexBlock, ...}``
 
     :returns: (with multiple_providers)
 
     Generic format:
-        ``{ provide: { pkgname: block, ... }, ... }``
+        ``{ provide: { pkgname: ApkindexBlock, ... }, ... }``
 
     Example:
-        ``{ "postmarketos-mkinitfs": {"postmarketos-mkinitfs": block},"so:libGL.so.1": {"mesa-egl": block, "libhybris": block}, ...}``
+        ``{ "postmarketos-mkinitfs": {"postmarketos-mkinitfs": ApkindexBlock},"so:libGL.so.1": {"mesa-egl": ApkindexBlock, "libhybris": ApkindexBlock}, ...}``
 
     *NOTE:* ``block`` is the return value from ``parse_next_block()`` above.
 
@@ -208,7 +255,7 @@ def parse(path: Path, multiple_providers=True):
         return {}
 
     # Parse the whole APKINDEX file
-    ret: dict[str, Any] = collections.OrderedDict()
+    ret: dict[str, ApkindexBlock] = collections.OrderedDict()
     if lines[-1] == "\n":
         lines.pop()  # Strip the trailing newline
     while True:
@@ -217,14 +264,14 @@ def parse(path: Path, multiple_providers=True):
             break
 
         # Skip virtual packages
-        if "timestamp" not in block:
+        if block.timestamp is None:
             logging.verbose(f"Skipped virtual package {block} in" f" file: {path}")
             continue
 
         # Add the next package and all aliases
         parse_add_block(ret, block, None, multiple_providers)
-        if "provides" in block:
-            for alias in block["provides"]:
+        if block.provides is not None:
+            for alias in block.provides:
                 parse_add_block(ret, block, alias, multiple_providers)
 
     # Update the cache
@@ -235,17 +282,14 @@ def parse(path: Path, multiple_providers=True):
     return ret
 
 
-def parse_blocks(path: Path):
+def parse_blocks(path: Path) -> list[ApkindexBlock]:
     """
     Read all blocks from an APKINDEX.tar.gz into a list.
 
     :path: full path to the APKINDEX.tar.gz file.
     :returns: all blocks in the APKINDEX, without restructuring them by
               pkgname or removing duplicates with lower versions (use
-              parse() if you need these features). Structure:
-              ``[block, block, ...]``
-
-    NOTE: "block" is the return value from parse_next_block() above.
+              parse() if you need these features).
     """
     # Parse all lines
     with tarfile.open(path, "r:gz") as tar:
@@ -253,7 +297,7 @@ def parse_blocks(path: Path):
             lines = handle.read().decode().splitlines()
 
     # Parse lines into blocks
-    ret: list[str] = []
+    ret: list[ApkindexBlock] = []
     while True:
         block = pmb.parse.apkindex.parse_next_block(path, lines)
         if not block:
@@ -261,11 +305,11 @@ def parse_blocks(path: Path):
         ret.append(block)
 
 
-def cache_key(path: Path):
+def cache_key(path: Path) -> str:
     return str(path.relative_to(get_context().config.work))
 
 
-def clear_cache(path: Path):
+def clear_cache(path: Path) -> bool:
     """
     Clear the APKINDEX parsing cache.
 
@@ -285,8 +329,12 @@ def clear_cache(path: Path):
 
 
 def providers(
-    package, arch: Arch | None = None, must_exist=True, indexes=None, user_repository=True
-):
+    package: str,
+    arch: Arch | None = None,
+    must_exist: bool = True,
+    indexes: list[Path] | None = None,
+    user_repository: bool = True,
+) -> dict[str, ApkindexBlock]:
     """
     Get all packages, which provide one package.
 
@@ -298,27 +346,31 @@ def providers(
                     (depending on arch)
     :param user_repository: add path to index of locally built packages
     :returns: list of parsed packages. Example for package="so:libGL.so.1":
-        ``{"mesa-egl": block, "libhybris": block}``
-        block is the return value from parse_next_block() above.
+        ``{"mesa-egl": ApkindexBlock, "libhybris": ApkindexBlock}``
     """
     if not indexes:
         indexes = pmb.helpers.repo.apkindex_files(arch, user_repository=user_repository)
 
     package = pmb.helpers.package.remove_operators(package)
 
-    ret: dict[str, Any] = collections.OrderedDict()
+    ret: dict[str, ApkindexBlock] = collections.OrderedDict()
     for path in indexes:
         # Skip indexes not providing the package
         index_packages = parse(path)
         if package not in index_packages:
             continue
 
+        indexed_package = index_packages[package]
+
+        if isinstance(indexed_package, ApkindexBlock):
+            raise AssertionError
+
         # Iterate over found providers
-        for provider_pkgname, provider in index_packages[package].items():
+        for provider_pkgname, provider in indexed_package.items():
             # Skip lower versions of providers we already found
-            version = provider["version"]
+            version = provider.version
             if provider_pkgname in ret:
-                version_last = ret[provider_pkgname]["version"]
+                version_last = ret[provider_pkgname].version
                 if pmb.parse.version.compare(version, version_last) == -1:
                     logging.verbose(
                         f"{package}: provided by: {provider_pkgname}-{version}"
@@ -339,16 +391,18 @@ def providers(
     return ret
 
 
-def provider_highest_priority(providers, pkgname):
+def provider_highest_priority(
+    providers: dict[str, ApkindexBlock], pkgname: str
+) -> dict[str, ApkindexBlock]:
     """Get the provider(s) with the highest provider_priority and log a message.
 
     :param providers: returned dict from providers(), must not be empty
     :param pkgname: the package name we are interested in (for the log message)
     """
     max_priority = 0
-    priority_providers: collections.OrderedDict[str, str] = collections.OrderedDict()
+    priority_providers: collections.OrderedDict[str, ApkindexBlock] = collections.OrderedDict()
     for provider_name, provider in providers.items():
-        priority = int(provider.get("provider_priority", -1))
+        priority = int(-1 if provider.provider_priority is None else provider.provider_priority)
         if priority > max_priority:
             priority_providers.clear()
             max_priority = priority
@@ -366,7 +420,7 @@ def provider_highest_priority(providers, pkgname):
     return providers
 
 
-def provider_shortest(providers, pkgname):
+def provider_shortest(providers: dict[str, ApkindexBlock], pkgname: str) -> ApkindexBlock:
     """Get the provider with the shortest pkgname and log a message. In most cases
     this should be sufficient, e.g. 'mesa-purism-gc7000-egl, mesa-egl' or
     'gtk+2.0-maemo, gtk+2.0'.
@@ -384,7 +438,9 @@ def provider_shortest(providers, pkgname):
 
 
 # This can't be cached because the APKINDEX can change during pmbootstrap build!
-def package(package, arch: Arch | None = None, must_exist=True, indexes=None, user_repository=True):
+def package(
+    package, arch: Arch | None = None, must_exist=True, indexes=None, user_repository=True
+) -> ApkindexBlock | None:
     """
     Get a specific package's data from an apkindex.
 
@@ -395,13 +451,7 @@ def package(package, arch: Arch | None = None, must_exist=True, indexes=None, us
     :param indexes: list of APKINDEX.tar.gz paths, defaults to all index files
                     (depending on arch)
     :param user_repository: add path to index of locally built packages
-    :returns: a dictionary with the following structure:
-              { "arch": "noarch",
-              "depends": ["busybox-extras", "lddtree", ... ],
-              "pkgname": "postmarketos-mkinitfs",
-              "provides": ["mkinitfs=0.0.1"],
-              "version": "0.0.4-r10" }
-              or None when the package was not found.
+    :returns: ApkindexBlock or None when the package was not found.
     """
     # Provider with the same package
     package_providers = providers(

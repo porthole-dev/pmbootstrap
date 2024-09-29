@@ -116,7 +116,11 @@ def sideload(
     to_build = []
     for pkgname in pkgnames:
         data_repo = pmb.parse.apkindex.package(pkgname, arch, True)
-        apk_file = f"{pkgname}-{data_repo['version']}.apk"
+
+        if data_repo is None:
+            raise RuntimeError(f"Couldn't find APKINDEX data for {pkgname}!")
+
+        apk_file = f"{pkgname}-{data_repo.version}.apk"
         host_path = context.config.work / "packages" / channel / arch / apk_file
         if not host_path.is_file():
             to_build.append(pkgname)

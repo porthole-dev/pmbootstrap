@@ -98,7 +98,7 @@ def check_min_version(chroot: Chroot = Chroot.native()):
         )
 
     # Compare
-    version_installed = installed_pkgs["apk-tools"]["version"]
+    version_installed = installed_pkgs["apk-tools"].version
     pmb.helpers.apk.check_outdated(
         version_installed,
         "Delete your http cache and zap all chroots, then try again:" " 'pmbootstrap zap -hc'",
@@ -150,7 +150,7 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
         if not data_repo:
             continue
 
-        apk_file = f"{data_repo['pkgname']}-{data_repo['version']}.apk"
+        apk_file = f"{data_repo.pkgname}-{data_repo.version}.apk"
         # FIXME: we should know what channel we expect this package to be in
         # this will have weird behaviour if you build gnome-shell for edge and
         # then checkout out the systemd branch... But there isn't
@@ -163,12 +163,13 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
                 break
 
         # Record all the packages we have visited so far
-        walked |= set([data_repo["pkgname"], package])
-        # Add all dependencies to the list of packages to check, excluding
-        # meta-deps like cmd:* and so:* as well as conflicts (!).
-        packages |= (
-            set(filter(lambda x: ":" not in x and "!" not in x, data_repo["depends"])) - walked
-        )
+        walked |= set([data_repo.pkgname, package])
+        if data_repo.depends:
+            # Add all dependencies to the list of packages to check, excluding
+            # meta-deps like cmd:* and so:* as well as conflicts (!).
+            packages |= (
+                set(filter(lambda x: ":" not in x and "!" not in x, data_repo.depends)) - walked
+            )
 
     return local
 
@@ -283,21 +284,13 @@ def install(packages, chroot: Chroot, build=True, quiet: bool = False):
     install_run_apk(to_add, to_add_local, to_del, chroot)
 
 
-def installed(suffix: Chroot = Chroot.native()):
+def installed(suffix: Chroot = Chroot.native()) -> dict[str, pmb.parse.apkindex.ApkindexBlock]:
     """
     Read the list of installed packages (which has almost the same format, as
     an APKINDEX, but with more keys).
 
     :returns: a dictionary with the following structure:
-              { "postmarketos-mkinitfs":
-              {
-              "pkgname": "postmarketos-mkinitfs"
-              "version": "0.0.4-r10",
-              "depends": ["busybox-extras", "lddtree", ...],
-              "provides": ["mkinitfs=0.0.1"]
-              }, ...
-
-              }
+              { "postmarketos-mkinitfs": ApkindexBlock }
 
     """
     path = suffix / "lib/apk/db/installed"

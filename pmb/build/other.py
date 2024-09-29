@@ -107,7 +107,7 @@ def get_status(arch, apkbuild) -> BuildStatus:
         return BuildStatus.CANT_BUILD
 
     # a) Binary repo has a newer version
-    version_binary = index_data["version"]
+    version_binary = index_data.version
     if pmb.parse.version.compare(version_binary, version_pmaports) == 1:
         logging.warning(
             f"WARNING: about to install {package} {version_binary}"

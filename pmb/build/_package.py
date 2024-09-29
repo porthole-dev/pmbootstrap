@@ -51,7 +51,7 @@ def check_build_for_arch(pkgname: str, arch: Arch):
         pmaport_version = pmaport["pkgver"] + "-r" + pmaport["pkgrel"]
         logging.debug(
             pkgname + ": found pmaport (" + pmaport_version + ") and"
-            " binary package (" + binary["version"] + ", from"
+            " binary package (" + binary.version + ", from"
             " postmarketOS or Alpine), but pmaport can't be built"
             f" for {arch} -> using binary package"
         )
@@ -274,7 +274,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 )
                 if not dep_data:
                     raise NonBugError(f"{item['name']}: dependency not found: {dep}")
-                dep = dep_data["pkgname"]
+                dep = dep_data.pkgname
 
                 if dep in all_pkgnames:
                     unmet_deps.setdefault(item["name"], []).append(dep)
@@ -483,11 +483,11 @@ def packages(
         # building with --src with an outdated pmaports checkout.
         if (
             index_data
-            and pmb.parse.version.compare(index_data["version"], f"{pkgver}-r{apkbuild['pkgrel']}")
+            and pmb.parse.version.compare(index_data.version, f"{pkgver}-r{apkbuild['pkgrel']}")
             == 1
         ):
             raise NonBugError(
-                f"A binary package for {name} has a newer version ({index_data['version']})"
+                f"A binary package for {name} has a newer version ({index_data.version})"
                 f" than the source ({pkgver}-{apkbuild['pkgrel']}). Please ensure your pmaports branch is up"
                 " to date and that you don't have a newer version of the package in your local"
                 f" binary repo ({context.config.work / 'packages' / channel / pkg_arch})."

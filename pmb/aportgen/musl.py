@@ -17,7 +17,9 @@ def generate(pkgname: str) -> None:
 
     # Parse musl version from APKINDEX
     package_data = pmb.parse.apkindex.package("musl")
-    version = package_data["version"]
+    if package_data is None:
+        raise RuntimeError("Couldn't find package musl!")
+    version = package_data.version
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
 

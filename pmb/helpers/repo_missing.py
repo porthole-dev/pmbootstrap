@@ -1,5 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from typing import Any
+
+from pmb.core.arch import Arch
 from pmb.helpers import logging
 
 import pmb.build
@@ -90,7 +93,7 @@ def get_relevant_packages(arch, pkgname=None, built=False):
     return ret
 
 
-def generate_output_format(arch, pkgnames):
+def generate_output_format(arch: Arch, pkgnames: list[str]) -> list[dict[str, Any]]:
     """Generate the detailed output format.
 
     :param arch: architecture
@@ -109,12 +112,16 @@ def generate_output_format(arch, pkgnames):
     ret = []
     for pkgname in pkgnames:
         entry = pmb.helpers.package.get(pkgname, arch, True, try_other_arches=False)
+
+        if entry is None:
+            raise RuntimeError(f"Couldn't get package {pkgname} for arch {arch}")
+
         ret += [
             {
-                "pkgname": entry["pkgname"],
+                "pkgname": entry.pkgname,
                 "repo": pmb.helpers.pmaports.get_repo(pkgname),
-                "version": entry["version"],
-                "depends": entry["depends"],
+                "version": entry.version,
+                "depends": entry.depends,
             }
         ]
     return ret

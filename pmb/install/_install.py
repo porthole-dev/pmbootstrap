@@ -372,7 +372,7 @@ def setup_keymap(config: Config):
 def setup_timezone(chroot: Chroot, timezone: str):
     # We don't care about the arch since it's built for all!
     alpine_conf = pmb.helpers.package.get("alpine-conf", Arch.native())
-    version = alpine_conf["version"].split("-r")[0]
+    version = alpine_conf.version.split("-r")[0]
 
     setup_tz_cmd = ["setup-timezone"]
     # setup-timezone will, by default, copy the timezone to /etc/zoneinfo
@@ -700,7 +700,7 @@ def sanity_check_disk_size(args: PmbArgs):
 def get_ondev_pkgver(args: PmbArgs):
     arch = pmb.parse.deviceinfo().arch
     package = pmb.helpers.package.get("postmarketos-ondev", arch)
-    return package["version"].split("-r")[0]
+    return package.version.split("-r")[0]
 
 
 def sanity_check_ondev_version(args: PmbArgs):

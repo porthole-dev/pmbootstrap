@@ -18,7 +18,11 @@ def generate(pkgname: str) -> None:
 
     # Parse version from APKINDEX
     package_data = pmb.parse.apkindex.package("busybox")
-    version = package_data["version"]
+
+    if package_data is None:
+        raise RuntimeError("Couldn't find APKINDEX for busybox!")
+
+    version = package_data.version
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
 

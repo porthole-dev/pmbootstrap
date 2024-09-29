@@ -210,14 +210,17 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     index_path = pmb.helpers.repo.alpine_apkindex_path(repo, arch)
     package = pmb.parse.apkindex.package(pkgname, indexes=[index_path])
 
+    if package is None:
+        raise RuntimeError(f"Couldn't find {pkgname} in APKINDEX!")
+
     # Compare version (return when equal)
-    compare = pmb.parse.version.compare(apkbuild_version, package["version"])
+    compare = pmb.parse.version.compare(apkbuild_version, package.version)
 
     # APKBUILD > binary: this is fine
     if compare == 1:
         logging.info(
             f"NOTE: {pkgname} {arch} binary package has a lower"
-            f" version {package['version']} than the APKBUILD"
+            f" version {package.version} than the APKBUILD"
             f" {apkbuild_version}"
         )
         return aport_path
@@ -229,7 +232,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
             " local checkout of Alpine's aports ("
             + apkbuild_version
             + ") compared to Alpine's binary package ("
-            + package["version"]
+            + package.version
             + ")!"
         )
         logging.info("NOTE: You can update your local checkout with: 'pmbootstrap pull'")

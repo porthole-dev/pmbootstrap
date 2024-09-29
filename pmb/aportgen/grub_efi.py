@@ -12,12 +12,14 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def generate(pkgname):
+def generate(pkgname: str) -> None:
     arch = Arch.x86
     if pkgname != "grub-efi-x86":
         raise RuntimeError("only grub-efi-x86 is available")
     package_data = pmb.parse.apkindex.package("grub")
-    version = package_data["version"]
+    if package_data is None:
+        raise RuntimeError("Couldn't find package grub!")
+    version = package_data.version
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
 

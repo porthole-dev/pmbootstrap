@@ -36,6 +36,7 @@ import pmb.install
 import pmb.install.blockdevice
 import pmb.netboot
 import pmb.parse
+import pmb.parse.apkindex
 import pmb.qemu
 import pmb.sideload
 from pmb.core import ChrootType, Chroot
@@ -490,7 +491,12 @@ def apkindex_parse(args: PmbArgs) -> None:
     if args.package:
         if args.package not in result:
             raise RuntimeError(f"Package not found in the APKINDEX: {args.package}")
-        result = result[args.package]
+        if isinstance(args.package, list):
+            raise AssertionError
+        result_temp = result[args.package]
+        if isinstance(result_temp, pmb.parse.apkindex.ApkindexBlock):
+            raise AssertionError
+        result = result_temp
     print(json.dumps(result, indent=4))
 
 

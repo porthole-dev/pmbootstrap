@@ -157,14 +157,18 @@ def download(file):
     return pmb.helpers.http.download(f"{base_url}/{file}", file)
 
 
-def init():
+def init() -> None:
     """
     Download, verify, extract $WORK/apk.static.
     """
     # Get and parse the APKINDEX
     apkindex = pmb.helpers.repo.alpine_apkindex_path("main")
     index_data = pmb.parse.apkindex.package("apk-tools-static", indexes=[apkindex])
-    version = index_data["version"]
+
+    if index_data is None:
+        raise RuntimeError("Could not find apk-tools-static in APKINDEX!")
+
+    version = index_data.version
 
     # Verify the apk-tools-static version
     pmb.helpers.apk.check_outdated(version, "Run 'pmbootstrap update', then try again.")
