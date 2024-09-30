@@ -268,7 +268,7 @@ def find_providers(provide, default):
             # Strip provides version (=$pkgver-r$pkgrel)
             if provides.split("=", 1)[0] == provide:
                 if subpkgname in default:
-                    subpkg["provider_priority"] = 999
+                    subpkg["provider_priority"] = 999999
                 providers[subpkgname] = subpkg
 
     return sorted(providers.items(), reverse=True, key=lambda p: p[1].get("provider_priority", 0))
