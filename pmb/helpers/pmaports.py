@@ -248,7 +248,7 @@ def get(pkgname, must_exist=True, subpackages=True, skip_extra_repos=False) -> d
     return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
 
 
-def find_providers(provide, default):
+def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
     """Search for providers of the specified (virtual) package in pmaports.
 
     Note: Currently only providers from a single APKBUILD are returned.
