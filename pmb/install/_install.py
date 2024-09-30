@@ -1170,7 +1170,9 @@ def get_selected_providers(args: PmbArgs, packages):
                 logging.verbose(f"{package}: install selected_providers:" f" {', '.join(ret)}")
             else:
                 for default in apkbuild["_pmb_default"]:
-                    if select == default[: default.rfind("-")]:
+                    # default: e.g. "postmarketos-base-ui-audio-pipewire"
+                    # select: e.g. "postmarketos-base-ui-audio"
+                    if default.startswith(f"{select}-"):
                         ret += [default]
         # Also iterate through dependencies to collect any providers they have
         depends = apkbuild["depends"]
