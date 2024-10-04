@@ -16,23 +16,7 @@ import pmb.parse.version
 from pmb.core.context import get_context
 
 
-def _run(command, chroot: Chroot | None, output="log"):
-    """Run a command.
-
-    :param command: command in list form
-    :param chroot: whether to run the command inside the chroot or on the host
-    :param suffix: chroot suffix. Only applies if the "chroot" parameter is
-                   set to True.
-
-    See pmb.helpers.run_core.core() for a detailed description of all other
-    arguments and the return value.
-    """
-    if chroot:
-        return pmb.chroot.root(command, output=output, chroot=chroot, disable_timeout=True)
-    return pmb.helpers.run.root(command, output=output)
-
-
-def _prepare_fifo(chroot: Chroot | None):
+def _prepare_fifo() -> Path:
     """Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
@@ -43,17 +27,13 @@ def _prepare_fifo(chroot: Chroot | None):
               path of the fifo as needed by cat to read from it (always
               relative to the host)
     """
-    if chroot:
-        fifo = Path("tmp/apk_progress_fifo")
-        fifo_outside = chroot / fifo
-    else:
-        pmb.helpers.run.root(["mkdir", "-p", get_context().config.work / "tmp"])
-        fifo = fifo_outside = get_context().config.work / "tmp/apk_progress_fifo"
-    if os.path.exists(fifo_outside):
-        pmb.helpers.run.root(["rm", "-f", fifo_outside])
+    pmb.helpers.run.root(["mkdir", "-p", get_context().config.work / "tmp"])
+    fifo = get_context().config.work / "tmp/apk_progress_fifo"
+    if os.path.exists(fifo):
+        pmb.helpers.run.root(["rm", "-f", fifo])
 
-    _run(["mkfifo", fifo], chroot)
-    return (fifo, fifo_outside)
+    pmb.helpers.run.root(["mkfifo", fifo])
+    return fifo
 
 
 def _create_command_with_progress(command, fifo):
@@ -90,13 +70,12 @@ def apk_with_progress(command: Sequence[PathString], chroot: Chroot | None = Non
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
-    :param chroot: whether to run commands inside the chroot or on the host
-    :param suffix: chroot suffix. Only applies if the "chroot" parameter is
-                   set to True.
     :raises RuntimeError: when the apk command fails
     """
-    fifo, _ = _prepare_fifo(chroot)
-    _command: list[str] = []
+    fifo = _prepare_fifo()
+    _command: list[str] = [str(get_context().config.work / "apk.static")]
+    if chroot:
+        _command.extend(["--root", str(chroot.path), "--arch", str(chroot.arch)])
     for c in command:
         if isinstance(c, Arch):
             _command.append(str(c))
@@ -104,8 +83,8 @@ def apk_with_progress(command: Sequence[PathString], chroot: Chroot | None = Non
             _command.append(os.fspath(c))
     command_with_progress = _create_command_with_progress(_command, fifo)
     log_msg = " ".join(_command)
-    with _run(["cat", fifo], chroot, output="pipe") as p_cat:
-        with _run(command_with_progress, chroot, output="background") as p_apk:
+    with pmb.helpers.run.root(["cat", fifo], output="pipe") as p_cat:
+        with pmb.helpers.run.root(command_with_progress, output="background") as p_apk:
             while p_apk.poll() is None:
                 line = p_cat.stdout.readline().decode("utf-8")
                 progress = _compute_progress(line)

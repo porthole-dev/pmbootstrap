@@ -221,7 +221,7 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
     # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
     user_repo = []
     for channel in pmb.config.pmaports.all_channels():
-        user_repo += ["--repository", Path("/mnt/pmbootstrap/packages") / channel]
+        user_repo += ["--repository", context.config.work / "packages" / channel]
 
     for i, command in enumerate(commands):
         # --no-interactive is a parameter to `add`, so it must be appended or apk
@@ -236,7 +236,7 @@ def install_run_apk(to_add: list[str], to_add_local: list[Path], to_del: list[st
         if context.offline:
             command = ["--no-network"] + command
         if i == 0:
-            pmb.helpers.apk.apk_with_progress(["apk"] + command, chroot)
+            pmb.helpers.apk.apk_with_progress(command, chroot)
         else:
             # Virtual package related commands don't actually install or remove
             # packages, but only mark the right ones as explicitly installed.
