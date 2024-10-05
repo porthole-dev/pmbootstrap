@@ -4,10 +4,11 @@
 
 if [ "$(id -u)" = 0 ]; then
 	set -x
-	apk -q add py3-argcomplete py3-mypy
+	apk -q add py3-argcomplete py3-pip
 	exec su "${TESTUSER:-build}" -c "sh -e $0"
 fi
 
 set -x
 
-mypy --color-output pmbootstrap.py
+pip install --break-system-packages --no-warn-script-location mypy
+python -m mypy --color-output pmbootstrap.py
