@@ -126,7 +126,7 @@ def packages_split_to_add_del(packages):
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
+def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -141,7 +141,7 @@ def packages_get_locally_built_apks(packages, arch: Arch) -> list[Path]:
     channels: list[str] = pmb.config.pmaports.all_channels()
     local: list[Path] = []
 
-    packages = set(packages)
+    packages = set(package_list)
 
     walked: set[str] = set()
     while len(packages):
