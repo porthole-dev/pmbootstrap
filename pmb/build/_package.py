@@ -490,7 +490,7 @@ def packages(
                 f"A binary package for {name} has a newer version ({index_data['version']})"
                 f" than the source ({pkgver}-{apkbuild['pkgrel']}). Please ensure your pmaports branch is up"
                 " to date and that you don't have a newer version of the package in your local"
-                f" binary repo ({context.config.work / 'packages' / channel / arch})."
+                f" binary repo ({context.config.work / 'packages' / channel / pkg_arch})."
             )
         build_queue.append(
             {
