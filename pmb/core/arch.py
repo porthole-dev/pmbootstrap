@@ -45,7 +45,7 @@ class Arch(enum.Enum):
             raise ValueError(
                 f"Invalid architecture: '{arch}',"
                 " expected something like:"
-                f" {', '.join([str(a) for a in Arch.supported()])}"
+                f" {', '.join(sorted(str(a) for a in Arch.supported()))}"
             )
 
     @staticmethod

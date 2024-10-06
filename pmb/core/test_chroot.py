@@ -42,7 +42,10 @@ def test_invalid_chroots(pmb_args):
 
     with pytest.raises(ValueError) as excinfo:
         Chroot(ChrootType.BUILDROOT, "BAD_ARCH")
-    assert str(excinfo.value) == "Invalid buildroot suffix: 'BAD_ARCH'"
+    assert (
+        str(excinfo.value)
+        == "Invalid architecture: 'BAD_ARCH', expected something like: aarch64, armhf, armv7, riscv64, x86, x86_64"
+    )
 
     with pytest.raises(ValueError) as excinfo:
         Chroot(ChrootType.NATIVE, "aarch64")
