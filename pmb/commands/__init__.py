@@ -10,6 +10,7 @@ from pmb.types import PmbArgs
 from pmb.helpers import frontend
 
 from .base import Command
+from .aportgen import Aportgen
 from .log import Log
 from .index import Index
 from .repo_bootstrap import RepoBootstrap
@@ -46,7 +47,6 @@ unmigrated_commands = [
     "chroot",
     "install",
     "checksum",
-    "aportgen",
     "build",
     "deviceinfo_parse",
     "apkbuild_parse",
@@ -64,6 +64,8 @@ def run_command(args: PmbArgs):
 
     command: Command
     match args.action:
+        case "aportgen":
+            command = Aportgen(args.packages, args.fork_alpine)
         case "log":
             command = Log(args.clear_log, args.lines)
         case "index":
