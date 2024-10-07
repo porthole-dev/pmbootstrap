@@ -9,10 +9,10 @@ import logging
 
 
 class Pull(commands.Command):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def run(self):
+    def run(self) -> bool:
         failed = []
         for repo in pmb.config.git_repos.keys():
             if pmb.helpers.git.pull(repo) < 0:
