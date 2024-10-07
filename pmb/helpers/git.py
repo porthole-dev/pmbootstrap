@@ -1,9 +1,11 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
+from enum import Enum
 from pathlib import Path
+from typing import Final
 from pmb.core.context import get_context
-from pmb.core.pkgrepo import pkgrepo_path
+from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_path
 from pmb.helpers import logging
 import os
 import re
@@ -14,6 +16,7 @@ import pmb.config
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.meta import Cache
+from pmb.types import PathString
 
 re_branch_aports = re.compile(r"^\d+\.\d\d+-stable$")
 re_branch_pmaports = re.compile(r"^v\d\d\.\d\d$")
@@ -93,6 +96,12 @@ def clean_worktree(path: Path):
     return pmb.helpers.run.user_output(command, path) == ""
 
 
+def list_remotes(aports: Path) -> list[str]:
+    command = ["git", "remote", "-v"]
+    output = pmb.helpers.run.user_output(command, aports, output="null")
+    return output.splitlines()
+
+
 def get_upstream_remote(aports: Path):
     """Find the remote, which matches the git URL from the config.
 
@@ -100,15 +109,80 @@ def get_upstream_remote(aports: Path):
     """
     name_repo = aports.parts[-1]
     urls = pmb.config.git_repos[name_repo]
-    command = ["git", "remote", "-v"]
-    output = pmb.helpers.run.user_output(command, aports, output="null")
-    for line in output.split("\n"):
+    lines = list_remotes(aports)
+    for line in lines:
         if any(u in line for u in urls):
             return line.split("\t", 1)[0]
     raise RuntimeError(
         f"{name_repo}: could not find remote name for any URL '{urls}' in git"
         f" repository: {aports}"
     )
+
+
+class RemoteType(Enum):
+    FETCH = "fetch"
+    PUSH = "push"
+
+    @staticmethod
+    def from_git_output(git_remote_type: str) -> "RemoteType":
+        match git_remote_type:
+            case "(fetch)":
+                return RemoteType.FETCH
+            case "(push)":
+                return RemoteType.PUSH
+            case _:
+                raise ValueError(f'Unknown remote type "{git_remote_type}"')
+
+
+def set_remote_url(repo: Path, remote_name: str, remote_url: str, remote_type: RemoteType) -> None:
+    command: list[PathString] = [
+        "git",
+        "-C",
+        repo,
+        "remote",
+        "set-url",
+        remote_name,
+        remote_url,
+        "--push" if remote_type == RemoteType.PUSH else "--no-push",
+    ]
+
+    pmb.helpers.run.user(command, output="stdout")
+
+
+# Intentionally lower case for case-insensitive comparison
+OUTDATED_GIT_REMOTES_HTTP: Final[list[str]] = ["https://gitlab.com/postmarketos/pmaports.git"]
+OUTDATED_GIT_REMOTES_SSH: Final[list[str]] = ["git@gitlab.com:postmarketos/pmaports.git"]
+
+
+def migrate_upstream_remote() -> None:
+    """Migrate pmaports git remote URL from gitlab.com to gitlab.postmarketos.org."""
+
+    repo = pkgrepo_default_path()
+    repo_name = repo.parts[-1]
+    lines = list_remotes(repo)
+
+    current_git_remote_http: Final[str] = pmb.config.git_repos[repo_name][0]
+    current_git_remote_ssh: Final[str] = pmb.config.git_repos[repo_name][1]
+
+    for line in lines:
+        if not line:
+            continue  # Skip empty line at the end.
+
+        remote_name, remote_url, remote_type_raw = line.split()
+        remote_type = RemoteType.from_git_output(remote_type_raw)
+
+        if remote_url.lower() in OUTDATED_GIT_REMOTES_HTTP:
+            new_remote = current_git_remote_http
+        elif remote_url.lower() in OUTDATED_GIT_REMOTES_SSH:
+            new_remote = current_git_remote_ssh
+        else:
+            new_remote = None
+
+        if new_remote:
+            logging.info(
+                f"Migrating to new {remote_type.value} URL (from {remote_url} to {new_remote})"
+            )
+            set_remote_url(repo, remote_name, current_git_remote_http, remote_type)
 
 
 @Cache("aports")

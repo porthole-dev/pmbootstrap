@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core.context import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -110,6 +111,30 @@ def migrate_work_folder():
         # Update version file
         migrate_success(context.config.work, 7)
         current = 7
+
+    if current == 7:
+        # Ask for confirmation
+        logging.info("Changelog:")
+        logging.info("* Moved from gitlab.com to gitlab.postmarketOS.org")
+        logging.info("Migration will do the following:")
+        logging.info("* Update your pmaports remote URL")
+        if not pmb.helpers.cli.confirm():
+            raise RuntimeError("Aborted.")
+
+        pmb.helpers.git.migrate_upstream_remote()
+        try:
+            pmb.helpers.git.get_upstream_remote(pkgrepo_default_path())
+        except RuntimeError:
+            logging.error(
+                "Couldn't find new upstream remote, migration failed."
+                " Please try updating the remote manually with:\n"
+                f" $ git -C '{pkgrepo_default_path()}' remote set-url origin 'https://gitlab.postmarketos.org/postmarketOS/pmaports.git'"
+            )
+            raise RuntimeError("Migration failed.")
+
+        # Update version file
+        migrate_success(context.config.work, 8)
+        current = 8
 
     # Can't migrate, user must delete it
     if current != required:
