@@ -44,7 +44,7 @@ def test_valid_arches():
     assert Arch.armhf.qemu() == "arm"
     assert Arch.armv7.qemu() == "arm"
     assert Arch.ppc64.qemu() == "ppc64"
-    assert Arch.ppc64le.qemu() == "ppc64le"
+    assert Arch.ppc64le.qemu() == "ppc64"
 
     # Check that Arch.cpu_emulation_required() works
     assert Arch.native() == Arch.x86_64 or Arch.x86_64.cpu_emulation_required()
