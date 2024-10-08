@@ -94,7 +94,7 @@ def detach_all() -> None:
     """
     Detach all loop devices used by pmbootstrap
     """
-    losetup_output = pmb.helpers.run.root(["losetup", "--json", "--list"], output_return=True)
+    losetup_output = pmb.chroot.root(["losetup", "--json", "--list"], output_return=True)
     if not losetup_output:
         return
     losetup = json.loads(losetup_output)
@@ -102,6 +102,6 @@ def detach_all() -> None:
     for loopdevice in losetup["loopdevices"]:
         print(loopdevice["back-file"])
         if Path(loopdevice["back-file"]).is_relative_to(work):
-            pmb.helpers.run.root(["kpartx", "-d", loopdevice["name"]], check=False)
-            pmb.helpers.run.root(["losetup", "-d", loopdevice["name"]])
+            pmb.chroot.root(["kpartx", "-d", loopdevice["name"]], check=False)
+            pmb.chroot.root(["losetup", "-d", loopdevice["name"]])
     return
