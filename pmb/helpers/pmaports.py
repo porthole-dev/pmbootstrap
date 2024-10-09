@@ -13,7 +13,6 @@ from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
 from typing import Any
-from collections.abc import Sequence
 
 from pmb.meta import Cache
 import pmb.parse
@@ -46,7 +45,7 @@ def _find_apkbuilds(skip_extra_repos=False) -> dict[str, Path]:
     return apkbuilds
 
 
-def get_list() -> Sequence[str]:
+def get_list() -> list[str]:
     """:returns: list of all pmaport pkgnames (["hello-world", ...])"""
     return list(_find_apkbuilds().keys())
 
