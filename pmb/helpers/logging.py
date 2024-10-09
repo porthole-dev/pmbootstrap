@@ -4,21 +4,21 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import TextIO
+from typing import Final, TextIO
 import pmb.config
 from pmb.meta import Cache
 
 logfd: TextIO
 
-CRITICAL = logging.CRITICAL
-FATAL = logging.FATAL
-ERROR = logging.ERROR
-WARNING = logging.WARNING
-WARN = logging.WARN
-INFO = logging.INFO
-DEBUG = logging.DEBUG
-NOTSET = logging.NOTSET
-VERBOSE = 5
+CRITICAL: Final[int] = logging.CRITICAL
+FATAL: Final[int] = logging.FATAL
+ERROR: Final[int] = logging.ERROR
+WARNING: Final[int] = logging.WARNING
+WARN: Final[int] = logging.WARN
+INFO: Final[int] = logging.INFO
+DEBUG: Final[int] = logging.DEBUG
+NOTSET: Final[int] = logging.NOTSET
+VERBOSE: Final[int] = 5
 
 
 class log_handler(logging.StreamHandler):
