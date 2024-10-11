@@ -64,7 +64,7 @@ def properties(pkgname):
     raise ValueError("No generator available for " + pkgname + "!")
 
 
-def generate(pkgname: str, fork_alpine: bool):
+def generate(pkgname: str, fork_alpine: bool, fork_alpine_retain_branch: bool = False) -> None:
     if fork_alpine:
         prefix, folder, options = (pkgname, "temp", {"confirm_overwrite": True})
     else:
@@ -83,7 +83,9 @@ def generate(pkgname: str, fork_alpine: bool):
     if os.path.exists(aportgen):
         pmb.helpers.run.user(["rm", "-r", aportgen])
     if fork_alpine:
-        upstream = pmb.aportgen.core.get_upstream_aport(pkgname)
+        upstream = pmb.aportgen.core.get_upstream_aport(
+            pkgname, retain_branch=fork_alpine_retain_branch
+        )
         pmb.helpers.run.user(["cp", "-r", upstream, aportgen])
         pmb.aportgen.core.rewrite(
             pkgname, replace_simple={"# Contributor:*": None, "# Maintainer:*": None}

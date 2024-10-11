@@ -6,7 +6,6 @@ from pathlib import Path
 import re
 import pmb.helpers.git
 import pmb.helpers.run
-import pmb.helpers.args
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
@@ -162,7 +161,7 @@ def rewrite(
         handle.truncate()
 
 
-def get_upstream_aport(pkgname: str, arch: Arch | None = None):
+def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bool = False):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 
@@ -175,9 +174,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None):
     pmb.helpers.git.clone("aports_upstream")
     aports_upstream_path = get_context().config.work / "cache_git/aports_upstream"
 
-    args = pmb.helpers.args.please_i_really_need_args()
-
-    if getattr(args, "fork_alpine_retain_branch", False):
+    if retain_branch:
         logging.info("Not changing aports branch as --fork-alpine-retain-branch was " "used.")
     else:
         # Checkout branch

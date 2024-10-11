@@ -65,7 +65,7 @@ def run_command(args: PmbArgs):
     command: Command
     match args.action:
         case "aportgen":
-            command = Aportgen(args.packages, args.fork_alpine)
+            command = Aportgen(args.packages, args.fork_alpine, args.fork_alpine_retain_branch)
         case "log":
             command = Log(args.clear_log, args.lines)
         case "index":
