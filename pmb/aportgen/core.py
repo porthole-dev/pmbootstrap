@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fnmatch
 from pmb.helpers import logging
+from pathlib import Path
 import re
 import pmb.helpers.git
 import pmb.helpers.run
@@ -10,7 +11,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
 
-def indent_size(line):
+def indent_size(line: str) -> int:
     """
     Number of spaces at the beginning of a string.
     """
@@ -20,7 +21,7 @@ def indent_size(line):
     return 0
 
 
-def format_function(name, body, remove_indent=4):
+def format_function(name: str, body: str, remove_indent: int = 4) -> str:
     """
     Format the body of a shell function passed to rewrite() below, so it fits
     the format of the original APKBUILD.
@@ -51,15 +52,15 @@ def format_function(name, body, remove_indent=4):
 
 
 def rewrite(
-    pkgname,
-    path_original="",
-    fields={},
-    replace_pkgname=None,
-    replace_functions={},
-    replace_simple={},
-    below_header="",
-    remove_indent=4,
-):
+    pkgname: str,
+    path_original: Path | str | None = None,
+    fields: dict[str, str] = {},
+    replace_pkgname: str | None = None,
+    replace_functions: dict[str, str | None] = {},
+    replace_simple: dict = {},  # Can't type this dictionary properly without fixing type errors
+    below_header: str = "",
+    remove_indent: int = 4,
+) -> None:
     """
     Append a header to $WORK/aportgen/APKBUILD, delete maintainer/contributor
     lines (so they won't be bugged with issues regarding our generated aports),
