@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 import pmb.helpers.git
@@ -10,7 +11,7 @@ import pmb.helpers.run
 def generate(pkgname: str):
     # Copy original aport
     prefix = pkgname.split("-")[0]
-    arch = pkgname.split("-")[1]
+    arch = Arch.from_str(pkgname.split("-")[1])
     context = get_context()
     if prefix == "gcc":
         upstream = pmb.aportgen.core.get_upstream_aport("gcc", arch)
@@ -51,7 +52,7 @@ def generate(pkgname: str):
 
     below_header = (
         "CTARGET_ARCH="
-        + arch
+        + str(arch)
         + """
         CTARGET="$(arch_to_hostspec ${CTARGET_ARCH})"
         LANG_D=false

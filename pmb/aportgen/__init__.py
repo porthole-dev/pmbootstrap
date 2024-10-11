@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
@@ -16,13 +17,17 @@ from pmb.types import PmbArgs
 import pmb.helpers.cli
 
 
-def get_cross_package_arches(pkgname):
+def get_cross_package_arches(pkgname: str) -> str:
     """
     Get the arches for which we want to build cross packages.
 
     :param pkgname: package name, e.g. "gcc-aarch64", "gcc-x86_64"
 
-    :returns: string of architecture(s) (space separated)
+    :returns: string of architecture(s) (space separated). It doesn't
+    necessarily make sense to use Arch here given that this value gets
+    used to write APKBUILD files, where the ``arch`` field can have values
+    that aren't necessarily valid arches like "!armhf", "noarch", or
+    "x86 x86_64".
 
     """
     if pkgname.endswith("-x86_64"):

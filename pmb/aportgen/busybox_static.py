@@ -8,11 +8,12 @@ import pmb.chroot.apk_static
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
 
 def generate(pkgname: str) -> None:
-    arch = pkgname.split("-")[2]
+    arch = Arch.from_str(pkgname.split("-")[2])
     context = get_context()
 
     # Parse version from APKINDEX

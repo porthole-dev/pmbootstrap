@@ -6,6 +6,7 @@ import re
 import pmb.helpers.git
 import pmb.helpers.run
 import pmb.helpers.args
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
 
@@ -160,7 +161,7 @@ def rewrite(
         handle.truncate()
 
 
-def get_upstream_aport(pkgname: str, arch=None):
+def get_upstream_aport(pkgname: str, arch: Arch | None = None):
     """
     Perform a git checkout of Alpine's aports and get the path to the aport.
 

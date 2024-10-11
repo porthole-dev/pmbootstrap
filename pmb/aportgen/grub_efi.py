@@ -13,7 +13,7 @@ from pmb.core.context import get_context
 
 
 def generate(pkgname):
-    arch = "x86"
+    arch = Arch.x86
     if pkgname != "grub-efi-x86":
         raise RuntimeError("only grub-efi-x86 is available")
     package_data = pmb.parse.apkindex.package("grub")

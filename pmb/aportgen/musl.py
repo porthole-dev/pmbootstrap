@@ -8,11 +8,12 @@ import pmb.chroot.apk_static
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
 
-def generate(pkgname):
-    arch = pkgname.split("-")[1]
+def generate(pkgname: str) -> None:
+    arch = Arch.from_str(pkgname.split("-")[1])
 
     # Parse musl version from APKINDEX
     package_data = pmb.parse.apkindex.package("musl")
