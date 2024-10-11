@@ -579,6 +579,7 @@ def packages(
         )
 
     cross = None
+    prev_cross = None
 
     total_pkgs = len(build_queue)
     count = 0
@@ -606,11 +607,11 @@ def packages(
         if src:
             pkg_depends.append("rsync")
 
-        # We only need to init cross compiler stuff once
-        if not cross:
-            cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
-            if cross:
-                pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
+        # (re)-initialize the cross compiler stuff when cross method changes
+        prev_cross = cross
+        cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
+        if cross != prev_cross:
+            pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
             if cross == "crossdirect":
                 pmb.chroot.mount_native_into_foreign(chroot)
 
