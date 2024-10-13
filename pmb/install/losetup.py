@@ -100,7 +100,6 @@ def detach_all() -> None:
     losetup = json.loads(losetup_output)
     work = get_context().config.work
     for loopdevice in losetup["loopdevices"]:
-        print(loopdevice["back-file"])
         if Path(loopdevice["back-file"]).is_relative_to(work):
             pmb.chroot.root(["kpartx", "-d", loopdevice["name"]], check=False)
             pmb.chroot.root(["losetup", "-d", loopdevice["name"]])
