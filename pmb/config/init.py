@@ -531,7 +531,7 @@ def ask_for_additional_options(config) -> None:
         "Enable background timer to prevent repeated sudo authorization?",
         default=context.sudo_timer,
     )
-    config.sudo_timer = str(answer)
+    config.sudo_timer = answer
 
     # Mirrors
     # prompt for mirror change
