@@ -10,6 +10,7 @@ import glob
 import json
 import os
 import shutil
+from pathlib import Path
 from typing import Any
 
 import pmb.aportgen
@@ -43,7 +44,7 @@ def require_programs() -> None:
         )
 
 
-def ask_for_username(default_user: str):
+def ask_for_username(default_user: str) -> str:
     """Ask for a reasonable username for the non-root user.
 
     :returns: the username
@@ -60,7 +61,7 @@ def ask_for_username(default_user: str):
         return ret
 
 
-def ask_for_work_path(args: PmbArgs):
+def ask_for_work_path(args: PmbArgs) -> tuple[Path, bool]:
     """Ask for the work path, until we can create it (when it does not exist) and write into it.
 
     :returns: (path, exists)
@@ -112,7 +113,7 @@ def ask_for_work_path(args: PmbArgs):
             )
 
 
-def ask_for_channel(config: Config):
+def ask_for_channel(config: Config) -> str:
     """Ask for the postmarketOS release channel.
     The channel dictates, which pmaports branch pmbootstrap will check out,
     and which repository URLs will be used when initializing chroots.
@@ -148,7 +149,7 @@ def ask_for_channel(config: Config):
         logging.fatal("ERROR: Invalid channel specified, please type in one from the list above.")
 
 
-def ask_for_ui(deviceinfo):
+def ask_for_ui(deviceinfo: Deviceinfo) -> str:
     ui_list = pmb.helpers.ui.list_ui(deviceinfo.arch)
     hidden_ui_count = 0
     device_is_accelerated = deviceinfo.gpu_accelerated == "true"
@@ -231,7 +232,7 @@ def ask_for_systemd(config: Config, ui):
     return answer
 
 
-def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo):
+def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo) -> str:
     if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
         return ""
     options = deviceinfo.keymaps.split(" ")
@@ -246,7 +247,7 @@ def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo):
         logging.fatal("ERROR: Invalid keymap specified, please type in one from the list above.")
 
 
-def ask_for_timezone():
+def ask_for_timezone() -> str:
     localtimes = ["/etc/zoneinfo/localtime", "/etc/localtime"]
     zoneinfo_path = "/usr/share/zoneinfo/"
     for localtime in localtimes:
@@ -327,7 +328,7 @@ def ask_for_provider_select(apkbuild, providers_cfg) -> None:
             )
 
 
-def ask_for_provider_select_pkg(pkgname, providers_cfg) -> None:
+def ask_for_provider_select_pkg(pkgname: str, providers_cfg: dict[str, str]) -> None:
     """Look up the APKBUILD for the specified pkgname and ask for selectable
     providers that are specified using "_pmb_select".
 
@@ -342,7 +343,7 @@ def ask_for_provider_select_pkg(pkgname, providers_cfg) -> None:
     ask_for_provider_select(apkbuild, providers_cfg)
 
 
-def ask_for_device_kernel(config: Config, device: str):
+def ask_for_device_kernel(config: Config, device: str) -> str:
     """Ask for the kernel that should be used with the device.
 
     :param device: code name, e.g. "lg-mako"
@@ -385,7 +386,7 @@ def ask_for_device_kernel(config: Config, device: str):
     return ret
 
 
-def ask_for_device(context: Context):
+def ask_for_device(context: Context) -> tuple[str, bool, str]:
     """
     Prompt for the device vendor, model, and kernel.
 
@@ -462,7 +463,7 @@ def ask_for_device(context: Context):
     return (device, device_path is not None, kernel)
 
 
-def ask_for_additional_options(config) -> None:
+def ask_for_additional_options(config: Config) -> None:
     context = pmb.core.context.get_context()
     # Allow to skip additional options
     logging.info(
@@ -546,7 +547,7 @@ def ask_for_additional_options(config) -> None:
         config.mirrors["systemd"] = os.path.join(mirror, "staging/systemd/")
 
 
-def ask_for_mirror():
+def ask_for_mirror() -> str:
     regex = "^[1-9][0-9]*$"  # single non-zero number only
 
     json_path = pmb.helpers.http.download(
@@ -601,7 +602,7 @@ def ask_for_mirror():
     return mirror
 
 
-def ask_for_hostname(default: str | None, device):
+def ask_for_hostname(default: str | None, device: str) -> str:
     if device:
         device = pmb.helpers.other.normalize_hostname(device)
     while True:
@@ -635,7 +636,7 @@ def ask_build_pkgs_on_install(default: bool) -> bool:
     )
 
 
-def get_locales():
+def get_locales() -> list[str]:
     ret = []
     list_path = f"{pmb.config.pmb_src}/pmb/data/locales"
     with open(list_path) as handle:
