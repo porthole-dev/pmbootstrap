@@ -29,11 +29,12 @@ def package_from_aports(pkgname_depend):
     return {"pkgname": pkgname, "depends": apkbuild["depends"], "version": version}
 
 
-def package_provider(pkgname, pkgnames_install, suffix: Chroot = Chroot.native()):
+def package_provider(
+    pkgname, pkgnames_install, suffix: Chroot = Chroot.native()
+) -> pmb.core.apkindex_block.ApkindexBlock | None:
     """
     :param pkgnames_install: packages to be installed
-    :returns: a block from the apkindex: {"pkgname": "...", ...}
-              or None (no provider found)
+    :returns: ApkindexBlock object or None (no provider found)
     """
     # Get all providers
     arch = suffix.arch
@@ -105,10 +106,7 @@ def package_from_index(
         return package_aport
 
     # Binary package outdated
-    if (
-        package_aport
-        and pmb.parse.version.compare(package_aport["version"], provider["version"]) == 1
-    ):
+    if package_aport and pmb.parse.version.compare(package_aport["version"], provider.version) == 1:
         logging.verbose(pkgname_depend + ": binary package is outdated")
         return package_aport
 

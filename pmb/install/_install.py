@@ -1291,8 +1291,12 @@ def create_device_rootfs(args: PmbArgs, step, steps):
             unlocker = pmb.parse.depends.package_provider(
                 "postmarketos-fde-unlocker", install_packages, chroot
             )
-            if unlocker["pkgname"] not in install_packages:
-                install_packages += [unlocker["pkgname"]]
+            if not unlocker:
+                raise RuntimeError(
+                    "Full disk encryption enabled but unable to find any suitable FDE unlocker app"
+                )
+            if unlocker.pkgname not in install_packages:
+                install_packages += [unlocker.pkgname]
         else:
             install_packages += ["postmarketos-base-nofde"]
 
