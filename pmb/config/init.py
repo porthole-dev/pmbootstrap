@@ -6,6 +6,7 @@ from pmb.core.config import SystemdConfig
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import glob
 import json
 import os
@@ -39,7 +40,7 @@ def require_programs() -> None:
         if not shutil.which(program):
             missing.append(program)
     if missing:
-        raise RuntimeError(
+        raise NonBugError(
             f"Can't find all programs required to run pmbootstrap. Please install first: {', '.join(missing)}"
         )
 
