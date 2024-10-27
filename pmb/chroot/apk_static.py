@@ -177,14 +177,3 @@ def init() -> None:
     apk_name = f"apk-tools-static-{version}.apk"
     apk_static = download(apk_name)
     extract(version, apk_static)
-
-
-def run(parameters, with_progress=True):
-    # --no-interactive is a parameter to `add`, so it must be appended or apk
-    # gets confused
-    if "add" in parameters:
-        parameters += ["--no-interactive"]
-
-    if get_context().offline:
-        parameters = ["--no-network"] + parameters
-    pmb.helpers.apk.run(parameters, with_progress=with_progress)
