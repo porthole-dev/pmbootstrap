@@ -136,7 +136,7 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
     mark_in_chroot(chroot)
     if chroot.exists():
         copy_resolv_conf(chroot)
-        pmb.chroot.apk.update_repository_list(chroot)
+        pmb.helpers.apk.update_repository_list(chroot.path)
         warn_if_chroots_outdated()
         return
 
@@ -152,7 +152,7 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
     # Initialize /etc/apk/keys/, resolv.conf, repositories
     init_keys()
     copy_resolv_conf(chroot)
-    pmb.chroot.apk.update_repository_list(chroot)
+    pmb.helpers.apk.update_repository_list(chroot.path)
 
     pmb.config.workdir.chroot_save_init(chroot)
 

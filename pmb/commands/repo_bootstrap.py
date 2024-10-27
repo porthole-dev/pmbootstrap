@@ -109,7 +109,7 @@ class RepoBootstrap(commands.Command):
 
             self.log_progress(f"initializing {chroot} chroot (merge /usr: {usr_merge.name})")
             # Initialize without pmOS binary package repo
-            pmb.chroot.apk.update_repository_list(chroot, mirrors_exclude=[self.repo])
+            pmb.helpers.apk.update_repository_list(chroot.path, mirrors_exclude=[self.repo])
             pmb.chroot.init(chroot, usr_merge)
 
             bootstrap_stage = int(step.split("bootstrap_", 1)[1])

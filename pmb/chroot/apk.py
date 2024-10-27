@@ -9,7 +9,6 @@ import traceback
 import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
-import shlex
 from collections.abc import Sequence
 
 import pmb.build
@@ -28,57 +27,6 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.types import PathString
 from pmb.helpers.exceptions import NonBugError
-
-
-@Cache("chroot", "user_repository", mirrors_exclude=[])
-def update_repository_list(
-    chroot: Chroot,
-    user_repository: bool = False,
-    mirrors_exclude: list[str] = [],
-    check: bool = False,
-) -> None:
-    """
-    Update /etc/apk/repositories, if it is outdated (when the user changed the
-    --mirror-alpine or --mirror-pmOS parameters).
-
-    :param mirrors_exclude: mirrors to exclude from the repository list
-    :param check: This function calls it self after updating the
-                  /etc/apk/repositories file, to check if it was successful.
-                  Only for this purpose, the "check" parameter should be set to
-                  True.
-    """
-    # Read old entries or create folder structure
-    path = chroot / "etc/apk/repositories"
-    lines_old: list[str] = []
-    if path.exists():
-        # Read all old lines
-        lines_old = []
-        with path.open() as handle:
-            for line in handle:
-                lines_old.append(line[:-1])
-    else:
-        pmb.helpers.run.root(["mkdir", "-p", path.parent])
-
-    # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(
-        user_repository=user_repository, mirrors_exclude=mirrors_exclude
-    )
-    if lines_old == lines_new:
-        return
-
-    # Check phase: raise error when still outdated
-    if check:
-        raise RuntimeError(f"Failed to update: {path}")
-
-    # Update the file
-    logging.debug(f"({chroot}) update /etc/apk/repositories")
-    if path.exists():
-        pmb.helpers.run.root(["rm", path])
-    for line in lines_new:
-        pmb.helpers.run.root(["sh", "-c", "echo " f"{shlex.quote(line)} >> {path}"])
-    update_repository_list(
-        chroot, user_repository=user_repository, mirrors_exclude=mirrors_exclude, check=True
-    )
 
 
 @Cache("chroot")

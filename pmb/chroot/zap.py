@@ -11,6 +11,7 @@ import pmb.config.workdir
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.config.workdir
+import pmb.helpers.apk
 import pmb.helpers.cli
 import pmb.helpers.pmaports
 import pmb.helpers.run
@@ -107,7 +108,7 @@ def zap(
     pmb.config.workdir.clean()
 
     # Chroots were zapped, so no repo lists exist anymore
-    pmb.chroot.apk.update_repository_list.cache_clear()
+    pmb.helpers.apk.update_repository_list.cache_clear()
     # Let chroot.init be called again
     pmb.chroot.init.cache_clear()
 

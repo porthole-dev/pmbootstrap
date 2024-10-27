@@ -211,7 +211,7 @@ def chroot(args: PmbArgs) -> None:
         size_reserve = 2048  # 2 GiB
         pmb.install.blockdevice.create_and_mount_image(args, size_boot, size_root, size_reserve)
 
-    pmb.chroot.apk.update_repository_list(chroot, user_repository=True)
+    pmb.helpers.apk.update_repository_list(chroot.path, user_repository=True)
 
     # TODO: Maybe this could be done better.
     output_type = cast(RunOutputType, args.output)

@@ -1,6 +1,7 @@
 # Copyright 2023 Johannes Marbach, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+import shlex
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -10,10 +11,65 @@ from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.types import PathString
 import pmb.helpers.cli
+import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.version
 from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.meta import Cache
+
+
+@Cache("root", "user_repository", mirrors_exclude=[])
+def update_repository_list(
+    root: Path,
+    user_repository: bool = False,
+    mirrors_exclude: list[str] = [],
+    check: bool = False,
+) -> None:
+    """
+    Update /etc/apk/repositories, if it is outdated (when the user changed the
+    --mirror-alpine or --mirror-pmOS parameters).
+
+    :param root: the root directory to operate on
+    :param mirrors_exclude: mirrors to exclude from the repository list
+    :param check: This function calls it self after updating the
+                  /etc/apk/repositories file, to check if it was successful.
+                  Only for this purpose, the "check" parameter should be set to
+                  True.
+    """
+    # Read old entries or create folder structure
+    path = root / "etc/apk/repositories"
+    lines_old: list[str] = []
+    if path.exists():
+        # Read all old lines
+        lines_old = []
+        with path.open() as handle:
+            for line in handle:
+                lines_old.append(line[:-1])
+    else:
+        pmb.helpers.run.root(["mkdir", "-p", path.parent])
+
+    # Up to date: Save cache, return
+    lines_new = pmb.helpers.repo.urls(
+        user_repository=user_repository, mirrors_exclude=mirrors_exclude
+    )
+    if lines_old == lines_new:
+        return
+
+    # Check phase: raise error when still outdated
+    if check:
+        raise RuntimeError(f"Failed to update: {path}")
+
+    # Update the file
+    logging.debug(f"({root.name}) update /etc/apk/repositories")
+    if path.exists():
+        pmb.helpers.run.root(["rm", path])
+    for line in lines_new:
+        pmb.helpers.run.root(["sh", "-c", "echo " f"{shlex.quote(line)} >> {path}"])
+    update_repository_list(
+        root, user_repository=user_repository, mirrors_exclude=mirrors_exclude, check=True
+    )
 
 
 def _prepare_fifo() -> Path:
