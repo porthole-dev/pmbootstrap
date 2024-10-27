@@ -116,8 +116,14 @@ def migrate_work_folder():
         pmb.chroot.zap(False)
 
         # Update version file
-        migrate_success(context.config.work, 7)
-        current = 7
+        if suffix == "2.x":
+            # If we come from 7-2.x, then we already updated the git urls and
+            # can skip the 7->8 migration step
+            migrate_success(context.config.work, 8)
+            current = 8
+        else:
+            migrate_success(context.config.work, 7)
+            current = 7
 
     if current == 7:
         # Ask for confirmation
