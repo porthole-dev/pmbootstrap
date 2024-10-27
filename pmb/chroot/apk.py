@@ -111,9 +111,7 @@ def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list
         for channel in channels:
             apk_path = get_context().config.work / "packages" / channel / arch / apk_file
             if apk_path.exists():
-                # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
-                # local.append(apk_path)
-                local.append(Path("/mnt/pmbootstrap/packages/") / channel / arch / apk_file)
+                local.append(apk_path)
                 break
 
         # Record all the packages we have visited so far
@@ -181,24 +179,17 @@ def install_run_apk(
         user_repo += ["--repository", context.config.work / "packages" / channel]
 
     for i, command in enumerate(commands):
-        # --no-interactive is a parameter to `add`, so it must be appended or apk
-        # gets confused
-        command += ["--no-interactive"]
         command = user_repo + command
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
             command = ["--force-missing-repositories"] + command
 
-        if context.offline:
-            command = ["--no-network"] + command
-        if i == 0:
-            pmb.helpers.apk.apk_with_progress(command, chroot)
-        else:
-            # Virtual package related commands don't actually install or remove
-            # packages, but only mark the right ones as explicitly installed.
-            # They finish up almost instantly, so don't display a progress bar.
-            pmb.chroot.root(["apk", "--no-progress"] + command, chroot)
+        # Virtual package related commands don't actually install or remove
+        # packages, but only mark the right ones as explicitly installed.
+        # So only display a progress bar for the "apk add" command which is
+        # always the first one we process (i == 0).
+        pmb.helpers.apk.run(command, chroot, with_progress=(i == 0))
 
 
 def install(packages: list[str], chroot: Chroot, build: bool = True, quiet: bool = False) -> None:
