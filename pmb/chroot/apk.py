@@ -6,7 +6,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import traceback
-import pmb.chroot.apk_static
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 from collections.abc import Sequence

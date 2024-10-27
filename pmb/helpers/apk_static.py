@@ -161,7 +161,8 @@ def init() -> None:
     """
     Download, verify, extract $WORK/apk.static.
     """
-    # Get and parse the APKINDEX
+    # Get and parse the APKINDEX. alpine_apkindex_path() will implicitly
+    # download the APKINDEX file if it's missing.
     apkindex = pmb.helpers.repo.alpine_apkindex_path("main")
     index_data = pmb.parse.apkindex.package("apk-tools-static", indexes=[apkindex])
 
