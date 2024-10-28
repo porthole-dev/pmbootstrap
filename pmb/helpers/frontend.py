@@ -462,19 +462,6 @@ def newapkbuild(args: PmbArgs) -> None:
     pmb.build.newapkbuild(args.folder, pass_through, get_context().force)
 
 
-def deviceinfo_parse(args: PmbArgs) -> None:
-    # Default to all devices
-    devices = args.devices
-    if not devices:
-        devices = pmb.helpers.devices.list_codenames()
-
-    # Iterate over all devices
-    kernel = args.deviceinfo_parse_kernel
-    for device in devices:
-        print(f"{device}, with kernel={kernel}:")
-        print(json.dumps(pmb.parse.deviceinfo(device, kernel), indent=4, sort_keys=True))
-
-
 def apkbuild_parse(args: PmbArgs) -> None:
     # Default to all packages
     packages: Sequence[str] = args.packages
