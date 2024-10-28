@@ -205,6 +205,18 @@ def run(command: Sequence[PathString], chroot: Chroot, with_progress: bool = Tru
     """
     _command = _prepare_cmd(command, chroot)
 
+    # Sanity checks. We should avoid accidentally writing to
+    # /var/cache/apk on the host!
+    if "add" in command:
+        if "--no-interactive" not in _command:
+            raise RuntimeError(
+                "Encountered an 'apk add' command without --no-interactive! This is a bug."
+            )
+        if "--cache-dir" not in _command:
+            raise RuntimeError(
+                "Encountered an 'apk add' command without --cache-dir! This is a bug."
+            )
+
     if with_progress:
         _apk_with_progress(_command)
     else:
