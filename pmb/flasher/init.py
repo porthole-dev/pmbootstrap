@@ -42,7 +42,7 @@ def install_depends(method: str) -> None:
     pmb.chroot.apk.install(depends, Chroot.native())
 
 
-def init(device: str, method: str):
+def init(device: str, method: str) -> None:
     install_depends(method)
 
     # Mount folders from host system

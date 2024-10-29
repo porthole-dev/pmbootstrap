@@ -1,6 +1,7 @@
 # Copyright 2023 Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from pathlib import Path
 from typing import Optional
 from pmb.core.arch import Arch
 from pmb.helpers import logging
@@ -63,7 +64,7 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     return alpine_architecture
 
 
-def ssh_install_apks(args: PmbArgs, user, host, port, paths: list) -> None:
+def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list[Path]) -> None:
     """Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
@@ -95,7 +96,13 @@ def ssh_install_apks(args: PmbArgs, user, host, port, paths: list) -> None:
 
 
 def sideload(
-    args: PmbArgs, user: str, host: str, port: str, arch: Arch | None, copy_key: bool, pkgnames
+    args: PmbArgs,
+    user: str,
+    host: str,
+    port: str,
+    arch: Arch | None,
+    copy_key: bool,
+    pkgnames: list[str],
 ) -> None:
     """Build packages if necessary and install them via SSH.
 

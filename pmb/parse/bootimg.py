@@ -1,6 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+from typing import TextIO
+
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pathlib import Path
@@ -9,10 +11,10 @@ import pmb.chroot
 import pmb.chroot.other
 import pmb.chroot.apk
 from pmb.core import Chroot
-from pmb.types import Bootimg
+from pmb.types import Bootimg, PathString
 
 
-def is_dtb(path) -> bool:
+def is_dtb(path: PathString) -> bool:
     if not os.path.isfile(path):
         return False
     with open(path, "rb") as f:
@@ -20,7 +22,7 @@ def is_dtb(path) -> bool:
         return f.read(4) == b"\xd0\x0d\xfe\xed"
 
 
-def get_mtk_label(path) -> str | None:
+def get_mtk_label(path: PathString) -> str | None:
     """Read the label from the MediaTek header of the kernel or ramdisk inside
     an extracted boot.img.
     :param path: to either the kernel or ramdisk extracted from boot.img
@@ -52,7 +54,7 @@ def get_mtk_label(path) -> str | None:
             return label
 
 
-def get_qcdt_type(path) -> str | None:
+def get_qcdt_type(path: PathString) -> str | None:
     """Get the dt.img type by reading the first four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
     :returns: * None: dt.img is of unknown type
@@ -195,5 +197,5 @@ def bootimg(path: Path) -> Bootimg:
     )
 
 
-def trim_input(f) -> str:
+def trim_input(f: TextIO) -> str:
     return f.read().replace("\n", "")

@@ -193,8 +193,8 @@ def generate_deviceinfo(
     chassis: str,
     has_external_storage: bool,
     flash_method: str,
-    bootimg=None,
-):
+    bootimg: Bootimg | None = None,
+) -> None:
     codename = "-".join(pkgname.split("-")[1:])
     external_storage = "true" if has_external_storage else "false"
     # Note: New variables must be added to pmb/config/__init__.py as well
@@ -281,7 +281,7 @@ def generate_modules_initfs() -> None:
             handle.write(line.lstrip() + "\n")
 
 
-def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str):
+def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str) -> None:
     # Dependencies
     depends = ["postmarketos-base", "linux-" + "-".join(pkgname.split("-")[1:])]
     if flash_method in ["fastboot", "heimdall-bootimg"]:
@@ -331,7 +331,7 @@ def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str):
             handle.write(line[8:].replace(" " * 4, "\t") + "\n")
 
 
-def generate(pkgname: str):
+def generate(pkgname: str) -> None:
     arch = ask_for_architecture()
     manufacturer = ask_for_manufacturer()
     name = ask_for_name(manufacturer)

@@ -1,6 +1,7 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import subprocess
 from argparse import Namespace
 from pathlib import Path
 from typing import Any, Literal, TypedDict
@@ -8,6 +9,10 @@ from typing import Any, Literal, TypedDict
 from pmb.core.arch import Arch
 
 CrossCompileType = Literal["native", "crossdirect"] | None
+RunOutputTypeDefault = Literal["log", "stdout", "interactive", "tui", "null"]
+RunOutputTypePopen = Literal["background", "pipe"]
+RunOutputType = RunOutputTypeDefault | RunOutputTypePopen
+RunReturnType = str | int | subprocess.Popen
 PathString = Path | str
 Env = dict[str, PathString]
 Apkbuild = dict[str, Any]

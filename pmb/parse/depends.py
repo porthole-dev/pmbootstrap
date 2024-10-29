@@ -10,7 +10,7 @@ from pmb.core.context import get_context
 
 
 def package_provider(
-    pkgname, pkgnames_install, suffix: Chroot = Chroot.native()
+    pkgname: str, pkgnames_install: list[str], suffix: Chroot = Chroot.native()
 ) -> pmb.core.apkindex_block.ApkindexBlock | None:
     """
     :param pkgnames_install: packages to be installed

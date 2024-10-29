@@ -3,7 +3,7 @@
 import fcntl
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
-from pmb.types import PathString, Env
+from pmb.types import PathString, Env, RunOutputType
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -22,7 +22,9 @@ import pmb.helpers.run
    called by core(). """
 
 
-def flat_cmd(cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}):
+def flat_cmd(
+    cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}
+) -> str:
     """Convert a shell command passed as list into a flat shell string with proper escaping.
 
     :param cmds: list of commands as list, e.g. ["echo", "string with spaces"]
@@ -53,7 +55,9 @@ def flat_cmd(cmds: Sequence[Sequence[PathString]], working_dir: Path | None = No
     return ret
 
 
-def sanity_checks(output="log", output_return=False, check=None):
+def sanity_checks(
+    output: RunOutputType = "log", output_return: bool = False, check: bool | None = None
+) -> None:
     """Raise an exception if the parameters passed to core() don't make sense.
 
     (all parameters are described in core() below).

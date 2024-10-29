@@ -12,7 +12,7 @@ import pmb.flasher
 import pmb.helpers.frontend
 
 
-def create_zip(args: PmbArgs, chroot: Chroot, device: str):
+def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
     """
     Create android recovery compatible installer zip.
     """
@@ -51,7 +51,7 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str):
         raise AssertionError("Partitions should not be None at this point")
 
     # Create config file for the recovery installer
-    options = {
+    options: dict[str, bool | str] = {
         "DEVICE": device,
         "FLASH_KERNEL": args.recovery_flash_kernel,
         "ISOREC": method == "heimdall-isorec",

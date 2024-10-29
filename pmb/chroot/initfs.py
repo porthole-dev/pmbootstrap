@@ -12,7 +12,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def build(flavor, chroot: Chroot):
+def build(flavor: str | None, chroot: Chroot) -> None:
     # Update mkinitfs and hooks
     pmb.chroot.apk.install(["postmarketos-mkinitfs"], chroot)
     pmb.chroot.initfs_hooks.update(chroot)
@@ -31,7 +31,7 @@ def build(flavor, chroot: Chroot):
             pmb.chroot.root(["mkinitfs", "-o", f"/boot/initramfs-{flavor}", release], chroot)
 
 
-def extract(flavor, chroot: Chroot, extra=False):
+def extract(flavor: str | None, chroot: Chroot, extra: bool = False) -> Path:
     """
     Extract the initramfs to /tmp/initfs-extracted or the initramfs-extra to
     /tmp/initfs-extra-extracted and return the outside extraction path.
@@ -86,7 +86,7 @@ def ls(flavor, suffix, extra=False):
     pmb.chroot.root(["rm", "-r", tmp], suffix)
 
 
-def frontend(args: PmbArgs):
+def frontend(args: PmbArgs) -> None:
     # Find the appropriate kernel flavor
     context = get_context()
     chroot = Chroot.rootfs(context.config.device)
