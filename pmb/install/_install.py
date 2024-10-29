@@ -859,7 +859,7 @@ def install_system_image(
     pmb.helpers.mount.umount_all(chroot.path)
     (size_boot, size_root) = get_subpartitions_size(chroot)
     layout = get_partition_layout(
-        size_reserve, pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt
+        size_reserve, bool(pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt)
     )
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root, size_reserve, split, disk)
