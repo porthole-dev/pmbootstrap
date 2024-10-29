@@ -50,3 +50,5 @@ addopts = [
     "--basetemp=.pytest_tmp"
 ]
 
+[tool.mypy]
+check_untyped_defs = true
