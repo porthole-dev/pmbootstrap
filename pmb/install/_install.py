@@ -55,7 +55,7 @@ def get_subpartitions_size(chroot: Chroot):
     root = pmb.helpers.other.folder_size(chroot.path) / 1024
     root *= 1.20
     root += 50 + int(config.extra_space)
-    return (boot, root)
+    return (boot, round(root))
 
 
 def get_nonfree_packages(device):
