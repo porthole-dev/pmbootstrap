@@ -182,7 +182,7 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
         if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
             chroot / "mnt/linux" / kbuild_out
         ):
-            pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
+            pmb.chroot.root(["rm", Path("/mnt/linux", kbuild_out)])
         pmb.chroot.root(["ln", "-s", "/mnt/linux", build_path / "src"])
     pmb.chroot.root(["ln", "-s", kbuild_out_source, build_path / "src" / kbuild_out])
 
@@ -207,7 +207,7 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
         if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
             chroot / "mnt/linux" / kbuild_out
         ):
-            pmb.chroot.root(["rm", "/mnt/linux" / kbuild_out])
+            pmb.chroot.root(["rm", Path("/mnt/linux", kbuild_out)])
     pmb.chroot.root(["rm", build_path / "src"])
 
 
