@@ -23,6 +23,8 @@ def build(flavor, chroot: Chroot):
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         pmb.chroot.root(["mkinitfs"], chroot)
     else:
+        if flavor is None:
+            raise AssertionError("flavor was none despite mkinitfs supporting omitted flavor")
         release_file = chroot / "usr/share/kernel" / flavor / "kernel.release"
         with release_file.open() as handle:
             release = handle.read().rstrip()
