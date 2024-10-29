@@ -106,7 +106,6 @@ def get_pkgver(original_pkgver: str, original_source=False):
     :param original_pkgver: unmodified pkgver from the package's APKBUILD.
     :param original_source: the original source is used instead of overriding
                             it with --src.
-    :param now: use a specific date instead of current date (for test cases)
     """
     if original_source:
         return original_pkgver
