@@ -105,9 +105,9 @@ def create_and_mount_image(args: PmbArgs, size_boot, size_root, size_reserve, sp
     images = {img_path_full: size_mb_full}
     if split:
         images = {img_path_boot: size_mb_boot, img_path_root: size_mb_root}
-    for img_path, size_mb in images.items():
-        logging.info(f"(native) create {img_path.name} " f"({size_mb})")
-        pmb.chroot.root(["truncate", "-s", size_mb, img_path])
+    for img_path, image_size_mb in images.items():
+        logging.info(f"(native) create {img_path.name} " f"({image_size_mb})")
+        pmb.chroot.root(["truncate", "-s", image_size_mb, img_path])
 
     # Mount to /dev/install
     mount_image_paths = {img_path_full: "/dev/install"}
