@@ -3,6 +3,7 @@
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
+from pmb.types import Bootimg
 from pathlib import Path
 import os
 import pmb.helpers.cli
@@ -119,21 +120,24 @@ def ask_for_bootimg():
             logging.fatal("ERROR: " + str(e) + ". Please try again.")
 
 
-def generate_deviceinfo_fastboot_content(bootimg=None):
+def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
     if bootimg is None:
-        bootimg = {
-            "cmdline": "",
-            "qcdt": "false",
-            "dtb_second": "false",
-            "base": "",
-            "kernel_offset": "",
-            "ramdisk_offset": "",
-            "second_offset": "",
-            "tags_offset": "",
-            "pagesize": "2048",
-            "mtk_label_kernel": "",
-            "mtk_label_ramdisk": "",
-        }
+        bootimg = Bootimg(
+            cmdline="",
+            qcdt="false",
+            qcdt_type=None,
+            dtb_offset=None,
+            dtb_second="false",
+            base="",
+            kernel_offset="",
+            ramdisk_offset="",
+            second_offset="",
+            tags_offset="",
+            pagesize="2048",
+            header_version=None,
+            mtk_label_kernel="",
+            mtk_label_ramdisk="",
+        )
 
     content = f"""\
         deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"

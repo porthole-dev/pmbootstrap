@@ -29,6 +29,23 @@ class AportGenEntry(TypedDict):
     confirm_overwrite: bool
 
 
+class Bootimg(TypedDict):
+    cmdline: str
+    qcdt: str
+    qcdt_type: str | None
+    dtb_offset: str | None
+    dtb_second: str
+    base: str
+    kernel_offset: str
+    ramdisk_offset: str
+    second_offset: str
+    tags_offset: str
+    pagesize: str
+    header_version: str | None
+    mtk_label_kernel: str
+    mtk_label_ramdisk: str
+
+
 # Property list generated with:
 # $ rg --vimgrep "((^|\s)args\.\w+)" --only-matching | cut -d"." -f3 | sort | uniq
 class PmbArgs(Namespace):

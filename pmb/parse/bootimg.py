@@ -9,6 +9,7 @@ import pmb.chroot
 import pmb.chroot.other
 import pmb.chroot.apk
 from pmb.core import Chroot
+from pmb.types import Bootimg
 
 
 def is_dtb(path) -> bool:
@@ -73,7 +74,7 @@ def get_qcdt_type(path) -> str | None:
             return None
 
 
-def bootimg(path: Path) -> dict[str, str]:
+def bootimg(path: Path) -> Bootimg:
     if not path.exists():
         raise RuntimeError(f"Could not find file '{path}'")
 
@@ -176,7 +177,22 @@ def bootimg(path: Path) -> dict[str, str]:
     # Cleanup
     pmb.chroot.user(["rm", "-r", temp_path])
 
-    return output
+    return Bootimg(
+        cmdline=output["cmdline"],
+        qcdt=output["qcdt"],
+        qcdt_type=output.get("qcdt_type"),
+        dtb_offset=output.get("dtb_offset"),
+        dtb_second=output["dtb_second"],
+        base=output["base"],
+        kernel_offset=output["kernel_offset"],
+        ramdisk_offset=output["ramdisk_offset"],
+        second_offset=output["second_offset"],
+        tags_offset=output["tags_offset"],
+        pagesize=output["pagesize"],
+        header_version=output.get("header_version"),
+        mtk_label_kernel=output["mtk_label_kernel"],
+        mtk_label_ramdisk=output["mtk_label_ramdisk"],
+    )
 
 
 def trim_input(f) -> str:
