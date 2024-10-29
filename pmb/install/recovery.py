@@ -43,6 +43,13 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str):
 
         pmb.flasher.check_partition_blacklist(deviceinfo, key, fvalue)
 
+    if (
+        fvars["$PARTITION_KERNEL"] is None
+        or fvars["$PARTITION_INITFS"] is None
+        or fvars["$PARTITION_ROOTFS"] is None
+    ):
+        raise AssertionError("Partitions should not be None at this point")
+
     # Create config file for the recovery installer
     options = {
         "DEVICE": device,
