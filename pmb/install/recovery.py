@@ -36,7 +36,12 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str):
     logging.info(f"({chroot}) create recovery zip")
 
     for key in fvars:
-        pmb.flasher.check_partition_blacklist(deviceinfo, key, fvars[key])
+        fvalue = fvars[key]
+
+        if fvalue is None:
+            continue
+
+        pmb.flasher.check_partition_blacklist(deviceinfo, key, fvalue)
 
     # Create config file for the recovery installer
     options = {
