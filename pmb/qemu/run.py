@@ -218,7 +218,7 @@ def command_qemu(args: PmbArgs, config: Config, arch: Arch, img_path, img_path_2
 
     command += ["-drive", f"file={img_path},format=raw,if=virtio"]
     if img_path_2nd:
-        command += ["-drive", "file=" + img_path_2nd + ",format=raw,if=virtio"]
+        command += ["-drive", f"file={img_path_2nd}" + ",format=raw,if=virtio"]
 
     if args.qemu_tablet:
         command += ["-device", "virtio-tablet-pci"]
