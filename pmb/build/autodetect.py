@@ -39,14 +39,14 @@ def arch_from_deviceinfo(pkgname, aport: Path) -> Arch | None:
 
 
 @Cache("package")
-def arch(package: str | dict[str, Any]):
+def arch(package: str | dict[str, Any]) -> Arch:
     """
     Find a good default in case the user did not specify for which architecture
     a package should be built.
 
     :param package: The name of the package or parsed APKBUILD
 
-    :returns: arch string like "x86_64" or "armhf". Preferred order, depending
+    :returns: Arch object. Preferred order, depending
               on what is supported by the APKBUILD:
               * native arch
               * device arch (this will be preferred instead if build_default_device_arch is true)
