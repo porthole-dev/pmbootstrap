@@ -3,13 +3,14 @@
 
 from argparse import Namespace
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 from pmb.core.arch import Arch
 
 CrossCompileType = Literal["native", "crossdirect"] | None
 PathString = Path | str
 Env = dict[str, PathString]
+Apkbuild = dict[str, Any]
 
 # These types are not definitive / API, they exist to describe the current
 # state of things so that we can improve our type hinting coverage and make
