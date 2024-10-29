@@ -193,7 +193,7 @@ def run_abuild(context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, 
     env = {
         "CARCH": str(arch),
         "CHOST": str(arch),
-        "CBUILD": Arch.native(),
+        "CBUILD": str(Arch.native()),
         "SUDO_APK": "abuild-apk --no-progress",
     }
     cmd = ["abuild", "rootpkg"]
