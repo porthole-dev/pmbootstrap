@@ -697,11 +697,13 @@ def frontend(args: PmbArgs) -> None:
     # Work folder (needs to be first, so we can create chroots early)
     config = get_context().config
 
+    using_default_pmaports = config.aports[-1].is_relative_to(config.work)
+
     config.work, work_exists = ask_for_work_path(config.work)
 
-    # If the work dir is not the default, reset aports and make
-    # it relative to the work dir
-    if not config.aports[0].is_relative_to(config.work):
+    # If the work dir changed then we need to update the pmaports path
+    # to be relative to the new workdir
+    if using_default_pmaports:
         config.aports = [config.work / "cache_git/pmaports"]
 
     # Update args and save config (so chroots and 'pmbootstrap log' work)
