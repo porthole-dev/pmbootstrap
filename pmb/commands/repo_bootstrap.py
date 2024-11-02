@@ -57,7 +57,7 @@ class RepoBootstrap(commands.Command):
 
         self.check_repo_arg()
 
-    def get_packages(self, bootstrap_line):
+    def get_packages(self, bootstrap_line: str) -> list[str]:
         ret = []
         for word in bootstrap_line.split(" "):
             if word.startswith("["):
@@ -65,7 +65,7 @@ class RepoBootstrap(commands.Command):
             ret += [word]
         return ret
 
-    def set_progress_total(self, steps):
+    def set_progress_total(self, steps: dict[str, str]) -> None:
         self.progress_total = 0
 
         # Add one progress point per package
@@ -85,7 +85,7 @@ class RepoBootstrap(commands.Command):
 
         self.progress_done += 1
 
-    def run_steps(self, steps):
+    def run_steps(self, steps: dict[str, str]) -> None:
         chroot: Chroot
         if self.arch.cpu_emulation_required():
             chroot = Chroot(ChrootType.BUILDROOT, self.arch)
@@ -149,10 +149,10 @@ class RepoBootstrap(commands.Command):
 
             raise RuntimeError(f"{msg}!")
 
-    def get_steps(self):
+    def get_steps(self) -> dict[str, str]:
         cfg = pmb.config.pmaports.read_config_repos()
         prev_step = 0
-        ret = {}
+        ret: dict[str, str] = {}
 
         for key, packages in cfg[self.repo].items():
             if not key.startswith("bootstrap_"):
