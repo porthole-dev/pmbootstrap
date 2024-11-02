@@ -46,6 +46,11 @@ pytest:
       - "log_testsuite.txt"
       - "log.txt"
 
+# Ensure that tests pass on Python 3.10
+pytest-python3.10:
+  extends: pytest
+  image: alpine:3.17
+
 ruff:
   stage: lint
   script:
@@ -124,6 +129,11 @@ install amd64:
     - .ci/integration_tests/build_images qemu-amd64 console
   # ARM64 on AMD64
     - .ci/integration_tests/build_images postmarketos-trailblazer console
+
+# Test that building images works on Python 3.10
+install amd64 python3.10:
+  extends: install amd64
+  image: alpine:3.17
 
 install aarch64:
   extends: .integration
