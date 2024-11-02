@@ -88,7 +88,17 @@ def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompile:
         return CrossCompile.UNNECESSARY
     if "pmb:cross-native" in apkbuild["options"]:
         return CrossCompile.CROSS_NATIVE
-    if arch.is_native() or "pmb:cross-native2" in apkbuild["options"]:
+    # In case we end up being requested to cross-compile a "noarch" package,
+    # default to cross-native2 if the package has "noarch" since that implies
+    # it won't run a compiler. This can happen if e.g. the --arch argument is
+    # set to a foreign architecture when calling the build subcommand or as
+    # part of the install subcommand when building an image for a foreign
+    # architecture.
+    if (
+        arch.is_native()
+        or "pmb:cross-native2" in apkbuild["options"]
+        or apkbuild["arch"] == ["noarch"]
+    ):
         return CrossCompile.CROSS_NATIVE2
     if "!pmb:crossdirect" in apkbuild["options"]:
         return CrossCompile.QEMU_ONLY
