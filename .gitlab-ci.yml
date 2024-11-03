@@ -17,6 +17,8 @@ before_script: &global_before_scripts
   # Force IPv4 for gitlab.postmarketos.org until it supports IPv6 too, OSUOSL is
   # working on it (infra#195)
   - "echo '140.211.167.182 gitlab.postmarketos.org' >> /etc/hosts"
+  # python 3.10 tests: need to have tomli installed, see pmb/helpers/toml.py
+  - "if grep -q VERSION_ID=3\\.17 /etc/os-release; then apk add py3-tomli; fi"
 
 stages:
   - lint
