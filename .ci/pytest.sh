@@ -23,15 +23,17 @@ fi
 # Use pytest-cov if it is installed to display code coverage
 cov_arg=""
 if python -c "import pytest_cov" >/dev/null 2>&1; then
-	cov_arg="--cov=pmb"
+	cov_arg="--cov=pmb --cov-report term --cov-report xml:coverage.xml"
 fi
 
 echo "Running pytest..."
 echo "NOTE: use 'pmbootstrap log' to see the detailed log if running locally."
+# shellcheck disable=SC2086
 python -m pytest \
 	--color=yes \
 	-vv \
 	-x \
+	--junitxml=junit.xml \
 	$cov_arg \
 		-m "not skip_ci" \
 		"$@"

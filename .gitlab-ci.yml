@@ -43,10 +43,15 @@ pytest:
     - "cp /home/build/.local/var/pmbootstrap/log_testsuite.txt ."
     - "cp /home/build/.local/var/pmbootstrap/log.txt ."
   artifacts:
-    when: on_failure
+    when: always
     paths:
       - "log_testsuite.txt"
       - "log.txt"
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: junit.xml
 
 # Ensure that tests pass on Python 3.10
 pytest-python3.10:
