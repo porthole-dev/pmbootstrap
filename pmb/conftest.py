@@ -159,16 +159,20 @@ def pmaports(pmb_args, monkeypatch):
     from pmb.core import Config
     from pmb.core.context import get_context
 
-    config = get_context().config
+    cfg = get_context().config
 
-    with monkeypatch.context() as m:
-        # Speed things up by cloning from the local checkout if it exists.
-        if Config.aports[0].exists():
-            m.setitem(pmb.config.git_repos, "pmaports", Config.aports)
+    # As an optimisation, we check the default workdir for pmaports
+    # and clone it from there if it exists. This saves a bunch of bandwidth
+    # and time.
+    if Config.aports[-1].exists():
+        # Override the URL to the local path so we can later look up the
+        # remote by URL
+        pmb.config.git_repos["pmaports"] = [str(Config.aports[-1])]
 
+    if not cfg.aports[-1].exists():
         pmb.helpers.git.clone("pmaports")
-
-    assert pmb.helpers.run.user(["git", "checkout", "master"], working_dir=config.aports[0]) == 0
+        # Now operate on the cloned repo
+        assert pmb.helpers.run.user(["git", "checkout", "master"], working_dir=cfg.aports[-1]) == 0
 
 
 @pytest.fixture
