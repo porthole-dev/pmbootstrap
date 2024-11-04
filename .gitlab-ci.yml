@@ -21,13 +21,12 @@ before_script: &global_before_scripts
   - "if grep -q VERSION_ID=3\\.17 /etc/os-release; then apk add py3-tomli; fi"
 
 stages:
-  - lint
-  - deploy
   - test
+  - deploy
   - integration-test
 
 codespell:
-  stage: lint
+  stage: test
   script:
     - ".ci/codespell.sh"
 
@@ -59,22 +58,22 @@ pytest-python3.10:
   image: alpine:3.17
 
 ruff:
-  stage: lint
+  stage: test
   script:
     - ".ci/ruff.sh"
 
 shellcheck:
-  stage: lint
+  stage: test
   script:
     - ".ci/shellcheck.sh"
 
 vermin:
-  stage: lint
+  stage: test
   script:
     - ".ci/vermin.sh"
 
 mr-settings:
-  stage: lint
+  stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
@@ -85,12 +84,12 @@ mr-settings:
     - "python3 ./check_mr_settings.py"
 
 mypy:
-  stage: lint
+  stage: test
   script:
     - ".ci/mypy.sh"
 
 docs:
-  stage: lint
+  stage: test
   script:
     - ".ci/docs.sh"
   artifacts:
