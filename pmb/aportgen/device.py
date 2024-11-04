@@ -142,37 +142,23 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
     content = f"""\
         deviceinfo_kernel_cmdline="{bootimg["cmdline"]}"
         deviceinfo_generate_bootimg="true"
-        deviceinfo_bootimg_qcdt="{bootimg["qcdt"]}"
-        deviceinfo_bootimg_dtb_second="{bootimg["dtb_second"]}"
         deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
         """
 
-    if "qcdt_type" in bootimg.keys():
-        content += f"""\
-        deviceinfo_bootimg_qcdt_type="{bootimg["qcdt_type"]}"
-        """
-
-    if "mtk_label_kernel" in bootimg.keys():
-        content += f"""\
-        deviceinfo_mtk_label_kernel="{bootimg["mtk_label_kernel"]}"
-        """
-    if "mtk_label_ramdisk" in bootimg.keys():
-        content += f"""\
-        deviceinfo_mtk_label_ramdisk="{bootimg["mtk_label_ramdisk"]}"
-        """
-
-    if "header_version" in bootimg.keys():
-        content += f"""\
-        deviceinfo_header_version="{bootimg["header_version"]}"
-        """
-
-        if bootimg["header_version"] == "2":
+    for k in ["qcdt_type", "dtb_second", "mtk_label_kernel", "mtk_label_ramdisk", "header_version"]:
+        v = bootimg[k]  # type: ignore
+        if v:
             content += f"""\
-            deviceinfo_append_dtb="false"
-            deviceinfo_flash_offset_dtb="{bootimg["dtb_offset"]}"
+            deviceinfo_{k}="{v}"
             """
 
-    if "base" in bootimg.keys():
+    if bootimg["header_version"] == "2":
+        content += f"""\
+        deviceinfo_append_dtb="false"
+        deviceinfo_flash_offset_dtb="{bootimg["dtb_offset"]}"
+        """
+
+    if bootimg["base"]:
         content += f"""\
         deviceinfo_flash_offset_base="{bootimg["base"]}"
         deviceinfo_flash_offset_kernel="{bootimg["kernel_offset"]}"

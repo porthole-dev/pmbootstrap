@@ -171,7 +171,7 @@ def bootimg(path: Path) -> Bootimg:
             if value is not None
         }
     )
-    output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else "false"
+    output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else ""
 
     with open(f"{bootimg_path}-cmdline") as f:
         output["cmdline"] = trim_input(f)
@@ -185,11 +185,11 @@ def bootimg(path: Path) -> Bootimg:
         qcdt_type=output.get("qcdt_type"),
         dtb_offset=output.get("dtb_offset"),
         dtb_second=output["dtb_second"],
-        base=output["base"],
-        kernel_offset=output["kernel_offset"],
-        ramdisk_offset=output["ramdisk_offset"],
-        second_offset=output["second_offset"],
-        tags_offset=output["tags_offset"],
+        base=output.get("base", ""),
+        kernel_offset=output.get("kernel_offset", ""),
+        ramdisk_offset=output.get("ramdisk_offset", ""),
+        second_offset=output.get("second_offset", ""),
+        tags_offset=output.get("tags_offset", ""),
         pagesize=output["pagesize"],
         header_version=output.get("header_version"),
         mtk_label_kernel=output.get("mtk_label_kernel", ""),
