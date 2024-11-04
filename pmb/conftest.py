@@ -12,6 +12,9 @@ from pmb.helpers.args import init as init_args
 _testdir = Path(__file__).parent / "data/tests"
 
 
+# request can be specified using parameterize from test cases
+# e.g. @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)
+# will set request.param to "no-repos"
 @pytest.fixture
 def config_file(tmp_path_factory, request):
     """Fixture to create a temporary pmbootstrap_v3.cfg file."""
