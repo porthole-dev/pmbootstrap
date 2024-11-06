@@ -48,9 +48,10 @@ def require_programs() -> None:
     losetup_missing_json = False
 
     if "losetup" not in missing:
-        # Check if losetup supports the --json argument.
+        # Check if losetup supports the --json argument. Use the absolute path
+        # here, so it works in Debian too without using sudo.
         try:
-            pmb.helpers.run.user(["losetup", "--json"], check=True)
+            pmb.helpers.run.user([pmb.config.required_programs["losetup"], "--json"], check=True)
         except RuntimeError:
             losetup_missing_json = True
 
