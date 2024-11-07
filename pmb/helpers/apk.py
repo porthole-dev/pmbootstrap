@@ -238,7 +238,7 @@ def cache_clean(arch: Arch) -> None:
     # if something actually went wrong with apk...
     # So we do this dance of creating a rootfs with only the files that
     # APK needs to be happy
-    tmproot = work / "tmp" / "apk_root"
+    tmproot = work / "tmp_apk_root"  # pmb#2491: not using tmp/apk_root
     if not (tmproot / "etc/apk/repositories").exists():
         tmproot.mkdir(exist_ok=True)
         (tmproot / "var/cache").mkdir(exist_ok=True, parents=True)
