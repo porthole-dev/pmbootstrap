@@ -120,4 +120,6 @@ bump_autobuild() {
 # Run the test
 echo "Running $test $*"
 "$test" "$@"
+echo "Zapping"
+pmbootstrap -y zap -a
 echo "Test $test passed!"
