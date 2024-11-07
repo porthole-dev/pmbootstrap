@@ -140,6 +140,19 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
+def show_pkg_not_found_systemd_hint(package: str, with_extra_repos: WithExtraRepos) -> None:
+    """Check if a package would be found if systemd was enabled and display a
+    hint about it."""
+
+    if with_extra_repos != "default" or pmb.config.other.is_systemd_selected():
+        return
+
+    if find(package, False, with_extra_repos="enabled"):
+        logging.info(
+            f"NOTE: The package '{package}' exists in extra-repos/systemd, but systemd is currently disabled"
+        )
+
+
 @Cache("package", "subpackages", "with_extra_repos")
 def find(package, must_exist=True, subpackages=True, with_extra_repos="default"):
     """Find the directory in pmaports that provides a package or subpackage.
@@ -191,6 +204,7 @@ def find(package, must_exist=True, subpackages=True, with_extra_repos="default")
 
     # Crash when necessary
     if ret is None and must_exist:
+        show_pkg_not_found_systemd_hint(package, with_extra_repos)
         raise RuntimeError("Could not find aport for package: " + package)
 
     return ret
