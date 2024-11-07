@@ -18,13 +18,8 @@ from pmb.meta import Cache
 import pmb.parse
 
 
+@Cache("skip_extra_repos")
 def _find_apkbuilds(skip_extra_repos: bool = False) -> dict[str, Path]:
-    # Try to get a cached result first (we assume that the aports don't change
-    # in one pmbootstrap call)
-    apkbuilds = pmb.helpers.other.cache.get("pmb.helpers.pmaports.apkbuilds")
-    if apkbuilds is not None:
-        return apkbuilds
-
     apkbuilds = {}
     for package in pkgrepo_iter_package_dirs(skip_extra_repos=skip_extra_repos):
         pkgname = package.name
@@ -38,10 +33,6 @@ def _find_apkbuilds(skip_extra_repos: bool = False) -> dict[str, Path]:
     # Sort dictionary so we don't need to do it over and over again in
     # get_list()
     apkbuilds = dict(sorted(apkbuilds.items()))
-
-    # Save result in cache
-    if not skip_extra_repos:
-        pmb.helpers.other.cache["pmb.helpers.pmaports.apkbuilds"] = apkbuilds
     return apkbuilds
 
 
