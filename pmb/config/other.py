@@ -11,13 +11,13 @@ from pmb.meta import Cache
 def is_systemd_selected(config: Config) -> bool:
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return False
-    if pmb.helpers.ui.check_option(config.ui, "pmb:systemd-never", skip_extra_repos=True):
+    if pmb.helpers.ui.check_option(config.ui, "pmb:systemd-never", with_extra_repos="disabled"):
         return False
     if config.systemd == SystemdConfig.ALWAYS:
         return True
     if config.systemd == SystemdConfig.NEVER:
         return False
-    return pmb.helpers.ui.check_option(config.ui, "pmb:systemd", skip_extra_repos=True)
+    return pmb.helpers.ui.check_option(config.ui, "pmb:systemd", with_extra_repos="disabled")
 
 
 def systemd_selected_str(config: Config) -> tuple[str, str]:

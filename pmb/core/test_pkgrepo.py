@@ -19,6 +19,7 @@ def test_pkgrepo_pmaports(pmaports, monkeypatch):
 
     # Disable results caching
     pkgrepo_paths.cache_disable()
+    pkgrepo_default_path.cache_disable()
 
     paths = pkgrepo_paths()
     print(f"[master] pkgrepo_paths: {paths}")
@@ -37,7 +38,10 @@ def test_pkgrepo_pmaports(pmaports, monkeypatch):
         == 0
     )
 
-    paths = pkgrepo_paths()
+    paths = pkgrepo_paths(with_extra_repos="disabled")
+    assert len(paths) == 1
+
+    paths = pkgrepo_paths(with_extra_repos="enabled")
     assert len(paths) == 2
 
     # systemd is the first path, since we want packages there to take priority

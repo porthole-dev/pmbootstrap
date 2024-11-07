@@ -16,6 +16,7 @@ RunReturnType = str | int | subprocess.Popen
 PathString = Path | str
 Env = dict[str, PathString]
 Apkbuild = dict[str, Any]
+WithExtraRepos = Literal["default", "enabled", "disabled"]
 
 # These types are not definitive / API, they exist to describe the current
 # state of things so that we can improve our type hinting coverage and make

@@ -6,22 +6,30 @@ from collections.abc import Generator
 import pmb.config
 from pmb.core.context import get_context
 from pmb.meta import Cache
+from pmb.types import WithExtraRepos
 
 
-@Cache(skip_extras=False)
-def pkgrepo_paths(skip_extras: bool = False) -> list[Path]:
+@Cache("with_extra_repos")
+def pkgrepo_paths(with_extra_repos: WithExtraRepos = "default") -> list[Path]:
     config = get_context().config
     paths = list(map(lambda x: Path(x), config.aports))
     if not paths:
         raise RuntimeError("No package repositories specified?")
 
-    if skip_extras:
-        return paths
+    with_systemd = False
+
+    match with_extra_repos:
+        case "disabled":
+            return paths
+        case "enabled":
+            with_systemd = True
+        case "default":
+            with_systemd = pmb.config.is_systemd_selected(config)
 
     out_paths = []
     for p in paths:
         # This isn't very generic, but we don't plan to add new extra-repos...
-        if (p / "extra-repos/systemd").is_dir() and pmb.config.is_systemd_selected(config):
+        if (p / "extra-repos/systemd").is_dir() and with_systemd:
             out_paths.append(p / "extra-repos/systemd")
         out_paths.append(p)
 
@@ -30,16 +38,16 @@ def pkgrepo_paths(skip_extras: bool = False) -> list[Path]:
 
 @Cache()
 def pkgrepo_default_path() -> Path:
-    return pkgrepo_paths(skip_extras=True)[0]
+    return pkgrepo_paths(with_extra_repos="disabled")[0]
 
 
-def pkgrepo_names(skip_exras: bool = False) -> list[str]:
+def pkgrepo_names(with_extra_repos: WithExtraRepos = "default") -> list[str]:
     """
     Return a list of all the package repository names. We REQUIRE
     that the last repository is "pmaports", though the directory
     may be named differently. So we hardcode the name here.
     """
-    names = [aports.name for aports in pkgrepo_paths(skip_exras)]
+    names = [aports.name for aports in pkgrepo_paths(with_extra_repos)]
     names[-1] = "pmaports"
     return names
 
@@ -112,14 +120,16 @@ def pkgrepo_iglob(path: str, recursive: bool = False) -> Generator[Path, None, N
             yield pdir
 
 
-def pkgrepo_iter_package_dirs(skip_extra_repos: bool = False) -> Generator[Path, None, None]:
+def pkgrepo_iter_package_dirs(
+    with_extra_repos: WithExtraRepos = "default",
+) -> Generator[Path, None, None]:
     """
     Yield each matching glob over each aports repository.
     Detect duplicates within the same aports repository but otherwise
     ignore all but the first. This allows for overriding packages.
     """
-    seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(skip_extra_repos)))
-    for repo in pkgrepo_paths(skip_extra_repos):
+    seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(with_extra_repos)))
+    for repo in pkgrepo_paths(with_extra_repos):
         for g in glob.iglob(os.path.join(repo, "**/*/APKBUILD"), recursive=True):
             pdir = Path(g).parent
             # Skip extra-repos when not parsing the extra-repo itself

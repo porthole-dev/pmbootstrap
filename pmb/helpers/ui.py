@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pmb.core.pkgrepo import pkgrepo_iglob
+from pmb.types import WithExtraRepos
 import pmb.helpers.pmaports
 import pmb.helpers.package
 import pmb.parse
@@ -29,7 +30,7 @@ def list_ui(arch):
     return ret
 
 
-def check_option(ui, option, skip_extra_repos=False):
+def check_option(ui: str, option: str, with_extra_repos: WithExtraRepos = "default") -> bool:
     """
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
     """
@@ -40,6 +41,6 @@ def check_option(ui, option, skip_extra_repos=False):
 
     pkgname = f"postmarketos-ui-{ui}"
     apkbuild = pmb.helpers.pmaports.get(
-        pkgname, subpackages=False, skip_extra_repos=skip_extra_repos
+        pkgname, subpackages=False, with_extra_repos=with_extra_repos
     )
     return option in apkbuild["options"]

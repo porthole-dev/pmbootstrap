@@ -13,15 +13,16 @@ from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
 from typing import Any
+from pmb.types import WithExtraRepos
 
 from pmb.meta import Cache
 import pmb.parse
 
 
-@Cache("skip_extra_repos")
-def _find_apkbuilds(skip_extra_repos: bool = False) -> dict[str, Path]:
+@Cache("with_extra_repos")
+def _find_apkbuilds(with_extra_repos: WithExtraRepos = "default") -> dict[str, Path]:
     apkbuilds = {}
-    for package in pkgrepo_iter_package_dirs(skip_extra_repos=skip_extra_repos):
+    for package in pkgrepo_iter_package_dirs(with_extra_repos=with_extra_repos):
         pkgname = package.name
         if pkgname in apkbuilds:
             raise RuntimeError(
@@ -139,8 +140,8 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
     return False
 
 
-@Cache("package", "subpackages", skip_extra_repos=False)
-def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
+@Cache("package", "subpackages", "with_extra_repos")
+def find(package, must_exist=True, subpackages=True, with_extra_repos="default"):
     """Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
@@ -161,7 +162,7 @@ def find(package, must_exist=True, subpackages=True, skip_extra_repos=False):
         raise RuntimeError("Invalid pkgname: " + package)
 
     # Try to find an APKBUILD with the exact pkgname we are looking for
-    path = _find_apkbuilds(skip_extra_repos).get(package)
+    path = _find_apkbuilds(with_extra_repos).get(package)
     if path:
         logging.verbose(f"{package}: found apkbuild: {path}")
         ret = path.parent
@@ -203,9 +204,12 @@ def find_optional(package: str) -> Path | None:
 
 
 # The only caller with subpackages=False is ui.check_option()
-@Cache("pkgname", subpackages=True)
+@Cache("pkgname", "with_extra_repos", subpackages=True)
 def get_with_path(
-    pkgname: str, must_exist: bool = True, subpackages: bool = True, skip_extra_repos: bool = False
+    pkgname: str,
+    must_exist: bool = True,
+    subpackages: bool = True,
+    with_extra_repos: WithExtraRepos = "default",
 ) -> tuple[Path | None, dict[str, Any] | None]:
     """Find and parse an APKBUILD file.
 
@@ -216,7 +220,7 @@ def get_with_path(
     :param must_exist: raise an exception when it can't be found
     :param subpackages: also search for subpackages with the specified
         names (slow! might need to parse all APKBUILDs to find it)
-    :param skip_extra_repos: skip extra repositories (e.g. systemd) when
+    :param with_extra_repos: use extra repositories (e.g. systemd) when
         searching for the package
 
     :returns: relevant variables from the APKBUILD as dictionary, e.g.:
@@ -228,16 +232,19 @@ def get_with_path(
                   ... }
     """
     pkgname = pmb.helpers.package.remove_operators(pkgname)
-    pmaport = find(pkgname, must_exist, subpackages, skip_extra_repos)
+    pmaport = find(pkgname, must_exist, subpackages, with_extra_repos)
     if pmaport:
         return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
     return None, None
 
 
 def get(
-    pkgname: str, must_exist: bool = True, subpackages: bool = True, skip_extra_repos: bool = False
+    pkgname: str,
+    must_exist: bool = True,
+    subpackages: bool = True,
+    with_extra_repos: WithExtraRepos = "default",
 ) -> dict[str, Any]:
-    return get_with_path(pkgname, must_exist, subpackages, skip_extra_repos)[1]
+    return get_with_path(pkgname, must_exist, subpackages, with_extra_repos)[1]
 
 
 def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
