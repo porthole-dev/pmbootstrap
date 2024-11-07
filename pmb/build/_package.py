@@ -355,9 +355,7 @@ def process_package(
                     " try again"
                 )
             return []
-        raise RuntimeError(
-            f"{pkgname}: Could not find aport, and" " could not find this package in any APKINDEX!"
-        )
+        raise RuntimeError(f"{pkgname}: Could not find it in pmaports or any APKINDEX!")
 
     if arch is None:
         arch = pmb.build.autodetect.arch(base_apkbuild)

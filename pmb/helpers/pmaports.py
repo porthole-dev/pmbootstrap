@@ -205,7 +205,7 @@ def find(package, must_exist=True, subpackages=True, with_extra_repos="default")
     # Crash when necessary
     if ret is None and must_exist:
         show_pkg_not_found_systemd_hint(package, with_extra_repos)
-        raise RuntimeError("Could not find aport for package: " + package)
+        raise RuntimeError(f"Could not find package '{package}' in pmaports")
 
     return ret
 

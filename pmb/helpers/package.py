@@ -126,10 +126,7 @@ def get(
     # Could not find the package
     if not must_exist:
         return None
-    raise RuntimeError(
-        "Package '" + pkgname + "': Could not find aport, and"
-        " could not find this package in any APKINDEX!"
-    )
+    raise RuntimeError(f"Package '{pkgname}': Could not find it in pmaports or any APKINDEX!")
 
 
 @Cache("pkgname", "arch")
