@@ -273,6 +273,7 @@ def cache_clean(arch: Arch) -> None:
     command += ["cache", "clean"]
     _command = _prepare_cmd(command, None)
 
+    pmb.helpers.apk_static.init()
     pmb.helpers.run.root(_command)
 
 
