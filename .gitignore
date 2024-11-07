@@ -127,3 +127,5 @@ ENV/
 .kdev4/
 *.kdev4
 *.kate*
+
+/junit.xml
