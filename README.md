@@ -3,19 +3,6 @@
 Sophisticated chroot/build/flash tool to develop and install
 [postmarketOS](https://postmarketos.org).
 
-## 3.0.0\_alpha!
-
-You are looking at the alpha branch of
-[pmbootstrap v3](https://connolly.tech/posts/2024_06_15-pmbootstrap-v3/)!
-
-This branch has massive refactorings and improvements, making pmbootstrap
-easier to maintain and bringing more performance and better usability. However
-until we have a stable release of it, there may still be a lot of bugs. If you
-find one, usually it is not that hard to fix it yourself so consider sending
-in a merge request or at least reporting an issue.
-
-Find the old codebase in the `2.3.x` branch.
-
 ## Development
 
 Find the location of the upstream repository for pmbootstrap on the
