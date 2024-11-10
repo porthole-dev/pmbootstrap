@@ -161,14 +161,14 @@ def pmaports(pmb_args, monkeypatch):
 
     config = get_context().config
 
-    if Config.aports[-1].exists():
-        pmb.config.git_repos["pmaports"] = [str(Config.aports[-1])]
+    with monkeypatch.context() as m:
+        # Speed things up by cloning from the local checkout if it exists.
+        if Config.aports[0].exists():
+            m.setitem(pmb.config.git_repos, "pmaports", Config.aports)
 
-    if not config.aports[-1].exists():
         pmb.helpers.git.clone("pmaports")
-        assert (
-            pmb.helpers.run.user(["git", "checkout", "master"], working_dir=config.aports[0]) == 0
-        )
+
+    assert pmb.helpers.run.user(["git", "checkout", "master"], working_dir=config.aports[0]) == 0
 
 
 @pytest.fixture
