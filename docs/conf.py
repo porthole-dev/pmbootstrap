@@ -65,6 +65,10 @@ html_theme_options = {
     "style_external_links": True,
 }
 
+# customize styling
+html_static_path = ["_static"]
+html_css_files = ["pmOS.css"]
+
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
