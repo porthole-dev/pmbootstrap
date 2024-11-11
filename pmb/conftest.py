@@ -52,6 +52,13 @@ def device_package(config_file):
     return pkgdir
 
 
+@pytest.fixture(autouse=True)
+def find_required_programs():
+    """Fixture to find required programs for pmbootstrap."""
+
+    pmb.config.require_programs()
+
+
 @pytest.fixture
 def mock_devices_find_path(device_package, monkeypatch):
     """Fixture to mock pmb.helpers.devices.find_path()"""

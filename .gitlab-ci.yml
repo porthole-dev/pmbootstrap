@@ -33,7 +33,7 @@ codespell:
 pytest:
   stage: test
   script:
-    - "apk -q add git android-tools"
+    - "apk -q add git android-tools multipath-tools losetup"
     - "su build -c 'git config --global user.email ci@ci'"
     - "su build -c 'git config --global user.name CI'"
     - "echo 'build ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"

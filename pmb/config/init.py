@@ -32,6 +32,7 @@ import pmb.chroot.zap
 import pmb.parse.deviceinfo
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.parse._apkbuild
+import subprocess
 
 
 def require_programs() -> None:
@@ -50,11 +51,16 @@ def require_programs() -> None:
     if "losetup" not in missing:
         # Check if losetup supports the --json argument. Use the absolute path
         # here, so it works in Debian too without using sudo.
+        # FIXME: we use subprocess directly here since pmb.helpers.run.user() requires
+        # global context to be initialized but we want this to run early in pytest.
         try:
-            pmb.helpers.run.user(
-                [pmb.config.required_programs["losetup"], "--json"], check=True, output="null"
+            subprocess.run(
+                [pmb.config.required_programs["losetup"], "--json"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
             )
-        except RuntimeError:
+        except subprocess.CalledProcessError:
             losetup_missing_json = True
 
     error_message = ""
