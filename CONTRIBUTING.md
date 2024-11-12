@@ -37,6 +37,18 @@ This is a reST style.
 """
 ```
 
+#### Linting
+
+To avoid having to fight with ruff in CI, it's recommended to enable a
+pre-commit hook to run it automatically before you commit. This drastically
+streamlines interacting with ruff.
+
+Enable the git hook with:
+
+```sh
+ln -sf ../../.ci/hooks/pre-commit .git/hooks/pre-commit
+```
+
 ### Shell scripts
 
 * Must be POSIX compliant, so busybox ash can interpret them. (Exception: the
