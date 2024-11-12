@@ -30,6 +30,11 @@ codespell:
   script:
     - ".ci/codespell.sh"
 
+markdownlint:
+  stage: test
+  script:
+    - ".ci/markdown.sh"
+
 pytest:
   stage: test
   script:
