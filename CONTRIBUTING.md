@@ -43,6 +43,18 @@ This is a reST style.
   `local` keyword can also be used, to give variables a local scope inside
   functions).
 
+### Markdown
+
+Markdown files are linted with markdownlint-cli, to avoid having to install npm
+on your host, you can lint the markdown files in this repo with:
+
+```sh
+pmbootstrap ci markdown
+```
+
+Additionally, most electron based IDEs (e.g. vscode) have markdownlint available
+as an extension.
+
 ## Code patterns
 
 ### The `args` variable
