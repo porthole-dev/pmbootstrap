@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import urllib.request
+from typing import Literal, overload
 import pmb.helpers.cli
 
 from pmb.core.context import get_context
@@ -18,9 +19,36 @@ def cache_file(prefix: str, url: str) -> Path:
     return Path(f"{prefix}_{hashlib.sha256(url.encode('utf-8')).hexdigest()}")
 
 
+@overload
 def download(
-    url, prefix, cache=True, loglevel=logging.INFO, allow_404=False, flush_progress_bar_on_404=False
-):
+    url: str,
+    prefix: str,
+    cache: bool = ...,
+    loglevel: int = ...,
+    allow_404: Literal[False] = ...,
+    flush_progress_bar_on_404: bool = ...,
+) -> Path: ...
+
+
+@overload
+def download(
+    url: str,
+    prefix: str,
+    cache: bool = ...,
+    loglevel: int = ...,
+    allow_404: Literal[True] = ...,
+    flush_progress_bar_on_404: bool = ...,
+) -> Path | None: ...
+
+
+def download(
+    url: str,
+    prefix: str,
+    cache: bool = True,
+    loglevel: int = logging.INFO,
+    allow_404: bool = False,
+    flush_progress_bar_on_404: bool = False,
+) -> Path | None:
     """Download a file to disk.
 
     :param url: the http(s) address of to the file to download
@@ -73,7 +101,21 @@ def download(
     return path
 
 
-def retrieve(url, headers=None, allow_404=False):
+@overload
+def retrieve(
+    url: str, headers: dict[str, str] | None = ..., allow_404: Literal[False] = ...
+) -> str: ...
+
+
+@overload
+def retrieve(
+    url: str, headers: dict[str, str] | None = ..., allow_404: Literal[True] = ...
+) -> str | None: ...
+
+
+def retrieve(
+    url: str, headers: dict[str, str] | None = None, allow_404: bool = False
+) -> str | None:
     """Fetch the content of a URL and returns it as string.
 
     :param url: the http(s) address of to the resource to fetch

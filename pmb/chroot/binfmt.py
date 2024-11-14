@@ -11,7 +11,7 @@ import pmb.parse
 import pmb.chroot.apk
 
 
-def is_registered(arch_qemu: Arch) -> bool:
+def is_registered(arch_qemu: str | Arch) -> bool:
     return os.path.exists(f"/proc/sys/fs/binfmt_misc/qemu-{arch_qemu}")
 
 

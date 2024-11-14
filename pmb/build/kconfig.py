@@ -192,7 +192,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
 
     extract_and_patch_sources(pkgname, arch)
 
-    env = {
+    env: Env = {
         "ARCH": arch.kernel(),
     }
 

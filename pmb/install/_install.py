@@ -58,7 +58,7 @@ def get_subpartitions_size(chroot: Chroot) -> tuple[int, int]:
     return (boot, round(root))
 
 
-def get_nonfree_packages(device):
+def get_nonfree_packages(device: str) -> list[str]:
     """
     Get any legacy non-free subpackages in the APKBUILD.
     Also see: https://postmarketos.org/edge/2024/02/15/default-nonfree-fw/

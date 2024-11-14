@@ -77,7 +77,7 @@ class BuildStatus(enum.Enum):
     def __str__(self) -> str:
         return self.value
 
-    def necessary(self):
+    def necessary(self) -> bool:
         return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
 
 
@@ -132,7 +132,7 @@ def get_status(arch: Arch | None, apkbuild: dict[str, Any]) -> BuildStatus:
     return BuildStatus.UNNECESSARY
 
 
-def index_repo(arch=None):
+def index_repo(arch: Arch | None = None) -> None:
     """Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
     cache for that file for the current pmbootstrap session (to prevent
     rebuilding packages twice, in case the rebuild takes less than a second).

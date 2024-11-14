@@ -14,12 +14,12 @@ from pmb.core.context import get_context
 class ReadlineTabCompleter:
     """Store intermediate state for completer function."""
 
-    def __init__(self, options):
+    def __init__(self, options: list[str]) -> None:
         """:param options: list of possible completions."""
         self.options = sorted(options)
-        self.matches = []
+        self.matches: list[str] = []
 
-    def completer_func(self, input_text, iteration):
+    def completer_func(self, input_text: str, iteration: int) -> str | None:
         """
         :param input_text: text that shall be autocompleted
         :param iteration: how many times "tab" was hit
@@ -104,7 +104,9 @@ def ask(
         )
 
 
-def confirm(question="Continue?", default=False, no_assumptions=False):
+def confirm(
+    question: str = "Continue?", default: bool = False, no_assumptions: bool = False
+) -> bool:
     """Convenience wrapper around ask for simple yes-no questions with validation.
 
     :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
@@ -118,7 +120,7 @@ def confirm(question="Continue?", default=False, no_assumptions=False):
     return answer == "y"
 
 
-def progress_print(progress):
+def progress_print(progress: float) -> None:
     """Print a snapshot of a progress bar to STDOUT.
 
     Call progress_flush to end  printing progress and clear the line. No output is printed in
@@ -141,7 +143,7 @@ def progress_print(progress):
         sys.stdout.write("\u001b8\u001b[0K")
 
 
-def progress_flush():
+def progress_flush() -> None:
     """Finish printing a progress bar.
 
     This will erase the line. Does nothing in non-interactive mode.

@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 from collections import OrderedDict
+from typing import Any
 
 import pmb.config
 from pmb.meta import Cache
@@ -33,7 +34,7 @@ revar5 = re.compile(r"([a-zA-Z_]+[a-zA-Z0-9_]*)=")
 
 
 def replace_variable(apkbuild: Apkbuild, value: str) -> str:
-    def log_key_not_found(match):
+    def log_key_not_found(match: re.Match) -> None:
         logging.verbose(
             f"{apkbuild['pkgname']}: key '{match.group(1)}' for"
             f" replacing '{match.group(0)}' not found, ignoring"
@@ -135,7 +136,9 @@ def read_file(path: Path) -> list[str]:
     return lines
 
 
-def parse_next_attribute(lines, i, path):
+def parse_next_attribute(
+    lines: list[str], i: int, path: Path
+) -> tuple[str, str, int] | tuple[None, None, int]:
     """
     Parse one attribute from the APKBUILD.
 
@@ -196,7 +199,9 @@ def parse_next_attribute(lines, i, path):
     )
 
 
-def _parse_attributes(path, lines, apkbuild_attributes, ret):
+def _parse_attributes(
+    path: Path, lines: list[str], apkbuild_attributes: dict[str, dict[str, bool]], ret: Apkbuild
+) -> None:
     """
     Parse attributes from a list of lines. Variables are replaced with values
     from ret (if found) and split into the format configured in
@@ -209,7 +214,7 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
     # Parse all variables first, and replace variables mentioned earlier
     for i in range(len(lines)):
         attribute, value, i = parse_next_attribute(lines, i, path)
-        if not attribute:
+        if not attribute or not value:
             continue
         ret[attribute] = replace_variable(ret, value)
 
@@ -237,7 +242,9 @@ def _parse_attributes(path, lines, apkbuild_attributes, ret):
             del ret[attribute]
 
 
-def _parse_subpackage(path, lines, apkbuild, subpackages, subpkg):
+def _parse_subpackage(
+    path: Path, lines: list[str], apkbuild: Apkbuild, subpackages: dict[str, Any], subpkg: str
+) -> None:
     """
     Attempt to parse attributes from a subpackage function.
     This will attempt to locate the subpackage function in the APKBUILD and
@@ -405,7 +412,7 @@ def kernels(device: str) -> dict[str, str] | None:
     return None
 
 
-def _parse_comment_tags(lines, tag):
+def _parse_comment_tags(lines: list[str], tag: str) -> list[str]:
     """
     Parse tags defined as comments in a APKBUILD file. This can be used to
     parse e.g. the maintainers of a package (defined using # Maintainer:).
@@ -422,7 +429,7 @@ def _parse_comment_tags(lines, tag):
     return ret
 
 
-def maintainers(path):
+def maintainers(path: Path) -> list[str] | None:
     """
     Parse maintainers of an APKBUILD file. They should be defined using
     # Maintainer: (first maintainer) and # Co-Maintainer: (additional
@@ -447,7 +454,7 @@ def maintainers(path):
     return maintainers
 
 
-def archived(path):
+def archived(path: Path) -> str | None:
     """
     Return if (and why) an APKBUILD might be archived. This should be
     defined using a # Archived: <reason> tag in the APKBUILD.

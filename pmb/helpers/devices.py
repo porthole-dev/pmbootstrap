@@ -19,7 +19,7 @@ def find_path(codename: str, file: str = "") -> Path | None:
     return g
 
 
-def list_codenames(vendor=None, archived=True):
+def list_codenames(vendor: str | None = None, archived: bool = True) -> list[str]:
     """Get all devices, for which aports are available.
 
     :param vendor: vendor name to choose devices from, or None for all vendors

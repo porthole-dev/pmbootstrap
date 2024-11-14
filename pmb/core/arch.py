@@ -65,7 +65,7 @@ class Arch(enum.Enum):
         global _cached_native_arch
         return _cached_native_arch
 
-    def is_native(self):
+    def is_native(self) -> bool:
         return self == Arch.native()
 
     @staticmethod
@@ -87,7 +87,7 @@ class Arch(enum.Enum):
             ]
         )
 
-    def kernel(self):
+    def kernel(self) -> str:
         mapping = {
             Arch.x86: "x86",
             Arch.x86_64: "x86_64",
@@ -102,7 +102,7 @@ class Arch(enum.Enum):
         }
         return mapping.get(self, self.value)
 
-    def qemu(self):
+    def qemu(self) -> str:
         mapping = {
             Arch.x86: "i386",
             Arch.armhf: "arm",
@@ -110,7 +110,7 @@ class Arch(enum.Enum):
         }
         return mapping.get(self, self.value)
 
-    def alpine_triple(self):
+    def alpine_triple(self) -> str:
         """Get the cross compiler triple for this architecture on Alpine."""
         mapping = {
             Arch.aarch64: "aarch64-alpine-linux-musl",
@@ -139,7 +139,7 @@ class Arch(enum.Enum):
 
         raise ValueError(f"Can not map Alpine architecture '{self}'" " to the right hostspec value")
 
-    def cpu_emulation_required(self):
+    def cpu_emulation_required(self) -> bool:
         # Obvious case: host arch is target arch
         if self == Arch.native():
             return False
