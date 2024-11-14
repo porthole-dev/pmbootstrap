@@ -292,7 +292,7 @@ def ask_for_timezone() -> str:
                     pass
         if tz:
             logging.info(f"Your host timezone: {tz}")
-            if pmb.helpers.cli.confirm("Use this timezone instead of GMT?", default="y"):
+            if pmb.helpers.cli.confirm("Use this timezone instead of GMT?", default=True):
                 return tz
     logging.info("WARNING: Unable to determine timezone configuration on host, using GMT.")
     return "GMT"
