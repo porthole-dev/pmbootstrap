@@ -263,11 +263,11 @@ def ask_for_systemd(config: Config, ui: str) -> SystemdConfig:
     answer = pmb.helpers.cli.ask(
         "Install systemd?",
         choices,
-        config.systemd,
+        str(config.systemd),
         validation_regex=f"^({'|'.join(choices)})$",
         complete=choices,
     )
-    return answer
+    return SystemdConfig(answer)
 
 
 def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo) -> str:
