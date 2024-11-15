@@ -527,10 +527,12 @@ def ask_for_additional_options(config: Config) -> None:
         " How much extra free space do you want to add to the image"
         " (in MB)?"
     )
+    # TODO: The __setattr__ implementation in Config does handle the conversions here,
+    # but mypy doesn't understand this (yet?), so we have to do it explicitly.
     answer = pmb.helpers.cli.ask(
         "Extra space size", None, config.extra_space, validation_regex="^[0-9]+$"
     )
-    config.extra_space = answer
+    config.extra_space = int(answer)
 
     # Boot size
     logging.info("What should be the boot partition size (in MB)?")
