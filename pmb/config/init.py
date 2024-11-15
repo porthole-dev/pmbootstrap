@@ -112,7 +112,11 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
     )
     while True:
         try:
-            work = os.path.expanduser(pmb.helpers.cli.ask("Work path", None, default, False))
+            work = os.path.expanduser(
+                pmb.helpers.cli.ask(
+                    "Work path", None, str(default) if default is not None else default, False
+                )
+            )
             work = os.path.realpath(work)
             exists = os.path.exists(work)
 
@@ -140,7 +144,7 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
             # Create cache_git dir, so it is owned by the host system's user
             # (otherwise pmb.helpers.mount.bind would create it as root)
             os.makedirs(f"{work}/cache_git", 0o700, True)
-            return (work, exists)
+            return (Path(work), exists)
         except OSError:
             logging.fatal(
                 "ERROR: Could not create this folder, or write inside it! Please try again."
