@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import urllib.request
-from typing import Literal, overload
+from typing import Any, Literal, overload
 import pmb.helpers.cli
 
 from pmb.core.context import get_context
@@ -143,9 +143,9 @@ def retrieve(
         raise
 
 
-def retrieve_json(*args, **kwargs):
+def retrieve_json(url: str, headers: dict[str, str] | None = None) -> Any:
     """Fetch the contents of a URL, parse it as JSON and return it.
 
-    See retrieve() for the list of all parameters.
+    See retrieve() for the meaning of the parameters.
     """
-    return json.loads(retrieve(*args, **kwargs))
+    return json.loads(retrieve(url, headers, False))
