@@ -4,6 +4,7 @@ from pathlib import Path
 from pmb.helpers import logging
 import re
 import os
+from typing import Literal, overload
 
 import pmb.build
 import pmb.config
@@ -14,7 +15,7 @@ from pmb.helpers.exceptions import NonBugError
 from pmb.types import PathString
 
 
-def is_set(config, option):
+def is_set(config: str, option: str) -> bool:
     """
     Check, whether a boolean or tristate option is enabled
     either as builtin or module.
@@ -26,7 +27,7 @@ def is_set(config, option):
     return re.search("^CONFIG_" + option + "=[ym]$", config, re.M) is not None
 
 
-def is_set_str(config, option, string):
+def is_set_str(config: str, option: str, string: str) -> bool:
     """
     Check, whether a config option contains a string as value.
 
@@ -42,7 +43,7 @@ def is_set_str(config, option, string):
         return False
 
 
-def is_in_array(config, option, string):
+def is_in_array(config: str, option: str, string: str) -> bool:
     """
     Check, whether a config option contains string as an array element
 
@@ -59,7 +60,14 @@ def is_in_array(config, option, string):
         return False
 
 
-def check_option(component, details, config, config_path, option, option_value):
+def check_option(
+    component: str,
+    details: bool,
+    config: str,
+    config_path: PathString,
+    option: str,
+    option_value: bool | str | list[str],
+) -> bool:
     """
     Check, whether one kernel config option has a given value.
 
@@ -72,7 +80,7 @@ def check_option(component, details, config, config_path, option, option_value):
     :returns: True if the check passed, False otherwise
     """
 
-    def warn_ret_false(should_str):
+    def warn_ret_false(should_str: str) -> bool:
         config_name = os.path.basename(config_path)
         if details:
             logging.warning(
@@ -107,8 +115,14 @@ def check_option(component, details, config, config_path, option, option_value):
 
 
 def check_config_options_set(
-    config, config_path, config_arch, options, component, pkgver, details=False
-):
+    config: str,
+    config_path: PathString,
+    config_arch: str,  # TODO: Replace with Arch type?
+    options: dict[str, dict],
+    component: str,
+    pkgver: str,
+    details: bool = False,
+) -> bool:
     """
     Check, whether all the kernel config passes all rules of one component.
 
@@ -195,7 +209,27 @@ def check_config(
     return all(ret)
 
 
-def check(pkgname, components_list=[], details=False, must_exist=True):
+@overload
+def check(
+    pkgname: str,
+    components_list: list[str] = ...,
+    details: bool = ...,
+    must_exist: Literal[False] = ...,
+) -> bool | None: ...
+
+
+@overload
+def check(
+    pkgname: str,
+    components_list: list[str] = ...,
+    details: bool = ...,
+    must_exist: Literal[True] = ...,
+) -> bool: ...
+
+
+def check(
+    pkgname: str, components_list: list[str] = [], details: bool = False, must_exist: bool = True
+) -> bool | None:
     """
     Check for necessary kernel config options in a package.
 
@@ -263,7 +297,8 @@ def check(pkgname, components_list=[], details=False, must_exist=True):
     return ret
 
 
-def extract_arch(config_path):
+# TODO: Make this use the Arch type probably
+def extract_arch(config_path: PathString) -> str:
     # Extract the architecture out of the config
     with open(config_path) as f:
         config = f.read()
@@ -283,7 +318,7 @@ def extract_arch(config_path):
     return "unknown"
 
 
-def extract_version(config_path):
+def extract_version(config_path: PathString) -> str:
     # Try to extract the version string out of the comment header
     with open(config_path) as f:
         # Read the first 3 lines of the file and get the third line only

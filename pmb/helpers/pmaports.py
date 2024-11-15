@@ -375,7 +375,7 @@ def get_channel_new(channel: str) -> str:
     return channel
 
 
-def require_bootstrap_error(repo, arch, trigger_str):
+def require_bootstrap_error(repo: str, arch: Arch, trigger_str: str) -> None:
     """
     Tell the user that they need to do repo_bootstrap, with some context.
 
@@ -392,7 +392,7 @@ def require_bootstrap_error(repo, arch, trigger_str):
     )
 
 
-def require_bootstrap(arch, trigger_str):
+def require_bootstrap(arch: Arch, trigger_str: str) -> None:
     """
     Check if repo_bootstrap was done, if any is needed.
 

@@ -6,6 +6,8 @@ import os
 import re
 import readline
 import sys
+from collections.abc import KeysView
+from typing import Any
 
 import pmb.config
 from pmb.core.context import get_context
@@ -14,7 +16,7 @@ from pmb.core.context import get_context
 class ReadlineTabCompleter:
     """Store intermediate state for completer function."""
 
-    def __init__(self, options: list[str]) -> None:
+    def __init__(self, options: KeysView[str] | dict[str, Any] | list[str]) -> None:
         """:param options: list of possible completions."""
         self.options = sorted(options)
         self.matches: list[str] = []
@@ -38,13 +40,13 @@ class ReadlineTabCompleter:
 
 
 def ask(
-    question="Continue?",
-    choices=["y", "n"],
-    default="n",
-    lowercase_answer=True,
-    validation_regex=None,
-    complete=None,
-):
+    question: str = "Continue?",
+    choices: list[str] | None = ["y", "n"],
+    default: int | str | None = "n",
+    lowercase_answer: bool | None = True,
+    validation_regex: str | None = None,
+    complete: KeysView[str] | dict[str, Any] | list[str] | None = None,
+) -> str:
     """Ask a question on the terminal.
 
     :param question: display prompt

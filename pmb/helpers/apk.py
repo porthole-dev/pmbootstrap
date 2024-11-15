@@ -116,7 +116,7 @@ def _create_command_with_progress(command, fifo):
     return ["sh", "-c", command_flat]
 
 
-def _compute_progress(line):
+def _compute_progress(line: str) -> float:
     """Compute the progress as a number between 0 and 1.
 
     :param line: line as read from the progress fifo
@@ -277,7 +277,7 @@ def cache_clean(arch: Arch) -> None:
     pmb.helpers.run.root(_command)
 
 
-def check_outdated(version_installed, action_msg):
+def check_outdated(version_installed: str, action_msg: str) -> None:
     """Check if the provided alpine version is outdated.
 
     This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out

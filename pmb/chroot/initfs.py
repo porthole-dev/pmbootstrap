@@ -77,7 +77,7 @@ def extract(flavor: str | None, chroot: Chroot, extra: bool = False) -> Path:
     return outside
 
 
-def ls(flavor, suffix, extra=False):
+def ls(flavor: str | None, suffix: Chroot, extra: bool = False) -> None:
     tmp = "/tmp/initfs-extracted"
     if extra:
         tmp = "/tmp/initfs-extra-extracted"

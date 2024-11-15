@@ -7,8 +7,8 @@ import pmb.build.other
 
 
 class Index(commands.Command):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def run(self):
+    def run(self) -> None:
         pmb.build.other.index_repo()

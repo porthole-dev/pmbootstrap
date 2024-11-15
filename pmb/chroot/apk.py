@@ -58,7 +58,7 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
     )
 
 
-def packages_split_to_add_del(packages):
+def packages_split_to_add_del(packages: list[str]) -> tuple[list[str], list[str]]:
     """
     Sort packages into "to_add" and "to_del" lists depending on their pkgname
     starting with an exclamation mark.

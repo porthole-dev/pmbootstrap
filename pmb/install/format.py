@@ -6,7 +6,7 @@ from pmb.core import Chroot
 from pmb.types import PartitionLayout, PmbArgs, PathString
 
 
-def install_fsprogs(filesystem):
+def install_fsprogs(filesystem: str) -> None:
     """Install the package required to format a specific filesystem."""
     fsprogs = pmb.config.filesystems.get(filesystem)
     if not fsprogs:

@@ -20,7 +20,7 @@ import pmb.helpers.pmaports
 import pmb.helpers.repo
 
 
-def remove_operators(package):
+def remove_operators(package: str) -> str:
     for operator in [">", ">=", "<=", "=", "<", "~"]:
         if operator in package:
             package = package.split(operator)[0]

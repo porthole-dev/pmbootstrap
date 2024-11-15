@@ -173,7 +173,7 @@ def zap_pkgs_local_mismatch(confirm: bool = True, dry: bool = False) -> None:
         pmb.build.other.index_repo()
 
 
-def zap_pkgs_online_mismatch(confirm=True, dry=False):
+def zap_pkgs_online_mismatch(confirm: bool = True, dry: bool = False) -> None:
     # Check whether we need to do anything
     paths = list(get_context().config.work.glob("cache_apk_*"))
     if not len(paths):

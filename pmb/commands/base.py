@@ -5,6 +5,6 @@
 class Command:
     """Base class for pmbootstrap commands."""
 
-    def run(self):
+    def run(self) -> None:
         """Run the command."""
         raise NotImplementedError()

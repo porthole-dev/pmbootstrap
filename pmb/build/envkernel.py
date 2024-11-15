@@ -21,7 +21,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 
 
-def match_kbuild_out(word):
+def match_kbuild_out(word: str) -> str | None:
     """Look for paths in the following formats:
       "<prefix>/<kbuild_out>/arch/<arch>/boot"
       "<prefix>/<kbuild_out>/include/config/kernel.release"
@@ -55,7 +55,7 @@ def match_kbuild_out(word):
     return "" if out_dir is None else out_dir.strip("/")
 
 
-def find_kbuild_output_dir(function_body):
+def find_kbuild_output_dir(function_body: list[str]) -> str:
     """Guess what the kernel build output directory is.
 
     Parses each line of the function word by word, looking for paths which

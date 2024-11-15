@@ -12,7 +12,7 @@ FuncReturn = TypeVar("FuncReturn")
 
 
 class Wrapper(Generic[FuncArgs, FuncReturn]):
-    def __init__(self, cache: "Cache", func: Callable[[FuncArgs], FuncReturn]):
+    def __init__(self, cache: "Cache", func: Callable[[FuncArgs], FuncReturn]) -> None:
         self.cache = cache
         self.func = func
         self.disabled = False
@@ -47,12 +47,12 @@ class Wrapper(Generic[FuncArgs, FuncReturn]):
 
         return self.cache.cache[key]
 
-    def cache_clear(self):
+    def cache_clear(self) -> None:
         self.cache.clear()
         self.misses = 0
         self.hits = 0
 
-    def cache_disable(self):
+    def cache_disable(self) -> None:
         self.disabled = True
 
 
@@ -64,7 +64,7 @@ class Cache:
     function is called with the given value. For example, in pmb.build._package
     we never want to use the cached result when called with force=True."""
 
-    def __init__(self, *args, cache_deepcopy=False, **kwargs):
+    def __init__(self, *args: str, cache_deepcopy: bool = False, **kwargs: Any) -> None:
         for a in args:
             if not isinstance(a, str):
                 raise ValueError(f"Cache key must be a string, not {type(a)}")
@@ -72,7 +72,7 @@ class Cache:
         if len(args) != len(set(args)):
             raise ValueError("Duplicate cache key properties")
 
-        self.cache = {}
+        self.cache: dict[str, Any] = {}
         self.params = args
         self.kwargs = kwargs
         self.cache_deepcopy = cache_deepcopy
@@ -144,5 +144,5 @@ class Cache:
         # FIXME: Once PEP-695 generics are in we shouldn't need this.
         return Wrapper(self, func)
 
-    def clear(self):
+    def clear(self) -> None:
         self.cache.clear()

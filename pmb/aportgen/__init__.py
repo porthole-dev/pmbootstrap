@@ -35,7 +35,7 @@ def get_cross_package_arches(pkgname: str) -> str:
         return "x86_64"
 
 
-def properties(pkgname):
+def properties(pkgname: str) -> tuple[str, str, AportGenEntry]:
     """
     Get the `pmb.config.aportgen` properties for the aport generator, based on
     the pkgname prefix.

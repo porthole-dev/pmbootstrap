@@ -72,7 +72,7 @@ def sanity_checks(
         raise RuntimeError("Can't use output_return with output: " + output)
 
 
-def background(cmd, working_dir=None):
+def background(cmd: str, working_dir: PathString | None = None) -> subprocess.Popen:
     """Run a subprocess in background and redirect its output to the log."""
     ret = subprocess.Popen(
         cmd, stdout=pmb.helpers.logging.logfd, stderr=pmb.helpers.logging.logfd, cwd=working_dir
@@ -81,7 +81,7 @@ def background(cmd, working_dir=None):
     return ret
 
 
-def pipe(cmd, working_dir=None):
+def pipe(cmd: str, working_dir: PathString | None = None) -> subprocess.Popen:
     """Run a subprocess in background and redirect its output to a pipe."""
     ret = subprocess.Popen(
         cmd,
@@ -156,7 +156,9 @@ def pipe_read(
         return
 
 
-def kill_process_tree(pid, ppids, sudo):
+# FIXME: The docstring claims that ppids should be a list of "process ID tuples", but in practice it
+# gets called with a list of string lists for the ppids argument.
+def kill_process_tree(pid: int | str, ppids: list[list[str]], sudo: bool) -> None:
     """Recursively kill a pid and its child processes.
 
     :param pid: process id that will be killed
@@ -173,7 +175,7 @@ def kill_process_tree(pid, ppids, sudo):
             kill_process_tree(child_pid, ppids, sudo)
 
 
-def kill_command(pid, sudo):
+def kill_command(pid: int, sudo: bool) -> None:
     """Kill a command process and recursively kill its child processes.
 
     :param pid: process id that will be killed
@@ -268,7 +270,7 @@ def foreground_pipe(
     return (process.returncode, b"".join(output_buffer).decode("utf-8"))
 
 
-def foreground_tui(cmd, working_dir=None):
+def foreground_tui(cmd: str, working_dir: PathString | None = None) -> int:
     """Run a subprocess in foreground without redirecting any of its output.
 
     This is the only way text-based user interfaces (ncurses programs like
@@ -279,7 +281,7 @@ def foreground_tui(cmd, working_dir=None):
     return process.wait()
 
 
-def check_return_code(code, log_message):
+def check_return_code(code: int, log_message: str) -> None:
     """Check the return code of a command.
 
     :param code: exit code to check
@@ -298,7 +300,7 @@ def check_return_code(code, log_message):
         raise RuntimeError(f"Command failed (exit code {str(code)}): " + log_message)
 
 
-def sudo_timer_iterate():
+def sudo_timer_iterate() -> None:
     """Run sudo -v and schedule a new timer to repeat the same."""
     if pmb.config.which_sudo() == "sudo":
         subprocess.Popen(["sudo", "-v"]).wait()
@@ -310,7 +312,7 @@ def sudo_timer_iterate():
     timer.start()
 
 
-def sudo_timer_start():
+def sudo_timer_start() -> None:
     """Start a timer to call sudo -v periodically, so that the password is only needed once."""
     if "sudo_timer_active" in pmb.helpers.other.cache:
         return
@@ -319,7 +321,7 @@ def sudo_timer_start():
     sudo_timer_iterate()
 
 
-def add_proxy_env_vars(env):
+def add_proxy_env_vars(env: Env) -> None:
     """Add proxy environment variables from host to the environment of the command we are running.
 
     :param env: dict of environment variables, it will be extended with all of the proxy env vars

@@ -1,16 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from typing import Any
 
 from pmb.core.arch import Arch
 from pmb.helpers import logging
+from pmb.types import Apkbuild
 
 import pmb.build
 import pmb.helpers.package
 import pmb.helpers.pmaports
 
 
-def filter_missing_packages(arch, pkgnames):
+def filter_missing_packages(arch: Arch, pkgnames: list[str]) -> list[str]:
     """Create a subset of pkgnames with missing or outdated binary packages.
 
     :param arch: architecture (e.g. "armhf")
@@ -27,7 +27,7 @@ def filter_missing_packages(arch, pkgnames):
     return ret
 
 
-def filter_aport_packages(pkgnames):
+def filter_aport_packages(pkgnames: list[str]) -> list[str]:
     """Create a subset of pkgnames where each one has an aport.
 
     :param pkgnames: list of package names (e.g. ["hello-world", "test12"])
@@ -40,7 +40,7 @@ def filter_aport_packages(pkgnames):
     return ret
 
 
-def filter_arch_packages(arch, pkgnames):
+def filter_arch_packages(arch: Arch, pkgnames: list[str]) -> list[str]:
     """Create a subset of pkgnames with packages removed that can not be built for a certain arch.
 
     :param arch: architecture (e.g. "armhf")
@@ -54,7 +54,7 @@ def filter_arch_packages(arch, pkgnames):
     return ret
 
 
-def get_relevant_packages(arch, pkgname=None, built=False):
+def get_relevant_packages(arch: Arch, pkgname: str | None = None, built: bool = False) -> list[str]:
     """Get all packages that can be built for the architecture in question.
 
     :param arch: architecture (e.g. "armhf")
@@ -92,7 +92,7 @@ def get_relevant_packages(arch, pkgname=None, built=False):
     return ret
 
 
-def generate_output_format(arch: Arch, pkgnames: list[str]) -> list[dict[str, Any]]:
+def generate_output_format(arch: Arch, pkgnames: list[str]) -> list[Apkbuild]:
     """Generate the detailed output format.
 
     :param arch: architecture

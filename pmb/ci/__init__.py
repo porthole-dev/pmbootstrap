@@ -5,13 +5,20 @@ import glob
 from pmb.helpers import logging
 import os
 from pathlib import Path
+from typing import Any, TypedDict
 import pmb.chroot
 from pmb.types import Env, PmbArgs
 import pmb.helpers.cli
 from pmb.core import Chroot
 
 
-def get_ci_scripts(topdir):
+class CiScriptDescriptor(TypedDict):
+    description: str
+    options: list[str]
+    artifacts: str | None
+
+
+def get_ci_scripts(topdir: Path) -> dict[str, CiScriptDescriptor]:
     """Find 'pmbootstrap ci'-compatible scripts inside a git repository, and
     parse their metadata (description, options). The reference is at:
     https://postmarketos.org/pmb-ci
@@ -21,7 +28,7 @@ def get_ci_scripts(topdir):
     :returns: a dict of CI scripts found in the git repository, e.g.
       {"ruff": {"description": "lint all python scripts", "options": []}, ...}
     """
-    ret = {}
+    ret: dict[str, CiScriptDescriptor] = {}
     for script in glob.glob(f"{topdir}/.ci/*.sh"):
         is_pmb_ci_script = False
         description = ""
@@ -61,7 +68,7 @@ def get_ci_scripts(topdir):
     return ret
 
 
-def sort_scripts_by_speed(scripts):
+def sort_scripts_by_speed(scripts: dict[str, CiScriptDescriptor]) -> dict[str, CiScriptDescriptor]:
     """Order the scripts, so fast scripts run before slow scripts. Whether a
     script is fast or not is determined by the '# Options: slow' comment in
     the file.
@@ -88,7 +95,9 @@ def sort_scripts_by_speed(scripts):
     return ret
 
 
-def ask_which_scripts_to_run(scripts_available):
+def ask_which_scripts_to_run(
+    scripts_available: dict[str, CiScriptDescriptor],
+) -> dict[str, CiScriptDescriptor]:
     """Display an interactive prompt about which of the scripts the user
     wishes to run, or all of them.
 
@@ -117,7 +126,7 @@ def ask_which_scripts_to_run(scripts_available):
     return ret
 
 
-def copy_git_repo_to_chroot(topdir):
+def copy_git_repo_to_chroot(topdir: Path) -> None:
     """Create a tarball of the git repo (including unstaged changes and new
     files) and extract it in chroot_native.
 
@@ -142,7 +151,7 @@ def copy_git_repo_to_chroot(topdir):
     pmb.chroot.user(["tar", "-xf", "/tmp/git.tar.gz"], working_dir=ci_dir)
 
 
-def run_scripts(topdir, scripts):
+def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
     """Run one of the given scripts after another, either natively or in a
     chroot. Display a progress message and stop on error (without printing
     a python stack trace).

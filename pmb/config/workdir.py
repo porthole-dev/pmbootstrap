@@ -129,7 +129,7 @@ def chroot_check_channel(chroot: Chroot) -> bool:
     return False
 
 
-def clean():
+def clean() -> bool | None:
     """Remove obsolete data data from workdir.cfg.
 
     :returns: None if workdir does not exist,

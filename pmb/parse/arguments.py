@@ -29,7 +29,9 @@ import pmb.helpers.pmaports
 """
 
 
-def toggle_other_boolean_flags(*other_destinations, value=True):
+def toggle_other_boolean_flags(
+    *other_destinations: str, value: bool = True
+) -> type[argparse.Action]:
     """Group several argparse flags to one.
 
     Sets multiple other_destination to value.
@@ -52,12 +54,12 @@ def toggle_other_boolean_flags(*other_destinations, value=True):
     return SetOtherDestinationsAction
 
 
-def type_ondev_cp(val):
+def type_ondev_cp(val: str) -> list[str]:
     """Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
 
     :param val: 'HOST_SRC:CHROOT_DEST' string
 
-    :returns: (HOST_SRC, CHROOT_DEST)
+    :returns: [HOST_SRC, CHROOT_DEST]
     """
     ret = val.split(":")
 
@@ -75,7 +77,7 @@ def type_ondev_cp(val):
     return ret
 
 
-def arguments_install(subparser):
+def arguments_install(subparser: argparse._SubParsersAction) -> None:
     ret = subparser.add_parser(
         "install", help="set up device specific chroot and install to SD card or image file"
     )
@@ -266,7 +268,7 @@ def arguments_install(subparser):
     )
 
 
-def arguments_export(subparser):
+def arguments_export(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "export",
         help="create convenience symlinks"
@@ -297,7 +299,7 @@ def arguments_export(subparser):
     return ret
 
 
-def arguments_sideload(subparser):
+def arguments_sideload(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "sideload", help="Push packages to a running phone connected over usb or wifi"
     )
@@ -325,7 +327,7 @@ def arguments_sideload(subparser):
     return ret
 
 
-def arguments_flasher(subparser):
+def arguments_flasher(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("flasher", help="flash something to the target device")
     ret.add_argument("--method", help="override flash method", dest="flash_method", default=None)
     sub = ret.add_subparsers(dest="action_flasher")
@@ -431,7 +433,7 @@ def arguments_flasher(subparser):
     return ret
 
 
-def arguments_initfs(subparser):
+def arguments_initfs(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("initfs", help="do something with the initramfs")
     sub = ret.add_subparsers(dest="action_initfs")
 
@@ -457,7 +459,7 @@ def arguments_initfs(subparser):
     return ret
 
 
-def arguments_qemu(subparser):
+def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("qemu")
     ret.add_argument("--cmdline", help="override kernel commandline")
     ret.add_argument(
@@ -549,7 +551,7 @@ def arguments_qemu(subparser):
     return ret
 
 
-def arguments_pkgrel_bump(subparser):
+def arguments_pkgrel_bump(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "pkgrel_bump",
         help="increase the pkgrel to"
@@ -577,7 +579,7 @@ def arguments_pkgrel_bump(subparser):
     return ret
 
 
-def arguments_pkgver_bump(subparser):
+def arguments_pkgver_bump(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "pkgver_bump",
         help="increase the pkgver and reset pkgrel to 0. useful when dealing with metapackages.",
@@ -587,7 +589,7 @@ def arguments_pkgver_bump(subparser):
     return ret
 
 
-def arguments_aportupgrade(subparser):
+def arguments_aportupgrade(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "aportupgrade", help="check for outdated packages that need upgrading"
     )
@@ -609,7 +611,7 @@ def arguments_aportupgrade(subparser):
     return ret
 
 
-def arguments_newapkbuild(subparser):
+def arguments_newapkbuild(subparser: argparse._SubParsersAction) -> None:
     """
     Wrapper for Alpine's "newapkbuild" command.
 
@@ -651,7 +653,7 @@ def arguments_newapkbuild(subparser):
     )
 
 
-def arguments_kconfig(subparser):
+def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
     # Allowed architectures
     arch_choices = Arch.supported()
 
@@ -726,7 +728,7 @@ def arguments_repo_bootstrap(subparser):
     return ret
 
 
-def arguments_repo_missing(subparser):
+def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("repo_missing")
     package = ret.add_argument(
         "package", nargs="?", help="only look at a specific package and its dependencies"
@@ -745,23 +747,23 @@ def arguments_repo_missing(subparser):
     return ret
 
 
-def arguments_lint(subparser):
+def arguments_lint(subparser: argparse._SubParsersAction) -> None:
     lint = subparser.add_parser("lint", help="run quality checks on pmaports (required to pass CI)")
     add_packages_arg(lint, nargs="*")
 
 
-def arguments_test(subparser):
+def arguments_test(subparser: argparse._SubParsersAction) -> None:
     test = subparser.add_parser("test", help="Internal pmbootstrap test tools")
     sub = test.add_subparsers(dest="action_test", required=True)
     sub.add_parser("apkindex_parse_all", help="parse all APKINDEX files")
 
 
-def arguments_status(subparser):
+def arguments_status(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("status", help="show a config and pmaports overview")
     return ret
 
 
-def arguments_netboot(subparser):
+def arguments_netboot(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("netboot", help="launch nbd server with pmOS rootfs")
     sub = ret.add_subparsers(dest="action_netboot")
     sub.required = True
@@ -772,7 +774,7 @@ def arguments_netboot(subparser):
     return ret
 
 
-def arguments_ci(subparser):
+def arguments_ci(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "ci",
         help="run continuous integration scripts locally of git repo in current directory",
@@ -1294,7 +1296,7 @@ def get_parser():
     return parser
 
 
-def arguments():
+def arguments() -> PmbArgs:
     args: PmbArgs = get_parser().parse_args()
 
     if getattr(args, "fork_alpine_retain_branch", False):

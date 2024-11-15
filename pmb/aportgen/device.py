@@ -13,7 +13,7 @@ import pmb.parse.apkindex
 import pmb.parse
 
 
-def ask_for_architecture():
+def ask_for_architecture() -> Arch:
     architectures = [str(a) for a in Arch.supported()]
     # Don't show armhf, new ports shouldn't use this architecture
     if "armhf" in architectures:
@@ -32,12 +32,12 @@ def ask_for_architecture():
         )
 
 
-def ask_for_manufacturer():
+def ask_for_manufacturer() -> str:
     logging.info("Who produced the device (e.g. LG)?")
     return pmb.helpers.cli.ask("Manufacturer", None, None, False)
 
 
-def ask_for_name(manufacturer):
+def ask_for_name(manufacturer: str) -> str:
     logging.info("What is the official name (e.g. Google Nexus 5)?")
     ret = pmb.helpers.cli.ask("Name", None, None, False)
 
@@ -47,13 +47,13 @@ def ask_for_name(manufacturer):
     return ret
 
 
-def ask_for_year():
+def ask_for_year() -> str:
     # Regex from https://stackoverflow.com/a/12240826
     logging.info("In what year was the device released (e.g. 2012)?")
     return pmb.helpers.cli.ask("Year", None, None, False, validation_regex=r"^[1-9]\d{3,}$")
 
 
-def ask_for_chassis():
+def ask_for_chassis() -> str:
     types = pmb.config.deviceinfo_chassis_types
 
     logging.info("What type of device is it?")
@@ -69,7 +69,7 @@ def ask_for_external_storage() -> bool:
     )
 
 
-def ask_for_flash_method():
+def ask_for_flash_method() -> str:
     while True:
         logging.info("Which flash method does the device support?")
         method = pmb.helpers.cli.ask(
@@ -100,7 +100,7 @@ def ask_for_flash_method():
         )
 
 
-def ask_for_bootimg():
+def ask_for_bootimg() -> Bootimg | None:
     logging.info(
         "You can analyze a known working boot.img file to"
         " automatically fill out the flasher information for your"

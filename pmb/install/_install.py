@@ -673,7 +673,7 @@ def write_cgpt_kpart(args: PmbArgs, layout: PartitionLayout, suffix: Chroot) -> 
     pmb.chroot.root(["dd", f"if={filename}", f"of=/dev/installp{layout['kernel']}"])
 
 
-def sanity_check_boot_size():
+def sanity_check_boot_size() -> None:
     default = Config().boot_size
     config = get_context().config
     if int(config.boot_size) >= int(default):

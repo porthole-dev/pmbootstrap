@@ -7,8 +7,8 @@ import pmb.chroot
 
 
 class Shutdown(commands.Command):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def run(self):
+    def run(self) -> None:
         pmb.chroot.shutdown()

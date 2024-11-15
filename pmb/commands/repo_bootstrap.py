@@ -26,7 +26,7 @@ class RepoBootstrap(commands.Command):
     progress_total: int = 0
     progress_step: str
 
-    def check_repo_arg(self):
+    def check_repo_arg(self) -> None:
         cfg = pmb.config.pmaports.read_config_repos()
 
         if self.repo in cfg:
@@ -79,7 +79,7 @@ class RepoBootstrap(commands.Command):
         if self.arch.cpu_emulation_required():
             self.progress_total += len(steps)
 
-    def log_progress(self, msg):
+    def log_progress(self, msg: str) -> None:
         percent = int(100 * self.progress_done / self.progress_total)
         logging.info(f"*** {percent}% [{self.progress_step}] {msg} ***")
 
@@ -130,7 +130,7 @@ class RepoBootstrap(commands.Command):
 
         self.log_progress("bootstrap complete!")
 
-    def check_existing_pkgs(self):
+    def check_existing_pkgs(self) -> None:
         channel = pmb.config.pmaports.read_config()["channel"]
         path = self.context.config.work / "packages" / channel / self.arch
 
@@ -169,7 +169,7 @@ class RepoBootstrap(commands.Command):
 
         return ret
 
-    def run(self):  # noqa: F821
+    def run(self) -> None:  # noqa: F821
         self.check_existing_pkgs()
 
         steps = self.get_steps()

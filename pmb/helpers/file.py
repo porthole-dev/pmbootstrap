@@ -84,7 +84,7 @@ def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
     return lastmod_target >= lastmod_source
 
 
-def is_older_than(path, seconds):
+def is_older_than(path: Path, seconds: int) -> bool:
     """Check if a single file is older than a given amount of seconds."""
     if not os.path.exists(path):
         return True

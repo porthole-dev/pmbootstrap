@@ -3,6 +3,7 @@
 import os
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
+from pmb.types import PathString
 from pathlib import Path
 import pmb.chroot
 import pmb.helpers.cli
@@ -12,7 +13,7 @@ import pmb.build
 from pmb.core import Chroot
 
 
-def newapkbuild(folder, args_passed, force=False):
+def newapkbuild(folder: PathString, args_passed: list[str], force: bool = False) -> None:
     # Initialize build environment and build folder
     pmb.build.init()
     pmb.chroot.init(Chroot.native())

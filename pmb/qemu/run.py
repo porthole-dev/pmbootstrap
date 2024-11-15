@@ -287,7 +287,7 @@ def command_qemu(
     return (command, env)
 
 
-def resize_image(img_size_new, img_path):
+def resize_image(img_size_new: str, img_path: Path) -> None:
     """
     Truncates an image to a specific size. The value must be larger than the
     current image size, and it must be specified in MiB or GiB units (powers of

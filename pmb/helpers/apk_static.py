@@ -7,6 +7,7 @@ import shutil
 import tarfile
 import tempfile
 import stat
+from pathlib import Path
 
 import pmb.helpers.apk
 import pmb.helpers.run
@@ -19,7 +20,7 @@ import pmb.parse.version
 from pmb.core.context import get_context
 
 
-def read_signature_info(tar):
+def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
     """
     Find various information about the signature that was used to sign
     /sbin/apk.static inside the archive (not to be confused with the normal apk
@@ -107,7 +108,7 @@ def verify_signature(files, sigkey_path):
         )
 
 
-def extract(version, apk_path):
+def extract(version: str, apk_path: Path) -> None:
     """
     Extract everything to temporary locations, verify signatures and reported
     versions. When everything is right, move the extracted apk.static to the
@@ -147,7 +148,7 @@ def extract(version, apk_path):
     shutil.move(temp_path, target_path)
 
 
-def download(file):
+def download(file: str) -> Path:
     """
     Download a single file from an Alpine mirror.
     """

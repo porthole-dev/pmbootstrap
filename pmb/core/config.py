@@ -83,7 +83,7 @@ class Config:
 
     providers: dict[str, str] = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Make sure we aren't modifying the class defaults
         for key in Config.__annotations__.keys():
             setattr(self, key, deepcopy(Config.get_default(key)))

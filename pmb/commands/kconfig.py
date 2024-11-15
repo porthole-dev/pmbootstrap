@@ -96,6 +96,6 @@ class KConfigMigrate(commands.Command):
         self.pkgname_list = [pkgname] if isinstance(pkgname, str) else pkgname
         self.arch = arch
 
-    def run(self):
+    def run(self) -> None:
         for pkgname in self.pkgname_list:
             pmb.build.kconfig.migrate_config(pkgname, self.arch)

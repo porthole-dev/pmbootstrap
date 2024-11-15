@@ -59,7 +59,7 @@ def mark_in_chroot(chroot: Chroot = Chroot.native()) -> None:
         pmb.helpers.run.root(["touch", in_chroot_file])
 
 
-def init_keys():
+def init_keys() -> None:
     """
     All Alpine and postmarketOS repository keys are shipped with pmbootstrap.
     Copy them into $WORK/config_apk_keys, which gets mounted inside the various

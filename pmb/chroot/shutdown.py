@@ -12,7 +12,7 @@ from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 
 
-def kill_adb():
+def kill_adb() -> None:
     """
     Kill adb daemon if it's running.
     """
@@ -22,7 +22,7 @@ def kill_adb():
             pmb.chroot.root(["adb", "-P", str(port), "kill-server"])
 
 
-def kill_sccache():
+def kill_sccache() -> None:
     """
     Kill sccache daemon if it's running. Unlike ccache it automatically spawns
     a daemon when you call it and exits after some time of inactivity.
@@ -59,7 +59,7 @@ def shutdown_cryptsetup_device(name: str) -> None:
         raise RuntimeError("Failed to parse 'cryptsetup status' output!")
 
 
-def shutdown(only_install_related=False):
+def shutdown(only_install_related: bool = False) -> None:
     # Stop daemons
     kill_adb()
     kill_sccache()

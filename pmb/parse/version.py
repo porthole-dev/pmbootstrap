@@ -10,7 +10,7 @@ https://git.alpinelinux.org/cgit/apk-tools/tree/src/version.c
 """
 
 
-def token_value(string):
+def token_value(string: str) -> int:
     """
     Return the associated value for a given token string (we parse
     through the version string one token at a time).
@@ -35,7 +35,7 @@ def token_value(string):
     return order[string]
 
 
-def next_token(previous, rest):
+def next_token(previous: str, rest: str) -> tuple[str, str]:
     """
     Parse the next token in the rest of the version string, we're
     currently looking at.
@@ -90,7 +90,7 @@ def next_token(previous, rest):
     return (next, rest)
 
 
-def parse_suffix(rest):
+def parse_suffix(rest: str) -> tuple[str, int, bool]:
     """
     Cut off the suffix of rest (which is now at the beginning of the
     rest variable, but regarding the whole version string, it is a
@@ -188,7 +188,7 @@ def get_token(previous, rest):
     return (next, value, rest)
 
 
-def validate(version):
+def validate(version: str) -> bool:
     """
     Check whether one version string is valid.
 
@@ -277,7 +277,7 @@ Convenience functions below are not modeled after apk's version.c.
 """
 
 
-def check_string(a_version, rule):
+def check_string(a_version: str, rule: str) -> bool:
     """
     Compare a version against a check string. This is used in "pmbootstrap
     kconfig check", to only require certain options if the pkgver is in a
