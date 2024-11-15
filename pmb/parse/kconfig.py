@@ -135,7 +135,7 @@ def check_config_options_set(
         if skip:
             continue
 
-        for archs, options in archs_options.items():
+        for archs, arch_options in archs_options.items():
             if archs != "all":
                 # Split and check if the device's architecture architecture has
                 # special config options. If option does not contain the
@@ -144,7 +144,7 @@ def check_config_options_set(
                 if config_arch not in architectures:
                     continue
 
-            for option, option_value in options.items():
+            for option, option_value in arch_options.items():
                 if not check_option(component, details, config, config_path, option, option_value):
                     ret = False
                     # Stop after one non-detailed error
