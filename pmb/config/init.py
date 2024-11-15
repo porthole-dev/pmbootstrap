@@ -568,11 +568,11 @@ def ask_for_additional_options(config: Config) -> None:
         " internally. For long running operations, it is possible"
         " that you'll have to authorize sudo more than once."
     )
-    answer = pmb.helpers.cli.confirm(
+    answer_background_timer = pmb.helpers.cli.confirm(
         "Enable background timer to prevent repeated sudo authorization?",
         default=context.sudo_timer,
     )
-    config.sudo_timer = answer
+    config.sudo_timer = answer_background_timer
 
     # Mirrors
     # prompt for mirror change
