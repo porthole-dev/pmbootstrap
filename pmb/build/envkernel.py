@@ -132,7 +132,7 @@ def run_abuild(
     """
     chroot = Chroot.native()
     build_path = Path("/home/pmos/build")
-    kbuild_out_source = "/mnt/linux/.output"
+    kbuild_out_source = f"/mnt/linux/{kbuild_out}"
 
     # If the kernel was cross-compiled on the host rather than with the envkernel
     # helper, we can still use the envkernel logic to package the artifacts for
@@ -180,13 +180,7 @@ def run_abuild(
     )
 
     # Create symlink from abuild working directory to envkernel build directory
-    if kbuild_out != "":
-        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
-            chroot / "mnt/linux" / kbuild_out
-        ):
-            pmb.chroot.root(["rm", Path("/mnt/linux", kbuild_out)])
-        pmb.chroot.root(["ln", "-s", "/mnt/linux", build_path / "src"])
-    pmb.chroot.root(["ln", "-s", kbuild_out_source, build_path / "src" / kbuild_out])
+    pmb.chroot.root(["ln", "-sf", "/mnt/linux", build_path / "src"])
 
     cmd: list[PathString] = ["cp", apkbuild_path, chroot / build_path / "APKBUILD"]
     pmb.helpers.run.root(cmd)
