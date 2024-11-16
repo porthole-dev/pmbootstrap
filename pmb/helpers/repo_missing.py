@@ -65,7 +65,7 @@ def get_relevant_packages(arch, pkgname=None, built=False):
     """
     if pkgname:
         if not pmb.helpers.package.check_arch(pkgname, arch, False):
-            raise RuntimeError(pkgname + " can't be built for " + arch + ".")
+            raise RuntimeError(f"{pkgname} can't be built for {arch}.")
         ret = pmb.helpers.package.depends_recurse(pkgname, arch)
     else:
         ret = pmb.helpers.pmaports.get_list()
