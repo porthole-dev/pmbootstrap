@@ -30,7 +30,6 @@ def filter_missing_packages(arch, pkgnames):
 def filter_aport_packages(pkgnames):
     """Create a subset of pkgnames where each one has an aport.
 
-    :param arch: architecture (e.g. "armhf")
     :param pkgnames: list of package names (e.g. ["hello-world", "test12"])
     :returns: subset of pkgnames (e.g. ["hello-world"])
     """
