@@ -12,14 +12,14 @@ class Pull(commands.Command):
     def __init__(self) -> None:
         pass
 
-    def run(self) -> bool:
+    def run(self) -> None:
         failed = []
         for repo in pmb.config.git_repos.keys():
             if pmb.helpers.git.pull(repo) < 0:
                 failed.append(repo)
 
         if not failed:
-            return True
+            return
 
         logging.info("---")
         logging.info("WARNING: failed to update: " + ", ".join(failed))
@@ -35,4 +35,3 @@ class Pull(commands.Command):
         for name_repo in failed:
             logging.info(f"* {pmb.helpers.git.get_path(name_repo)}")
         logging.info("---")
-        return False
