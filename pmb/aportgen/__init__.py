@@ -13,7 +13,7 @@ import pmb.aportgen.linux
 import pmb.aportgen.musl
 import pmb.aportgen.grub_efi
 import pmb.config
-from pmb.types import PmbArgs
+from pmb.types import AportGenEntry, PmbArgs
 import pmb.helpers.cli
 
 
@@ -63,8 +63,10 @@ def properties(pkgname):
 
 
 def generate(pkgname: str, fork_alpine: bool, fork_alpine_retain_branch: bool = False) -> None:
+    options: AportGenEntry
+
     if fork_alpine:
-        prefix, folder, options = (pkgname, "temp", {"confirm_overwrite": True})
+        prefix, folder, options = (pkgname, "temp", {"confirm_overwrite": True, "prefixes": []})
     else:
         prefix, folder, options = properties(pkgname)
     config = get_context().config
