@@ -15,7 +15,7 @@ def generate(pkgname: str) -> None:
     arch = Arch.x86
     if pkgname != "grub-efi-x86":
         raise RuntimeError("only grub-efi-x86 is available")
-    package_data = pmb.parse.apkindex.package("grub")
+    package_data = pmb.parse.apkindex.package("grub", arch=arch)
     if package_data is None:
         raise RuntimeError("Couldn't find package grub!")
     version = package_data.version

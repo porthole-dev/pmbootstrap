@@ -208,7 +208,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     repo = split[-2]
     pkgname = split[-1]
     index_path = pmb.helpers.repo.alpine_apkindex_path(repo, arch)
-    package = pmb.parse.apkindex.package(pkgname, indexes=[index_path])
+    package = pmb.parse.apkindex.package(pkgname, indexes=[index_path], arch=arch)
 
     if package is None:
         raise RuntimeError(f"Couldn't find {pkgname} in APKINDEX!")

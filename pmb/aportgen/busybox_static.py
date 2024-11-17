@@ -16,7 +16,7 @@ def generate(pkgname: str) -> None:
     context = get_context()
 
     # Parse version from APKINDEX
-    package_data = pmb.parse.apkindex.package("busybox")
+    package_data = pmb.parse.apkindex.package("busybox", arch=arch)
 
     if package_data is None:
         raise RuntimeError("Couldn't find APKINDEX for busybox!")
