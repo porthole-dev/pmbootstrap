@@ -15,6 +15,7 @@ from pmb.core import Chroot
 def newapkbuild(folder, args_passed, force=False):
     # Initialize build environment and build folder
     pmb.build.init()
+    pmb.chroot.init(Chroot.native())
     build = Path("/home/pmos/build")
     build_outside = Chroot.native() / build
     if build_outside.exists():
