@@ -116,7 +116,7 @@ def get_upstream_remote(aports: Path) -> str:
     urls = pmb.config.git_repos[name_repo]
     lines = list_remotes(aports)
     for line in lines:
-        if any(u.lower() in line for u in urls):
+        if any(u.lower() in line.lower() for u in urls):
             return line.split("\t", 1)[0]
 
     # Fallback to old URLs, in case the migration was not done yet
