@@ -1,11 +1,13 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
+
 import enum
 from pathlib import Path, PosixPath, PurePosixPath
 import platform
 
 # Initialised at the bottom
-_cached_native_arch: "Arch"
+_cached_native_arch: Arch
 
 
 class Arch(enum.Enum):
@@ -38,7 +40,7 @@ class Arch(enum.Enum):
         return self.value
 
     @staticmethod
-    def from_str(arch: str) -> "Arch":
+    def from_str(arch: str) -> Arch:
         try:
             return Arch(arch)
         except ValueError:
@@ -49,7 +51,7 @@ class Arch(enum.Enum):
             )
 
     @staticmethod
-    def from_machine_type(machine_type: str) -> "Arch":
+    def from_machine_type(machine_type: str) -> Arch:
         match machine_type:
             case "i686":
                 return Arch.x86
@@ -65,7 +67,7 @@ class Arch(enum.Enum):
                 raise ValueError(f"Unsupported machine type '{machine_type}'")
 
     @staticmethod
-    def native() -> "Arch":
+    def native() -> Arch:
         global _cached_native_arch
         return _cached_native_arch
 
@@ -73,7 +75,7 @@ class Arch(enum.Enum):
         return self == Arch.native()
 
     @staticmethod
-    def supported() -> set["Arch"]:
+    def supported() -> set[Arch]:
         """Officially supported host/target architectures for postmarketOS. Only
         specify architectures supported by Alpine here. For cross-compiling,
         we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use
