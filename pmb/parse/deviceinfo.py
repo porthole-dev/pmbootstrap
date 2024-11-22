@@ -118,6 +118,7 @@ class Deviceinfo:
     # bootloader
     flash_method: str = ""
     boot_filesystem: str | None = ""
+    create_initfs_extra: bool | None = False
 
     # flash
     flash_heimdall_partition_kernel: str | None = ""

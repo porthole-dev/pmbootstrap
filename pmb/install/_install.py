@@ -810,27 +810,30 @@ def get_uuid(args: PmbArgs, partition: Path) -> str:
     ).rstrip()
 
 
-def create_crypttab(args: PmbArgs, layout: PartitionLayout, chroot: Chroot) -> None:
+def create_crypttab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) -> None:
     """
     Create /etc/crypttab config
 
-    :param layout: partition layout from get_partition_layout()
+    :param layout: partition layout from get_partition_layout() or None
     :param suffix: of the chroot, which crypttab will be created to
     """
+    if layout:
+        root_dev = Path(f"/dev/installp{layout['root']}")
+    else:
+        root_dev = Path("/dev/install")
 
-    luks_uuid = get_uuid(args, Path("/dev") / f"installp{layout['root']}")
-
+    luks_uuid = get_uuid(args, root_dev)
     crypttab = f"root UUID={luks_uuid} none luks\n"
 
     (chroot / "tmp/crypttab").open("w").write(crypttab)
     pmb.chroot.root(["mv", "/tmp/crypttab", "/etc/crypttab"], chroot)
 
 
-def create_fstab(args: PmbArgs, layout: PartitionLayout, chroot: Chroot) -> None:
+def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) -> None:
     """
     Create /etc/fstab config
 
-    :param layout: partition layout from get_partition_layout()
+    :param layout: partition layout from get_partition_layout() or None
     :param chroot: of the chroot, which fstab will be created to
     """
 
@@ -839,19 +842,16 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout, chroot: Chroot) -> None
     if args.on_device_installer and chroot.type == ChrootType.ROOTFS:
         return
 
-    boot_dev = Path(f"/dev/installp{layout['boot']}")
-    root_dev = Path(f"/dev/installp{layout['root']}")
+    if layout:
+        boot_dev = Path(f"/dev/installp{layout['boot']}")
+        root_dev = Path(f"/dev/installp{layout['root']}")
+    else:
+        boot_dev = None
+        root_dev = Path("/dev/install")
 
-    boot_mount_point = f"UUID={get_uuid(args, boot_dev)}"
     root_mount_point = (
         "/dev/mapper/root" if args.full_disk_encryption else f"UUID={get_uuid(args, root_dev)}"
     )
-
-    boot_options = "nodev,nosuid,noexec"
-    boot_filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
-    if boot_filesystem in ("fat16", "fat32"):
-        boot_filesystem = "vfat"
-        boot_options += ",umask=0077,nosymfollow,codepage=437,iocharset=ascii"
     root_filesystem = pmb.install.get_root_filesystem(args)
 
     if root_filesystem == "btrfs":
@@ -864,16 +864,22 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout, chroot: Chroot) -> None
 {root_mount_point} /srv btrfs subvol=@srv,compress=zstd:2,ssd 0 0
 {root_mount_point} /var btrfs subvol=@var,ssd 0 0
 {root_mount_point} /.snapshots btrfs subvol=@snapshots,compress=zstd:2,ssd 0 0
-
-{boot_mount_point} /boot {boot_filesystem} {boot_options} 0 0
 """.lstrip()
 
     else:
         fstab = f"""
 # <file system> <mount point> <type> <options> <dump> <pass>
 {root_mount_point} / {root_filesystem} defaults 0 0
-{boot_mount_point} /boot {boot_filesystem} {boot_options} 0 0
 """.lstrip()
+
+    if boot_dev:
+        boot_mount_point = f"UUID={get_uuid(args, boot_dev)}"
+        boot_options = "nodev,nosuid,noexec"
+        boot_filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
+        if boot_filesystem in ("fat16", "fat32"):
+            boot_filesystem = "vfat"
+            boot_options += ",umask=0077,nosymfollow,codepage=437,iocharset=ascii"
+        fstab += f"{boot_mount_point} /boot {boot_filesystem} {boot_options} 0 0\n"
 
     with (chroot / "tmp/fstab").open("w") as f:
         f.write(fstab)
@@ -889,6 +895,7 @@ def install_system_image(
     boot_label: str = "pmOS_boot",
     root_label: str = "pmOS_root",
     split: bool = False,
+    single_partition: bool = False,
     disk: Path | None = None,
 ) -> None:
     """
@@ -908,12 +915,15 @@ def install_system_image(
     logging.info(f"*** ({step}/{steps}) PREPARE INSTALL BLOCKDEVICE ***")
     pmb.helpers.mount.umount_all(chroot.path)
     (size_boot, size_root) = get_subpartitions_size(chroot)
-    layout = get_partition_layout(
-        size_reserve, bool(pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt)
-    )
+    if not single_partition:
+        layout = get_partition_layout(
+            size_reserve, bool(pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt)
+        )
+    else:
+        layout = None
     if not args.rsync:
         pmb.install.blockdevice.create(args, size_boot, size_root, size_reserve, split, disk)
-        if not split:
+        if not split and layout:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
                 pmb.install.partition_cgpt(layout, size_boot, size_reserve)
             else:
@@ -922,7 +932,8 @@ def install_system_image(
     # Inform kernel about changed partition table in case parted couldn't
     pmb.chroot.root(["partprobe", "/dev/install"], check=False)
 
-    if not split:
+    if not split and not single_partition:
+        assert layout  # Initialized above for not single_partition case (mypy needs this)
         pmb.install.partitions_mount(device, layout, disk)
 
     pmb.install.format(args, layout, boot_label, root_label, disk)
@@ -955,7 +966,8 @@ def install_system_image(
 
     # Don't try to embed firmware and cgpt on split images since there's no
     # place to put it and it will end up in /dev of the chroot instead
-    if not split:
+    if not split and not single_partition:
+        assert layout  # Initialized above for not single_partition case (mypy needs this)
         embed_firmware(args, chroot)
         write_cgpt_kpart(args, layout, chroot)
 
@@ -998,7 +1010,9 @@ def install_system_image(
             pmb.chroot.user(["mv", "-f", sys_image_patched, sys_image], working_dir=workdir)
 
 
-def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk: bool) -> None:
+def print_flash_info(
+    device: str, deviceinfo: Deviceinfo, split: bool, have_disk: bool, single_partition: bool
+) -> None:
     """Print flashing information, based on the deviceinfo data and the
     pmbootstrap arguments."""
     logging.info("")  # make the note stand out
@@ -1029,12 +1043,13 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
             logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}-root.img")
         else:
             logging.info(f"  {Chroot.native() / 'home/pmos/rootfs' / device}.img")
-            logging.info(
-                "  (NOTE: This file has a partition table, which"
-                " contains /boot and / subpartitions. That way we"
-                " don't need to change the partition layout on your"
-                " device.)"
-            )
+            if not single_partition:
+                logging.info(
+                    "  (NOTE: This file has a partition table, which"
+                    " contains /boot and / subpartitions. That way we"
+                    " don't need to change the partition layout on your"
+                    " device.)"
+                )
 
     # if current flasher supports vbmeta and partition is explicitly specified
     # in deviceinfo
@@ -1187,6 +1202,7 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
         boot_label,
         "pmOS_install",
         args.split,
+        args.single_partition,
         args.disk,
     )
 
@@ -1411,6 +1427,13 @@ def install(args: PmbArgs) -> None:
     if args.on_device_installer:
         sanity_check_ondev_version(args)
 
+    # --single-partition implies --no-split. There is nothing to split if
+    # there is only a single partition.
+    if args.single_partition:
+        args.split = False
+        if deviceinfo.create_initfs_extra:
+            raise RuntimeError("--single-partition does not work for devices with initramfs-extra")
+
     # Number of steps for the different installation methods.
     if args.no_image:
         steps = 2
@@ -1444,10 +1467,23 @@ def install(args: PmbArgs) -> None:
         # Runs install_system_image twice
         install_on_device_installer(args, step, steps)
     else:
-        install_system_image(args, 0, chroot, step, steps, split=args.split, disk=args.disk)
+        install_system_image(
+            args,
+            0,
+            chroot,
+            step,
+            steps,
+            split=args.split,
+            disk=args.disk,
+            single_partition=args.single_partition,
+        )
 
     print_flash_info(
-        device, deviceinfo, args.split, True if args.disk and args.disk.is_absolute() else False
+        device,
+        deviceinfo,
+        args.split,
+        True if args.disk and args.disk.is_absolute() else False,
+        args.single_partition,
     )
     print_sshd_info(args)
     print_firewall_info(args.no_firewall, deviceinfo.arch)

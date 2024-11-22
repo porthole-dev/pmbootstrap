@@ -205,23 +205,28 @@ def format_and_mount_root(
 
 def format(
     args: PmbArgs,
-    layout: PartitionLayout,
+    layout: PartitionLayout | None,
     boot_label: str,
     root_label: str,
     disk: PathString | None,
 ) -> None:
     """
-    :param layout: partition layout from get_partition_layout()
+    :param layout: partition layout from get_partition_layout() or None
     :param boot_label: label of the boot partition (e.g. "pmOS_boot")
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
-    root_dev = f"/dev/installp{layout['root']}"
-    boot_dev = f"/dev/installp{layout['boot']}"
+    if layout:
+        root_dev = f"/dev/installp{layout['root']}"
+        boot_dev = f"/dev/installp{layout['boot']}"
+    else:
+        root_dev = "/dev/install"
+        boot_dev = None
 
     if args.full_disk_encryption:
         format_luks_root(args, root_dev)
         root_dev = "/dev/mapper/pm_crypt"
 
     format_and_mount_root(args, root_dev, root_label, disk)
-    format_and_mount_boot(args, boot_dev, boot_label)
+    if boot_dev:
+        format_and_mount_boot(args, boot_dev, boot_label)

@@ -120,6 +120,14 @@ def arguments_install(subparser: argparse._SubParsersAction) -> None:
         choices=[512, 2048, 4096],
     )
 
+    ret.add_argument(
+        "--single-partition",
+        action="store_true",
+        help="Create a single partition that contains both boot and root files."
+        " This can be used on devices that boot without mounting the boot file"
+        " system (e.g. Android boot images or fastboot).",
+    )
+
     # Image type
     group_desc = ret.add_argument_group(
         "optional image type",
