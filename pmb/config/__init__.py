@@ -418,6 +418,7 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
             "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS", "$IMAGE_SPLIT_ROOT"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL", "$IMAGE_SPLIT_BOOT"]],
             "flash_boot": [["fastboot", "flash", "boot", "$BOOT/boot.img$FLAVOR"]],
+            "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE", "boot", "$BOOT/boot.img$FLAVOR"]],
         },
     },
     # Some Samsung devices need the initramfs to be baked into the kernel (e.g.
