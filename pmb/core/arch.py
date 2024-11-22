@@ -61,6 +61,8 @@ class Arch(enum.Enum):
                 return Arch.armhf
             case "armv7l" | "armv8l":
                 return Arch.armv7
+            case _:
+                raise ValueError(f"Unsupported machine type '{machine_type}'")
 
     @staticmethod
     def native() -> "Arch":

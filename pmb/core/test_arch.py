@@ -77,3 +77,7 @@ def test_invalid_arches():
     with pytest.raises(TypeError) as excinfo:
         "bap" / Arch.aarch64
     assert "unsupported operand type(s) for /: 'str' and 'Arch'" in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        Arch.from_machine_type("invalid")
+    assert "Unsupported machine type 'invalid'" in str(excinfo.value)
