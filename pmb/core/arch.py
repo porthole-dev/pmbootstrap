@@ -50,15 +50,17 @@ class Arch(enum.Enum):
 
     @staticmethod
     def from_machine_type(machine_type: str) -> "Arch":
-        mapping = {
-            "i686": Arch.x86,
-            "x86_64": Arch.x86_64,
-            "aarch64": Arch.aarch64,
-            "armv6l": Arch.armhf,
-            "armv7l": Arch.armv7,
-            "armv8l": Arch.armv7,
-        }
-        return mapping[machine_type]
+        match machine_type:
+            case "i686":
+                return Arch.x86
+            case "x86_64":
+                return Arch.x86_64
+            case "aarch64":
+                return Arch.aarch64
+            case "armv6l":
+                return Arch.armhf
+            case "armv7l" | "armv8l":
+                return Arch.armv7
 
     @staticmethod
     def native() -> "Arch":
@@ -89,57 +91,80 @@ class Arch(enum.Enum):
         )
 
     def kernel(self) -> str:
-        mapping = {
-            Arch.x86: "x86",
-            Arch.x86_64: "x86_64",
-            Arch.armhf: "arm",
-            Arch.armv7: "arm",
-            Arch.aarch64: "arm64",
-            Arch.riscv64: "riscv",
-            Arch.ppc64le: "powerpc",
-            Arch.ppc64: "powerpc",
-            Arch.ppc: "powerpc",
-            Arch.s390x: "s390",
-        }
-        return mapping.get(self, self.value)
+        match self:
+            case Arch.x86:
+                return "x86"
+            case Arch.x86_64:
+                return "x86_64"
+            case Arch.armhf | Arch.armv7:
+                return "arm"
+            case Arch.aarch64:
+                return "arm64"
+            case Arch.riscv64:
+                return "riscv"
+            case Arch.ppc64le | Arch.ppc64 | Arch.ppc:
+                return "powerpc"
+            case Arch.s390x:
+                return "s390"
+            case _:
+                return self.value
 
     def qemu(self) -> str:
-        mapping = {
-            Arch.x86: "i386",
-            Arch.armhf: "arm",
-            Arch.armv7: "arm",
-            Arch.ppc64le: "ppc64",
-        }
-        return mapping.get(self, self.value)
+        match self:
+            case Arch.x86:
+                return "i386"
+            case Arch.armhf | Arch.armv7:
+                return "arm"
+            case Arch.ppc64le:
+                return "ppc64"
+            case _:
+                return self.value
 
     def alpine_triple(self) -> str:
         """Get the cross compiler triple for this architecture on Alpine."""
-        mapping = {
-            Arch.aarch64: "aarch64-alpine-linux-musl",
-            Arch.armel: "armv5-alpine-linux-musleabi",
-            Arch.armhf: "armv6-alpine-linux-musleabihf",
-            Arch.armv7: "armv7-alpine-linux-musleabihf",
-            Arch.loongarch32: "loongarch32-alpine-linux-musl",
-            Arch.loongarchx32: "loongarchx32-alpine-linux-musl",
-            Arch.loongarch64: "loongarch64-alpine-linux-musl",
-            Arch.mips: "mips-alpine-linux-musl",
-            Arch.mips64: "mips64-alpine-linux-musl",
-            Arch.mipsel: "mipsel-alpine-linux-musl",
-            Arch.mips64el: "mips64el-alpine-linux-musl",
-            Arch.ppc: "powerpc-alpine-linux-musl",
-            Arch.ppc64: "powerpc64-alpine-linux-musl",
-            Arch.ppc64le: "powerpc64le-alpine-linux-musl",
-            Arch.riscv32: "riscv32-alpine-linux-musl",
-            Arch.riscv64: "riscv64-alpine-linux-musl",
-            Arch.s390x: "s390x-alpine-linux-musl",
-            Arch.x86: "i586-alpine-linux-musl",
-            Arch.x86_64: "x86_64-alpine-linux-musl",
-        }
-
-        if self in mapping:
-            return mapping[self]
-
-        raise ValueError(f"Can not map Alpine architecture '{self}'" " to the right hostspec value")
+        match self:
+            case Arch.aarch64:
+                return "aarch64-alpine-linux-musl"
+            case Arch.armel:
+                return "armv5-alpine-linux-musleabi"
+            case Arch.armhf:
+                return "armv6-alpine-linux-musleabihf"
+            case Arch.armv7:
+                return "armv7-alpine-linux-musleabihf"
+            case Arch.loongarch32:
+                return "loongarch32-alpine-linux-musl"
+            case Arch.loongarchx32:
+                return "loongarchx32-alpine-linux-musl"
+            case Arch.loongarch64:
+                return "loongarch64-alpine-linux-musl"
+            case Arch.mips:
+                return "mips-alpine-linux-musl"
+            case Arch.mips64:
+                return "mips64-alpine-linux-musl"
+            case Arch.mipsel:
+                return "mipsel-alpine-linux-musl"
+            case Arch.mips64el:
+                return "mips64el-alpine-linux-musl"
+            case Arch.ppc:
+                return "powerpc-alpine-linux-musl"
+            case Arch.ppc64:
+                return "powerpc64-alpine-linux-musl"
+            case Arch.ppc64le:
+                return "powerpc64le-alpine-linux-musl"
+            case Arch.riscv32:
+                return "riscv32-alpine-linux-musl"
+            case Arch.riscv64:
+                return "riscv64-alpine-linux-musl"
+            case Arch.s390x:
+                return "s390x-alpine-linux-musl"
+            case Arch.x86:
+                return "i586-alpine-linux-musl"
+            case Arch.x86_64:
+                return "x86_64-alpine-linux-musl"
+            case _:
+                raise ValueError(
+                    f"Can not map Alpine architecture '{self}' to the right hostspec value"
+                )
 
     def cpu_emulation_required(self) -> bool:
         # Obvious case: host arch is target arch
