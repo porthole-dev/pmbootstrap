@@ -10,7 +10,8 @@ if [ "$(id -u)" = 0 ]; then
 	apk -q add \
 		py3-myst-parser \
 		py3-sphinx_rtd_theme \
-		py3-sphinxcontrib-autoprogram
+		py3-sphinxcontrib-autoprogram \
+		py3-sphinxcontrib-jquery
 	exec su "${TESTUSER:-build}" -c "sh -e $0"
 fi
 

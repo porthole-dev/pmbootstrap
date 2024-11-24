@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinxcontrib.autoprogram",
+    "sphinxcontrib.jquery",
 ]
 
 templates_path = ["_templates"]
