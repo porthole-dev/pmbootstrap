@@ -150,6 +150,45 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
             )
 
 
+def ask_for_pmaports_path(default: Path) -> Path:
+    """Ask for a path for pmaports, until it can either be created or already exists.
+
+    :returns: full path to the directory, with a leading ~ expanded.
+    """
+    logging.info("Location of the 'pmaports' path, containing package definitions.")
+    while True:
+        try:
+            raw = os.path.expanduser(
+                pmb.helpers.cli.ask(
+                    "pmaports path",
+                    None,
+                    str(default),
+                    False,
+                )
+            )
+            path = Path(raw).resolve()
+
+            if path.is_relative_to(pmb.config.pmb_src):
+                logging.error(
+                    "ERROR: The pmaports path must not be inside the"
+                    " pmbootstrap path. Please specify another location."
+                )
+                continue
+
+            if not path.exists():
+                try:
+                    path.parent.mkdir(0o700, parents=True, exist_ok=True)
+                except Exception as e:
+                    logging.error("ERROR: Could not create parent directories: %s", str(e))
+                    continue
+
+            return path
+        except OSError:
+            logging.fatal(
+                "ERROR: Could not create this folder, or write inside it! Please try again."
+            )
+
+
 def ask_for_channel(config: Config) -> str:
     """Ask for the postmarketOS release channel.
     The channel dictates, which pmaports branch pmbootstrap will check out,
@@ -713,6 +752,8 @@ def frontend(args: PmbArgs) -> None:
     # to be relative to the new workdir
     if using_default_pmaports:
         config.aports = [config.work / "cache_git/pmaports"]
+
+    config.aports[-1] = ask_for_pmaports_path(config.aports[-1])
 
     # Update args and save config (so chroots and 'pmbootstrap log' work)
     # pmb.helpers.args.update_work(args, config.work)
