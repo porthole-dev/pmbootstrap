@@ -102,8 +102,7 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
 
     :returns: (path, exists)
         * path: is the full path, with expanded ~ sign
-        * exists: is False when the folder did not exist before we tested whether we can create it
-
+        * exists: is True when the folder existed before we tested whether we can create it
     """
     logging.info(
         "Location of the 'work' path. Multiple chroots"
