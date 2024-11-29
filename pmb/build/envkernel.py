@@ -226,6 +226,10 @@ def package_kernel(args: PmbArgs) -> None:
     else:
         function_body = pmb.parse.function_body(aport / "APKBUILD", "package")
         kbuild_out = find_kbuild_output_dir(function_body)
+
+    if not kbuild_out:
+        kbuild_out = ".output"
+
     chroot = pmb.build.autodetect.chroot(apkbuild, arch)
 
     # Install package dependencies
