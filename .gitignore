@@ -1,3 +1,9 @@
+# If files for your editor are not included in this file,
+# consider adding them to .git/info/exclude
+# or $XDG_CONFIG_HOME/git/ignore
+#
+# https://git-scm.com/docs/gitignore
+
 # pmbootstrap will clone "pmaports" and (if pmbootstrap is not installed system
 # wide) create a symlink in the aports folder
 /aports
