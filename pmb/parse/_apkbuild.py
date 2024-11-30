@@ -229,7 +229,7 @@ def _parse_attributes(
     for attribute, options in apkbuild_attributes.items():
         if options.get("array", False):
             # Split up arrays, delete empty strings inside the list
-            ret[attribute] = list(filter(None, ret[attribute].split(" ")))
+            ret[attribute] = list(filter(None, ret[attribute].split()))
         if options.get("int", False):
             if ret[attribute]:
                 ret[attribute] = int(ret[attribute])
