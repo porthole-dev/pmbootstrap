@@ -215,17 +215,27 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
     )
 
     # Download and move to right location
+    missing_ignored = False
     for i, (url, target) in enumerate(outdated.items()):
         pmb.helpers.cli.progress_print(i / len(outdated))
         temp = pmb.helpers.http.download(url, "APKINDEX", False, logging.DEBUG, True, True)
         if not temp:
-            logging.info("NOTE: check the [mirrors] section in 'pmbootstrap config'")
-            raise NonBugError("getting APKINDEX from binary package mirror failed!")
+            if os.environ.get("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
+                missing_ignored = True
+                continue
+            else:
+                logging.info("NOTE: check the [mirrors] section in 'pmbootstrap config'")
+                raise NonBugError("getting APKINDEX from binary package mirror failed!")
         target_folder = os.path.dirname(target)
         if not os.path.exists(target_folder):
             pmb.helpers.run.root(["mkdir", "-p", target_folder])
         pmb.helpers.run.root(["cp", temp, target])
     pmb.helpers.cli.progress_flush()
+
+    if missing_ignored:
+        logging.warn_once(
+            "NOTE: ignoring missing APKINDEX due to PMB_APK_FORCE_MISSING_REPOSITORIES=1 (fine during bootstrap)"
+        )
 
     return True
 
