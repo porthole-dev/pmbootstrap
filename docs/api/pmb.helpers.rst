@@ -100,6 +100,15 @@ pmb.helpers.lint module
    :undoc-members:
    :show-inheritance:
 
+pmb.helpers.locale module
+-------------------------
+
+.. automodule:: pmb.helpers.locale
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 pmb.helpers.logging module
 --------------------------
 

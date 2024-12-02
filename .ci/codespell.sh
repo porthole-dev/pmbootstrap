@@ -17,4 +17,5 @@ set -x
 codespell \
 	-L crate \
 	-L hda \
+	-S "./pmb/helpers/locale.py" \
 	.
