@@ -17,6 +17,7 @@ import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
+from pmb.helpers.locale import get_xkb_layout
 from pmb.parse.deviceinfo import Deviceinfo
 from pmb.core import Config
 from pmb.types import PartitionLayout, PmbArgs
@@ -385,6 +386,37 @@ def setup_timezone(chroot: Chroot, timezone: str) -> None:
         setup_tz_cmd += ["-z"]
     setup_tz_cmd += [timezone]
     pmb.chroot.root(setup_tz_cmd, chroot)
+
+
+def setup_locale(chroot: Chroot, locale: str) -> None:
+    """
+    Set locale-related settings such as $LANG and keyboard layout
+    """
+    # 10locale-pmos.sh gets sourced before 20locale.sh from
+    # alpine-baselayout by /etc/profile. Since they don't override the
+    # locale if it exists, it warranties we have preference
+    line = f"export LANG=${{LANG:-{shlex.quote(locale)}}}"
+    pmb.chroot.root(
+        ["sh", "-c", f"echo {shlex.quote(line)}" " > /etc/profile.d/10locale-pmos.sh"], chroot
+    )
+    # add keyboard layout related to locale and layout switcher
+    xkb_layout = get_xkb_layout(locale)
+    xkb_vars = xkb_layout.get_profile_vars()
+    if xkb_vars:
+        xkb_vars = xkb_vars.replace("\n", "\\n")
+        pmb.chroot.root(
+            ["sed", "-i", "$a\\" + xkb_vars, "/etc/profile.d/10locale-pmos.sh"],
+            chroot,
+        )
+    if (chroot / "etc/X11").exists() and (kb_config := xkb_layout.get_keyboard_config()):
+        config_name = "99-keyboard.conf"
+        config_tmp_path = f"/tmp/{config_name}"
+        config_path = f"/etc/X11/xorg.conf.d/{config_name}"
+        pmb.chroot.root(["mkdir", "-p", "/etc/X11/xorg.conf.d"], chroot)
+        with open(chroot / config_tmp_path, "w") as f:
+            f.write(kb_config)
+        pmb.chroot.root(["mv", config_tmp_path, config_path], chroot)
+        pmb.chroot.root(["chown", "root:root", config_path], chroot)
 
 
 def setup_hostname(device: str, hostname: str | None) -> None:
@@ -1333,13 +1365,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
 
     # Set locale
     if locale_is_set:
-        # 10locale-pmos.sh gets sourced before 20locale.sh from
-        # alpine-baselayout by /etc/profile. Since they don't override the
-        # locale if it exists, it warranties we have preference
-        line = f"export LANG=${{LANG:-{shlex.quote(config.locale)}}}"
-        pmb.chroot.root(
-            ["sh", "-c", f"echo {shlex.quote(line)}" " > /etc/profile.d/10locale-pmos.sh"], chroot
-        )
+        setup_locale(chroot, config.locale)
 
     # Set the hostname as the device name
     setup_hostname(device, config.hostname)
