@@ -258,10 +258,7 @@ $ pmbootstrap stats --arch=armhf
 
 ### Use alternative sudo
 
-pmbootstrap supports `doas` and `sudo`.
-If multiple sudo implementations are installed, pmbootstrap will use `doas`.
-You can set the `PMB_SUDO` environmental variable to define the sudo
-implementation you want to use.
+See `PMB_SUDO` in `docs/environment_variables.md`.
 
 ### Select SSH keys to include and make authorized in new images
 
