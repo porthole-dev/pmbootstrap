@@ -44,14 +44,6 @@ pmb.core.context module
    :undoc-members:
    :show-inheritance:
 
-pmb.core.crosstool module
--------------------------
-
-.. automodule:: pmb.core.crosstool
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.core.dps module
 -------------------
 
