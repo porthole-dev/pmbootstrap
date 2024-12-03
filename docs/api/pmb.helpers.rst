@@ -5,7 +5,7 @@ Submodules
 ----------
 
 pmb.helpers.apk\_static module
------------------------------
+------------------------------
 
 .. automodule:: pmb.helpers.apk_static
    :members:
