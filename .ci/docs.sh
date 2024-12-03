@@ -32,6 +32,7 @@ if [ "$fail" -eq 1 ]; then
 fi
 
 sphinx-build \
+	--fail-on-warning \
 	docs \
 	public \
 
