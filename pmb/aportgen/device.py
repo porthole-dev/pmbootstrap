@@ -111,9 +111,9 @@ def ask_for_bootimg():
 
     while True:
         response = pmb.helpers.cli.ask("Path", None, "", False)
-        path = Path(os.path.expanduser(response))
-        if not path:
+        if not response:
             return None
+        path = Path(os.path.expanduser(response))
         try:
             return pmb.parse.bootimg(path)
         except Exception as e:
