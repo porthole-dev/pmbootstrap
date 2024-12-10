@@ -41,7 +41,7 @@ $ pmbootstrap config mirrors.systemd none
 
 For all repositories, it is possible to add `_custom` entries, for example
 `pmaports_custom` in addition to `pmaports`. If these are set, then pmbootstrap
-creates addition entries infront of the real mirrors in
+creates addition entries in front of the real mirrors in
 `/etc/apk/repositories`. This is used by [BPO](https://build.postmarketos.org)
 to build packages with a WIP repository enabled in addition to the final
 repository, but could also be used if you have another custom repository that

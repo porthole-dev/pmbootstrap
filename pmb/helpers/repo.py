@@ -92,7 +92,7 @@ def urls(
         if repo in mirrors_exclude:
             continue
 
-        # Allow adding a custom mirror infront of the real mirror. This is used
+        # Allow adding a custom mirror in front of the real mirror. This is used
         # in bpo to build with a WIP repository in addition to the final
         # repository.
         for suffix in ["_custom", ""]:
