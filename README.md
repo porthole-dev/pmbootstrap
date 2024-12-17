@@ -48,7 +48,7 @@ can run `$ pmbootstrap pull`.
 
 The latest pmbootstrap version works with currently
 [active postmarketOS releases](https://wiki.postmarketos.org/wiki/Releases).
-Attempting to use pmboostrap with old postmarketOS versions (old pmaports
+Attempting to use pmbootstrap with old postmarketOS versions (old pmaports
 branches) may result in failures and is not supported. See
 `pmbootstrap_min_version` in
 [pmaports.cfg](https://wiki.postmarketos.org/wiki/Pmaports.cfg_reference) for

@@ -1,5 +1,5 @@
-pmboostrap code documentation
-=============================
+pmbootstrap code documentation
+==============================
 
 .. note:: This is the internal API, not a public one.
 

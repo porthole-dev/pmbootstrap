@@ -1,7 +1,7 @@
 Welcome to pmbootstrap's documentation!
 =======================================
 
-pmboostrap is the central command-line application for postmarketOS development. Among other things,
+pmbootstrap is the central command-line application for postmarketOS development. Among other things,
 it allows building packages, creating installation images and flashing themx to your device. If you just want to install 
 postmarketOS, read the `Installation`_ wiki article first since you might not need pmbootstrap depeing on the method.
 

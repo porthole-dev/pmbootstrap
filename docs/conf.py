@@ -55,7 +55,7 @@ html_theme_options: dict[str, Any] = {
 }
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "pmboostrapdoc"
+htmlhelp_basename = "pmbootstrapdoc"
 
 html_theme_options = {
     "display_version": True,

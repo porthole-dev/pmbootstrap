@@ -12,7 +12,7 @@ class BuildFailedError(Exception):
 
 class NonBugError(Exception):
     """Exception which originates from a problem not caused by pmbootstrap's code. This
-    could for example be raised if there is an error in a package pmboostrap is
+    could for example be raised if there is an error in a package pmbootstrap is
     interacting with in some way."""
 
     pass

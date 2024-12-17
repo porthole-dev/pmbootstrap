@@ -10,7 +10,7 @@ Before pmbootstrap can be used, a number of configuration questions need to be a
 
 .. code-block:: shell
 
-  $ pmboostrap init
+  $ pmbootstrap init
 
 If you already ran this before, run the following to update your local clone of pmaports.git instead, before moving straight onto the installation step: 
 
