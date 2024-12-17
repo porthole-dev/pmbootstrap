@@ -4,6 +4,7 @@ import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
 from pmb.core.arch import Arch
+import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot
@@ -13,6 +14,9 @@ def generate(pkgname: str) -> None:
     arch = Arch.x86
     if pkgname != "grub-efi-x86":
         raise RuntimeError("only grub-efi-x86 is available")
+    # Update or create APKINDEX for relevant arch so we know it exists and is recent.
+    pmb.helpers.repo.update(arch)
+
     package_data = pmb.parse.apkindex.package("grub", arch=arch)
     if package_data is None:
         raise RuntimeError("Couldn't find package grub!")

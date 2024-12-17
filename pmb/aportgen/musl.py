@@ -3,6 +3,7 @@
 import pmb.aportgen.core
 import pmb.build
 import pmb.chroot.apk
+import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot
@@ -12,6 +13,8 @@ from pmb.core.arch import Arch
 def generate(pkgname: str) -> None:
     arch = Arch.from_str(pkgname.split("-")[1])
 
+    # Update or create APKINDEX for relevant arch so we know it exists and is recent.
+    pmb.helpers.repo.update(arch)
     # Parse musl version from APKINDEX
     package_data = pmb.parse.apkindex.package("musl", arch=arch)
     if package_data is None:
