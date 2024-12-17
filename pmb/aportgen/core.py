@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import pmb.helpers.git
 import pmb.helpers.run
+from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 
@@ -238,3 +239,31 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
         logging.info("NOTE: You can update your local checkout with: 'pmbootstrap pull'")
 
     return aport_path
+
+
+def prepare_tempdir() -> Path:
+    """Prepare a temporary directory to do aportgen-related operations within.
+
+    :returns: Path to a temporary directory for aportgen to work within.
+    """
+    # Prepare aportgen tempdir inside and outside of chroot
+    tempdir = Path("/tmp/aportgen")
+    aportgen = get_context().config.work / "aportgen"
+    pmb.chroot.root(["rm", "-rf", tempdir])
+    pmb.helpers.run.user(["mkdir", "-p", aportgen, Chroot.native() / tempdir])
+
+    return tempdir
+
+
+def generate_checksums(tempdir: Path, apkbuild_path: Path) -> None:
+    """Generate new checksums for a given APKBUILD.
+
+    :param tempdir: Temporary directory as provided by prepare_tempdir().
+    :param apkbuild_path: APKBUILD to generate new checksums for.
+    """
+    aportgen = get_context().config.work / "aportgen"
+
+    pmb.build.init_abuild_minimal()
+    pmb.chroot.root(["chown", "-R", "pmos:pmos", tempdir])
+    pmb.chroot.user(["abuild", "checksum"], working_dir=tempdir)
+    pmb.helpers.run.user(["cp", apkbuild_path, aportgen])
