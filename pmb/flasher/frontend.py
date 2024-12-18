@@ -137,6 +137,14 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str) -> None:
             lk2nd_pkg = dep
             break
 
+    # If not found, also check subpackages
+    if not lk2nd_pkg:
+        for subpackage in apkbuild["subpackages"]:
+            for dep in apkbuild["subpackages"][subpackage]["depends"]:
+                if dep.startswith("lk2nd"):
+                    lk2nd_pkg = dep
+                    break
+
     if not lk2nd_pkg:
         raise RuntimeError(f"{device_pkg} does not depend on any lk2nd package")
 
