@@ -36,7 +36,7 @@ def system_image(device: str) -> Path:
     if not path.exists():
         logging.debug(f"Could not find rootfs: {path}")
         raise RuntimeError(
-            "The rootfs has not been generated yet, please " "run 'pmbootstrap install' first."
+            "The rootfs has not been generated yet, please run 'pmbootstrap install' first."
         )
     return path
 
@@ -253,7 +253,7 @@ def command_qemu(
         command += ["-M", "pseries"]
         command += ["-device", "virtio-gpu-pci"]
     else:
-        raise RuntimeError(f"Architecture {arch} not supported by this command" " yet.")
+        raise RuntimeError(f"Architecture {arch} not supported by this command yet.")
 
     if args.efi:
         command += [
@@ -302,7 +302,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
     # Make sure we have at least 1 integer followed by either M or G
     pattern = re.compile("^[0-9]+[M|G]$")
     if not pattern.match(img_size_new):
-        raise RuntimeError("IMAGE_SIZE must be in [M]iB or [G]iB, e.g. 2048M" " or 2G")
+        raise RuntimeError("IMAGE_SIZE must be in [M]iB or [G]iB, e.g. 2048M or 2G")
 
     # Remove M or G and convert to bytes
     img_size_new_bytes = int(img_size_new[:-1]) * 1024 * 1024
@@ -329,7 +329,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
 
 def sigterm_handler(number, frame):
     raise RuntimeError(
-        "pmbootstrap was terminated by another process," " and killed the QEMU VM it was running."
+        "pmbootstrap was terminated by another process, and killed the QEMU VM it was running."
     )
 
 
@@ -425,7 +425,7 @@ def run(args: PmbArgs) -> None:
             "NOTE: Ctrl+C is redirected to the VM! To disable this, "
             "run: pmbootstrap config qemu_redir_stdio False"
         )
-        logging.info("NOTE: To quit QEMU with this option you can use " "Ctrl-A, X.")
+        logging.info("NOTE: To quit QEMU with this option you can use Ctrl-A, X.")
 
     if config.ui == "none":
         logging.warning(
@@ -442,9 +442,7 @@ def run(args: PmbArgs) -> None:
         # In addition to not showing a trace when pressing ^C, let user know
         # they can override this behavior:
         logging.info("Quitting because Ctrl+C detected.")
-        logging.info(
-            "To override this behavior and have pmbootstrap " "send Ctrl+C to the VM, run:"
-        )
+        logging.info("To override this behavior and have pmbootstrap send Ctrl+C to the VM, run:")
         logging.info("$ pmbootstrap config qemu_redir_stdio True")
     finally:
         if isinstance(process, subprocess.Popen):
