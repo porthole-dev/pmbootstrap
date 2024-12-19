@@ -12,8 +12,8 @@ from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
 from pathlib import Path
-from typing import Any
-from pmb.types import WithExtraRepos
+from typing import overload, Any, Literal
+from pmb.types import Apkbuild, WithExtraRepos
 
 from pmb.meta import Cache
 import pmb.parse
@@ -260,7 +260,7 @@ def get_with_path(
     must_exist: bool = True,
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = "default",
-) -> tuple[Path | None, dict[str, Any] | None]:
+) -> tuple[Path | None, Apkbuild | None]:
     """Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
@@ -288,12 +288,30 @@ def get_with_path(
     return None, None
 
 
+@overload
+def get(
+    pkgname: str,
+    must_exist: Literal[True] = ...,
+    subpackages: bool = ...,
+    with_extra_repos: WithExtraRepos = ...,
+) -> Apkbuild: ...
+
+
+@overload
+def get(
+    pkgname: str,
+    must_exist: bool = ...,
+    subpackages: bool = ...,
+    with_extra_repos: WithExtraRepos = ...,
+) -> Apkbuild | None: ...
+
+
 def get(
     pkgname: str,
     must_exist: bool = True,
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = "default",
-) -> dict[str, Any]:
+) -> Apkbuild | None:
     return get_with_path(pkgname, must_exist, subpackages, with_extra_repos)[1]
 
 

@@ -58,7 +58,9 @@ def replace_apkbuild(
         )
 
 
-def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
+def is_up_to_date(
+    path_sources: list[Path], path_target: Path | None = None, lastmod_target: float | None = None
+) -> bool:
     """Check if a file is up-to-date by comparing the last modified timestamps.
 
     (just like make does it).
@@ -80,6 +82,9 @@ def is_up_to_date(path_sources, path_target=None, lastmod_target=None):
 
     if path_target:
         lastmod_target = os.path.getmtime(path_target)
+
+    if lastmod_target is None or lastmod_source is None:
+        raise AssertionError
 
     return lastmod_target >= lastmod_source
 

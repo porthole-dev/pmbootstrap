@@ -18,7 +18,7 @@ from pmb.meta import Cache
 # to specify which one they're using.
 # Basically: treat Deviceinfo as a standalone type that
 # doesn't need to traverse pmaports.
-def _parse_kernel_suffix(info, device, kernel):
+def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) -> dict[str, str]:
     """
     Remove the kernel suffix (as selected in 'pmbootstrap init') from
     deviceinfo variables. Related:

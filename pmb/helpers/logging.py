@@ -34,7 +34,7 @@ class log_handler(logging.StreamHandler):
 
         self.styles = pmb.config.styles
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         try:
             msg = self.format(record)
 

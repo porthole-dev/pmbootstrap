@@ -8,7 +8,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_relative_path
 from pmb.helpers import logging
-from pmb.types import CrossCompileType
+from pmb.types import Apkbuild, CrossCompileType
 from pathlib import Path
 
 import pmb.build
@@ -187,7 +187,7 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
     return visited
 
 
-def get_apkbuild(pkgname):
+def get_apkbuild(pkgname: str) -> tuple[Path | None, Apkbuild | None]:
     """Parse the APKBUILD path for pkgname.
 
     When there is none, try to find it in the binary package APKINDEX files or raise an exception.
@@ -580,7 +580,7 @@ def packages(
         for pkgname in pmb.config.build_packages:
             if pkgname not in pkgnames:
                 aport, apkbuild = get_apkbuild(pkgname)
-                if not aport:
+                if not aport or not apkbuild:
                     continue
                 bstatus = pmb.build.get_status(arch, apkbuild)
                 if bstatus.necessary():

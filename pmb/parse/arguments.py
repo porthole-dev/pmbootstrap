@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 import sys
+from typing import cast
 
 from pmb.core.arch import Arch
 from pmb.core import Config
@@ -827,7 +828,7 @@ def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
         arg.completer = kernel_completer
 
 
-def get_parser():
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pmbootstrap")
     arch_native = Arch.native()
     arch_choices = Arch.supported()
@@ -1297,7 +1298,8 @@ def get_parser():
 
 
 def arguments() -> PmbArgs:
-    args: PmbArgs = get_parser().parse_args()
+    # FIXME: It would be nice to not use cast here, but I don't know what else we could do.
+    args = cast(PmbArgs, get_parser().parse_args())
 
     if getattr(args, "fork_alpine_retain_branch", False):
         # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so

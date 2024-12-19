@@ -285,6 +285,8 @@ def config(args: PmbArgs) -> None:
 
 
 def repo_missing(args: PmbArgs) -> None:
+    if args.arch is None or isinstance(args.package, list):
+        raise AssertionError
     missing = pmb.helpers.repo_missing.generate(args.arch, args.overview, args.package, args.built)
     print(json.dumps(missing, indent=4))
 

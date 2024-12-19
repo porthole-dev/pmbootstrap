@@ -4,7 +4,6 @@ import enum
 from pmb.helpers import logging
 import os
 from pathlib import Path
-from typing import Any
 import shlex
 import datetime
 
@@ -20,6 +19,7 @@ import pmb.parse.version
 from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.types import Apkbuild
 
 
 def copy_to_buildpath(
@@ -81,7 +81,7 @@ class BuildStatus(enum.Enum):
         return self in [BuildStatus.OUTDATED, BuildStatus.NEW]
 
 
-def get_status(arch: Arch | None, apkbuild: dict[str, Any]) -> BuildStatus:
+def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
     """Check if the package has already been built.
 
     Compared to abuild's check, this check also works for different architectures.

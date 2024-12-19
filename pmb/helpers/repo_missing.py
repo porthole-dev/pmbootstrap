@@ -1,6 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import overload, Literal
+
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 from pmb.types import Apkbuild
@@ -126,7 +128,27 @@ def generate_output_format(arch: Arch, pkgnames: list[str]) -> list[Apkbuild]:
     return ret
 
 
-def generate(arch, overview, pkgname=None, built=False):
+@overload
+def generate(
+    arch: Arch, overview: Literal[False], pkgname: str | None = ..., built: bool = ...
+) -> list[Apkbuild]: ...
+
+
+@overload
+def generate(
+    arch: Arch, overview: Literal[True], pkgname: str | None = ..., built: bool = ...
+) -> list[str]: ...
+
+
+@overload
+def generate(
+    arch: Arch, overview: bool, pkgname: str | None = ..., built: bool = ...
+) -> list[Apkbuild] | list[str]: ...
+
+
+def generate(
+    arch: Arch, overview: bool, pkgname: str | None = None, built: bool = False
+) -> list[Apkbuild] | list[str]:
     """Get packages that need to be built, with all their dependencies.
 
     :param arch: architecture (e.g. "armhf")

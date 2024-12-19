@@ -12,6 +12,7 @@ import re
 import signal
 import shlex
 import shutil
+from types import FrameType
 
 import pmb.build
 import pmb.chroot
@@ -327,7 +328,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
         raise RuntimeError(f"IMAGE_SIZE must be {img_size_str} or greater")
 
 
-def sigterm_handler(number, frame):
+def sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
     raise RuntimeError(
         "pmbootstrap was terminated by another process, and killed the QEMU VM it was running."
     )

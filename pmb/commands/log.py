@@ -13,11 +13,11 @@ class Log(commands.Command):
     clear_log: bool
     lines: int
 
-    def __init__(self, clear_log: bool, lines: int):
+    def __init__(self, clear_log: bool, lines: int) -> None:
         self.clear_log = clear_log
         self.lines = lines
 
-    def run(self):
+    def run(self) -> None:
         context = get_context()
         log_testsuite = pmb.config.pmb_src / ".pytest_tmp/log_testsuite.txt"
 

@@ -83,7 +83,7 @@ def init_usr_merge(chroot: Chroot) -> None:
 
 
 @Cache()
-def warn_if_chroots_outdated():
+def warn_if_chroots_outdated() -> None:
     outdated = pmb.config.workdir.chroots_outdated()
     if outdated:
         days_warn = int(pmb.config.chroot_outdated / 3600 / 24)
