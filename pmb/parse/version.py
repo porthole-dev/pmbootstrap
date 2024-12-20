@@ -170,7 +170,7 @@ def get_token(previous, rest):
 
     # Append chars or parse suffix
     elif previous == "letter":
-        value = rest[0]
+        value = ord(rest[0])
         rest = rest[1:]
     elif previous == "suffix":
         (rest, value, invalid_suffix) = parse_suffix(rest)
