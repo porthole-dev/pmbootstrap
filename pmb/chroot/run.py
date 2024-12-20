@@ -143,6 +143,20 @@ def root(
 ) -> str: ...
 
 
+@overload
+def root(
+    cmds: Sequence[PathString],
+    chroot: Chroot = ...,
+    working_dir: PurePath = ...,
+    output: RunOutputType = ...,
+    output_return: bool = ...,
+    check: bool | None = ...,
+    env: Env = ...,
+    disable_timeout: bool = ...,
+    add_proxy_env_vars: bool = ...,
+) -> subprocess.Popen | int | str: ...
+
+
 def root(
     cmds: Sequence[PathString],
     chroot: Chroot = Chroot.native(),
@@ -195,8 +209,7 @@ def userm(
 
     flat_cmd = pmb.helpers.run_core.flat_cmd(cmds, env=env)
     cmd = ["busybox", "su", "pmos", "-c", flat_cmd]
-    # Can't figure out why this one fails :(
-    return pmb.chroot.root(  # type: ignore[call-overload]
+    return pmb.chroot.root(
         cmd, chroot, working_dir, output, output_return, check, {}, add_proxy_env_vars=False
     )
 
