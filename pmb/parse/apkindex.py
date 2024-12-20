@@ -117,7 +117,7 @@ def parse_add_block(
     ret: dict[str, ApkindexBlock],
     block: ApkindexBlock,
     alias: str | None = ...,
-    multiple_providers: bool = ...,  # FIXME: Type should be Literal[False], but mypy complains?
+    multiple_providers: Literal[False] = ...,
 ) -> None: ...
 
 
@@ -127,6 +127,15 @@ def parse_add_block(
     block: ApkindexBlock,
     alias: str | None = ...,
     multiple_providers: Literal[True] = ...,
+) -> None: ...
+
+
+@overload
+def parse_add_block(
+    ret: dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]],
+    block: ApkindexBlock,
+    alias: str | None = ...,
+    multiple_providers: bool = ...,
 ) -> None: ...
 
 
