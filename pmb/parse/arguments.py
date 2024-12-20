@@ -1,10 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import argparse
+from collections.abc import Sequence
 import os
 from pathlib import Path
 import sys
-from typing import cast
+from typing import Any, cast
 
 from pmb.core.arch import Arch
 from pmb.core import Config
@@ -45,10 +46,16 @@ def toggle_other_boolean_flags(
     """
 
     class SetOtherDestinationsAction(argparse.Action):
-        def __init__(self, option_strings, dest, **kwargs):
+        def __init__(self, option_strings: list[str], dest: str, **kwargs: Any) -> None:
             super().__init__(option_strings, dest, nargs=0, const=value, default=value, **kwargs)
 
-        def __call__(self, parser, namespace, values, option_string=None):
+        def __call__(
+            self,
+            parser: argparse.ArgumentParser,
+            namespace: argparse.Namespace,
+            values: str | Sequence[Any] | None,
+            option_string: str | None = None,
+        ) -> None:
             for destination in other_destinations:
                 setattr(namespace, destination, value)
 
@@ -720,7 +727,7 @@ def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
     add_kernel_arg(migrate, nargs=1)
 
 
-def arguments_repo_bootstrap(subparser):
+def arguments_repo_bootstrap(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     arch_choices = Arch.supported()
 
     ret = subparser.add_parser("repo_bootstrap")
@@ -792,16 +799,26 @@ def arguments_ci(subparser: argparse._SubParsersAction) -> argparse.ArgumentPars
     return ret
 
 
-def package_completer(prefix, action, parser=None, parsed_args=None):
+def package_completer(
+    prefix: str,
+    action: str,
+    parser: argparse.ArgumentParser | None = None,
+    parsed_args: list[str] | None = None,
+) -> set[str]:
     packages = set(
         package for package in pmb.helpers.pmaports.get_list() if package.startswith(prefix)
     )
     return packages
 
 
-def kernel_completer(prefix, action, parser=None, parsed_args=None):
+def kernel_completer(
+    prefix: str,
+    action: str,
+    parser: argparse.ArgumentParser | None = None,
+    parsed_args: list[str] | None = None,
+) -> list[str]:
     """:returns: matched linux-* packages, with linux-* prefix and without"""
-    ret = []
+    ret: list[str] = []
 
     # Full package name, starting with "linux-"
     if len("linux-") < len(prefix) and prefix.startswith("linux-") or "linux-".startswith(prefix):
@@ -814,7 +831,9 @@ def kernel_completer(prefix, action, parser=None, parsed_args=None):
     return ret
 
 
-def add_packages_arg(subparser, name="packages", *args, **kwargs):
+def add_packages_arg(
+    subparser: argparse.ArgumentParser, name: str = "packages", *args: str, **kwargs: Any
+) -> None:
     arg = subparser.add_argument(name, *args, **kwargs)
     if "argcomplete" in sys.modules:
         arg.completer = package_completer  # type: ignore[attr-defined]

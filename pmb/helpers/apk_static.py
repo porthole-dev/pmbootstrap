@@ -55,7 +55,7 @@ def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
     return (sigfilename, sigkey_path)
 
 
-def extract_temp(tar, sigfilename):
+def extract_temp(tar: tarfile.TarFile, sigfilename: str) -> dict[str, dict]:
     """
     Extract apk.static and signature as temporary files.
     """
@@ -64,19 +64,25 @@ def extract_temp(tar, sigfilename):
         "sig": {"filename": sigfilename, "temp_path": None},
     }
     for ftype in ret.keys():
-        member = tar.getmember(ret[ftype]["filename"])
+        filename = ret[ftype]["filename"]
+        if filename is None:
+            raise AssertionError
+        member = tar.getmember(filename)
 
         fd, path = tempfile.mkstemp(ftype, "pmbootstrap")
         handle = open(fd, "wb")
         ret[ftype]["temp_path"] = path
-        shutil.copyfileobj(tar.extractfile(member), handle)
+        extracted_file = tar.extractfile(member)
+        if extracted_file is None:
+            raise AssertionError
+        shutil.copyfileobj(extracted_file, handle)
 
         logging.debug(f"extracted: {path}")
         handle.close()
     return ret
 
 
-def verify_signature(files, sigkey_path):
+def verify_signature(files: dict[str, dict], sigkey_path: str) -> None:
     """
     Verify the signature with openssl.
 

@@ -188,8 +188,31 @@ def show_pkg_not_found_systemd_hint(package: str, with_extra_repos: WithExtraRep
         )
 
 
+@overload
+def find(
+    package: str,
+    must_exist: Literal[True] = ...,
+    subpackages: bool = ...,
+    with_extra_repos: WithExtraRepos = ...,
+) -> Path: ...
+
+
+@overload
+def find(
+    package: str,
+    must_exist: bool = ...,
+    subpackages: bool = ...,
+    with_extra_repos: WithExtraRepos = ...,
+) -> Path | None: ...
+
+
 @Cache("package", "subpackages", "with_extra_repos")
-def find(package, must_exist=True, subpackages=True, with_extra_repos="default"):
+def find(
+    package: str,
+    must_exist: bool = True,
+    subpackages: bool = True,
+    with_extra_repos: WithExtraRepos = "default",
+) -> Path | None:
     """Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 

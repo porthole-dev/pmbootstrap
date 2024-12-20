@@ -129,7 +129,7 @@ def parse_suffix(rest: str) -> tuple[str, int, bool]:
     return (rest, 0, True)
 
 
-def get_token(previous, rest):
+def get_token(previous: str, rest: str) -> tuple[str, int, str]:
     """
     This function does three things:
     * get the next token

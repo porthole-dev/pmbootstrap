@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
 from pmb.core.context import get_context
-from pmb.types import PathString, Env, RunOutputType
+from pmb.types import PathString, Env, RunOutputType, RunReturnType
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -72,7 +72,9 @@ def sanity_checks(
         raise RuntimeError("Can't use output_return with output: " + output)
 
 
-def background(cmd: str, working_dir: PathString | None = None) -> subprocess.Popen:
+def background(
+    cmd: PathString | Sequence[PathString], working_dir: PathString | None = None
+) -> subprocess.Popen:
     """Run a subprocess in background and redirect its output to the log."""
     ret = subprocess.Popen(
         cmd, stdout=pmb.helpers.logging.logfd, stderr=pmb.helpers.logging.logfd, cwd=working_dir
@@ -81,7 +83,9 @@ def background(cmd: str, working_dir: PathString | None = None) -> subprocess.Po
     return ret
 
 
-def pipe(cmd: str, working_dir: PathString | None = None) -> subprocess.Popen:
+def pipe(
+    cmd: PathString | Sequence[PathString], working_dir: PathString | None = None
+) -> subprocess.Popen:
     """Run a subprocess in background and redirect its output to a pipe."""
     ret = subprocess.Popen(
         cmd,
@@ -111,6 +115,16 @@ def pipe_read(
     output_log: bool = ...,
     output_return: Literal[True] = ...,
     output_return_buffer: list[bytes] = ...,
+) -> None: ...
+
+
+@overload
+def pipe_read(
+    process: subprocess.Popen,
+    output_to_stdout: bool = ...,
+    output_log: bool = ...,
+    output_return: bool = ...,
+    output_return_buffer: list[bytes] | None = ...,
 ) -> None: ...
 
 
@@ -195,15 +209,15 @@ def kill_command(pid: int, sudo: bool) -> None:
 
 
 def foreground_pipe(
-    cmd,
-    working_dir=None,
-    output_to_stdout=False,
-    output_return=False,
-    output_log=True,
-    output_timeout=True,
-    sudo=False,
-    stdin=None,
-):
+    cmd: PathString | Sequence[PathString],
+    working_dir: Path | None = None,
+    output_to_stdout: bool = False,
+    output_return: bool = False,
+    output_log: bool = True,
+    output_timeout: bool = True,
+    sudo: bool = False,
+    stdin: int | None = None,
+) -> tuple[int, str]:
     """Run a subprocess in foreground with redirected output.
 
     Optionally kill it after being silent for too long.
@@ -270,7 +284,9 @@ def foreground_pipe(
     return (process.returncode, b"".join(output_buffer).decode("utf-8"))
 
 
-def foreground_tui(cmd: str, working_dir: PathString | None = None) -> int:
+def foreground_tui(
+    cmd: PathString | Sequence[PathString], working_dir: PathString | None = None
+) -> int:
     """Run a subprocess in foreground without redirecting any of its output.
 
     This is the only way text-based user interfaces (ncurses programs like
@@ -342,15 +358,15 @@ def add_proxy_env_vars(env: Env) -> None:
 
 
 def core(
-    log_message,
-    cmd,
-    working_dir=None,
-    output="log",
-    output_return=False,
-    check=None,
-    sudo=False,
-    disable_timeout=False,
-):
+    log_message: str,
+    cmd: Sequence[PathString],
+    working_dir: Path | None = None,
+    output: RunOutputType = "log",
+    output_return: bool = False,
+    check: bool | None = None,
+    sudo: bool = False,
+    disable_timeout: bool = False,
+) -> RunReturnType:
     """Run a command and create a log entry.
 
     This is a low level function not meant to be used directly. Use one of the
