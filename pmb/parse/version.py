@@ -6,7 +6,7 @@ import collections
 In order to stay as compatible to Alpine's apk as possible, this code
 is heavily based on:
 
-https://git.alpinelinux.org/cgit/apk-tools/tree/src/version.c
+https://gitlab.alpinelinux.org/alpine/apk-tools/-/blob/5d796b567819ce91740fcdea7cbafecbda65d8f3/src/version.c
 """
 
 
