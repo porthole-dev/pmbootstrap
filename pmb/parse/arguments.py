@@ -820,7 +820,9 @@ def add_packages_arg(subparser, name="packages", *args, **kwargs):
         arg.completer = package_completer  # type: ignore[attr-defined]
 
 
-def add_kernel_arg(subparser, name="package", nargs="?", *args, **kwargs):
+def add_kernel_arg(
+    subparser: argparse.ArgumentParser, name: str = "package", nargs: int | str = "?"
+) -> None:
     arg = subparser.add_argument(
         name, nargs=nargs, help="kernel package (e.g. linux-postmarketos-allwinner)"
     )
