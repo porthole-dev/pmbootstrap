@@ -1,3 +1,6 @@
+# Copyright 2024 Anri Dellal
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from pmb.helpers.locale import XkbLayout, get_xkb_layout
 
 

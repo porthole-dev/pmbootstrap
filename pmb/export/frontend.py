@@ -1,3 +1,6 @@
+# Copyright 2017 Oliver Smith
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from pmb.core.context import get_context
 from pmb.helpers import logging
 import os

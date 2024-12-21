@@ -1,3 +1,6 @@
+# Copyright 2024 Caleb Connolly
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import enum
 from pathlib import Path
 from pmb.core.pkgrepo import pkgrepo_name, pkgrepo_paths

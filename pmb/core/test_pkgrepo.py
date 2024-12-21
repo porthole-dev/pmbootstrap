@@ -1,3 +1,6 @@
+# Copyright 2024 Caleb Connolly
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import pytest
 
 import pmb.helpers.git

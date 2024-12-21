@@ -1,3 +1,6 @@
+# Copyright 2024 Caleb Connolly
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import os
 from pathlib import Path
 from typing import Any

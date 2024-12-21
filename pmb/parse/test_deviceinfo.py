@@ -1,3 +1,6 @@
+# Copyright 2024 Caleb Connolly
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from pathlib import Path
 from .deviceinfo import Deviceinfo
 from pmb.config import deviceinfo_chassis_types
