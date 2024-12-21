@@ -191,7 +191,7 @@ def validate(version: str) -> bool:
     current = Token.DIGIT
     rest = version
     while current != Token.END:
-        (current, value, rest) = get_token(current, rest)
+        (current, _, rest) = get_token(current, rest)
         if current == Token.INVALID:
             return False
     return True
