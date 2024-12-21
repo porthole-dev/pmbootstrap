@@ -35,6 +35,7 @@ target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = ["CPY001", "UP"]
+preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
 # F401: imported but unused, common for __init__.py files
