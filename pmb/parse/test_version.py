@@ -1,6 +1,6 @@
 # Copyright 2024 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
-from .version import check_string, compare, get_token, parse_suffix, validate
+from .version import check_string, compare, get_token, parse_suffix, validate, Token
 
 
 def test_check_string() -> None:
@@ -19,8 +19,8 @@ def test_compare() -> None:
 
 
 def test_get_token() -> None:
-    next, value, rest = get_token("letter", "2024.01_rc4")
-    assert next == "digit"
+    next, value, rest = get_token(Token.LETTER, "2024.01_rc4")
+    assert next == Token.DIGIT
     assert value == 50
     assert rest == "024.01_rc4"
 

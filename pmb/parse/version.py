@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
+from enum import IntEnum
 
 """
 In order to stay as compatible to Alpine's apk as possible, this code
@@ -10,32 +11,22 @@ https://gitlab.alpinelinux.org/alpine/apk-tools/-/blob/5d796b567819ce91740fcdea7
 """
 
 
-def token_value(string: str) -> int:
+class Token(IntEnum):
     """
-    Return the associated value for a given token string (we parse
-    through the version string one token at a time).
-
-    :param string: a token string
-    :returns: integer associated to the token (so we can compare them in
-              functions further below, a digit (1) looses against a
-              letter (2), because "letter" has a higher value).
-
     C equivalent: enum PARTS
     """
-    order = {
-        "invalid": -1,
-        "digit_or_zero": 0,
-        "digit": 1,
-        "letter": 2,
-        "suffix": 3,
-        "suffix_no": 4,
-        "revision_no": 5,
-        "end": 6,
-    }
-    return order[string]
+
+    INVALID = -1
+    DIGIT_OR_ZERO = 0
+    DIGIT = 1
+    LETTER = 2
+    SUFFIX = 3
+    SUFFIX_NO = 4
+    REVISION_NO = 5
+    END = 6
 
 
-def next_token(previous: str, rest: str) -> tuple[str, str]:
+def next_token(previous: Token, rest: str) -> tuple[Token, str]:
     """
     Parse the next token in the rest of the version string, we're
     currently looking at.
@@ -52,41 +43,41 @@ def next_token(previous: str, rest: str) -> tuple[str, str]:
 
     C equivalent: next_token()
     """
-    next = "invalid"
+    next = Token.INVALID
     char = rest[:1]
 
     # Tokes, which do not change rest
     if not len(rest):
-        next = "end"
-    elif previous in ["digit", "digit_or_zero"] and char.islower():
-        next = "letter"
-    elif previous == "letter" and char.isdigit():
-        next = "digit"
-    elif previous == "suffix" and char.isdigit():
-        next = "suffix_no"
+        next = Token.END
+    elif previous in [Token.DIGIT, Token.DIGIT_OR_ZERO] and char.islower():
+        next = Token.LETTER
+    elif previous == Token.LETTER and char.isdigit():
+        next = Token.DIGIT
+    elif previous == Token.SUFFIX and char.isdigit():
+        next = Token.SUFFIX_NO
 
     # Tokens, which remove the first character of rest
     else:
         if char == ".":
-            next = "digit_or_zero"
+            next = Token.DIGIT_OR_ZERO
         elif char == "_":
-            next = "suffix"
+            next = Token.SUFFIX
         elif rest.startswith("-r"):
-            next = "revision_no"
+            next = Token.REVISION_NO
             rest = rest[1:]
         elif char == "-":
-            next = "invalid"
+            next = Token.INVALID
         rest = rest[1:]
 
     # Validate current token
     # Check if the transition from previous to current is valid
-    if token_value(next) < token_value(previous):
+    if next < previous:
         if not (
-            (next == "digit_or_zero" and previous == "digit")
-            or (next == "suffix" and previous == "suffix_no")
-            or (next == "digit" and previous == "letter")
+            (next == Token.DIGIT_OR_ZERO and previous == Token.DIGIT)
+            or (next == Token.SUFFIX and previous == Token.SUFFIX_NO)
+            or (next == Token.DIGIT and previous == Token.LETTER)
         ):
-            next = "invalid"
+            next = Token.INVALID
     return (next, rest)
 
 
@@ -129,7 +120,7 @@ def parse_suffix(rest: str) -> tuple[str, int, bool]:
     return (rest, 0, True)
 
 
-def get_token(previous: str, rest: str) -> tuple[str, int, str]:
+def get_token(previous: Token, rest: str) -> tuple[Token, int, str]:
     """
     This function does three things:
     * get the next token
@@ -146,22 +137,22 @@ def get_token(previous: str, rest: str) -> tuple[str, int, str]:
     """
     # Set defaults
     value = 0
-    next = "invalid"
+    next = Token.INVALID
     invalid_suffix = False
 
     # Bail out if at the end
     if not len(rest):
-        return ("end", 0, rest)
+        return (Token.END, 0, rest)
 
     # Cut off leading zero digits
-    if previous == "digit_or_zero" and rest.startswith("0"):
+    if previous == Token.DIGIT_OR_ZERO and rest.startswith("0"):
         while rest.startswith("0"):
             rest = rest[1:]
             value -= 1
-        next = "digit"
+        next = Token.DIGIT
 
     # Add up numeric values
-    elif previous in ["digit_or_zero", "digit", "suffix_no", "revision_no"]:
+    elif previous in [Token.DIGIT_OR_ZERO, Token.DIGIT, Token.SUFFIX_NO, Token.REVISION_NO]:
         for i in range(len(rest)):
             while len(rest) and rest[0].isdigit():
                 value *= 10
@@ -169,10 +160,10 @@ def get_token(previous: str, rest: str) -> tuple[str, int, str]:
                 rest = rest[1:]
 
     # Append chars or parse suffix
-    elif previous == "letter":
+    elif previous == Token.LETTER:
         value = ord(rest[0])
         rest = rest[1:]
-    elif previous == "suffix":
+    elif previous == Token.SUFFIX:
         (rest, value, invalid_suffix) = parse_suffix(rest)
 
     # Invalid previous token
@@ -181,8 +172,8 @@ def get_token(previous: str, rest: str) -> tuple[str, int, str]:
 
     # Get the next token (for non-leading zeros)
     if not len(rest):
-        next = "end"
-    elif next == "invalid" and not invalid_suffix:
+        next = Token.END
+    elif next == Token.INVALID and not invalid_suffix:
         (next, rest) = next_token(previous, rest)
 
     return (next, value, rest)
@@ -197,11 +188,11 @@ def validate(version: str) -> bool:
 
     C equivalent: apk_version_validate()
     """
-    current = "digit"
+    current = Token.DIGIT
     rest = version
-    while current != "end":
+    while current != Token.END:
         (current, value, rest) = get_token(current, rest)
-        if current == "invalid":
+        if current == Token.INVALID:
             return False
     return True
 
@@ -225,8 +216,8 @@ def compare(a_version: str, b_version: str, fuzzy: bool = False) -> int:
     """
 
     # Defaults
-    a_token = "digit"
-    b_token = "digit"
+    a_token = Token.DIGIT
+    b_token = Token.DIGIT
     a_value = 0
     b_value = 0
     a_rest = a_version
@@ -234,7 +225,7 @@ def compare(a_version: str, b_version: str, fuzzy: bool = False) -> int:
 
     # Parse A and B one token at a time, until one string ends, or the
     # current token has a different type/value
-    while a_token == b_token and a_token not in ["end", "invalid"] and a_value == b_value:
+    while a_token == b_token and a_token not in [Token.END, Token.INVALID] and a_value == b_value:
         (a_token, a_value, a_rest) = get_token(a_token, a_rest)
         (b_token, b_value, b_rest) = get_token(b_token, b_rest)
 
@@ -252,19 +243,19 @@ def compare(a_version: str, b_version: str, fuzzy: bool = False) -> int:
     # Leading version components and their values are equal, now the
     # non-terminating version is greater unless it's a suffix
     # indicating pre-release
-    if a_token == "suffix":
+    if a_token == Token.SUFFIX:
         (a_token, a_value, a_rest) = get_token(a_token, a_rest)
         if a_value < 0:
             return -1
-    if b_token == "suffix":
+    if b_token == Token.SUFFIX:
         (b_token, b_value, b_rest) = get_token(b_token, b_rest)
         if b_value < 0:
             return 1
 
     # Compare the token value (e.g. digit < letter)
-    if token_value(a_token) > token_value(b_token):
+    if a_token > b_token:
         return -1
-    if token_value(a_token) < token_value(b_token):
+    if a_token < b_token:
         return 1
 
     # The tokens are not the same, but previous checks revealed that it
