@@ -11,7 +11,6 @@ from pmb.core.pkgrepo import (
 from pmb.helpers import logging
 import os
 import sys
-from typing import cast, Any
 
 import pmb.config
 from pmb.meta import Cache
@@ -94,7 +93,7 @@ def read_config_repos() -> dict[str, configparser.SectionProxy]:
 
 
 @Cache("aports")
-def read_config(aports: Path | None = None) -> dict[str, Any]:
+def read_config(aports: Path | None = None) -> configparser.SectionProxy:
     """Read and verify pmaports.cfg. If aports is not
     specified and systemd is enabled, the returned channel
     will be the systemd one (e.g. systemd-edge instead of edge)
@@ -134,8 +133,7 @@ def read_config(aports: Path | None = None) -> dict[str, Any]:
     if systemd:
         ret["channel"] = "systemd-" + ret["channel"]
 
-    # FIXME: This is a hack to work around python/typeshed issue #12919
-    return cast(dict[str, Any], ret)
+    return ret
 
 
 def all_channels() -> list[str]:
