@@ -79,7 +79,10 @@ def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
     :returns: list of dependency pkgnames (eg. ["sdl2", "sdl2_net"])
     """
     # Read makedepends and depends
-    ret = list(apkbuild["makedepends"])
+    if apkbuild["makedepends"]:
+        ret = list(apkbuild["makedepends"])
+    else:
+        ret = list(apkbuild["makedepends_build"]) + list(apkbuild["makedepends_host"])
     if "!check" not in apkbuild["options"]:
         ret += apkbuild["checkdepends"]
     if not context.ignore_depends:
