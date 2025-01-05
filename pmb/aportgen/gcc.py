@@ -1,4 +1,4 @@
-# Copyright 2023 Oliver Smith
+# Copyright 2025 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 from pmb.core.arch import Arch
@@ -7,11 +7,67 @@ from pmb.core.pkgrepo import pkgrepo_default_path
 import pmb.helpers.git
 import pmb.helpers.run
 
+import fnmatch
+import logging
+
+
+def depends_for_sonames(libraries: dict[str, str], arch_libc: Arch) -> list:
+    """Get packages providing specific sonames from Alpine's main repo. Usually
+    this would be done during package builds using abuild's "tracedeps". But
+    this leads to our cross gccs immediately breaking once Alpine gcc packages
+    change. So we figure out depends on our own here."""
+    apkindex_main = pmb.helpers.repo.apkindex_files(
+        arch_libc, user_repository=False, exclude_mirrors=["pmaports", "systemd"]
+    )[0]
+    apkindex = pmb.parse.apkindex.parse(apkindex_main, True)
+
+    result: dict[str, str] = {}
+    for pattern_soname in libraries:
+        pattern_pkgname = libraries[pattern_soname]
+
+        for provide in apkindex.keys():
+            if not fnmatch.fnmatch(provide, pattern_soname):
+                continue
+            match = None
+            for pkgname in apkindex[provide]:
+                if fnmatch.fnmatch(pkgname, pattern_pkgname):
+                    logging.info(f"{provide}: provided by {pkgname}")
+                    match = pkgname
+                    # No break, so it prints other matches too if any. This
+                    # should make debugging easier if something goes wrong.
+                else:
+                    logging.warning(
+                        f"{provide}: provided by {pkgname} which is an unexpected pkgname, ignoring..."
+                    )
+            if match:
+                if pattern_soname in result:
+                    old = result[pattern_soname].split(".so.")[1]
+                    new = provide.split(".so.")[1]
+                    if pmb.parse.version.compare(new, old) == 1:
+                        logging.debug(
+                            f"{provide}: new highest version found for pattern {pattern_soname}"
+                        )
+                        result[pattern_soname] = provide
+                else:
+                    logging.debug(f"{provide}: first version found for pattern {pattern_soname}")
+                    result[pattern_soname] = provide
+
+        if pattern_soname not in result:
+            raise RuntimeError(
+                f"{pattern_soname}: is not provided by any package, can't trace dependencies for this pattern."
+            )
+
+    return list(result.values())
+
 
 def generate(pkgname: str) -> None:
     # Copy original aport
     prefix = pkgname.split("-")[0]
     arch = Arch.from_str(pkgname.split("-")[1])
+    # Until pmb#2517 is resolved properly, we set the tracedeps manually. The
+    # musl soname contains the architecture name, support cross compiling from
+    # aarch64 to x86_64 and x86_64 to all other arches.
+    arch_libc = Arch.from_str("aarch64" if pkgname.split("-")[1] == "x86_64" else "x86_64")
     context = get_context()
     if prefix == "gcc":
         upstream = pmb.aportgen.core.get_upstream_aport("gcc", arch)
@@ -39,12 +95,26 @@ def generate(pkgname: str) -> None:
         "subpackages": "",
         # gcc6: options is already there, so we need to replace it and not only
         # set it below the header like done below.
-        "options": "!strip",
+        # !tracedeps: workaround for issue 2517
+        "options": "!strip !tracedeps",
         "LIBGOMP": "false",
         "LIBGCC": "false",
         "LIBATOMIC": "false",
         "LIBITM": "false",
     }
+
+    libraries = {
+        f"so:libc.musl-{arch_libc}.so.*": "musl",
+        "so:libgcc_s.so.*": "libgcc",
+        "so:libgmp.so.*": "gmp",
+        "so:libisl.so.*": "isl*",
+        "so:libmpc.so.*": "mpc1",
+        "so:libmpfr.so.*": "mpfr4",
+        "so:libstdc++.so.*": "libstdc++",
+        "so:libz.so.*": "zlib",
+    }
+    logging.info(f"*** Getting sonames for depends (arch_libc: {arch_libc})")
+    fields["depends"] += f" {' '.join(depends_for_sonames(libraries, arch_libc))}"
 
     # Latest gcc only, not gcc4 and gcc6
     if prefix == "gcc":
@@ -76,6 +146,17 @@ def generate(pkgname: str) -> None:
     """
     )
 
+    libraries_gpp = {
+        f"so:libc.musl-{arch_libc}.so.*": "musl",
+        "so:libgmp.so.*": "gmp",
+        "so:libisl.so.*": "isl*",
+        "so:libmpc.so.*": "mpc1",
+        "so:libmpfr.so.*": "mpfr4",
+        "so:libz.so.*": "zlib",
+    }
+    logging.info(f"*** Getting sonames for depends in gpp subpackage (arch_libc: {arch_libc})")
+    depends_gpp = " ".join(depends_for_sonames(libraries_gpp, arch_libc))
+
     replace_simple = {
         # Do not package libstdc++, do not add "g++-$ARCH" here (already
         # did that explicitly in the subpackages variable above, so
@@ -91,6 +172,8 @@ def generate(pkgname: str) -> None:
         "*# These are moved into packages with arch=*": "",
         "*# cross prefix (doesn't exist when BOOTSTRAP=nolibc)*": "",
         '*BOOTSTRAP" != nolibc ] && mv *': "",
+        # Add depends to the gpp subpackage, so we don't need to use tracedeps
+        "*amove $_gcclibexec/cc1plus*": f'\tdepends="$depends {depends_gpp}"\n\n\tamove $_gcclibexec/cc1plus',
     }
 
     pmb.aportgen.core.rewrite(
