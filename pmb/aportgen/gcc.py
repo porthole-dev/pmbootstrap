@@ -87,6 +87,10 @@ def generate(pkgname: str) -> None:
         "*_cross_configure=*": None,
         # Do not build foreign arch libgcc, we use the one from Alpine (#2168)
         "_libgcc=true*": "_libgcc=false",
+        # Keep the cross prefix in package()
+        "*# These are moved into packages with arch=*": "",
+        "*# cross prefix (doesn't exist when BOOTSTRAP=nolibc)*": "",
+        '*BOOTSTRAP" != nolibc ] && mv *': "",
     }
 
     pmb.aportgen.core.rewrite(
