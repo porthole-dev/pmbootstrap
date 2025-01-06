@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.meta import Cache
+from pmb.types import WithExtraRepos
 from pathlib import Path
 
 import pmb.build
@@ -9,6 +11,23 @@ import pmb.helpers.package
 import pmb.helpers.pmaports
 import glob
 import os
+
+
+@Cache("repo")
+def is_abuild_forked(repo: str | None) -> bool:
+    """Check if abuild is forked to make sure we build it first (pmb#2401)"""
+    with_extra_repos: WithExtraRepos
+
+    if repo == "systemd":
+        with_extra_repos = "enabled"
+    elif repo is None:
+        with_extra_repos = "disabled"
+    else:
+        raise RuntimeError(f"Unexpected repo value: {repo}")
+
+    if pmb.helpers.pmaports.find("abuild", False, False, with_extra_repos):
+        return True
+    return False
 
 
 def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
@@ -41,6 +60,9 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
 
             if entry is None:
                 raise RuntimeError(f"Couldn't get package {pkgname} for arch {arch}")
+
+            if pkgname != "abuild" and is_abuild_forked(repo):
+                entry.depends.insert(0, "abuild")
 
             ret += [
                 {
