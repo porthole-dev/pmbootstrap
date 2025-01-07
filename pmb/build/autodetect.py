@@ -13,7 +13,6 @@ from pmb.meta import Cache
 from pmb.types import Apkbuild, CrossCompileType
 
 
-# FIXME (#2324): type hint Arch
 def arch_from_deviceinfo(pkgname: str, aport: Path) -> Arch | None:
     """
     The device- packages are noarch packages. But it only makes sense to build
