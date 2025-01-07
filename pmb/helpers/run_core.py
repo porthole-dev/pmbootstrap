@@ -313,7 +313,7 @@ def check_return_code(code: int, log_message: str) -> None:
             "NOTE: The failed command's output is above the ^^^ line"
             f" in the log file: {log_file}"
         )
-        raise RuntimeError(f"Command failed (exit code {str(code)}): " + log_message)
+        raise RuntimeError(f"Command failed (exit code {code}): " + log_message)
 
 
 def sudo_timer_iterate() -> None:
