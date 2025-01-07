@@ -14,36 +14,38 @@ Locale and layout information is taken from:
 
 
 class XkbLayout:
-    primary_layouts = [
-        "at",
-        "au",
-        "br",
-        "ca",
-        "ch",
-        "de",
-        "dk",
-        "ee",
-        "es",
-        "fi",
-        "fo",
-        "fr",
-        "gb",
-        "ie",
-        "is",
-        "it",
-        "latam",
-        "lt",
-        "mt",
-        "nz",
-        "pl",
-        "pt",
-        "ro",
-        "se",
-        "sk",
-        "tr",
-        "us",
-        "vn",
-    ]
+    primary_layouts = frozenset(
+        [
+            "at",
+            "au",
+            "br",
+            "ca",
+            "ch",
+            "de",
+            "dk",
+            "ee",
+            "es",
+            "fi",
+            "fo",
+            "fr",
+            "gb",
+            "ie",
+            "is",
+            "it",
+            "latam",
+            "lt",
+            "mt",
+            "nz",
+            "pl",
+            "pt",
+            "ro",
+            "se",
+            "sk",
+            "tr",
+            "us",
+            "vn",
+        ]
+    )
 
     def __init__(self, layout: str = "us", variant: str = ""):
         self.layout = layout
