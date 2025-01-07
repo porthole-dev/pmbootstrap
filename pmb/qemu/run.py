@@ -164,13 +164,12 @@ def command_qemu(
 
         if "gtk" in args.qemu_display:
             gdk_cache = create_gdk_loader_cache(args)
-            # FIXME: why does mypy think the values here should all be paths??
             env.update(
                 {
-                    "GTK_THEME": "Default",  # type: ignore[dict-item]
-                    "GDK_PIXBUF_MODULE_FILE": str(gdk_cache),  # type: ignore[dict-item]
+                    "GTK_THEME": "Default",
+                    "GDK_PIXBUF_MODULE_FILE": str(gdk_cache),
                     "XDG_DATA_DIRS": ":".join(
-                        [  # type: ignore[dict-item]
+                        [
                             str(chroot_native / "usr/local/share"),
                             str(chroot_native / "usr/share"),
                         ]
