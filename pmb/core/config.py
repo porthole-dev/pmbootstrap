@@ -47,7 +47,9 @@ class AutoZapConfig(enum.Enum):
 
 
 class Config:
-    aports: list[Path] = [
+    # This is a class variable that gets treated as an instance variable. It's wrong, but since we
+    # only ever have one config (for now?) it doesn't cause any issues. Would be good to fix though.
+    aports: list[Path] = [  # noqa: RUF012
         Path(os.path.expanduser("~") + "/.local/var/pmbootstrap/cache_git/pmaports")
     ]
     boot_size: int = 256
