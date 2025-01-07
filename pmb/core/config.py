@@ -4,7 +4,7 @@
 from copy import deepcopy
 import enum
 import multiprocessing
-from typing import Any, TypedDict
+from typing import Any, ClassVar, TypedDict
 from pathlib import Path
 import os
 
@@ -63,7 +63,7 @@ class Config:
     kernel: str = "stable"
     keymap: str = ""
     locale: str = "en_US.UTF-8"
-    mirrors: Mirrors = {
+    mirrors: ClassVar[Mirrors] = {
         "alpine_custom": "none",
         "alpine": "http://dl-cdn.alpinelinux.org/alpine/",
         "pmaports_custom": "none",
@@ -84,7 +84,7 @@ class Config:
     # automatically zap chroots that are for the wrong channel
     auto_zap_misconfigured_chroots: AutoZapConfig = AutoZapConfig.NO
 
-    providers: dict[str, str] = {}
+    providers: ClassVar[dict[str, str]] = {}
 
     def __init__(self) -> None:
         # Make sure we aren't modifying the class defaults
