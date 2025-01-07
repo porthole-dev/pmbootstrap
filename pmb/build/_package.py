@@ -1,6 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
+import functools
+import operator
 from typing import Any, TypedDict
 from collections.abc import Callable
 from pmb.build.other import BuildStatus
@@ -391,8 +393,10 @@ def process_package(
 
     # Also traverse subpackage depends, they shouldn't be included in base_depends since they
     # aren't needed for building (and can conflict with depends for other subpackages)
-    depends += sum(
-        map(lambda sp: sp["depends"] if sp else [], base_apkbuild["subpackages"].values()), []
+    depends += functools.reduce(
+        operator.iadd,
+        map(lambda sp: sp["depends"] if sp else [], base_apkbuild["subpackages"].values()),
+        [],
     )
 
     parent = pkgname
@@ -434,8 +438,10 @@ def process_package(
             )
             queue_build(aports, apkbuild, deps, cross)
 
-            subpkg_deps: list[str] = sum(
-                map(lambda sp: sp["depends"] if sp else [], apkbuild["subpackages"].values()), []
+            subpkg_deps: list[str] = functools.reduce(
+                operator.iadd,
+                map(lambda sp: sp["depends"] if sp else [], apkbuild["subpackages"].values()),
+                [],
             )
             logging.verbose(
                 f"{arch}/{dep}: Inserting {len(deps)} dependencies and {len(subpkg_deps)} from subpackages"
