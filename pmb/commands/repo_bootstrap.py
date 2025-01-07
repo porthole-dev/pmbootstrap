@@ -169,7 +169,7 @@ class RepoBootstrap(commands.Command):
 
         return ret
 
-    def run(self) -> None:  # noqa: F821
+    def run(self) -> None:
         self.check_existing_pkgs()
 
         steps = self.get_steps()
