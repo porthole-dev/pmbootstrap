@@ -34,7 +34,10 @@ line-length=100
 target-version = "py310"
 
 [tool.ruff.lint]
-extend-select = ["CPY001", "UP"]
+# RUF021: Could be fixed if someone cares about this.
+# RUF052: Needs a lot of changes, feel free to fix and then remove this ignore.
+extend-ignore = ["RUF021", "RUF052"]
+extend-select = ["CPY001", "RUF", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
