@@ -27,7 +27,7 @@ def package_provider(
     # 1. Only one provider
     logging.verbose(f"{pkgname}: provided by: {', '.join(providers)}")
     if len(providers) == 1:
-        return list(providers.values())[0]
+        return next(iter(providers.values()))
 
     # 2. Provider with the same package name
     if pkgname in providers:
@@ -66,7 +66,7 @@ def package_provider(
     # 6. Pick the provider(s) with the highest priority
     providers = pmb.parse.apkindex.provider_highest_priority(providers, pkgname)
     if len(providers) == 1:
-        return list(providers.values())[0]
+        return next(iter(providers.values()))
 
     # 7. Pick the shortest provider. (Note: Normally apk would fail here!)
     return pmb.parse.apkindex.provider_shortest(providers, pkgname)

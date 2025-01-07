@@ -399,7 +399,7 @@ def ask_for_device_kernel(config: Config, device: str) -> str:
     # Get default
     default = config.kernel
     if default not in kernels:
-        default = list(kernels.keys())[0]
+        default = next(iter(kernels.keys()))
 
     # Ask for kernel (extra message when downstream and upstream are available)
     logging.info("Which kernel do you want to use with your device?")
