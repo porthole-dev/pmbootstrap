@@ -25,6 +25,7 @@ def register(arch: Arch) -> None:
     # always make sure the qemu-<arch> binary is installed, since registering
     # may happen outside of this method (e.g. by OS)
     if f"qemu-{arch_qemu}" not in pmb.chroot.apk.installed(chroot):
+        pmb.chroot.init(chroot)
         pmb.chroot.apk.install(["qemu-" + arch_qemu], chroot)
 
     if is_registered(arch_qemu):
