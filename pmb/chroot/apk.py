@@ -125,8 +125,6 @@ def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list
     return local
 
 
-# FIXME: list[Sequence[PathString]] weirdness
-# mypy: disable-error-code="operator"
 def install_run_apk(
     to_add: list[str], to_add_local: list[Path], to_del: list[str], chroot: Chroot
 ) -> None:
@@ -173,12 +171,12 @@ def install_run_apk(
         pmb.chroot.init(chroot)
 
     # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
-    user_repo = []
+    user_repo: list[PathString] = []
     for channel in pmb.config.pmaports.all_channels():
         user_repo += ["--repository", context.config.work / "packages" / channel]
 
     for i, command in enumerate(commands):
-        command = user_repo + command
+        command = [*user_repo, *command]
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
