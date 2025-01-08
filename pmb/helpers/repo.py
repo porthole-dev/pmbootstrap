@@ -88,7 +88,7 @@ def urls(
         mirrors_exclude.append("systemd")
 
     # ["pmaports", "systemd", "alpine", "plasma-nightly"]
-    for repo in pkgrepo_names() + ["alpine"]:
+    for repo in [*pkgrepo_names(), "alpine"]:
         if repo in mirrors_exclude:
             continue
 

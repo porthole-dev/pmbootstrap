@@ -82,7 +82,7 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
 
             # Add abuild to depends if needed
             if pkgname != "abuild" and is_abuild_forked(repo):
-                depends = ["abuild"] + depends
+                depends = ["abuild", *depends]
 
             depends = sorted(depends)
 

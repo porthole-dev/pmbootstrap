@@ -87,7 +87,7 @@ def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
     ret = sorted(set(ret))
 
     # Don't recurse forever when a package depends on itself (#948)
-    for pkgname in [apkbuild["pkgname"]] + list(apkbuild["subpackages"].keys()):
+    for pkgname in [apkbuild["pkgname"], *apkbuild["subpackages"].keys()]:
         if pkgname in ret:
             logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on" " itself: " + pkgname)
             ret.remove(pkgname)
@@ -224,7 +224,7 @@ class BuildQueueItem(TypedDict):
 def has_cyclical_dependency(
     unmet_deps: dict[str, list[str]], item: BuildQueueItem, dep: str
 ) -> bool:
-    pkgnames = [item["name"]] + list(item["apkbuild"]["subpackages"].keys())
+    pkgnames = [item["name"], *item["apkbuild"]["subpackages"].keys()]
 
     for pkgname in pkgnames:
         if pkgname in unmet_deps.get(dep, []):

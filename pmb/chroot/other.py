@@ -24,7 +24,7 @@ def kernel_flavor_installed(chroot: Chroot, autoinstall: bool = True) -> str | N
         if not chroot.is_mounted():
             pmb.chroot.init(chroot)
         config = get_context().config
-        packages = [f"device-{config.device}"] + pmb.install.get_kernel_package(config)
+        packages = [f"device-{config.device}", *pmb.install.get_kernel_package(config)]
         pmb.chroot.apk.install(packages, chroot)
 
     glob_result = list((chroot / "usr/share/kernel").glob("*"))

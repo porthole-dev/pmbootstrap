@@ -149,18 +149,18 @@ def install_run_apk(
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands: list[Sequence[PathString]] = [["add"] + to_add]
+    commands: list[Sequence[PathString]] = [["add", *to_add]]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
     if to_add_local:
         commands += [
-            ["add", "-u", "--virtual", ".pmbootstrap"] + local_add,
+            ["add", "-u", "--virtual", ".pmbootstrap", *local_add],
             ["del", ".pmbootstrap"],
         ]
 
     if to_del:
-        commands += [["del"] + to_del]
+        commands += [["del", *to_del]]
 
     channel = pmb.config.pmaports.read_config()["channel"]
     # There are still some edgecases where we manage to get here while the chroot is not
@@ -182,7 +182,7 @@ def install_run_apk(
 
         # Ignore missing repos before initial build (bpo#137)
         if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
-            command = ["--force-missing-repositories"] + command
+            command = ["--force-missing-repositories", *command]
 
         # Virtual package related commands don't actually install or remove
         # packages, but only mark the right ones as explicitly installed.

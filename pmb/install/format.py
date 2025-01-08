@@ -164,7 +164,7 @@ def format_and_mount_root(
             # with non-block devices, we need to explicitly set a number of
             # inodes. See #1717 and #1845 for details
             if not disk:
-                mkfs_root_args = mkfs_root_args + ["-N", "100000"]
+                mkfs_root_args = [*mkfs_root_args, "-N", "100000"]
         elif filesystem == "f2fs":
             mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
         elif filesystem == "btrfs":
@@ -174,7 +174,7 @@ def format_and_mount_root(
 
         install_fsprogs(filesystem)
         logging.info(f"(native) format {device} (root, {filesystem})")
-        pmb.chroot.root(mkfs_root_args + [device])
+        pmb.chroot.root([*mkfs_root_args, device])
 
     # Mount
     mountpoint = "/mnt/install"

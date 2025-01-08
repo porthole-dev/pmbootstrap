@@ -96,7 +96,7 @@ def check(pkgnames: Sequence[str]) -> None:
     has_failed = False
     for pkgrepo, apkbuild_paths in apkbuilds.items():
         if pmb.chroot.user(
-            ["apkbuild-lint"] + apkbuild_paths,
+            ["apkbuild-lint", *apkbuild_paths],
             check=False,
             output="stdout",
             working_dir=dest_paths[pkgrepo_name(repo)],

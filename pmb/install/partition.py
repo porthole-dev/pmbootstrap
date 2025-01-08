@@ -120,7 +120,7 @@ def partition(layout: PartitionLayout, size_boot: int, size_reserve: int) -> Non
         commands += [["set", str(layout["boot"]), "boot", "on"]]
 
     for command in commands:
-        pmb.chroot.root(["parted", "-s", "/dev/install"] + command, check=False)
+        pmb.chroot.root(["parted", "-s", "/dev/install", *command], check=False)
 
 
 def partition_cgpt(layout: PartitionLayout, size_boot: int, size_reserve: int) -> None:

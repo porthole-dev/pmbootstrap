@@ -158,7 +158,7 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
     pmb.helpers.repo.update(arch)
     pkgs = ["alpine-base"]
     cmd: list[PathString] = ["--initdb"]
-    pmb.helpers.apk.run(cmd + ["add", *pkgs], chroot)
+    pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
 
     # Merge /usr
     if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):

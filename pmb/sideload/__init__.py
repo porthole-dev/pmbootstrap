@@ -77,18 +77,13 @@ def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list
         remote_paths.append(os.path.join("/tmp", os.path.basename(path)))
 
     logging.info(f"Copying packages to {user}@{host}")
-    command = ["scp", "-P", port] + paths + [f"{user}@{host}:/tmp"]
+    command: list[PathString] = ["scp", "-P", port, *paths, f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing packages at {user}@{host}")
-    add_cmd_list = [
-        "apk",
-        "--wait",
-        "30",
-        "add",
-    ] + remote_paths
+    add_cmd_list = ["apk", "--wait", "30", "add", *remote_paths]
     add_cmd = pmb.helpers.run_core.flat_cmd([add_cmd_list])
-    clean_cmd = pmb.helpers.run_core.flat_cmd([["rm"] + remote_paths])
+    clean_cmd = pmb.helpers.run_core.flat_cmd([["rm", *remote_paths]])
     add_cmd_complete = shlex.quote(f"{su_cmd} {add_cmd} rc=$?; {clean_cmd} exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
     command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {add_cmd_complete}"]

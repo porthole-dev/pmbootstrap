@@ -24,7 +24,7 @@ def newapkbuild(folder: PathString, args_passed: list[str], force: bool = False)
     pmb.chroot.user(["mkdir", "-p", build])
 
     # Run newapkbuild
-    pmb.chroot.user(["newapkbuild"] + args_passed, working_dir=build)
+    pmb.chroot.user(["newapkbuild", *args_passed], working_dir=build)
     glob_result = list(build_outside.glob("*/APKBUILD"))
     if not len(glob_result):
         return

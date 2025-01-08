@@ -76,7 +76,7 @@ def rev_parse(
     :returns: commit string like "90cd0ad84d390897efdcf881c0315747a4f3a966"
         or (with ``--abbrev-ref``): the branch name, e.g. "master"
     """
-    command = ["git", "rev-parse"] + extra_args + [revision]
+    command = ["git", "rev-parse", *extra_args, revision]
     rev = pmb.helpers.run.user_output(command, path, output="null" if silent else "log")
     return rev.rstrip()
 

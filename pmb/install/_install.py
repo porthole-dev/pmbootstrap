@@ -149,11 +149,11 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot) -> None:
         if args.verbose:
             rsync_flags += "vP"
         pmb.chroot.root(
-            ["rsync", rsync_flags, "--delete"] + folders + ["/mnt/install/"], working_dir=mountpoint
+            ["rsync", rsync_flags, "--delete", *folders, "/mnt/install/"], working_dir=mountpoint
         )
         pmb.chroot.root(["rm", "-rf", "/mnt/install/home"])
     else:
-        pmb.chroot.root(["cp", "-a"] + folders + ["/mnt/install/"], working_dir=mountpoint)
+        pmb.chroot.root(["cp", "-a", *folders, "/mnt/install/"], working_dir=mountpoint)
 
 
 def create_home_from_skel(filesystem: str, user: str) -> None:
@@ -1113,11 +1113,12 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
     # Prepare the installer chroot
     logging.info(f"*** ({step}/{steps}) CREATE ON-DEVICE INSTALLER ROOTFS ***")
     step += 1
-    packages = (
-        [f"device-{config.device}", "postmarketos-ondev"]
-        + get_kernel_package(config)
-        + get_nonfree_packages(config.device)
-    )
+    packages = [
+        f"device-{config.device}",
+        "postmarketos-ondev",
+        *get_kernel_package(config),
+        *get_nonfree_packages(config.device),
+    ]
 
     chroot_installer = Chroot(ChrootType.INSTALLER, config.device)
     pmb.chroot.apk.install(packages, chroot_installer)
@@ -1303,7 +1304,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     set_user(context.config)
 
     # Fill install_packages
-    install_packages = pmb.config.install_device_packages + ["device-" + device]
+    install_packages = [*pmb.config.install_device_packages, "device-" + device]
     if not args.install_base:
         install_packages = [p for p in install_packages if p != "postmarketos-base"]
     if config.ui.lower() != "none":
