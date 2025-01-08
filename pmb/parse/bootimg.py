@@ -85,6 +85,7 @@ def bootimg(path: Path) -> Bootimg:
         " we can set up a chroot to extract and analyze your"
         " boot.img file"
     )
+    pmb.chroot.init(Chroot.native())
     pmb.chroot.apk.install(["file", "unpackbootimg"], Chroot.native())
 
     temp_path = Path("/tmp/bootimg_parser")
