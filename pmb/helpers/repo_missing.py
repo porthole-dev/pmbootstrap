@@ -73,11 +73,11 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
                     if not dep_data:
                         logging.warning(f"WARNING: {pkgname}: failed to resolve dependency '{dep}'")
                         # Can't replace potential subpkgname
-                        if dep not in depends:
+                        if dep != pkgname and dep not in depends:
                             depends += [dep]
                         continue
                     dep_pkgname = dep_data.pkgname
-                    if dep_pkgname not in depends:
+                    if dep_pkgname != pkgname and dep_pkgname not in depends:
                         depends += [dep_pkgname]
 
             # Add abuild to depends if needed
