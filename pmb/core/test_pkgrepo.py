@@ -3,8 +3,6 @@
 
 import pytest
 
-import pmb.helpers.git
-import pmb.helpers.run
 from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_default_path
 
 
@@ -34,13 +32,6 @@ def test_pkgrepo_pmaports(pmaports, monkeypatch):
     assert default_path.name == "pmaports"
 
     # Test extra-repos
-    assert (
-        pmb.helpers.run.user(
-            ["git", "checkout", "master_staging_systemd"], working_dir=default_path
-        )
-        == 0
-    )
-
     paths = pkgrepo_paths(with_extra_repos="disabled")
     assert len(paths) == 1
 
