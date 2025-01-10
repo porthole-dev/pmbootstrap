@@ -301,7 +301,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
     img_size = os.path.getsize(img_path)
 
     # Make sure we have at least 1 integer followed by either M or G
-    pattern = re.compile("^[0-9]+[M|G]$")
+    pattern = re.compile(r"^[0-9]+[M|G]$")
     if not pattern.match(img_size_new):
         raise RuntimeError("IMAGE_SIZE must be in [M]iB or [G]iB, e.g. 2048M or 2G")
 

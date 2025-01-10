@@ -15,7 +15,7 @@ def indent_size(line: str) -> int:
     """
     Number of spaces at the beginning of a string.
     """
-    matches = re.findall("^[ ]*", line)
+    matches = re.findall(r"^[ ]*", line)
     if len(matches) == 1:
         return len(matches[0])
     return 0
