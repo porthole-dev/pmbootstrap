@@ -213,10 +213,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
         and channel_new == "edge"
         and pmb.config.is_systemd_selected()
     ):
-        logging.info(
-            "NOTE: systemd enabled and currently on the master_staging_systemd branch, not switching to edge"
-        )
-        return False
+        logging.info("NOTE: master_staging_systemd was merged into master, switching to it")
 
     logging.info(
         f"Currently checked out branch '{branch_current}' of"
