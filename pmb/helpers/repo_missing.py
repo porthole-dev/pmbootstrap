@@ -11,6 +11,7 @@ import pmb.helpers.package
 import pmb.helpers.pmaports
 import glob
 import os
+import copy
 
 
 @Cache("repo")
@@ -61,6 +62,13 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
             if entry is None:
                 raise RuntimeError(f"Couldn't get package {pkgname} for arch {arch}")
 
+            # Add abuild to depends if needed. Use a copy of entry and
+            # entry.depends so we don't modify the original versions that these
+            # references point to, which can lead to having abuild twice in
+            # depends when this function gets called again for a package that
+            # is in both the main and split repository.
+            entry = copy.copy(entry)
+            entry.depends = copy.copy(entry.depends)
             if pkgname != "abuild" and is_abuild_forked(repo):
                 entry.depends.insert(0, "abuild")
 
