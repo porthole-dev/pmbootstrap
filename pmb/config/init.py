@@ -355,8 +355,7 @@ def ask_for_provider_select(apkbuild: dict[str, Any], providers_cfg: dict[str, s
                 # Selecting default means to not select any provider explicitly
                 # In other words, apk chooses it automatically based on
                 # "provider_priority"
-                if select in providers_cfg:
-                    del providers_cfg[select]
+                providers_cfg.pop(select, None)
                 break
             if ret in providers_short:
                 providers_cfg[select] = providers_short[ret]
