@@ -112,7 +112,7 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
     """
     # Get the wanted source line
     source = package["source"][0]
-    source = re.split(r"::", source)
+    source = source.split("::")
     if 1 <= len(source) <= 2:
         source = source[-1]
     else:
