@@ -580,11 +580,7 @@ def ask_for_additional_options(config: Config) -> None:
     if pmb.helpers.cli.confirm("Change mirror?", default=False):
         mirror = ask_for_mirror()
         config.mirrors["pmaports"] = mirror
-        # FIXME: this path will change once the systemd repository is
-        # integrated into bpo (fixing this is a tasks in bpo#140)
-        # FIXME: when updating this, also add 'pmbootstrap config mirrors.systemd'
-        # examples to docs/mirrors.md
-        config.mirrors["systemd"] = os.path.join(mirror, "staging/systemd/")
+        config.mirrors["systemd"] = os.path.join(mirror, "extra-repos/systemd/")
 
 
 def ask_for_mirror() -> str:

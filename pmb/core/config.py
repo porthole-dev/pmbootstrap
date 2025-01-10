@@ -69,7 +69,7 @@ class Config:
         "pmaports_custom": "none",
         "pmaports": "http://mirror.postmarketos.org/postmarketos/",
         "systemd_custom": "none",
-        "systemd": "http://mirror.postmarketos.org/postmarketos/staging/systemd/",
+        "systemd": "http://mirror.postmarketos.org/postmarketos/extra-repos/systemd/",
     }
     qemu_redir_stdio: bool = False
     ssh_key_glob: str = "~/.ssh/*.pub"

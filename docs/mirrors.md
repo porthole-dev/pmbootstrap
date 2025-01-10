@@ -20,12 +20,14 @@ mirrors at [mirrors.alpinelinux.org](https://mirrors.alpinelinux.org) and
 ```
 $ pmbootstrap config mirrors.alpine http://uk.alpinelinux.org/alpine/
 $ pmbootstrap config mirrors.pmaports http://postmarketos.craftyguy.net/
+$ pmbootstrap config mirrors.systemd http://postmarketos.craftyguy.net/extra-repos/systemd/
 ```
 
 Reset to default works as with all config options:
 ```
 $ pmbootstrap config -r mirrors.alpine
 $ pmbootstrap config -r mirrors.pmaports
+$ pmbootstrap config -r mirrors.systemd
 ```
 
 ### Disable the postmarketOS mirror
@@ -49,4 +51,5 @@ you want to use in addition to the postmarketOS binary package repository.
 
 ```
 $ pmbootstrap config mirrors.pmaports_custom http://custom-repository-here
+$ pmbootstrap config mirrors.systemd_custom http://custom-repository-here/extra-repos/systemd
 ```
