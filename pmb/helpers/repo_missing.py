@@ -9,9 +9,10 @@ from pathlib import Path
 import pmb.build
 import pmb.helpers.package
 import pmb.helpers.pmaports
+import pmb.helpers.package
 import glob
 import os
-import copy
+import logging
 
 
 @Cache("repo")
@@ -50,34 +51,47 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
         for apkbuild_path_str in glob.glob(pattern, recursive=True):
             apkbuild_path = Path(apkbuild_path_str)
             pkgname = apkbuild_path.parent.name
+            package = pmb.parse.apkbuild(apkbuild_path)
+            version = f"{package['pkgver']}-r{package['pkgrel']}"
 
-            if not pmb.helpers.package.check_arch(pkgname, arch, False):
+            if not pmb.helpers.pmaports.check_arches(package["arch"], arch):
                 continue
 
             relpath = apkbuild_path.relative_to(pmaports_dir)
             repo = relpath.parts[1] if relpath.parts[0] == "extra-repos" else None
 
-            entry = pmb.helpers.package.get(pkgname, arch, True, try_other_arches=False)
+            depends = []
+            dep_fields = ["depends", "makedepends", "checkdepends"]
+            for dep_field in dep_fields:
+                for dep in package[dep_field]:
+                    if dep.startswith("!"):
+                        continue
 
-            if entry is None:
-                raise RuntimeError(f"Couldn't get package {pkgname} for arch {arch}")
+                    dep_data = pmb.helpers.package.get(
+                        dep, arch, must_exist=False, try_other_arches=False
+                    )
+                    if not dep_data:
+                        logging.warning(f"WARNING: {pkgname}: failed to resolve dependency '{dep}'")
+                        # Can't replace potential subpkgname
+                        if dep not in depends:
+                            depends += [dep]
+                        continue
+                    dep_pkgname = dep_data.pkgname
+                    if dep_pkgname not in depends:
+                        depends += [dep_pkgname]
 
-            # Add abuild to depends if needed. Use a copy of entry and
-            # entry.depends so we don't modify the original versions that these
-            # references point to, which can lead to having abuild twice in
-            # depends when this function gets called again for a package that
-            # is in both the main and split repository.
-            entry = copy.copy(entry)
-            entry.depends = copy.copy(entry.depends)
+            # Add abuild to depends if needed
             if pkgname != "abuild" and is_abuild_forked(repo):
-                entry.depends.insert(0, "abuild")
+                depends = ["abuild"] + depends
+
+            depends = sorted(depends)
 
             ret += [
                 {
-                    "pkgname": entry.pkgname,
+                    "pkgname": pkgname,
                     "repo": repo,
-                    "version": entry.version,
-                    "depends": entry.depends,
+                    "version": version,
+                    "depends": depends,
                 }
             ]
 
