@@ -77,9 +77,9 @@ def partition(layout: PartitionLayout, size_boot: int, size_reserve: int) -> Non
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
     # Convert to MB and print info
-    mb_boot = f"{round(size_boot)}M"
-    mb_reserved = f"{round(size_reserve)}M"
-    mb_root_start = f"{round(size_boot) + round(size_reserve)}M"
+    mb_boot = f"{size_boot}M"
+    mb_reserved = f"{size_reserve}M"
+    mb_root_start = f"{size_boot + size_reserve}M"
     logging.info(
         f"(native) partition /dev/install (boot: {mb_boot},"
         f" reserved: {mb_reserved}, root: the rest)"
@@ -149,8 +149,8 @@ def partition_cgpt(layout: PartitionLayout, size_boot: int, size_reserve: int) -
     }
 
     # Convert to MB and print info
-    mb_boot = f"{round(size_boot)}M"
-    mb_reserved = f"{round(size_reserve)}M"
+    mb_boot = f"{size_boot}M"
+    mb_reserved = f"{size_reserve}M"
     logging.info(
         f"(native) partition /dev/install (boot: {mb_boot},"
         f" reserved: {mb_reserved}, root: the rest)"

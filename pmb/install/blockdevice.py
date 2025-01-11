@@ -102,8 +102,8 @@ def create_and_mount_image(
     # Create empty image files
     pmb.chroot.user(["mkdir", "-p", "/home/pmos/rootfs"])
     size_mb_full = str(size_mb) + "M"
-    size_mb_boot = str(round(size_boot)) + "M"
-    size_mb_root = str(round(size_root)) + "M"
+    size_mb_boot = str(size_boot) + "M"
+    size_mb_root = str(size_root) + "M"
     images = {img_path_full: size_mb_full}
     if split:
         images = {img_path_boot: size_mb_boot, img_path_root: size_mb_root}
