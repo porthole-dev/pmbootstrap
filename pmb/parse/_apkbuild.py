@@ -195,7 +195,7 @@ def parse_next_attribute(
         i += 1
 
     raise RuntimeError(
-        f"Can't find closing quote sign ({end_char}) for" f" attribute '{attribute}' in: {path}"
+        f"Can't find closing quote sign ({end_char}) for attribute '{attribute}' in: {path}"
     )
 
 
@@ -363,7 +363,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
             logging.info(f"Folder: '{os.path.dirname(path)}'")
             logging.info(f"Pkgname: '{ret['pkgname']}'")
             raise RuntimeError(
-                "The pkgname must be equal to the name of" " the folder that contains the APKBUILD!"
+                "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
             )
 
     # Sanity check: pkgver
@@ -373,7 +373,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
                 "NOTE: Valid pkgvers are described here: "
                 "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
             )
-            raise RuntimeError(f"Invalid pkgver '{ret['pkgver']}' in" f" APKBUILD: {path}")
+            raise RuntimeError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
 
     # Fill cache
     return ret

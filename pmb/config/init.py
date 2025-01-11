@@ -237,7 +237,7 @@ def ask_for_ui_extras(config: Config, ui: str) -> bool:
     if extra is None:
         return False
 
-    logging.info("This user interface has an extra package:" f" {extra['pkgdesc']}")
+    logging.info(f"This user interface has an extra package: {extra['pkgdesc']}")
 
     return pmb.helpers.cli.confirm("Enable this package?", default=config.ui_extras)
 
@@ -274,7 +274,7 @@ def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo) -> str:
     if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
         return ""
     options = deviceinfo.keymaps.split(" ")
-    logging.info(f"Available keymaps for device ({len(options)}): " f"{', '.join(options)}")
+    logging.info(f"Available keymaps for device ({len(options)}): {', '.join(options)}")
     if config.keymap == "":
         config.keymap = options[0]
 
@@ -340,7 +340,7 @@ def ask_for_provider_select(apkbuild: dict[str, Any], providers_cfg: dict[str, s
                 # Display as default provider
                 styles = pmb.config.styles
                 logging.info(
-                    f"* {short}: {pkg['pkgdesc']} " f"{styles['BOLD']}(default){styles['END']}"
+                    f"* {short}: {pkg['pkgdesc']} {styles['BOLD']}(default){styles['END']}"
                 )
                 has_default = True
             else:
@@ -575,7 +575,7 @@ def ask_for_additional_options(config: Config) -> None:
 
     # Mirrors
     # prompt for mirror change
-    logging.info("Selected mirror:" f" {context.config.mirrors['pmaports']}")
+    logging.info(f"Selected mirror: {context.config.mirrors['pmaports']}")
     if pmb.helpers.cli.confirm("Change mirror?", default=False):
         mirror = ask_for_mirror()
         config.mirrors["pmaports"] = mirror

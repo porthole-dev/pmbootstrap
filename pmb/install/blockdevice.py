@@ -48,16 +48,16 @@ def mount_disk(path: Path) -> None:
         raise RuntimeError(f"The disk block device does not exist: {path}")
     for path_mount in path.parent.glob(f"{path.name}*"):
         if pmb.helpers.mount.ismount(path_mount):
-            raise RuntimeError(f"{path_mount} is mounted! Will not attempt to" " format this!")
+            raise RuntimeError(f"{path_mount} is mounted! Will not attempt to format this!")
     logging.info(f"(native) mount /dev/install (host: {path})")
     pmb.helpers.mount.bind_file(path, Chroot.native() / "dev/install")
     if previous_install(path):
         if not pmb.helpers.cli.confirm(
-            "WARNING: This device has a" " previous installation of pmOS." " CONTINUE?"
+            "WARNING: This device has a previous installation of pmOS. CONTINUE?"
         ):
             raise RuntimeError("Aborted.")
     else:
-        if not pmb.helpers.cli.confirm(f"EVERYTHING ON {path} WILL BE" " ERASED! CONTINUE?"):
+        if not pmb.helpers.cli.confirm(f"EVERYTHING ON {path} WILL BE ERASED! CONTINUE?"):
             raise RuntimeError("Aborted.")
 
 
@@ -95,8 +95,7 @@ def create_and_mount_image(
     free = round((disk_data.f_bsize * disk_data.f_bavail) / (1024**2))
     if size_mb > free:
         raise RuntimeError(
-            "Not enough free space to create rootfs image! "
-            f"(free: {free}M, required: {size_mb}M)"
+            f"Not enough free space to create rootfs image! (free: {free}M, required: {size_mb}M)"
         )
 
     # Create empty image files
@@ -108,7 +107,7 @@ def create_and_mount_image(
     if split:
         images = {img_path_boot: size_mb_boot, img_path_root: size_mb_root}
     for img_path, image_size_mb in images.items():
-        logging.info(f"(native) create {img_path.name} " f"({image_size_mb})")
+        logging.info(f"(native) create {img_path.name} ({image_size_mb})")
         pmb.chroot.root(["truncate", "-s", image_size_mb, img_path])
 
     # Mount to /dev/install

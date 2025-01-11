@@ -70,7 +70,7 @@ def parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
     if required_found != len(required_apkindex_keys):
         for key in required_apkindex_keys:
             if key not in ret:
-                raise RuntimeError(f"Missing required key '{key}' in block " f"{ret}, file: {path}")
+                raise RuntimeError(f"Missing required key '{key}' in block {ret}, file: {path}")
         raise RuntimeError(
             f"Expected {len(required_apkindex_keys)} required keys,"
             f" but found {required_found} in block: {ret}, file: {path}"
@@ -274,7 +274,7 @@ def parse(
 
         # Skip virtual packages
         if block.timestamp is None:
-            logging.verbose(f"Skipped virtual package {block} in" f" file: {path}")
+            logging.verbose(f"Skipped virtual package {block} in file: {path}")
             continue
 
         # Add the next package and all aliases
@@ -480,5 +480,5 @@ def package(
 
     # No provider
     if must_exist:
-        raise RuntimeError("Package '" + package + "' not found in any" " APKINDEX.")
+        raise RuntimeError("Package '" + package + "' not found in any APKINDEX.")
     return None

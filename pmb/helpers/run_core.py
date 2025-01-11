@@ -268,7 +268,7 @@ def foreground_pipe(
                 logging.info(
                     "Process did not write any output for " + str(timeout) + " seconds. Killing it."
                 )
-                logging.info("NOTE: The timeout can be increased with" " 'pmbootstrap -t'.")
+                logging.info("NOTE: The timeout can be increased with 'pmbootstrap -t'.")
                 kill_command(process.pid, sudo)
                 continue
 
@@ -292,7 +292,7 @@ def foreground_tui(
     This is the only way text-based user interfaces (ncurses programs like
     vim, nano or the kernel's menuconfig) work properly.
     """
-    logging.debug("*** output passed to pmbootstrap stdout, not to this log" " ***")
+    logging.debug("*** output passed to pmbootstrap stdout, not to this log ***")
     process = subprocess.Popen(cmd, cwd=working_dir)
     return process.wait()
 
@@ -310,8 +310,7 @@ def check_return_code(code: int, log_message: str) -> None:
         logging.debug("^" * 70)
         log_file = get_context().log
         logging.info(
-            "NOTE: The failed command's output is above the ^^^ line"
-            f" in the log file: {log_file}"
+            f"NOTE: The failed command's output is above the ^^^ line in the log file: {log_file}"
         )
         raise RuntimeError(f"Command failed (exit code {code}): " + log_message)
 
@@ -347,7 +346,7 @@ def add_proxy_env_vars(env: Env) -> None:
         "FTP_PROXY",
         "HTTPS_PROXY",
         "HTTP_PROXY",
-        "HTTP_PROXY_AUTH" "ftp_proxy",
+        "HTTP_PROXY_AUTHftp_proxy",
         "http_proxy",
         "https_proxy",
     ]

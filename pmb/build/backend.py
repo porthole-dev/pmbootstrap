@@ -273,7 +273,7 @@ def run_abuild(
     if strict or "pmb:strict" in apkbuild["options"]:
         if not strict:
             logging.debug(
-                apkbuild["pkgname"] + ": 'pmb:strict' found in" " options, building in strict mode"
+                apkbuild["pkgname"] + ": 'pmb:strict' found in options, building in strict mode"
             )
         cmd += ["-r"]  # install depends with abuild
     else:

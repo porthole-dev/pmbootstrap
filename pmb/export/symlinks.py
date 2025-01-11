@@ -29,9 +29,7 @@ def symlinks(flavor: str, folder: Path) -> None:
 
     # File descriptions
     info = {
-        f"boot.img{suffix}": (
-            "Fastboot compatible boot.img file," " contains initramfs and kernel"
-        ),
+        f"boot.img{suffix}": ("Fastboot compatible boot.img file, contains initramfs and kernel"),
         "dtbo.img": "Fastboot compatible dtbo image",
         f"initramfs{suffix}": "Initramfs",
         f"initramfs{suffix}-extra": "Extra initramfs files in /boot",

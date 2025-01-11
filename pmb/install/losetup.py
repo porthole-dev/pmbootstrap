@@ -32,7 +32,7 @@ def mount(img_path: Path, _sector_size: int | None = None) -> Path:
     for i in range(0, 5):
         # Retry
         if i > 0:
-            logging.debug("loop module might not be initialized yet, retry in" " one second...")
+            logging.debug("loop module might not be initialized yet, retry in one second...")
             time.sleep(1)
 
         # Mount and return on success

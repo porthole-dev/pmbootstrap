@@ -56,7 +56,7 @@ class Chroot:
 
         # A native suffix must not have a name.
         if self.__type == ChrootType.NATIVE and self.__name != "":
-            raise ValueError(f"The native suffix can't have a name but got: " f"'{self.__name}'")
+            raise ValueError(f"The native suffix can't have a name but got: '{self.__name}'")
 
         if self.__type == ChrootType.IMAGE and not Path(self.__name).exists():
             raise ValueError(f"Image file '{self.__name}' does not exist")
@@ -98,7 +98,7 @@ class Chroot:
         if arch is not None:
             return arch
 
-        raise ValueError(f"Invalid chroot suffix: {self}" " (wrong device chosen in 'init' step?)")
+        raise ValueError(f"Invalid chroot suffix: {self} (wrong device chosen in 'init' step?)")
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):

@@ -40,9 +40,7 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
         if os.path.exists(f"{partition_prefix}1"):
             found = True
             break
-        logging.debug(
-            f"NOTE: ({i + 1}/{tries}) failed to find the install " "partition. Retrying..."
-        )
+        logging.debug(f"NOTE: ({i + 1}/{tries}) failed to find the install partition. Retrying...")
         time.sleep(0.1)
 
     if not found:

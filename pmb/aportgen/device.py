@@ -65,7 +65,7 @@ def ask_for_chassis() -> str:
 
 def ask_for_external_storage() -> bool:
     return pmb.helpers.cli.confirm(
-        "Does the device have a sdcard or" " other external storage medium?"
+        "Does the device have a sdcard or other external storage medium?"
     )
 
 
@@ -80,7 +80,7 @@ def ask_for_flash_method() -> str:
             if method == "heimdall":
                 heimdall_types = ["isorec", "bootimg"]
                 while True:
-                    logging.info('Does the device use the "isolated' ' recovery" or boot.img?')
+                    logging.info('Does the device use the "isolated recovery" or boot.img?')
                     logging.info(
                         "<https://wiki.postmarketos.org/wiki"
                         "/Deviceinfo_flash_methods#Isorec_or_bootimg"

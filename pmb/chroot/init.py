@@ -99,9 +99,7 @@ def warn_if_chroots_outdated() -> None:
         else:
             msg += "some of your chroots are"
         logging.warning(
-            f"WARNING: {msg} older than"
-            f" {days_warn} days. Consider running"
-            " 'pmbootstrap zap'."
+            f"WARNING: {msg} older than {days_warn} days. Consider running 'pmbootstrap zap'."
         )
 
 

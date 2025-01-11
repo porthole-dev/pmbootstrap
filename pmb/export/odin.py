@@ -56,7 +56,7 @@ def odin(device: str, flavor: str, folder: Path) -> None:
         odin_device_tar = f"{device}.tar"
         odin_device_tar_md5 = f"{device}.tar.md5"
 
-        handle.write("#!/bin/sh\n" f"cd {temp_folder}\n")
+        handle.write(f"#!/bin/sh\ncd {temp_folder}\n")
         if method == "heimdall-isorec":
             handle.write(
                 # Kernel: copy and append md5
@@ -96,7 +96,7 @@ def odin(device: str, flavor: str, folder: Path) -> None:
         pmb.chroot.root(
             [
                 "mv",
-                f"/mnt/rootfs_{device}{temp_folder}" f"/{odin_device_tar_md5}",
+                f"/mnt/rootfs_{device}{temp_folder}/{odin_device_tar_md5}",
                 "/home/pmos/rootfs/",
             ]
         ),

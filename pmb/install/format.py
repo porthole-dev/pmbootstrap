@@ -25,7 +25,7 @@ def format_and_mount_boot(args: PmbArgs, device: str, boot_label: str) -> None:
     mountpoint = "/mnt/install/boot"
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
     install_fsprogs(filesystem)
-    logging.info(f"(native) format {device} (boot, {filesystem}), mount to" f" {mountpoint}")
+    logging.info(f"(native) format {device} (boot, {filesystem}), mount to {mountpoint}")
     if filesystem == "fat16":
         pmb.chroot.root(["mkfs.fat", "-F", "16", "-n", boot_label, device])
     elif filesystem == "fat32":
@@ -46,7 +46,7 @@ def format_luks_root(args: PmbArgs, device: str) -> None:
     """
     mountpoint = "/dev/mapper/pm_crypt"
 
-    logging.info(f"(native) format {device} (root, luks), mount to" f" {mountpoint}")
+    logging.info(f"(native) format {device} (root, luks), mount to {mountpoint}")
     logging.info(" *** TYPE IN THE FULL DISK ENCRYPTION PASSWORD (TWICE!) ***")
 
     # Avoid cryptsetup warning about missing locking directory

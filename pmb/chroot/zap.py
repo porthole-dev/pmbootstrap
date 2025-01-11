@@ -145,7 +145,7 @@ def zap_pkgs_local_mismatch(confirm: bool = True, dry: bool = False) -> None:
             apk_path_short = f"{arch}/{pkgname}-{version}.apk"
             apk_path = f"{get_context().config.work}/packages/{channel}/{apk_path_short}"
             if not os.path.exists(apk_path):
-                logging.info("WARNING: Package mentioned in index not" f" found: {apk_path_short}")
+                logging.info(f"WARNING: Package mentioned in index not found: {apk_path_short}")
                 continue
 
             if origin is None:
@@ -154,7 +154,7 @@ def zap_pkgs_local_mismatch(confirm: bool = True, dry: bool = False) -> None:
             # Aport path
             aport_path = pmb.helpers.pmaports.find_optional(origin)
             if not aport_path:
-                logging.info(f"% rm {apk_path_short}" f" ({origin} aport not found)")
+                logging.info(f"% rm {apk_path_short} ({origin} aport not found)")
                 if not dry:
                     pmb.helpers.run.root(["rm", apk_path])
                     reindex = True
@@ -164,7 +164,7 @@ def zap_pkgs_local_mismatch(confirm: bool = True, dry: bool = False) -> None:
             apkbuild = pmb.parse.apkbuild(aport_path)
             version_aport = f"{apkbuild['pkgver']}-r{apkbuild['pkgrel']}"
             if version != version_aport:
-                logging.info(f"% rm {apk_path_short}" f" ({origin} aport: {version_aport})")
+                logging.info(f"% rm {apk_path_short} ({origin} aport: {version_aport})")
                 if not dry:
                     pmb.helpers.run.root(["rm", apk_path])
                     reindex = True
@@ -178,7 +178,7 @@ def zap_pkgs_online_mismatch(confirm: bool = True, dry: bool = False) -> None:
     paths = list(get_context().config.work.glob("cache_apk_*"))
     if not len(paths):
         return
-    if confirm and not pmb.helpers.cli.confirm("Remove outdated" " binary packages?"):
+    if confirm and not pmb.helpers.cli.confirm("Remove outdated binary packages?"):
         return
 
     # Iterate over existing apk caches

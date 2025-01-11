@@ -74,7 +74,7 @@ def generate(pkgname: str, fork_alpine: bool, fork_alpine_retain_branch: bool = 
 
     # Confirm overwrite
     if options["confirm_overwrite"] and os.path.exists(path_target):
-        logging.warning("WARNING: Target folder already exists: " f"{path_target}")
+        logging.warning(f"WARNING: Target folder already exists: {path_target}")
         if not pmb.helpers.cli.confirm("Continue and overwrite?"):
             raise RuntimeError("Aborted.")
 

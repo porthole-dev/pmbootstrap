@@ -612,7 +612,7 @@ aportgen_mirror_alpine = "http://dl-4.alpinelinux.org/alpine/"
 newapkbuild_arguments_strings = [
     ["-n", "pkgname", "set package name (only use with SRCURL)"],
     ["-d", "pkgdesc", "set package description"],
-    ["-l", "license", "set package license identifier from" " <https://spdx.org/licenses/>"],
+    ["-l", "license", "set package license identifier from <https://spdx.org/licenses/>"],
     ["-u", "url", "set package URL"],
 ]
 newapkbuild_arguments_switches_pkgtypes = [

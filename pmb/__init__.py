@@ -114,9 +114,7 @@ def main() -> int:
 
         # Still active notice
         if mount.ismount(Chroot.native() / "dev"):
-            logging.info(
-                "NOTE: chroot is still active (use 'pmbootstrap" " shutdown' as necessary)"
-            )
+            logging.info("NOTE: chroot is still active (use 'pmbootstrap shutdown' as necessary)")
         logging.info("DONE!")
 
     except KeyboardInterrupt:
@@ -147,7 +145,7 @@ def main() -> int:
 
         print_log_hint()
         print()
-        print("Before you report this error, ensure that pmbootstrap is " "up to date.")
+        print("Before you report this error, ensure that pmbootstrap is up to date.")
         print(
             "Find the latest version here: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/tags"
         )

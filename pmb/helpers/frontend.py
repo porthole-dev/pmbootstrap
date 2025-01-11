@@ -174,7 +174,7 @@ def chroot(args: PmbArgs) -> None:
         and chroot != Chroot.native()
         and chroot.type not in [ChrootType.BUILDROOT, ChrootType.IMAGE]
     ):
-        raise RuntimeError("--user is only supported for native or" " buildroot_* chroots.")
+        raise RuntimeError("--user is only supported for native or buildroot_* chroots.")
     if args.xauth and chroot != Chroot.native():
         raise RuntimeError("--xauth is only supported for native chroot.")
 
@@ -304,19 +304,17 @@ def install(args: PmbArgs) -> None:
     device = config.device
     deviceinfo = pmb.parse.deviceinfo(device)
     if args.no_fde:
-        logging.warning("WARNING: --no-fde is deprecated," " as it is now the default.")
+        logging.warning("WARNING: --no-fde is deprecated, as it is now the default.")
     if args.rsync and args.full_disk_encryption:
-        raise ValueError("Installation using rsync is not compatible with full" " disk encryption.")
+        raise ValueError("Installation using rsync is not compatible with full disk encryption.")
     if args.rsync and not args.disk:
         raise ValueError("Installation using rsync only works with --disk.")
 
     if args.rsync and args.filesystem == "btrfs":
-        raise ValueError(
-            "Installation using rsync" " is not currently supported on btrfs filesystem."
-        )
+        raise ValueError("Installation using rsync is not currently supported on btrfs filesystem.")
 
     pmb.helpers.pmaports.require_bootstrap(
-        deviceinfo.arch, f"do 'pmbootstrap install' for {deviceinfo.arch}" " (deviceinfo_arch)"
+        deviceinfo.arch, f"do 'pmbootstrap install' for {deviceinfo.arch} (deviceinfo_arch)"
     )
 
     # On-device installer checks
@@ -335,20 +333,20 @@ def install(args: PmbArgs) -> None:
                 " --android-recovery-zip (patches welcome)"
             )
         if args.no_image:
-            raise ValueError("--on-device-installer cannot be combined with" " --no-image")
+            raise ValueError("--on-device-installer cannot be combined with --no-image")
         if args.rsync:
-            raise ValueError("--on-device-installer cannot be combined with" " --rsync")
+            raise ValueError("--on-device-installer cannot be combined with --rsync")
         if args.filesystem:
-            raise ValueError("--on-device-installer cannot be combined with" " --filesystem")
+            raise ValueError("--on-device-installer cannot be combined with --filesystem")
 
         if deviceinfo.cgpt_kpart:
-            raise ValueError("--on-device-installer cannot be used with" " ChromeOS devices")
+            raise ValueError("--on-device-installer cannot be used with ChromeOS devices")
     else:
         if args.ondev_cp:
             raise ValueError("--cp can only be combined with --ondev")
         if args.ondev_no_rootfs:
             raise ValueError(
-                "--no-rootfs can only be combined with --ondev." " Do you mean --no-image?"
+                "--no-rootfs can only be combined with --ondev. Do you mean --no-image?"
             )
     if args.ondev_no_rootfs:
         _install_ondev_verify_no_rootfs(device, args.ondev_cp)
@@ -377,7 +375,7 @@ def install(args: PmbArgs) -> None:
     # Android recovery zip related
     if args.android_recovery_zip and args.filesystem:
         raise ValueError(
-            "--android-recovery-zip cannot be combined with" " --filesystem (patches welcome)"
+            "--android-recovery-zip cannot be combined with --filesystem (patches welcome)"
         )
     if args.android_recovery_zip and args.full_disk_encryption:
         logging.info(
@@ -445,7 +443,7 @@ def newapkbuild(args: PmbArgs) -> None:
     # Sanity check: -n is only allowed with SRCURL
     if args.pkgname and not is_url:
         raise RuntimeError(
-            "You can only specify a pkgname (-n) when using" " SRCURL as last parameter."
+            "You can only specify a pkgname (-n) when using SRCURL as last parameter."
         )
 
     # Passthrough: Strings (e.g. -d "my description")
@@ -588,7 +586,7 @@ def ci(args: PmbArgs) -> None:
     scripts_selected = {}
     if args.scripts:
         if args.all:
-            raise RuntimeError("Combining --all with script names doesn't" " make sense")
+            raise RuntimeError("Combining --all with script names doesn't make sense")
         for script in args.scripts:
             if script not in scripts_available:
                 logging.error(

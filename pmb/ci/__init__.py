@@ -174,7 +174,7 @@ def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
             where = "native"
 
         script_path = f".ci/{script_name}.sh"
-        logging.info(f"*** ({step}/{steps}) RUNNING CI SCRIPT: {script_path}" f" [{where}] ***")
+        logging.info(f"*** ({step}/{steps}) RUNNING CI SCRIPT: {script_path} [{where}] ***")
 
         if "native" in script["options"]:
             rc = pmb.helpers.run.user([script_path], topdir, output="tui")

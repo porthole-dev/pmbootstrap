@@ -20,9 +20,7 @@ import pmb.parse.version
 
 
 def clone() -> None:
-    logging.info(
-        "Setting up the native chroot and cloning the package build" " recipes (pmaports)..."
-    )
+    logging.info("Setting up the native chroot and cloning the package build recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
     pmb.helpers.git.clone("pmaports")
@@ -54,7 +52,7 @@ def check_version_pmbootstrap(min_ver: str) -> None:
 
     # Show versions
     logging.info(
-        f"NOTE: you are using pmbootstrap version {real}, but" f" version {min_ver} is required."
+        f"NOTE: you are using pmbootstrap version {real}, but version {min_ver} is required."
     )
 
     # Error for git clone
@@ -116,7 +114,7 @@ def read_config(aports: Path | None = None) -> configparser.SectionProxy:
     # Require the config
     path_cfg = aports / "pmaports.cfg"
     if not os.path.exists(path_cfg):
-        raise RuntimeError("Invalid pmaports repository, could not find the" f" config: {path_cfg}")
+        raise RuntimeError(f"Invalid pmaports repository, could not find the config: {path_cfg}")
 
     # Load the config
     cfg = configparser.ConfigParser()
@@ -219,7 +217,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
         f"Currently checked out branch '{branch_current}' of"
         f" pmaports.git is on channel '{channel_current}'."
     )
-    logging.info(f"Switching to branch '{branch_new}' on channel" f" '{channel_new}'...")
+    logging.info(f"Switching to branch '{branch_new}' on channel '{channel_new}'...")
 
     # Make sure we don't have mounts related to the old channel
     pmb.chroot.shutdown()

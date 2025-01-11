@@ -49,8 +49,7 @@ def init_req_headers() -> None:
         req_headers_github["Authorization"] = f"token {token}"
     else:
         logging.info(
-            "NOTE: Consider using a GITHUB_TOKEN environment variable"
-            " to increase your rate limit"
+            "NOTE: Consider using a GITHUB_TOKEN environment variable to increase your rate limit"
         )
 
 
@@ -90,7 +89,7 @@ def get_package_version_info_gitlab(
 
     # Get the commits for the repository
     commits = pmb.helpers.http.retrieve_json(
-        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository" f"/commits{ref_arg}",
+        f"{gitlab_host}/api/v4/projects/{repo_name_safe}/repository/commits{ref_arg}",
         headers=req_headers,
     )
     latest_commit = commits[0]
@@ -117,7 +116,7 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
         source = source[-1]
     else:
         raise RuntimeError(
-            "Unhandled number of source elements. Please open" f" a bug report: {source}"
+            f"Unhandled number of source elements. Please open a bug report: {source}"
         )
 
     verinfo = None
@@ -190,7 +189,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> No
     # Looking up if there's a custom mapping from postmarketOS package name
     # to Anitya project name.
     mappings = pmb.helpers.http.retrieve_json(
-        f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS" f"&name={pkgname}",
+        f"{ANITYA_API_BASE}/packages/?distribution=postmarketOS&name={pkgname}",
         headers=req_headers,
     )
     if mappings["total_items"] < 1:
@@ -204,7 +203,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> No
         project_name = mappings["items"][0]["project"]
         ecosystem = mappings["items"][0]["ecosystem"]
         projects = pmb.helpers.http.retrieve_json(
-            f"{ANITYA_API_BASE}/projects/?name={project_name}&" f"ecosystem={ecosystem}",
+            f"{ANITYA_API_BASE}/projects/?name={project_name}&ecosystem={ecosystem}",
             headers=req_headers,
         )
 
@@ -245,7 +244,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> No
     pkgrel_new = 0
 
     if not pmb.parse.version.validate(pkgver_new):
-        logging.warning(f"{pkgname}: would upgrade to invalid pkgver:" f" {pkgver_new}, ignoring")
+        logging.warning(f"{pkgname}: would upgrade to invalid pkgver: {pkgver_new}, ignoring")
         return
 
     logging.info(f"{pkgname}: upgrading pmaport")

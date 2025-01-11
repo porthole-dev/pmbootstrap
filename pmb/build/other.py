@@ -218,7 +218,7 @@ def configure_ccache(chroot: Chroot = Chroot.native(), verify: bool = False) -> 
                     return
     if verify:
         raise RuntimeError(
-            f"Failed to configure ccache: {path}\nTry to" " delete the file (or zap the chroot)."
+            f"Failed to configure ccache: {path}\nTry to delete the file (or zap the chroot)."
         )
 
     # Set the size and verify

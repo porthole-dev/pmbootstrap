@@ -28,10 +28,10 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
         rootfs_path2 = Path("/home/pmos/rootfs") / f"{device}.img"
         if not (chroot / rootfs_path2).exists():
             raise RuntimeError(
-                "The rootfs has not been generated yet, please " "run 'pmbootstrap install' first."
+                "The rootfs has not been generated yet, please run 'pmbootstrap install' first."
             )
         if replace and not pmb.helpers.cli.confirm(
-            f"Are you sure you want to " f"replace the rootfs for " f"{device}?"
+            f"Are you sure you want to replace the rootfs for {device}?"
         ):
             return
         pmb.chroot.root(["cp", rootfs_path2, rootfs_path])

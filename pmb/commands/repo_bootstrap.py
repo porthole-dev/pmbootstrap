@@ -34,12 +34,12 @@ class RepoBootstrap(commands.Command):
 
         if not cfg:
             raise ValueError(
-                "pmaports.cfg of current branch does not have any" " sections starting with 'repo:'"
+                "pmaports.cfg of current branch does not have any sections starting with 'repo:'"
             )
 
         logging.info(f"Valid repositories: {', '.join(cfg.keys())}")
         raise ValueError(
-            f"Couldn't find section 'repo:{self.repo}' in pmaports.cfg of" " current branch"
+            f"Couldn't find section 'repo:{self.repo}' in pmaports.cfg of current branch"
         )
 
     def __init__(self, arch: Arch | None, repository: str):
@@ -143,8 +143,7 @@ class RepoBootstrap(commands.Command):
             )
             if self.arch.cpu_emulation_required():
                 msg += (
-                    " or remove the path manually (to keep cross compilers if"
-                    " you just built them)"
+                    " or remove the path manually (to keep cross compilers if you just built them)"
                 )
 
             raise RuntimeError(f"{msg}!")

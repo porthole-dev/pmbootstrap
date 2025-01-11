@@ -128,8 +128,7 @@ def get_upstream_remote(aports: Path) -> str:
                 return line.split("\t", 1)[0]
 
     raise RuntimeError(
-        f"{name_repo}: could not find remote name for any URL '{urls}' in git"
-        f" repository: {aports}"
+        f"{name_repo}: could not find remote name for any URL '{urls}' in git repository: {aports}"
     )
 
 
@@ -220,9 +219,7 @@ def parse_channels_cfg(aports: Path) -> dict:
     try:
         cfg.read_string(stdout)
     except configparser.MissingSectionHeaderError:
-        logging.info(
-            "NOTE: fix this by fetching your pmaports.git, e.g." " with 'pmbootstrap pull'"
-        )
+        logging.info("NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'")
         raise RuntimeError(
             "Failed to read channels.cfg from"
             f" '{remote}/master' branch of your local"

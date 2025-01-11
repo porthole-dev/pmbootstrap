@@ -73,7 +73,7 @@ def update_repository_list(
     if path.exists():
         pmb.helpers.run.root(["rm", path])
     for line in lines_new:
-        pmb.helpers.run.root(["sh", "-c", "echo " f"{shlex.quote(line)} >> {path}"])
+        pmb.helpers.run.root(["sh", "-c", f"echo {shlex.quote(line)} >> {path}"])
     update_repository_list(
         root,
         user_repository=user_repository,

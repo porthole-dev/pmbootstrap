@@ -93,7 +93,7 @@ def chroot_check_channel(chroot: Chroot) -> bool:
         " To do this automatically, run 'pmbootstrap config"
         " auto_zap_misconfigured_chroots yes'."
     )
-    msg_unknown = "Could not figure out on which release channel the" f" '{chroot}' chroot is."
+    msg_unknown = f"Could not figure out on which release channel the '{chroot}' chroot is."
     if not os.path.exists(path):
         raise RuntimeError(f"{msg_unknown} {msg_again}")
 
@@ -115,7 +115,7 @@ def chroot_check_channel(chroot: Chroot) -> bool:
             if config.auto_zap_misconfigured_chroots.noisy():
                 logging.info(msg)
                 logging.info(
-                    "Automatically zapping since" " auto_zap_misconfigured_chroots is enabled."
+                    "Automatically zapping since auto_zap_misconfigured_chroots is enabled."
                 )
                 logging.info(
                     "NOTE: You can silence this message with 'pmbootstrap"

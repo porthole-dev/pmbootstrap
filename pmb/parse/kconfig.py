@@ -345,7 +345,5 @@ def check_file(
     """
     arch = extract_arch(config_path)
     version = extract_version(config_path)
-    logging.debug(
-        f"Check kconfig: parsed arch={arch}, version={version} from " f"file: {config_path}"
-    )
+    logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from file: {config_path}")
     return check_config(config_path, arch, version, components_list, details=details)

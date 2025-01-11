@@ -428,9 +428,7 @@ def require_bootstrap_error(repo: str, arch: Arch, trigger_str: str) -> None:
         f"ERROR: Trying to {trigger_str} with {repo} enabled, but the"
         f" {repo} repo needs to be bootstrapped first."
     )
-    raise RuntimeError(
-        f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}'" " and then try again."
-    )
+    raise RuntimeError(f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}' and then try again.")
 
 
 def require_bootstrap(arch: Arch, trigger_str: str) -> None:

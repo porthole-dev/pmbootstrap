@@ -94,8 +94,7 @@ def variables(
         "$RECOVERY_ZIP": f"/mnt/{Chroot.buildroot(deviceinfo.arch)}"
         "/var/lib/postmarketos-android-recovery-installer"
         f"/pmos-{device}.zip",
-        "$UUU_SCRIPT": f"/mnt/{Chroot.rootfs(deviceinfo.codename)}"
-        "/usr/share/uuu/flash_script.lst",
+        "$UUU_SCRIPT": f"/mnt/{Chroot.rootfs(deviceinfo.codename)}/usr/share/uuu/flash_script.lst",
         "$NO_REBOOT": _no_reboot,
         "$RESUME": _resume,
     }

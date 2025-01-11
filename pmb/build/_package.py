@@ -89,7 +89,7 @@ def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
     # Don't recurse forever when a package depends on itself (#948)
     for pkgname in [apkbuild["pkgname"], *apkbuild["subpackages"].keys()]:
         if pkgname in ret:
-            logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on" " itself: " + pkgname)
+            logging.verbose(apkbuild["pkgname"] + ": ignoring dependency on itself: " + pkgname)
             ret.remove(pkgname)
 
     # FIXME: is this needed? is this sensible?

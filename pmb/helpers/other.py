@@ -43,7 +43,7 @@ def check_grsec() -> None:
         return
 
     raise RuntimeError(
-        "You're running a kernel based on the grsec" " patchset. This is not supported."
+        "You're running a kernel based on the grsec patchset. This is not supported."
     )
 
 
@@ -203,7 +203,7 @@ def validate_hostname(hostname: str) -> bool:
 
     # Check that doesn't begin or end with a minus sign or period
     if re.search(r"^-|^\.|-$|\.$", hostname):
-        logging.fatal("ERROR: Hostname must not begin or end with a minus" " sign or period")
+        logging.fatal("ERROR: Hostname must not begin or end with a minus sign or period")
         return False
 
     return True

@@ -31,7 +31,7 @@ def package_provider(
 
     # 2. Provider with the same package name
     if pkgname in providers:
-        logging.verbose(f"{pkgname}: choosing package of the same name as " "provider")
+        logging.verbose(f"{pkgname}: choosing package of the same name as provider")
         return providers[pkgname]
 
     # 3. Pick a package that will be installed anyway

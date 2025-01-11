@@ -212,9 +212,9 @@ class Deviceinfo:
                 " let us know in the postmarketOS issues!)"
             )
         if "nonfree" in info:
-            raise RuntimeError("deviceinfo_nonfree is unused. " f"Please delete it in: {path}")
+            raise RuntimeError(f"deviceinfo_nonfree is unused. Please delete it in: {path}")
         if "dev_keyboard" in info:
-            raise RuntimeError("deviceinfo_dev_keyboard is unused. " f"Please delete it in: {path}")
+            raise RuntimeError(f"deviceinfo_dev_keyboard is unused. Please delete it in: {path}")
         if "date" in info:
             raise RuntimeError(
                 "deviceinfo_date was replaced by deviceinfo_year. "
@@ -224,7 +224,7 @@ class Deviceinfo:
         # "codename" is required
         codename = os.path.basename(os.path.dirname(path))[7:]
         if "codename" not in info or info["codename"] != codename:
-            raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' " f"to: {path}")
+            raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' to: {path}")
 
         # "chassis" is required
         chassis_types = pmb.config.deviceinfo_chassis_types

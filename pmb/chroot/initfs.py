@@ -51,7 +51,7 @@ def extract(flavor: str | None, chroot: Chroot, extra: bool = False) -> Path:
     outside = chroot / inside
     if outside.exists():
         if not pmb.helpers.cli.confirm(
-            f"Extraction folder {outside}" " already exists." " Do you want to overwrite it?"
+            f"Extraction folder {outside} already exists. Do you want to overwrite it?"
         ):
             raise RuntimeError("Aborted!")
         pmb.chroot.root(["rm", "-r", inside], chroot)
@@ -59,7 +59,7 @@ def extract(flavor: str | None, chroot: Chroot, extra: bool = False) -> Path:
     # Extraction script (because passing a file to stdin is not allowed
     # in pmbootstrap's chroot/shell functions for security reasons)
     with (chroot / "tmp/_extract.sh").open("w") as handle:
-        handle.write("#!/bin/sh\n" f"cd {inside} && cpio -i < _initfs\n")
+        handle.write(f"#!/bin/sh\ncd {inside} && cpio -i < _initfs\n")
 
     # Extract
     commands = [

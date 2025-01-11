@@ -102,8 +102,7 @@ def bootimg(path: Path) -> Bootimg:
     if "android bootimg" not in file_output.lower():
         if get_context().force:
             logging.warning(
-                "WARNING: boot.img file seems to be invalid, but"
-                " proceeding anyway (-f specified)"
+                "WARNING: boot.img file seems to be invalid, but proceeding anyway (-f specified)"
             )
         else:
             logging.info(

@@ -23,7 +23,7 @@ def generate(pkgname: str) -> None:
         upstream = pkgrepo_default_path() / "main/gcc6"
         based_on = "main/gcc6 (from postmarketOS)"
     else:
-        raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or" " gcc6.")
+        raise ValueError(f"Invalid prefix '{prefix}', expected gcc, gcc4 or gcc6.")
     pmb.helpers.run.user(["cp", "-r", upstream, context.config.work / "aportgen"])
 
     # Rewrite APKBUILD
@@ -48,7 +48,7 @@ def generate(pkgname: str) -> None:
 
     # Latest gcc only, not gcc4 and gcc6
     if prefix == "gcc":
-        fields["subpackages"] = f"g++-{arch}:gpp" f" libstdc++-dev-{arch}:libcxx_dev"
+        fields["subpackages"] = f"g++-{arch}:gpp libstdc++-dev-{arch}:libcxx_dev"
 
     below_header = (
         "CTARGET_ARCH="

@@ -176,7 +176,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     aports_upstream_path = get_context().config.work / "cache_git/aports_upstream"
 
     if retain_branch:
-        logging.info("Not changing aports branch as --fork-alpine-retain-branch was " "used.")
+        logging.info("Not changing aports branch as --fork-alpine-retain-branch was used.")
     else:
         # Checkout branch
         channel_cfg = pmb.config.pmaports.read_config_channel()
@@ -195,9 +195,9 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     # Search package
     paths = list(aports_upstream_path.glob(f"*/{pkgname}"))
     if len(paths) > 1:
-        raise RuntimeError("Package " + pkgname + " found in multiple" " aports subfolders.")
+        raise RuntimeError("Package " + pkgname + " found in multiple aports subfolders.")
     elif len(paths) == 0:
-        raise RuntimeError("Package " + pkgname + " not found in alpine" " aports repository.")
+        raise RuntimeError("Package " + pkgname + " not found in alpine aports repository.")
     aport_path = paths[0]
 
     # Parse APKBUILD

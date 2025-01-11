@@ -72,7 +72,7 @@ def type_ondev_cp(val: str) -> list[str]:
     ret = val.split(":")
 
     if len(ret) != 2:
-        raise argparse.ArgumentTypeError("does not have HOST_SRC:CHROOT_DEST" f" format: {val}")
+        raise argparse.ArgumentTypeError(f"does not have HOST_SRC:CHROOT_DEST format: {val}")
     host_src = ret[0]
     if not os.path.exists(host_src):
         raise argparse.ArgumentTypeError(f"HOST_SRC not found: {host_src}")
@@ -81,7 +81,7 @@ def type_ondev_cp(val: str) -> list[str]:
 
     chroot_dest = ret[1]
     if not chroot_dest.startswith("/"):
-        raise argparse.ArgumentTypeError("CHROOT_DEST must start with '/':" f" {chroot_dest}")
+        raise argparse.ArgumentTypeError(f"CHROOT_DEST must start with '/': {chroot_dest}")
     return ret
 
 
@@ -151,8 +151,7 @@ def arguments_install(subparser: argparse._SubParsersAction) -> None:
     )
     group.add_argument(
         "--android-recovery-zip",
-        help="generate TWRP flashable zip (recommended read:"
-        " https://postmarketos.org/recoveryzip)",
+        help="generate TWRP flashable zip (recommended read: https://postmarketos.org/recoveryzip)",
         action="store_true",
         dest="android_recovery_zip",
     )
@@ -356,8 +355,7 @@ def arguments_flasher(subparser: argparse._SubParsersAction) -> argparse.Argumen
     flash_kernel.add_argument(
         "--partition",
         default=None,
-        help="partition to flash the kernel to (defaults"
-        " to deviceinfo_flash_*_partition_kernel)",
+        help="partition to flash the kernel to (defaults to deviceinfo_flash_*_partition_kernel)",
     )
 
     # Flash lk2nd
@@ -529,9 +527,7 @@ def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentPa
         dest="qemu_gl",
         default=True,
         action="store_false",
-        help="Avoid using GL for"
-        " accelerating graphics in QEMU  (use software"
-        " rasterizer, slow!)",
+        help="Avoid using GL for accelerating graphics in QEMU  (use software rasterizer, slow!)",
     )
     ret.add_argument(
         "--video",
@@ -569,9 +565,7 @@ def arguments_pkgrel_bump(subparser: argparse._SubParsersAction) -> argparse.Arg
     ret.add_argument(
         "--dry",
         action="store_true",
-        help="instead of modifying"
-        " APKBUILDs, exit with >0 when a package would have been"
-        " bumped",
+        help="instead of modifying APKBUILDs, exit with >0 when a package would have been bumped",
     )
 
     # Mutually exclusive: "--auto" or package names
@@ -1058,7 +1052,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-a",
         "--all",
         action=toggle_other_boolean_flags(*zap_all_delete_args),
-        help="delete everything, equivalent to: " f"--{' --'.join(zap_all_delete_args_print)}",
+        help=f"delete everything, equivalent to: --{' --'.join(zap_all_delete_args_print)}",
     )
 
     # Action: stats

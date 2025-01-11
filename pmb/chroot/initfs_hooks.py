@@ -41,7 +41,7 @@ def ls(suffix: Chroot) -> None:
 def add(hook: str, suffix: Chroot) -> None:
     if hook not in list_aports():
         raise RuntimeError(
-            "Invalid hook name!" " Run 'pmbootstrap initfs hook_ls'" " to get a list of all hooks."
+            "Invalid hook name! Run 'pmbootstrap initfs hook_ls' to get a list of all hooks."
         )
     prefix = pmb.config.initfs_hook_prefix
     pmb.chroot.apk.install([f"{prefix}{hook}"], suffix)

@@ -39,8 +39,8 @@ def kernel(
     else:
         logging.info("(native) flash kernel " + flavor)
         pmb.flasher.run(deviceinfo, method, "flash_kernel", flavor)
-    logging.info("You will get an IP automatically assigned to your " "USB interface shortly.")
-    logging.info("Then you can connect to your device using ssh after pmOS has" " booted:")
+    logging.info("You will get an IP automatically assigned to your USB interface shortly.")
+    logging.info("Then you can connect to your device using ssh after pmOS has booted:")
     logging.info(f"ssh {get_context().config.user}@{pmb.config.default_ip}")
     logging.info(
         "NOTE: If you enabled full disk encryption, you should make"
@@ -64,7 +64,7 @@ def rootfs(deviceinfo: Deviceinfo, method: str) -> None:
     img_path = Chroot.native() / "home/pmos/rootfs" / f"{deviceinfo.codename}{suffix}"
     if not img_path.exists():
         raise RuntimeError(
-            "The rootfs has not been generated yet, please run" " 'pmbootstrap install' first."
+            "The rootfs has not been generated yet, please run 'pmbootstrap install' first."
         )
 
     # Do not flash if using fastboot & image is too large
@@ -72,7 +72,7 @@ def rootfs(deviceinfo: Deviceinfo, method: str) -> None:
         img_size = img_path.stat().st_size / 1024**2
         max_size = int(deviceinfo.flash_fastboot_max_size)
         if img_size > max_size:
-            raise RuntimeError("The rootfs is too large for fastboot to" " flash.")
+            raise RuntimeError("The rootfs is too large for fastboot to flash.")
 
     # Run the flasher
     logging.info("(native) flash rootfs image")

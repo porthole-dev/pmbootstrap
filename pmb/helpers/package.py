@@ -109,7 +109,7 @@ def get(
         for depend in ret.depends:
             depend_data = get(depend, arch, must_exist=False, try_other_arches=try_other_arches)
             if not depend_data:
-                logging.warning(f"WARNING: {pkgname}: failed to resolve" f" dependency '{depend}'")
+                logging.warning(f"WARNING: {pkgname}: failed to resolve dependency '{depend}'")
                 # Can't replace potential subpkgname
                 if depend not in depends_new:
                     depends_new += [depend]

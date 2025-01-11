@@ -78,12 +78,12 @@ def run(
 
     if no_reboot and ("flash" not in action or method != "heimdall-bootimg"):
         raise RuntimeError(
-            "The '--no-reboot' option is only" " supported when flashing with heimall-bootimg."
+            "The '--no-reboot' option is only supported when flashing with heimall-bootimg."
         )
 
     if resume and ("flash" not in action or method != "heimdall-bootimg"):
         raise RuntimeError(
-            "The '--resume' option is only" " supported when flashing with heimall-bootimg."
+            "The '--resume' option is only supported when flashing with heimall-bootimg."
         )
 
     # Run the commands of each action

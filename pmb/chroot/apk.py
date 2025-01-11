@@ -54,7 +54,7 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
     version_installed = installed_pkgs["apk-tools"].version
     pmb.helpers.apk.check_outdated(
         version_installed,
-        "Delete your http cache and zap all chroots, then try again:" " 'pmbootstrap zap -hc'",
+        "Delete your http cache and zap all chroots, then try again: 'pmbootstrap zap -hc'",
     )
 
 
@@ -206,7 +206,7 @@ def install(packages: list[str], chroot: Chroot, build: bool = True, quiet: bool
     context = get_context()
 
     if not packages:
-        logging.verbose("pmb.chroot.apk.install called with empty packages list," " ignoring")
+        logging.verbose("pmb.chroot.apk.install called with empty packages list, ignoring")
         return
 
     # Initialize chroot

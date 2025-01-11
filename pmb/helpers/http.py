@@ -80,7 +80,7 @@ def download(
 
     # Offline and not cached
     if context.offline:
-        raise RuntimeError("File not found in cache and offline flag is" f" enabled: {url}")
+        raise RuntimeError(f"File not found in cache and offline flag is enabled: {url}")
 
     # Download the file
     logging.log(loglevel, "Download " + url)
