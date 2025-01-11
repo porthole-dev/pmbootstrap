@@ -4,7 +4,8 @@
 
 if [ "$(id -u)" = 0 ]; then
 	set -x
-	apk -q add ruff
+	apk -q add py3-pip
+	pip install --break-system-packages --no-warn-script-location ruff
 	exec su "${TESTUSER:-build}" -c "sh -e $0"
 fi
 
