@@ -7,7 +7,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 import sys
-from typing import cast, Any, NoReturn
+from typing import Any, NoReturn
 
 import pmb.aportgen
 import pmb.build
@@ -19,7 +19,7 @@ import pmb.chroot.other
 import pmb.ci
 import pmb.config
 from pmb.core import Config
-from pmb.types import Env, PmbArgs, RunOutputType
+from pmb.types import Env, PmbArgs
 import pmb.export
 import pmb.flasher
 import pmb.helpers.aportupgrade
@@ -213,16 +213,13 @@ def chroot(args: PmbArgs) -> None:
 
     pmb.helpers.apk.update_repository_list(chroot.path, user_repository=True)
 
-    # TODO: Maybe this could be done better.
-    output_type = cast(RunOutputType, args.output)
-
     # Run the command as user/root
     if user:
         logging.info(f"({chroot}) % su pmos -c '" + " ".join(args.command) + "'")
-        pmb.chroot.user(args.command, chroot, output=output_type, env=env)
+        pmb.chroot.user(args.command, chroot, output=args.output, env=env)
     else:
         logging.info(f"({chroot}) % " + " ".join(args.command))
-        pmb.chroot.root(args.command, chroot, output=output_type, env=env)
+        pmb.chroot.root(args.command, chroot, output=args.output, env=env)
 
 
 def config(args: PmbArgs) -> None:
