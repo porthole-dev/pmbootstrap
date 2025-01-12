@@ -285,7 +285,7 @@ def setup_login(args: PmbArgs, config: Config, chroot: Chroot) -> None:
                     pmb.chroot.root(["passwd", config.user], chroot, output="interactive")
                     break
                 except RuntimeError:
-                    logging.info("WARNING: Failed to set the password. Try it" " one more time.")
+                    logging.info("WARNING: Failed to set the password. Try it one more time.")
 
     # Disable root login
     if is_root_locked(chroot):
@@ -397,7 +397,7 @@ def setup_locale(chroot: Chroot, locale: str) -> None:
     # locale if it exists, it warranties we have preference
     line = f"export LANG=${{LANG:-{shlex.quote(locale)}}}"
     pmb.chroot.root(
-        ["sh", "-c", f"echo {shlex.quote(line)}" " > /etc/profile.d/10locale-pmos.sh"], chroot
+        ["sh", "-c", f"echo {shlex.quote(line)} > /etc/profile.d/10locale-pmos.sh"], chroot
     )
     # add keyboard layout related to locale and layout switcher
     xkb_layout = get_xkb_layout(locale)
@@ -484,6 +484,7 @@ def disable_sshd(chroot: Chroot) -> None:
     sshd_files = pmb.helpers.run.root(
         ["find", "-name", "sshd"], output_return=True, working_dir=chroot / "etc/runlevels"
     )
+
     if sshd_files:
         raise RuntimeError(f"Failed to disable sshd service: {sshd_files}")
 
@@ -507,7 +508,7 @@ def print_sshd_info(args: PmbArgs) -> None:
         # on the network by default (e.g. Raspberry Pi), one can lock down the
         # installer OS down by disabling the debug user (see wiki page).
         logging.info(
-            "SSH daemon is enabled in the installer OS, to allow" " debugging the installer image."
+            "SSH daemon is enabled in the installer OS, to allow debugging the installer image."
         )
         logging.info("More info: https://postmarketos.org/ondev-debug")
 
@@ -545,7 +546,7 @@ def print_firewall_info(disabled: bool, arch: Arch) -> None:
     logging.info("*** FIREWALL INFORMATION ***")
 
     if not pmaports_ok:
-        logging.info("Firewall is not supported in checked out pmaports" " branch.")
+        logging.info("Firewall is not supported in checked out pmaports branch.")
     elif disabled:
         logging.info("Firewall is disabled (--no-firewall).")
     elif not apkbuild_found:
@@ -557,9 +558,9 @@ def print_firewall_info(disabled: bool, arch: Arch) -> None:
         logging.info("Firewall is enabled and supported by kernel.")
     else:
         logging.info(
-            "Firewall is enabled, but will not work (no support in" " kernel config for nftables)."
+            "Firewall is enabled, but will not work (no support in kernel config for nftables)."
         )
-        logging.info("If/when the kernel supports it in the future, it" " will work automatically.")
+        logging.info("If/when the kernel supports it in the future, it will work automatically.")
 
     logging.info("For more information: https://postmarketos.org/firewall")
 
@@ -583,7 +584,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple
         try:
             offset = int(_offset)
         except ValueError:
-            raise RuntimeError("Value for firmware binary offset is " f"not valid: {offset}")
+            raise RuntimeError(f"Value for firmware binary offset is not valid: {offset}")
         binary_path = chroot / "usr/share" / binary
         if not os.path.exists(binary_path):
             raise RuntimeError(
@@ -598,8 +599,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple
         binary_size = os.path.getsize(binary_path)
         if binary_size > max_size:
             raise RuntimeError(
-                "The firmware is too big to embed in the "
-                f"disk image {binary_size}B > {max_size}B"
+                f"The firmware is too big to embed in the disk image {binary_size}B > {max_size}B"
             )
         # Insure that the firmware does not conflict with any other firmware
         # that will be embedded
@@ -610,7 +610,7 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple
                 binary_end > start and binary_end <= end
             ):
                 raise RuntimeError(
-                    "The firmware overlaps with at least one " f"other firmware image: {binary}"
+                    f"The firmware overlaps with at least one other firmware image: {binary}"
                 )
 
         binary_ranges[binary_start] = binary_end
@@ -639,7 +639,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot) -> None:
             step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size or "invalid")
         except ValueError:
             raise RuntimeError(
-                "Value for " "deviceinfo_sd_embed_firmware_step_size " f"is not valid: {step}"
+                f"Value for deviceinfo_sd_embed_firmware_step_size is not valid: {step}"
             )
 
     device_rootfs = mount_device_rootfs(suffix)
@@ -649,8 +649,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot) -> None:
     for binary, offset in binary_list:
         binary_file = os.path.join("/usr/share", binary)
         logging.info(
-            f"Embed firmware {binary} in the SD card image at offset {offset} with"
-            f" step size {step}"
+            f"Embed firmware {binary} in the SD card image at offset {offset} with step size {step}"
         )
         filename = os.path.join(device_rootfs, binary_file.lstrip("/"))
         pmb.chroot.root(
@@ -683,9 +682,7 @@ def sanity_check_boot_size() -> None:
         f" {config.boot_size} configured, probably because the config"
         " has been created with an old version."
     )
-    logging.error(
-        "This can lead to problems later on, we recommend setting it" f" to {default} MiB."
-    )
+    logging.error(f"This can lead to problems later on, we recommend setting it to {default} MiB.")
     logging.error(f"Run 'pmbootstrap config boot_size {default}' and try again.")
     sys.exit(1)
 
@@ -942,7 +939,7 @@ def install_system_image(
         write_cgpt_kpart(args, layout, chroot)
 
     if disk:
-        logging.info(f"Unmounting disk {disk} (this may take a while " "to sync, please wait)")
+        logging.info(f"Unmounting disk {disk} (this may take a while to sync, please wait)")
     pmb.chroot.shutdown(True)
 
     # Convert rootfs to sparse using img2simg
@@ -999,10 +996,10 @@ def print_flash_info(device: str, deviceinfo: Deviceinfo, split: bool, have_disk
             "Refer to the installation instructions of your device,"
             " or the generic install instructions in the wiki."
         )
-        logging.info("https://wiki.postmarketos.org/wiki/Installation_guide" "#pmbootstrap_flash")
+        logging.info("https://wiki.postmarketos.org/wiki/Installation_guide#pmbootstrap_flash")
         return
 
-    logging.info("Run the following to flash your installation to the" " target device:")
+    logging.info("Run the following to flash your installation to the target device:")
 
     if "flash_rootfs" in flasher_actions and not have_disk and bool(split) == requires_split:
         logging.info("* pmbootstrap flasher flash_rootfs")
@@ -1142,7 +1139,7 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
     if args.ondev_cp:
         for host_src, chroot_dest in args.ondev_cp:
             host_dest = chroot_installer / chroot_dest
-            logging.info(f"({chroot_installer}) add {host_src} as" f" {chroot_dest}")
+            logging.info(f"({chroot_installer}) add {host_src} as {chroot_dest}")
             pmb.helpers.run.root(["install", "-Dm644", host_src, host_dest])
 
     # Remove $DEVICE-boot.img (we will generate a new one if --split was
@@ -1203,7 +1200,7 @@ def get_selected_providers(args: PmbArgs, packages: list[str]) -> list[str]:
         for select in apkbuild["_pmb_select"]:
             if select in get_context().config.providers:
                 ret += [get_context().config.providers[select]]
-                logging.verbose(f"{package}: install selected_providers:" f" {', '.join(ret)}")
+                logging.verbose(f"{package}: install selected_providers: {', '.join(ret)}")
             else:
                 for default in apkbuild["_pmb_default"]:
                     # default: e.g. "postmarketos-base-ui-audio-pipewire"
@@ -1263,7 +1260,7 @@ def get_recommends(args: PmbArgs, packages: list[str]) -> Sequence[str]:
                 continue
         recommends = apkbuild["_pmb_recommends"]
         if recommends:
-            logging.debug(f"{package}: install _pmb_recommends:" f" {', '.join(recommends)}")
+            logging.debug(f"{package}: install _pmb_recommends: {', '.join(recommends)}")
             ret += recommends
             # Call recursively in case recommends have pmb_recommends of their
             # own.
@@ -1282,7 +1279,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     context = get_context()
     config = context.config
     device = context.config.device
-    logging.info(f'*** ({step}/{steps}) CREATE DEVICE ROOTFS ("{device}")' " ***")
+    logging.info(f'*** ({step}/{steps}) CREATE DEVICE ROOTFS ("{device}") ***')
 
     chroot = Chroot(ChrootType.ROOTFS, device)
     pmb.chroot.init(chroot)
