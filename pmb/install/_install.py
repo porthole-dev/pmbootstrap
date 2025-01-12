@@ -500,7 +500,28 @@ def print_sshd_info(args: PmbArgs) -> None:
         logging.info("More info: https://postmarketos.org/ondev-debug")
 
 
-def disable_service(chroot: Chroot, service_name: str) -> None:
+def disable_service_systemd(chroot: Chroot, service_name: str) -> None:
+    preset = f"/usr/lib/systemd/system-preset/80-pmbootstrap-install-disable-{service_name}.preset"
+    preset_content = f"disable {service_name}.service"
+    pmb.chroot.root(
+        ["sh", "-c", f"echo {shlex.quote(preset_content)} > {shlex.quote(preset)}"], chroot
+    )
+    pmb.chroot.root(["systemctl", "preset", f"{service_name}.service"], chroot)
+
+    # Use the output instead of exit code to be more explicit and so we can put
+    # it in the error message
+    output = pmb.chroot.root(
+        ["systemctl", "is-enabled", f"{service_name}.service"],
+        chroot,
+        output_return=True,
+        check=False,
+    )
+    output = output.rstrip()
+    if output != "disabled":
+        raise RuntimeError(f"Failed to disable {service_name} service (systemd preset): {output}")
+
+
+def disable_service_openrc(chroot: Chroot, service_name: str) -> None:
     # check=False: rc-update doesn't exit with 0 if already disabled
     pmb.chroot.root(["rc-update", "del", service_name, "default"], chroot, check=False)
 
@@ -509,7 +530,14 @@ def disable_service(chroot: Chroot, service_name: str) -> None:
         ["find", "-name", service_name], output_return=True, working_dir=chroot / "etc/runlevels"
     )
     if runlevel_files:
-        raise RuntimeError(f"Failed to disable service {service_name}: {runlevel_files}")
+        raise RuntimeError(f"Failed to disable service {service_name} (openrc): {runlevel_files}")
+
+
+def disable_service(chroot: Chroot, service_name: str) -> None:
+    if pmb.config.is_systemd_selected():
+        disable_service_systemd(chroot, service_name)
+    else:
+        disable_service_openrc(chroot, service_name)
 
 
 def print_firewall_info(disabled: bool, arch: Arch) -> None:
