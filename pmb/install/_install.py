@@ -476,19 +476,6 @@ def setup_appstream(offline: bool, chroot: Chroot) -> None:
         )
 
 
-def disable_sshd(chroot: Chroot) -> None:
-    # check=False: rc-update doesn't exit with 0 if already disabled
-    pmb.chroot.root(["rc-update", "del", "sshd", "default"], chroot, check=False)
-
-    # Verify that it's gone
-    sshd_files = pmb.helpers.run.root(
-        ["find", "-name", "sshd"], output_return=True, working_dir=chroot / "etc/runlevels"
-    )
-
-    if sshd_files:
-        raise RuntimeError(f"Failed to disable sshd service: {sshd_files}")
-
-
 def print_sshd_info(args: PmbArgs) -> None:
     logging.info("")  # make the note stand out
     logging.info("*** SSH DAEMON INFORMATION ***")
@@ -513,16 +500,16 @@ def print_sshd_info(args: PmbArgs) -> None:
         logging.info("More info: https://postmarketos.org/ondev-debug")
 
 
-def disable_firewall(chroot: Chroot) -> None:
+def disable_service(chroot: Chroot, service_name: str) -> None:
     # check=False: rc-update doesn't exit with 0 if already disabled
-    pmb.chroot.root(["rc-update", "del", "nftables", "default"], chroot, check=False)
+    pmb.chroot.root(["rc-update", "del", service_name, "default"], chroot, check=False)
 
     # Verify that it's gone
-    nftables_files = pmb.helpers.run.root(
-        ["find", "-name", "nftables"], output_return=True, working_dir=chroot / "etc/runlevels"
+    runlevel_files = pmb.helpers.run.root(
+        ["find", "-name", service_name], output_return=True, working_dir=chroot / "etc/runlevels"
     )
-    if nftables_files:
-        raise RuntimeError(f"Failed to disable firewall: {nftables_files}")
+    if runlevel_files:
+        raise RuntimeError(f"Failed to disable service {service_name}: {runlevel_files}")
 
 
 def print_firewall_info(disabled: bool, arch: Arch) -> None:
@@ -1370,9 +1357,9 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     setup_appstream(context.offline, chroot)
 
     if args.no_sshd:
-        disable_sshd(chroot)
+        disable_service(chroot, "sshd")
     if args.no_firewall:
-        disable_firewall(chroot)
+        disable_service(chroot, "nftables")
 
 
 def install(args: PmbArgs) -> None:
