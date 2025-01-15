@@ -616,13 +616,15 @@ def packages(
 
     cross = None
     prev_cross = None
+    hostchroot = None  # buildroot for the architecture we're building for
 
     total_pkgs = len(build_queue)
     count = 0
     for pkg in build_queue:
         count += 1
-        chroot = pkg["chroot"]
+        hostchroot = chroot = pkg["chroot"]
         pkg_arch = pkg["arch"]
+        apkbuild = pkg["apkbuild"]
 
         channel = pkg["channel"]
         output = pkg["output_path"]
@@ -633,40 +635,87 @@ def packages(
         else:
             log_callback(pkg)
 
+        # FIXME: this is only used to detect special compilers and a workaround for rust
+        # in pmb.build.init_compiler(), this should all be refactored and enforce correct
+        # APKBUILDs rather than trying to hack things in here
+        pkg_depends = list(
+            set(
+                [
+                    *pkg["depends"],
+                    *apkbuild.get("makedepends", []),
+                    *apkbuild.get("makedepends_build", []),
+                    *apkbuild.get("makedepends_host", []),
+                ]
+            )
+        )
+
+        # (re)-initialize the cross compiler stuff when cross method changes
+        prev_cross = cross
+        cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
+        if cross == "native" or cross == "kernel":
+            chroot = Chroot.native()
+
         # One time chroot initialization
+        if hostchroot != chroot:
+            pmb.build.init(hostchroot)
         if pmb.build.init(chroot):
             pmb.build.other.configure_abuild(chroot)
             pmb.build.other.configure_ccache(chroot)
             if "rust" in all_dependencies or "cargo" in all_dependencies:
                 pmb.chroot.apk.install(["sccache"], chroot)
-        pkg_depends = pkg["depends"]
-        if src:
-            pkg_depends.append("rsync")
 
-        # (re)-initialize the cross compiler stuff when cross method changes
-        prev_cross = cross
-        cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
         if cross != prev_cross:
             pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
             if cross == "crossdirect":
                 pmb.chroot.mount_native_into_foreign(chroot)
 
-        if not strict and "pmb:strict" not in pkg["apkbuild"]["options"] and len(pkg_depends):
-            pmb.chroot.apk.install(pkg_depends, chroot, build=False)
+        depends_build: list[str] = []
+        depends_host: list[str] = []
+        # * makedepends_build are dependencies that should be installed in the native
+        #   chroot (e.g. 'meson').
+        # * makedepends_host are dependencies that should be
+        #   in the chroot for the architecture we're building for (e.g. 'libevdev-dev').
+        if apkbuild["makedepends_host"]:
+            depends_host = apkbuild["makedepends_host"]
+        else:
+            depends_host = apkbuild["makedepends"]
+        if apkbuild["makedepends_build"]:
+            # If we have makedepends_build but not host then just subtract
+            # the host depends from the main depends
+            if "makedepends_host" not in apkbuild:
+                depends_host = list(set(depends_host) - set(apkbuild["makedepends_build"]))
+            depends_build = apkbuild["makedepends_build"]
+        else:
+            depends_build = apkbuild["makedepends"]
+            if depends_build and depends_host:
+                logging.warning(
+                    "WARNING: makedepends not split into _host and _build variants."
+                    " Trying to install all makedepends in both environments, please"
+                    " adjust your APKBUILD to specify host dependencies (e.g. libevdev-dev)"
+                    " and build dependencies (e.g. meson) separately."
+                )
+        if depends_host:
+            logging.info("*** Install host dependencies")
+            pmb.chroot.apk.install(depends_host, hostchroot, build=False)
+        if depends_build:
+            logging.info("*** Install build dependencies")
+            if src:
+                depends_build.append("rsync")
+            pmb.chroot.apk.install(depends_build, chroot, build=False)
 
         # Build and finish up
         logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package")
         try:
             run_abuild(
                 context,
-                pkg["apkbuild"],
+                apkbuild,
                 pkg["pkgver"],
                 channel,
                 pkg_arch,
                 strict,
                 force,
                 cross,
-                chroot,
+                hostchroot,
                 src,
                 bootstrap_stage,
             )
