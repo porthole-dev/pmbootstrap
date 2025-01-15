@@ -346,7 +346,8 @@ def add_proxy_env_vars(env: Env) -> None:
         "FTP_PROXY",
         "HTTPS_PROXY",
         "HTTP_PROXY",
-        "HTTP_PROXY_AUTHftp_proxy",
+        "HTTP_PROXY_AUTH",
+        "ftp_proxy",
         "http_proxy",
         "https_proxy",
     ]
