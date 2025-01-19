@@ -206,7 +206,6 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
 def migrate_config(pkgname: str, arch: Arch | None) -> None:
     pkgname, arch, apkbuild, chroot, env = _init(pkgname, arch)
     _make(chroot, "oldconfig", env, pkgname, arch, apkbuild)
-    pass
 
 
 def edit_config(pkgname: str, arch: Arch | None, config_ui: KConfigUI) -> None:

@@ -54,7 +54,6 @@ def mount(img_path: Path, _sector_size: int | None = None) -> Path:
         except RuntimeError as e:
             if i == 4:
                 raise e
-            pass
 
     raise AssertionError("This should never be reached")
 
