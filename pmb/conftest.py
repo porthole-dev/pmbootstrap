@@ -45,12 +45,12 @@ def config_file(tmp_path_factory, request):
 @pytest.fixture
 def device_package(config_file):
     """Fixture to create a temporary deviceinfo file."""
-    MOCK_DEVICE = "qemu-amd64"
-    pkgdir = config_file.parent / f"device-{MOCK_DEVICE}"
+    mock_device = "qemu-amd64"
+    pkgdir = config_file.parent / f"device-{mock_device}"
     pkgdir.mkdir()
 
     for file in ["APKBUILD", "deviceinfo"]:
-        shutil.copy(_testdir / f"{file}.{MOCK_DEVICE}", pkgdir / file)
+        shutil.copy(_testdir / f"{file}.{mock_device}", pkgdir / file)
 
     return pkgdir
 
