@@ -20,7 +20,7 @@ NOTSET: Final[int] = logging.NOTSET
 VERBOSE: Final[int] = 5
 
 
-class log_handler(logging.StreamHandler):
+class LogHandler(logging.StreamHandler):
     """Write to stdout and to the already opened log file."""
 
     def __init__(self, details_to_stdout: bool = False, quiet: bool = False) -> None:
@@ -148,7 +148,7 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:
         root_logger.setLevel(VERBOSE)
 
     # Add a custom log handler
-    handler = log_handler(details_to_stdout=details_to_stdout)
+    handler = LogHandler(details_to_stdout=details_to_stdout)
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 
