@@ -1307,8 +1307,9 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     install_packages = [*pmb.config.install_device_packages, "device-" + device]
     if not args.install_base:
         install_packages = [p for p in install_packages if p != "postmarketos-base"]
+    ui_package_name = f"postmarketos-ui-{config.ui}"
     if config.ui.lower() != "none":
-        install_packages += ["postmarketos-ui-" + config.ui]
+        install_packages += [ui_package_name]
 
     # Add additional providers of base/device/UI package
     install_packages += get_selected_providers(args, install_packages)
@@ -1316,8 +1317,13 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     install_packages += get_kernel_package(config)
     install_packages += get_nonfree_packages(device)
     if context.config.ui.lower() != "none":
-        if context.config.ui_extras:
-            install_packages += ["postmarketos-ui-" + config.ui + "-extras"]
+        ui_package = pmb.helpers.pmaports.get(ui_package_name, subpackages=False, must_exist=False)
+        if ui_package and context.config.ui_extras:
+            extra = f"postmarketos-ui-{config.ui}-extras"
+            extra_package = ui_package["subpackages"].get(extra)
+            if extra_package:
+                install_packages += [extra]
+
     if context.config.extra_packages.lower() != "none":
         install_packages += context.config.extra_packages.split(",")
     if args.add:
