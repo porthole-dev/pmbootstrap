@@ -406,9 +406,8 @@ def ask_for_device_kernel(config: Config, device: str) -> str:
         logging.info("Downstream kernels are typically the outdated Android kernel forks.")
     if "downstream" in kernels and len(kernels) > 1:
         logging.info(
-            "Upstream kernels (mainline, stable, ...) get security"
-            " updates, but may have less working features than"
-            " downstream kernels."
+            "Upstream kernels (mainline, stable, ...) get security updates, but may have less"
+            " working features than downstream kernels."
         )
 
     # list kernels
@@ -451,9 +450,8 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
         codenames = []
         if new_vendor:
             logging.info(
-                f"The specified vendor ({vendor}) could not be found in"
-                " existing ports, do you want to start a new"
-                " port?"
+                f"The specified vendor ({vendor}) could not be found in existing ports, do you want"
+                " to start a new port?"
             )
             if not pmb.helpers.cli.confirm(default=True):
                 continue
@@ -475,8 +473,7 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
         if device_path is None:
             if device == context.config.device:
                 raise RuntimeError(
-                    "This device does not exist anymore, check"
-                    " <https://postmarketos.org/renamed>"
+                    "This device does not exist anymore, check <https://postmarketos.org/renamed>"
                     " to see if it was renamed"
                 )
             logging.info(f"You are about to do a new device port for '{device}'.")
@@ -518,13 +515,10 @@ def ask_for_additional_options(config: Config) -> None:
 
     # Extra space
     logging.info(
-        "Set extra free space to 0, unless you ran into a 'No space"
-        " left on device' error. In that case, the size of the"
-        " rootfs could not be calculated properly on your machine,"
-        " and we need to add extra free space to make the image big"
-        " enough to fit the rootfs (pmbootstrap#1904)."
-        " How much extra free space do you want to add to the image"
-        " (in MB)?"
+        "Set extra free space to 0, unless you ran into a 'No space left on device' error. In that"
+        " case, the size of the rootfs could not be calculated properly on your machine, and we"
+        " need to add extra free space to make the image big enough to fit the rootfs"
+        " (pmbootstrap#1904). How much extra free space do you want to add to the image (in MB)?"
     )
     # TODO: The __setattr__ implementation in Config does handle the conversions here,
     # but mypy doesn't understand this (yet?), so we have to do it explicitly.
@@ -547,11 +541,9 @@ def ask_for_additional_options(config: Config) -> None:
 
     # Ccache size
     logging.info(
-        "We use ccache to speed up building the same code multiple"
-        " times. How much space should the ccache folder take up per"
-        " architecture? After init is through, you can check the"
-        " current usage with 'pmbootstrap stats'. Answer with 0 for"
-        " infinite."
+        "We use ccache to speed up building the same code multiple times. How much space should the"
+        " ccache folder take up per architecture? After init is through, you can check the current"
+        " usage with 'pmbootstrap stats'. Answer with 0 for infinite."
     )
     regex = "0|[0-9]+(k|M|G|T|Ki|Mi|Gi|Ti)"
     answer = pmb.helpers.cli.ask(
@@ -561,11 +553,10 @@ def ask_for_additional_options(config: Config) -> None:
 
     # Sudo timer
     logging.info(
-        "pmbootstrap does everything in Alpine Linux chroots, so"
-        " your host system does not get modified. In order to"
-        " work with these chroots, pmbootstrap calls 'sudo'"
-        " internally. For long running operations, it is possible"
-        " that you'll have to authorize sudo more than once."
+        "pmbootstrap does everything in Alpine Linux chroots, so your host system does not get"
+        " modified. In order to work with these chroots, pmbootstrap calls 'sudo' internally. For"
+        " long running operations, it is possible that you'll have to authorize sudo more than"
+        " once."
     )
     answer_background_timer = pmb.helpers.cli.confirm(
         "Enable background timer to prevent repeated sudo authorization?",
@@ -669,9 +660,8 @@ def ask_for_ssh_keys(ssh_key_glob: str, default: bool) -> bool:
 
 def ask_build_pkgs_on_install(default: bool) -> bool:
     logging.info(
-        "After pmaports are changed, the binary packages may be"
-        " outdated. If you want to install postmarketOS without"
-        " changes, reply 'n' for a faster installation."
+        "After pmaports are changed, the binary packages may be outdated. If you want to install"
+        " postmarketOS without changes, reply 'n' for a faster installation."
     )
     return pmb.helpers.cli.confirm(
         "Build outdated packages during 'pmbootstrap install'?", default=default
@@ -690,9 +680,8 @@ def get_locales() -> list[str]:
 def ask_for_locale(current_locale: str) -> str:
     locales = get_locales()
     logging.info(
-        "Choose your preferred locale, like e.g. en_US. Only UTF-8"
-        " is supported, it gets appended automatically. Use"
-        " tab-completion if needed."
+        "Choose your preferred locale, like e.g. en_US. Only UTF-8 is supported, it gets appended"
+        " automatically. Use tab-completion if needed."
     )
 
     while True:
@@ -782,9 +771,8 @@ def frontend(args: PmbArgs) -> None:
 
     # Extra packages to be installed to rootfs
     logging.info(
-        "Additional packages that will be installed to rootfs."
-        " Specify them in a comma separated list (e.g.: vim,file)"
-        ' or "none"'
+        "Additional packages that will be installed to rootfs. Specify them in a comma separated"
+        ' list (e.g.: vim,file) or "none"'
     )
     extra = pmb.helpers.cli.ask(
         "Extra packages", None, config.extra_packages, validation_regex=r"^([-.+\w]+)(,[-.+\w]+)*$"
