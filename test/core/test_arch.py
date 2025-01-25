@@ -49,6 +49,17 @@ def test_valid_arches():
     assert Arch.ppc64.qemu() == "ppc64"
     assert Arch.ppc64le.qemu() == "ppc64"
 
+    # Go arch
+    assert Arch.armhf.go() == "arm"
+    assert Arch.armv7.go() == "arm"
+    assert Arch.aarch64.go() == "arm64"
+    assert Arch.riscv64.go() == "riscv64"
+    assert Arch.ppc64le.go() == "ppc64le"
+    assert Arch.x86_64.go() == "amd64"
+    with pytest.raises(ValueError) as excinfo:
+        Arch.mips64.go()
+    assert "Can not map architecture 'mips64' to Go arch" in str(excinfo.value)
+
     # Check that Arch.cpu_emulation_required() works
     assert Arch.native() == Arch.x86_64 or Arch.x86_64.cpu_emulation_required()
     assert Arch.native() == Arch.aarch64 or Arch.aarch64.cpu_emulation_required()

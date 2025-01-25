@@ -182,6 +182,21 @@ class Arch(enum.Enum):
                     f"Can not map Alpine architecture '{self}' to the right hostspec value"
                 )
 
+    def go(self) -> str:
+        match self:
+            case Arch.armhf | Arch.armv7:
+                return "arm"
+            case Arch.aarch64:
+                return "arm64"
+            case Arch.riscv64 | Arch.ppc64le:
+                return str(self)
+            case Arch.x86:
+                return "386"
+            case Arch.x86_64:
+                return "amd64"
+            case _:
+                raise ValueError(f"Can not map architecture '{self}' to Go arch")
+
     def cpu_emulation_required(self) -> bool:
         # Obvious case: host arch is target arch
         if self == Arch.native():
