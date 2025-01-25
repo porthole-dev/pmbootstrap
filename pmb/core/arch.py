@@ -94,6 +94,18 @@ class Arch(enum.Enum):
             ]
         )
 
+    # FIXME: we should use pmaports.cfg "supported_arches" instead
+    @staticmethod
+    def supported_binary() -> set[Arch]:
+        """Officially supported architectures that have a binary repository"""
+        return {
+            Arch.armhf,
+            Arch.armv7,
+            Arch.aarch64,
+            Arch.x86_64,
+            Arch.x86,
+        }
+
     def kernel(self) -> str:
         match self:
             case Arch.x86:

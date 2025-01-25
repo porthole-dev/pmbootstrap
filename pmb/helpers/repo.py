@@ -168,7 +168,7 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
         return False
 
     # Architectures and retention time
-    architectures = [arch] if arch else Arch.supported()
+    architectures = [arch] if arch else Arch.supported_binary()
     retention_hours = pmb.config.apkindex_retention_time
     retention_seconds = retention_hours * 3600
 
