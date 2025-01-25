@@ -490,7 +490,7 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
             pmb.aportgen.generate(f"linux-{device}", False)
         elif any("archived" == x for x in device_path.parts):
             apkbuild = device_path.parent / "APKBUILD"
-            archived = pmb.parse._apkbuild.archived(apkbuild)
+            archived = pmb.parse._apkbuild.archived(apkbuild) or "No reason given (this is a bug)"
             logging.info(f"WARNING: {device} is archived: {archived}")
             if not pmb.helpers.cli.confirm():
                 continue
