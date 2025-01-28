@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pathlib import Path
 import socket
 import time
@@ -24,7 +25,7 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
     if not (chroot / rootfs_path).exists() or replace:
         rootfs_path2 = Path("/home/pmos/rootfs") / f"{device}.img"
         if not (chroot / rootfs_path2).exists():
-            raise RuntimeError(
+            raise NonBugError(
                 "The rootfs has not been generated yet, please run 'pmbootstrap install' first."
             )
         if replace and not pmb.helpers.cli.confirm(
