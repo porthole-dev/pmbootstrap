@@ -4,6 +4,8 @@ from pmb.helpers import logging
 import pmb.chroot
 from pmb.core import Chroot
 from pmb.types import PartitionLayout, PmbArgs, PathString
+import os
+import tempfile
 
 
 def install_fsprogs(filesystem: str) -> None:
@@ -52,21 +54,36 @@ def format_luks_root(args: PmbArgs, device: str) -> None:
     # Avoid cryptsetup warning about missing locking directory
     pmb.chroot.root(["mkdir", "-p", "/run/cryptsetup"])
 
-    pmb.chroot.root(
-        [
-            "cryptsetup",
-            "luksFormat",
-            "-q",
-            "--cipher",
-            args.cipher,
-            "--iter-time",
-            args.iter_time,
-            "--use-random",
-            device,
-        ],
-        output="interactive",
-    )
-    pmb.chroot.root(["cryptsetup", "luksOpen", device, "pm_crypt"], output="interactive")
+    format_cmd = [
+        "cryptsetup",
+        "luksFormat",
+        "-q",
+        "--cipher",
+        args.cipher,
+        "--iter-time",
+        args.iter_time,
+        "--use-random",
+        device,
+    ]
+    open_cmd = ["cryptsetup", "luksOpen"]
+
+    path_outside = None
+    fde_key = os.environ.get("PMB_FDE_PASSWORD", None)
+    if fde_key:
+        # Write passphrase to a temp file, to avoid printing it in any log
+        path = tempfile.mktemp(dir="/tmp")
+        path_outside = Chroot.native() / path
+        with open(path_outside, "w", encoding="utf-8") as handle:
+            handle.write(f"{fde_key}")
+        format_cmd += [str(path)]
+        open_cmd += ["--key-file", str(path)]
+
+    try:
+        pmb.chroot.root(format_cmd, output="interactive")
+        pmb.chroot.root([*open_cmd, device, "pm_crypt"], output="interactive")
+    finally:
+        if path_outside:
+            os.unlink(path_outside)
 
     if not (Chroot.native() / mountpoint).exists():
         raise RuntimeError("Failed to open cryptdevice!")
