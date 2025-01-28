@@ -6,6 +6,7 @@ from pmb.core.arch import Arch
 from pmb.core.config import Config
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 from pathlib import Path
 import re
@@ -36,7 +37,7 @@ def system_image(device: str) -> Path:
     path = Chroot.native() / "home/pmos/rootfs" / f"{device}.img"
     if not path.exists():
         logging.debug(f"Could not find rootfs: {path}")
-        raise RuntimeError(
+        raise NonBugError(
             "The rootfs has not been generated yet, please run 'pmbootstrap install' first."
         )
     return path
