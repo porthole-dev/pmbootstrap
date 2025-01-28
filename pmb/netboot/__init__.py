@@ -18,8 +18,6 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
     :param port: port of nbd server
     """
 
-    pmb.chroot.apk.install(["nbd"], Chroot.native())
-
     chroot = Chroot.native()
 
     rootfs_path = Path("/mnt/pmbootstrap/netboot") / f"{device}.img"
@@ -40,6 +38,8 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
             f'zap" for your convenience. Use "pmbootstrap netboot '
             f'serve --help" for more options.'
         )
+
+    pmb.chroot.apk.install(["nbd"], chroot)
 
     logging.info(f"Running nbd server for {device} on {ip} port {port}.")
 
