@@ -249,12 +249,17 @@ def config(args: PmbArgs) -> None:
             name = args.name.split(".", 1)[1]
             # Ignore mypy 'error: TypedDict key must be a string literal'.
             # Argparse already ensures 'name' is a valid Config.Mirrors key.
-            config.mirrors[name] = args.value  # type: ignore
+            if value_changed := (config.mirrors[name] != args.value):  # type: ignore
+                config.mirrors[name] = args.value  # type: ignore
         elif isinstance(getattr(Config, args.name), list):
-            setattr(config, args.name, args.value.split(","))
+            new_list = args.value.split(",")
+            if value_changed := (getattr(config, args.name, None) != new_list):
+                setattr(config, args.name, new_list)
         else:
-            setattr(config, args.name, args.value)
-        logging.info("Config changed: " + args.name + "='" + args.value + "'")
+            if value_changed := (getattr(config, args.name) != args.value):
+                setattr(config, args.name, args.value)
+        if value_changed:
+            print(f"{args.name} = {args.value}")
         pmb.config.save(args.config, config)
     elif args.name:
         if hasattr(config, args.name):
