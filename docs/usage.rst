@@ -6,13 +6,13 @@ Usage
 pmbootstrap offers many options and actions and is normally ran from a shell.
 
 
-Before pmbootstrap can be used, a number of configuration questions need to be answered. The sections below go into detail for the various questions. 
+Before pmbootstrap can be used, a number of configuration questions need to be answered. The sections below go into detail for the various questions.
 
 .. code-block:: shell
 
   $ pmbootstrap init
 
-If you already ran this before, run the following to update your local clone of pmaports.git instead, before moving straight onto the installation step: 
+If you already ran this before, run the following to update your local clone of pmaports.git instead, before moving straight onto the installation step:
 
 .. code-block:: shell
 
@@ -26,7 +26,7 @@ Quick health check and config overview:
    $ pmbootstrap status
 
 
-After successfully finishing the ``init`` sequence with answering all questions, its time to build the 
+After successfully finishing the ``init`` sequence with answering all questions, its time to build the
 installation:
 
 Devices like the PinePhone, Samsung Galaxy S II, Nokia N900, various laptops etc. can boot from an SD card, USB stick or other external storage. Find the name with lsblk first and make sure it is the right one as you will overwrite everything on it. Use a path without partition number at the end, such as /dev/mmcblk0. If your device is able to boot from SD card without flashing anything (such as the PinePhone), you should then be able to insert SD card into your device and boot it up.
@@ -70,7 +70,7 @@ For getting images on the local machine instead of directly flashing them, execu
    $ pmbootstrap export
 
 
-To extract the generated initramfs: 
+To extract the generated initramfs:
 
 .. code-block:: shell
 
@@ -118,7 +118,7 @@ Check kernel configs:
 Edit a kernel config:
 
 .. code-block:: shell
- 
+
  $ pmbootstrap kconfig edit
 
 
@@ -135,7 +135,7 @@ Requirements
 pmbootstrap requires the following:
 
   * Linux distribution on the host system (`x86`, `x86_64`, `aarch64` or `armv7`)
-    
+
     .. note::
        Windows subsystem for `Linux (WSL)`_ does **not** work! Please use `VirtualBox`_ instead.
 
@@ -152,7 +152,7 @@ pmbootstrap requires the following:
   * git
   * ps
   * tar
-  * sudo or doas
+  * sudo, doas, or run0
   * POSIX-shell (`ash`,`bash`, `zfs` reported to work)
 
 .. _pmbootstrap: https://wiki.postmarketos.org/wiki/Pmbootstrap#Using_pmbootstrap
