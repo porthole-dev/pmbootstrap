@@ -106,7 +106,7 @@ def bootimg(path: Path) -> Bootimg:
         raise RuntimeError(f"Could not find file '{path}'")
 
     logging.info(
-        "NOTE: You will be prompted for your sudo/doas password, so"
+        "NOTE: You will be prompted for your sudo/doas/run0 password, so"
         " we can set up a chroot to extract and analyze your"
         " boot.img file"
     )

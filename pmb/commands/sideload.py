@@ -14,7 +14,7 @@ from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.types import PathString, RunOutputTypeDefault
 
-su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || echo doas); $_su"
+su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || command -v doas >/dev/null && echo doas || echo run0); $_su"
 
 
 def scp_abuild_key(user: str, host: str, port: str) -> None:

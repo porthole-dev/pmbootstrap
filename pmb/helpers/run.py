@@ -113,7 +113,7 @@ def root(
     env: Env = {},
 ) -> RunReturnType:
     """
-    Run a command on the host system as root, with sudo or doas.
+    Run a command on the host system as root with sudo, doas, or run0.
 
     :param env: dict of environment variables to be passed to the command, e.g.
                 {"JOBS": "5"}
