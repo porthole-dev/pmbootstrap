@@ -23,6 +23,10 @@ def kernel(
     method: str,
     boot: bool = False,
     autoinstall: bool = False,
+    cmdline: str | None = None,
+    no_reboot: bool | None = None,
+    partition: str | None = None,
+    resume: bool | None = None,
 ) -> None:
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(deviceinfo.codename, autoinstall)
@@ -35,10 +39,28 @@ def kernel(
     # Generate the paths and run the flasher
     if boot:
         logging.info("(native) boot " + flavor + " kernel")
-        pmb.flasher.run(deviceinfo, method, "boot", flavor)
+        pmb.flasher.run(
+            deviceinfo,
+            method,
+            "boot",
+            flavor,
+            cmdline=cmdline,
+            no_reboot=no_reboot,
+            partition=partition,
+            resume=resume,
+        )
     else:
         logging.info("(native) flash kernel " + flavor)
-        pmb.flasher.run(deviceinfo, method, "flash_kernel", flavor)
+        pmb.flasher.run(
+            deviceinfo,
+            method,
+            "flash_kernel",
+            flavor,
+            cmdline=cmdline,
+            no_reboot=no_reboot,
+            partition=partition,
+            resume=resume,
+        )
     logging.info("You will get an IP automatically assigned to your USB interface shortly.")
     logging.info("Then you can connect to your device using ssh after pmOS has booted:")
     logging.info(f"ssh {get_context().config.user}@{pmb.config.default_ip}")
@@ -55,7 +77,14 @@ def list_flavors(device: str) -> None:
     logging.info("* " + str(pmb.chroot.other.kernel_flavor_installed(chroot)))
 
 
-def rootfs(deviceinfo: Deviceinfo, method: str) -> None:
+def rootfs(
+    deviceinfo: Deviceinfo,
+    method: str,
+    cmdline: str | None = None,
+    no_reboot: bool | None = None,
+    partition: str | None = None,
+    resume: bool | None = None,
+) -> None:
     # Generate rootfs, install flasher
     suffix = ".img"
     if pmb.config.flashers.get(method, {}).get("split", False):
@@ -76,14 +105,46 @@ def rootfs(deviceinfo: Deviceinfo, method: str) -> None:
 
     # Run the flasher
     logging.info("(native) flash rootfs image")
-    pmb.flasher.run(deviceinfo, method, "flash_rootfs")
+    pmb.flasher.run(
+        deviceinfo,
+        method,
+        "flash_rootfs",
+        cmdline=cmdline,
+        no_reboot=no_reboot,
+        partition=partition,
+        resume=resume,
+    )
 
 
-def list_devices(deviceinfo: Deviceinfo, method: str) -> None:
-    pmb.flasher.run(deviceinfo, method, "list_devices")
+def list_devices(
+    deviceinfo: Deviceinfo,
+    method: str,
+    cmdline: str | None = None,
+    no_reboot: bool | None = None,
+    partition: str | None = None,
+    resume: bool | None = None,
+) -> None:
+    # pmb.flasher.run provides user-facing error messages for unsupported
+    # flags, hence why we pass them here despite them being unused
+    pmb.flasher.run(
+        deviceinfo,
+        method,
+        "list_devices",
+        cmdline=cmdline,
+        no_reboot=no_reboot,
+        partition=partition,
+        resume=resume,
+    )
 
 
-def sideload(deviceinfo: Deviceinfo, method: str) -> None:
+def sideload(
+    deviceinfo: Deviceinfo,
+    method: str,
+    cmdline: str | None = None,
+    no_reboot: bool | None = None,
+    partition: str | None = None,
+    resume: bool | None = None,
+) -> None:
     # Install depends
     pmb.flasher.install_depends(method)
 
@@ -104,10 +165,25 @@ def sideload(deviceinfo: Deviceinfo, method: str) -> None:
             " '--android-recovery-zip' parameter first!"
         )
 
-    pmb.flasher.run(deviceinfo, method, "sideload")
+    pmb.flasher.run(
+        deviceinfo,
+        method,
+        "sideload",
+        cmdline=cmdline,
+        no_reboot=no_reboot,
+        partition=partition,
+        resume=resume,
+    )
 
 
-def flash_lk2nd(deviceinfo: Deviceinfo, method: str) -> None:
+def flash_lk2nd(
+    deviceinfo: Deviceinfo,
+    method: str,
+    cmdline: str | None = None,
+    no_reboot: bool | None = None,
+    partition: str | None = None,
+    resume: bool | None = None,
+) -> None:
     if method == "fastboot":
         # In the future this could be expanded to use "fastboot flash lk2nd $img"
         # which reflashes/updates lk2nd from itself. For now let the user handle this
@@ -151,4 +227,12 @@ def flash_lk2nd(deviceinfo: Deviceinfo, method: str) -> None:
     pmb.chroot.apk.install([lk2nd_pkg], suffix)
 
     logging.info("(native) flash lk2nd image")
-    pmb.flasher.run(deviceinfo, method, "flash_lk2nd")
+    pmb.flasher.run(
+        deviceinfo,
+        method,
+        "flash_lk2nd",
+        cmdline=cmdline,
+        no_reboot=no_reboot,
+        partition=partition,
+        resume=resume,
+    )

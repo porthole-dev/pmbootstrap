@@ -40,9 +40,25 @@ class Flasher(commands.Command):
             return
 
         if action in ["boot", "flash_kernel"]:
-            kernel(deviceinfo, method, action == "boot", self.autoinstall)
+            kernel(
+                deviceinfo,
+                method,
+                action == "boot",
+                self.autoinstall,
+                cmdline=self.cmdline,
+                no_reboot=self.no_reboot,
+                partition=self.partition,
+                resume=self.resume,
+            )
         elif action == "flash_rootfs":
-            rootfs(deviceinfo, method)
+            rootfs(
+                deviceinfo,
+                method,
+                cmdline=self.cmdline,
+                no_reboot=self.no_reboot,
+                partition=self.partition,
+                resume=self.resume,
+            )
         elif action == "flash_vbmeta":
             logging.info("(native) flash vbmeta.img with verity disabled flag")
             pmb.flasher.run(
@@ -66,7 +82,14 @@ class Flasher(commands.Command):
                 resume=self.resume,
             )
         elif action == "flash_lk2nd":
-            flash_lk2nd(deviceinfo, method)
+            flash_lk2nd(
+                deviceinfo,
+                method,
+                cmdline=self.cmdline,
+                no_reboot=self.no_reboot,
+                partition=self.partition,
+                resume=self.resume,
+            )
         elif action == "list_flavors":
             list_flavors(device)
         elif action == "list_devices":
@@ -80,4 +103,11 @@ class Flasher(commands.Command):
                 resume=self.resume,
             )
         elif action == "sideload":
-            sideload(deviceinfo, method)
+            sideload(
+                deviceinfo,
+                method,
+                cmdline=self.cmdline,
+                no_reboot=self.no_reboot,
+                partition=self.partition,
+                resume=self.resume,
+            )
