@@ -1332,9 +1332,6 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
         install_packages += context.config.extra_packages.split(",")
     if args.add:
         install_packages += args.add.split(",")
-    locale_is_set = config.locale != Config().locale
-    if locale_is_set:
-        install_packages += ["lang"]
 
     pmaports_cfg = pmb.config.pmaports.read_config()
     # postmarketos-base supports a dummy package for blocking unl0kr install
@@ -1387,7 +1384,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     setup_timezone(chroot, config.timezone)
 
     # Set locale
-    if locale_is_set:
+    if config.locale != Config().locale:
         setup_locale(chroot, config.locale)
 
     # Set the hostname as the device name
