@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pathlib import Path
-from typing import Optional
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex

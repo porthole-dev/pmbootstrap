@@ -4,7 +4,7 @@
 import sys
 import os
 import traceback
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from pathlib import Path
 
 from pmb.helpers.exceptions import BuildFailedError, NonBugError

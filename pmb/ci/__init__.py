@@ -5,9 +5,9 @@ import glob
 from pmb.helpers import logging
 import os
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import TypedDict
 import pmb.chroot
-from pmb.types import Env, PmbArgs
+from pmb.types import Env
 import pmb.helpers.cli
 from pmb.core import Chroot
 

@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
@@ -13,7 +12,7 @@ import pmb.aportgen.linux
 import pmb.aportgen.musl
 import pmb.aportgen.grub_efi
 import pmb.config
-from pmb.types import AportGenEntry, PmbArgs
+from pmb.types import AportGenEntry
 import pmb.helpers.cli
 
 

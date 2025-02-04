@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import copy
-from typing import Any, Generic, Optional, TypeVar, overload
+from typing import Any, Generic, TypeVar, overload
 from collections.abc import Callable
 
 import inspect
