@@ -40,10 +40,6 @@ extend-ignore = ["RUF021", "RUF052"]
 extend-select = ["CPY001", "N", "PIE", "RUF", "UP"]
 preview = true
 
-[tool.ruff.lint.extend-per-file-ignores]
-# F401: imported but unused, common for __init__.py files
-"__init__.py" = ["F401"]
-
 [tool.ruff.format]
 # Enable auto-formatting of code examples in docstrings.
 docstring-code-format = true
