@@ -399,9 +399,11 @@ def setup_locale(chroot: Chroot, locale: str) -> None:
     # 10locale-pmos.sh gets sourced before 20locale.sh from
     # alpine-baselayout by /etc/profile. Since they don't override the
     # locale if it exists, it warranties we have preference
-    line = f"export LANG=${{LANG:-{shlex.quote(locale)}}}"
+    pmb.chroot.root(["sh", "-c", f"echo LANG={shlex.quote(locale)} > /etc/locale.conf"], chroot)
+    # musl-locales doesn't read from /etc/locale.conf, only from environment variables
+    # TODO: once musl implements locales (hopefully with /etc/locale.conf support) the following should be removed
     pmb.chroot.root(
-        ["sh", "-c", f"echo {shlex.quote(line)} > /etc/profile.d/10locale-pmos.sh"], chroot
+        ["sh", "-c", "echo source /etc/locale.conf > /etc/profile.d/10locale-pmos.sh"], chroot
     )
     # add keyboard layout related to locale and layout switcher
     xkb_layout = get_xkb_layout(locale)
