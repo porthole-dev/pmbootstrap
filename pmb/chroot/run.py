@@ -249,7 +249,7 @@ def user(
     return userm([cmd], chroot, working_dir, output, output_return, check, env)
 
 
-def exists(username: str, chroot: Chroot = Chroot.native()) -> bool:
+def user_exists(username: str, chroot: Chroot = Chroot.native()) -> bool:
     """
     Checks if username exists in the system
 

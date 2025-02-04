@@ -11,7 +11,7 @@ from pmb.chroot.run import (
     rootm as rootm,
     user as user,
     userm as userm,
-    exists as user_exists,
+    user_exists as user_exists,
 )
 from pmb.chroot.shutdown import shutdown as shutdown
 from pmb.chroot.zap import zap as zap, del_chroot as del_chroot
