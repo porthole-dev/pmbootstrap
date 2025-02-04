@@ -11,11 +11,11 @@ from collections.abc import Sequence
 #
 # FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
 # this functions this way
-from pmb.config.file import load, save, serialize
+from pmb.config.file import load as load, save as save, serialize as serialize
 from pmb.config.sudo import which_sudo
-from pmb.config.other import is_systemd_selected
-from .init import require_programs
-from . import workdir
+from pmb.config.other import is_systemd_selected as is_systemd_selected
+from .init import require_programs as require_programs
+from . import workdir as workdir
 
 
 #

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 from . import config
 from . import parse
 from .config import init as config_init, require_programs
-from .helpers import frontend
+from .helpers import frontend as frontend
 from .helpers import logging
 from .helpers import mount
 from .helpers import other
