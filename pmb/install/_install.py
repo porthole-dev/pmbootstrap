@@ -1386,8 +1386,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     setup_timezone(chroot, config.timezone)
 
     # Set locale
-    if config.locale != Config().locale:
-        setup_locale(chroot, config.locale)
+    setup_locale(chroot, config.locale)
 
     # Set the hostname as the device name
     setup_hostname(device, config.hostname)
