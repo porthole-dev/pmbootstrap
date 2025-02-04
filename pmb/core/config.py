@@ -119,7 +119,13 @@ class Config:
         if len(keys) == 1:
             _type = type(getattr(Config, key))
             try:
-                super().__setattr__(key, _type(value))
+                if _type is bool and isinstance(value, str):
+                    if value.lower() in ["true", "false"]:
+                        super().__setattr__(key, value.lower() == "true")
+                    else:
+                        raise ValueError()
+                else:
+                    super().__setattr__(key, _type(value))
             except ValueError:
                 msg = f"Invalid value for '{key}': '{value}' "
                 if issubclass(_type, enum.Enum):
