@@ -133,6 +133,7 @@ deploy:
 # and arm64 QEMU targets
 install amd64:
   extends: .integration
+  tags: [qemu]
   script:
   # Native AMD64 on AMD64
     - .ci/integration_tests/build_images qemu-amd64 console
@@ -158,6 +159,7 @@ install aarch64:
 # Test building packages with --force on AMD64 for AMD64, aarch64, and armv7
 force build amd64:
   extends: .integration
+  tags: [qemu]
   script:
   # Packages chosen for being small, unlikely to break, and for language coverage.
     - .ci/integration_tests/force_build x86_64 hello-world postmarketos-mkinitfs
@@ -179,6 +181,7 @@ force build aarch64:
 # since the cross-build codepath is the more complicated one.
 strict build amd64:
   extends: .integration
+  tags: [qemu]
   script:
   # Packages chosen for being small, unlikely to break, and for language coverage.
     - .ci/integration_tests/strict_build aarch64 hello-world postmarketos-mkinitfs
