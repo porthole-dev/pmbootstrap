@@ -26,8 +26,7 @@ def _find_apkbuilds(with_extra_repos: WithExtraRepos = "default") -> dict[str, P
         pkgname = package.name
         if pkgname in apkbuilds:
             raise RuntimeError(
-                f"Package {pkgname} found in multiple aports "
-                "subfolders. Please put it only in one folder."
+                f"Package {pkgname} found in multiple aports subfolders. Please put it only in one folder."
             )
         apkbuilds[pkgname] = package / "APKBUILD"
 
@@ -54,16 +53,12 @@ def guess_main_dev(subpkgname: str) -> Path | None:
     path = _find_apkbuilds().get(pkgname)
     if path:
         logging.verbose(
-            subpkgname + ": guessed to be a subpackage of " + pkgname + " (just removed '-dev')"
+            f"{subpkgname}: guessed to be a subpackage of {pkgname} (just removed '-dev')"
         )
         return path.parent
 
     logging.verbose(
-        subpkgname
-        + ": guessed to be a subpackage of "
-        + pkgname
-        + ", which we can't find in pmaports, so it's probably in"
-        " Alpine"
+        f"{subpkgname}: guessed to be a subpackage of {pkgname}, which we can't find in pmaports, so it's probably in Alpine"
     )
     return None
 
@@ -84,15 +79,11 @@ def guess_main_cross(subpkgname: str) -> Path | None:
 
     path = _find_apkbuilds().get(pkgname)
     if path:
-        logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname)
+        logging.verbose(f"{subpkgname}: guessed to be a subpackage of {pkgname}")
         return path.parent
 
     logging.verbose(
-        subpkgname
-        + ": guessed to be a subpackage of "
-        + pkgname
-        + ", which we can't find in pmaports, so it's probably in"
-        " Alpine"
+        f"{subpkgname}: guessed to be a subpackage of {pkgname}, which we can't find in pmaports, so it's probably in Alpine"
     )
     return None
 
@@ -135,7 +126,7 @@ def guess_main(subpkgname: str) -> Path | None:
         # Look in pmaports
         path = _find_apkbuilds().get(pkgname)
         if path:
-            logging.verbose(subpkgname + ": guessed to be a subpackage of " + pkgname)
+            logging.verbose(f"{subpkgname}: guessed to be a subpackage of {pkgname}")
             return path.parent
 
     return None
@@ -230,7 +221,7 @@ def find(
     ret: Path | None = None
     # Sanity check
     if "*" in package:
-        raise RuntimeError("Invalid pkgname: " + package)
+        raise RuntimeError(f"Invalid pkgname: {package}")
 
     # Try to find an APKBUILD with the exact pkgname we are looking for
     path = _find_apkbuilds(with_extra_repos).get(package)
@@ -425,8 +416,7 @@ def require_bootstrap_error(repo: str, arch: Arch, trigger_str: str) -> None:
     :param trigger_str: message for the user to understand what caused this
     """
     logging.info(
-        f"ERROR: Trying to {trigger_str} with {repo} enabled, but the"
-        f" {repo} repo needs to be bootstrapped first."
+        f"ERROR: Trying to {trigger_str} with {repo} enabled, but the {repo} repo needs to be bootstrapped first."
     )
     raise RuntimeError(f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}' and then try again.")
 
