@@ -497,11 +497,24 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
             if not pmb.helpers.cli.confirm(default=True):
                 continue
         else:
-            # Archived devices can be selected, but are not displayed
-            devices = sorted(pmb.helpers.devices.list_codenames(vendor, archived=False))
-            # Remove "vendor-" prefixes from device list
-            codenames = [x.split("-", 1)[1] for x in devices]
-            logging.info(f"Available codenames ({len(codenames)}): " + ", ".join(codenames))
+            device_list = "Devices are categorised as follows, from best to worst:\n"
+            styles = pmb.config.styles
+            for category in pmb.helpers.devices.DeviceCategory.shown():
+                device_list += f"* {category.color()}{str(category).capitalize()}{styles['END']}: {category.explain()}.\n"
+            device_entries = pmb.helpers.devices.list_codenames(vendor)
+            # Sort devices alphabetically.
+            device_entries = sorted(
+                device_entries, key=pmb.helpers.devices.DeviceEntry.codename_without_vendor
+            )
+            device_count = len(device_entries)
+            device_list += f"\nAvailable devices by codename ({device_count}): "
+            device_strings = []
+            for device_entry in device_entries:
+                codenames.append(device_entry.codename_without_vendor())
+                device_strings.append(str(device_entry))
+
+            device_list += ", ".join(device_strings)
+            logging.info(device_list)
 
         if current_vendor != vendor:
             current_codename = ""
