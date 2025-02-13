@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 import pytest
 
-from .arch import Arch
+from pmb.core.arch import Arch
 
 
 def test_valid_arches():

@@ -1,6 +1,6 @@
 # Copyright 2024 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
-from .version import check_string, compare, get_token, parse_suffix, validate, Token
+from pmb.parse.version import check_string, compare, get_token, parse_suffix, validate, Token
 
 
 def test_check_string() -> None:

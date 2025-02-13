@@ -4,7 +4,7 @@
 from pmb.types import Bootimg
 import pytest
 
-from .device import generate_deviceinfo_fastboot_content
+from pmb.aportgen.device import generate_deviceinfo_fastboot_content
 
 # Test case name -> (input, expected substrings, !expected substrings)
 test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {

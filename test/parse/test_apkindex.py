@@ -7,7 +7,7 @@ import pytest
 
 import pmb.parse.apkindex
 
-from .apkindex import parse as parse_apkindex, clear_cache as clear_apkindex_cache
+from pmb.parse.apkindex import parse as parse_apkindex, clear_cache as clear_apkindex_cache
 
 example_apkindex = """
 C:Q1p+nGf5oBAmbU9FQvV4MhfEmWqVE=

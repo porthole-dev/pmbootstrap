@@ -9,7 +9,7 @@ import subprocess
 
 from pmb.types import Bootimg
 
-from .bootimg import bootimg as parse_bootimg
+from pmb.parse.bootimg import bootimg as parse_bootimg
 
 
 """

@@ -1,7 +1,7 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from . import Cache, Wrapper
+from pmb.meta import Cache, Wrapper
 
 
 def test_cache_hits_basic():

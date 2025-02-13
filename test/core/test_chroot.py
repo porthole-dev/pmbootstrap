@@ -3,9 +3,9 @@
 
 import pytest
 
-from .arch import Arch
-from .context import get_context
-from .chroot import Chroot, ChrootType
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
+from pmb.core.chroot import Chroot, ChrootType
 
 
 def test_valid_chroots(pmb_args, mock_devices_find_path):
