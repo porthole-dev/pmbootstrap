@@ -173,10 +173,14 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
                 str(chroot.path),
                 "--arch",
                 str(chroot.arch),
-                "--cache-dir",
-                str(cache_dir),
             ]
         )
+
+        if os.getenv("PMB_APK_NO_CACHE") == "1":
+            _command.extend(["--no-cache"])
+        else:
+            _command.extend(["--cache-dir", str(cache_dir)])
+
         local_repos = pmb.helpers.repo.urls(
             user_repository=config.work / "packages", mirrors_exclude=True
         )
@@ -212,7 +216,11 @@ def run(command: Sequence[PathString], chroot: Chroot, with_progress: bool = Tru
             raise RuntimeError(
                 "Encountered an 'apk add' command without --no-interactive! This is a bug."
             )
-        if "--cache-dir" not in _command:
+        if os.getenv("PMB_APK_NO_CACHE") == "1" and "--no-cache" not in _command:
+            raise RuntimeError(
+                "Encountered an 'apk add' command without --no-cache! This is a bug."
+            )
+        if os.getenv("PMB_APK_NO_CACHE") != "1" and "--cache-dir" not in _command:
             raise RuntimeError(
                 "Encountered an 'apk add' command without --cache-dir! This is a bug."
             )

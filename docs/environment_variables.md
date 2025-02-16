@@ -14,6 +14,11 @@ APKINDEX results in a 404 not found error. This is used by
 the first time. For example if the `x86_64` repository was already built and
 published, but the `aarch64` repository wasn't published yet.
 
+## `PMB_APK_NO_CACHE`
+
+When this is set to `1`, pmbootstrap will disable apk's caching feature. This
+is used by bpo for image build jobs, so these jobs don't need as much space.
+
 ## `PMB_FDE_PASSWORD`
 
 This variable can be used to set the password when running `install --fde`. The
