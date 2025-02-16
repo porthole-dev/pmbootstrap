@@ -27,6 +27,7 @@ import pmb.helpers.devices
 import pmb.helpers.git
 import pmb.helpers.lint
 import pmb.helpers.logging
+import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.repo_missing
@@ -210,6 +211,11 @@ def chroot(args: PmbArgs) -> None:
         size_root = 4096  # 4 GiB
         size_reserve = 2048  # 2 GiB
         pmb.install.blockdevice.create_and_mount_image(args, size_boot, size_root, size_reserve)
+
+    # Bind mount in sysfs dirs to accessing USB devices (e.g. for running fastboot)
+    if args.chroot_usb:
+        for folder in pmb.config.flash_mount_bind:
+            pmb.helpers.mount.bind(folder, Chroot.native() / folder)
 
     pmb.helpers.apk.update_repository_list(chroot.path, user_repository=True)
 

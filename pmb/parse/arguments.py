@@ -1103,6 +1103,12 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
     )
     chroot.add_argument(
+        "--usb",
+        help="Make USB devices accessible inside the chroot.",
+        action="store_true",
+        dest="chroot_usb",
+    )
+    chroot.add_argument(
         "command",
         default=["sh", "-i"],
         help="command to execute inside the chroot. default: sh",
