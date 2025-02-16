@@ -160,11 +160,10 @@ def format_and_mount_root(
             # When changing the options of mkfs.ext4, also change them in the
             # recovery zip code (see 'grep -r mkfs\.ext4')!
             mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F", "-q", "-L", root_label]
-            # When we don't know the file system size before hand like
-            # with non-block devices, we need to explicitly set a number of
-            # inodes. See #1717 and #1845 for details
             if not disk:
-                mkfs_root_args = [*mkfs_root_args, "-N", "100000"]
+                # pmb#2568: when writing an image file, we need to explicitly
+                # set a high number of inodes to avoid "out of space" errors
+                mkfs_root_args = [*mkfs_root_args, "-N", "1000000"]
         elif filesystem == "f2fs":
             mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
         elif filesystem == "btrfs":
