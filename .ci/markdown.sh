@@ -22,14 +22,12 @@ if ! command -v "$MDL" >/dev/null; then
 	exit 1
 fi
 
-MDL_FAILED=0
 find . -name '*.md' |
 while read -r file; do
 	echo "mdl: $file"
-	"$MDL" "$file" || MDL_FAILED=1
+	if ! "$MDL" "$file"; then
+		echo
+		echo "markdown lint failed!"
+		exit 1
+	fi
 done
-
-if [ "$MDL_FAILED" = "1" ]; then
-	echo "markdown lint failed!"
-	exit 1
-fi
