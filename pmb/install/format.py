@@ -161,9 +161,9 @@ def format_and_mount_root(
             # recovery zip code (see 'grep -r mkfs\.ext4')!
             mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F", "-q", "-L", root_label]
             if not disk:
-                # pmb#2568: when writing an image file, we need to explicitly
-                # set a high number of inodes to avoid "out of space" errors
-                mkfs_root_args = [*mkfs_root_args, "-N", "1000000"]
+                # pmb#2568: tell mkfs.ext4 to make a "big" filesystem with
+                # enough indoes that we don't run into "out of space" errors
+                mkfs_root_args = [*mkfs_root_args, "-T", "big"]
         elif filesystem == "f2fs":
             mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
         elif filesystem == "btrfs":
