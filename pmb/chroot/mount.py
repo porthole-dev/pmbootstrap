@@ -31,11 +31,12 @@ def mount_chroot_image(chroot: Chroot) -> None:
     )
     pmb.helpers.mount.bind_file(loopdev, chroot_native / "dev/install")
     # Set up device mapper bits
-    pmb.chroot.root(["kpartx", "-u", "/dev/install"], chroot_native)
+    pmb.helpers.run.root(["kpartx", "-u", loopdev])
     chroot.path.mkdir(exist_ok=True)
+    loopdev_basename = os.path.basename(loopdev)
     # # The name of the IMAGE chroot is the path to the rootfs image
-    pmb.helpers.run.root(["mount", "/dev/mapper/install2", chroot.path])
-    pmb.helpers.run.root(["mount", "/dev/mapper/install1", chroot.path / "boot"])
+    pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p2", chroot.path])
+    pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p1", chroot.path / "boot"])
 
     pmb.config.workdir.chroot_save_init(chroot)
 

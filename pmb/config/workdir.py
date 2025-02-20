@@ -12,7 +12,7 @@ from typing import overload
 
 import pmb.config
 import pmb.config.pmaports
-from pmb.core import Chroot
+from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 from pmb.helpers import logging
 
@@ -86,6 +86,9 @@ def chroot_check_channel(chroot: Chroot) -> bool:
     """Check the chroot channel against the current channel. Returns
     True if the chroot should be zapped (both that it needs zapping and
     the user has auto_zap_misconfigured_chroots enabled), False otherwise."""
+    if chroot.type == ChrootType.IMAGE:
+        return False
+
     config = get_context().config
     path = config.work / "workdir.cfg"
     msg_again = (
