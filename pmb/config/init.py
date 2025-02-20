@@ -503,7 +503,7 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
         if current_vendor != vendor:
             current_codename = ""
         codename = pmb.helpers.cli.ask(
-            "Device codename", None, current_codename, False, r"[a-z0-9]+", codenames
+            "Device codename", None, current_codename, False, r"[a-z0-9\._-]+", codenames
         )
 
         device = f"{vendor}-{codename}"

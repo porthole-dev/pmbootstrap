@@ -95,8 +95,7 @@ def ask(
         if not validation_regex:
             return ret
 
-        pattern = re.compile(validation_regex)
-        if pattern.match(ret):
+        if re.fullmatch(validation_regex, ret):
             return ret
 
         logging.fatal(
