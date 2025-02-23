@@ -155,6 +155,10 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot) -> None:
     else:
         pmb.chroot.root(["cp", "-a", *folders, "/mnt/install/"], working_dir=mountpoint)
 
+    # Log how much space and inodes we have used
+    pmb.chroot.user(["df", "-h", "/mnt/install"])
+    pmb.chroot.user(["df", "-i", "/mnt/install"])
+
 
 def create_home_from_skel(filesystem: str, user: str) -> None:
     """
