@@ -95,7 +95,7 @@ def override_source(
                  for s in $_pmb_source_original; do
                      is_remote "$s" || ln -sf "$startdir/$s" "$srcdir/"
                  done
-                 
+
                  echo \""""
         + pkgname
         + """\" > /tmp/src-pkgname
