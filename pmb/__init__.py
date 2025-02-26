@@ -25,7 +25,7 @@ from .core.context import get_context
 from .commands import run_command
 
 # pmbootstrap version
-__version__ = "3.2.0"
+__version__ = "3.3.0"
 
 # Python version check
 # === CHECKLIST FOR UPGRADING THE REQUIRED PYTHON VERSION ===
