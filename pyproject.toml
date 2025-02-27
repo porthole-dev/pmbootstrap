@@ -25,8 +25,8 @@ Homepage = "https://www.postmarketos.org"
 [tool.setuptools.dynamic]
 version = {attr =  "pmb.__version__"}
 
-[tool.setuptools.packages.find]
-exclude = ["aports", "docs", "keys", "test", "test.pmb_test"]
+[tool.setuptools.package-dir]
+pmb = "pmb"
 
 [tool.ruff]
 line-length=100
