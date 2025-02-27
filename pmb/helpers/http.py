@@ -6,6 +6,7 @@ from pmb.helpers import logging
 import os
 from pathlib import Path
 import shutil
+import time
 import urllib.request
 from typing import Any, Literal, overload
 import pmb.helpers.cli
@@ -149,3 +150,17 @@ def retrieve_json(url: str, headers: dict[str, str] | None = None) -> Any:
     See retrieve() for the meaning of the parameters.
     """
     return json.loads(retrieve(url, headers, False))
+
+
+def measure_latency(url: str) -> float:
+    """Requests a URL and returns the total time it took to perform the request.
+
+    :param url: the http(s) address of the resource to fetch
+
+    :returns: seconds it took to complete the request
+    """
+    req = urllib.request.Request(url)
+    start_time = time.monotonic()
+    with urllib.request.urlopen(req) as response:
+        response.read()
+    return time.monotonic() - start_time

@@ -11,6 +11,7 @@ import glob
 import json
 import os
 import shutil
+import urllib
 from pathlib import Path
 from typing import Any
 
@@ -612,7 +613,7 @@ def ask_for_additional_options(config: Config) -> None:
 
 
 def ask_for_mirror() -> str:
-    regex = "^[1-9][0-9]*$"  # single non-zero number only
+    regex = "^(?:[1-9][0-9]*|best)$"  # single non-zero number only
 
     json_path = pmb.helpers.http.download(
         "https://postmarketos.org/mirrors.json", "pmos_mirrors", cache=False
@@ -627,6 +628,7 @@ def ask_for_mirror() -> str:
     for key in keys:
         logging.info(f"[{i}]\t{key} ({mirrors[key]['location']})")
         i += 1
+    logging.info("choose 'best' to select the one closest to you")
 
     urls = []
     for key in keys:
@@ -645,23 +647,41 @@ def ask_for_mirror() -> str:
         if len(link_list) > 0:
             urls.append(link_list[0])
 
-    mirror_indexes = []
+    mirror_index = "best"
     mirror = get_context().config.mirrors["pmaports"]
     for i in range(len(urls)):
         if urls[i] == mirror:
-            mirror_indexes.append(str(i + 1))
+            mirror_index = str(i + 1)
             break
-
     mirror = ""
     # require one valid mirror index selected by user
     while len(mirror) == 0:
-        answer = pmb.helpers.cli.ask(
-            "Select a mirror", None, ",".join(mirror_indexes), validation_regex=regex
-        )
-        i = int(answer)
-        if i < 1 or i > len(urls):
-            logging.info("You must select one valid mirror!")
-        mirror = urls[i - 1]
+        answer = pmb.helpers.cli.ask("Select a mirror", None, mirror_index, validation_regex=regex)
+        if answer == "best":
+            timings = []
+            # determine the best available mirror
+            for url in urls:
+                try:
+                    timings.append((pmb.helpers.http.measure_latency(url), url))
+                except urllib.error.HTTPError:
+                    logging.warning(f"{url} was unavailable, skipping!")
+                    continue
+            timings.sort(key=lambda i: i[0])
+            try:
+                latency, mirror = timings[0]
+                logging.info(
+                    f"Best mirror was {mirror} with a latency of {round(latency * 1000, 2)}ms"
+                )
+            except IndexError:
+                logging.error(
+                    "No mirror was available! Please check your internet connection. Falling back to the main mirror"
+                )
+                mirror = urls[0]
+        else:
+            i = int(answer)
+            if i < 1 or i > len(urls):
+                logging.info("You must select one valid mirror!")
+            mirror = urls[i - 1]
 
     return mirror
 
