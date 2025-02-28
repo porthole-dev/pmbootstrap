@@ -246,7 +246,8 @@ def command_qemu(
     elif arch == Arch.aarch64:
         command += ["-M", "virt"]
         command += ["-cpu", "cortex-a57"]
-        command += ["-device", "virtio-gpu-pci"]
+        if args.qemu_display != "none":
+            command += ["-device", "virtio-gpu-gl"]
     elif arch == Arch.riscv64:
         command += ["-M", "virt"]
         command += ["-device", "virtio-gpu-pci"]
@@ -349,6 +350,7 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         "qemu-hw-display-virtio-gpu",
         "qemu-hw-display-virtio-gpu-gl",
         "qemu-hw-display-virtio-gpu-pci",
+        "qemu-hw-display-virtio-gpu-pci-gl",
         "qemu-hw-display-virtio-vga",
         "qemu-hw-display-virtio-vga-gl",
         "qemu-system-" + arch.qemu(),
