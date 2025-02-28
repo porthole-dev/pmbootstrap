@@ -9,6 +9,7 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 import os
 from pathlib import Path
+import platform
 import re
 import signal
 import shlex
@@ -258,10 +259,20 @@ def command_qemu(
         raise RuntimeError(f"Architecture {arch} not supported by this command yet.")
 
     if args.efi:
-        command += [
-            "-drive",
-            f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd",
-        ]
+        host_arch = platform.machine().lower()
+        match host_arch:
+            case "aarch64":
+                command += [
+                    "-drive",
+                    f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/AAVMF/AAVMF_CODE.fd",
+                ]
+            case "amd64":
+                command += [
+                    "-drive",
+                    f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd",
+                ]
+            case _:
+                raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.parse.deviceinfo().arch.is_native()
@@ -368,7 +379,14 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-ui-opengl")
 
     if args.efi:
-        depends.append("ovmf")
+        host_arch = platform.machine().lower()
+        match host_arch:
+            case "aarch64":
+                depends.append("aavmf")
+            case "amd64":
+                depends.append("ovmf")
+            case _:
+                raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
 
     chroot = Chroot.native()
     pmb.chroot.init(chroot)
