@@ -222,7 +222,7 @@ chroot_outdated = 3600 * 24 * 2
 # NOTE: full hexdump is installed to workaround a bug in busybox,
 # see https://gitlab.postmarketos.org/postmarketOS/pmaports/-/issues/3268. This can be
 # reverted when the bug is properly fixed.
-build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git", "hexdump"]
+build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git", "hexdump", "pigz"]
 
 #
 # PARSE
