@@ -20,6 +20,7 @@ For further information, please check out the `postmarketOS-wiki`_.
    usage
    chroot
    debugging
+   cross_compiling
    ssh-keys
    api/modules
    mirrors

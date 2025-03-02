@@ -16,6 +16,7 @@ set -x
 # -L: words to ignore
 codespell \
 	-L crate \
+	-L gir \
 	-L hda \
 	-S "./pmb/helpers/locale.py" \
 	.
