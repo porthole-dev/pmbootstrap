@@ -694,6 +694,8 @@ def packages(
                     " adjust your APKBUILD to specify host dependencies (e.g. libevdev-dev)"
                     " and build dependencies (e.g. meson) separately."
                 )
+        if "!check" not in apkbuild["options"]:
+            depends_build += apkbuild["checkdepends"]
         if depends_host:
             logging.info("*** Install host dependencies")
             pmb.chroot.apk.install(depends_host, hostchroot, build=False)
