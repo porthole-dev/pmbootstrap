@@ -211,11 +211,10 @@ def run_abuild(
               the environment variables dict generated in this function.
     """
     # Sanity check
-    if cross == "native" and "!tracedeps" not in apkbuild["options"]:
-        logging.info(
-            "WARNING: Option !tracedeps is not set, but we're"
-            " cross-compiling in the native chroot. This will"
-            " probably fail!"
+    if cross == "kernel" and "!tracedeps" not in apkbuild["options"]:
+        logging.warning(
+            "WARNING: Option !tracedeps is not set, but cross compiling with"
+            " cross-native (version 1). This will probably fail!"
         )
 
     # For cross-native2 compilation, bindmount the "host" rootfs to /mnt/sysroot
