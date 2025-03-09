@@ -256,6 +256,8 @@ def run_abuild(
         env["CHOST"] = str(arch)
         env["CBUILDROOT"] = "/mnt/sysroot"
         env["CFLAGS"] = "-Wl,-rpath-link=/mnt/sysroot/usr/lib"
+        env["CGO_CFLAGS"] = "--sysroot=/mnt/sysroot"
+        env["CGO_LDFLAGS"] = "--sysroot=/mnt/sysroot"
         try:
             env["GOARCH"] = arch.go()
         except ValueError:
