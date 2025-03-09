@@ -68,11 +68,11 @@ Enable this method with `options="pmb:cross-native2"` in the `APKBUILD`.
 This is supported since pmbootstrap 3.4, previous versions will ignore this
 option and use the crossdirect method instead.
 
-Packages from `makedepends_host=` in the `APKBUILD` are installed in the native
-chroot, and packages from `makedepends_build=` in the foreign chroot.
-Environment variables are used to run abuild in the native chroot and use
-its cross compilation features rather than running it and the build
-system through QEMU. This massively speeds up building when it works.
+Packages from `makedepends_build=` in the `APKBUILD` are installed in the
+native chroot (where we run the build), and packages from `makedepends_host=`
+in the foreign chroot. Environment variables are used to run abuild in the
+native chroot and use its cross compilation features rather than running it and
+the build system through QEMU. This massively speeds up building when it works.
 
 The foreign chroot is mounted into the native chroot at `/sysroot`. Most build
 systems will refer to it as "sysroot", in abuild it is `CBUILDROOT`.
