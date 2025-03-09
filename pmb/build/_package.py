@@ -705,7 +705,11 @@ def packages(
             pmb.chroot.apk.install(depends_build, chroot, build=False)
 
         # Build and finish up
-        logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package")
+        msg = f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package"
+        if cross != "unnecessary":
+            msg += f" (cross compiling: {cross})"
+        logging.info(msg)
+
         try:
             run_abuild(
                 context,
