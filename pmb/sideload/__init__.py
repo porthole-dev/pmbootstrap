@@ -108,7 +108,6 @@ def sideload(
     :param pkgnames: list of pkgnames to be built"""
 
     paths = []
-    channel: str = pmb.config.pmaports.read_config()["channel"]
 
     if arch is None:
         arch = ssh_find_arch(args, user, host, port)
@@ -121,8 +120,12 @@ def sideload(
         if data_repo is None:
             raise RuntimeError(f"Couldn't find APKINDEX data for {pkgname}!")
 
+        base_aports, _ = pmb.build.get_apkbuild(pkgname)
+        channel = pmb.config.pmaports.read_config(base_aports)["channel"]
+
         apk_file = f"{pkgname}-{data_repo.version}.apk"
         host_path = context.config.work / "packages" / channel / arch / apk_file
+
         if not host_path.is_file():
             to_build.append(pkgname)
 
