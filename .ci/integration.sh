@@ -58,7 +58,7 @@ force_build() {
 
 	echo "Force building $packages for $arch"
 	# shellcheck disable=SC2086
-	pmbootstrap build --force --arch "$arch" $packages
+	pmbootstrap $PMB_EXTRA_ARGS build --force --arch "$arch" $packages
 }
 
 strict_build() {

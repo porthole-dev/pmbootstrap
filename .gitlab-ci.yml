@@ -167,9 +167,20 @@ force build amd64:
   tags: [qemu]
   script:
   # Packages chosen for being small, unlikely to break, and for language coverage.
-    - .ci/integration_tests/force_build x86_64 hello-world postmarketos-mkinitfs
-    - .ci/integration_tests/force_build aarch64 hello-world postmarketos-mkinitfs
-    - .ci/integration_tests/force_build armv7 hello-world postmarketos-mkinitfs
+  # cross compiling: unnecessary
+    - .ci/integration_tests/force_build x86_64 hello-world
+    - .ci/integration_tests/force_build x86_64 postmarketos-mkinitfs
+  # cross compiling: qemu-only
+    - PMB_EXTRA_ARGS="--no-cross" .ci/integration_tests/force_build aarch64 hello-world
+  # cross compiling: crossdirect
+    - .ci/integration_tests/force_build aarch64 hello-world
+    - .ci/integration_tests/force_build armv7 hello-world
+  # cross compiling: cross-native
+    - .ci/integration_tests/force_build aarch64 arch-bin-masquerade
+    - .ci/integration_tests/force_build armv7 arch-bin-masquerade
+  # cross compiling: cross-native2
+    - .ci/integration_tests/force_build aarch64 postmarketos-mkinitfs
+    - .ci/integration_tests/force_build armv7 postmarketos-mkinitfs
 
 # Same again but on the arm64 runner
 force build aarch64:
