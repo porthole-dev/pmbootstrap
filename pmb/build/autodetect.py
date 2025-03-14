@@ -100,9 +100,9 @@ def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompileType:
         return None
     # deprecated cross-native environment for building kernels
     if "pmb:cross-native" in apkbuild["options"]:
-        return "kernel"
+        return "cross-native"
     if arch.is_native() or "pmb:cross-native2" in apkbuild["options"]:
-        return "native"
+        return "cross-native2"
     if "!pmb:crossdirect" in apkbuild["options"]:
         return None
     return "crossdirect"

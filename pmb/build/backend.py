@@ -202,7 +202,7 @@ def run_abuild(
     depending on the cross-compiler method and target architecture), copy
     the aport to the chroot and execute abuild.
 
-    :param cross: None, "native", or "crossdirect"
+    :param cross: None, "cross-native", "cross-native2" or "crossdirect"
     :param src: override source used to build the package with a local folder
     :param bootstrap_stage: pass a BOOTSTRAP= env var with the value to abuild
     :returns: (output, cmd, env), output is the destination apk path relative
@@ -211,7 +211,7 @@ def run_abuild(
               the environment variables dict generated in this function.
     """
     # Sanity check
-    if cross == "kernel" and "!tracedeps" not in apkbuild["options"]:
+    if cross == "cross-native" and "!tracedeps" not in apkbuild["options"]:
         logging.warning(
             "WARNING: Option !tracedeps is not set, but cross compiling with"
             " cross-native (version 1). This will probably fail!"
@@ -219,10 +219,10 @@ def run_abuild(
 
     # For cross-native2 compilation, bindmount the "host" rootfs to /mnt/sysroot
     # it will be used as the "sysroot"
-    if cross == "native":
+    if cross == "cross-native2":
         pmb.mount.bind(hostchroot.path, Chroot.native() / "/mnt/sysroot", umount=True)
 
-    chroot = Chroot.native() if cross == "native" else hostchroot
+    chroot = Chroot.native() if cross == "cross-native2" else hostchroot
 
     pkgdir = context.config.work / "packages" / channel
     if not pkgdir.exists():
@@ -247,11 +247,11 @@ def run_abuild(
 
     # Environment variables
     env: Env = {"SUDO_APK": "abuild-apk --no-progress"}
-    if cross == "kernel":
+    if cross == "cross-native":
         hostspec = arch.alpine_triple()
         env["CROSS_COMPILE"] = hostspec + "-"
         env["CC"] = hostspec + "-gcc"
-    if cross == "native":
+    if cross == "cross-native2":
         env["CHOST"] = str(arch)
         env["CBUILDROOT"] = "/mnt/sysroot"
         env["CFLAGS"] = "-Wl,-rpath-link=/mnt/sysroot/usr/lib"

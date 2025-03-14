@@ -414,7 +414,7 @@ def process_package(
         if context.no_depends:
             pmb.helpers.repo.update(arch)
             cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
-            _dep_arch = Arch.native() if cross == "native" else arch
+            _dep_arch = Arch.native() if cross == "cross-native2" else arch
             if not pmb.parse.apkindex.package(dep, _dep_arch, False):
                 raise RuntimeError(
                     "Missing binary package for dependency '" + dep + "' of '" + parent + "', but"
@@ -652,7 +652,7 @@ def packages(
         # (re)-initialize the cross compiler stuff when cross method changes
         prev_cross = cross
         cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
-        if cross == "native" or cross == "kernel":
+        if cross == "cross-native2" or cross == "cross-native":
             chroot = Chroot.native()
 
         # One time chroot initialization
