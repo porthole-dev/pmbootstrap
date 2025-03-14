@@ -98,7 +98,6 @@ def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompileType:
         return None
     if not arch.cpu_emulation_required():
         return None
-    # deprecated cross-native environment for building kernels
     if "pmb:cross-native" in apkbuild["options"]:
         return "cross-native"
     if arch.is_native() or "pmb:cross-native2" in apkbuild["options"]:
