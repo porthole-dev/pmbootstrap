@@ -405,15 +405,15 @@ def process_package(
         dep = depends.pop(0)
         if is_cached_or_cache(arch, pmb.helpers.package.remove_operators(dep)):
             continue
-        cross = None
 
         aports, apkbuild = get_apkbuild(dep)
         if not apkbuild:
             continue
 
+        cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
+
         if context.no_depends:
             pmb.helpers.repo.update(arch)
-            cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
             _dep_arch = Arch.native() if cross == "cross-native2" else arch
             if not pmb.parse.apkindex.package(dep, _dep_arch, False):
                 raise RuntimeError(
@@ -493,7 +493,7 @@ def packages(
         aports: Path,
         apkbuild: dict[str, Any],
         depends: list[str],
-        cross: CrossCompileType = None,
+        cross: CrossCompileType = "autodetect",
     ) -> list[str]:
         # Skip if already queued
         name = apkbuild["pkgname"]
@@ -501,7 +501,6 @@ def packages(
             return []
 
         pkg_arch = pmb.build.autodetect.arch(apkbuild) if arch is None else arch
-        chroot = pmb.build.autodetect.chroot(apkbuild, pkg_arch)
         cross = cross or pmb.build.autodetect.crosscompile(apkbuild, pkg_arch)
         pkgver = get_pkgver(apkbuild["pkgver"], src is None)
         channel = pmb.config.pmaports.read_config(aports)["channel"]
@@ -614,8 +613,8 @@ def packages(
             " build the package with --src again."
         )
 
-    cross = None
-    prev_cross = None
+    cross = "autodetect"
+    prev_cross = "autodetect"
     hostchroot = None  # buildroot for the architecture we're building for
 
     total_pkgs = len(build_queue)
@@ -664,7 +663,7 @@ def packages(
             if "rust" in all_dependencies or "cargo" in all_dependencies:
                 pmb.chroot.apk.install(["sccache"], chroot)
 
-        if cross != prev_cross:
+        if cross != prev_cross and cross not in ["unnecessary", "qemu-only"]:
             pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
             if cross == "crossdirect":
                 pmb.chroot.mount_native_into_foreign(chroot)

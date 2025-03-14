@@ -8,7 +8,14 @@ from typing import Any, Literal, TypedDict
 
 from pmb.core.arch import Arch
 
-CrossCompileType = Literal["crossdirect", "cross-native", "cross-native2"] | None
+CrossCompileType = Literal[
+    "autodetect",
+    "unnecessary",
+    "qemu-only",
+    "crossdirect",
+    "cross-native",
+    "cross-native2",
+]
 RunOutputTypeDefault = Literal["log", "stdout", "interactive", "tui", "null"]
 RunOutputTypePopen = Literal["background", "pipe"]
 RunOutputType = RunOutputTypeDefault | RunOutputTypePopen

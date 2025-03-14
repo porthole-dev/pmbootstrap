@@ -95,13 +95,13 @@ def chroot(apkbuild: Apkbuild, arch: Arch) -> Chroot:
 def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompileType:
     """Decide the type of compilation necessary to build a given APKBUILD."""
     if not get_context().cross:
-        return None
+        return "qemu-only"
     if not arch.cpu_emulation_required():
-        return None
+        return "unnecessary"
     if "pmb:cross-native" in apkbuild["options"]:
         return "cross-native"
     if arch.is_native() or "pmb:cross-native2" in apkbuild["options"]:
         return "cross-native2"
     if "!pmb:crossdirect" in apkbuild["options"]:
-        return None
+        return "qemu-only"
     return "crossdirect"

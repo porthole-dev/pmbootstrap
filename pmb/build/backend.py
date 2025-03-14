@@ -202,7 +202,6 @@ def run_abuild(
     depending on the cross-compiler method and target architecture), copy
     the aport to the chroot and execute abuild.
 
-    :param cross: None, "cross-native", "cross-native2" or "crossdirect"
     :param src: override source used to build the package with a local folder
     :param bootstrap_stage: pass a BOOTSTRAP= env var with the value to abuild
     :returns: (output, cmd, env), output is the destination apk path relative
