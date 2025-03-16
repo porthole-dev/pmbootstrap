@@ -681,7 +681,7 @@ def packages(
             depends_build = apkbuild["makedepends_build"]
         else:
             depends_build = apkbuild["makedepends"]
-            if depends_build and depends_host:
+            if depends_build and depends_host and cross == CrossCompile.CROSS_NATIVE2:
                 logging.warning(
                     "WARNING: makedepends not split into _host and _build variants."
                     " Trying to install all makedepends in both environments, please"
