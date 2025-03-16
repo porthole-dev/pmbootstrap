@@ -11,7 +11,7 @@ from pmb.core import Context
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
-from pmb.types import Apkbuild, CrossCompileType, Env
+from pmb.types import Apkbuild, CrossCompile, Env
 
 
 class BootstrapStage(enum.IntEnum):
@@ -190,10 +190,9 @@ def run_abuild(
     pkgver: str,
     channel: str,
     arch: Arch,
-    cross: CrossCompileType,
+    cross: CrossCompile,
     strict: bool = False,
     force: bool = False,
-    hostchroot: Chroot = Chroot.native(),
     src: str | None = None,
     bootstrap_stage: int = BootstrapStage.NONE,
 ) -> None:
@@ -210,18 +209,23 @@ def run_abuild(
               the environment variables dict generated in this function.
     """
     # Sanity check
-    if cross == "cross-native" and "!tracedeps" not in apkbuild["options"]:
+    if cross == CrossCompile.CROSS_NATIVE and "!tracedeps" not in apkbuild["options"]:
         logging.warning(
             "WARNING: Option !tracedeps is not set, but cross compiling with"
             " cross-native (version 1). This will probably fail!"
         )
 
+    hostchroot = cross.host_chroot(arch)
+    buildchroot = cross.build_chroot(arch)
+
     # For cross-native2 compilation, bindmount the "host" rootfs to /mnt/sysroot
     # it will be used as the "sysroot"
-    if cross == "cross-native2":
-        pmb.mount.bind(hostchroot.path, Chroot.native() / "/mnt/sysroot", umount=True)
-
-    chroot = Chroot.native() if cross == "cross-native2" else hostchroot
+    if cross == CrossCompile.CROSS_NATIVE2:
+        if buildchroot != Chroot.native():
+            raise ValueError(
+                "Trying to use cross-native2 build buildchroot != native! This is a bug"
+            )
+        pmb.mount.bind(hostchroot.path, buildchroot / "/mnt/sysroot", umount=True)
 
     pkgdir = context.config.work / "packages" / channel
     if not pkgdir.exists():
@@ -241,16 +245,16 @@ def run_abuild(
             ["rm", "-f", "/home/pmos/packages/pmos"],
             ["ln", "-sf", f"/mnt/pmbootstrap/packages/{channel}", "/home/pmos/packages/pmos"],
         ],
-        chroot,
+        buildchroot,
     )
 
     # Environment variables
     env: Env = {"SUDO_APK": "abuild-apk --no-progress"}
-    if cross == "cross-native":
+    if cross == CrossCompile.CROSS_NATIVE:
         hostspec = arch.alpine_triple()
         env["CROSS_COMPILE"] = hostspec + "-"
         env["CC"] = hostspec + "-gcc"
-    if cross == "cross-native2":
+    if cross == CrossCompile.CROSS_NATIVE2:
         env["CHOST"] = str(arch)
         env["CBUILDROOT"] = "/mnt/sysroot"
         env["CFLAGS"] = "-Wl,-rpath-link=/mnt/sysroot/usr/lib"
@@ -261,7 +265,7 @@ def run_abuild(
         except ValueError:
             logging.debug(f"Not setting $GOARCH for {arch}")
 
-    elif cross == "crossdirect":
+    elif cross == CrossCompile.CROSSDIRECT:
         env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}", pmb.config.chroot_path])
     else:
         env["CARCH"] = str(arch)
@@ -269,7 +273,7 @@ def run_abuild(
         env["CCACHE_DISABLE"] = "1"
 
     # Use sccache without crossdirect (crossdirect uses it via rustc.sh)
-    if context.ccache and cross != "crossdirect":
+    if context.ccache and cross != CrossCompile.CROSSDIRECT:
         env["RUSTC_WRAPPER"] = "/usr/bin/sccache"
 
     # Cache binary objects from go in this path (like ccache)
@@ -300,16 +304,16 @@ def run_abuild(
         cmd += ["-K"]
 
     # Copy the aport to the chroot and build it
-    pmb.build.copy_to_buildpath(apkbuild["pkgname"], chroot, no_override=strict)
+    pmb.build.copy_to_buildpath(apkbuild["pkgname"], buildchroot, no_override=strict)
     if src and strict:
-        logging.debug(f"({chroot}) Ensuring previous build artifacts are removed")
-        pmb.chroot.root(["rm", "-rf", "/tmp/pmbootstrap-local-source-copy"], chroot)
-    override_source(apkbuild, pkgver, src, chroot)
-    link_to_git_dir(chroot)
+        logging.debug(f"({buildchroot}) Ensuring previous build artifacts are removed")
+        pmb.chroot.root(["rm", "-rf", "/tmp/pmbootstrap-local-source-copy"], buildchroot)
+    override_source(apkbuild, pkgver, src, buildchroot)
+    link_to_git_dir(buildchroot)
 
     try:
-        pmb.chroot.user(cmd, chroot, Path("/home/pmos/build"), env=env)
+        pmb.chroot.user(cmd, buildchroot, Path("/home/pmos/build"), env=env)
     finally:
-        handle_csum_failure(apkbuild, chroot)
+        handle_csum_failure(apkbuild, buildchroot)
 
-    pmb.helpers.run.root(["umount", Chroot.native() / "/mnt/sysroot"], output="null", check=False)
+    pmb.helpers.run.root(["umount", buildchroot / "/mnt/sysroot"], output="null", check=False)

@@ -177,8 +177,8 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
     if arch is None:
         arch = get_arch(apkbuild)
 
-    chroot = pmb.build.autodetect.chroot(apkbuild, arch)
     cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
+    chroot = cross.build_chroot(arch)
     hostspec = arch.alpine_triple()
 
     # Set up build tools and makedepends

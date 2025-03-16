@@ -1,21 +1,62 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import enum
 import subprocess
 from argparse import Namespace
 from pathlib import Path
 from typing import Any, Literal, TypedDict
 
 from pmb.core.arch import Arch
+from pmb.core.chroot import Chroot
 
-CrossCompileType = Literal[
-    "autodetect",
-    "unnecessary",
-    "qemu-only",
-    "crossdirect",
-    "cross-native",
-    "cross-native2",
-]
+
+class CrossCompile(enum.Enum):
+    # Cross compilation isn't needed for this package
+    UNNECESSARY = "unnecessary"
+    # Cross compilation disabled, only use QEMU
+    QEMU_ONLY = "qemu-only"
+    # Cross compilation will use crossdirect
+    CROSSDIRECT = "crossdirect"
+    # Cross compilation will use cross-native
+    CROSS_NATIVE = "cross-native"
+    # Cross compilation will use cross-native2
+    CROSS_NATIVE2 = "cross-native2"
+
+    def __str__(self) -> str:
+        return self.value
+
+    def enabled(self) -> bool:
+        """Are we cross-compiling for this value of cross?"""
+        return self not in [CrossCompile.UNNECESSARY, CrossCompile.QEMU_ONLY]
+
+    def host_chroot(self, arch: Arch) -> Chroot:
+        """Chroot for the package target architecture (the "host" machine).
+        Cross native (v1) is the exception, since we exclusively use the native
+        chroot for that."""
+        if arch == Arch.native():
+            return Chroot.native()
+
+        match self:
+            case CrossCompile.CROSS_NATIVE:
+                return Chroot.native()
+            case _:
+                return Chroot.buildroot(arch)
+
+    def build_chroot(self, arch: Arch) -> Chroot:
+        """Chroot for the package build architecture (the "build" machine)."""
+        if arch == Arch.native():
+            return Chroot.native()
+
+        match self:
+            case CrossCompile.CROSSDIRECT | CrossCompile.QEMU_ONLY:
+                return Chroot.buildroot(arch)
+            # FIXME: are there cases where we're building for a different arch
+            # but don't need to cross compile?
+            case CrossCompile.UNNECESSARY | CrossCompile.CROSS_NATIVE | CrossCompile.CROSS_NATIVE2:
+                return Chroot.native()
+
+
 RunOutputTypeDefault = Literal["log", "stdout", "interactive", "tui", "null"]
 RunOutputTypePopen = Literal["background", "pipe"]
 RunOutputType = RunOutputTypeDefault | RunOutputTypePopen

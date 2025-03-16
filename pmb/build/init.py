@@ -13,7 +13,7 @@ import pmb.chroot.apk
 import pmb.helpers.run
 from pmb.core import Chroot
 from pmb.core.context import get_context
-from pmb.types import CrossCompileType
+from pmb.types import CrossCompile
 
 
 def init_abuild_minimal(chroot: Chroot = Chroot.native(), build_pkgs: list[str] = []) -> None:
@@ -112,9 +112,7 @@ def init(chroot: Chroot = Chroot.native()) -> bool:
     return True
 
 
-def init_compiler(
-    context: Context, depends: list[str], cross: CrossCompileType, arch: Arch
-) -> None:
+def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arch: Arch) -> None:
     arch_str = str(arch)
     cross_pkgs = ["ccache-cross-symlinks", "abuild"]
     if "gcc4" in depends:
@@ -125,7 +123,7 @@ def init_compiler(
         cross_pkgs += ["gcc-" + arch_str, "g++-" + arch_str]
     if "clang" in depends or "clang-dev" in depends:
         cross_pkgs += ["clang"]
-    if cross == "crossdirect":
+    if cross == CrossCompile.CROSSDIRECT:
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:
             if context.ccache:

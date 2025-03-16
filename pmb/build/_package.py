@@ -10,7 +10,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_relative_path
 from pmb.helpers import logging
-from pmb.types import Apkbuild, CrossCompileType
+from pmb.types import Apkbuild, CrossCompile
 from pathlib import Path
 
 import pmb.build
@@ -217,8 +217,7 @@ class BuildQueueItem(TypedDict):
     output_path: Path
     channel: str
     depends: list[str]
-    cross: CrossCompileType
-    chroot: Chroot
+    cross: CrossCompile
 
 
 def has_cyclical_dependency(
@@ -493,7 +492,7 @@ def packages(
         aports: Path,
         apkbuild: dict[str, Any],
         depends: list[str],
-        cross: CrossCompileType = "autodetect",
+        cross: CrossCompile | None = None,
     ) -> list[str]:
         # Skip if already queued
         name = apkbuild["pkgname"]
@@ -540,7 +539,6 @@ def packages(
                 ),
                 "channel": channel,
                 "depends": depends,
-                "chroot": chroot,
                 "cross": cross,
             }
         )
@@ -613,16 +611,19 @@ def packages(
             " build the package with --src again."
         )
 
-    cross = "autodetect"
-    prev_cross = "autodetect"
+    cross = None
+    prev_cross = None
     hostchroot = None  # buildroot for the architecture we're building for
 
     total_pkgs = len(build_queue)
     count = 0
     for pkg in build_queue:
         count += 1
-        hostchroot = chroot = pkg["chroot"]
+        prev_cross = cross
+        cross = pkg["cross"]
         pkg_arch = pkg["arch"]
+        hostchroot = cross.host_chroot(pkg_arch)
+        buildchroot = cross.build_chroot(pkg_arch)
         apkbuild = pkg["apkbuild"]
 
         channel = pkg["channel"]
@@ -648,25 +649,19 @@ def packages(
             )
         )
 
-        # (re)-initialize the cross compiler stuff when cross method changes
-        prev_cross = cross
-        cross = pmb.build.autodetect.crosscompile(pkg["apkbuild"], pkg_arch)
-        if cross == "cross-native2" or cross == "cross-native":
-            chroot = Chroot.native()
-
         # One time chroot initialization
-        if hostchroot != chroot:
+        if hostchroot != buildchroot:
             pmb.build.init(hostchroot)
-        if pmb.build.init(chroot):
-            pmb.build.other.configure_abuild(chroot)
-            pmb.build.other.configure_ccache(chroot)
+        if pmb.build.init(buildchroot):
+            pmb.build.other.configure_abuild(buildchroot)
+            pmb.build.other.configure_ccache(buildchroot)
             if "rust" in all_dependencies or "cargo" in all_dependencies:
-                pmb.chroot.apk.install(["sccache"], chroot)
+                pmb.chroot.apk.install(["sccache"], buildchroot)
 
-        if cross != prev_cross and cross not in ["unnecessary", "qemu-only"]:
+        if cross != prev_cross and cross.enabled():
             pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
-            if cross == "crossdirect":
-                pmb.chroot.mount_native_into_foreign(chroot)
+            if cross == CrossCompile.CROSSDIRECT:
+                pmb.chroot.mount_native_into_foreign(buildchroot)
 
         depends_build: list[str] = []
         depends_host: list[str] = []
@@ -702,11 +697,11 @@ def packages(
             logging.info("*** Install build dependencies")
             if src:
                 depends_build.append("rsync")
-            pmb.chroot.apk.install(depends_build, chroot, build=False)
+            pmb.chroot.apk.install(depends_build, buildchroot, build=False)
 
         # Build and finish up
         msg = f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package"
-        if cross != "unnecessary":
+        if cross != CrossCompile.UNNECESSARY:
             msg += f" (cross compiling: {cross})"
         logging.info(msg)
 
@@ -720,13 +715,12 @@ def packages(
                 cross,
                 strict,
                 force,
-                hostchroot,
                 src,
                 bootstrap_stage,
             )
         except RuntimeError:
             raise BuildFailedError(f"Couldn't build {output}!")
-        finish(pkg["apkbuild"], channel, pkg_arch, output, chroot, strict)
+        finish(pkg["apkbuild"], channel, pkg_arch, output, buildchroot, strict)
 
     # Clear package cache for the next run
     _package_cache = {}

@@ -7,10 +7,9 @@ from pmb.helpers import logging
 import pmb.config
 import pmb.chroot.apk
 import pmb.helpers.pmaports
-from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.meta import Cache
-from pmb.types import Apkbuild, CrossCompileType
+from pmb.types import Apkbuild, CrossCompile
 
 
 def arch_from_deviceinfo(pkgname: str, aport: Path) -> Arch | None:
@@ -82,26 +81,16 @@ def arch(package: str | Apkbuild) -> Arch:
         return Arch.native()
 
 
-def chroot(apkbuild: Apkbuild, arch: Arch) -> Chroot:
-    if arch == Arch.native():
-        return Chroot.native()
-
-    if "pmb:cross-native" in apkbuild["options"]:
-        return Chroot.native()
-
-    return Chroot.buildroot(arch)
-
-
-def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompileType:
+def crosscompile(apkbuild: Apkbuild, arch: Arch) -> CrossCompile:
     """Decide the type of compilation necessary to build a given APKBUILD."""
     if not get_context().cross:
-        return "qemu-only"
+        return CrossCompile.QEMU_ONLY
     if not arch.cpu_emulation_required():
-        return "unnecessary"
+        return CrossCompile.UNNECESSARY
     if "pmb:cross-native" in apkbuild["options"]:
-        return "cross-native"
+        return CrossCompile.CROSS_NATIVE
     if arch.is_native() or "pmb:cross-native2" in apkbuild["options"]:
-        return "cross-native2"
+        return CrossCompile.CROSS_NATIVE2
     if "!pmb:crossdirect" in apkbuild["options"]:
-        return "qemu-only"
-    return "crossdirect"
+        return CrossCompile.QEMU_ONLY
+    return CrossCompile.CROSSDIRECT
