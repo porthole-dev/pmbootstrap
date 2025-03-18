@@ -11,6 +11,7 @@ import pmb.aportgen
 import pmb.aportgen.core
 import pmb.build
 import pmb.build.autodetect
+from pmb.core.pkgrepo import pkgrepo_relative_path
 import pmb.chroot
 from pmb.types import Env, PathString, PmbArgs
 import pmb.helpers
@@ -134,13 +135,19 @@ include ../Makefile
 
 
 def run_abuild(
-    context: Context, pkgname: str, arch: Arch, apkbuild_path: Path, kbuild_out: str
+    context: Context,
+    pkgname: str,
+    arch: Arch,
+    pmaports_path: Path,
+    apkbuild_path: Path,
+    kbuild_out: str,
 ) -> None:
     """
     Prepare build environment and run abuild.
 
     :param pkgname: package name of a linux kernel aport
     :param arch: architecture for the kernel
+    :param pmaports_path: path to the aports dir this package is part of
     :param apkbuild_path: path to APKBUILD of the kernel aport
     :param kbuild_out: kernel build system output sub-directory
     """
@@ -174,7 +181,8 @@ def run_abuild(
     # FIXME: duplicated from pmb.build._package.run_aports()
     # This is needed to set up the package output directory for
     # abuild and shouldn't really be done here.
-    channel = pmb.config.pmaports.read_config()["channel"]
+    channel = pmb.config.pmaports.read_config(pmaports_path)["channel"]
+    print(f"Building for channel: {channel}")
     pkgdir = context.config.work / "packages" / channel
     if not pkgdir.exists():
         pmb.helpers.run.root(["mkdir", "-p", pkgdir])
@@ -262,8 +270,10 @@ def package_kernel(args: PmbArgs) -> None:
     message = f"({chroot}) build {output}"
     logging.info(message)
 
+    pmaports_path = pkgrepo_relative_path(aport)[0]
+
     try:
-        run_abuild(context, pkgname, arch, apkbuild_path, kbuild_out)
+        run_abuild(context, pkgname, arch, pmaports_path, apkbuild_path, kbuild_out)
     except Exception as e:
         pmb.helpers.mount.umount_all(Chroot.native() / "mnt/linux")
         raise e
