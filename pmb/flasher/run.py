@@ -103,6 +103,13 @@ def run(
                     check_partition_blacklist(deviceinfo, key, value)
                     command[i] = command[i].replace(key, value)
 
+        # Remove cmdline if it's empty
+        if "--cmdline" in command:
+            i = command.index("--cmdline")
+            if i + 1 < len(command) and not command[i + 1]:
+                command.pop(i)  # "--cmdline"
+                command.pop(i)  # ""
+
         # Remove empty strings
         command = [x for x in command if x != ""]
         # Run the action
