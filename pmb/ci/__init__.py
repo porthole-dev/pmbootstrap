@@ -107,7 +107,7 @@ def ask_which_scripts_to_run(
 
     """
     count = len(scripts_available.items())
-    choices = ["all"]
+    choices = []
 
     logging.info(f"Available CI scripts ({count}):")
     for script_name, script in scripts_available.items():
@@ -117,13 +117,17 @@ def ask_which_scripts_to_run(
         logging.info(f"* {script_name}: {script['description']}{extra}")
         choices += [script_name]
 
-    selection = pmb.helpers.cli.ask("Which script?", None, "all", complete=choices)
+    choice_regex = "|".join(choices)
+    ci_regex = f"(all)|({choice_regex})(,({choice_regex}))*"
+    choices += ["all"]
+    logging.info('Fill a comma-separated list of scripts or "all"')
+    selection = pmb.helpers.cli.ask(
+        "Scripts", None, "all", validation_regex=ci_regex, complete=choices
+    )
     if selection == "all":
         return scripts_available
-
-    ret = {}
-    ret[selection] = scripts_available[selection]
-    return ret
+    else:
+        return {script: scripts_available[script] for script in selection.split(",")}
 
 
 def copy_git_repo_to_chroot(topdir: Path) -> None:
