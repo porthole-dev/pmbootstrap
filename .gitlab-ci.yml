@@ -170,6 +170,8 @@ force build amd64:
   # cross compiling: unnecessary
     - .ci/integration_tests/force_build x86_64 hello-world
     - .ci/integration_tests/force_build x86_64 postmarketos-mkinitfs
+  # cross compiling: unnecessary (different arch but no cpu emulation required)
+    - .ci/integration_tests/force_build x86 hello-world
   # cross compiling: qemu-only
     - PMB_EXTRA_ARGS="--no-cross" .ci/integration_tests/force_build aarch64 hello-world
   # cross compiling: crossdirect
