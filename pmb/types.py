@@ -12,7 +12,10 @@ from pmb.core.chroot import Chroot
 
 
 class CrossCompile(enum.Enum):
-    # Cross compilation isn't needed for this package
+    # Cross compilation isn't needed for this package:
+    # 1) Either because the arch we will build for is exactly the same as the
+    #    native arch, or
+    # 2) because CPU emulation is not needed (e.g. x86 on x86_64)
     UNNECESSARY = "unnecessary"
     # Cross compilation disabled, only use QEMU
     QEMU_ONLY = "qemu-only"
@@ -49,11 +52,9 @@ class CrossCompile(enum.Enum):
             return Chroot.native()
 
         match self:
-            case CrossCompile.CROSSDIRECT | CrossCompile.QEMU_ONLY:
+            case CrossCompile.UNNECESSARY | CrossCompile.CROSSDIRECT | CrossCompile.QEMU_ONLY:
                 return Chroot.buildroot(arch)
-            # FIXME: are there cases where we're building for a different arch
-            # but don't need to cross compile?
-            case CrossCompile.UNNECESSARY | CrossCompile.CROSS_NATIVE | CrossCompile.CROSS_NATIVE2:
+            case CrossCompile.CROSS_NATIVE | CrossCompile.CROSS_NATIVE2:
                 return Chroot.native()
 
 
