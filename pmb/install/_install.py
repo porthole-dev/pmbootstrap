@@ -1334,7 +1334,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
         install_packages += args.add.split(",")
     locale_is_set = config.locale != Config().locale
     if locale_is_set:
-        install_packages += ["lang", "musl-locales"]
+        install_packages += ["lang"]
 
     pmaports_cfg = pmb.config.pmaports.read_config()
     # postmarketos-base supports a dummy package for blocking unl0kr install
