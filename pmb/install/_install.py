@@ -308,7 +308,13 @@ def copy_ssh_keys(config: Config) -> None:
     keys = []
     for key in glob.glob(os.path.expanduser(config.ssh_key_glob)):
         with open(key) as infile:
-            keys += infile.readlines()
+            try:
+                keys += infile.readlines()
+            except UnicodeDecodeError:
+                logging.info(
+                    f"WARNING: {key} is not a valid SSH key. "
+                    "This file will not be copied to device."
+                )
 
     if not len(keys):
         logging.info(
