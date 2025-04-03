@@ -152,9 +152,11 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
 
     pmb.config.workdir.chroot_save_init(chroot)
 
-    # Install alpine-base
+    # Install minimal amount of things to get a functional chroot.
+    # We don't use alpine-base since it depends on openrc, and neither
+    # postmarketos-base, since that's quite big (e.g: contains an init system)
     pmb.helpers.repo.update(arch)
-    pkgs = ["alpine-base"]
+    pkgs = ["alpine-baselayout", "apk-tools", "busybox", "musl-utils"]
     cmd: list[PathString] = ["--initdb"]
     pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
 
