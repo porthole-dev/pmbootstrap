@@ -1,11 +1,11 @@
 # Copyright 2024 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
 from dataclasses import dataclass
-from typing import Any
 
 import pmb.build._package
 from pmb.core.apkindex_block import ApkindexBlock
 from pmb.core.context import get_context
+from pmb.types import Apkbuild
 
 
 @dataclass
@@ -28,7 +28,7 @@ class PackageMetadata:
         )
 
     @staticmethod
-    def from_pmaport(pmaport: dict[str, Any]) -> "PackageMetadata":
+    def from_pmaport(pmaport: Apkbuild) -> "PackageMetadata":
         pmaport_arches = pmaport["arch"]
         pmaport_depends = pmb.build._package.get_depends(get_context(), pmaport)
         pmaport_pkgname = pmaport["pkgname"]
