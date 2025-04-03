@@ -693,10 +693,13 @@ def packages(
         if depends_host:
             logging.info("*** Install host dependencies")
             pmb.chroot.apk.install(depends_host, hostchroot, build=False)
+
+        # If build with --src then we need rsync to copy in the source files.
+        if src:
+            depends_build.append("rsync")
+
         if depends_build:
             logging.info("*** Install build dependencies")
-            if src:
-                depends_build.append("rsync")
             pmb.chroot.apk.install(depends_build, buildchroot, build=False)
 
         # Build and finish up
