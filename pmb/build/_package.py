@@ -143,24 +143,22 @@ def finish(
     # package we need to parse it again)
     pmb.parse.apkindex.clear_cache(out_dir / arch / "APKINDEX.tar.gz")
 
-    # Uninstall build dependencies (strict mode)
-    if strict or "pmb:strict" in apkbuild["options"]:
-        logging.info(f"({chroot}) uninstall build dependencies")
-        pmb.chroot.user(
-            ["abuild", "undeps"],
-            chroot,
-            Path("/home/pmos/build"),
-            env={"SUDO_APK": "abuild-apk --no-progress"},
-        )
-        # If the build depends contain postmarketos-keys or postmarketos-base,
-        # abuild will have removed the postmarketOS repository key (pma#1230)
-        pmb.chroot.init_keys()
+    # Zap chroots (strict mode)
+    zap_reason = None
+    if "pmb:strict" in apkbuild["options"]:
+        zap_reason = "pmb:strict in APKBUILD"
+    elif strict:
+        zap_reason = "running with --strict"
+
+    if zap_reason:
+        logging.info(f"({chroot}) zapping chroots ({zap_reason})")
+        pmb.chroot.zap(False)
 
     logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
 
     # If we just built a package which is used to build other packages, then
     # update the buildroot to use the newly built version.
-    if apkbuild["pkgname"] in pmb.config.build_packages:
+    if not zap_reason and apkbuild["pkgname"] in pmb.config.build_packages:
         logging.info(
             f"NOTE: Updating package {apkbuild['pkgname']} in buildroot since it's"
             " used for building..."
