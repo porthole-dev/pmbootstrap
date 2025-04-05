@@ -729,15 +729,6 @@ def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
     add_kernel_arg(migrate, nargs=1)
 
 
-def arguments_repo_bootstrap(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
-    arch_choices = Arch.supported()
-
-    ret = subparser.add_parser("repo_bootstrap")
-    ret.add_argument("repository", help="which repository to bootstrap (e.g. systemd)")
-    ret.add_argument("--arch", choices=arch_choices, dest="arch", type=lambda x: Arch.from_str(x))
-    return ret
-
-
 def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(
         "repo_missing",
@@ -985,7 +976,6 @@ def get_parser() -> argparse.ArgumentParser:
         " non-interactively to migrate the"
         " work folder version on demand",
     )
-    arguments_repo_bootstrap(sub)
     arguments_repo_missing(sub)
     arguments_kconfig(sub)
     arguments_export(sub)

@@ -119,11 +119,6 @@ def build(args: PmbArgs) -> None:
     if src and not os.path.exists(src):
         raise RuntimeError("Invalid path specified for --src: " + src)
 
-    # Ensure repo_bootstrap is done for all arches we intend to build for
-    for package in args.packages:
-        arch_package = args.arch or pmb.build.autodetect.arch(package)
-        pmb.helpers.pmaports.require_bootstrap(arch_package, f"build {package} for {arch_package}")
-
     context = get_context()
     # Build all packages
     built = pmb.build.packages(
@@ -320,10 +315,6 @@ def install(args: PmbArgs) -> None:
 
     if args.rsync and args.filesystem == "btrfs":
         raise ValueError("Installation using rsync is not currently supported on btrfs filesystem.")
-
-    pmb.helpers.pmaports.require_bootstrap(
-        deviceinfo.arch, f"do 'pmbootstrap install' for {deviceinfo.arch} (deviceinfo_arch)"
-    )
 
     # On-device installer checks
     # Note that this can't be in the mutually exclusive group that has most of

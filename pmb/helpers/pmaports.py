@@ -7,7 +7,6 @@ See also:
 - pmb/helpers/package.py (work with both)
 """
 
-from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
@@ -405,31 +404,3 @@ def get_channel_new(channel: str) -> str:
         logging.verbose(f"Legacy channel '{channel}' translated to '{ret}'")
         return ret
     return channel
-
-
-def require_bootstrap_error(repo: str, arch: Arch, trigger_str: str) -> None:
-    """
-    Tell the user that they need to do repo_bootstrap, with some context.
-
-    :param repo: which repository
-    :param arch: for which architecture
-    :param trigger_str: message for the user to understand what caused this
-    """
-    logging.info(
-        f"ERROR: Trying to {trigger_str} with {repo} enabled, but the {repo} repo needs to be bootstrapped first."
-    )
-    raise RuntimeError(f"Run 'pmbootstrap repo_bootstrap {repo} --arch={arch}' and then try again.")
-
-
-def require_bootstrap(arch: Arch, trigger_str: str) -> None:
-    """
-    Check if repo_bootstrap was done, if any is needed.
-
-    :param arch: for which architecture
-    :param trigger_str: message for the user to understand what caused this
-    """
-    if pmb.config.other.is_systemd_selected(get_context().config):
-        pmb.helpers.repo.update(arch)
-        pkg = pmb.parse.apkindex.package("postmarketos-base-systemd", arch, False)
-        if not pkg:
-            require_bootstrap_error("systemd", arch, trigger_str)

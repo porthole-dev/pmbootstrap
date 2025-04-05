@@ -10,7 +10,6 @@ from .aportgen import Aportgen
 from .flasher import Flasher
 from .log import Log
 from .index import Index
-from .repo_bootstrap import RepoBootstrap
 from .shutdown import Shutdown
 from .test import Test
 from .pkgrel_bump import PkgrelBump
@@ -77,8 +76,6 @@ def run_command(args: PmbArgs) -> None:
         case "index":
             # FIXME: should index support --arch?
             command = Index()
-        case "repo_bootstrap":
-            command = RepoBootstrap(args.arch, args.repository)
         case "shutdown":
             command = Shutdown()
         case "test":

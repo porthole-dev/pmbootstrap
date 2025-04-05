@@ -76,14 +76,6 @@ pmb.commands.pull module
    :undoc-members:
    :show-inheritance:
 
-pmb.commands.repo_bootstrap module
-----------------------------------
-
-.. automodule:: pmb.commands.repo_bootstrap
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.commands.shutdown module
 ----------------------------
 
