@@ -8,6 +8,7 @@ from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 import glob
+import heapq
 import json
 import os
 import shutil
@@ -659,15 +660,14 @@ def ask_for_mirror() -> str:
     while len(mirror) == 0:
         answer = pmb.helpers.cli.ask("Select a mirror", None, mirror_index, validation_regex=regex)
         if answer == "best":
-            timings = []
+            timings: list[tuple[float, str]] = []
             # determine the best available mirror
             for url in urls:
                 try:
-                    timings.append((pmb.helpers.http.measure_latency(url), url))
+                    heapq.heappush(timings, (pmb.helpers.http.measure_latency(url), url))
                 except urllib.error.HTTPError:
                     logging.warning(f"{url} was unavailable, skipping!")
                     continue
-            timings.sort(key=lambda i: i[0])
             try:
                 latency, mirror = timings[0]
                 logging.info(
