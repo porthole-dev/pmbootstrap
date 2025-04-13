@@ -20,6 +20,7 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
     """
 
     chroot = Chroot.native()
+    pmb.chroot.init(chroot)
 
     rootfs_path = Path("/mnt/pmbootstrap/netboot") / f"{device}.img"
     if not (chroot / rootfs_path).exists() or replace:
