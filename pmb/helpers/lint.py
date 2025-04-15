@@ -95,6 +95,9 @@ def check(pkgnames: Sequence[str]) -> None:
     # For each pkgrepo run the linter on the relevant packages
     has_failed = False
     for pkgrepo, apkbuild_paths in apkbuilds.items():
+        # FIXME: somehow invalid paths get into this list
+        if not apkbuild_paths:
+            continue
         if pmb.chroot.user(
             ["apkbuild-lint", *apkbuild_paths],
             check=False,
