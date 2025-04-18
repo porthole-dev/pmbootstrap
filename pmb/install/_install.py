@@ -1389,6 +1389,10 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     # when services are installed later
     if pmb.config.other.is_systemd_selected(context.config):
         pmb.chroot.apk.install(["postmarketos-base-systemd"], chroot)
+    else:
+        # Install alpine-base (which pulls in openrc related packages) early,
+        # so postinst scripts can run rc-update
+        pmb.chroot.apk.install(["alpine-base"], chroot)
 
     # Install all packages to device rootfs chroot (and rebuild the initramfs,
     # because that doesn't always happen automatically yet, e.g. when the user
