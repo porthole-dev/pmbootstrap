@@ -196,12 +196,13 @@ def switch_to_channel_branch(channel_new: str) -> bool:
 
     :returns: True if another branch was checked out, False otherwise
     """
+    aports = pkgrepo_default_path()
+
     # Check current pmaports branch channel
-    channel_current = read_config()["channel"]
+    channel_current = read_config(aports)["channel"]
     if channel_current == channel_new:
         return False
 
-    aports = pkgrepo_default_path()
     # list current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
