@@ -688,17 +688,20 @@ def packages(
                 )
         if "!check" not in apkbuild["options"]:
             depends_build += apkbuild["checkdepends"]
-        if depends_host:
-            logging.info("*** Install host dependencies")
-            pmb.chroot.apk.install(depends_host, hostchroot, build=False)
 
         # If build with --src then we need rsync to copy in the source files.
         if src:
             depends_build.append("rsync")
 
-        if depends_build:
-            logging.info("*** Install build dependencies")
-            pmb.chroot.apk.install(depends_build, buildchroot, build=False)
+        if hostchroot == buildchroot:
+            pmb.chroot.apk.install(list(set(depends_host + depends_build)), hostchroot, build=False)
+        else:
+            if depends_host:
+                logging.info("*** Install host dependencies")
+                pmb.chroot.apk.install(depends_host, hostchroot, build=False)
+            if depends_build:
+                logging.info("*** Install build dependencies")
+                pmb.chroot.apk.install(depends_build, buildchroot, build=False)
 
         # Build and finish up
         msg = f"@YELLOW@=>@END@ @BLUE@{channel}/{pkg['name']}@END@: Building package"
