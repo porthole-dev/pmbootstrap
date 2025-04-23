@@ -229,12 +229,13 @@ def ask_for_channel(config: Config) -> str:
 def ask_for_ui(deviceinfo: Deviceinfo) -> str:
     ui_list = pmb.helpers.ui.list_ui(deviceinfo.arch)
     hidden_ui_count = 0
-    device_is_accelerated = deviceinfo.gpu_accelerated == "true"
-    if not device_is_accelerated:
+    if not deviceinfo.drm == "true":
         for i in reversed(range(len(ui_list))):
             pkgname = f"postmarketos-ui-{ui_list[i][0]}"
             apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False, must_exist=False)
-            if apkbuild and "pmb:gpu-accel" in apkbuild["options"]:
+            if apkbuild and (
+                "pmb:drm" in apkbuild["options"] or "pmb:gpu-accel" in apkbuild["options"]
+            ):
                 ui_list.pop(i)
                 hidden_ui_count += 1
 
@@ -251,7 +252,7 @@ def ask_for_ui(deviceinfo: Deviceinfo) -> str:
     if hidden_ui_count > 0:
         logging.info(
             f"NOTE: {hidden_ui_count} UIs are hidden because"
-            ' "deviceinfo_gpu_accelerated" is not set (see'
+            ' "deviceinfo_drm" is not set (see'
             " https://postmarketos.org/deviceinfo)."
         )
     while True:

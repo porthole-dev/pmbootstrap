@@ -110,7 +110,7 @@ class Deviceinfo:
     chassis: str
     keyboard: str | None = ""  # deprecated
     external_storage: str | None = ""
-    gpu_accelerated: bool | None = False
+    drm: bool | None = False
     dev_touchscreen: str | None = ""
     dev_touchscreen_calibration: str | None = ""
     append_dtb: str | None = ""
@@ -279,6 +279,8 @@ class Deviceinfo:
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
             if key == "arch":
                 setattr(self, key, Arch.from_str(value))
+            elif key == "gpu_accelerated":  # deprecated
+                setattr(self, "drm", value)
             else:
                 setattr(self, key, value)
 

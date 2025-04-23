@@ -23,7 +23,7 @@ import pmb.helpers.pmaports
 def get_custom_valid_options() -> list[str]:
     """Build a list of custom valid APKBUILD options that apkbuild-lint should
     not complain about. The list consists of hardcoded options from
-    pmb.config.apkbuild_custom_valid_options like pmb:gpu-accel, as well as
+    pmb.config.apkbuild_custom_valid_options like pmb:drm, as well as
     dynamically generated options from kconfigcheck.toml
     (pmb:kconfigcheck-libcamera etc.)."""
     ret = list(pmb.config.apkbuild_custom_valid_options)

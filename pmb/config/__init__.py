@@ -302,7 +302,8 @@ apkbuild_custom_valid_options = [
     "!pmb:kconfigcheck",
     "pmb:cross-native",
     "pmb:cross-native2",
-    "pmb:gpu-accel",
+    "pmb:drm",
+    "pmb:gpu-accel",  # deprecated
     "pmb:strict",
     "pmb:systemd",
     "pmb:systemd-never",
