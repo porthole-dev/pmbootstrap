@@ -61,14 +61,13 @@ def mount_disk(path: Path) -> None:
 
 
 def create_and_mount_image(
-    sector_size: int | None, size_boot: int, size_root: int, size_reserve: int, split: bool = False
+    sector_size: int | None, size_boot: int, size_root: int, split: bool = False
 ) -> None:
     """
     Create a new image file, and mount it as /dev/install.
 
     :param size_boot: size of the boot partition in MiB
     :param size_root: size of the root partition in MiB
-    :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param split: create separate images for boot and root partitions
     """
     # Short variables for paths
@@ -88,7 +87,7 @@ def create_and_mount_image(
             pmb.chroot.root(["rm", img_path])
 
     # Make sure there is enough free space
-    size_mb = round(size_boot + size_reserve + size_root)
+    size_mb = round(size_boot + size_root)
     disk_data = os.statvfs(get_context().config.work)
     free = round((disk_data.f_bsize * disk_data.f_bavail) / (1024**2))
     if size_mb > free:
@@ -120,23 +119,16 @@ def create_and_mount_image(
         pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 
 
-def create(
-    sector_size: int | None,
-    size_boot: int,
-    size_root: int,
-    size_reserve: int,
-    split: bool,
-) -> None:
+def create(sector_size: int | None, size_boot: int, size_root: int, split: bool) -> None:
     """
     Create /dev/install (the "install blockdevice").
 
     :param size_boot: size of the boot partition in MiB
     :param size_root: size of the root partition in MiB
-    :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param split: create separate images for boot and root partitions
     """
     pmb.helpers.mount.umount_all(Chroot.native() / "dev/install")
-    create_and_mount_image(sector_size, size_boot, size_root, size_reserve, split)
+    create_and_mount_image(sector_size, size_boot, size_root, split)
 
 
 def handle_disk_mount(disk: Path) -> None:

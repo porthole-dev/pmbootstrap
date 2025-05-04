@@ -16,7 +16,6 @@ import pmb.config
 import pmb.config.pmaports
 import pmb.helpers.devices
 import pmb.helpers.other
-import pmb.helpers.package
 import pmb.helpers.run
 import pmb.install
 import pmb.install.blockdevice
@@ -31,7 +30,7 @@ from pmb.helpers.exceptions import NonBugError
 from pmb.helpers.locale import get_xkb_layout
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.parse.deviceinfo import Deviceinfo
-from pmb.types import Env, PartitionLayout, PmbArgs, RunOutputTypeDefault
+from pmb.types import PartitionLayout, PmbArgs, RunOutputTypeDefault
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion
@@ -267,7 +266,7 @@ def is_root_locked(chroot: Chroot) -> bool:
     return shadow_root.startswith("root:!:")
 
 
-def setup_login(config: Config, chroot: Chroot, password: str, on_device_installer: bool) -> None:
+def setup_login(config: Config, chroot: Chroot, password: str) -> None:
     """
     Loop until the password for user has been set successfully, and disable
     root login.
@@ -275,10 +274,9 @@ def setup_login(config: Config, chroot: Chroot, password: str, on_device_install
     :param suffix: of the chroot, where passwd will be execute (either the
                    rootfs_{args.device} or installer_{args.device}
     """
-    if not on_device_installer:
-        # User password
-        logging.info(f" *** SET LOGIN PASSWORD FOR: '{config.user}' ***")
-        setup_login_chpasswd_user_from_arg(config.user, password, chroot)
+    # User password
+    logging.info(f" *** SET LOGIN PASSWORD FOR: '{config.user}' ***")
+    setup_login_chpasswd_user_from_arg(config.user, password, chroot)
 
     # Disable root login
     if is_root_locked(chroot):
@@ -465,28 +463,17 @@ def setup_appstream(offline: bool, chroot: Chroot) -> None:
         )
 
 
-def print_sshd_info(ondev_no_rootfs: bool, no_sshd: bool, on_device_installer: bool) -> None:
+def print_sshd_info(no_sshd: bool) -> None:
     logging.info("")  # make the note stand out
     logging.info("*** SSH DAEMON INFORMATION ***")
 
-    if not ondev_no_rootfs:
-        if no_sshd:
-            logging.info("SSH daemon is disabled (--no-sshd).")
-        else:
-            logging.info("SSH daemon is enabled (disable with --no-sshd).")
-            logging.info(
-                f"Login as '{get_context().config.user}' with the password given"
-                " during installation."
-            )
-
-    if on_device_installer:
-        # We don't disable sshd in the installer OS. If the device is reachable
-        # on the network by default (e.g. Raspberry Pi), one can lock down the
-        # installer OS down by disabling the debug user (see wiki page).
+    if no_sshd:
+        logging.info("SSH daemon is disabled (--no-sshd).")
+    else:
+        logging.info("SSH daemon is enabled (disable with --no-sshd).")
         logging.info(
-            "SSH daemon is enabled in the installer OS, to allow debugging the installer image."
+            f"Login as '{get_context().config.user}' with the password given during installation."
         )
-        logging.info("More info: https://postmarketos.org/ondev-debug")
 
 
 def disable_service_systemd(chroot: Chroot, service_name: str) -> None:
@@ -731,27 +718,8 @@ def sanity_check_disk_size(device: Path) -> None:
         raise RuntimeError("Aborted.")
 
 
-def get_ondev_pkgver() -> str:
-    arch = pmb.parse.deviceinfo().arch
-    package = pmb.helpers.package.get("postmarketos-ondev", arch)
-    return package.version.split("-r")[0]
-
-
-def sanity_check_ondev_version() -> None:
-    ver_pkg = get_ondev_pkgver()
-    ver_min = pmb.config.ondev_min_version
-    if pmb.parse.version.compare(ver_pkg, ver_min) == -1:
-        raise RuntimeError(
-            "This version of pmbootstrap requires"
-            f" postmarketos-ondev version {ver_min} or"
-            " higher. The postmarketos-ondev found in pmaports"
-            f" / in the binary packages has version {ver_pkg}."
-        )
-
-
-def get_partition_layout(reserve: bool | int, kernel: bool, prep: bool | None) -> PartitionLayout:
+def get_partition_layout(kernel: bool, prep: bool | None) -> PartitionLayout:
     """
-    :param reserve: create an empty partition between root and boot (pma#463)
     :param kernel: create a separate kernel partition before all other
                    partitions, e.g. for the ChromeOS devices with cgpt
     :param prep: create a PReP Boot partition before root and no boot partition,
@@ -774,10 +742,6 @@ def get_partition_layout(reserve: bool | int, kernel: bool, prep: bool | None) -
         if kernel:
             ret["kernel"] = 1
             ret["boot"] = 2
-            ret["root"] += 1
-
-        if reserve:
-            ret["reserve"] = ret["root"]
             ret["root"] += 1
 
     return ret
@@ -821,7 +785,6 @@ def create_crypttab(layout: PartitionLayout | None, chroot: Chroot) -> None:
 def create_fstab(
     layout: PartitionLayout | None,
     chroot: Chroot,
-    on_device_installer: bool,
     filesystem: str,
     full_disk_encryption: bool,
 ) -> None:
@@ -831,11 +794,6 @@ def create_fstab(
     :param layout: partition layout from get_partition_layout() or None
     :param chroot: of the chroot, which fstab will be created to
     """
-    # Do not install fstab into target rootfs when using on-device
-    # installer. Provide fstab only to installer suffix
-    if on_device_installer and chroot.type == ChrootType.ROOTFS:
-        return
-
     uses_prep = layout and layout["prep"] is not None
 
     if layout and not uses_prep:
@@ -885,7 +843,6 @@ def create_fstab(
 
 def install_system_image(
     args: PmbArgs,
-    size_reserve: int,
     chroot: Chroot,
     step: int,
     steps: int,
@@ -914,7 +871,6 @@ def install_system_image(
     (size_boot, size_root) = get_subpartitions_size(chroot)
     if not single_partition:
         layout = get_partition_layout(
-            size_reserve,
             bool(pmb.parse.deviceinfo().cgpt_kpart) and args.install_cgpt,
             pmb.parse.deviceinfo().create_prep_boot,
         )
@@ -923,16 +879,14 @@ def install_system_image(
     if not args.rsync:
         # If disk is set, we already handled this earlier.
         if not disk:
-            pmb.install.blockdevice.create(
-                args.sector_size, size_boot, size_root, size_reserve, split
-            )
+            pmb.install.blockdevice.create(args.sector_size, size_boot, size_root, split)
         if not split and layout:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
-                pmb.install.partition_cgpt(layout, size_boot, size_reserve)
+                pmb.install.partition_cgpt(layout, size_boot)
             elif pmb.parse.deviceinfo().create_prep_boot:
                 pmb.install.partition_prep(layout)
             else:
-                pmb.install.partition(layout, size_boot, size_reserve)
+                pmb.install.partition(layout, size_boot)
 
     # Inform kernel about changed partition table in case parted couldn't
     pmb.chroot.root(["partprobe", "/dev/install"], check=False)
@@ -958,9 +912,7 @@ def install_system_image(
 
     # Create /etc/fstab and /etc/crypttab
     logging.info("(native) create /etc/fstab")
-    create_fstab(
-        layout, chroot, args.on_device_installer, args.filesystem, args.full_disk_encryption
-    )
+    create_fstab(layout, chroot, args.filesystem, args.full_disk_encryption)
     if args.full_disk_encryption:
         logging.info("(native) create /etc/crypttab")
         create_crypttab(layout, chroot)
@@ -1162,90 +1114,6 @@ def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps: int) -> 
     logging.info("https://postmarketos.org/recoveryzip")
 
 
-def install_on_device_installer(args: PmbArgs, is_split: bool, step: int, steps: int) -> None:
-    # Generate the rootfs image
-    config = get_context().config
-    if not args.ondev_no_rootfs:
-        suffix_rootfs = Chroot.rootfs(config.device)
-        install_system_image(args, 0, suffix_rootfs, step=step, steps=steps, split=True)
-        step += 2
-
-    # Prepare the installer chroot
-    logging.info(f"*** ({step}/{steps}) CREATE ON-DEVICE INSTALLER ROOTFS ***")
-    step += 1
-    packages = [
-        f"device-{config.device}",
-        "postmarketos-ondev",
-        *get_kernel_package(config),
-        *get_nonfree_packages(config.device),
-    ]
-
-    chroot_installer = Chroot(ChrootType.INSTALLER, config.device)
-    pmb.chroot.apk.install(packages, chroot_installer)
-
-    # Move rootfs image into installer chroot
-    img_path_dest = chroot_installer / "var/lib/rootfs.img"
-    if not args.ondev_no_rootfs:
-        img = f"{config.device}-root.img"
-        img_path_src = Chroot.native() / "home/pmos/rootfs" / img
-        logging.info(f"({chroot_installer}) add {img} as /var/lib/rootfs.img")
-        pmb.install.losetup.umount(img_path_src)
-        pmb.helpers.run.root(["mv", img_path_src, img_path_dest])
-
-    # Run ondev-prepare, so it may generate nice configs from the channel
-    # properties (e.g. to display the version number), or transform the image
-    # file into another format. This can all be done without pmbootstrap
-    # changes in the postmarketos-ondev package.
-    logging.info(f"({chroot_installer}) ondev-prepare")
-    channel = pmb.config.pmaports.read_config()["channel"]
-    channel_cfg = pmb.config.pmaports.read_config_channel()
-    env: Env = {
-        "ONDEV_CHANNEL": channel,
-        "ONDEV_CHANNEL_BRANCH_APORTS": channel_cfg["branch_aports"],
-        "ONDEV_CHANNEL_BRANCH_PMAPORTS": channel_cfg["branch_pmaports"],
-        "ONDEV_CHANNEL_DESCRIPTION": channel_cfg["description"],
-        "ONDEV_CHANNEL_MIRRORDIR_ALPINE": channel_cfg["mirrordir_alpine"],
-        "ONDEV_CIPHER": args.cipher,
-        "ONDEV_PMBOOTSTRAP_VERSION": pmb.__version__,
-        "ONDEV_UI": config.ui,
-    }
-    pmb.chroot.root(["ondev-prepare"], chroot_installer, env=env)
-
-    # Copy files specified with 'pmbootstrap install --ondev --cp'
-    if args.ondev_cp:
-        for host_src, chroot_dest in args.ondev_cp:
-            host_dest = chroot_installer / chroot_dest
-            logging.info(f"({chroot_installer}) add {host_src} as {chroot_dest}")
-            pmb.helpers.run.root(["install", "-Dm644", host_src, host_dest])
-
-    # Remove $DEVICE-boot.img (we will generate a new one if --split was
-    # specified, otherwise the separate boot image is not needed)
-    if not args.ondev_no_rootfs:
-        img_boot = f"{config.device}-boot.img"
-        logging.info(f"(native) rm {img_boot}")
-        pmb.chroot.root(["rm", f"/home/pmos/rootfs/{img_boot}"])
-
-    # Disable root login
-    setup_login(config, chroot_installer, args.password, args.on_device_installer)
-
-    # Generate installer image
-    size_reserve = round(os.path.getsize(img_path_dest) / 1024 / 1024) + 200
-    pmaports_cfg = pmb.config.pmaports.read_config()
-    boot_label = pmaports_cfg.get("supported_install_boot_label", "pmOS_inst_boot")
-    install_system_image(
-        args,
-        size_reserve,
-        chroot_installer,
-        step,
-        steps,
-        boot_label,
-        "pmOS_install",
-        is_split,
-        args.single_partition,
-        args.disk,
-    )
-
-
 def get_selected_providers(packages: list[str]) -> list[str]:
     """
     Look through the specified packages and see which providers were selected
@@ -1358,7 +1226,6 @@ def create_device_rootfs(
     install_base: bool,
     install_recommends: bool,
     full_disk_encryption: bool,
-    on_device_installer: bool,
     no_sshd: bool,
     no_firewall: bool,
 ) -> None:
@@ -1405,11 +1272,7 @@ def create_device_rootfs(
     # postmarketos-base supports a dummy package for blocking unl0kr install
     # when not required
     if pmaports_cfg.get("supported_base_nofde", None):
-        # The ondev installer *could* enable fde at runtime, so include it
-        # explicitly in the rootfs until there's a mechanism to selectively
-        # install it when the ondev installer is running.
-        # Always install it when --fde is specified.
-        if full_disk_encryption or on_device_installer:
+        if full_disk_encryption:
             # Pick the most suitable unlocker depending on the packages
             # selected for installation
             unlocker = pmb.parse.depends.package_provider(
@@ -1442,7 +1305,7 @@ def create_device_rootfs(
     pmb.chroot.initfs.build(chroot)
 
     # Set the user password
-    setup_login(config, chroot, password, on_device_installer)
+    setup_login(config, chroot, password)
 
     # Set the keymap if the device requires it
     setup_keymap(config)
@@ -1473,8 +1336,6 @@ def install(args: PmbArgs, is_split: bool) -> None:
     if not args.android_recovery_zip and args.disk:
         sanity_check_disk(args.disk)
         sanity_check_disk_size(args.disk)
-    if args.on_device_installer:
-        sanity_check_ondev_version()
 
     # --single-partition implies --no-split. There is nothing to split if
     # there is only a single partition.
@@ -1488,8 +1349,6 @@ def install(args: PmbArgs, is_split: bool) -> None:
         steps = 2
     elif args.android_recovery_zip:
         steps = 3
-    elif args.on_device_installer:
-        steps = 4 if args.ondev_no_rootfs else 7
     else:
         steps = 4
 
@@ -1505,40 +1364,33 @@ def install(args: PmbArgs, is_split: bool) -> None:
     pmb.chroot.apk.install(pmb.config.install_native_packages, Chroot.native(), build=False)
     step += 1
 
-    if not args.ondev_no_rootfs:
-        create_device_rootfs(
-            step,
-            steps,
-            args.add,
-            args.password,
-            args.install_base,
-            args.install_recommends,
-            args.full_disk_encryption,
-            args.on_device_installer,
-            args.no_sshd,
-            args.no_firewall,
-        )
-        step += 1
+    create_device_rootfs(
+        step,
+        steps,
+        args.add,
+        args.password,
+        args.install_base,
+        args.install_recommends,
+        args.full_disk_encryption,
+        args.no_sshd,
+        args.no_firewall,
+    )
+    step += 1
 
     if args.no_image:
         return
     elif args.android_recovery_zip:
         return install_recovery_zip(args, device, deviceinfo.arch, steps)
 
-    if args.on_device_installer:
-        # Runs install_system_image twice
-        install_on_device_installer(args, is_split, step, steps)
-    else:
-        install_system_image(
-            args,
-            0,
-            chroot,
-            step,
-            steps,
-            split=is_split,
-            single_partition=args.single_partition,
-            disk=args.disk,
-        )
+    install_system_image(
+        args,
+        chroot,
+        step,
+        steps,
+        split=is_split,
+        single_partition=args.single_partition,
+        disk=args.disk,
+    )
 
     print_flash_info(
         device,
@@ -1547,7 +1399,7 @@ def install(args: PmbArgs, is_split: bool) -> None:
         bool(args.disk and args.disk.is_absolute()),
         args.single_partition,
     )
-    print_sshd_info(args.ondev_no_rootfs, args.no_sshd, args.on_device_installer)
+    print_sshd_info(args.no_sshd)
     print_firewall_info(args.no_firewall, deviceinfo.arch)
 
     # Leave space before 'chroot still active' note

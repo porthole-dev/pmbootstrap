@@ -64,10 +64,7 @@ def chroot(
         )
         size_boot = 128  # 128 MiB
         size_root = 4096  # 4 GiB
-        size_reserve = 2048  # 2 GiB
-        pmb.install.blockdevice.create_and_mount_image(
-            sector_size, size_boot, size_root, size_reserve
-        )
+        pmb.install.blockdevice.create_and_mount_image(sector_size, size_boot, size_root)
 
     # Bind mount in sysfs dirs to accessing USB devices (e.g. for running fastboot)
     if chroot_usb:

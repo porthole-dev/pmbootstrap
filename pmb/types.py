@@ -261,9 +261,6 @@ class PmbArgs(Namespace):
     non_existing: str
     odin_flashable_tar: bool
     offline: bool
-    on_device_installer: bool
-    ondev_cp: list[tuple[str, str]]
-    ondev_no_rootfs: bool
     output: RunOutputTypeDefault
     overview: bool
     # FIXME (#2324): figure out the args.package vs args.packages situation
