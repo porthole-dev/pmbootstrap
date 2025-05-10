@@ -61,7 +61,7 @@ class Config:
     extra_space: int = 0
     hostname: str = ""
     is_default_channel: bool = True
-    jobs: int = multiprocessing.cpu_count() + 1
+    jobs: int = multiprocessing.cpu_count()
     kernel: str = "stable"
     keymap: str = ""
     locale: str = "en_US.UTF-8"
