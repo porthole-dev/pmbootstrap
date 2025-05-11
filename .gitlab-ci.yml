@@ -52,6 +52,7 @@ pytest:
   after_script:
     - "cp /home/build/.local/var/pmbootstrap/log_testsuite.txt ."
     - "cp /home/build/.local/var/pmbootstrap/log.txt ."
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%\|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
     paths:
@@ -232,4 +233,3 @@ pkgrel_bump amd64:
   extends: .integration
   script:
     - .ci/integration_tests/bump_autobuild qemu-amd64 hello-world
-
