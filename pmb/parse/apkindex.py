@@ -483,6 +483,16 @@ def package(
     if package in package_providers:
         return package_providers[package]
 
+    if package_providers:
+        providers_priority = provider_highest_priority(package_providers, package)
+        num_providers = len(providers_priority)
+        # Only one provider with max priority: return it
+        if num_providers == 1:
+            return next(iter(providers_priority.values()))
+        # Multiple providers with max priority: let follow-on logic decide
+        elif num_providers > 1:
+            package_providers = providers_priority
+
     # Any provider
     if package_providers:
         return pmb.parse.apkindex.provider_shortest(package_providers, package)
