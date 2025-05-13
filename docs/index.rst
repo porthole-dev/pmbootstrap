@@ -35,6 +35,23 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+Deploying locally
+=================
+
+To deploy with python virtual environment and sphinx-autobuild:
+
+.. code-block:: sh
+
+   cd /path/to/pmbootstrap
+   python -m venv build-sphinx-env
+   source ./build-sphinx-env/bin/activate
+   pip install sphinx-autobuild sphinx_rtd_theme myst-parser sphinxcontrib-autoprogram
+   sphinx-autobuild docs docs/_build/html
+
+.. code-block:: text
+
+   [sphinx-autobuild] Serving on http://127.0.0.1:8000
+   [sphinx-autobuild] Waiting to detect changes...
 
 *Note:* This documentation is currently a work-in-progress, your feedback and contributions are very welcome!
 
