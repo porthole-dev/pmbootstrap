@@ -110,7 +110,7 @@ def _create_command_with_progress(command: list[str], fifo: Path) -> list[str]:
     :returns: full command in list form
     """
     flags = ["--progress-fd", "3"]
-    command_full = [command[0]] + flags + command[1:]
+    command_full = [command[0], *flags, *command[1:]]
     command_flat = pmb.helpers.run_core.flat_cmd([command_full])
     command_flat = f"exec 3>{fifo}; {command_flat}"
     return ["sh", "-c", command_flat]
