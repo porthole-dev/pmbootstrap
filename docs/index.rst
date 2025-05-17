@@ -38,20 +38,24 @@ Indices and tables
 Deploying locally
 =================
 
-To deploy with python virtual environment and sphinx-autobuild:
+To deploy with :doc:`pmbootstrap ci <api/pmb.ci>` command (see also: `Pmbootstrap_CI`_ wiki article):
 
 .. code-block:: sh
 
    cd /path/to/pmbootstrap
-   python -m venv build-sphinx-env
-   source ./build-sphinx-env/bin/activate
-   pip install sphinx-autobuild sphinx_rtd_theme myst-parser sphinxcontrib-autoprogram
-   sphinx-autobuild docs docs/_build/html
+   pmbootstrap ci docs
 
 .. code-block:: text
 
-   [sphinx-autobuild] Serving on http://127.0.0.1:8000
-   [sphinx-autobuild] Waiting to detect changes...
+   build succeeded.
+   The HTML pages are in public.
+   Copy CI artifacts to ./ci-artifacts/docs
+
+After this, you should be able to host results with ``darkhttpd`` or Python's built-in server:
+
+.. code-block:: sh
+
+   python -m http.server -d ./ci-artifacts/docs/public
 
 *Note:* This documentation is currently a work-in-progress, your feedback and contributions are very welcome!
 
@@ -59,3 +63,4 @@ To deploy with python virtual environment and sphinx-autobuild:
 .. _issue-tracker: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues
 .. _repository: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/
 .. _Installation: https://wiki.postmarketos.org/wiki/Installation
+.. _Pmbootstrap_CI: https://wiki.postmarketos.org/wiki/Pmbootstrap_CI
