@@ -47,7 +47,7 @@ def test_invalid_chroots(pmb_args):
         Chroot(ChrootType.BUILDROOT, "BAD_ARCH")
     assert (
         str(excinfo.value)
-        == "Invalid architecture: 'BAD_ARCH', expected something like: aarch64, armhf, armv7, ppc64le, riscv64, x86, x86_64"
+        == "Invalid architecture: 'BAD_ARCH', expected something like: aarch64, armhf, armv7, ppc64le, riscv64, s390x, x86, x86_64"
     )
 
     with pytest.raises(ValueError) as excinfo:

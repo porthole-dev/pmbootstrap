@@ -87,6 +87,7 @@ class Arch(enum.Enum):
             Arch.x86_64,
             Arch.x86,
             Arch.riscv64,
+            Arch.s390x,
             Arch.ppc64le,
             Arch.native(),
         }
