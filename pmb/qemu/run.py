@@ -241,22 +241,34 @@ def command_qemu(
     command += ["-netdev", f"user,id=net,hostfwd=tcp:127.0.0.1:{port_ssh}-:22"]
     command += ["-device", "virtio-net-pci,netdev=net"]
 
-    if arch == Arch.x86_64:
-        if args.qemu_display != "none":
-            command += ["-device", "virtio-vga-gl"]
-    elif arch == Arch.aarch64:
-        command += ["-M", "virt"]
-        command += ["-cpu", "cortex-a57"]
-        if args.qemu_display != "none":
-            command += ["-device", "virtio-gpu-gl"]
-    elif arch == Arch.riscv64:
-        command += ["-M", "virt"]
-        command += ["-device", "virtio-gpu-pci"]
-    elif arch == Arch.ppc64le:
-        command += ["-M", "pseries"]
-        command += ["-device", "virtio-gpu-pci"]
-    else:
+    # Check that arch is supported by pmb qemu
+    if arch not in [Arch.x86_64, Arch.aarch64, Arch.riscv64, Arch.ppc64le]:
         raise RuntimeError(f"Architecture {arch} not supported by this command yet.")
+
+    # Apply arch-specific qemu config
+    match arch:
+        case Arch.aarch64:
+            command += ["-M", "virt"]
+            command += ["-cpu", "cortex-a57"]
+        case Arch.riscv64:
+            command += ["-M", "virt"]
+        case Arch.ppc64le:
+            command += ["-M", "pseries"]
+
+    # Configure display
+    if args.qemu_display != "none":
+        match arch:
+            case Arch.x86_64:
+                command += ["-device", "virtio-vga-gl"]
+            case Arch.aarch64:
+                command += ["-device", "virtio-gpu-gl"]
+            case Arch.riscv64:
+                command += ["-device", "virtio-gpu-pci"]
+            case Arch.ppc64le:
+                command += ["-device", "virtio-gpu-pci"]
+            case _:
+                # default to 2D-only backend
+                command += ["-device", "virtio-gpu"]
 
     if args.efi:
         host_arch = platform.machine().lower()
