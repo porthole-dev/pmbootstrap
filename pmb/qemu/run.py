@@ -380,7 +380,7 @@ def run(args: PmbArgs) -> None:
     config = get_context().config
     device = config.device
     if not device.startswith("qemu-"):
-        raise RuntimeError(
+        raise NonBugError(
             "'pmbootstrap qemu' can be only used with one of "
             "the QEMU device packages. Run 'pmbootstrap init' "
             "and select the 'qemu' vendor."
