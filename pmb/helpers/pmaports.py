@@ -206,7 +206,7 @@ def find(
 ) -> Path | None: ...
 
 
-@Cache("package", "subpackages", "with_extra_repos")
+@Cache("package", "must_exist", "subpackages", "with_extra_repos")
 def find(
     package: str,
     must_exist: bool = True,
