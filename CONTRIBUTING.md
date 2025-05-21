@@ -20,8 +20,8 @@ A lot of the coding style is enforced by the CI scripts.
   code).
 * Use [f-strings](https://peps.python.org/pep-0498/) for any new or modified
   code, instead of any of the other string formatting methods.
-* pmbootstrap should run on any Linux distribution, so we support all active
-  Python versions (see [here](https://www.python.org/downloads/)).
+* pmbootstrap should run on any Linux distribution, so we support [all active
+  Python versions](https://www.python.org/downloads/).
 * ruff is used to enforce a consistent code style, it is run in CI and can be
   easily run locally too (see Linting down below).
 * Docstrings below functions are formatted in `reST` style:

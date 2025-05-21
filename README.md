@@ -22,8 +22,7 @@ pytest -vv ./test/test_keys.py
 
 ## Issues
 
-Issues are being tracked
-[here](https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues).
+[Issues are being tracked in the GitLab issue tracker](https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues).
 
 ## Requirements
 
