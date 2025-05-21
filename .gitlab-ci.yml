@@ -32,6 +32,12 @@ codespell:
 
 markdownlint:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - "**/*.md"
+        - .ci/markdown.sh
+        - .gitlab-ci.yml
   script:
     - ".ci/markdown.sh"
 
