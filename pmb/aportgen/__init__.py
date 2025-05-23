@@ -61,7 +61,9 @@ def properties(pkgname: str) -> tuple[str, str, AportGenEntry]:
     raise ValueError("No generator available for " + pkgname + "!")
 
 
-def generate(pkgname: str, fork_alpine: bool, fork_alpine_retain_branch: bool = False) -> None:
+def generate(
+    pkgname: str, fork_alpine: bool = False, fork_alpine_retain_branch: bool = False
+) -> None:
     options: AportGenEntry
 
     if fork_alpine:

@@ -539,8 +539,8 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
 
             # New port creation confirmed
             logging.info(f"Generating new aports for: {device}...")
-            pmb.aportgen.generate(f"device-{device}", False)
-            pmb.aportgen.generate(f"linux-{device}", False)
+            pmb.aportgen.generate(f"device-{device}")
+            pmb.aportgen.generate(f"linux-{device}")
         elif device_category == pmb.helpers.devices.DeviceCategory.ARCHIVED:
             apkbuild = device_path.parent / "APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild) or "No reason given (this is a bug)"
