@@ -249,10 +249,12 @@ def prepare_tempdir() -> Path:
     :returns: Path to a temporary directory for aportgen to work within.
     """
     # Prepare aportgen tempdir inside and outside of chroot
+    chroot = Chroot.native()
+    pmb.chroot.init(chroot)
     tempdir = Path("/tmp/aportgen")
     aportgen = get_context().config.work / "aportgen"
-    pmb.chroot.root(["rm", "-rf", tempdir])
-    pmb.helpers.run.user(["mkdir", "-p", aportgen, Chroot.native() / tempdir])
+    pmb.chroot.root(["rm", "-rf", tempdir], chroot)
+    pmb.helpers.run.user(["mkdir", "-p", aportgen, chroot / tempdir])
 
     return tempdir
 
