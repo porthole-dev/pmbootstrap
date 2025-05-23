@@ -127,6 +127,14 @@ deploy:
 
 .integration:
   stage: integration-test
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    changes:
+      - ".ci/integration_tests/**/*"
+      - "helpers/**/*"
+      - "pmb/**/*"
+      - .ci/integration.sh
+      - .gitlab-ci.yml
   before_script:
     - *global_before_scripts
     - apk upgrade -U
