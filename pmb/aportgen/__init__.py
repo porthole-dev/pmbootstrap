@@ -90,9 +90,21 @@ def generate(pkgname: str, fork_alpine: bool, fork_alpine_retain_branch: bool = 
             pkgname, replace_simple={"# Contributor:*": None, "# Maintainer:*": None}
         )
     else:
-        # Run pmb.aportgen.PREFIX.generate()
-        # FIXME: this is really bad and hacky let's not do this please
-        getattr(pmb.aportgen, prefix.replace("-", "_")).generate(pkgname)
+        match prefix:
+            case "busybox-static":
+                pmb.aportgen.busybox_static.generate(pkgname)
+            case "device":
+                pmb.aportgen.device.generate(pkgname)
+            case "gcc":
+                pmb.aportgen.gcc.generate(pkgname)
+            case "grub-efi":
+                pmb.aportgen.grub_efi.generate(pkgname)
+            case "linux":
+                pmb.aportgen.linux.generate(pkgname)
+            case "musl":
+                pmb.aportgen.musl.generate(pkgname)
+            case _:
+                raise ValueError(f"Unexpected prefix {prefix}")
 
     # Move to the aports folder
     if os.path.exists(path_target):
