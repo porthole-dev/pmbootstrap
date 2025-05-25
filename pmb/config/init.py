@@ -524,6 +524,8 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
 
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(device, "deviceinfo")
+        if device_path is not None:
+            device_category = pmb.helpers.devices.get_device_category_by_apkbuild_path(device_path)
         if device_path is None:
             if device == context.config.device:
                 raise RuntimeError(
@@ -539,10 +541,16 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
             logging.info(f"Generating new aports for: {device}...")
             pmb.aportgen.generate(f"device-{device}", False)
             pmb.aportgen.generate(f"linux-{device}", False)
-        elif any("archived" == x for x in device_path.parts):
+        elif device_category == pmb.helpers.devices.DeviceCategory.ARCHIVED:
             apkbuild = device_path.parent / "APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild) or "No reason given (this is a bug)"
             logging.info(f"WARNING: {device} is archived: {archived}")
+            if not pmb.helpers.cli.confirm():
+                continue
+        elif device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
+            logging.info(
+                f"WARNING: {device} is a downstream port! Expect missing and broken features. See https://wiki.postmarketos.org/wiki/Downstream_kernel_specific_package"
+            )
             if not pmb.helpers.cli.confirm():
                 continue
         break
