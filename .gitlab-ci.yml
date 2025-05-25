@@ -52,7 +52,7 @@ pytest:
   after_script:
     - "cp /home/build/.local/var/pmbootstrap/log_testsuite.txt ."
     - "cp /home/build/.local/var/pmbootstrap/log.txt ."
-  coverage: '/TOTAL.*? (100(?:\.0+)?\%\|[1-9]?\d(?:\.\d+)?\%)$/'
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
     paths:
