@@ -166,19 +166,19 @@ def disable() -> None:
 # by not calling the (undefined) logging.verbose() function.
 
 
-def critical(msg: object, *args: str, **kwargs: Any) -> None:
+def critical(msg: object, *args: object, **kwargs: Any) -> None:
     logging.critical(msg, *args, **kwargs)
 
 
-def fatal(msg: object, *args: str, **kwargs: Any) -> None:
+def fatal(msg: object, *args: object, **kwargs: Any) -> None:
     logging.fatal(msg, *args, **kwargs)
 
 
-def error(msg: object, *args: str, **kwargs: Any) -> None:
+def error(msg: object, *args: object, **kwargs: Any) -> None:
     logging.error(msg, *args, **kwargs)
 
 
-def warning(msg: object, *args: str, **kwargs: Any) -> None:
+def warning(msg: object, *args: object, **kwargs: Any) -> None:
     logging.warning(msg, *args, **kwargs)
 
 
@@ -187,17 +187,17 @@ def warn_once(msg: str) -> None:
     logging.warning(msg)
 
 
-def info(msg: object, *args: str, **kwargs: Any) -> None:
+def info(msg: object, *args: object, **kwargs: Any) -> None:
     logging.info(msg, *args, **kwargs)
 
 
-def debug(msg: object, *args: str, **kwargs: Any) -> None:
+def debug(msg: object, *args: object, **kwargs: Any) -> None:
     logging.debug(msg, *args, **kwargs)
 
 
-def verbose(msg: object, *args: str, **kwargs: Any) -> None:
+def verbose(msg: object, *args: object, **kwargs: Any) -> None:
     logging.verbose(msg, *args, **kwargs)  # type: ignore[attr-defined]
 
 
-def log(level: int, msg: object, *args: str, **kwargs: Any) -> None:
+def log(level: int, msg: object, *args: object, **kwargs: Any) -> None:
     logging.log(level, msg, *args, **kwargs)
