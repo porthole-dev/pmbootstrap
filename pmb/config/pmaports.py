@@ -139,9 +139,7 @@ def read_config(
 
 def all_channels() -> list[str]:
     """Get a list of all channels for all pkgrepos."""
-    ret = set()
-    for repo in pkgrepo_paths():
-        ret.add(read_config(repo)["channel"])
+    ret = {read_config(repo)["channel"] for repo in pkgrepo_paths()}
 
     logging.verbose(f"all_chanels: {ret}")
     return list(ret)

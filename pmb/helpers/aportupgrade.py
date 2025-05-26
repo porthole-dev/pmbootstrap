@@ -34,8 +34,7 @@ GITLAB_HOSTS = [
 
 
 def init_req_headers() -> None:
-    global req_headers
-    global req_headers_github
+    global req_headers, req_headers_github
     # Only initialize them once
     if req_headers and req_headers_github:
         return

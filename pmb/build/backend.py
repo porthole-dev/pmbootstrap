@@ -109,8 +109,7 @@ def override_source(
 
     # Write and log append file
     with open(append_path_outside, "w", encoding="utf-8") as handle:
-        for line in append.split("\n"):
-            handle.write(line[13:].replace(" " * 4, "\t") + "\n")
+        handle.writelines(line[13:].replace(" " * 4, "\t") + "\n" for line in append.split("\n"))
     pmb.chroot.user(["cat", append_path], chroot)
 
     # Append it to the APKBUILD

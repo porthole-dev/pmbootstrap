@@ -105,7 +105,7 @@ def rewrite(
     path = get_context().config.work / "aportgen/APKBUILD"
     with open(path, "r+", encoding="utf-8") as handle:
         skip_in_func = False
-        for line in handle.readlines():
+        for line in handle:
             # Skip maintainer/contributor
             if line.startswith(("# Maintainer", "# Contributor")):
                 continue

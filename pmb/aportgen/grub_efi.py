@@ -56,7 +56,6 @@ def generate(pkgname: str) -> None:
                 rm .PKGINFO .SIGN.*
             }}
         """
-        for line in apkbuild.split("\n"):
-            handle.write(line[12:].replace(" " * 4, "\t") + "\n")
+        handle.writelines(line[12:].replace(" " * 4, "\t") + "\n" for line in apkbuild.split("\n"))
 
     pmb.aportgen.core.generate_checksums(tempdir, apkbuild_path)

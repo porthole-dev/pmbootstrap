@@ -366,8 +366,7 @@ def ask_for_provider_select(apkbuild: dict[str, Any], providers_cfg: dict[str, s
         for pkgname, pkg in providers:
             # Strip provider prefix if possible
             short = pkgname
-            if short.startswith(f"{select}-"):
-                short = short[len(f"{select}-") :]
+            short = short.removeprefix(f"{select}-")
 
             # Allow selecting the package using both short and long name
             providers_short[pkgname] = pkgname

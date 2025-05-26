@@ -33,10 +33,11 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
+# FURB101, FURB103: Easier to do if str gets replaced with Path in more places.
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
-extend-ignore = ["PERF203"]
-extend-select = ["CPY001", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
+extend-ignore = ["FURB101", "FURB103", "PERF203"]
+extend-select = ["CPY001", "FURB", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]

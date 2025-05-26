@@ -252,8 +252,7 @@ def generate_deviceinfo(
     pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
     path = work / "aportgen/deviceinfo"
     with open(path, "w", encoding="utf-8") as handle:
-        for line in content.rstrip().split("\n"):
-            handle.write(line.lstrip() + "\n")
+        handle.writelines(line.lstrip() + "\n" for line in content.rstrip().split("\n"))
 
 
 def generate_modules_initfs() -> None:
@@ -274,8 +273,7 @@ def generate_modules_initfs() -> None:
     pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
     path = work / "aportgen/modules-initfs"
     with open(path, "w", encoding="utf-8") as handle:
-        for line in content.rstrip().split("\n"):
-            handle.write(line.lstrip() + "\n")
+        handle.writelines(line.lstrip() + "\n" for line in content.rstrip().split("\n"))
 
 
 def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str) -> None:
@@ -324,8 +322,9 @@ def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str) ->
     pmb.helpers.run.user(["mkdir", "-p", work / "aportgen"])
     path = work / "aportgen/APKBUILD"
     with open(path, "w", encoding="utf-8") as handle:
-        for line in content.rstrip().split("\n"):
-            handle.write(line[8:].replace(" " * 4, "\t") + "\n")
+        handle.writelines(
+            line[8:].replace(" " * 4, "\t") + "\n" for line in content.rstrip().split("\n")
+        )
 
 
 def generate(pkgname: str) -> None:

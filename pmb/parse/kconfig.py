@@ -24,7 +24,7 @@ def is_set(config: str, option: str) -> bool:
     :param option: name of the option to check, e.g. EXT4_FS
     :returns: True if the check passed, False otherwise
     """
-    return re.search("^CONFIG_" + option + "=[ym]$", config, re.M) is not None
+    return re.search("^CONFIG_" + option + "=[ym]$", config, re.MULTILINE) is not None
 
 
 def is_set_str(config: str, option: str, string: str) -> bool:
@@ -36,7 +36,7 @@ def is_set_str(config: str, option: str, string: str) -> bool:
     :param string: the expected string
     :returns: True if the check passed, False otherwise
     """
-    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.M)
+    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.MULTILINE)
     if match:
         return string == match.group(1)
     else:
@@ -52,7 +52,7 @@ def is_in_array(config: str, option: str, string: str) -> bool:
     :param string: the string expected to be an element of the array
     :returns: True if the check passed, False otherwise
     """
-    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.M)
+    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.MULTILINE)
     if match:
         values = match.group(1).split(",")
         return string in values

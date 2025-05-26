@@ -178,8 +178,7 @@ def random_valid_deviceinfo(tmp_path: Path) -> Path:
 
     # Now write it all out to a file
     with open(path, "w") as f:
-        for key, value in info.items():
-            f.write(f'deviceinfo_{key}="{value}"\n')
+        f.writelines(f'deviceinfo_{key}="{value}"\n' for key, value in info.items())
 
     return path
 
