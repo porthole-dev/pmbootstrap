@@ -278,7 +278,7 @@ def command_qemu(
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/AAVMF/AAVMF_CODE.fd",
                 ]
-            case "amd64":
+            case "x86_64":
                 command += [
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd",
@@ -395,7 +395,7 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         match host_arch:
             case "aarch64":
                 depends.append("aavmf")
-            case "amd64":
+            case "x86_64":
                 depends.append("ovmf")
             case _:
                 raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
