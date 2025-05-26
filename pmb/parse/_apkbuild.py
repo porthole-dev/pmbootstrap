@@ -421,11 +421,7 @@ def _parse_comment_tags(lines: list[str], tag: str) -> list[str]:
     :returns: array of values of the tag, one per line
     """
     prefix = f"# {tag}:"
-    ret = []
-    for line in lines:
-        if line.startswith(prefix):
-            ret.append(line[len(prefix) :].strip())
-    return ret
+    return [line[len(prefix) :].strip() for line in lines if line.startswith(prefix)]
 
 
 def maintainers(path: Path) -> list[str] | None:

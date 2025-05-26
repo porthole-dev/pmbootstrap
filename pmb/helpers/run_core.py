@@ -45,8 +45,7 @@ def flat_cmd(
     # Merge env and cmd into escaped list
     escaped = [f"{key}={shlex.quote(os.fspath(value))}" for key, value in env.items()]
     for cmd in cmds:
-        for i in range(len(cmd)):
-            escaped.append(shlex.quote(os.fspath(cmd[i])))
+        escaped.extend(shlex.quote(os.fspath(cmd[i])) for i in range(len(cmd)))
         escaped.append(";")
 
     # Prepend working dir

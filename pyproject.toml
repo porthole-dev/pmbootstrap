@@ -33,7 +33,10 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
-extend-select = ["CPY001", "N", "PIE", "RUF", "SIM", "UP"]
+# PERF203: Negligible performance improvement on Python 3.11 and newer, and
+#          not worth the required rework.
+extend-ignore = ["PERF203"]
+extend-select = ["CPY001", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]

@@ -22,11 +22,8 @@ def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
 
 
 def list_aports() -> list[str]:
-    ret = []
     prefix = pmb.config.initfs_hook_prefix
-    for path in pkgrepo_iglob(f"*/{prefix}*"):
-        ret.append(os.path.basename(path)[len(prefix) :])
-    return ret
+    return [os.path.basename(path)[len(prefix) :] for path in pkgrepo_iglob(f"*/{prefix}*")]
 
 
 def ls(suffix: Chroot) -> None:

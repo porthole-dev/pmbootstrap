@@ -77,8 +77,7 @@ def urls(
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        for channel in pmb.config.pmaports.all_channels():
-            ret.append(str(user_repository / channel))
+        ret.extend(str(user_repository / channel) for channel in pmb.config.pmaports.all_channels())
 
     if mirrors_exclude is True:
         return ret
@@ -137,15 +136,19 @@ def apkindex_files(
     if not arch:
         arch = Arch.native()
 
-    ret = []
+    ret: list[Path] = []
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
-        for channel in pmb.config.pmaports.all_channels():
-            ret.append(get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz")
+        ret.extend(
+            get_context().config.work / "packages" / channel / arch / "APKINDEX.tar.gz"
+            for channel in pmb.config.pmaports.all_channels()
+        )
 
     # Resolve the APKINDEX.$HASH.tar.gz files
-    for url in urls(False, exclude_mirrors):
-        ret.append(get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url))
+    ret.extend(
+        get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url)
+        for url in urls(False, exclude_mirrors)
+    )
 
     return ret
 

@@ -13,10 +13,7 @@ class Pull(commands.Command):
         pass
 
     def run(self) -> None:
-        failed = []
-        for repo in pmb.config.git_repos:
-            if pmb.helpers.git.pull(repo) < 0:
-                failed.append(repo)
+        failed = [repo for repo in pmb.config.git_repos if pmb.helpers.git.pull(repo) < 0]
 
         if not failed:
             return

@@ -71,9 +71,7 @@ def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list
     :param paths: list of absolute paths to locally stored apks
     """
 
-    remote_paths = []
-    for path in paths:
-        remote_paths.append(os.path.join("/tmp", os.path.basename(path)))
+    remote_paths = [os.path.join("/tmp", os.path.basename(path)) for path in paths]
 
     logging.info(f"Copying packages to {user}@{host}")
     command: list[PathString] = ["scp", "-P", port, *paths, f"{user}@{host}:/tmp"]

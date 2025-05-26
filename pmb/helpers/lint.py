@@ -95,7 +95,7 @@ def check(pkgnames: Sequence[str]) -> None:
 
     # For each pkgrepo run the linter on the relevant packages
     has_failed = False
-    for pkgrepo, apkbuild_paths in apkbuilds.items():
+    for apkbuild_paths in apkbuilds.values():
         # We search for the pkgnames in both the normal and systemd repository,
         # so unless the pkgname exists in both the apkbuild_paths is empty for
         # one of them and needs to be skipped here. This is not very elegant,
