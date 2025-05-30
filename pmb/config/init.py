@@ -214,7 +214,7 @@ def ask_for_channel(config: Config) -> str:
     # Otherwise, if valid: channel from pmaports.cfg of current branch
     # The actual channel name is not saved in pmbootstrap_v3.cfg, because then
     # we would need to sync it with what is checked out in pmaports.git.
-    default = pmb.config.pmaports.read_config()["channel"]
+    default = pmb.config.pmaports.read_config(add_systemd_prefix=False)["channel"]
     choices = channels_cfg["channels"].keys()
     if config.is_default_channel or default not in choices:
         default = channels_cfg["meta"]["recommended"]

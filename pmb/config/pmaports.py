@@ -90,8 +90,10 @@ def read_config_repos() -> dict[str, configparser.SectionProxy]:
     return ret
 
 
-@Cache("aports")
-def read_config(aports: Path | None = None) -> configparser.SectionProxy:
+@Cache("aports", "add_systemd_prefix")
+def read_config(
+    aports: Path | None = None, add_systemd_prefix: bool = True
+) -> configparser.SectionProxy:
     """Read and verify pmaports.cfg. If aports is not
     specified and systemd is enabled, the returned channel
     will be the systemd one (e.g. systemd-edge instead of edge)
@@ -128,7 +130,7 @@ def read_config(aports: Path | None = None) -> configparser.SectionProxy:
     # Translate legacy channel names
     ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
 
-    if systemd:
+    if systemd and add_systemd_prefix:
         ret["channel"] = "systemd-" + ret["channel"]
 
     return ret
