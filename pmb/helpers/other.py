@@ -19,7 +19,7 @@ def folder_size(path: Path) -> int:
     """Run `du` to calculate the size of a folder.
 
     (this is less code and faster than doing the same task in pure Python)
-    This result is only approximatelly right, but good enough for pmbootstrap's use case (#760).
+    This result is only approximately right, but good enough for pmbootstrap's use case (#760).
 
     :returns: folder size in kilobytes
     """
