@@ -4,6 +4,8 @@
 """Global runtime context"""
 
 from pathlib import Path
+from typing import overload, Literal
+
 from .config import Config
 
 
@@ -42,8 +44,15 @@ class Context:
 __context: Context
 
 
-# mypy: disable-error-code="return-value"
-def get_context(allow_failure: bool = False) -> Context:
+@overload
+def get_context(allow_failure: Literal[False] = ...) -> Context: ...
+
+
+@overload
+def get_context(allow_failure: Literal[True] = ...) -> Context | None: ...
+
+
+def get_context(allow_failure: bool = False) -> Context | None:
     """Get immutable global runtime context."""
     global __context
 
