@@ -1,8 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.helpers import logging
+from pmb.helpers.devices import get_device_category_by_name, DeviceCategory
 import pmb.chroot
 from pmb.core import Chroot
+from pmb.core.context import get_context
 from pmb.types import PartitionLayout, PmbArgs, PathString
 import os
 import tempfile
@@ -173,10 +175,17 @@ def format_and_mount_root(
         filesystem = get_root_filesystem(args)
 
         if filesystem == "ext4":
-            # Some downstream kernels don't support metadata_csum (#1364).
-            # When changing the options of mkfs.ext4, also change them in the
-            # recovery zip code (see 'grep -r mkfs\.ext4')!
-            mkfs_root_args = ["mkfs.ext4", "-O", "^metadata_csum", "-F", "-q", "-L", root_label]
+            device_category = get_device_category_by_name(get_context().config.device)
+
+            if device_category == DeviceCategory.DOWNSTREAM:
+                # Some downstream kernels don't support metadata_csum (#1364).
+                # When changing the options of mkfs.ext4, also change them in the
+                # recovery zip code (see 'grep -r mkfs\.ext4')!
+                category_opts = ["-O", "^metadata_csum"]
+            else:
+                category_opts = []
+
+            mkfs_root_args = ["mkfs.ext4", *category_opts, "-F", "-q", "-L", root_label]
             if not disk:
                 # pmb#2568: tell mkfs.ext4 to make a filesystem with enough
                 # indoes that we don't run into "out of space" errors

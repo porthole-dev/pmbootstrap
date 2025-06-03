@@ -9,6 +9,7 @@ from pathlib import Path
 import pmb.config
 from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 from pmb.helpers import logging
+import pmb.helpers.pmaports
 
 
 def find_path(codename: str, file: str = "") -> Path | None:
@@ -164,3 +165,26 @@ def get_device_category_by_apkbuild_path(apkbuild_path: Path) -> DeviceCategory:
         raise RuntimeError(f'Unknown device category "{category_str}"') from exception
 
     return device_category
+
+
+def get_device_category_by_directory_path(device_directory: Path) -> DeviceCategory:
+    """Get the category of a device based on the path to its directory inside of pmaports.
+
+    :device_directory: Path to the device package directory for a particular device.
+    :returns: The device category of the provided device directory.
+    """
+    device_apkbuild_path = device_directory / "APKBUILD"
+
+    return get_device_category_by_apkbuild_path(device_apkbuild_path)
+
+
+def get_device_category_by_name(device_name: str) -> DeviceCategory:
+    """Get the category of a device based on its name.
+
+    :device_name: Name of a particular device to determine the category of.
+                  Format should be "vendor-codename".
+    :returns: The device category of the provided device name.
+    """
+    device_directory = pmb.helpers.pmaports.find(f"device-{device_name}")
+
+    return get_device_category_by_directory_path(device_directory)
