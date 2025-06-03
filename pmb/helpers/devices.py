@@ -121,7 +121,7 @@ def list_codenames(vendor: str) -> list[DeviceEntry]:
         codename = os.path.basename(path).split("-", 1)[1]
         # Ensure we don't crash on unknown device categories.
         try:
-            category = get_device_category_by_apkbuild_path(path / "APKBUILD")
+            category = get_device_category_by_directory_path(path)
         except RuntimeError as exception:
             logging.warning("WARNING: %s: %s", codename, exception)
             continue
