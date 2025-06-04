@@ -71,16 +71,40 @@ pytest-python3.10:
 
 ruff:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .ci/ruff.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
+        - "test/**/*.py"
+        - pmbootstrap.py
+        - pyproject.toml
   script:
     - ".ci/ruff.sh"
 
 shellcheck:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - "**/*.sh"
+        - .ci/shellcheck.sh
+        - .gitlab-ci.yml
+        - .shellcheckrc
   script:
     - ".ci/shellcheck.sh"
 
 vermin:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .ci/vermin.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
+        - "test/**/*.py"
+        - pmbootstrap.py
   script:
     - ".ci/vermin.sh"
 
@@ -97,6 +121,15 @@ mr-settings:
 
 mypy:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        # We don't run mypy on tests, so no need to include test/**/*.py here.
+        - .ci/mypy.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
+        - pmbootstrap.py
+        - pyproject.toml
   script:
     - ".ci/mypy.sh"
 
@@ -105,6 +138,12 @@ docs:
   # py3-sphinx >= 7.3 is needed for --fail-on-warning
   # alpine:3.20 is on py3-sphinx 7.2.x
   image: alpine:edge
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - .ci/docs.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
   script:
     - ".ci/docs.sh"
   artifacts:
@@ -134,6 +173,7 @@ deploy:
       - ".ci/integration_tests/**/*"
       - "helpers/**/*"
       - "pmb/**/*"
+      - pmbootstrap.py
       - .ci/integration.sh
       - .gitlab-ci.yml
   before_script:
