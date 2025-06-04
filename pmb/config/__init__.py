@@ -220,11 +220,7 @@ chroot_outdated = 3600 * 24 * 2
 # for the first time
 # IMPORTANT: the order here matters, it is the order these packages will
 # be built in (if needed). abuild must be first!
-#
-# NOTE: full hexdump is installed to workaround a bug in busybox,
-# see https://gitlab.postmarketos.org/postmarketOS/pmaports/-/issues/3268. This can be
-# reverted when the bug is properly fixed.
-build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git", "hexdump", "pigz"]
+build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git", "pigz"]
 
 #
 # PARSE
