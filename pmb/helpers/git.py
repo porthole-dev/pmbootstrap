@@ -8,6 +8,7 @@ from typing import Final
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_path, pkgrepo_name
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 import re
 
@@ -221,13 +222,20 @@ def parse_channels_cfg(aports: Path) -> dict:
     """
     # Read with configparser
     cfg = configparser.ConfigParser()
-    remote = get_upstream_remote(aports)
-    command = ["git", "show", f"{remote}/master:channels.cfg"]
-    stdout = pmb.helpers.run.user_output(
-        command, aports, output=RunOutputTypeDefault.NULL, check=False
-    )
+    override = os.environ.get("PMB_CHANNELS_CFG")
+
     try:
-        cfg.read_string(stdout)
+        if override:
+            if not os.path.exists(override):
+                raise NonBugError(f"Override from PMB_CHANNELS_CFG not found: {override}")
+            cfg.read(override)
+        else:
+            remote = get_upstream_remote(aports)
+            command = ["git", "show", f"{remote}/master:channels.cfg"]
+            stdout = pmb.helpers.run.user_output(
+                command, aports, output=RunOutputTypeDefault.NULL, check=False
+            )
+            cfg.read_string(stdout)
     except configparser.MissingSectionHeaderError:
         logging.info("NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'")
         raise RuntimeError(

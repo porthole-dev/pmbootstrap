@@ -19,6 +19,14 @@ published, but the `aarch64` repository wasn't published yet.
 When this is set to `1`, pmbootstrap will disable apk's caching feature. This
 is used by bpo for image build jobs, so these jobs don't need as much space.
 
+## `PMB_CHANNELS_CFG`
+
+Set this variable to the path of a copy of
+[channels.cfg](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/channels.cfg)
+on disk to have pmbootstrap read it from there instead of `origin/master` from
+pmaports. This is used by bpo with shallow clones of pmaports, where the master
+branch may not be available (e.g. when building packages for a release branch).
+
 ## `PMB_FDE_PASSWORD`
 
 This variable can be used to set the password when running `install --fde`. The
