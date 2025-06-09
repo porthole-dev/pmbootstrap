@@ -51,7 +51,6 @@ def symlinks(flavor: str, folder: Path) -> None:
         path_boot / f"boot.img{suffix}",
         path_boot / f"uInitrd{suffix}",
         path_boot / f"uImage{suffix}",
-        path_boot / f"vmlinuz{suffix}",
         path_boot / "dtbo.img",
         chroot_native / "home/pmos/rootfs" / f"{device}.img",
         chroot_native / "home/pmos/rootfs" / f"{device}-boot.img",
@@ -60,7 +59,8 @@ def symlinks(flavor: str, folder: Path) -> None:
         path_boot / "lk2nd.img",
     ]
 
-    files += list(path_boot.glob(f"initramfs{suffix}*"))
+    files += list(path_boot.glob("initramfs*"))
+    files += list(path_boot.glob("vmlinuz*"))
 
     # Iterate through all files
     for file in files:
