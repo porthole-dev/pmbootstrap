@@ -6,14 +6,12 @@ from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk
-import pmb.config
-import pmb.config.pmaports
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
 
 
-def symlinks(flavor: str, folder: Path) -> None:
+def symlinks(folder: Path) -> None:
     """
     Create convenience symlinks to the rootfs and boot files.
     """
@@ -21,21 +19,15 @@ def symlinks(flavor: str, folder: Path) -> None:
     device = get_context().config.device
     arch = pmb.parse.deviceinfo(device).arch
 
-    # Backwards compatibility with old mkinitfs (pma#660)
-    suffix = f"-{flavor}"
-    pmaports_cfg = pmb.config.pmaports.read_config()
-    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        suffix = ""
-
     # File descriptions
     info = {
-        f"boot.img{suffix}": ("Fastboot compatible boot.img file, contains initramfs and kernel"),
+        "boot.img": ("Fastboot compatible boot.img file, contains initramfs and kernel"),
         "dtbo.img": "Fastboot compatible dtbo image",
-        f"initramfs{suffix}": "Initramfs",
-        f"initramfs{suffix}-extra": "Extra initramfs files in /boot",
-        f"uInitrd{suffix}": "Initramfs, legacy u-boot image format",
-        f"uImage{suffix}": "Kernel, legacy u-boot image format",
-        f"vmlinuz{suffix}": "Linux kernel",
+        "initramfs": "Initramfs",
+        "initramfs-extra": "Extra initramfs files in /boot",
+        "uInitrd": "Initramfs, legacy u-boot image format",
+        "uImage": "Kernel, legacy u-boot image format",
+        "vmlinuz": "Linux kernel",
         f"{device}.img": "Rootfs with partitions for /boot and /",
         f"{device}-boot.img": "Boot partition image",
         f"{device}-root.img": "Root partition image",
@@ -48,9 +40,9 @@ def symlinks(flavor: str, folder: Path) -> None:
     path_boot = Chroot(ChrootType.ROOTFS, device) / "boot"
     chroot_buildroot = Chroot.buildroot(arch)
     files: list[Path] = [
-        path_boot / f"boot.img{suffix}",
-        path_boot / f"uInitrd{suffix}",
-        path_boot / f"uImage{suffix}",
+        path_boot / "boot.img",
+        path_boot / "uInitrd",
+        path_boot / "uImage",
         path_boot / "dtbo.img",
         chroot_native / "home/pmos/rootfs" / f"{device}.img",
         chroot_native / "home/pmos/rootfs" / f"{device}-boot.img",

@@ -38,4 +38,4 @@ def frontend(args: PmbArgs) -> None:  # FIXME: ARGS_REFACTOR
     logging.info(f"Export symlinks to: {target}")
     if args.odin_flashable_tar:
         pmb.export.odin(config.device, flavor, target)
-    pmb.export.symlinks(flavor, target)
+    pmb.export.symlinks(target)
