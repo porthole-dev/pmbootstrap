@@ -13,6 +13,7 @@ from typing import Any
 import pmb.config
 from pmb.meta import Cache
 import pmb.helpers.devices
+from pmb.helpers.exceptions import NonBugError
 import pmb.parse.version
 
 # sh variable name regex: https://stackoverflow.com/a/2821201/3527128
@@ -132,7 +133,7 @@ def read_file(path: Path) -> list[str]:
     with path.open(encoding="utf-8") as handle:
         lines = handle.readlines()
         if handle.newlines != "\n":
-            raise RuntimeError(f"Wrong line endings in APKBUILD: {path}")
+            raise NonBugError(f"Wrong line endings in APKBUILD: {path}")
     return lines
 
 
@@ -194,7 +195,7 @@ def parse_next_attribute(
         value += line.strip()
         i += 1
 
-    raise RuntimeError(
+    raise NonBugError(
         f"Can't find closing quote sign ({end_char}) for attribute '{attribute}' in: {path}"
     )
 
@@ -299,7 +300,7 @@ def _parse_subpackage(
         return
 
     if not end:
-        raise RuntimeError(
+        raise NonBugError(
             f"Could not find end of subpackage function, no line starts with "
             f"'}}' after '{prefix}' in {path}"
         )
@@ -362,7 +363,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
         if not os.path.realpath(path).endswith(suffix):
             logging.info(f"Folder: '{os.path.dirname(path)}'")
             logging.info(f"Pkgname: '{ret['pkgname']}'")
-            raise RuntimeError(
+            raise NonBugError(
                 "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
             )
 
@@ -373,7 +374,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
                 "NOTE: Valid pkgvers are described here: "
                 "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
             )
-            raise RuntimeError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
+            raise NonBugError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
 
     # Fill cache
     return ret
@@ -402,7 +403,7 @@ def kernels(device: str) -> dict[str, str] | None:
         if not subpkgname.startswith(subpackage_prefix):
             continue
         if subpkg is None:
-            raise RuntimeError(f"Cannot find subpackage function for: {subpkgname}")
+            raise NonBugError(f"Cannot find subpackage function for: {subpkgname}")
         name = subpkgname[len(subpackage_prefix) :]
         ret[name] = subpkg["pkgdesc"]
 
@@ -446,11 +447,11 @@ def maintainers(path: Path) -> list[str] | None:
     # An APKBUILD should only have one Maintainer:,
     # in pmaports others should be defined using Co-Maintainer:
     if len(maintainers) > 1:
-        raise RuntimeError("Multiple Maintainer: lines in APKBUILD")
+        raise NonBugError("Multiple Maintainer: lines in APKBUILD")
 
     maintainers += _parse_comment_tags(lines, "Co-Maintainer")
     if "" in maintainers:
-        raise RuntimeError("Empty (Co-)Maintainer: tag")
+        raise NonBugError("Empty (Co-)Maintainer: tag")
     return maintainers
 
 
