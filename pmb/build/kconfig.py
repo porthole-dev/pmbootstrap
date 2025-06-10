@@ -77,16 +77,19 @@ def get_arch(apkbuild: Apkbuild) -> Arch:
     return Arch.from_str(apkbuild["arch"][0])
 
 
-def get_outputdir(pkgname: str, apkbuild: Apkbuild) -> Path:
+def get_outputdir(pkgname: str, apkbuild: Apkbuild, must_exist: bool = True) -> Path:
     """Get the folder for the kernel compilation output.
 
     For most APKBUILDs, this is $builddir. But some older ones still use
     $srcdir/build (see the discussion in #1551).
+
+    :param must_exist: if True, check that .config exists; if False, just return the directory
     """
-    # Old style ($srcdir/build)
-    ret = Path("/home/pmos/build/src/build")
     chroot = Chroot.native()
-    if os.path.exists(chroot / ret / ".config"):
+
+    # Old style ($srcdir/build)
+    old_ret = Path("/home/pmos/build/src/build")
+    if must_exist and os.path.exists(chroot / old_ret / ".config"):
         logging.warning("*****")
         logging.warning(
             "NOTE: The code in this linux APKBUILD is pretty old."
@@ -94,8 +97,7 @@ def get_outputdir(pkgname: str, apkbuild: Apkbuild) -> Path:
             " version with: pmbootstrap aportgen " + pkgname
         )
         logging.warning("*****")
-
-        return ret
+        return old_ret
 
     # New style ($builddir)
     cmd = "srcdir=/home/pmos/build/src source APKBUILD; echo $builddir"
@@ -104,6 +106,17 @@ def get_outputdir(pkgname: str, apkbuild: Apkbuild) -> Path:
             ["sh", "-c", cmd], chroot, Path("/home/pmos/build"), output_return=True
         ).rstrip()
     )
+
+    if not must_exist:
+        # For fragment-based configs, check if old style exists first
+        if (chroot / old_ret).exists():
+            return old_ret
+        elif "_outdir" in apkbuild:
+            return ret / apkbuild["_outdir"]  # Out-of-tree
+        else:
+            return ret  # Standard
+
+    # Check all possible locations when must_exist=True
     if (chroot / ret / ".config").exists():
         return ret
     # Some Mediatek kernels use a 'kernel' subdirectory
