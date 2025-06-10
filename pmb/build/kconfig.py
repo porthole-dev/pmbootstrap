@@ -155,9 +155,12 @@ def _make(
     pkgname: str,
     arch: Arch,
     apkbuild: Apkbuild,
+    outputdir: Path | None = None,
 ) -> None:
     aport = pmb.helpers.pmaports.find(pkgname)
-    outputdir = get_outputdir(pkgname, apkbuild)
+
+    if not outputdir:
+        outputdir = get_outputdir(pkgname, apkbuild)
 
     logging.info("(native) make " + make_command)
 
