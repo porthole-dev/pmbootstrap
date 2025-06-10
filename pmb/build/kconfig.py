@@ -185,7 +185,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
 
     # Set up build tools and makedepends
     pmb.build.init(chroot)
-    if cross:
+    if cross.enabled():
         pmb.build.init_compiler(get_context(), [], cross, arch)
 
     depends = apkbuild["makedepends"] + ["gcc", "make"]
@@ -198,7 +198,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
         "ARCH": arch.kernel(),
     }
 
-    if cross:
+    if cross.enabled():
         env["CROSS_COMPILE"] = f"{hostspec}-"
         env["CC"] = f"{hostspec}-gcc"
 
