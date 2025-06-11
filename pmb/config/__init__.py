@@ -254,6 +254,9 @@ apkbuild_package_attributes = {
     # postmarketos-base and UI meta-packages can define the default package
     # to select during "_pmb_select".
     "_pmb_default": {"array": True},
+    # kernel packages can specify one or more defconfig to use when generating
+    # the full config
+    "_defconfig": {"array": True},
 }
 
 # Variables in APKBUILD files that get parsed
