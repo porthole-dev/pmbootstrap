@@ -150,7 +150,7 @@ def extract_and_patch_sources(pkgname: str, arch: Arch) -> None:
 
 def _make(
     chroot: pmb.core.Chroot,
-    make_command: str,
+    make_command: list[str],
     env: Env,
     pkgname: str,
     arch: Arch,
@@ -162,10 +162,10 @@ def _make(
     if not outputdir:
         outputdir = get_outputdir(pkgname, apkbuild)
 
-    logging.info("(native) make " + make_command)
+    logging.info("(native) make " + " ".join(make_command))
 
     pmb.chroot.user(
-        ["make", str(make_command)], chroot, outputdir, output=RunOutputTypeDefault.TUI, env=env
+        ["make", *make_command], chroot, outputdir, output=RunOutputTypeDefault.TUI, env=env
     )
 
     # Find the updated config
@@ -230,7 +230,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
 
 def migrate_config(pkgname: str, arch: Arch | None) -> None:
     pkgname, arch, apkbuild, chroot, env = _init(pkgname, arch)
-    _make(chroot, "oldconfig", env, pkgname, arch, apkbuild)
+    _make(chroot, ["oldconfig"], env, pkgname, arch, apkbuild)
 
 
 def edit_config(pkgname: str, arch: Arch | None, config_ui: KConfigUI) -> None:
@@ -252,4 +252,4 @@ def edit_config(pkgname: str, arch: Arch | None, config_ui: KConfigUI) -> None:
     if mode:
         env["MENUCONFIG_MODE"] = mode
 
-    _make(chroot, str(config_ui), env, pkgname, arch, apkbuild)
+    _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
