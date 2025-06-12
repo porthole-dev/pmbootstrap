@@ -7,6 +7,7 @@ import pmb.helpers.pmaports
 import pmb.parse
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iglob
+from pmb.helpers import logging
 from pmb.types import WithExtraRepos
 
 
@@ -26,7 +27,10 @@ def list_ui(arch: Arch) -> list[tuple[str, str]]:
         )
     ]
     for path in sorted(pkgrepo_iglob("main/postmarketos-ui-*")):
-        apkbuild = pmb.parse.apkbuild(path)
+        try:
+            apkbuild = pmb.parse.apkbuild(path)
+        except FileNotFoundError as exception:
+            logging.debug("Skipping UI directory without APKBUILD '%s' (%s)", path, exception)
         ui = os.path.basename(path).split("-", 2)[2]
         if pmb.helpers.package.check_arch(apkbuild["pkgname"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))
