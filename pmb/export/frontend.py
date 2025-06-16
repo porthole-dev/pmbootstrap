@@ -30,12 +30,11 @@ def frontend(args: PmbArgs) -> None:  # FIXME: ARGS_REFACTOR
         )
 
     # Rebuild the initramfs, just to make sure (see #69)
-    flavor = pmb.helpers.frontend._parse_flavor(config.device, args.autoinstall)
     if args.autoinstall:
         pmb.chroot.initfs.build(Chroot(ChrootType.ROOTFS, config.device))
 
     # Do the export, print all files
     logging.info(f"Export symlinks to: {target}")
     if args.odin_flashable_tar:
-        pmb.export.odin(config.device, flavor, target)
+        pmb.export.odin(config.device, target)
     pmb.export.symlinks(target)

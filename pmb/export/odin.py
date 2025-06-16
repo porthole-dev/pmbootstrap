@@ -11,7 +11,7 @@ import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
 
 
-def odin(device: str, flavor: str, folder: Path) -> None:
+def odin(device: str, folder: Path) -> None:
     """
     Create Odin flashable tar file with kernel and initramfs
     for devices configured with the flasher method 'heimdall-isorec'
@@ -20,12 +20,6 @@ def odin(device: str, flavor: str, folder: Path) -> None:
     pmb.flasher.init(device, "heimdall-isorec")
     suffix = Chroot(ChrootType.ROOTFS, device)
     deviceinfo = pmb.parse.deviceinfo(device)
-
-    # Backwards compatibility with old mkinitfs (pma#660)
-    suffix_flavor = f"-{flavor}"
-    pmaports_cfg = pmb.config.pmaports.read_config()
-    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        suffix_flavor = ""
 
     # Validate method
     method = deviceinfo.flash_method or ""
@@ -60,17 +54,17 @@ def odin(device: str, flavor: str, folder: Path) -> None:
         if method == "heimdall-isorec":
             handle.write(
                 # Kernel: copy and append md5
-                f"cp /boot/vmlinuz{suffix_flavor} {odin_kernel_md5}\n"
+                f"cp /boot/vmlinuz {odin_kernel_md5}\n"
                 f"md5sum -t {odin_kernel_md5} >> {odin_kernel_md5}\n"
                 # Initramfs: recompress with lzop, append md5
-                f"gunzip -c /boot/initramfs{suffix_flavor}"
+                f"gunzip -c /boot/initramfs"
                 f" | lzop > {odin_initfs_md5}\n"
                 f"md5sum -t {odin_initfs_md5} >> {odin_initfs_md5}\n"
             )
         elif method == "heimdall-bootimg":
             handle.write(
                 # boot.img: copy and append md5
-                f"cp /boot/boot.img{suffix_flavor} {odin_kernel_md5}\n"
+                f"cp /boot/boot.img {odin_kernel_md5}\n"
                 f"md5sum -t {odin_kernel_md5} >> {odin_kernel_md5}\n"
             )
         handle.write(
