@@ -33,7 +33,7 @@ def kernel(
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(deviceinfo.codename, autoinstall)
     if autoinstall:
-        pmb.chroot.initfs.build(flavor, Chroot(ChrootType.ROOTFS, deviceinfo.codename))
+        pmb.chroot.initfs.build(Chroot(ChrootType.ROOTFS, deviceinfo.codename))
 
     # Check kernel config
     pmb.parse.kconfig.check(flavor, must_exist=False)
