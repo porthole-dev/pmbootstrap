@@ -146,6 +146,7 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
         """
 
     for k in [
+        "bootimg_qcdt",
         "bootimg_qcdt_type",
         "dtb_second",
         "mtk_label_kernel",
