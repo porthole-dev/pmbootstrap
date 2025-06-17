@@ -155,7 +155,7 @@ def bootimg(path: Path) -> Bootimg:
         with open(f"{bootimg_path}-pagesize") as f:
             output["pagesize"] = trim_input(f)
 
-    output["qcdt"] = (
+    output["bootimg_qcdt"] = (
         "true"
         if os.path.isfile(f"{bootimg_path}-dt") and os.path.getsize(f"{bootimg_path}-dt") > 0
         else "false"
@@ -166,7 +166,7 @@ def bootimg(path: Path) -> Bootimg:
             for key, value in {
                 "mtk_label_kernel": get_mtk_label(f"{bootimg_path}-kernel"),
                 "mtk_label_ramdisk": get_mtk_label(f"{bootimg_path}-ramdisk"),
-                "qcdt_type": get_qcdt_type(f"{bootimg_path}-dt"),
+                "bootimg_qcdt_type": get_qcdt_type(f"{bootimg_path}-dt"),
             }.items()
             if value is not None
         }
@@ -181,8 +181,8 @@ def bootimg(path: Path) -> Bootimg:
 
     return Bootimg(
         cmdline=output["cmdline"],
-        qcdt=output["qcdt"],
-        qcdt_type=output.get("qcdt_type"),
+        bootimg_qcdt=output["bootimg_qcdt"],
+        bootimg_qcdt_type=output.get("bootimg_qcdt_type"),
         dtb_offset=output.get("dtb_offset"),
         dtb_second=output["dtb_second"],
         base=output.get("base", ""),

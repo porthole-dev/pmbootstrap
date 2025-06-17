@@ -144,6 +144,7 @@ class Deviceinfo:
     generate_bootimg: str | None = ""
     header_version: str | None = ""
     bootimg_qcdt: str | None = ""
+    bootimg_qcdt_type: str | None = ""
     bootimg_mtk_mkimage: str | None = ""  # deprecated
     bootimg_mtk_label_kernel: str | None = ""
     bootimg_mtk_label_ramdisk: str | None = ""

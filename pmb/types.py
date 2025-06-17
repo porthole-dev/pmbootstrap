@@ -86,8 +86,8 @@ class AportGenEntry(TypedDict):
 
 class Bootimg(TypedDict):
     cmdline: str
-    qcdt: str
-    qcdt_type: str | None
+    bootimg_qcdt: str
+    bootimg_qcdt_type: str | None
     dtb_offset: str | None
     dtb_second: str
     base: str

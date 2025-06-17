@@ -124,8 +124,8 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
     if bootimg is None:
         bootimg = Bootimg(
             cmdline="",
-            qcdt="false",
-            qcdt_type=None,
+            bootimg_qcdt="false",
+            bootimg_qcdt_type=None,
             dtb_offset=None,
             dtb_second="false",
             base="",
@@ -145,7 +145,13 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
         deviceinfo_flash_pagesize="{bootimg["pagesize"]}"
         """
 
-    for k in ["qcdt_type", "dtb_second", "mtk_label_kernel", "mtk_label_ramdisk", "header_version"]:
+    for k in [
+        "bootimg_qcdt_type",
+        "dtb_second",
+        "mtk_label_kernel",
+        "mtk_label_ramdisk",
+        "header_version",
+    ]:
         v = bootimg[k]  # type: ignore
         if v:
             content += f"""\
