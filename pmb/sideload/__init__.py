@@ -63,7 +63,14 @@ def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
     return alpine_architecture
 
 
-def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list[Path]) -> None:
+def ssh_install_apks(
+    args: PmbArgs,
+    user: str,
+    host: str,
+    port: str,
+    paths: list[Path],
+    install_offline: bool,
+) -> None:
     """Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
@@ -78,7 +85,10 @@ def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list
     pmb.helpers.run.user(command, output=RunOutputTypeDefault.INTERACTIVE)
 
     logging.info(f"Installing packages at {user}@{host}")
-    add_cmd_list = ["apk", "--wait", "30", "add", *remote_paths]
+    add_cmd_list = ["apk", "--wait", "30", "--timeout", "5"]
+    if install_offline:
+        add_cmd_list.append("--no-network")
+    add_cmd_list.extend(["add", *remote_paths])
     add_cmd = pmb.helpers.run_core.flat_cmd([add_cmd_list])
     clean_cmd = pmb.helpers.run_core.flat_cmd([["rm", *remote_paths]])
     add_cmd_complete = shlex.quote(f"{su_cmd} {add_cmd} rc=$?; {clean_cmd} exit $rc")
@@ -112,6 +122,7 @@ def sideload(
 
     context = get_context()
     to_build = []
+    install_offline = True
     for pkgname in pkgnames:
         data_repo = pmb.parse.apkindex.package(pkgname, arch, True)
 
@@ -123,6 +134,11 @@ def sideload(
 
         apk_file = f"{pkgname}-{data_repo.version}.apk"
         host_path = context.config.work / "packages" / channel / arch / apk_file
+
+        # If none of the packages have dependencies then we can run apk with
+        # --no-network to avoid spurious APKINDEX updates
+        if data_repo.depends:
+            install_offline = False
 
         if not host_path.is_file():
             to_build.append(pkgname)
@@ -139,4 +155,4 @@ def sideload(
     if copy_key:
         scp_abuild_key(args, user, host, port)
 
-    ssh_install_apks(args, user, host, port, paths)
+    ssh_install_apks(args, user, host, port, paths, install_offline)
