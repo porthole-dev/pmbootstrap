@@ -4,6 +4,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.meta import Cache
 from pmb.types import WithExtraRepos
+from pmb.helpers.devices import DeviceCategory, get_device_category_by_apkbuild_path
 from pathlib import Path
 
 import pmb.build
@@ -58,6 +59,13 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
                 continue
 
             relpath = apkbuild_path.relative_to(pmaports_dir)
+            if (
+                relpath.parts[0] == "device"
+                and get_device_category_by_apkbuild_path(relpath) == DeviceCategory.ARCHIVED
+            ):
+                logging.debug(f"skipping archived device: {relpath}")
+                continue
+
             repo = relpath.parts[1] if relpath.parts[0] == "extra-repos" else None
 
             depends = []
