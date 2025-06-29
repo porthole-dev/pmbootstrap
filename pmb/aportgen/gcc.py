@@ -174,6 +174,8 @@ def generate(pkgname: str) -> None:
         '*BOOTSTRAP" != nolibc ] && mv *': "",
         # Add depends to the gpp subpackage, so we don't need to use tracedeps
         "*amove $_gcclibexec/cc1plus*": f'\tdepends="$depends {depends_gpp}"\n\n\tamove $_gcclibexec/cc1plus',
+        # Disable libsanitizer for e.g. aarch64 -> x86_64 gcc (pma!6722)
+        '*_sanitizer_configure="--enable-libsanitizer"*': "",
     }
 
     pmb.aportgen.core.rewrite(
