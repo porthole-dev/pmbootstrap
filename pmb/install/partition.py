@@ -104,17 +104,16 @@ def partition(layout: PartitionLayout, size_boot: int, size_reserve: int) -> Non
 
     arch = str(pmb.parse.deviceinfo().arch)
 
-    commands += [
-        ["mkpart", "primary", mb_root_start, "100%"],
-        ["type", str(layout["root"]), pmb.core.dps.root[arch][1]],
-        # esp is an alias for boot on GPT
-        # setting this should be fine for msdos since we set boot later
-        ["set", str(layout["boot"]), "esp", "on"],
-        ["type", str(layout["boot"]), pmb.core.dps.boot["esp"][1]],
-    ]
-
+    commands += [["mkpart", "primary", mb_root_start, "100%"]]
+    if partition_type.lower() == "gpt":
+        commands += [
+            ["type", str(layout["root"]), pmb.core.dps.root[arch][1]],
+            # esp is an alias for boot on GPT
+            ["set", str(layout["boot"]), "esp", "on"],
+            ["type", str(layout["boot"]), pmb.core.dps.boot["esp"][1]],
+        ]
     # Some devices still use MBR and will not work with only esp set
-    if partition_type.lower() == "msdos":
+    elif partition_type.lower() == "msdos":
         commands += [["set", str(layout["boot"]), "boot", "on"]]
 
     for command in commands:
