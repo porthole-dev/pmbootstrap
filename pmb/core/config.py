@@ -3,6 +3,7 @@
 
 from copy import deepcopy
 import enum
+import inspect
 import multiprocessing
 from typing import Any, ClassVar, TypedDict
 from pathlib import Path
@@ -90,14 +91,14 @@ class Config:
 
     def __init__(self) -> None:
         # Make sure we aren't modifying the class defaults
-        for key in Config.__annotations__.keys():
+        for key in inspect.get_annotations(Config).keys():
             setattr(self, key, deepcopy(Config.get_default(key)))
 
     @staticmethod
     def keys() -> list[str]:
-        keys = list(Config.__annotations__.keys())
+        keys = list(inspect.get_annotations(Config).keys())
         keys.remove("mirrors")
-        keys += [f"mirrors.{k}" for k in Mirrors.__annotations__.keys()]
+        keys += [f"mirrors.{k}" for k in inspect.get_annotations(Mirrors).keys()]
         return sorted(keys)
 
     @staticmethod

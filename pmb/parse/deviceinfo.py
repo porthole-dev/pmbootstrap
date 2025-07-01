@@ -5,6 +5,7 @@ from pathlib import Path
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
 from pmb.helpers import logging
+import inspect
 import os
 import pmb.config
 import pmb.helpers.other
@@ -53,7 +54,7 @@ def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) 
     ret = copy.copy(info)
 
     suffix_kernel = kernel.replace("-", "_")
-    for key in Deviceinfo.__annotations__.keys():
+    for key in inspect.get_annotations(Deviceinfo).keys():
         key_kernel = f"{key}_{suffix_kernel}"
         if key_kernel not in ret:
             continue
