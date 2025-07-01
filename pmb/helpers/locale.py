@@ -3,6 +3,8 @@
 
 from pmb.helpers import logging
 
+from typing import Final
+
 """
 Helper used to configure locale-related settings in pmOS installation.
 
@@ -14,7 +16,7 @@ Locale and layout information is taken from:
 
 
 class XkbLayout:
-    primary_layouts = frozenset(
+    primary_layouts: Final[frozenset[str]] = frozenset(
         [
             "at",
             "au",
