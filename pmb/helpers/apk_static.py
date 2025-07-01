@@ -138,7 +138,7 @@ def extract(version: str, apk_path: Path) -> None:
     os.chmod(temp_path, os.stat(temp_path).st_mode | stat.S_IEXEC)
     version_bin = pmb.helpers.run.user_output([temp_path, "--version"])
     version_bin = version_bin.split(" ")[1].split(",")[0]
-    if not version.startswith(f"{version_bin}-r"):
+    if not version.startswith(f"{version_bin}"):
         os.unlink(temp_path)
         raise RuntimeError(
             f"Downloaded apk-tools-static-{version}.apk,"
