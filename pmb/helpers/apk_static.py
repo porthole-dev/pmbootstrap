@@ -141,12 +141,10 @@ def extract(version: str, apk_path: Path) -> None:
     if not version.startswith(f"{version_bin}"):
         os.unlink(temp_path)
         raise RuntimeError(
-            f"Downloaded apk-tools-static-{version}.apk,"
-            " but the apk binary inside that package reports"
-            f" to be version: {version_bin}!"
-            " Looks like a downgrade attack"
-            " from a malicious server! Switch the server (-m)"
-            " and try again."
+            f"Downloaded apk-tools-static-{version}.apk, but the apk binary inside that package"
+            f" reports to be version: {version_bin}! This could potentially be caused by a"
+            " downgrade attack from a malicious server or a bug in pmbootstrap. You can try"
+            " switching servers, see https://docs.postmarketos.org/pmbootstrap/mirrors.html"
         )
 
     # Move it to the right path
