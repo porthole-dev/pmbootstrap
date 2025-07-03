@@ -151,9 +151,8 @@ def apkindex_files(
 
 
 @Cache("arch", force=False)
-def _update(arch: Arch | None, force: bool, existing_only: bool) -> bool:
-    """Internal method for downloading the APKINDEX files. This should not be called directly, use
-    update() instead.
+def update(arch: Arch | None = None, force: bool = False, existing_only: bool = False) -> bool:
+    """Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
                  * None for all architectures
@@ -241,28 +240,7 @@ def _update(arch: Arch | None, force: bool, existing_only: bool) -> bool:
     return True
 
 
-def update(arch: Arch | None = None, force: bool = False, existing_only: bool = False) -> bool:
-    """Download the APKINDEX files for all URLs depending on the architectures.
-
-    :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
-                 * None for all architectures
-    :param force: even update when the APKINDEX file is fairly recent
-    :param existing_only: only update the APKINDEX files that already exist,
-                          this is used by "pmbootstrap update"
-
-    :returns: True when files have been downloaded, False otherwise
-    """
-    apkindex_path = alpine_apkindex_path(arch=arch, with_update=False)
-
-    if not apkindex_path.exists() or force:
-        return _update(arch, force, existing_only)
-
-    return True
-
-
-def alpine_apkindex_path(
-    repo: str = "main", arch: Arch | None = None, with_update: bool = True
-) -> Path:
+def alpine_apkindex_path(repo: str = "main", arch: Arch | None = None) -> Path:
     """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")
@@ -275,8 +253,7 @@ def alpine_apkindex_path(
 
     # Download the file
     arch = arch or Arch.native()
-    if with_update:
-        update(arch)
+    update(arch)
 
     # Find it on disk
     channel_cfg = pmb.config.pmaports.read_config_channel()
