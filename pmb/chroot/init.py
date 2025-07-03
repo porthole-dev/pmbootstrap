@@ -152,13 +152,18 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
 
     pmb.config.workdir.chroot_save_init(chroot)
 
+    pmb.helpers.repo.update(arch)
     # Install minimal amount of things to get a functional chroot.
     # We don't use alpine-base since it depends on openrc, and neither
     # postmarketos-base, since that's quite big (e.g: contains an init system)
-    pmb.helpers.repo.update(arch)
-    pkgs = ["alpine-baselayout", "apk-tools", "busybox", "musl-utils"]
     cmd: list[PathString] = ["--initdb"]
-    pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
+    pkgs = ["alpine-baselayout", "apk-tools", "busybox", "musl-utils"]
+    if pmb.config.pmaports.read_config().get("supported_usr_merge", False):
+        # Do the /usr merge! Bootstrapping is done in 2 steps
+        pmb.helpers.apk.run([*cmd, "add", "alpine-baselayout-core"], chroot)
+        pmb.helpers.apk.run(["add", *pkgs], chroot)
+    else:
+        pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
 
     # Merge /usr
     if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):
