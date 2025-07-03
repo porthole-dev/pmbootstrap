@@ -182,8 +182,21 @@ def zap_pkgs_online_mismatch(confirm: bool = True, dry: bool = False) -> None:
         return
 
     # Iterate over existing apk caches
+    clean_native = False
     for path in paths:
         arch = Arch.from_str(path.name.split("_", 2)[2])
 
         if not dry:
+            if arch == Arch.native():
+                clean_native = True
+                continue
             pmb.helpers.apk.cache_clean(arch)
+
+    # pmb#2672: With apkv3, APKINDEX files get deleted when running "apk cache
+    # clean". This is unexpected and needs to be investigated. Meanwhile run
+    # cache_clean() on the native arch last, as it needs the APKINDEX for the
+    # Alpine main repo of the native arch (even if cleaning other arches) in
+    # order to set up the chroot where we run "apk cache clean". This prevents
+    # crashing in "pmbootstrap zap -a" and "pmbootstrap zap -o".
+    if clean_native and not dry:
+        pmb.helpers.apk.cache_clean(Arch.native())
