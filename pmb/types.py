@@ -135,6 +135,8 @@ class Bootimg(TypedDict):
     cmdline: str
     bootimg_qcdt: str
     bootimg_qcdt_type: str | None
+    bootimg_qcdt_exynos_platform: str | None
+    bootimg_qcdt_exynos_subtype: str | None
     dtb_offset: str | None
     dtb_second: str
     base: str

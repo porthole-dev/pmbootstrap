@@ -76,6 +76,25 @@ def get_qcdt_type(path: PathString) -> str | None:
             return None
 
 
+def get_qcdt_exynos_platform_subtype(path: PathString) -> tuple:
+    """Get the exynos dt.img platform and subtype by reading the first
+    four bytes of the file.
+    :param path: to the qcdt image extracted from boot.img
+    :returns: ( Type tuple with platform and subtype, like ("0x50a6", "0x217584da")
+
+    """
+    if not os.path.exists(path):
+        return (None, None)
+
+    with open(path, "rb") as f:
+        header = f.read(24)
+
+    platform = hex(int.from_bytes(header[16:20], "little"))
+    subtype = hex(int.from_bytes(header[20:24], "little"))
+
+    return (platform, subtype)
+
+
 def bootimg(path: Path) -> Bootimg:
     if not path.exists():
         raise RuntimeError(f"Could not find file '{path}'")
@@ -171,6 +190,15 @@ def bootimg(path: Path) -> Bootimg:
             if value is not None
         }
     )
+    if "bootimg_qcdt_type" in output and output["bootimg_qcdt_type"] == "exynos":
+        platform, subtype = get_qcdt_exynos_platform_subtype(f"{bootimg_path}-dt")
+        # Omit if platform is default value 0x50a6
+        if platform and not platform == "0x50a6":
+            output.update({"bootimg_qcdt_exynos_platform": f"0x{platform:04x}"})
+        # Omit if subtype is default value 0x217584da
+        if subtype and not subtype == "0x217584da":
+            output.update({"bootimg_qcdt_exynos_subtype": f"0x{subtype:08x}"})
+
     output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else ""
 
     with open(f"{bootimg_path}-cmdline") as f:
@@ -183,6 +211,8 @@ def bootimg(path: Path) -> Bootimg:
         cmdline=output["cmdline"],
         bootimg_qcdt=output["bootimg_qcdt"],
         bootimg_qcdt_type=output.get("bootimg_qcdt_type"),
+        bootimg_qcdt_exynos_platform=output.get("bootimg_qcdt_exynos_platform", ""),
+        bootimg_qcdt_exynos_subtype=output.get("bootimg_qcdt_exynos_subtype", ""),
         dtb_offset=output.get("dtb_offset"),
         dtb_second=output["dtb_second"],
         base=output.get("base", ""),
