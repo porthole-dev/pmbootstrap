@@ -126,6 +126,8 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
             cmdline="",
             bootimg_qcdt="false",
             bootimg_qcdt_type=None,
+            bootimg_qcdt_exynos_platform=None,
+            bootimg_qcdt_exynos_subtype=None,
             dtb_offset=None,
             dtb_second="false",
             base="",
@@ -148,6 +150,8 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
     for k in [
         "bootimg_qcdt",
         "bootimg_qcdt_type",
+        "bootimg_qcdt_exynos_platform",
+        "bootimg_qcdt_exynos_subtype",
         "dtb_second",
         "mtk_label_kernel",
         "mtk_label_ramdisk",
