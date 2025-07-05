@@ -84,6 +84,14 @@ pmb.commands.shutdown module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.test module
+----------------------------
+
+.. automodule:: pmb.commands.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
