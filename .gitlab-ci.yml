@@ -144,6 +144,11 @@ docs:
         - .ci/docs.sh
         - .gitlab-ci.yml
         - "pmb/**/*.py"
+    - if: $CI_COMMIT_BRANCH == 'master'
+      changes:
+        - .ci/docs.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
   script:
     - ".ci/docs.sh"
   artifacts:
@@ -151,8 +156,12 @@ docs:
       - public
 
 deploy:
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      changes:
+        - .ci/docs.sh
+        - .gitlab-ci.yml
+        - "pmb/**/*.py"
   stage: deploy
   before_script:
     - apk -q add openssh-client rsync
