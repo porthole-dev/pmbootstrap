@@ -35,8 +35,11 @@ def mount_chroot_image(chroot: Chroot) -> None:
     chroot.path.mkdir(exist_ok=True)
     loopdev_basename = os.path.basename(loopdev)
     # # The name of the IMAGE chroot is the path to the rootfs image
-    pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p2", chroot.path])
-    pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p1", chroot.path / "boot"])
+    if Path(f"/dev/mapper/{loopdev_basename}p2").exists():
+        pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p2", chroot.path])
+        pmb.helpers.run.root(["mount", f"/dev/mapper/{loopdev_basename}p1", chroot.path / "boot"])
+    else:
+        pmb.helpers.run.root(["mount", f"/dev/{loopdev_basename}", chroot.path])
 
     pmb.config.workdir.chroot_save_init(chroot)
 
