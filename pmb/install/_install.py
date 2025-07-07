@@ -20,7 +20,7 @@ import pmb.config.pmaports
 from pmb.helpers.locale import get_xkb_layout
 from pmb.parse.deviceinfo import Deviceinfo
 from pmb.core import Config
-from pmb.types import Env, PartitionLayout, PmbArgs
+from pmb.types import Env, PartitionLayout, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.devices
 from pmb.helpers.mount import mount_device_rootfs
 import pmb.helpers.run
@@ -286,7 +286,9 @@ def setup_login(args: PmbArgs, config: Config, chroot: Chroot) -> None:
         else:
             while True:
                 try:
-                    pmb.chroot.root(["passwd", config.user], chroot, output="interactive")
+                    pmb.chroot.root(
+                        ["passwd", config.user], chroot, output=RunOutputTypeDefault.INTERACTIVE
+                    )
                     break
                 except RuntimeError:
                     logging.info("WARNING: Failed to set the password. Try it one more time.")
@@ -350,7 +352,9 @@ def setup_keymap(config: Config) -> None:
     options = deviceinfo.keymaps.split(" ")
     if config.keymap != "" and config.keymap is not None and config.keymap in options:
         layout, variant = config.keymap.split("/")
-        pmb.chroot.root(["setup-keymap", layout, variant], chroot, output="interactive")
+        pmb.chroot.root(
+            ["setup-keymap", layout, variant], chroot, output=RunOutputTypeDefault.INTERACTIVE
+        )
 
         # Check xorg config
         xconfig = None

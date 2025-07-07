@@ -17,6 +17,7 @@ import pmb.helpers.frontend
 import pmb.helpers.mount
 import pmb.parse.kconfig
 from pmb.core import Chroot, ChrootType
+from pmb.types import RunOutputTypeDefault
 
 
 def kernel(
@@ -192,7 +193,9 @@ def flash_lk2nd(
         pmb.flasher.init(deviceinfo.codename, method)
         logging.info("(native) checking current fastboot product")
         output = pmb.chroot.root(
-            ["fastboot", "getvar", "product"], output="interactive", output_return=True
+            ["fastboot", "getvar", "product"],
+            output=RunOutputTypeDefault.INTERACTIVE,
+            output_return=True,
         )
         # Variable "product" is e.g. "LK2ND_MSM8974" or "lk2nd-msm8226" depending
         # on the lk2nd version.

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from typing import TypedDict
 import pmb.chroot
-from pmb.types import Env
+from pmb.types import Env, RunOutputTypeDefault
 import pmb.helpers.cli
 from pmb.core import Chroot
 
@@ -181,7 +181,7 @@ def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
         logging.info(f"*** ({step}/{steps}) RUNNING CI SCRIPT: {script_path} [{where}] ***")
 
         if "native" in script["options"]:
-            rc = pmb.helpers.run.user([script_path], topdir, output="tui")
+            rc = pmb.helpers.run.user([script_path], topdir, output=RunOutputTypeDefault.TUI)
             continue
         else:
             # Run inside pmbootstrap chroot
@@ -191,7 +191,11 @@ def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
 
             env: Env = {"TESTUSER": "pmos"}
             rc = pmb.chroot.root(
-                [script_path], check=False, env=env, working_dir=Path("/home/pmos/ci"), output="tui"
+                [script_path],
+                check=False,
+                env=env,
+                working_dir=Path("/home/pmos/ci"),
+                output=RunOutputTypeDefault.TUI,
             )
         if rc:
             logging.error(f"ERROR: CI script failed: {script_name}")

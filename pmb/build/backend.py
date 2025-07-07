@@ -11,7 +11,7 @@ from pmb.core import Context
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
-from pmb.types import Apkbuild, CrossCompile, Env
+from pmb.types import Apkbuild, CrossCompile, Env, RunOutputTypeDefault
 
 
 class BootstrapStage(enum.IntEnum):
@@ -316,4 +316,6 @@ def run_abuild(
     finally:
         handle_csum_failure(apkbuild, buildchroot)
 
-    pmb.helpers.run.root(["umount", buildchroot / "/mnt/sysroot"], output="null", check=False)
+    pmb.helpers.run.root(
+        ["umount", buildchroot / "/mnt/sysroot"], output=RunOutputTypeDefault.NULL, check=False
+    )

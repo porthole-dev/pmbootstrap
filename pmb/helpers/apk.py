@@ -10,7 +10,7 @@ import pmb.chroot
 import pmb.config.pmaports
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
-from pmb.types import PathString
+from pmb.types import PathString, RunOutputTypePopen
 import pmb.helpers.cli
 import pmb.helpers.repo
 import pmb.helpers.run
@@ -141,8 +141,10 @@ def _apk_with_progress(command: list[str]) -> None:
     fifo = _prepare_fifo()
     command_with_progress = _create_command_with_progress(command, fifo)
     log_msg = " ".join(command)
-    with pmb.helpers.run.root(["cat", fifo], output="pipe") as p_cat:
-        with pmb.helpers.run.root(command_with_progress, output="background") as p_apk:
+    with pmb.helpers.run.root(["cat", fifo], output=RunOutputTypePopen.PIPE) as p_cat:
+        with pmb.helpers.run.root(
+            command_with_progress, output=RunOutputTypePopen.BACKGROUND
+        ) as p_apk:
             while p_apk.poll() is None:
                 p_cat_stdout = p_cat.stdout
                 if p_cat_stdout is None:

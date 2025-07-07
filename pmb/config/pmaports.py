@@ -17,6 +17,7 @@ from pmb.meta import Cache
 import pmb.helpers.git
 import pmb.helpers.pmaports
 import pmb.parse.version
+from pmb.types import RunOutputTypeDefault
 
 
 def clone() -> None:
@@ -227,7 +228,9 @@ def switch_to_channel_branch(channel_new: str) -> bool:
 
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
-    if pmb.helpers.run.user(["git", "checkout", branch_new], aports, "interactive", check=False):
+    if pmb.helpers.run.user(
+        ["git", "checkout", branch_new], aports, RunOutputTypeDefault.INTERACTIVE, check=False
+    ):
         raise RuntimeError(
             "Failed to switch branch. Go to your pmaports and"
             " fix what git complained about, then try again: "

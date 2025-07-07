@@ -11,6 +11,7 @@ from pmb.core.pkgrepo import (
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 from pmb.helpers.toml import load_toml_file
+from pmb.types import RunOutputTypeDefault
 import os
 
 import pmb.chroot
@@ -104,7 +105,7 @@ def check(pkgnames: Sequence[str]) -> None:
         if pmb.chroot.user(
             ["apkbuild-lint", *apkbuild_paths],
             check=False,
-            output="stdout",
+            output=RunOutputTypeDefault.STDOUT,
             working_dir=dest_paths[pkgrepo_name(repo)],
             env={"CUSTOM_VALID_OPTIONS": " ".join(get_custom_valid_options())},
         ):

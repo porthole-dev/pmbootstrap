@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 from pmb import commands
-from pmb.types import PathString
+from pmb.types import PathString, RunOutputTypeDefault
 from pmb.helpers import run
 from pmb.core.context import get_context
 import pmb.config
@@ -38,4 +38,4 @@ class Log(commands.Command):
         # looks for an error / what's currently going on).
         cmd += [context.log]
 
-        run.user(cmd, output="tui")
+        run.user(cmd, output=RunOutputTypeDefault.TUI)
