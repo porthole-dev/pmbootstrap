@@ -51,6 +51,21 @@ class DeviceCategory(Enum):
             DeviceCategory.DOWNSTREAM,
         ]
 
+    def allows_downstream_ports(self) -> bool:
+        """Check whether a given category is allowed to contain downstream ports. This does not
+        necessarily mean that it exclusively contains downstream ports.
+
+        :returns: True, if the category allows downstream ports, False if only allows mainline ports.
+        """
+
+        match self:
+            case DeviceCategory.ARCHIVED | DeviceCategory.DOWNSTREAM:
+                return True
+            case DeviceCategory.TESTING | DeviceCategory.COMMUNITY | DeviceCategory.MAIN:
+                return False
+            case _:
+                raise AssertionError
+
     def explain(self) -> str:
         """Provide an explanation of a given category.
 

@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.helpers import logging
-from pmb.helpers.devices import get_device_category_by_name, DeviceCategory
+from pmb.helpers.devices import get_device_category_by_name
 import pmb.chroot
 from pmb.core import Chroot
 from pmb.core.context import get_context
@@ -177,7 +177,7 @@ def format_and_mount_root(
         if filesystem == "ext4":
             device_category = get_device_category_by_name(get_context().config.device)
 
-            if device_category == DeviceCategory.DOWNSTREAM:
+            if device_category.allows_downstream_ports():
                 # Some downstream kernels don't support metadata_csum (#1364).
                 # When changing the options of mkfs.ext4, also change them in the
                 # recovery zip code (see 'grep -r mkfs\.ext4')!
