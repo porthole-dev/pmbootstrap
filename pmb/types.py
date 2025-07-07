@@ -1,6 +1,8 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import annotations
+
 import enum
 import subprocess
 from argparse import Namespace
@@ -58,8 +60,74 @@ class CrossCompile(enum.Enum):
                 return Chroot.native()
 
 
-RunOutputTypeDefault = Literal["log", "stdout", "interactive", "tui", "null"]
-RunOutputTypePopen = Literal["background", "pipe"]
+class RunOutputTypeDefault(enum.Enum):
+    LOG = enum.auto()
+    STDOUT = enum.auto()
+    INTERACTIVE = enum.auto()
+    TUI = enum.auto()
+    NULL = enum.auto()
+
+    def is_to_stdout(self) -> bool:
+        match self:
+            case self.STDOUT | self.INTERACTIVE:
+                return True
+            case self.LOG | self.TUI | self.NULL:
+                return False
+            case _:
+                raise AssertionError
+
+    def has_timeout(self) -> bool:
+        match self:
+            case self.LOG | self.STDOUT:
+                return True
+            case self.INTERACTIVE | self.TUI | self.NULL:
+                return False
+            case _:
+                raise AssertionError
+
+    def has_pass_stdin(self) -> bool:
+        match self:
+            case self.INTERACTIVE | self.TUI:
+                return True
+            case self.LOG | self.STDOUT | self.NULL:
+                return False
+            case _:
+                raise AssertionError
+
+    def __str__(self) -> str:
+        return self.name
+
+    @staticmethod
+    def from_string(string: str) -> RunOutputTypeDefault:
+        match string:
+            case "log":
+                return RunOutputTypeDefault.LOG
+            case "stdout":
+                return RunOutputTypeDefault.STDOUT
+            case "interactive":
+                return RunOutputTypeDefault.INTERACTIVE
+            case "tui":
+                return RunOutputTypeDefault.TUI
+            case "null":
+                return RunOutputTypeDefault.NULL
+            case _:
+                raise ValueError
+
+
+class RunOutputTypePopen(enum.Enum):
+    BACKGROUND = enum.auto()
+    PIPE = enum.auto()
+
+    def is_to_stdout(self) -> bool:
+        return False
+
+    def has_timeout(self) -> bool:
+        return False
+
+    def has_pass_stdin(self) -> bool:
+        return False
+
+
 RunOutputType = RunOutputTypeDefault | RunOutputTypePopen
 RunReturnType = str | int | subprocess.Popen
 PathString = Path | str
@@ -195,7 +263,7 @@ class PmbArgs(Namespace):
     on_device_installer: bool
     ondev_cp: list[tuple[str, str]]
     ondev_no_rootfs: bool
-    output: RunOutputType
+    output: RunOutputTypeDefault
     overview: bool
     # FIXME (#2324): figure out the args.package vs args.packages situation
     package: str | list[str]

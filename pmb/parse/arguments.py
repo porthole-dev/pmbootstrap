@@ -9,7 +9,7 @@ from typing import Any, cast
 
 from pmb.core.arch import Arch
 from pmb.core import Config
-from pmb.types import PmbArgs
+from pmb.types import PmbArgs, RunOutputTypeDefault
 from pmb.helpers.exceptions import NonBugError
 
 try:
@@ -1088,12 +1088,13 @@ def get_parser() -> argparse.ArgumentParser:
     chroot.add_argument("--user", help="run the command as user, not as root", action="store_true")
     chroot.add_argument(
         "--output",
-        choices=["log", "stdout", "interactive", "tui", "background"],
+        choices=list(RunOutputTypeDefault),
+        type=RunOutputTypeDefault.from_string,
         help="how the output of the"
         " program should be handled, choose from: 'log',"
         " 'stdout', 'interactive', 'tui' (default),"
         " 'background'. Details: pmb/helpers/run_core.py",
-        default="tui",
+        default=RunOutputTypeDefault.TUI,
     )
     chroot.add_argument(
         "--image",

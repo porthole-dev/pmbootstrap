@@ -6,7 +6,7 @@ import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
 import pmb.config.pmaports
-from pmb.types import PmbArgs
+from pmb.types import PmbArgs, RunOutputTypeDefault
 import pmb.helpers.cli
 from pmb.core import Chroot
 from pmb.core.context import get_context
@@ -82,7 +82,7 @@ def ls(flavor: str | None, suffix: Chroot, extra: bool = False) -> None:
     if extra:
         tmp = "/tmp/initfs-extra-extracted"
     extract(flavor, suffix, extra)
-    pmb.chroot.root(["ls", "-lahR", "."], suffix, Path(tmp), "stdout")
+    pmb.chroot.root(["ls", "-lahR", "."], suffix, Path(tmp), RunOutputTypeDefault.STDOUT)
     pmb.chroot.root(["rm", "-r", tmp], suffix)
 
 
