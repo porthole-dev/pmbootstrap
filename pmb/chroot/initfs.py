@@ -91,6 +91,7 @@ def frontend(args: PmbArgs) -> None:
     context = get_context()
     chroot = Chroot.rootfs(context.config.device)
     flavor = pmb.chroot.other.kernel_flavor_installed(chroot)
+    deviceinfo = pmb.parse.deviceinfo()
 
     # Handle initfs actions
     action = args.action_initfs
@@ -99,13 +100,15 @@ def frontend(args: PmbArgs) -> None:
     elif action == "extract":
         dir = extract(flavor, chroot)
         logging.info(f"Successfully extracted initramfs to: {dir}")
-        dir_extra = extract(flavor, chroot, True)
-        logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
+        if deviceinfo.create_initfs_extra:
+            dir_extra = extract(flavor, chroot, True)
+            logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
     elif action == "ls":
         logging.info("*** initramfs ***")
         ls(flavor, chroot)
-        logging.info("*** initramfs-extra ***")
-        ls(flavor, chroot, True)
+        if deviceinfo.create_initfs_extra:
+            logging.info("*** initramfs-extra ***")
+            ls(flavor, chroot, True)
 
     # Handle hook actions
     elif action == "hook_ls":
