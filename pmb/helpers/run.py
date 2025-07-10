@@ -19,7 +19,7 @@ from pmb.types import (
 def user(
     cmd: Sequence[PathString],
     working_dir: Path | None = None,
-    output: RunOutputType = RunOutputTypeDefault.LOG,
+    output: RunOutputType = "log",
     output_return: bool = False,
     check: bool | None = None,
     env: Env = {},
@@ -58,7 +58,7 @@ def user(
 def user_output(
     cmd: Sequence[PathString],
     working_dir: Path | None = None,
-    output: RunOutputType = RunOutputTypeDefault.LOG,
+    output: RunOutputType = "log",
     check: bool | None = None,
     env: Env = {},
     sudo: bool = False,
@@ -106,7 +106,7 @@ def root(
 def root(
     cmd: Sequence[PathString],
     working_dir: Path | None = None,
-    output: RunOutputType = RunOutputTypeDefault.LOG,
+    output: RunOutputType = "log",
     output_return: bool = False,
     check: bool | None = None,
     env: Env = {},

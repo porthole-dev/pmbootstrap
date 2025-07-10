@@ -5,7 +5,7 @@ from pmb.helpers.devices import get_device_category_by_name
 import pmb.chroot
 from pmb.core import Chroot
 from pmb.core.context import get_context
-from pmb.types import PartitionLayout, PmbArgs, PathString, RunOutputTypeDefault
+from pmb.types import PartitionLayout, PmbArgs, PathString
 import os
 import tempfile
 
@@ -81,8 +81,8 @@ def format_luks_root(args: PmbArgs, device: str) -> None:
         open_cmd += ["--key-file", str(path)]
 
     try:
-        pmb.chroot.root(format_cmd, output=RunOutputTypeDefault.INTERACTIVE)
-        pmb.chroot.root([*open_cmd, device, "pm_crypt"], output=RunOutputTypeDefault.INTERACTIVE)
+        pmb.chroot.root(format_cmd, output="interactive")
+        pmb.chroot.root([*open_cmd, device, "pm_crypt"], output="interactive")
     finally:
         if path_outside:
             os.unlink(path_outside)

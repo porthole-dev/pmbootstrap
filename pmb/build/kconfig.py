@@ -18,7 +18,7 @@ import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse
 from pmb.core import Chroot
-from pmb.types import Apkbuild, Env, RunOutputTypeDefault
+from pmb.types import Apkbuild, Env
 
 
 class KConfigUI(enum.Enum):
@@ -130,7 +130,7 @@ def extract_and_patch_sources(pkgname: str, arch: Arch) -> None:
     pmb.chroot.user(
         ["abuild", "prepare"],
         working_dir=Path("/home/pmos/build"),
-        output=RunOutputTypeDefault.INTERACTIVE,
+        output="interactive",
         env={"CARCH": str(arch)},
     )
 
@@ -148,9 +148,7 @@ def _make(
 
     logging.info("(native) make " + make_command)
 
-    pmb.chroot.user(
-        ["make", str(make_command)], chroot, outputdir, output=RunOutputTypeDefault.TUI, env=env
-    )
+    pmb.chroot.user(["make", str(make_command)], chroot, outputdir, output="tui", env=env)
 
     # Find the updated config
     source = Chroot.native() / outputdir / ".config"

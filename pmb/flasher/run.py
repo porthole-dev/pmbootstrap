@@ -4,7 +4,6 @@ from pmb.parse.deviceinfo import Deviceinfo
 import pmb.flasher
 import pmb.chroot.initfs
 import pmb.helpers.args
-from pmb.types import RunOutputTypeDefault
 
 
 def check_partition_blacklist(deviceinfo: Deviceinfo, key: str, value: str) -> None:
@@ -114,4 +113,4 @@ def run(
         # Remove empty strings
         command = [x for x in command if x != ""]
         # Run the action
-        pmb.chroot.root(command, output=RunOutputTypeDefault.INTERACTIVE)
+        pmb.chroot.root(command, output="interactive")

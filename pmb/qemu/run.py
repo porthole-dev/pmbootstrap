@@ -24,7 +24,7 @@ import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
 import pmb.install.losetup
-from pmb.types import Env, PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import Env, PathString, PmbArgs
 import pmb.helpers.run
 import pmb.parse.cpuinfo
 from pmb.core import Chroot, ChrootType
@@ -470,7 +470,7 @@ def run(args: PmbArgs) -> None:
     process = None
     try:
         signal.signal(signal.SIGTERM, sigterm_handler)
-        process = pmb.helpers.run.user(qemu, output=RunOutputTypeDefault.TUI, env=env)
+        process = pmb.helpers.run.user(qemu, output="tui", env=env)
     except KeyboardInterrupt:
         # In addition to not showing a trace when pressing ^C, let user know
         # they can override this behavior:

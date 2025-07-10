@@ -16,7 +16,7 @@ import pmb.config
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.meta import Cache
-from pmb.types import PathString, RunOutputTypeDefault
+from pmb.types import PathString
 
 re_branch_aports = re.compile(r"^\d+\.\d\d+-stable$")
 re_branch_pmaports = re.compile(r"^v\d\d\.\d\d$")
@@ -56,7 +56,7 @@ def clone(name_repo: str) -> None:
         # Create parent dir and clone
         logging.info(f"Clone git repository: {url}")
         (get_context().config.work / "cache_git").mkdir(exist_ok=True)
-        pmb.helpers.run.user(command, output=RunOutputTypeDefault.STDOUT)
+        pmb.helpers.run.user(command, output="stdout")
 
     # FETCH_HEAD does not exist after initial clone. Create it, so
     # is_outdated() can use it.
@@ -77,9 +77,7 @@ def rev_parse(
         or (with ``--abbrev-ref``): the branch name, e.g. "master"
     """
     command = ["git", "rev-parse", *extra_args, revision]
-    rev = pmb.helpers.run.user_output(
-        command, path, output=RunOutputTypeDefault.NULL if silent else RunOutputTypeDefault.LOG
-    )
+    rev = pmb.helpers.run.user_output(command, path, output="null" if silent else "log")
     return rev.rstrip()
 
 
@@ -97,17 +95,12 @@ def can_fast_forward(path: Path, branch_upstream: str, branch: str = "HEAD") -> 
 def clean_worktree(path: Path, silent: bool = False) -> bool:
     """Check if there are not any modified files in the git dir."""
     command = ["git", "status", "--porcelain"]
-    return (
-        pmb.helpers.run.user_output(
-            command, path, output=RunOutputTypeDefault.NULL if silent else RunOutputTypeDefault.LOG
-        )
-        == ""
-    )
+    return pmb.helpers.run.user_output(command, path, output="null" if silent else "log") == ""
 
 
 def list_remotes(aports: Path) -> list[str]:
     command = ["git", "remote", "-v"]
-    output = pmb.helpers.run.user_output(command, aports, output=RunOutputTypeDefault.NULL)
+    output = pmb.helpers.run.user_output(command, aports, output="null")
     return output.splitlines()
 
 
@@ -166,7 +159,7 @@ def set_remote_url(repo: Path, remote_name: str, remote_url: str, remote_type: R
         "--push" if remote_type == RemoteType.PUSH else "--no-push",
     ]
 
-    pmb.helpers.run.user(command, output=RunOutputTypeDefault.STDOUT)
+    pmb.helpers.run.user(command, output="stdout")
 
 
 # Intentionally lower case for case-insensitive comparison
@@ -222,9 +215,7 @@ def parse_channels_cfg(aports: Path) -> dict:
     cfg = configparser.ConfigParser()
     remote = get_upstream_remote(aports)
     command = ["git", "show", f"{remote}/master:channels.cfg"]
-    stdout = pmb.helpers.run.user_output(
-        command, aports, output=RunOutputTypeDefault.NULL, check=False
-    )
+    stdout = pmb.helpers.run.user_output(command, aports, output="null", check=False)
     try:
         cfg.read_string(stdout)
     except configparser.MissingSectionHeaderError:
@@ -338,7 +329,7 @@ def pull(repo_name: str) -> int:
     # Fast-forward now (should not fail due to checks above, so it's fine to
     # throw an exception on error)
     command = ["git", "merge", "--ff-only", branch_upstream]
-    pmb.helpers.run.user(command, repo, RunOutputTypeDefault.STDOUT)
+    pmb.helpers.run.user(command, repo, "stdout")
     return 0
 
 

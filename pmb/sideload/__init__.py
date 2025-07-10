@@ -6,7 +6,7 @@ from pmb.core.arch import Arch
 from pmb.helpers import logging
 import shlex
 
-from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import PathString, PmbArgs
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.apkindex
@@ -30,7 +30,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
     command: list[PathString] = ["scp", "-P", port, key, f"{user}@{host}:/tmp"]
-    pmb.helpers.run.user(command, output=RunOutputTypeDefault.INTERACTIVE)
+    pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing signing key at {user}@{host}")
     keyname = os.path.join("/tmp", os.path.basename(key))
@@ -43,7 +43,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
     remote_cmd = pmb.helpers.run_core.flat_cmd([remote_cmd_l])
     full_cmd = shlex.quote(f"{su_cmd} {remote_cmd}")
     command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {full_cmd}"]
-    pmb.helpers.run.user(command, output=RunOutputTypeDefault.TUI)
+    pmb.helpers.run.user(command, output="tui")
 
 
 def ssh_find_arch(args: PmbArgs, user: str, host: str, port: str) -> Arch:
@@ -77,7 +77,7 @@ def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list
 
     logging.info(f"Copying packages to {user}@{host}")
     command: list[PathString] = ["scp", "-P", port, *paths, f"{user}@{host}:/tmp"]
-    pmb.helpers.run.user(command, output=RunOutputTypeDefault.INTERACTIVE)
+    pmb.helpers.run.user(command, output="interactive")
 
     logging.info(f"Installing packages at {user}@{host}")
     add_cmd_list = ["apk", "--wait", "30", "add", *remote_paths]
@@ -86,7 +86,7 @@ def ssh_install_apks(args: PmbArgs, user: str, host: str, port: str, paths: list
     add_cmd_complete = shlex.quote(f"{su_cmd} {add_cmd} rc=$?; {clean_cmd} exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
     command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {add_cmd_complete}"]
-    pmb.helpers.run.user(command, output=RunOutputTypeDefault.TUI)
+    pmb.helpers.run.user(command, output="tui")
 
 
 def sideload(

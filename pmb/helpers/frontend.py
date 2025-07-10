@@ -19,7 +19,7 @@ import pmb.chroot.other
 import pmb.ci
 import pmb.config
 from pmb.core import Config
-from pmb.types import Env, PmbArgs, RunOutputTypeDefault
+from pmb.types import Env, PmbArgs
 import pmb.export
 import pmb.flasher
 import pmb.helpers.aportupgrade
@@ -516,7 +516,7 @@ def stats(args: PmbArgs) -> None:
     # Install ccache and display stats
     pmb.chroot.apk.install(["ccache"], chroot)
     logging.info(f"({chroot}) % ccache -s")
-    pmb.chroot.user(["ccache", "-s"], chroot, output=RunOutputTypeDefault.STDOUT)
+    pmb.chroot.user(["ccache", "-s"], chroot, output="stdout")
 
 
 def work_migrate(args: PmbArgs) -> None:

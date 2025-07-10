@@ -2,14 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
 from pmb.core.context import get_context
-from pmb.types import (
-    PathString,
-    Env,
-    RunOutputType,
-    RunOutputTypeDefault,
-    RunOutputTypePopen,
-    RunReturnType,
-)
+from pmb.types import PathString, Env, RunOutputType, RunReturnType
 from pmb.helpers import logging
 import os
 from pathlib import Path
@@ -58,23 +51,25 @@ def flat_cmd(
 
 
 def sanity_checks(
-    output: RunOutputType = RunOutputTypeDefault.LOG,
-    output_return: bool = False,
-    check: bool | None = None,
+    output: RunOutputType = "log", output_return: bool = False, check: bool | None = None
 ) -> None:
     """Raise an exception if the parameters passed to core() don't make sense.
 
     (all parameters are described in core() below).
     """
+    vals = ["log", "stdout", "interactive", "tui", "background", "pipe", "null"]
+    if output not in vals:
+        raise RuntimeError("Invalid output value: " + str(output))
+
     # Prevent setting the check parameter with output="background".
     # The exit code won't be checked when running in background, so it would
     # always by check=False. But we prevent it from getting set to check=False
     # as well, so it does not look like you could change it to check=True.
-    if check is not None and output == RunOutputTypePopen.BACKGROUND:
+    if check is not None and output == "background":
         raise RuntimeError("Can't use check with output: background")
 
-    if output_return and output in [RunOutputTypeDefault.TUI, RunOutputTypePopen.BACKGROUND]:
-        raise RuntimeError(f"Can't use output_return with output: {output}")
+    if output_return and output in ["tui", "background"]:
+        raise RuntimeError("Can't use output_return with output: " + output)
 
 
 def background(
@@ -366,7 +361,7 @@ def core(
     log_message: str,
     cmd: Sequence[PathString],
     working_dir: Path | None = None,
-    output: RunOutputType = RunOutputTypeDefault.LOG,
+    output: RunOutputType = "log",
     output_return: bool = False,
     check: bool | None = None,
     sudo: bool = False,
@@ -385,18 +380,18 @@ def core(
     :param working_dir: path in host system where the command should run
     :param output: where to write the output (stdout and stderr) of the
                    process. We almost always write to the log file, which can
-                   be read with "pmbootstrap log" (output values: LOG,
-                   STDOUT, INTERACTIVE, BACKGROUND), so it's easy to
+                   be read with "pmbootstrap log" (output values: "log",
+                   "stdout", "interactive", "background"), so it's easy to
                    trace what pmbootstrap does.
 
-                   The exceptions are TUI (text-based user interface), where
+                   The exceptions are "tui" (text-based user interface), where
                    it does not make sense to write to the log file (think of
                    ncurses UIs, such as "menuconfig") and "pipe" where the
                    output is written to a pipe for manual asynchronous
                    consumption by the caller.
 
-                   When the output is not set to INTERACTIVE, TUI,
-                   BACKGROUND or PIPE, we kill the process if it does not
+                   When the output is not set to "interactive", "tui",
+                   "background" or "pipe", we kill the process if it does not
                    output anything for 5 minutes (time can be set with
                    "pmbootstrap --timeout").
 
@@ -404,17 +399,17 @@ def core(
                    their properties. "wait" indicates that we wait for the
                    process to complete.
 
-        ============  =======  ==========  =============  ====  ==========
-        output value  timeout  out to log  out to stdout  wait  pass stdin
-        ============  =======  ==========  =============  ====  ==========
-        LOG           x        x                          x
-        STDOUT        x        x           x              x
-        INTERACTIVE            x           x              x     x
-        TUI                                x              x     x
-        BACKGROUND             x
-        PIPE
-        NULL
-        ============  =======  ==========  =============  ====  ==========
+        =============  =======  ==========  =============  ====  ==========
+        output value   timeout  out to log  out to stdout  wait  pass stdin
+        =============  =======  ==========  =============  ====  ==========
+        "log"          x        x                          x
+        "stdout"       x        x           x              x
+        "interactive"           x           x              x     x
+        "tui"                               x              x     x
+        "background"            x
+        "pipe"
+        "null"
+        =============  =======  ==========  =============  ====  ==========
 
     :param output_return: in addition to writing the program's output to the
         destinations above in real time, write to a buffer and return it as string when the
@@ -443,34 +438,34 @@ def core(
     #     raise e
 
     # Background
-    if output == RunOutputTypePopen.BACKGROUND:
+    if output == "background":
         return background(cmd, working_dir)
 
     # Pipe
-    if output == RunOutputTypePopen.PIPE:
+    if output == "pipe":
         return pipe(cmd, working_dir)
 
     # Foreground
     output_after_run = ""
-    if output == RunOutputTypeDefault.TUI:
+    if output == "tui":
         # Foreground TUI
         code = foreground_tui(cmd, working_dir)
     else:
         # Foreground pipe (always redirects to the error log file)
         output_to_stdout = False
-        if not context.details_to_stdout and output.is_to_stdout():
+        if not context.details_to_stdout and output in ["stdout", "interactive"]:
             output_to_stdout = True
 
-        output_timeout = output.has_timeout() and not disable_timeout
+        output_timeout = output in ["log", "stdout"] and not disable_timeout
 
-        stdin = None if output.has_pass_stdin() else subprocess.DEVNULL
+        stdin = subprocess.DEVNULL if output in ["log", "stdout"] else None
 
         (code, output_after_run) = foreground_pipe(
             cmd,
             working_dir,
             output_to_stdout,
             output_return,
-            output != RunOutputTypeDefault.NULL,
+            output != "null",
             output_timeout,
             sudo,
             stdin,
