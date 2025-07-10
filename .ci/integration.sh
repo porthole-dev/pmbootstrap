@@ -112,6 +112,10 @@ bump_autobuild() {
 	fi
 }
 
+chroot_basic() {
+	pmbootstrap chroot true
+}
+
 # Run the test
 echo "Running $test $*"
 "$test" "$@"

@@ -282,3 +282,8 @@ pkgrel_bump amd64:
   extends: .integration
   script:
     - .ci/integration_tests/bump_autobuild qemu-amd64 hello-world
+
+chroot basic:
+  extends: .integration
+  script:
+    - .ci/integration_tests/chroot_basic
