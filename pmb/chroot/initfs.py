@@ -1,12 +1,13 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pathlib import Path
 import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
 import pmb.config.pmaports
-from pmb.types import PmbArgs, RunOutputTypeDefault
+from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.cli
 from pmb.core import Chroot
 from pmb.core.context import get_context
@@ -28,18 +29,22 @@ def extract(chroot: Chroot, extra: bool = False) -> Path:
     /tmp/initfs-extra-extracted and return the outside extraction path.
     """
     # Extraction folder
-    inside = "/tmp/initfs-extracted"
-    initfs_file = "/boot/initramfs"
+    inside = Path("/tmp/initfs-extracted")
+    initfs_file = Path("/boot/initramfs")
+
     if extra:
-        inside = "/tmp/initfs-extra-extracted"
-        initfs_file += "-extra"
+        inside = Path("/tmp/initfs-extra-extracted")
+        initfs_file = initfs_file.with_name(f"{initfs_file.name}-extra")
+
+    if not (chroot / initfs_file).exists():
+        raise NonBugError("The initramfs needs to be generated first! Try 'pmbootstrap initfs'")
 
     outside = chroot / inside
     if outside.exists():
         if not pmb.helpers.cli.confirm(
             f"Extraction folder {outside} already exists. Do you want to overwrite it?"
         ):
-            raise RuntimeError("Aborted!")
+            raise NonBugError("Aborted!")
         pmb.chroot.root(["rm", "-r", inside], chroot)
 
     # Extraction script (because passing a file to stdin is not allowed
@@ -48,7 +53,7 @@ def extract(chroot: Chroot, extra: bool = False) -> Path:
         handle.write(f"#!/bin/sh\ncd {inside} && cpio -i < _initfs\n")
 
     # Extract
-    commands = [
+    commands: list[list[PathString]] = [
         ["mkdir", "-p", inside],
         ["cp", initfs_file, f"{inside}/_initfs.gz"],
         ["gzip", "-d", f"{inside}/_initfs.gz"],
