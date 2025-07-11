@@ -120,6 +120,14 @@ chroot_basic() {
 	pmbootstrap chroot true
 }
 
+inspect_initramfs() {
+	pmbootstrap config ui none
+	pmbootstrap install --password 147147 --no-image
+	pmbootstrap initfs
+	pmbootstrap initfs ls
+	pmbootstrap initfs extract
+}
+
 # Run the test
 echo "Running $test $*"
 "$test" "$@"
