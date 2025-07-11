@@ -29,6 +29,9 @@ pmbootstrap -q shutdown
 # Default for tests where the device doesn't matter
 pmbootstrap config device qemu-amd64
 
+# Building packages takes long, only do it if actually relevant to the test.
+pmbootstrap config build_pkgs_on_install False
+
 # A test that builds normal and FDE images for the given device/ui
 build_images() {
 	device="$1"
@@ -95,6 +98,7 @@ bump_autobuild() {
 	fi
 
 	pmbootstrap config device "$device"
+	pmbootstrap config build_pkgs_on_install True
 
 	echo "Bumping pkgrel of $package"
 	# shellcheck disable=SC2086
