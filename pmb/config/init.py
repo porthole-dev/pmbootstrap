@@ -20,7 +20,7 @@ import pmb.aportgen
 import pmb.config
 import pmb.config.pmaports
 from pmb.core import Config
-from pmb.types import PmbArgs
+from pmb.types import Apkbuild, PmbArgs
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.git
@@ -782,6 +782,50 @@ def ask_for_locale(current_locale: str) -> str:
         return f"{ret}.UTF-8"
 
 
+def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) -> None:
+    kernel_version = None
+    if device_exists:
+        linuxdep = next((pkg for pkg in apkbuild["depends"] if pkg.startswith("linux-")), None)
+        if linuxdep is None:
+            kernel_subpkg = next(
+                subpkg for subpkg in apkbuild["subpackages"] if subpkg.endswith("-" + kernel)
+            )
+            linuxdep = next(
+                (
+                    dep
+                    for dep in apkbuild["subpackages"][kernel_subpkg]["depends"]
+                    if dep.startswith("linux-")
+                ),
+                None,
+            )
+        if linuxdep:
+            linux_apkbuild = pmb.helpers.pmaports.get(linuxdep, must_exist=False)
+            if linux_apkbuild:
+                kernel_version = linux_apkbuild["pkgver"]
+
+    systemd_req = pmb.config.pmaports.read_config().get("systemd_linux_min_version", "5.4")
+    systemd_warning = (
+        not device_exists
+        or kernel_version
+        and pmb.parse.version.compare(
+            kernel_version,
+            systemd_req,
+        )
+        == -1
+    )
+    if systemd_warning:
+        if kernel_version is None:
+            logging.warning(f"WARNING: systemd requires kernel version {systemd_req}.")
+            logging.warning(
+                "WARNING: Installing systemd with older kernel may result in non-bootable system."
+            )
+        else:
+            logging.warning(
+                f"WARNING: Kernel version {kernel_version} is lower than systemd's minimal requirement."
+            )
+            logging.warning("WARNING: Choosing systemd may result in non-bootable system.")
+
+
 def frontend(args: PmbArgs) -> None:
     # Work folder (needs to be first, so we can create chroots early)
     config = get_context().config
@@ -846,6 +890,7 @@ def frontend(args: PmbArgs) -> None:
     config.ui_extras = ask_for_ui_extras(config, ui)
 
     # systemd
+    print_systemd_warning(device_exists, apkbuild, config.kernel)
     config.systemd = ask_for_systemd(config, ui)
 
     ask_for_provider_select_pkg(f"postmarketos-ui-{ui}", config.providers)
