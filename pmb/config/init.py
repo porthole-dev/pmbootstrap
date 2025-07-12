@@ -814,16 +814,21 @@ def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) 
         == -1
     )
     if systemd_warning:
+        warning_text = ""
         if kernel_version is None:
-            logging.warning(f"WARNING: systemd requires kernel version {systemd_req}.")
-            logging.warning(
-                "WARNING: Installing systemd with older kernel may result in non-bootable system."
+            warning_text = (
+                f"WARNING: systemd requires kernel version {systemd_req}."
+                + " Installing systemd with older kernel may result in non-bootable system."
             )
         else:
-            logging.warning(
-                f"WARNING: Kernel version {kernel_version} is lower than systemd's minimal requirement."
+            warning_text = (
+                f"WARNING: Kernel version {kernel_version} "
+                + f"is lower than systemd's minimal requirement ({systemd_req})."
+                + " Choosing systemd may result in non-bootable system."
             )
-            logging.warning("WARNING: Choosing systemd may result in non-bootable system.")
+        systemd_readme = "https://github.com/systemd/systemd/blob/main/README"
+        warning_text += f" Get more information for systemd requirements at {systemd_readme}"
+        logging.warning(warning_text)
 
 
 def frontend(args: PmbArgs) -> None:
