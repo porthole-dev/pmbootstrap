@@ -132,22 +132,33 @@ def pkgrepo_iter_package_dirs(
     ignore all but the first. This allows for overriding packages.
     """
     seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(with_extra_repos)))
+
     for repo in pkgrepo_paths(with_extra_repos):
-        for g in glob.iglob(os.path.join(repo, "**/*/APKBUILD"), recursive=True):
-            pdir = Path(g).parent
-            # Skip extra-repos when not parsing the extra-repo itself
-            if "extra-repos" not in repo.parts and "extra-repos" in pdir.parts:
-                continue
-            pkg = os.path.basename(pdir)
-            if pkg in seen[pkgrepo_name(repo)]:
-                raise RuntimeError(
-                    f"Package {pkg} found in multiple aports "
-                    "subfolders. Please put it only in one folder."
-                )
-            if pkg in [x for li in seen.values() for x in li]:
-                continue
-            seen[pkgrepo_name(repo)].append(pkg)
-            yield pdir
+        for root, dirs, files in os.walk(repo):
+            # Skip hidden directories and common non-package directories
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+
+            if "APKBUILD" in files:
+                pdir = Path(root)
+
+                # Skip extra-repos when not parsing the extra-repo itself
+                if "extra-repos" not in repo.parts and "extra-repos" in pdir.parts:
+                    continue
+
+                pkg = pdir.name
+                if pkg in seen[pkgrepo_name(repo)]:
+                    raise RuntimeError(
+                        f"Package {pkg} found in multiple aports "
+                        "subfolders. Please put it only in one folder."
+                    )
+                if pkg in [x for li in seen.values() for x in li]:
+                    continue
+
+                seen[pkgrepo_name(repo)].append(pkg)
+                yield pdir
+
+                # Don't traverse subdirectories of a package directory
+                dirs.clear()
 
 
 def pkgrepo_relative_path(path: Path) -> tuple[Path, Path]:
