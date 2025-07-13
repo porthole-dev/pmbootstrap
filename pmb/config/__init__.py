@@ -282,6 +282,7 @@ apkbuild_attributes = {
     "_llvmver": {},
     # Overridden packages
     "_pkgver": {},
+    "_pkgrel": {},
     "_pkgname": {},
     # git commit
     "_commit": {},
