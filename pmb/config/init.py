@@ -803,13 +803,15 @@ def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) 
             if linux_apkbuild:
                 kernel_version = linux_apkbuild["pkgver"]
 
-    systemd_req = pmb.config.pmaports.read_config().get("systemd_linux_min_version", "5.4")
+    pmaports_cfg = pmb.config.pmaports.read_config()
+    systemd_req = pmaports_cfg.get("systemd_linux_min_version", "5.4")
+    systemd_recommended = pmaports_cfg.get("systemd_linux_recommended_version", "5.7")
     systemd_warning = (
         not device_exists
         or kernel_version
         and pmb.parse.version.compare(
             kernel_version,
-            systemd_req,
+            systemd_recommended,
         )
         == -1
     )
@@ -820,11 +822,17 @@ def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) 
                 f"WARNING: systemd requires kernel version {systemd_req}."
                 + " Installing systemd with older kernel may result in non-bootable system."
             )
-        else:
+        elif pmb.parse.version.compare(kernel_version, systemd_req) == -1:
             warning_text = (
                 f"WARNING: Kernel version {kernel_version} "
                 + f"is lower than systemd's minimal requirement ({systemd_req})."
                 + " Choosing systemd may result in non-bootable system."
+            )
+        else:
+            warning_text = (
+                f"WARNING: Kernel version {kernel_version} "
+                + f"is lower than systemd's recommended kernel version ({systemd_recommended}). "
+                + "Some systemd features may be not available."
             )
         systemd_readme = "https://github.com/systemd/systemd/blob/main/README"
         warning_text += f" Get more information for systemd requirements at {systemd_readme}"
