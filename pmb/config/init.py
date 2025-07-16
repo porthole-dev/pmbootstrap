@@ -859,7 +859,7 @@ def frontend(args: PmbArgs) -> None:
     pmb.helpers.other.migrate_work_folder()
 
     # Clone pmaports
-    pmb.config.pmaports.init()
+    pmb.config.pmaports.init(args.shallow_initial_clone)
 
     # Choose release channel, possibly switch pmaports branch
     channel = ask_for_channel(config)

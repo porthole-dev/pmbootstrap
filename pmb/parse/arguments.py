@@ -960,7 +960,6 @@ def get_parser() -> argparse.ArgumentParser:
 
     # Actions
     sub = parser.add_subparsers(title="action", dest="action")
-    sub.add_parser("init", help="initialize config file")
     sub.add_parser("shutdown", help="umount, unregister binfmt")
     sub.add_parser(
         "index",
@@ -989,6 +988,14 @@ def get_parser() -> argparse.ArgumentParser:
     arguments_test(sub)
     arguments_status(sub)
     arguments_ci(sub)
+
+    # Action: init
+    init = sub.add_parser("init", help="initialize config file")
+    init.add_argument(
+        "--shallow-initial-clone",
+        help="do a shallow clone if pmaports has to be cloned. Primarily useful to speed up scripts.",
+        action="store_true",
+    )
 
     # Action: log
     log = sub.add_parser("log", help="follow the pmbootstrap logfile")

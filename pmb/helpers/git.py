@@ -36,13 +36,14 @@ def get_path(name_repo: str) -> Path:
     return pkgrepo_path(name_repo)
 
 
-def clone(name_repo: str) -> None:
+def clone(name_repo: str, do_shallow_clone: bool = False) -> None:
     """Clone a git repository to $WORK/cache_git/$name_repo.
 
     (or to the overridden path set in args, as with ``pmbootstrap --aports``).
 
     :param name_repo: short alias used for the repository name, from pmb.config.git_repos
         (e.g. "aports_upstream", "pmaports")
+    :param do_shallow_clone: Whether to do a shallow (--depth=1) clone of the given repository.
     """
     # Check for repo name in the config
     if name_repo not in pmb.config.git_repos:
@@ -53,6 +54,8 @@ def clone(name_repo: str) -> None:
         # Build git command
         url = pmb.config.git_repos[name_repo][0]
         command = ["git", "clone"]
+        if do_shallow_clone:
+            command.append("--depth=1")
         command += [url, str(path)]
 
         # Create parent dir and clone

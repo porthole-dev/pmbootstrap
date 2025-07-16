@@ -9,6 +9,7 @@ from pmb.core.pkgrepo import (
     pkgrepo_relative_path,
 )
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 import sys
 
@@ -20,11 +21,11 @@ import pmb.parse.version
 from pmb.types import RunOutputTypeDefault
 
 
-def clone() -> None:
+def clone(do_shallow: bool = False) -> None:
     logging.info("Setting up the native chroot and cloning the package build recipes (pmaports)...")
 
     # Set up the native chroot and clone pmaports
-    pmb.helpers.git.clone("pmaports")
+    pmb.helpers.git.clone("pmaports", do_shallow)
 
 
 def check_version_pmaports(real: str) -> None:
@@ -184,9 +185,9 @@ def read_config_channel() -> dict[str, str]:
     )
 
 
-def init() -> None:
+def init(do_shallow_clone: bool = False) -> None:
     if not os.path.exists(pkgrepo_default_path()):
-        clone()
+        clone(do_shallow_clone)
     read_config()
 
 
@@ -223,6 +224,24 @@ def switch_to_channel_branch(channel_new: str) -> bool:
 
     # Make sure we don't have mounts related to the old channel
     pmb.chroot.shutdown()
+
+    # We need to make sure the branch exists in case --shallow-initial-clone previously was used.
+    # Checking whether args.shallow_initial_clone is True would not solve this problem as a user
+    # could use --shallow-initial-clone when cloning for the first time, then call init without the
+    # flag subsequent times without the repository ever ending up "deep cloned". As such, check for
+    # the presence of the branch instead of whether the flag is True.
+    if pmb.helpers.run.user(
+        ["git", "show-ref", "--quiet", "--branches", branch_new], aports, check=False
+    ):
+        logging.info(f"Branch {branch_new} doesn't exist, attempting to fetch it")
+
+        if pmb.helpers.run.user(
+            ["git", "fetch", "--depth=1", "origin", f"{branch_new}:{branch_new}"],
+            aports,
+            RunOutputTypeDefault.INTERACTIVE,
+            check=False,
+        ):
+            raise NonBugError(f"Failed to fetch {branch_new}!")
 
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
