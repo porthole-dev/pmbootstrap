@@ -483,11 +483,11 @@ def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentPa
         "--second-storage",
         metavar="IMAGE_SIZE",
         help="add a second storage with the given size (default:"
-        " 4G), gets created if it does not exist. Use to"
+        " 8G), gets created if it does not exist. Use to"
         " test install from SD to eMMC",
         nargs="?",
         default=None,
-        const="4G",
+        const="8G",
     )
     ret.add_argument("-m", "--memory", type=int, default=1024, help="guest RAM (default: 1024)")
     ret.add_argument("-p", "--port", type=int, default=2222, help="SSH port (default: 2222)")
