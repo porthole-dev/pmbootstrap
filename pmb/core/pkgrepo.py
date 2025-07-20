@@ -134,7 +134,7 @@ def pkgrepo_iter_package_dirs(
     seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(with_extra_repos)))
 
     for repo in pkgrepo_paths(with_extra_repos):
-        for root, dirs, files in os.walk(repo):
+        for root, dirs, files in os.walk(repo, followlinks=True):
             # Skip hidden directories and common non-package directories
             dirs[:] = [d for d in dirs if not d.startswith(".")]
 
