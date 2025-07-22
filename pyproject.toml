@@ -11,6 +11,7 @@ authors = [
 description = "A sophisticated chroot / build / flash tool to develop and install postmarketOS'"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.10"
 
 [project.scripts]
 pmbootstrap = "pmb:main"
@@ -30,8 +31,6 @@ pmb = "pmb"
 
 [tool.ruff]
 line-length=100
-# Assume Python 3.10
-target-version = "py310"
 
 [tool.ruff.lint]
 # RUF021: Could be fixed if someone cares about this.
