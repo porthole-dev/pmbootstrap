@@ -77,8 +77,8 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
         else:
             return Chroot.buildroot(Arch.from_str(args.buildroot))
     elif args.suffix:
-        (_t, s) = args.suffix.split("_")
-        t: ChrootType = ChrootType(_t)
+        (t_, s) = args.suffix.split("_")
+        t: ChrootType = ChrootType(t_)
         return Chroot(t, s)
     else:
         return Chroot(ChrootType.NATIVE)

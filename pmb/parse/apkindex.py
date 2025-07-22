@@ -247,13 +247,13 @@ def parse(
 
     # Try to get a cached result first
     lastmod = path.lstat().st_mtime
-    _cache_key = "multiple" if multiple_providers else "single"
+    cache_key_ = "multiple" if multiple_providers else "single"
     key = cache_key(path)
     if key in pmb.helpers.other.cache["apkindex"]:
         cache = pmb.helpers.other.cache["apkindex"][key]
         if cache["lastmod"] == lastmod:
-            if _cache_key in cache:
-                return cache[_cache_key]
+            if cache_key_ in cache:
+                return cache[cache_key_]
         else:
             clear_cache(path)
 
@@ -296,7 +296,7 @@ def parse(
     key = cache_key(path)
     if key not in pmb.helpers.other.cache["apkindex"]:
         pmb.helpers.other.cache["apkindex"][key] = {"lastmod": lastmod}
-    pmb.helpers.other.cache["apkindex"][key][_cache_key] = ret
+    pmb.helpers.other.cache["apkindex"][key][cache_key_] = ret
     return ret
 
 

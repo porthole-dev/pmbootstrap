@@ -411,8 +411,8 @@ def process_package(
 
         if context.no_depends:
             pmb.helpers.repo.update(arch)
-            _dep_arch = Arch.native() if cross == "cross-native2" else arch
-            if not pmb.parse.apkindex.package(dep, _dep_arch, False):
+            dep_arch = Arch.native() if cross == "cross-native2" else arch
+            if not pmb.parse.apkindex.package(dep, dep_arch, False):
                 raise RuntimeError(
                     "Missing binary package for dependency '" + dep + "' of '" + parent + "', but"
                     " pmbootstrap won't build any depends since"

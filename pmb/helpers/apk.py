@@ -166,10 +166,10 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
     # Our _apk_with_progress() wrapper also need --no-progress, since all that does is
     # prevent apk itself from rendering progress bars. We instead want it to tell us
     # the progress so we can render it. So we always set --no-progress.
-    _command: list[str] = [str(config.work / "apk.static"), "--no-progress"]
+    command_: list[str] = [str(config.work / "apk.static"), "--no-progress"]
     if chroot:
         cache_dir = config.work / f"cache_apk_{chroot.arch}"
-        _command.extend(
+        command_.extend(
             [
                 "--root",
                 str(chroot.path),
@@ -179,26 +179,26 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
         )
 
         if os.getenv("PMB_APK_NO_CACHE") == "1":
-            _command.extend(["--no-cache"])
+            command_.extend(["--no-cache"])
         else:
-            _command.extend(["--cache-dir", str(cache_dir)])
+            command_.extend(["--cache-dir", str(cache_dir)])
 
         local_repos = pmb.helpers.repo.urls(
             user_repository=config.work / "packages", mirrors_exclude=True
         )
         for repo in local_repos:
-            _command.extend(["--repository", repo])
+            command_.extend(["--repository", repo])
     if get_context().offline:
-        _command.append("--no-network")
+        command_.append("--no-network")
 
     for c in command:
-        _command.append(os.fspath(c))
+        command_.append(os.fspath(c))
 
         # Always be non-interactive
         if c == "add":
-            _command.append("--no-interactive")
+            command_.append("--no-interactive")
 
-    return _command
+    return command_
 
 
 def run(command: Sequence[PathString], chroot: Chroot, with_progress: bool = True) -> None:
@@ -209,28 +209,28 @@ def run(command: Sequence[PathString], chroot: Chroot, with_progress: bool = Tru
     :param chroot: chroot to run the command in
     :raises RuntimeError: when the apk command fails
     """
-    _command = _prepare_cmd(command, chroot)
+    command_ = _prepare_cmd(command, chroot)
 
     # Sanity checks. We should avoid accidentally writing to
     # /var/cache/apk on the host!
     if "add" in command:
-        if "--no-interactive" not in _command:
+        if "--no-interactive" not in command_:
             raise RuntimeError(
                 "Encountered an 'apk add' command without --no-interactive! This is a bug."
             )
-        if os.getenv("PMB_APK_NO_CACHE") == "1" and "--no-cache" not in _command:
+        if os.getenv("PMB_APK_NO_CACHE") == "1" and "--no-cache" not in command_:
             raise RuntimeError(
                 "Encountered an 'apk add' command without --no-cache! This is a bug."
             )
-        if os.getenv("PMB_APK_NO_CACHE") != "1" and "--cache-dir" not in _command:
+        if os.getenv("PMB_APK_NO_CACHE") != "1" and "--cache-dir" not in command_:
             raise RuntimeError(
                 "Encountered an 'apk add' command without --cache-dir! This is a bug."
             )
 
     if with_progress:
-        _apk_with_progress(_command)
+        _apk_with_progress(command_)
     else:
-        pmb.helpers.run.root(_command)
+        pmb.helpers.run.root(command_)
 
 
 def cache_clean(arch: Arch) -> None:
@@ -281,10 +281,10 @@ def cache_clean(arch: Arch) -> None:
     ]
 
     command += ["cache", "clean"]
-    _command = _prepare_cmd(command, None)
+    command_ = _prepare_cmd(command, None)
 
     pmb.helpers.apk_static.init()
-    pmb.helpers.run.root(_command)
+    pmb.helpers.run.root(command_)
 
 
 def check_outdated(version_installed: str, action_msg: str) -> None:

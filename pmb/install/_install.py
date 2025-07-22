@@ -611,9 +611,9 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple
     binaries = (pmb.parse.deviceinfo().sd_embed_firmware or "").split(",")
 
     for binary_offset in binaries:
-        binary, _offset = binary_offset.split(":")
+        binary, offset_ = binary_offset.split(":")
         try:
-            offset = int(_offset)
+            offset = int(offset_)
         except ValueError:
             raise RuntimeError(f"Value for firmware binary offset is not valid: {offset}")
         binary_path = chroot / "usr/share" / binary

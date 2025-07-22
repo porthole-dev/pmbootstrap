@@ -118,22 +118,22 @@ class Config:
         to set nested dictionaries (e.g. "mirrors.alpine")."""
         keys = key.split(".")
         if len(keys) == 1:
-            _type = type(getattr(Config, key))
+            type_ = type(getattr(Config, key))
             try:
-                if _type is bool and isinstance(value, str):
+                if type_ is bool and isinstance(value, str):
                     if value.lower() in ["true", "false"]:
                         super().__setattr__(key, value.lower() == "true")
                     else:
                         raise ValueError()
                 else:
-                    super().__setattr__(key, _type(value))
+                    super().__setattr__(key, type_(value))
             except ValueError:
                 msg = f"Invalid value for '{key}': '{value}' "
-                if issubclass(_type, enum.Enum):
-                    valid = [x.value for x in _type]
+                if issubclass(type_, enum.Enum):
+                    valid = [x.value for x in type_]
                     msg += f"(valid values: {', '.join(valid)})"
                 else:
-                    msg += f"(expected {_type}, got {type(value)})"
+                    msg += f"(expected {type_}, got {type(value)})"
                 raise ValueError(msg)
         elif len(keys) == 2:
             super().__getattribute__(keys[0])[keys[1]] = value

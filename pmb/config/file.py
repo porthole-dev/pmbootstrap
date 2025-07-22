@@ -73,8 +73,8 @@ def serialize(config: Config, skip_defaults: bool = True) -> configparser.Config
         if key == "providers":
             cfg["providers"] = config.providers
         elif key.startswith("mirrors."):
-            _key = key.split(".")[1]
-            cfg["mirrors"][_key] = getattr(config, key)
+            key_ = key.split(".")[1]
+            cfg["mirrors"][key_] = getattr(config, key)
         # Convert strings to paths
         elif type(getattr(Config, key)) is PosixPath:
             cfg["pmbootstrap"][key] = str(getattr(config, key))
