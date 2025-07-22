@@ -33,9 +33,8 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
-# RUF021: Could be fixed if someone cares about this.
 # RUF052: Needs a lot of changes, feel free to fix and then remove this ignore.
-extend-ignore = ["RUF021", "RUF052"]
+extend-ignore = ["RUF052"]
 extend-select = ["CPY001", "N", "PIE", "RUF", "UP"]
 preview = true
 

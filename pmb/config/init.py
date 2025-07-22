@@ -806,9 +806,8 @@ def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) 
     pmaports_cfg = pmb.config.pmaports.read_config()
     systemd_req = pmaports_cfg.get("systemd_linux_min_version", "5.4")
     systemd_recommended = pmaports_cfg.get("systemd_linux_recommended_version", "5.7")
-    systemd_warning = (
-        not device_exists
-        or kernel_version
+    systemd_warning = not device_exists or (
+        kernel_version
         and pmb.parse.version.compare(
             kernel_version,
             systemd_recommended,

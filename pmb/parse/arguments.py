@@ -815,7 +815,7 @@ def kernel_completer(
     ret: list[str] = []
 
     # Full package name, starting with "linux-"
-    if len("linux-") < len(prefix) and prefix.startswith("linux-") or "linux-".startswith(prefix):
+    if (len("linux-") < len(prefix) and prefix.startswith("linux-")) or "linux-".startswith(prefix):
         ret += package_completer(prefix, action, parser, parsed_args)
 
     # Kernel name without "linux-"
