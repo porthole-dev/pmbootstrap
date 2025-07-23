@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import enum
 import filecmp
 from pmb.meta import Cache
 from pmb.helpers import logging
@@ -19,17 +18,6 @@ import pmb.helpers.other
 from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 from pmb.types import PathString
-
-
-class UsrMerge(enum.Enum):
-    """
-    Merge /usr while initializing chroot.
-    https://systemd.io/THE_CASE_FOR_THE_USR_MERGE/
-    """
-
-    AUTO = 0
-    ON = 1
-    OFF = 2
 
 
 def copy_resolv_conf(chroot: Chroot) -> None:
@@ -76,12 +64,6 @@ def init_keys() -> None:
             pmb.helpers.run.root(["cp", key, target])
 
 
-def init_usr_merge(chroot: Chroot) -> None:
-    logging.info(f"({chroot}) merge /usr")
-    script = f"{pmb.config.pmb_src}/pmb/data/merge-usr.sh"
-    pmb.helpers.run.root(["sh", "-e", script, "CALLED_FROM_PMB", chroot.path])
-
-
 @Cache()
 def warn_if_chroots_outdated() -> None:
     outdated = pmb.config.workdir.chroots_outdated()
@@ -104,25 +86,14 @@ def warn_if_chroots_outdated() -> None:
 
 
 @Cache("chroot")
-def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
+def init(chroot: Chroot) -> None:
     """
     Initialize a chroot by copying the resolv.conf and updating
     /etc/apk/repositories. If /bin/sh is missing, create the chroot from
     scratch.
-
-    :param usr_merge: set to ON to force having a merged /usr. With AUTO it is
-                      only done if the user chose to install systemd in
-                      pmbootstrap init.
     """
     # When already initialized: just prepare the chroot
     arch = chroot.arch
-
-    # We plan to ship systemd with split /usr until the /usr merge is complete
-    # in Alpine. Let's not drop all our code yet but just forcefully disable
-    # it.
-    usr_merge = UsrMerge.OFF
-
-    config = get_context().config
 
     # If the channel is wrong and the user has auto_zap_misconfigured_chroots
     # enabled, zap the chroot and reinitialize it
@@ -164,12 +135,6 @@ def init(chroot: Chroot, usr_merge: UsrMerge = UsrMerge.AUTO) -> None:
         pmb.helpers.apk.run(["add", *pkgs], chroot)
     else:
         pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
-
-    # Merge /usr
-    if usr_merge is UsrMerge.AUTO and pmb.config.is_systemd_selected(config):
-        usr_merge = UsrMerge.ON
-    if usr_merge is UsrMerge.ON:
-        init_usr_merge(chroot)
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
     if not chroot.type == ChrootType.ROOTFS:

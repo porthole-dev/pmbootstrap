@@ -1,6 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.chroot.init import init as init, init_keys as init_keys, UsrMerge as UsrMerge
+from pmb.chroot.init import init as init, init_keys as init_keys
 from pmb.chroot.mount import (
     mount as mount,
     mount_native_into_foreign as mount_native_into_foreign,
