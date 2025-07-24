@@ -49,7 +49,7 @@ class XkbLayout:
         ]
     )
 
-    def __init__(self, layout: str = "us", variant: str = ""):
+    def __init__(self, layout: str = "us", variant: str = "") -> None:
         self.layout = layout
         self.variant = variant
         self.options = ""

@@ -8,7 +8,7 @@ from pmb.core.context import get_context
 from pmb.core.chroot import Chroot, ChrootType
 
 
-def test_valid_chroots(pmb_args, mock_devices_find_path):
+def test_valid_chroots(pmb_args: None, mock_devices_find_path: None) -> None:
     """Test that Chroot objects work as expected"""
 
     work = get_context().config.work
@@ -48,7 +48,7 @@ def test_valid_chroots(pmb_args, mock_devices_find_path):
 
 
 # mypy: ignore-errors
-def test_invalid_chroots(pmb_args):
+def test_invalid_chroots(pmb_args: None) -> None:
     """Test that we can't create invalid chroots."""
 
     with pytest.raises(ValueError) as excinfo:
@@ -72,7 +72,7 @@ def test_invalid_chroots(pmb_args):
 
 
 @pytest.mark.xfail
-def test_untested_chroots():
+def test_untested_chroots() -> None:
     # IMAGE type is untested, name should be a valid path in this case
     tested_chroot_types = [
         ChrootType.ROOTFS,

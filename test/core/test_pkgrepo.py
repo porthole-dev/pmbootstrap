@@ -4,10 +4,11 @@
 import pytest
 
 from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_default_path
+from _pytest.monkeypatch import MonkeyPatch
 
 
 @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)
-def test_pkgrepo_paths_no_repos(pmb_args):
+def test_pkgrepo_paths_no_repos(pmb_args: None) -> None:
     """Test pkgrepo_paths() with no repositories. Should raise a RuntimeError."""
     pkgrepo_paths.cache_disable()
     with pytest.raises(RuntimeError):
@@ -15,7 +16,7 @@ def test_pkgrepo_paths_no_repos(pmb_args):
         print(paths)
 
 
-def test_pkgrepo_pmaports(pmaports, monkeypatch):
+def test_pkgrepo_pmaports(pmaports: None, monkeypatch: MonkeyPatch) -> None:
     """Test pkgrepo_paths() with pmaports repository and systemd extra repo"""
 
     # Disable results caching

@@ -5,6 +5,10 @@ from pathlib import Path
 import pytest
 import shutil
 import tempfile
+from pmb.core.context import Context
+from _pytest.monkeypatch import MonkeyPatch
+from _pytest.tmpdir import TempPathFactory
+from _pytest.fixtures import FixtureRequest
 
 import pmb.core
 from pmb.core.context import get_context
@@ -18,7 +22,7 @@ _testdir = Path(__file__).parent / "data/tests"
 # e.g. @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)
 # will set request.param to "no-repos"
 @pytest.fixture
-def config_file(tmp_path_factory, request):
+def config_file(tmp_path_factory: TempPathFactory, request: FixtureRequest) -> Path:
     """Fixture to create a temporary pmbootstrap_v3.cfg file."""
     tmp_path = tmp_path_factory.mktemp("pmbootstrap")
 
@@ -42,7 +46,7 @@ def config_file(tmp_path_factory, request):
 
 
 @pytest.fixture
-def device_package(config_file):
+def device_package(config_file: Path) -> Path:
     """Fixture to create a temporary deviceinfo file."""
     mock_device = "qemu-amd64"
     pkgdir = config_file.parent / f"device-{mock_device}"
@@ -55,18 +59,18 @@ def device_package(config_file):
 
 
 @pytest.fixture(autouse=True)
-def find_required_programs():
+def find_required_programs() -> None:
     """Fixture to find required programs for pmbootstrap."""
 
     pmb.config.require_programs()
 
 
 @pytest.fixture
-def mock_devices_find_path(device_package, monkeypatch):
+def mock_devices_find_path(device_package: Path, monkeypatch: MonkeyPatch) -> None:
     """Fixture to mock pmb.helpers.devices.find_path()"""
 
-    def mock_find_path(device, file=""):
-        print(f"mock_find_path({device}, {file})")
+    def mock_find_path(codename: str, file: str = "") -> Path | None:
+        print(f"mock_find_path({codename}, {file})")
         out = device_package / file
         if not out.exists():
             return None
@@ -77,7 +81,7 @@ def mock_devices_find_path(device_package, monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def logfile(tmp_path_factory):
+def logfile(tmp_path_factory: TempPathFactory) -> Path:
     """Setup logging for all tests."""
     from pmb.helpers import logging
 
@@ -89,18 +93,18 @@ def logfile(tmp_path_factory):
 
 
 @pytest.fixture(autouse=True)
-def setup_mock_ask(monkeypatch):
+def setup_mock_ask(monkeypatch: MonkeyPatch) -> None:
     """Common setup to mock cli.ask() to avoid reading from stdin"""
     import pmb.helpers.cli
 
     def mock_ask(
-        question="Continue?",
-        choices=["y", "n"],
-        default="n",
-        lowercase_answer=True,
-        validation_regex=None,
-        complete=None,
-    ):
+        question: str = "Continue?",
+        choices: list[str] = ["y", "n"],
+        default: str = "n",
+        lowercase_answer: bool = True,
+        validation_regex: None = None,
+        complete: None = None,
+    ) -> str:
         return default
 
     monkeypatch.setattr(pmb.helpers.cli, "ask", mock_ask)
@@ -108,7 +112,7 @@ def setup_mock_ask(monkeypatch):
 
 # FIXME: get/set_context() is a bad hack :(
 @pytest.fixture
-def mock_context(monkeypatch):
+def mock_context(monkeypatch: MonkeyPatch) -> None:
     """Mock set_context() to bypass sanity checks. Ideally we would
     mock get_context() as well, but since every submodule of pmb imports
     it like "from pmb.core.context import get_context()", we can't
@@ -116,7 +120,7 @@ def mock_context(monkeypatch):
     best we can do... set_context() is only called from one place and is
     done so with the full namespace, so this works."""
 
-    def mock_set_context(ctx):
+    def mock_set_context(ctx: Context) -> None:
         print(f"mock_set_context({ctx})")
         setattr(pmb.core.context, "__context", ctx)
 
@@ -126,7 +130,7 @@ def mock_context(monkeypatch):
 # FIXME: get_context() at runtime somehow doesn't return the
 # custom context we set up here.
 @pytest.fixture
-def pmb_args(config_file, mock_context, logfile):
+def pmb_args(config_file: Path, mock_context: None, logfile: Path) -> None:
     """This is (still) a hack, since a bunch of the codebase still
     expects some global state to be initialised. We do that here."""
 
@@ -162,7 +166,7 @@ def foreign_arch():
 
 
 @pytest.fixture
-def pmaports(pmb_args, monkeypatch):
+def pmaports(pmb_args: None, monkeypatch: MonkeyPatch) -> None:
     """Fixture to clone pmaports."""
 
     from pmb.core import Config
@@ -185,5 +189,5 @@ def pmaports(pmb_args, monkeypatch):
 
 
 @pytest.fixture
-def tmp_file(tmp_path):
+def tmp_file(tmp_path: Path) -> Path:
     return Path(tempfile.mkstemp(dir=tmp_path)[1])

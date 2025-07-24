@@ -4,14 +4,14 @@
 from pmb.parse import get_parser
 
 
-def test_chroot_simple():
+def test_chroot_simple() -> None:
     parser = get_parser()
     args = parser.parse_args("chroot ls".split())
     assert args.action == "chroot"
     assert args.command == ["ls"]
 
 
-def test_chroot_args():
+def test_chroot_args() -> None:
     parser = get_parser()
     args = parser.parse_args("chroot --rootfs -- ls -l".split())
     assert args.action == "chroot"

@@ -25,7 +25,7 @@ class Chroot:
     __type: ChrootType
     __name: str
 
-    def __init__(self, suffix_type: ChrootType, name: str | Arch | None = ""):
+    def __init__(self, suffix_type: ChrootType, name: str | Arch | None = "") -> None:
         # We use the native chroot as the buildroot when building for the host arch
         if suffix_type == ChrootType.BUILDROOT and isinstance(name, Arch) and name.is_native():
             suffix_type = ChrootType.NATIVE

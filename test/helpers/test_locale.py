@@ -4,7 +4,7 @@
 from pmb.helpers.locale import XkbLayout, get_xkb_layout
 
 
-def test_xkb_layout_class():
+def test_xkb_layout_class() -> None:
     # test primary layout
     layout_de = XkbLayout("de")
     assert layout_de.get_profile_vars() == "XKB_DEFAULT_LAYOUT=de"
@@ -31,7 +31,7 @@ EndSection"""
     assert layout_ru_chm.get_keyboard_config() == layout_ru_chm_keyboard_config
 
 
-def test_xkb_layout_getter():
+def test_xkb_layout_getter() -> None:
     # Unsupported locale (incorrect input)
     assert get_xkb_layout("C") == XkbLayout()
 

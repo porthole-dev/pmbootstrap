@@ -9,7 +9,7 @@ import pytest
 from pmb.core.arch import Arch
 
 
-def test_valid_arches():
+def test_valid_arches() -> None:
     # Silly test
     assert Arch.native().is_native()
 
@@ -79,7 +79,7 @@ def test_valid_arches():
     assert Path("boop") / Arch.aarch64 == Path("boop/aarch64")
 
 
-def test_invalid_arches():
+def test_invalid_arches() -> None:
     excinfo: Any
     with pytest.raises(ValueError) as excinfo:
         Arch.from_str("invalid")

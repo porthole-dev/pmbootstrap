@@ -154,7 +154,7 @@ random_values = [
 ]
 
 
-def random_deviceinfo_props(nprops=10):
+def random_deviceinfo_props(nprops: int = 10) -> dict:
     props = {}
     for _ in range(nprops):
         key = random.choice(deviceinfo_keys)
@@ -164,7 +164,7 @@ def random_deviceinfo_props(nprops=10):
     return props
 
 
-def random_valid_deviceinfo(tmp_path):
+def random_valid_deviceinfo(tmp_path: Path) -> Path:
     _, name = tempfile.mkstemp(dir=tmp_path)
     path = Path(name)
 
@@ -186,7 +186,7 @@ def random_valid_deviceinfo(tmp_path):
 
 # Test deviceinfo files that are technically valid but have bogus data
 # These are expected to get more strict as the parser is improved
-def test_random_valid_deviceinfos(tmp_path):
+def test_random_valid_deviceinfos(tmp_path: Path) -> None:
     for _ in range(1000):
         info_path = random_valid_deviceinfo(tmp_path)
         print(f"Testing randomly generate deviceinfo file {info_path}")
@@ -196,7 +196,7 @@ def test_random_valid_deviceinfos(tmp_path):
 
 # Check that lines starting with deviceinfo_ but don't have an
 # "=" raise a syntax error
-def test_syntax_error(tmp_file):
+def test_syntax_error(tmp_file: Path) -> None:
     with open(tmp_file, "w") as f:
         f.write('deviceinfo_codename="test"\n')
         f.write('deviceinfo_chassis="test"\n')

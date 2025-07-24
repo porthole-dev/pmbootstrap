@@ -4,7 +4,7 @@
 from pmb.meta import Cache, Wrapper
 
 
-def test_cache_hits_basic():
+def test_cache_hits_basic() -> None:
     def multiply_2(x: int) -> int:
         return x * 2
 
@@ -30,7 +30,7 @@ def test_cache_hits_basic():
     assert multiply_2_cached.hits == 2
 
 
-def test_cache_hits_kwargs():
+def test_cache_hits_kwargs() -> None:
     def multiply_2(x: int, y: int = 2, z: list[int] = []) -> int:
         return x * y + sum(z)
 
@@ -68,7 +68,7 @@ def test_cache_hits_kwargs():
     assert multiply_2_cached_y3.hits == 1
 
 
-def test_build_key():
+def test_build_key() -> None:
     def multiply_2(x: int, y: int = 2, z: list[int] = []) -> int:
         return x * y + sum(z)
 

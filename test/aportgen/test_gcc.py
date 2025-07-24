@@ -2,25 +2,40 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 import pmb.helpers.repo
 import pmb.parse.apkindex
 
 from pmb.aportgen.gcc import depends_for_sonames
 from pmb.core.apkindex_block import ApkindexBlock
+from pmb.core.arch import Arch
 
 
-def test_depends_for_sonames(monkeypatch):
+def new_dummy_apkindex_block() -> ApkindexBlock:
+    return ApkindexBlock(
+        arch=Arch.x86_64,
+        depends=[],
+        origin=None,
+        pkgname="Dummy",
+        provides=[],
+        provider_priority=None,
+        timestamp=None,
+        version="1.0.0",
+    )
+
+
+def test_depends_for_sonames(monkeypatch: MonkeyPatch) -> None:
     fake_apkindex: dict[str, dict[str, ApkindexBlock]] = {}
-    arch_libc = "x86_64"
+    arch_libc = Arch.x86_64
     libraries = {
         "so:libisl.so.*": "isl*",
         "so:libmpc.so.*": "mpc1",
     }
 
-    def fake_apkindex_files(*args, **kwargs):
+    def fake_apkindex_files(*args: object, **kwargs: object) -> str:
         return "fake/path/to/APKINDEX.tar.gz"
 
-    def fake_apkindex_parse(*args, **kwargs):
+    def fake_apkindex_parse(*args: object, **kwargs: object) -> dict[str, dict[str, ApkindexBlock]]:
         print(fake_apkindex)
         return fake_apkindex
 
@@ -35,14 +50,14 @@ def test_depends_for_sonames(monkeypatch):
     # APKINDEX filled, the highest libisl.so must be picked
     fake_apkindex = {
         "so:libisl.so.23": {
-            "isl25": {},
-            "isl26": {},
+            "isl25": new_dummy_apkindex_block(),
+            "isl26": new_dummy_apkindex_block(),
         },
         "so:libisl.so.22": {
-            "isl24": {},
+            "isl24": new_dummy_apkindex_block(),
         },
         "so:libmpc.so.3": {
-            "mpc1": {},
+            "mpc1": new_dummy_apkindex_block(),
         },
     }
 

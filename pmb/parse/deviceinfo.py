@@ -262,7 +262,7 @@ class Deviceinfo:
                 f" and try again: {path}"
             )
 
-    def __init__(self, path: Path, kernel: str | None = None):
+    def __init__(self, path: Path, kernel: str | None = None) -> None:
         ret = {}
         with open(path) as handle:
             for line in handle:

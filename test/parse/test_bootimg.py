@@ -55,7 +55,7 @@ def bootimg(progs: dict[str, str], tmp_path: Path) -> Callable:
         str(path),
     ]
 
-    def with_args(**kwargs):
+    def with_args(**kwargs: dict) -> Path:
         # Header version 2 requires a dtb file, be helpful and add one if it's missing
         if kwargs.get("header_version", 0) == 2 and "dtb" not in kwargs:
             with open(path.with_suffix(".dtb"), "wb") as f:
@@ -71,7 +71,7 @@ def bootimg(progs: dict[str, str], tmp_path: Path) -> Callable:
 
 # Due to limitations in the test infrastructure (somehow we have to clone
 # all of pmaports for this!!) we stuff all the tests into one
-def test_bootimg(bootimg, pmb_args, pmaports):
+def test_bootimg(bootimg: Callable, pmb_args: None, pmaports: None) -> None:
     bootimg_path = bootimg(base=0x80000000)
 
     # Header v0
@@ -112,6 +112,6 @@ def test_bootimg(bootimg, pmb_args, pmaports):
     assert img["ramdisk_offset"] == "", "header v3 expected empty ramdisk offset"
 
 
-def test_bootimg_deviceinfo():
+def test_bootimg_deviceinfo() -> None:
     # Test the deviceinfo file
     pass

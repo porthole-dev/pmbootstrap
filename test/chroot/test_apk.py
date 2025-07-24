@@ -8,14 +8,15 @@ import pytest
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.parse.apkindex import ApkindexBlock
+from _pytest.monkeypatch import MonkeyPatch
 
 from pmb.chroot.apk import packages_get_locally_built_apks
 import pmb.config.pmaports
 
 
 @pytest.fixture
-def apk_mocks(monkeypatch) -> dict | None:
-    def _pmaports_config(_aports=None):
+def apk_mocks(monkeypatch: MonkeyPatch) -> None:
+    def _pmaports_config(_aports: None = None, _add_systemd_prefix: bool = True) -> dict:
         return {
             "channel": "edge",
         }
@@ -23,7 +24,10 @@ def apk_mocks(monkeypatch) -> dict | None:
     monkeypatch.setattr(pmb.config.pmaports, "read_config", _pmaports_config)
 
     def _apkindex_package(
-        _package: str, _arch: Arch, _must_exist: bool = False, indexes=None
+        _package: str,
+        _arch: Arch,
+        _must_exist: bool = False,
+        indexes: None = None,
     ) -> ApkindexBlock | None:
         if _package == "package1":
             return ApkindexBlock(
@@ -84,7 +88,7 @@ def create_apk(pkgname: str, arch: Arch) -> Path:
     return apk_file
 
 
-def test_get_local_apks(pmb_args, apk_mocks) -> None:
+def test_get_local_apks(pmb_args: None, apk_mocks: None) -> None:
     """Ensure packages_get_locally_built_apks() returns paths for local apks"""
 
     pkgname = "package1"

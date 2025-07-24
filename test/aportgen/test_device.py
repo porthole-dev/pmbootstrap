@@ -152,7 +152,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
 
 
 @pytest.mark.parametrize("case", [*test_data.keys()])
-def test_deviceinfo_fastboot(case):
+def test_deviceinfo_fastboot(case: str) -> None:
     bootimg = test_data[case][0]
     expected_substrings = test_data[case][1]
     unexpected_substrings = test_data[case][2]
