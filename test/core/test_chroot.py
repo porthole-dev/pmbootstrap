@@ -21,13 +21,21 @@ def test_valid_chroots(pmb_args, mock_devices_find_path):
     assert chroot.path == work / "chroot_native"
     assert str(chroot) == "native"
 
-    chroot = Chroot.buildroot(Arch.aarch64)
+    # Don't create an aarch64 buildroot on aarch64
+    if chroot.arch != Arch.aarch64:
+        chroot = Chroot.buildroot(Arch.aarch64)
+        assert chroot.name == "aarch64"
+        assert chroot.arch == Arch.aarch64
+        assert chroot.path == work / "chroot_buildroot_aarch64"
+        assert str(chroot) == "buildroot_aarch64"
+    else:
+        chroot = Chroot.buildroot(Arch.x86_64)
+        assert chroot.name == "x86_64"
+        assert chroot.arch == Arch.x86_64
+        assert chroot.path == work / "chroot_buildroot_x86_64"
+        assert str(chroot) == "buildroot_x86_64"
     assert chroot.type == ChrootType.BUILDROOT
-    assert chroot.name == "aarch64"
-    assert chroot.arch == Arch.aarch64
     assert not chroot.exists()  # Shouldn't be created
-    assert chroot.path == work / "chroot_buildroot_aarch64"
-    assert str(chroot) == "buildroot_aarch64"
 
     # FIXME: implicily assumes that we're mocking the qemu-amd64 deviceinfo
     chroot = Chroot(ChrootType.ROOTFS, "qemu-amd64")
