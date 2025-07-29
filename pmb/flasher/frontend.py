@@ -35,8 +35,21 @@ def kernel(
     if autoinstall:
         pmb.chroot.initfs.build(Chroot(ChrootType.ROOTFS, deviceinfo.codename))
 
+    # deviceinfo.header_version >= 3 == GKI == has / needs vendor_boot
+    is_gki = deviceinfo.header_version and int(deviceinfo.header_version) >= 3
+
     # Check kernel config
     pmb.parse.kconfig.check(flavor, must_exist=False)
+
+    # Do not allow header_version >= 3 for non-fastboot, since the correct way to flash
+    # vendor_boot with other flash methods is unknown as of 2025-08.
+    if not deviceinfo.flash_method == "fastboot" and (
+        deviceinfo.header_version and int(deviceinfo.header_version) >= 3
+    ):
+        raise NonBugError(
+            "deviceinfo_header_version' <= 2 is currently only supported with fastboot. See also:"
+            " <https://wiki.postmarketos.org/wiki/Deviceinfo_reference>"
+        )
 
     # Generate the paths and run the flasher
     if boot:
@@ -44,7 +57,7 @@ def kernel(
         pmb.flasher.run(
             deviceinfo,
             method,
-            "boot",
+            "boot_gki" if is_gki else "boot",
             flavor,
             cmdline=cmdline,
             no_reboot=no_reboot,
@@ -63,6 +76,18 @@ def kernel(
             partition=partition,
             resume=resume,
         )
+        if is_gki:
+            pmb.flasher.run(
+                deviceinfo,
+                method,
+                "flash_vendorboot",
+                flavor,
+                cmdline=cmdline,
+                no_reboot=no_reboot,
+                partition=partition,
+                resume=resume,
+            )
+
     logging.info("You will get an IP automatically assigned to your USB interface shortly.")
     logging.info("Then you can connect to your device using ssh after pmOS has booted:")
     logging.info(f"ssh {get_context().config.user}@{pmb.config.default_ip}")

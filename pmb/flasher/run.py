@@ -5,6 +5,7 @@ import pmb.flasher
 import pmb.chroot.initfs
 import pmb.helpers.args
 from pmb.types import RunOutputTypeDefault
+from pmb.helpers.exceptions import NonBugError
 
 
 def check_partition_blacklist(deviceinfo: Deviceinfo, key: str, value: str) -> None:
@@ -57,11 +58,20 @@ def run(
     # vbmeta flasher requires vbmeta partition to be explicitly specified
     if action == "flash_vbmeta" and not fvars["$PARTITION_VBMETA"]:
         raise RuntimeError(
-            "Your device does not have 'vbmeta' partition"
-            " specified; set"
-            " 'deviceinfo_flash_fastboot_partition_vbmeta'"
-            " or 'deviceinfo_flash_heimdall_partition_vbmeta'"
-            " in deviceinfo file. See also:"
+            "Your device does not have 'vbmeta' partition specified; set"
+            " 'deviceinfo_flash_fastboot_partition_vbmeta' or"
+            " 'deviceinfo_flash_heimdall_partition_vbmeta' in deviceinfo file. See also:"
+            " <https://wiki.postmarketos.org/wiki/Deviceinfo_reference>"
+        )
+
+    if (
+        action == "flash_vendorboot"
+        and deviceinfo.header_version
+        and int(deviceinfo.header_version) <= 2
+    ):
+        raise NonBugError(
+            "'vendor_boot' is only supported with"
+            " 'deviceinfo_header_version' >= 3. See also:"
             " <https://wiki.postmarketos.org/wiki/"
             "Deviceinfo_reference>"
         )

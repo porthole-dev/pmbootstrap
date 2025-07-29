@@ -26,10 +26,12 @@ def variables(
     # See also https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues/2243
 
     partition_kernel: str | None
+    partition_vendor_boot: str | None
     partition_rootfs: str | None
 
     if method.startswith("fastboot"):
         partition_kernel = deviceinfo.flash_fastboot_partition_kernel or "boot"
+        partition_vendor_boot = deviceinfo.flash_fastboot_partition_vendor_boot or "vendor_boot"
         partition_rootfs = (
             deviceinfo.flash_fastboot_partition_rootfs
             or deviceinfo.flash_fastboot_partition_system
@@ -47,11 +49,17 @@ def variables(
         partition_dtbo = None
     elif method.startswith("mtkclient"):
         partition_kernel = deviceinfo.flash_mtkclient_partition_kernel or "boot"
+        partition_vendor_boot = (
+            deviceinfo.flash_fastboot_partition_vendor_boot or None
+        )  # TODO: is there a default?
         partition_rootfs = deviceinfo.flash_mtkclient_partition_rootfs or "userdata"
         partition_vbmeta = deviceinfo.flash_mtkclient_partition_vbmeta or None
         partition_dtbo = deviceinfo.flash_mtkclient_partition_dtbo or None
     else:
         partition_kernel = deviceinfo.flash_heimdall_partition_kernel or "KERNEL"
+        _partition_vendor_boot = (
+            deviceinfo.flash_heimdall_partition_vendor_boot or None
+        )  # TODO: is there a default name?
         partition_rootfs = (
             deviceinfo.flash_heimdall_partition_rootfs
             or deviceinfo.flash_heimdall_partition_system
@@ -64,6 +72,7 @@ def variables(
         # Only one operation is done at same time so it doesn't matter
         # sharing the arg
         partition_kernel = partition
+        partition_vendor_boot = partition
         partition_rootfs = partition
         partition_vbmeta = partition
         partition_dtbo = partition
@@ -86,6 +95,7 @@ def variables(
         "$IMAGE": "/home/pmos/rootfs/" + device + ".img",
         "$KERNEL_CMDLINE": cmdline_,
         "$PARTITION_KERNEL": partition_kernel,
+        "$PARTITION_VENDOR_BOOT": partition_vendor_boot,
         "$PARTITION_INITFS": deviceinfo.flash_heimdall_partition_initfs or "RECOVERY",
         "$PARTITION_ROOTFS": partition_rootfs,
         "$PARTITION_VBMETA": partition_vbmeta,

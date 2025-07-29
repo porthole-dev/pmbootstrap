@@ -372,6 +372,7 @@ $IMAGE: Path to the combined boot/rootfs image
 $IMAGE_SPLIT_BOOT: Path to the (split) boot image
 $IMAGE_SPLIT_ROOT: Path to the (split) rootfs image
 $PARTITION_KERNEL: Partition to flash the kernel/boot.img to
+$PARTITION_VENDOR_BOOT: Partition to flash the vendor_boot.img to
 $PARTITION_ROOTFS: Partition to flash the rootfs to
 
 Fastboot specific: $KERNEL_CMDLINE
@@ -385,6 +386,9 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
             "list_devices": [["fastboot", "devices", "-l"]],
             "flash_rootfs": [["fastboot", "flash", "$PARTITION_ROOTFS", "$IMAGE"]],
             "flash_kernel": [["fastboot", "flash", "$PARTITION_KERNEL", "$BOOT/boot.img$FLAVOR"]],
+            "flash_vendorboot": [
+                ["fastboot", "flash", "$PARTITION_VENDOR_BOOT", "$BOOT/vendor_boot.img"]
+            ],
             "flash_vbmeta": [
                 # Generate vbmeta image with "disable verification" flag
                 [
@@ -402,6 +406,11 @@ flashers: dict[str, dict[str, bool | list[str] | dict[str, list[list[str]]]]] = 
             ],
             "flash_dtbo": [["fastboot", "flash", "$PARTITION_DTBO", "$BOOT/dtbo.img"]],
             "boot": [["fastboot", "--cmdline", "$KERNEL_CMDLINE", "boot", "$BOOT/boot.img$FLAVOR"]],
+            # Like boot, but stage vendor_boot first
+            "boot_gki": [
+                ["fastboot", "stage", "$BOOT/vendor_boot.img"],
+                ["fastboot", "boot", "$BOOT/boot.img$FLAVOR"],
+            ],
             "flash_lk2nd": [["fastboot", "flash", "$PARTITION_KERNEL", "$BOOT/lk2nd.img"]],
         },
     },

@@ -21,7 +21,12 @@ def symlinks(folder: Path) -> None:
 
     # File descriptions
     info = {
-        "boot.img": ("Fastboot compatible boot.img file, contains initramfs and kernel"),
+        "boot.img": (
+            "Fastboot compatible boot.img file, contains initramfs with bootimg header <=2 and kernel"
+        ),
+        "vendor_boot.img": (
+            "Fastboot compatible vendor_boot.img file, contains cmdline, initramfs and dtb. Only with bootimg header >= v3"
+        ),
         "dtbo.img": "Fastboot compatible dtbo image",
         "initramfs": "Initramfs",
         "initramfs-extra": "Extra initramfs files in /boot",
@@ -41,6 +46,7 @@ def symlinks(folder: Path) -> None:
     chroot_buildroot = Chroot.buildroot(arch)
     files: list[Path] = [
         path_boot / "boot.img",
+        path_boot / "vendor_boot.img",
         path_boot / "uInitrd",
         path_boot / "uImage",
         path_boot / "dtbo.img",

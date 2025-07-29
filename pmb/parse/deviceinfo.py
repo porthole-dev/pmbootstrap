@@ -123,12 +123,14 @@ class Deviceinfo:
 
     # flash
     flash_heimdall_partition_kernel: str | None = ""
+    flash_heimdall_partition_vendor_boot: str | None = ""
     flash_heimdall_partition_initfs: str | None = ""
     flash_heimdall_partition_rootfs: str | None = ""
     flash_heimdall_partition_system: str | None = ""  # deprecated
     flash_heimdall_partition_vbmeta: str | None = ""
     flash_heimdall_partition_dtbo: str | None = ""
     flash_fastboot_partition_kernel: str | None = ""
+    flash_fastboot_partition_vendor_boot: str | None = ""
     flash_fastboot_partition_rootfs: str | None = ""
     flash_fastboot_partition_system: str | None = ""  # deprecated
     flash_fastboot_partition_vbmeta: str | None = ""
@@ -137,6 +139,7 @@ class Deviceinfo:
     flash_rk_partition_rootfs: str | None = ""
     flash_rk_partition_system: str | None = ""  # deprecated
     flash_mtkclient_partition_kernel: str | None = ""
+    flash_mtkclient_partition_vendor_boot: str | None = ""
     flash_mtkclient_partition_rootfs: str | None = ""
     flash_mtkclient_partition_vbmeta: str | None = ""
     flash_mtkclient_partition_dtbo: str | None = ""

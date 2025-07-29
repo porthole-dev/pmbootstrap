@@ -1095,7 +1095,7 @@ def print_flash_info(
         logging.info(f"  {Chroot.rootfs(device) / 'boot/boot.img'}")
         logging.info("  (NOTE: This is not necessary if using a custom bootloader like U-Boot)")
 
-    if "boot" in flasher_actions:
+    if "boot" in flasher_actions or "boot_gki" in flasher_actions:
         logging.info(
             "  (NOTE: " + method + " also supports booting"
             " the kernel/initramfs directly without flashing."
