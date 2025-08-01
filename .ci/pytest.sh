@@ -32,7 +32,6 @@ echo "NOTE: use 'pmbootstrap log' to see the detailed log if running locally."
 python -m pytest \
 	--color=yes \
 	-vv \
-	-x \
 	--junitxml=junit.xml \
 	$cov_arg \
 		-m "not skip_ci" \
