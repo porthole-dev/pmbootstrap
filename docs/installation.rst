@@ -2,7 +2,7 @@
 Installation
 ============
 
-pmbootstrap runs on pretty much any Linux distribution with python3, openssl and git installed. It uses Alpine Linux chroots internally to avoid installing software on the host machine. If you don't run Linux on your PC, see :ref:`other-os`. 
+pmbootstrap runs on pretty much any Linux distribution with a POSIX-shell [1]_ and python3, openssl, git installed. It uses Alpine Linux chroots internally to avoid installing software on the host machine. If you don't run Linux on your PC, see :ref:`other-os`. 
 
 On Linux
 --------
@@ -65,3 +65,5 @@ Some people also made it work with WSL, see the `Windows FAQ`_ in the pmOS-Wiki.
 But again, it's not officially supported - we recommend getting some sort of Linux install instead and running it there.
 
 .. _Windows FAQ: https://wiki.postmarketos.org/wiki/Windows_FAQ
+
+.. [1] `ash`, `bash` and `zsh` are reported fine with pmbootstrap, `Nushell` has been reported to cause issues with the fde-integration

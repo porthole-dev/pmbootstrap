@@ -153,7 +153,7 @@ pmbootstrap requires the following:
   * ps
   * tar
   * sudo or doas
-
+  * POSIX-shell (`ash`,`bash`, `zfs` reported to work)
 
 .. _pmbootstrap: https://wiki.postmarketos.org/wiki/Pmbootstrap#Using_pmbootstrap
 
