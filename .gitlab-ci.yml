@@ -135,9 +135,6 @@ mypy:
 
 docs:
   stage: test
-  # py3-sphinx >= 7.3 is needed for --fail-on-warning
-  # alpine:3.20 is on py3-sphinx 7.2.x
-  image: alpine:edge
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
