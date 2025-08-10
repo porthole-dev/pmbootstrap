@@ -1,7 +1,6 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 from pathlib import Path
 import pytest
 import shutil
@@ -156,7 +155,7 @@ def foreign_arch():
     """Fixture to return the foreign arch."""
     from pmb.core.arch import Arch
 
-    if os.uname().machine == "x86_64":
+    if Arch.native() == Arch.x86_64:
         return Arch.aarch64
 
     return Arch.x86_64

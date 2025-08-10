@@ -9,7 +9,6 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 import os
 from pathlib import Path
-import platform
 import re
 import signal
 import shlex
@@ -271,14 +270,14 @@ def command_qemu(
                 command += ["-device", "virtio-gpu"]
 
     if args.efi:
-        host_arch = platform.machine().lower()
+        host_arch = Arch.native()
         match host_arch:
-            case "aarch64":
+            case Arch.aarch64:
                 command += [
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/AAVMF/AAVMF_CODE.fd",
                 ]
-            case "x86_64":
+            case Arch.x86_64:
                 command += [
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd",
@@ -391,11 +390,11 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-ui-opengl")
 
     if args.efi:
-        host_arch = platform.machine().lower()
+        host_arch = Arch.native()
         match host_arch:
-            case "aarch64":
+            case Arch.aarch64:
                 depends.append("aavmf")
-            case "x86_64":
+            case Arch.x86_64:
                 depends.append("ovmf")
             case _:
                 raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
