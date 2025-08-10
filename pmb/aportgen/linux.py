@@ -31,7 +31,7 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) 
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
                 "$_flavor" "$_outdir\""""
 
-    if deviceinfo.header_version and int(deviceinfo.header_version) >= 2:
+    if deviceinfo.header_version and deviceinfo.header_version >= 2:
         package += """
 
             make dtbs_install O="$_outdir" ARCH="$_carch" \\

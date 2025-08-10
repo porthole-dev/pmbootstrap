@@ -146,7 +146,7 @@ class Deviceinfo:
     generate_legacy_uboot_initfs: str | None = ""
     kernel_cmdline: str | None = ""
     generate_bootimg: str | None = ""
-    header_version: str | None = ""
+    header_version: int | None = None
     bootimg_qcdt: str | None = ""
     bootimg_qcdt_type: str | None = ""
     bootimg_mtk_mkimage: str | None = ""  # deprecated

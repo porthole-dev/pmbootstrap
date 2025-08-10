@@ -12,7 +12,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
     "header_v0": (
         Bootimg(
             cmdline="beep boop",
-            header_version="0",
+            header_version=0,
             bootimg_qcdt="false",
             base="0x80000000",
             kernel_offset="0x8000",
@@ -40,7 +40,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
     "header_v2": (
         Bootimg(
             cmdline="console=ttyMSM0,115200n8",
-            header_version="2",
+            header_version=2,
             bootimg_qcdt="false",
             base="0x80000000",
             kernel_offset="",
@@ -67,7 +67,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
     "header_v3": (
         Bootimg(
             cmdline="console=ttyMSM0,115200n8",
-            header_version="3",
+            header_version=3,
             bootimg_qcdt="false",
             base="",
             kernel_offset="",
@@ -94,7 +94,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
     "header_exynos_qcdt": (
         Bootimg(
             cmdline="console=ttySAC1,115200",
-            header_version="2",
+            header_version=2,
             bootimg_qcdt="true",
             base="",
             kernel_offset="",
@@ -123,7 +123,7 @@ test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {
     "header_exynos_custom_qcdt": (
         Bootimg(
             cmdline="console=ttySAC1,115200",
-            header_version="2",
+            header_version=2,
             bootimg_qcdt="true",
             base="",
             kernel_offset="",

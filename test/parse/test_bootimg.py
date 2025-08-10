@@ -77,7 +77,7 @@ def test_bootimg(bootimg, pmb_args, pmaports):
     # Header v0
     img: Bootimg = parse_bootimg(bootimg_path)
     print(f"Header v0: {img}")
-    assert img["header_version"] == "0", "header v0 expected header version 0"
+    assert img["header_version"] == 0, "header v0 expected header version 0"
     assert img["cmdline"] == "", "header v0 expected empty cmdline"
     assert img["bootimg_qcdt"] == "false", "header v0 expected qcdt false"
     assert img["base"] == "0x80000000", "header v0 expected base 0x80000000"
@@ -89,7 +89,7 @@ def test_bootimg(bootimg, pmb_args, pmaports):
 
     img = parse_bootimg(bootimg_path)
     print(f"Header v2: {img}")
-    assert img["header_version"] == "2", "header v2 expected header version 2"
+    assert img["header_version"] == 2, "header v2 expected header version 2"
     assert img["cmdline"] == "", "header v2 expected empty cmdline"
     assert img["bootimg_qcdt"] == "false", "header v2 expected qcdt false"
     assert img["base"] == "0x80000000", "header v2 expected base 0x80000000"
@@ -105,7 +105,7 @@ def test_bootimg(bootimg, pmb_args, pmaports):
 
     img = parse_bootimg(bootimg_path)
     print(f"Header v3: {img}")
-    assert img["header_version"] == "3", "header v3 expected header version 3"
+    assert img["header_version"] == 3, "header v3 expected header version 3"
     assert img["cmdline"] == "bleep boop console=ttyMSM0,115200n8", "header v3 expected cmdline"
     assert img["kernel_offset"] == "", "header v3 expected empty kernel offset"
     assert img["pagesize"] == "4096", "header v3 expected pagesize 4096"

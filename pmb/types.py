@@ -166,7 +166,7 @@ class Bootimg(TypedDict):
     second_offset: str
     tags_offset: str
     pagesize: str
-    header_version: str | None
+    header_version: int | None
     mtk_label_kernel: str
     mtk_label_ramdisk: str
 

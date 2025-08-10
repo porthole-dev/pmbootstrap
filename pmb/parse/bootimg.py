@@ -154,7 +154,6 @@ def bootimg(path: Path) -> Bootimg:
     if os.path.isfile(f"{bootimg_path}-header_version"):
         with open(f"{bootimg_path}-header_version") as f:
             header_version = int(f.read().replace("\n", ""))
-            output["header_version"] = str(header_version)
 
     if header_version >= 3:
         output["pagesize"] = "4096"
@@ -222,7 +221,7 @@ def bootimg(path: Path) -> Bootimg:
         second_offset=output.get("second_offset", ""),
         tags_offset=output.get("tags_offset", ""),
         pagesize=output["pagesize"],
-        header_version=output.get("header_version"),
+        header_version=header_version,
         mtk_label_kernel=output.get("mtk_label_kernel", ""),
         mtk_label_ramdisk=output.get("mtk_label_ramdisk", ""),
     )

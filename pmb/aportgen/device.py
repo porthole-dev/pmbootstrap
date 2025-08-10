@@ -163,7 +163,7 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
             deviceinfo_{k}="{v}"
             """
 
-    if bootimg["header_version"] == "2":
+    if bootimg["header_version"] == 2:
         content += f"""\
         deviceinfo_append_dtb="false"
         deviceinfo_flash_offset_dtb="{bootimg["dtb_offset"]}"

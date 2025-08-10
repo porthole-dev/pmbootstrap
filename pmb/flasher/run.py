@@ -67,7 +67,7 @@ def run(
     if (
         action == "flash_vendorboot"
         and deviceinfo.header_version
-        and int(deviceinfo.header_version) <= 2
+        and deviceinfo.header_version <= 2
     ):
         raise NonBugError(
             "'vendor_boot' is only supported with"

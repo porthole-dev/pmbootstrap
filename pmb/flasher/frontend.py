@@ -36,7 +36,7 @@ def kernel(
         pmb.chroot.initfs.build(Chroot(ChrootType.ROOTFS, deviceinfo.codename))
 
     # deviceinfo.header_version >= 3 == GKI == has / needs vendor_boot
-    is_gki = deviceinfo.header_version and int(deviceinfo.header_version) >= 3
+    is_gki = deviceinfo.header_version and deviceinfo.header_version >= 3
 
     # Check kernel config
     pmb.parse.kconfig.check(flavor, must_exist=False)
@@ -44,7 +44,7 @@ def kernel(
     # Do not allow header_version >= 3 for non-fastboot, since the correct way to flash
     # vendor_boot with other flash methods is unknown as of 2025-08.
     if not deviceinfo.flash_method == "fastboot" and (
-        deviceinfo.header_version and int(deviceinfo.header_version) >= 3
+        deviceinfo.header_version and deviceinfo.header_version >= 3
     ):
         raise NonBugError(
             "deviceinfo_header_version' <= 2 is currently only supported with fastboot. See also:"
