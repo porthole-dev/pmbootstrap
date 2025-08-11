@@ -57,7 +57,7 @@ def variables(
         partition_dtbo = deviceinfo.flash_mtkclient_partition_dtbo or None
     else:
         partition_kernel = deviceinfo.flash_heimdall_partition_kernel or "KERNEL"
-        _partition_vendor_boot = (
+        partition_vendor_boot = (
             deviceinfo.flash_heimdall_partition_vendor_boot or None
         )  # TODO: is there a default name?
         partition_rootfs = (
