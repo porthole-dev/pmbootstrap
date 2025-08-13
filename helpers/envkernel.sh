@@ -175,6 +175,7 @@ initialize_chroot() {
 		g++ \
 		"$gcc_pkgname" \
 		gmp-dev \
+		gnutls-dev \
 		linux-headers \
 		openssl-dev \
 		make \
