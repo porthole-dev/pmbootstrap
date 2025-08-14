@@ -475,9 +475,7 @@ def arguments_initfs(subparser: argparse._SubParsersAction) -> argparse.Argument
 def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser("qemu")
     ret.add_argument("--cmdline", help="override kernel commandline")
-    ret.add_argument(
-        "--image-size", default="4G", help="set rootfs size, e.g. 2048M or 2G (default: 4G)"
-    )
+    ret.add_argument("--image-size", help="set rootfs size (e.g. 2048M or 2G)")
     ret.add_argument(
         "--second-storage",
         metavar="IMAGE_SIZE",
