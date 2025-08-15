@@ -54,7 +54,7 @@ def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) 
     ret = copy.copy(info)
 
     suffix_kernel = kernel.replace("-", "_")
-    for key in inspect.get_annotations(Deviceinfo).keys():
+    for key in inspect.get_annotations(Deviceinfo):
         key_kernel = f"{key}_{suffix_kernel}"
         if key_kernel not in ret:
             continue

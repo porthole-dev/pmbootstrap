@@ -82,7 +82,7 @@ def read_config_repos() -> dict[str, configparser.SectionProxy]:
     cfg.read(f"{pkgrepo_default_path()}/pmaports.cfg")
 
     ret = {}
-    for section in cfg.keys():
+    for section in cfg:
         if not section.startswith("repo:"):
             continue
         repo = section.split("repo:", 1)[1]

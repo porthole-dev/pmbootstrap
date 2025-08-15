@@ -7,6 +7,7 @@ from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
+import contextlib
 import glob
 import heapq
 import json
@@ -39,7 +40,7 @@ import subprocess
 
 def require_programs() -> None:
     missing = []
-    for program in pmb.config.required_programs.keys():
+    for program in pmb.config.required_programs:
         # Debian: some programs are in /usr/sbin, which is not in PATH
         # unless using sudo
         prog = shutil.which(program, path=pmb.config.host_path)
@@ -230,7 +231,7 @@ def ask_for_channel(config: Config) -> str:
 def ask_for_ui(deviceinfo: Deviceinfo) -> str:
     ui_list = pmb.helpers.ui.list_ui(deviceinfo.arch)
     hidden_ui_count = 0
-    if not deviceinfo.drm == "true":
+    if deviceinfo.drm != "true":
         for i in reversed(range(len(ui_list))):
             pkgname = f"postmarketos-ui-{ui_list[i][0]}"
             apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False, must_exist=False)
@@ -242,7 +243,7 @@ def ask_for_ui(deviceinfo: Deviceinfo) -> str:
 
     # Get default
     default: Any = get_context().config.ui
-    if default not in dict(ui_list).keys():
+    if default not in dict(ui_list):
         default = pmb.config.defaults["ui"]
 
     logging.info(f"Available user interfaces ({len(ui_list) - 1}): ")
@@ -260,7 +261,7 @@ def ask_for_ui(deviceinfo: Deviceinfo) -> str:
         ret = pmb.helpers.cli.ask(
             "User interface", None, default, True, complete=ui_completion_list
         )
-        if ret in dict(ui_list).keys():
+        if ret in dict(ui_list):
             return ret
         logging.fatal(
             "ERROR: Invalid user interface specified, please type in one from the list above."
@@ -337,10 +338,8 @@ def ask_for_timezone() -> str:
             tzpath = os.path.realpath(localtime)
             tzpath = tzpath.rstrip()
             if os.path.exists(tzpath):
-                try:
+                with contextlib.suppress(BaseException):
                     _, tz = tzpath.split(zoneinfo_path)
-                except BaseException:
-                    pass
         if tz:
             logging.info(f"Your host timezone: {tz}")
             if pmb.helpers.cli.confirm("Use this timezone instead of GMT?", default=True):
@@ -457,7 +456,7 @@ def ask_for_device_kernel(config: Config, device: str) -> str:
         logging.info(f"* {type}: {kernels[type]}")
     while True:
         ret = pmb.helpers.cli.ask("Kernel", None, default, True, complete=kernels)
-        if ret in kernels.keys():
+        if ret in kernels:
             return ret
         logging.fatal("ERROR: Invalid kernel specified, please type in one from the list above.")
     return ret

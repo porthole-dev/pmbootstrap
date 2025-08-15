@@ -33,7 +33,7 @@ def get_mtk_label(path: PathString) -> str | None:
 
     with open(path, "rb") as f:
         # Check Mediatek header (0x88168858)
-        if not f.read(4) == b"\x88\x16\x88\x58":
+        if f.read(4) != b"\x88\x16\x88X":
             return None
         f.seek(8)
         label = f.read(32).decode("utf-8").rstrip("\0")
@@ -66,14 +66,15 @@ def get_qcdt_type(path: PathString) -> str | None:
     with open(path, "rb") as f:
         fourcc = f.read(4)
 
-        if fourcc == b"QCDT":
-            return "qcom"
-        elif fourcc == b"SPRD":
-            return "sprd"
-        elif fourcc == b"DTBH":
-            return "exynos"
-        else:
-            return None
+        match fourcc:
+            case b"QCDT":
+                return "qcom"
+            case b"SPRD":
+                return "sprd"
+            case b"DTBH":
+                return "exynos"
+            case _:
+                return None
 
 
 def get_qcdt_exynos_platform_subtype(path: PathString) -> tuple:
@@ -193,10 +194,10 @@ def bootimg(path: Path) -> Bootimg:
     if "bootimg_qcdt_type" in output and output["bootimg_qcdt_type"] == "exynos":
         platform, subtype = get_qcdt_exynos_platform_subtype(f"{bootimg_path}-dt")
         # Omit if platform is default value 0x50a6
-        if platform and not platform == "0x50a6":
+        if platform and platform != "0x50a6":
             output.update({"bootimg_qcdt_exynos_platform": f"0x{platform:04x}"})
         # Omit if subtype is default value 0x217584da
-        if subtype and not subtype == "0x217584da":
+        if subtype and subtype != "0x217584da":
             output.update({"bootimg_qcdt_exynos_subtype": f"0x{subtype:08x}"})
 
     output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else ""

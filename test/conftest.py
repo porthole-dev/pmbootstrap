@@ -35,9 +35,9 @@ def config_file(tmp_path_factory, request):
     file = _testdir / "pmbootstrap_v3.cfg"
     print(f"CONFIG: {out_file}")
     cfg = configs[flavour]
-    contents = open(file).read().format(workdir, cfg)
+    contents = file.read_text().format(workdir, cfg)
 
-    open(out_file, "w").write(contents)
+    out_file.write_text(contents)
     return out_file
 
 

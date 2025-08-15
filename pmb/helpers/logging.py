@@ -129,12 +129,12 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:
     # folder and break the folder migration logic, which needs to set the
     # version upon creation)
     if not details_to_stdout and logfile.parent.exists():
-        logfd = open(logfile, "a+")
+        logfd = open(logfile, "a+")  # noqa: SIM115
         logfd.write("\n\n")
     elif details_to_stdout:
         logfd = sys.stdout
     else:
-        logfd = open(os.devnull, "w")
+        logfd = open(os.devnull, "w")  # noqa: SIM115
 
     # Set log format
     root_logger = logging.getLogger()

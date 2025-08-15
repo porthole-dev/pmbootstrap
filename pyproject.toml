@@ -33,8 +33,12 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
-extend-select = ["CPY001", "N", "PIE", "RUF", "UP"]
+extend-select = ["CPY001", "N", "PIE", "RUF", "SIM", "UP"]
 preview = true
+
+[tool.ruff.lint.extend-per-file-ignores]
+# SIM905: Makes the test code less readable.
+"test/parse/test_arguments.py" = ["SIM905"]
 
 [tool.ruff.format]
 # Enable auto-formatting of code examples in docstrings.

@@ -137,7 +137,7 @@ def init(chroot: Chroot) -> None:
         pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
-    if not chroot.type == ChrootType.ROOTFS:
+    if chroot.type != ChrootType.ROOTFS:
         pmb.chroot.root(["adduser", "-D", "pmos", "-u", pmb.config.chroot_uid_user], chroot)
 
         # Create the links (with subfolders if necessary)

@@ -49,7 +49,7 @@ def parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
             continue
         # Parse keys from the mapping
         k = line[0]
-        key = apkindex_map.get(k, None)
+        key = apkindex_map.get(k)
 
         # The checksum key is always the FIRST in the block, so when we find
         # it we know we're done.
@@ -260,9 +260,11 @@ def parse(
     # Read all lines
     lines: Sequence[str]
     if tarfile.is_tarfile(path):
-        with tarfile.open(path, "r:gz") as tar:
-            with tar.extractfile(tar.getmember("APKINDEX")) as handle:  # type:ignore[union-attr]
-                lines = handle.read().decode().splitlines()
+        with (
+            tarfile.open(path, "r:gz") as tar,  # type:ignore[union-attr]
+            tar.extractfile(tar.getmember("APKINDEX")) as handle,  # type:ignore[union-attr]
+        ):
+            lines = handle.read().decode().splitlines()
     else:
         with path.open("r", encoding="utf-8") as handle:
             lines = handle.read().splitlines()
@@ -310,9 +312,8 @@ def parse_blocks(path: Path) -> list[ApkindexBlock]:
               parse() if you need these features).
     """
     # Parse all lines
-    with tarfile.open(path, "r:gz") as tar:
-        with tar.extractfile(tar.getmember("APKINDEX")) as handle:  # type:ignore[union-attr]
-            lines = handle.read().decode().splitlines()
+    with tarfile.open(path, "r:gz") as tar, tar.extractfile(tar.getmember("APKINDEX")) as handle:  # type:ignore[union-attr]
+        lines = handle.read().decode().splitlines()
 
     # Parse lines into blocks
     ret: list[ApkindexBlock] = []

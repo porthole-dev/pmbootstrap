@@ -103,7 +103,7 @@ class Cache:
                     )
 
         for k, v in self.kwargs.items():
-            if k not in signature.parameters.keys():
+            if k not in signature.parameters:
                 raise ValueError(
                     f"Cache key attribute {k} is not a valid parameter to {func.__name__}()"
                 )

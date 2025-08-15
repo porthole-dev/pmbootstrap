@@ -27,10 +27,9 @@ class Chroot:
 
     def __init__(self, suffix_type: ChrootType, name: str | Arch | None = ""):
         # We use the native chroot as the buildroot when building for the host arch
-        if suffix_type == ChrootType.BUILDROOT and isinstance(name, Arch):
-            if name.is_native():
-                suffix_type = ChrootType.NATIVE
-                name = ""
+        if suffix_type == ChrootType.BUILDROOT and isinstance(name, Arch) and name.is_native():
+            suffix_type = ChrootType.NATIVE
+            name = ""
 
         self.__type = suffix_type
         self.__name = str(name or "")
@@ -113,7 +112,7 @@ class Chroot:
         return self.type == other.type and self.name == other.name
 
     def __truediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+        if isinstance(other, (PosixPath, PurePosixPath)):
             # Convert the other path to a relative path
             # FIXME: we should avoid creating absolute paths that we actually want
             # to make relative to the chroot...
@@ -125,7 +124,7 @@ class Chroot:
         return NotImplemented
 
     def __rtruediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+        if isinstance(other, (PosixPath, PurePosixPath)):
             # Important to produce a new Path object here, otherwise we
             # end up with one object getting shared around and modified
             # and lots of weird stuff happens.

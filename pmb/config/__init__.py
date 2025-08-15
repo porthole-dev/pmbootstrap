@@ -112,7 +112,7 @@ styles = {
 }
 
 if "NO_COLOR" in os.environ:
-    for style in styles.keys():
+    for style in styles:
         styles[style] = ""
 
 # Supported filesystems and their fstools packages

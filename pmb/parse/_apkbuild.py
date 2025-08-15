@@ -354,27 +354,25 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
     lines = read_file(path)
 
     # Parse all attributes from the config
-    ret = {key: "" for key in pmb.config.apkbuild_attributes.keys()}
+    ret = {key: "" for key in pmb.config.apkbuild_attributes}
     _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
 
     # Sanity check: pkgname
     suffix = f"/{ret['pkgname']}/APKBUILD"
-    if check_pkgname:
-        if not os.path.realpath(path).endswith(suffix):
-            logging.info(f"Folder: '{os.path.dirname(path)}'")
-            logging.info(f"Pkgname: '{ret['pkgname']}'")
-            raise NonBugError(
-                "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
-            )
+    if check_pkgname and not os.path.realpath(path).endswith(suffix):
+        logging.info(f"Folder: '{os.path.dirname(path)}'")
+        logging.info(f"Pkgname: '{ret['pkgname']}'")
+        raise NonBugError(
+            "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
+        )
 
     # Sanity check: pkgver
-    if check_pkgver:
-        if not pmb.parse.version.validate(ret["pkgver"]):
-            logging.info(
-                "NOTE: Valid pkgvers are described here: "
-                "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
-            )
-            raise NonBugError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
+    if check_pkgver and not pmb.parse.version.validate(ret["pkgver"]):
+        logging.info(
+            "NOTE: Valid pkgvers are described here: "
+            "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
+        )
+        raise NonBugError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
 
     # Fill cache
     return ret

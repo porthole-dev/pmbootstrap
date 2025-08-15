@@ -12,7 +12,7 @@ from pmb.core import Chroot
 def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
     ret = []
     prefix = pmb.config.initfs_hook_prefix
-    for pkgname in pmb.chroot.apk.installed(suffix).keys():
+    for pkgname in pmb.chroot.apk.installed(suffix):
         if pkgname.startswith(prefix):
             if remove_prefix:
                 ret.append(pkgname[len(prefix) :])

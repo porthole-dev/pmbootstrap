@@ -34,9 +34,8 @@ def format_function(name: str, body: str, remove_indent: int = 4) -> str:
     lines = body.split("\n")
     for i in range(len(lines)):
         line = lines[i]
-        if not line.strip():
-            if not ret or i == len(lines) - 1:
-                continue
+        if not line.strip() and (not ret or i == len(lines) - 1):
+            continue
 
         # Remove indent
         spaces = min(indent_size(line), remove_indent)

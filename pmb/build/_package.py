@@ -226,11 +226,7 @@ def has_cyclical_dependency(
 ) -> bool:
     pkgnames = [item["name"], *item["apkbuild"]["subpackages"].keys()]
 
-    for pkgname in pkgnames:
-        if pkgname in unmet_deps.get(dep, []):
-            return True
-
-    return False
+    return any(pkgname in unmet_deps.get(dep, []) for pkgname in pkgnames)
 
 
 def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueItem]:
@@ -260,7 +256,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
         queue.append(item)
         disarray.remove(item)
         all_pkgnames.remove(item["name"])
-        for subpkg in item["apkbuild"]["subpackages"].keys():
+        for subpkg in item["apkbuild"]["subpackages"]:
             all_pkgnames.remove(subpkg)
 
         unmet_deps.pop(item["name"], None)
@@ -617,9 +613,7 @@ def packages(
     hostchroot = None  # buildroot for the architecture we're building for
 
     total_pkgs = len(build_queue)
-    count = 0
-    for pkg in build_queue:
-        count += 1
+    for count, pkg in enumerate(build_queue, 1):
         prev_cross = cross
         cross = pkg["cross"]
         pkg_arch = pkg["arch"]

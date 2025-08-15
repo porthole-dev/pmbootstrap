@@ -86,9 +86,8 @@ def download(
     # Download the file
     logging.log(loglevel, "Download " + url)
     try:
-        with urllib.request.urlopen(url) as response:
-            with open(path, "wb") as handle:
-                shutil.copyfileobj(response, handle)
+        with urllib.request.urlopen(url) as response, open(path, "wb") as handle:
+            shutil.copyfileobj(response, handle)
     # Handle 404
     except urllib.error.HTTPError as e:
         if e.code == 404 and allow_404:

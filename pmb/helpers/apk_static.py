@@ -63,22 +63,21 @@ def extract_temp(tar: tarfile.TarFile, sigfilename: str) -> dict[str, dict]:
         "apk": {"filename": "sbin/apk.static", "temp_path": None},
         "sig": {"filename": sigfilename, "temp_path": None},
     }
-    for ftype in ret.keys():
+    for ftype in ret:
         filename = ret[ftype]["filename"]
         if filename is None:
             raise AssertionError
         member = tar.getmember(filename)
 
         fd, path = tempfile.mkstemp(ftype, "pmbootstrap")
-        handle = open(fd, "wb")
-        ret[ftype]["temp_path"] = path
-        extracted_file = tar.extractfile(member)
-        if extracted_file is None:
-            raise AssertionError
-        shutil.copyfileobj(extracted_file, handle)
+        with open(fd, "wb") as handle:
+            ret[ftype]["temp_path"] = path
+            extracted_file = tar.extractfile(member)
+            if extracted_file is None:
+                raise AssertionError
+            shutil.copyfileobj(extracted_file, handle)
 
-        logging.debug(f"extracted: {path}")
-        handle.close()
+            logging.debug(f"extracted: {path}")
     return ret
 
 

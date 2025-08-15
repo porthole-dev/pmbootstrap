@@ -140,10 +140,7 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
     sha_new = verinfo["sha"]
 
     # Format the new pkgver, keep the value before _git the same
-    if package["pkgver"] == "9999":
-        pkgver = package["_pkgver"]
-    else:
-        pkgver = package["pkgver"]
+    pkgver = package["_pkgver"] if package["pkgver"] == "9999" else package["pkgver"]
 
     pkgver_match = re.match(r"([\d.]+)_git", pkgver)
     if pkgver_match is None:
@@ -233,10 +230,7 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> No
         logging.info(f"{pkgname}: up-to-date")
         return
 
-    if package["pkgver"] == "9999":
-        pkgver = package["_pkgver"]
-    else:
-        pkgver = package["pkgver"]
+    pkgver = package["_pkgver"] if package["pkgver"] == "9999" else package["pkgver"]
 
     pkgver_new = version
 

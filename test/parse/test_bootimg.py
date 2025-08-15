@@ -32,7 +32,7 @@ def progs() -> dict[str, str]:
         # We expect the modern python version of mkbootimg from android-tools
         "mkbootimg": "",
     }
-    for k in progs.keys():
+    for k in progs:
         v = shutil.which(k)
         if v is None:
             pytest.skip(f"{k} not found")

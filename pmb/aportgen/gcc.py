@@ -25,7 +25,7 @@ def depends_for_sonames(libraries: dict[str, str], arch_libc: Arch) -> list:
     for pattern_soname in libraries:
         pattern_pkgname = libraries[pattern_soname]
 
-        for provide in apkindex.keys():
+        for provide in apkindex:
             if not fnmatch.fnmatch(provide, pattern_soname):
                 continue
             match = None

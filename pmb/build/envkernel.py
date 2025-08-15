@@ -224,11 +224,12 @@ def run_abuild(
     pmb.helpers.mount.umount_all(chroot / "mnt/linux")
 
     # Clean up symlinks
-    if kbuild_out != "":
-        if os.path.islink(chroot / "mnt/linux" / kbuild_out) and os.path.lexists(
-            chroot / "mnt/linux" / kbuild_out
-        ):
-            pmb.chroot.root(["rm", Path("/mnt/linux", kbuild_out)])
+    if (
+        kbuild_out != ""
+        and os.path.islink(chroot / "mnt/linux" / kbuild_out)
+        and os.path.lexists(chroot / "mnt/linux" / kbuild_out)
+    ):
+        pmb.chroot.root(["rm", Path("/mnt/linux", kbuild_out)])
     pmb.chroot.root(["rm", build_path / "src"])
 
 

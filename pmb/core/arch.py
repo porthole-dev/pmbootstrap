@@ -206,16 +206,11 @@ class Arch(enum.Enum):
             Arch.armv7: [Arch.armel, Arch.armhf],
             Arch.aarch64: [Arch.armv7],
         }
-        if Arch.native() in not_required:
-            if self in not_required[Arch.native()]:
-                return False
-
-        # No match: then it's required
-        return True
+        return not (Arch.native() in not_required and self in not_required[Arch.native()])
 
     # Magic to let us use an arch as a Path element
     def __truediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+        if isinstance(other, (PosixPath, PurePosixPath)):
             # Convert the other path to a relative path
             # FIXME: we should avoid creating absolute paths that we actually want
             # to make relative to the chroot...
@@ -232,7 +227,7 @@ class Arch(enum.Enum):
         return NotImplemented
 
     def __rtruediv__(self, other: object) -> Path:
-        if isinstance(other, PosixPath) or isinstance(other, PurePosixPath):
+        if isinstance(other, (PosixPath, PurePosixPath)):
             # Important to produce a new Path object here, otherwise we
             # end up with one object getting shared around and modified
             # and lots of weird stuff happens.

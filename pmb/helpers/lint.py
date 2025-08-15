@@ -34,7 +34,7 @@ def get_custom_valid_options() -> list[str]:
     pmb.parse.kconfigcheck.sanity_check(kconfigcheck_toml)
 
     # Add options like "pmb:kconfigcheck-libcamera"
-    for section in kconfigcheck_toml.keys():
+    for section in kconfigcheck_toml:
         if not section.startswith("category:"):
             continue
         # section looks like: "category:input.>=0.0.0.all"
@@ -42,7 +42,7 @@ def get_custom_valid_options() -> list[str]:
         ret += [f"pmb:kconfigcheck-{category}"]
 
     # Add aliases like "pmb:kconfigcheck-community"
-    for alias in kconfigcheck_toml["aliases"].keys():
+    for alias in kconfigcheck_toml["aliases"]:
         ret += [f"pmb:kconfigcheck-{alias}"]
 
     return ret

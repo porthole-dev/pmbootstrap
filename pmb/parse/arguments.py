@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import argparse
 from collections.abc import Sequence
+import contextlib
 import os
 from pathlib import Path
 import sys
@@ -12,10 +13,8 @@ from pmb.core import Config
 from pmb.types import PmbArgs, RunOutputTypeDefault
 from pmb.helpers.exceptions import NonBugError
 
-try:
+with contextlib.suppress(ImportError):
     import argcomplete  # type:ignore[import-untyped]
-except ImportError:
-    pass
 
 import pmb.config
 import pmb.helpers.args
@@ -1336,7 +1335,7 @@ def arguments() -> PmbArgs:
         )
 
     if getattr(args, "go_mod_cache", None) is None:
-        gomodcache = True if getattr(args, "src", None) else False
+        gomodcache = bool(getattr(args, "src", None))
         setattr(args, "go_mod_cache", gomodcache)
 
     return args

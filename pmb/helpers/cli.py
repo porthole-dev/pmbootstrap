@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import contextlib
 import datetime
 from pmb.helpers import logging
 import os
@@ -130,10 +131,8 @@ def progress_print(progress: float) -> None:
     :param progress: completion percentage as a number between 0 and 1
     """
     width = 79
-    try:
+    with contextlib.suppress(OSError):
         width = os.get_terminal_size().columns - 6
-    except OSError:
-        pass
     chars = int(width * progress)
     filled = "\u2588" * chars
     empty = " " * (width - chars)

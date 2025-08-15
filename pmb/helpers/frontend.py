@@ -257,10 +257,7 @@ def config(args: PmbArgs) -> None:
             print(f"{args.name} = {args.value}")
         pmb.config.save(args.config, config)
     elif args.name:
-        if hasattr(config, args.name):
-            value = getattr(config, args.name)
-        else:
-            value = ""
+        value = getattr(config, args.name) if hasattr(config, args.name) else ""
 
         def to_shell_friendly_representation(value: Any) -> str:
             friendly_representation: str
@@ -268,10 +265,7 @@ def config(args: PmbArgs) -> None:
             if isinstance(value, list) and len(value) == 1:
                 value = value[0]
 
-            if isinstance(value, Path):
-                friendly_representation = value.as_posix()
-            else:
-                friendly_representation = str(value)
+            friendly_representation = value.as_posix() if isinstance(value, Path) else str(value)
 
             return friendly_representation
 
@@ -351,19 +345,18 @@ def install(args: PmbArgs) -> None:
         _install_ondev_verify_no_rootfs(device, args.ondev_cp)
 
     # On-device installer overrides
-    if args.on_device_installer:
+    if args.on_device_installer and config.user != "user":
         # To make code for the on-device installer not needlessly complex, just
         # hardcode "user" as username here. (The on-device installer will set
         # a password for the user, disable SSH password authentication,
         # optionally add a new user for SSH that must not have the same
         # username etc.)
-        if config.user != "user":
-            logging.warning(
-                f"WARNING: custom username '{config.user}' will be"
-                " replaced with 'user' for the on-device"
-                " installer."
-            )
-            config.user = "user"
+        logging.warning(
+            f"WARNING: custom username '{config.user}' will be"
+            " replaced with 'user' for the on-device"
+            " installer."
+        )
+        config.user = "user"
 
     if not args.disk and args.split is None:
         # Default to split if the flash method requires it

@@ -231,10 +231,9 @@ def find(
         # No luck, take a guess what APKBUILD could have the package we are
         # looking for as subpackage
         guess = guess_main(package)
-        if guess:
-            # Parse the APKBUILD and verify if the guess was right
-            if _find_package_in_apkbuild(package, guess / "APKBUILD"):
-                ret = guess
+        # Parse the APKBUILD and verify if the guess was right
+        if guess and _find_package_in_apkbuild(package, guess / "APKBUILD"):
+            ret = guess
 
         if not guess or (guess and not ret):
             # Otherwise parse all APKBUILDs (takes time!), is the
@@ -383,10 +382,7 @@ def check_arches(arches: list[str], arch: Arch) -> bool:
     """
     if f"!{arch}" in arches:
         return False
-    for value in [str(arch), "all", "noarch"]:
-        if value in arches:
-            return True
-    return False
+    return any(value in arches for value in [str(arch), "all", "noarch"])
 
 
 def get_channel_new(channel: str) -> str:

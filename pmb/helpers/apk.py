@@ -141,19 +141,19 @@ def _apk_with_progress(command: list[str]) -> None:
     fifo = _prepare_fifo()
     command_with_progress = _create_command_with_progress(command, fifo)
     log_msg = " ".join(command)
-    with pmb.helpers.run.root(["cat", fifo], output=RunOutputTypePopen.PIPE) as p_cat:
-        with pmb.helpers.run.root(
-            command_with_progress, output=RunOutputTypePopen.BACKGROUND
-        ) as p_apk:
-            while p_apk.poll() is None:
-                p_cat_stdout = p_cat.stdout
-                if p_cat_stdout is None:
-                    raise RuntimeError("cat process had no stdout?")
-                line = p_cat_stdout.readline().decode("utf-8")
-                progress = _compute_progress(line)
-                pmb.helpers.cli.progress_print(progress)
-            pmb.helpers.cli.progress_flush()
-            pmb.helpers.run_core.check_return_code(p_apk.returncode, log_msg)
+    with (
+        pmb.helpers.run.root(["cat", fifo], output=RunOutputTypePopen.PIPE) as p_cat,
+        pmb.helpers.run.root(command_with_progress, output=RunOutputTypePopen.BACKGROUND) as p_apk,
+    ):
+        while p_apk.poll() is None:
+            p_cat_stdout = p_cat.stdout
+            if p_cat_stdout is None:
+                raise RuntimeError("cat process had no stdout?")
+            line = p_cat_stdout.readline().decode("utf-8")
+            progress = _compute_progress(line)
+            pmb.helpers.cli.progress_print(progress)
+        pmb.helpers.cli.progress_flush()
+        pmb.helpers.run_core.check_return_code(p_apk.returncode, log_msg)
 
 
 def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[str]:

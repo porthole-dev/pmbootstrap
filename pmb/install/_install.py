@@ -327,10 +327,9 @@ def copy_ssh_keys(config: Config) -> None:
         return
 
     authorized_keys = Chroot.native() / "tmp/authorized_keys"
-    outfile = open(authorized_keys, "w")
-    for key in keys:
-        outfile.write(f"{key}")
-    outfile.close()
+    with open(authorized_keys, "w") as outfile:
+        for key in keys:
+            outfile.write(f"{key}")
 
     target = Chroot.native() / "mnt/install/home/" / config.user / ".ssh"
     pmb.helpers.run.root(["mkdir", target])
@@ -746,15 +745,18 @@ def sanity_check_disk_size(args: PmbArgs) -> None:
     human = f"{size / 2 / 1024 / 1024:.2f} GiB"
 
     # Warn if the size is larger than 100GiB
-    if not args.assume_yes and size > (100 * 2 * 1024 * 1024):
-        if not pmb.helpers.cli.confirm(
+    if (
+        not args.assume_yes
+        and size > (100 * 2 * 1024 * 1024)
+        and not pmb.helpers.cli.confirm(
             f"WARNING: The target disk ({devpath}) "
             "is larger than a usual SD card "
             "(>100GiB). Are you sure you want to "
             f"overwrite this {human} disk?",
             no_assumptions=True,
-        ):
-            raise RuntimeError("Aborted.")
+        )
+    ):
+        raise RuntimeError("Aborted.")
 
 
 def get_ondev_pkgver(args: PmbArgs) -> str:
@@ -827,10 +829,7 @@ def create_crypttab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroo
     :param layout: partition layout from get_partition_layout() or None
     :param suffix: of the chroot, which crypttab will be created to
     """
-    if layout:
-        root_dev = Path(f"/dev/installp{layout['root']}")
-    else:
-        root_dev = Path("/dev/install")
+    root_dev = Path(f"/dev/installp{layout['root']}") if layout else Path("/dev/install")
 
     luks_uuid = get_uuid(args, root_dev)
     crypttab = f"root UUID={luks_uuid} none luks\n"
@@ -1491,7 +1490,7 @@ def install(args: PmbArgs) -> None:
         device,
         deviceinfo,
         args.split,
-        True if args.disk and args.disk.is_absolute() else False,
+        bool(args.disk and args.disk.is_absolute()),
         args.single_partition,
     )
     print_sshd_info(args)

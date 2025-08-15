@@ -111,12 +111,13 @@ def auto_apkindex_package(
             continue
 
         providers = pmb.parse.apkindex.providers(depend, arch, must_exist=False)
-        if providers == {}:
+        if providers == {} and (
             # We're only interested in missing depends starting with "so:"
             # (which means dynamic libraries that the package was linked
             # against) and packages for which no aport exists.
-            if depend.startswith("so:") or not pmb.helpers.pmaports.find_optional(depend):
-                missing.append(depend)
+            depend.startswith("so:") or not pmb.helpers.pmaports.find_optional(depend)
+        ):
+            missing.append(depend)
 
     # Increase pkgrel
     if len(missing):

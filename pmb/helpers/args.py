@@ -120,7 +120,7 @@ def init(args: PmbArgs) -> PmbArgs:
 
     # Copy all properties from args to out that don't start with underscores
     for key, value in vars(args).items():
-        if not key.startswith("_") and not key == "from_argparse":
+        if not key.startswith("_") and key != "from_argparse":
             setattr(args_, key, value)
 
     return args_

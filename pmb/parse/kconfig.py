@@ -199,7 +199,7 @@ def check_config(
 
     # Check the rules of each category
     ret = []
-    for category in rules.keys():
+    for category in rules:
         ret += [
             check_config_options_set(
                 config, config_path, config_arch, rules[category], category, pkgver, details
@@ -245,10 +245,7 @@ def check(
     components_list = components_list.copy()
 
     # Pkgname: allow omitting "linux-" prefix
-    if pkgname.startswith("linux-"):
-        flavor = pkgname.split("linux-")[1]
-    else:
-        flavor = pkgname
+    flavor = pkgname.split("linux-")[1] if pkgname.startswith("linux-") else pkgname
 
     # Read all kernel configs in the aport
     ret = True

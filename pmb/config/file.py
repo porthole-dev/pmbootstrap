@@ -19,11 +19,11 @@ def load(path: Path) -> Config:
     if "providers" not in cfg:
         cfg["providers"] = {}
 
-    for key in Config.__dict__.keys():
+    for key in Config.__dict__:
         if key == "providers":
             setattr(config, key, cfg["providers"])
         if key == "mirrors" and key in cfg:
-            for subkey in Config.mirrors.keys():
+            for subkey in Config.mirrors:
                 if subkey in cfg["mirrors"]:
                     setattr(config, f"mirrors.{subkey}", cfg["mirrors"][subkey])
         # default values won't be set in the config file
@@ -64,7 +64,7 @@ def serialize(config: Config, skip_defaults: bool = True) -> configparser.Config
 
     # .keys() flat maps dictionaries like config.mirrors with
     # dotted notation
-    for key in Config.keys():
+    for key in Config.keys():  # noqa: SIM118
         # If the default value hasn't changed then don't write out,
         # this makes it possible to update the default, otherwise
         # we wouldn't be able to tell if the user overwrote it.

@@ -246,9 +246,8 @@ def valid_apkindex_file(tmp_path) -> Path:
     # FIXME: use tmpfile fixture from !2453
     tmpfile = tmp_path / "APKINDEX.1"
     print(tmp_path)
-    f = open(tmpfile, "w")
-    f.write(example_apkindex)
-    f.close()
+    with open(tmpfile, "w") as f:
+        f.write(example_apkindex)
 
     return tmpfile
 
@@ -264,8 +263,8 @@ def test_apkindex_parse(valid_apkindex_file) -> None:
 
     # Check that the postmarketos-ramdisk virtual package is handled correctly
     # and that it's one provider (postmarketos-initramfs) is declared
-    assert "postmarketos-ramdisk" in blocks.keys()
-    assert "postmarketos-initramfs" in blocks["postmarketos-ramdisk"].keys()
+    assert "postmarketos-ramdisk" in blocks
+    assert "postmarketos-initramfs" in blocks["postmarketos-ramdisk"]
     assert (
         blocks["postmarketos-ramdisk"]["postmarketos-initramfs"]
         == blocks["postmarketos-initramfs"]["postmarketos-initramfs"]
@@ -322,11 +321,11 @@ def test_apkindex_parse(valid_apkindex_file) -> None:
 
 def test_apkindex_parse_bad_priority(tmp_path) -> None:
     tmpfile = tmp_path / "APKINDEX.2"
-    f = open(tmpfile, "w")
-    # A snippet of the above example but with the provider_priority
-    # of postmarketos-initramfs set to a non-integer value
-    f.write(
-        """
+    with open(tmpfile, "w") as f:
+        # A snippet of the above example but with the provider_priority
+        # of postmarketos-initramfs set to a non-integer value
+        f.write(
+            """
 C:Q1yB3CVUFMOjnLOOEAUIUUpJJV8g0=
 P:postmarketos-base-ui-x11
 V:29-r1
@@ -360,8 +359,7 @@ c:f3a4285732781d5577bad06046b7bbeaf132ce1f-dirty
 k:beep
 D:blkid btrfs-progs buffyboard busybox-extras bzip2 cryptsetup device-mapper devicepkg-utils>=0.2.0 dosfstools e2fsprogs e2fsprogs-extra f2fs-tools font-terminus iskey kmod libinput-libs lz4 multipath-tools parted postmarketos-fde-unlocker postmarketos-mkinitfs>=2.2 udev unudhcpd util-linux-misc xz
 p:postmarketos-ramdisk=3.3.5-r2"""
-    )
-    f.close()
+        )
 
     # We expect a RuntimeError to be raised when provider_priority is not
     # an integer
@@ -371,11 +369,11 @@ p:postmarketos-ramdisk=3.3.5-r2"""
 
 def test_apkindex_parse_missing_optionals(tmp_path) -> None:
     tmpfile = tmp_path / "APKINDEX.3"
-    f = open(tmpfile, "w")
-    # A snippet of the above example but with a missing timestamp
-    # and origin fields
-    f.write(
-        """
+    with open(tmpfile, "w") as f:
+        # A snippet of the above example but with a missing timestamp
+        # and origin fields
+        f.write(
+            """
 C:Q1yB3CVUFMOjnLOOEAUIUUpJJV8g0=
 P:postmarketos-base-ui-x11
 V:29-r1
@@ -390,8 +388,7 @@ c:901cb9520450a1e88ded95ac774e83f6b2cfbba3-dirty
 D:libinput xf86-input-libinput xf86-video-fbdev
 p:postmarketos-base-x11=29-r1
 i:postmarketos-base-ui=29-r1 xorg-server"""
-    )
-    f.close()
+        )
 
     # We expect parsing to succeed when the timestamp is missing
     parse_apkindex(tmpfile, True)
@@ -399,11 +396,11 @@ i:postmarketos-base-ui=29-r1 xorg-server"""
 
 def test_apkindex_parse_trailing_newline(tmp_path) -> None:
     tmpfile = tmp_path / "APKINDEX.4"
-    f = open(tmpfile, "w")
-    # A snippet of the above example but with additional
-    # trailing newlines
-    f.write(
-        """
+    with open(tmpfile, "w") as f:
+        # A snippet of the above example but with additional
+        # trailing newlines
+        f.write(
+            """
 C:Q1yB3CVUFMOjnLOOEAUIUUpJJV8g0=
 P:postmarketos-base-ui-x11
 V:29-r1
@@ -421,8 +418,7 @@ i:postmarketos-base-ui=29-r1 xorg-server
 
 
 """
-    )
-    f.close()
+        )
 
     # We expect parsing to succeed when the timestamp is missing
     parse_apkindex(tmpfile, True)
@@ -463,11 +459,11 @@ def test_apkindex_package(valid_apkindex_file) -> None:
 
 def test_apkindex_package_provider_priority(tmp_path) -> None:
     tmpfile = tmp_path / "APKINDEX.5"
-    f = open(tmpfile, "w")
-    # A snippet of the above example but with a missing timestamp
-    # and origin fields
-    f.write(
-        """
+    with open(tmpfile, "w") as f:
+        # A snippet of the above example but with a missing timestamp
+        # and origin fields
+        f.write(
+            """
 C:Q1yB3CVUFMOjnLOOEAUIUUpJJV8g0=
 P:postmarketos-base-short
 V:20-r0
@@ -502,8 +498,7 @@ D:kbd kmod less login-utils systemd systemd-services systemd-timesyncd tzdata
 p:postmarketos-base-init
 k:100
 """
-    )
-    f.close()
+        )
 
     index_block = package_apkindex("postmarketos-base-init", arch=Arch.aarch64, indexes=[tmpfile])
     assert index_block.pkgname == "postmarketos-base-loooooooooong"
@@ -513,11 +508,11 @@ k:100
 
 def test_apkindex_package_provider_shortest(tmp_path) -> None:
     tmpfile = tmp_path / "APKINDEX.6"
-    f = open(tmpfile, "w")
-    # A snippet of the above example but with a missing timestamp
-    # and origin fields
-    f.write(
-        """
+    with open(tmpfile, "w") as f:
+        # A snippet of the above example but with a missing timestamp
+        # and origin fields
+        f.write(
+            """
 C:Q1yB3CVUFMOjnLOOEAUIUUpJJV8g0=
 P:mesa-egl
 V:20-r0
@@ -548,8 +543,7 @@ t:1729538699
 c:901cb9520450a1e88ded95ac774e83f6b2cfbba3-dirty
 p:so:libGL.so.1=22-r0
 """
-    )
-    f.close()
+        )
 
     index_block = package_apkindex("so:libGL.so.1", arch=Arch.aarch64, indexes=[tmpfile])
     assert index_block.pkgname == "mesa-egl"

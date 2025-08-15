@@ -91,14 +91,14 @@ class Config:
 
     def __init__(self) -> None:
         # Make sure we aren't modifying the class defaults
-        for key in inspect.get_annotations(Config).keys():
+        for key in inspect.get_annotations(Config):
             setattr(self, key, deepcopy(Config.get_default(key)))
 
     @staticmethod
     def keys() -> list[str]:
         keys = list(inspect.get_annotations(Config).keys())
         keys.remove("mirrors")
-        keys += [f"mirrors.{k}" for k in inspect.get_annotations(Mirrors).keys()]
+        keys += [f"mirrors.{k}" for k in inspect.get_annotations(Mirrors)]
         return sorted(keys)
 
     @staticmethod

@@ -34,14 +34,14 @@ def sanity_check(toml: dict) -> None:
     if "aliases" not in toml:
         raise RuntimeError(f"{path}: missing [aliases] section")
 
-    for alias in toml["aliases"].keys():
+    for alias in toml["aliases"]:
         for category in toml["aliases"][alias]:
             if not category.startswith("category:"):
                 raise RuntimeError(
                     f"{path}: alias {alias}: all categories must start with 'category:'!"
                 )
 
-    for section in toml.keys():
+    for section in toml:
         if section == "aliases":
             continue
         if not section.startswith("category:"):

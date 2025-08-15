@@ -71,13 +71,12 @@ def next_token(previous: Token, rest: str) -> tuple[Token, str]:
 
     # Validate current token
     # Check if the transition from previous to current is valid
-    if next < previous:
-        if not (
-            (next == Token.DIGIT_OR_ZERO and previous == Token.DIGIT)
-            or (next == Token.SUFFIX and previous == Token.SUFFIX_NO)
-            or (next == Token.DIGIT and previous == Token.LETTER)
-        ):
-            next = Token.INVALID
+    if next < previous and not (
+        (next == Token.DIGIT_OR_ZERO and previous == Token.DIGIT)
+        or (next == Token.SUFFIX and previous == Token.SUFFIX_NO)
+        or (next == Token.DIGIT and previous == Token.LETTER)
+    ):
+        next = Token.INVALID
     return (next, rest)
 
 
