@@ -50,7 +50,7 @@ def generate(pkgname: str) -> None:
             _mirror="{pmb.config.aportgen_mirror_alpine}"
 
             url="http://busybox.net"
-            license="GPL2"
+            license="GPL-2.0-only"
             arch="{pmb.aportgen.get_cross_package_arches(pkgname)}"
             options="!check !strip"
             pkgdesc="Statically linked Busybox for $_arch"
