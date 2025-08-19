@@ -16,6 +16,7 @@ import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.other
 from pmb.core import Chroot, ChrootType
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.types import PathString
 
@@ -129,7 +130,12 @@ def init(chroot: Chroot) -> None:
     # postmarketos-base, since that's quite big (e.g: contains an init system)
     cmd: list[PathString] = ["--initdb"]
     pkgs = ["alpine-baselayout", "apk-tools", "busybox", "musl-utils"]
-    if pmb.config.pmaports.read_config().get("supported_usr_merge", False):
+    # FIXME: The check for a binary repository can be removed once
+    # alpine-baselayout-core is upstreamed to Alpine
+    if (
+        pmb.config.pmaports.read_config().get("supported_usr_merge", False)
+        and arch in Arch.supported_binary()
+    ):
         # Do the /usr merge! Bootstrapping is done in 2 steps
         pmb.helpers.apk.run([*cmd, "add", "alpine-baselayout-core"], chroot)
         pmb.helpers.apk.run(["add", *pkgs], chroot)
