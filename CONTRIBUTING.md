@@ -3,6 +3,10 @@
 pmbootstrap development is being discussed in
 [#postmarketOS-devel](https://wiki.postmarketos.org/wiki/Matrix_and_IRC).
 
+The usual [rules for
+merging](https://wiki.postmarketos.org/wiki/Rules_for_merging) apply to this
+repository.
+
 ## CI scripts
 
 Use `pmbootstrap ci` inside your `pmbootstrap.git` dir, to run all CI scripts
