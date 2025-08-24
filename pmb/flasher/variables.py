@@ -42,6 +42,7 @@ def variables(
     # Require that the partitions are specified in deviceinfo for now
     elif method.startswith("rkdeveloptool"):
         partition_kernel = deviceinfo.flash_rk_partition_kernel or None
+        partition_vendor_boot = deviceinfo.flash_rk_partition_vendor_boot or None
         partition_rootfs = (
             deviceinfo.flash_rk_partition_rootfs or deviceinfo.flash_rk_partition_system or None
         )

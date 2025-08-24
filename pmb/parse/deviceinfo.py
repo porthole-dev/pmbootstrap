@@ -136,6 +136,7 @@ class Deviceinfo:
     flash_fastboot_partition_vbmeta: str | None = ""
     flash_fastboot_partition_dtbo: str | None = ""
     flash_rk_partition_kernel: str | None = ""
+    flash_rk_partition_vendor_boot: str | None = ""
     flash_rk_partition_rootfs: str | None = ""
     flash_rk_partition_system: str | None = ""  # deprecated
     flash_mtkclient_partition_kernel: str | None = ""
