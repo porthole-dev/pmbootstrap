@@ -544,6 +544,10 @@ def bootimg_analyze(args: PmbArgs) -> None:
 
 
 def lint(args: PmbArgs) -> None:
+    logging.warning(
+        "WARNING: The 'pmbootstrap lint' command is deprecated. If you are linting pmaports, use 'pmbootstrap ci apkbuild-lint' instead."
+    )
+
     packages: Sequence[str] = args.packages
     if not packages:
         packages = pmb.helpers.pmaports.get_list()
