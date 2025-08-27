@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
 from enum import Enum
+from glob import glob
 from pathlib import Path
 from typing import Final
 from pmb.core.context import get_context
@@ -355,12 +356,13 @@ def get_topdir(repo: Path) -> Path:
     return Path(res.strip())
 
 
-def get_files(repo: Path) -> list[str]:
+def get_files(repo: Path, include_dot_git_dir: bool = False) -> list[str]:
     """Get all files inside a git repository, that are either already in the git tree or are not in gitignore.
 
     Do not list deleted files. To be used for creating a tarball of the git repository.
 
     :param path: top dir of the git repository
+    :param include_dot_git_dir: Also include .git
 
     :returns: all files in a git repository as list, relative to path
     """
@@ -369,6 +371,8 @@ def get_files(repo: Path) -> list[str]:
     files += pmb.helpers.run.user_output(
         ["git", "ls-files", "--exclude-standard", "--other"], repo
     ).split("\n")
+    if include_dot_git_dir:
+        files += glob("./.git/**/*", root_dir=repo, recursive=True)
     for file in files:
         if os.path.exists(f"{repo}/{file}"):
             ret += [file]

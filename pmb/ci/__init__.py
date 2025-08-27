@@ -130,17 +130,18 @@ def ask_which_scripts_to_run(
         return {script: scripts_available[script] for script in selection.split(",")}
 
 
-def copy_git_repo_to_chroot(topdir: Path) -> None:
+def copy_git_repo_to_chroot(topdir: Path, include_dot_git_dir: bool = False) -> None:
     """Create a tarball of the git repo (including unstaged changes and new
     files) and extract it in chroot_native.
 
     :param topdir: top directory of the git repository, get it with:
       pmb.helpers.git.get_topdir()
+    :param include_dot_git_dir: Also include .git
     """
     chroot = Chroot.native()
     pmb.chroot.init(chroot)
     tarball_path = chroot / "tmp/git.tar.gz"
-    files = pmb.helpers.git.get_files(topdir)
+    files = pmb.helpers.git.get_files(topdir, include_dot_git_dir=include_dot_git_dir)
 
     with open(f"{tarball_path}.files", "w") as handle:
         for file in files:
@@ -186,7 +187,9 @@ def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
         else:
             # Run inside pmbootstrap chroot
             if not repo_copied:
-                copy_git_repo_to_chroot(topdir)
+                copy_git_repo_to_chroot(
+                    topdir, include_dot_git_dir="with-dot-git" in script["options"]
+                )
                 repo_copied = True
 
             env: Env = {"TESTUSER": "pmos"}
