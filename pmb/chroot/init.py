@@ -16,7 +16,6 @@ import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.other
 from pmb.core import Chroot, ChrootType
-from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.types import PathString
 
@@ -125,22 +124,23 @@ def init(chroot: Chroot) -> None:
     pmb.config.workdir.chroot_save_init(chroot)
 
     pmb.helpers.repo.update(arch)
+    # Create the /usr-merge-related symlinks, which needs to be done manually
+    pmb.helpers.run.root(
+        [
+            "mkdir",
+            "-p",
+            f"{chroot.path}/usr/bin",
+            f"{chroot.path}/usr/sbin",
+            f"{chroot.path}/usr/lib",
+        ]
+    )
+    pmb.helpers.run.root(["ln", "-s", "usr/bin", "usr/sbin", "usr/lib", f"{chroot.path}/"])
     # Install minimal amount of things to get a functional chroot.
     # We don't use alpine-base since it depends on openrc, and neither
     # postmarketos-base, since that's quite big (e.g: contains an init system)
-    cmd: list[PathString] = ["--initdb"]
     pkgs = ["alpine-baselayout", "apk-tools", "busybox", "musl-utils"]
-    # FIXME: The check for a binary repository can be removed once
-    # alpine-baselayout-core is upstreamed to Alpine
-    if (
-        pmb.config.pmaports.read_config().get("supported_usr_merge", False)
-        and arch in Arch.supported_binary()
-    ):
-        # Do the /usr merge! Bootstrapping is done in 2 steps
-        pmb.helpers.apk.run([*cmd, "add", "alpine-baselayout-core"], chroot)
-        pmb.helpers.apk.run(["add", *pkgs], chroot)
-    else:
-        pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
+    cmd: list[PathString] = ["--initdb"]
+    pmb.helpers.apk.run([*cmd, "add", *pkgs], chroot)
 
     # Building chroots: create "pmos" user, add symlinks to /home/pmos
     if chroot.type != ChrootType.ROOTFS:
