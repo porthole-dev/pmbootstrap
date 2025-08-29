@@ -84,14 +84,6 @@ pmb.helpers.http module
    :undoc-members:
    :show-inheritance:
 
-pmb.helpers.lint module
------------------------
-
-.. automodule:: pmb.helpers.lint
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.helpers.locale module
 -------------------------
 

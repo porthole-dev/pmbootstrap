@@ -31,7 +31,6 @@ unmigrated_commands = [
     "initfs",
     "qemu",
     "newapkbuild",
-    "lint",
     "status",
     "ci",
     "zap",

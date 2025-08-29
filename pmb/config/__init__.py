@@ -308,22 +308,6 @@ apkbuild_attributes = {
     "_pkgsnap": {},
 }
 
-# Reference: https://postmarketos.org/apkbuild-options
-# In addition to these, pmbootstrap adds "pmb:kconfigcheck-community" etc.
-# dynamically based on kconfigcheck.toml in the currently checked out pmaports
-# branch
-apkbuild_custom_valid_options = [
-    "!pmb:crossdirect",
-    "!pmb:kconfigcheck",
-    "pmb:cross-native",
-    "pmb:cross-native2",
-    "pmb:drm",
-    "pmb:gpu-accel",  # deprecated
-    "pmb:strict",
-    "pmb:systemd",
-    "pmb:systemd-never",
-]
-
 # Valid types for the 'chassis' attribute in deviceinfo
 # See https://www.freedesktop.org/software/systemd/man/machine-info.html
 deviceinfo_chassis_types = [

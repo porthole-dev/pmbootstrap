@@ -736,11 +736,6 @@ def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.Ar
     return ret
 
 
-def arguments_lint(subparser: argparse._SubParsersAction) -> None:
-    lint = subparser.add_parser("lint", help="run quality checks on pmaports (required to pass CI)")
-    add_packages_arg(lint, nargs="*")
-
-
 def arguments_test(subparser: argparse._SubParsersAction) -> None:
     test = subparser.add_parser("test", help="Internal pmbootstrap test tools")
     sub = test.add_subparsers(dest="action_test", required=True)
@@ -971,7 +966,6 @@ def get_parser() -> argparse.ArgumentParser:
     arguments_pkgrel_bump(sub)
     arguments_pkgver_bump(sub)
     arguments_newapkbuild(sub)
-    arguments_lint(sub)
     arguments_test(sub)
     arguments_status(sub)
     arguments_ci(sub)
