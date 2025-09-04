@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 from pathlib import Path
-from pmb.types import AportGenEntry, PathString
+from pmb.types import PathString
 import sys
 from collections.abc import Sequence
 
@@ -595,16 +595,6 @@ git_repos = {
 #
 # APORTGEN
 #
-aportgen: dict[str, AportGenEntry] = {
-    "cross": {
-        "prefixes": ["busybox-static", "gcc", "musl", "grub-efi"],
-        "confirm_overwrite": False,
-    },
-    "device/testing": {
-        "prefixes": ["device", "linux"],
-        "confirm_overwrite": True,
-    },
-}
 
 # Use a deterministic mirror URL instead of CDN for aportgen. Otherwise we may
 # generate a pmaport that wraps an apk from Alpine (e.g. musl-armv7) locally

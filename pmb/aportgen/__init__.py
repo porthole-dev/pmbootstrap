@@ -1,5 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 import os
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
@@ -34,21 +35,26 @@ def get_cross_package_arches(pkgname: str) -> str:
         return "x86_64"
 
 
-def properties(pkgname: str) -> tuple[str, str, AportGenEntry]:
+def properties(pkgname: str, folder: Path | None = None) -> tuple[str, Path, AportGenEntry]:
     """
-    Get the `pmb.config.aportgen` properties for the aport generator, based on
-    the pkgname prefix.
+    Get the properties for the aport generator, based on the pkgname prefix.
 
     Example: "musl-armhf" => ("musl", "cross", {"confirm_overwrite": False})
 
     :param pkgname: package name
+    :param folder: optional base folder override
 
     :returns: (prefix, folder, options)
     """
-    for folder, options in pmb.config.aportgen.items():
-        for prefix in options["prefixes"]:
-            if pkgname.startswith(prefix):
-                return (prefix, folder, options)
+
+    for prefix in ["busybox-static", "gcc", "musl", "grub-efi"]:
+        if pkgname.startswith(prefix):
+            return (prefix, folder or Path("cross"), {"confirm_overwrite": False})
+
+    for prefix in ["device", "linux"]:
+        if pkgname.startswith(prefix):
+            return (prefix, folder or Path("device") / "testing", {"confirm_overwrite": True})
+
     logging.info(
         "NOTE: aportgen is for generating postmarketOS specific"
         " aports, such as the cross-compiler related packages"
@@ -62,14 +68,17 @@ def properties(pkgname: str) -> tuple[str, str, AportGenEntry]:
 
 
 def generate(
-    pkgname: str, fork_alpine: bool = False, fork_alpine_retain_branch: bool = False
+    pkgname: str,
+    fork_alpine: bool = False,
+    fork_alpine_retain_branch: bool = False,
+    folder: Path | None = None,
 ) -> None:
     options: AportGenEntry
 
     if fork_alpine:
-        prefix, folder, options = (pkgname, "temp", {"confirm_overwrite": True, "prefixes": []})
+        prefix, folder, options = (pkgname, Path("temp"), {"confirm_overwrite": True})
     else:
-        prefix, folder, options = properties(pkgname)
+        prefix, folder, options = properties(pkgname, folder)
     config = get_context().config
     path_target = pkgrepo_default_path() / folder / pkgname
 

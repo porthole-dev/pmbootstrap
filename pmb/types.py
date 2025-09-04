@@ -148,7 +148,6 @@ class PartitionLayout(TypedDict):
 
 
 class AportGenEntry(TypedDict):
-    prefixes: list[str]
     confirm_overwrite: bool
 
 
