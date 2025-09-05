@@ -461,6 +461,33 @@ def ask_for_device_kernel(config: Config, device: str) -> str:
     return ret
 
 
+def ask_for_mainline_downstream() -> pmb.helpers.devices.DeviceCategory:
+    logging.info("What type of port are you creating?")
+    logging.info(
+        "* mainline: Port using upstream/mainline kernel, compatible with upstream user space."
+    )
+    logging.info(
+        "* downstream: Port using downstream kernel, using the original (e.g. Android) kernel "
+        "sources, at least partially incompatible with upstream user space."
+    )
+    port_type = pmb.helpers.cli.ask(
+        question="Type?",
+        choices=["mainline", "downstream"],
+        default=None,
+        validation_regex="mainline|downstream",
+        complete=["mainline", "downstream"],
+    )
+
+    match port_type:
+        # Mainline ports start out in the testing category
+        case "mainline":
+            return pmb.helpers.devices.DeviceCategory.TESTING
+        case "downstream":
+            return pmb.helpers.devices.DeviceCategory.DOWNSTREAM
+        case _:
+            raise ValueError(f"Unexpected port_type {port_type}")
+
+
 def ask_for_device(context: Context) -> tuple[str, bool, str]:
     """
     Prompt for the device vendor, model, and kernel.
@@ -535,10 +562,13 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
                 current_vendor = vendor
                 continue
 
+            device_category = ask_for_mainline_downstream()
+
             # New port creation confirmed
             logging.info(f"Generating new aports for: {device}...")
-            pmb.aportgen.generate(f"device-{device}")
-            pmb.aportgen.generate(f"linux-{device}")
+            pmb.aportgen.generate(f"device-{device}", device_category=device_category)
+            if device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
+                pmb.aportgen.generate(f"linux-{device}", device_category=device_category)
         elif device_category == pmb.helpers.devices.DeviceCategory.ARCHIVED:
             apkbuild = device_path.parent / "APKBUILD"
             archived = pmb.parse._apkbuild.archived(apkbuild) or "No reason given (this is a bug)"

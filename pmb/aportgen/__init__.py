@@ -35,7 +35,11 @@ def get_cross_package_arches(pkgname: str) -> str:
         return "x86_64"
 
 
-def properties(pkgname: str, folder: Path | None = None) -> tuple[str, Path, AportGenEntry]:
+def properties(
+    pkgname: str,
+    folder: Path | None = None,
+    device_category: pmb.helpers.devices.DeviceCategory | None = None,
+) -> tuple[str, Path, AportGenEntry]:
     """
     Get the properties for the aport generator, based on the pkgname prefix.
 
@@ -43,6 +47,7 @@ def properties(pkgname: str, folder: Path | None = None) -> tuple[str, Path, Apo
 
     :param pkgname: package name
     :param folder: optional base folder override
+    :param device_category: optional device category for device/linux aports
 
     :returns: (prefix, folder, options)
     """
@@ -53,7 +58,11 @@ def properties(pkgname: str, folder: Path | None = None) -> tuple[str, Path, Apo
 
     for prefix in ["device", "linux"]:
         if pkgname.startswith(prefix):
-            return (prefix, folder or Path("device") / "testing", {"confirm_overwrite": True})
+            if not folder:
+                folder = (
+                    Path("device") / str(device_category) if device_category else Path("device")
+                )
+            return (prefix, folder, {"confirm_overwrite": True})
 
     logging.info(
         "NOTE: aportgen is for generating postmarketOS specific"
@@ -72,13 +81,17 @@ def generate(
     fork_alpine: bool = False,
     fork_alpine_retain_branch: bool = False,
     folder: Path | None = None,
+    device_category: pmb.helpers.devices.DeviceCategory | None = None,
 ) -> None:
     options: AportGenEntry
+
+    if pkgname.startswith(("device", "linux")) and not device_category:
+        device_category = pmb.config.ask_for_mainline_downstream()
 
     if fork_alpine:
         prefix, folder, options = (pkgname, Path("temp"), {"confirm_overwrite": True})
     else:
-        prefix, folder, options = properties(pkgname, folder)
+        prefix, folder, options = properties(pkgname, folder, device_category)
     config = get_context().config
     path_target = pkgrepo_default_path() / folder / pkgname
 
@@ -105,7 +118,11 @@ def generate(
             case "busybox-static":
                 pmb.aportgen.busybox_static.generate(pkgname)
             case "device":
-                pmb.aportgen.device.generate(pkgname)
+                # Ignore mypy 'error: Argument 2 to "generate" has incompatible type
+                # "DeviceCategory | None"; expected "DeviceCategory".
+                # The check on the top of the page already ensures device_category is not
+                # None in this case.
+                pmb.aportgen.device.generate(pkgname, device_category)  # type: ignore
             case "gcc":
                 pmb.aportgen.gcc.generate(pkgname)
             case "grub-efi":

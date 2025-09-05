@@ -7,6 +7,7 @@ from pmb.types import Bootimg
 from pathlib import Path
 import os
 import pmb.helpers.cli
+import pmb.helpers.devices
 import pmb.helpers.run
 import pmb.aportgen.core
 import pmb.parse.apkindex
@@ -276,9 +277,20 @@ def generate_modules_initfs() -> None:
         handle.writelines(line.lstrip() + "\n" for line in content.rstrip().split("\n"))
 
 
-def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str) -> None:
+def generate_apkbuild(
+    pkgname: str,
+    name: str,
+    arch: Arch,
+    flash_method: str,
+    device_category: pmb.helpers.devices.DeviceCategory,
+) -> None:
     # Dependencies
-    depends = ["postmarketos-base", "linux-" + "-".join(pkgname.split("-")[1:])]
+    depends = ["postmarketos-base"]
+    if device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
+        depends += ["linux-" + "-".join(pkgname.split("-")[1:])]
+    else:
+        depends += ["linux-CHANGEME"]
+
     if flash_method in ["fastboot", "heimdall-bootimg"]:
         depends.append("mkbootimg")
     if flash_method == "0xffff":
@@ -327,7 +339,7 @@ def generate_apkbuild(pkgname: str, name: str, arch: Arch, flash_method: str) ->
         )
 
 
-def generate(pkgname: str) -> None:
+def generate(pkgname: str, device_category: pmb.helpers.devices.DeviceCategory) -> None:
     arch = ask_for_architecture()
     manufacturer = ask_for_manufacturer()
     name = ask_for_name(manufacturer)
@@ -351,4 +363,4 @@ def generate(pkgname: str) -> None:
         bootimg,
     )
     generate_modules_initfs()
-    generate_apkbuild(pkgname, name, arch, flash_method)
+    generate_apkbuild(pkgname, name, arch, flash_method, device_category)
