@@ -166,6 +166,13 @@ class Arch(enum.Enum):
             case _:
                 return self.value
 
+    def requires_efi(self) -> bool:
+        match self:
+            case Arch.loongarch64:
+                return True
+            case _:
+                return False
+
     def alpine_triple(self) -> str:
         """Get the cross compiler triple for this architecture on Alpine."""
         match self:

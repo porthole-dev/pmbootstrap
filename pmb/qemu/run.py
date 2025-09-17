@@ -138,6 +138,9 @@ def command_qemu(
         if not os.path.exists(kernel):
             raise RuntimeError("failed to find the proper vmlinuz path")
 
+    # Some architectures require using EFI and cannot use direct kernel boot
+    use_efi = args.efi or arch.requires_efi()
+
     ncpus = os.cpu_count()
     if not ncpus:
         logging.warning("Couldn't get cpu count, defaulting to 4")
@@ -214,7 +217,7 @@ def command_qemu(
     # Only boot a kernel/initramfs directly when not doing EFI boot. This
     # allows us to load/execute an EFI application on boot, and support
     # a wide variety of boot loaders.
-    if not args.efi:
+    if not use_efi:
         command += ["-kernel", kernel]
         command += ["-initrd", chroot / "boot" / f"initramfs{flavor_suffix}"]
         command += ["-append", shlex.quote(cmdline)]
@@ -242,7 +245,7 @@ def command_qemu(
     command += ["-device", "virtio-net-pci,netdev=net"]
 
     # Check that arch is supported by pmb qemu
-    if arch not in [Arch.x86_64, Arch.aarch64, Arch.riscv64, Arch.ppc64le]:
+    if arch not in [Arch.x86_64, Arch.aarch64, Arch.riscv64, Arch.ppc64le, Arch.loongarch64]:
         raise RuntimeError(f"Architecture {arch} not supported by this command yet.")
 
     # Apply arch-specific qemu config
@@ -254,6 +257,8 @@ def command_qemu(
             command += ["-M", "virt"]
         case Arch.ppc64le:
             command += ["-M", "pseries"]
+        case Arch.loongarch64:
+            command += ["-M", "virt"]
 
     # Configure display
     if args.qemu_display != "none":
@@ -262,15 +267,13 @@ def command_qemu(
                 command += ["-device", "virtio-vga-gl"]
             case Arch.aarch64:
                 command += ["-device", "virtio-gpu-gl"]
-            case Arch.riscv64:
-                command += ["-device", "virtio-gpu-pci"]
-            case Arch.ppc64le:
+            case Arch.riscv64 | Arch.ppc64le | Arch.loongarch64:
                 command += ["-device", "virtio-gpu-pci"]
             case _:
                 # default to 2D-only backend
                 command += ["-device", "virtio-gpu"]
 
-    if args.efi:
+    if use_efi:
         host_arch = Arch.native()
         edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
         match arch:
@@ -283,6 +286,11 @@ def command_qemu(
                 command += [
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/OVMF/OVMF.fd",
+                ]
+            case Arch.loongarch64:
+                command += [
+                    "-drive",
+                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/loongarch64/QEMU_EFI.fd",
                 ]
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
@@ -391,13 +399,15 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-hw-display-virtio-vga")
         depends.remove("qemu-ui-opengl")
 
-    if args.efi:
-        # OVMF / AAVMF are only available for the x86_64 and aarch64 respectively
+    if args.efi or arch.requires_efi():
+        # EDK2 builds are only available for the target architecture
         match arch:
             case Arch.aarch64:
                 edk2_pkg = "aavmf"
             case Arch.x86_64:
                 edk2_pkg = "ovmf"
+            case Arch.loongarch64:
+                edk2_pkg = "edk2-loongarch64"
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
