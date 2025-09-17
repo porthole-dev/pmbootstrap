@@ -2,12 +2,37 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
+import ctypes
 import enum
 from pathlib import Path, PosixPath, PurePosixPath
 import platform
 
 # Initialised at the bottom
 _cached_native_arch: Arch
+
+# https://github.com/torvalds/linux/blob/d4b779985a6c853be5693fa6e8994034f8492abc/include/uapi/linux/personality.h#L56
+PER_LINUX32 = 0x0008
+
+
+def cpu_is_32_bit_capable() -> bool:
+    """Check whether the host CPU is capable of executing 32-bit binaries.
+
+    This is done by calling personality(PER_LINUX32), similar to how
+    util-linux does it
+    """
+    # https://github.com/util-linux/util-linux/blob/15de47b9c955b9e3451d864e16dd646169316331/sys-utils/lscpu-cputype.c#L714
+    personality = ctypes.CDLL(None).personality
+    personality.restype = ctypes.c_int
+    personality.argtypes = [ctypes.c_ulong]
+    # personality sets the process execution domain, so we need to revert it immediately
+    # if it succeeded. It returns the old process execution domain.
+    result = personality(PER_LINUX32)
+
+    if result == -1:
+        return False
+    else:
+        personality(result)
+        return True
 
 
 class Arch(enum.Enum):
@@ -201,6 +226,11 @@ class Arch(enum.Enum):
         # Obvious case: host arch is target arch
         if self == Arch.native():
             return False
+
+        # Currently, the only case where CPU emulation isn't required for non-host
+        # architectures is where the CPU supports 32-bit execution
+        if not cpu_is_32_bit_capable():
+            return True
 
         # Other cases: host arch on the left, target archs on the right
         not_required = {
