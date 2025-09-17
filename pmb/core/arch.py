@@ -90,6 +90,8 @@ class Arch(enum.Enum):
                 return Arch.armv7
             case "ppc64le":
                 return Arch.ppc64le
+            case "loongarch64":
+                return Arch.loongarch64
             case _:
                 raise ValueError(f"Unsupported machine type '{machine_type}'")
 
@@ -116,6 +118,7 @@ class Arch(enum.Enum):
             Arch.riscv64,
             Arch.s390x,
             Arch.ppc64le,
+            Arch.loongarch64,
             Arch.native(),
         }
 
@@ -147,6 +150,8 @@ class Arch(enum.Enum):
                 return "powerpc"
             case Arch.s390x:
                 return "s390"
+            case Arch.loongarch64 | Arch.loongarch32 | Arch.loongarchx32:
+                return "loongarch"
             case _:
                 return self.value
 
@@ -219,6 +224,8 @@ class Arch(enum.Enum):
                 return "386"
             case Arch.x86_64:
                 return "amd64"
+            case Arch.loongarch64:
+                return "loong64"
             case _:
                 raise ValueError(f"Can not map architecture '{self}' to Go arch")
 
@@ -237,6 +244,7 @@ class Arch(enum.Enum):
             Arch.x86_64: [Arch.x86],
             Arch.armv7: [Arch.armel, Arch.armhf],
             Arch.aarch64: [Arch.armv7],
+            Arch.loongarch64: [Arch.loongarch32],
         }
         return not (Arch.native() in not_required and self in not_required[Arch.native()])
 

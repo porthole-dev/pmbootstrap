@@ -33,6 +33,7 @@ def test_valid_arches() -> None:
     assert Arch.riscv64 in Arch.supported()
     assert Arch.ppc64le in Arch.supported()
     assert Arch.s390x in Arch.supported()
+    assert Arch.loongarch64 in Arch.supported()
 
     # kernel arch
     assert Arch.x86.kernel() == "x86"
@@ -40,6 +41,7 @@ def test_valid_arches() -> None:
     assert Arch.aarch64.kernel() == "arm64"  # The fun one
     assert Arch.armhf.kernel() == "arm"
     assert Arch.armv7.kernel() == "arm"
+    assert Arch.loongarch64.kernel() == "loongarch"
 
     # qemu arch
     assert Arch.x86.qemu() == "i386"
@@ -49,6 +51,7 @@ def test_valid_arches() -> None:
     assert Arch.armv7.qemu() == "arm"
     assert Arch.ppc64.qemu() == "ppc64"
     assert Arch.ppc64le.qemu() == "ppc64"
+    assert Arch.loongarch64.qemu() == "loongarch64"
 
     # Go arch
     assert Arch.armhf.go() == "arm"
@@ -57,6 +60,7 @@ def test_valid_arches() -> None:
     assert Arch.riscv64.go() == "riscv64"
     assert Arch.ppc64le.go() == "ppc64le"
     assert Arch.x86_64.go() == "amd64"
+    assert Arch.loongarch64.go() == "loong64"
     with pytest.raises(ValueError) as excinfo:
         Arch.mips64.go()
     assert "Can not map architecture 'mips64' to Go arch" in str(excinfo.value)
