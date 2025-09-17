@@ -123,6 +123,7 @@ def command_qemu(
 
     chroot = Chroot(ChrootType.ROOTFS, device)
     chroot_native = Chroot.native()
+    chroot_target = Chroot.buildroot(arch)
     flavor = pmb.chroot.other.kernel_flavor_installed(chroot, autoinstall=False)
     flavor_suffix = f"-{flavor}"
     # Backwards compatibility with old mkinitfs (pma#660)
@@ -271,19 +272,20 @@ def command_qemu(
 
     if args.efi:
         host_arch = Arch.native()
-        match host_arch:
+        edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
+        match arch:
             case Arch.aarch64:
                 command += [
                     "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/AAVMF/AAVMF_CODE.fd",
+                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/AAVMF/AAVMF_CODE.fd",
                 ]
             case Arch.x86_64:
                 command += [
                     "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={chroot_native.path}/usr/share/OVMF/OVMF.fd",
+                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/OVMF/OVMF.fd",
                 ]
             case _:
-                raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
+                raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.parse.deviceinfo().arch.is_native()
@@ -390,14 +392,23 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-ui-opengl")
 
     if args.efi:
-        host_arch = Arch.native()
-        match host_arch:
+        # OVMF / AAVMF are only available for the x86_64 and aarch64 respectively
+        match arch:
             case Arch.aarch64:
-                depends.append("aavmf")
+                edk2_pkg = "aavmf"
             case Arch.x86_64:
-                depends.append("ovmf")
+                edk2_pkg = "ovmf"
             case _:
-                raise RuntimeError(f"Architecture {host_arch} not configured for EFI support.")
+                raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
+
+        # If we're running natively, install it to the native chroot, otherwise we need to
+        # install it in the target chroot
+        if arch == Arch.native():
+            depends.append(edk2_pkg)
+        else:
+            target_chroot = Chroot.buildroot(arch)
+            pmb.chroot.init(target_chroot)
+            pmb.chroot.apk.install([edk2_pkg], target_chroot)
 
     chroot = Chroot.native()
     pmb.chroot.init(chroot)
