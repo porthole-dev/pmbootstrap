@@ -113,8 +113,24 @@ def check_option(
             if not is_in_array(config, option, string):
                 return warn_ret_false(f'contain "{string}"')
     elif isinstance(option_value, str):
-        if not is_set_str(config, option, option_value):
-            return warn_ret_false(f'be set to "{option_value}"')
+        if option_value in ["y", "m", "n"]:
+            # Tristate option
+            if option_value == "n":
+                if is_set(config, option):
+                    return warn_ret_false("*not* be set")
+            else:
+                if not is_set(config, option):
+                    return warn_ret_false("be set (either built-in or module)")
+                # Check if it matches preference and don't fail if there's
+                # a mismatch
+                elif option_value == "y" and not is_set_str(config, option, "y"):
+                    warn_ret_true("be built-in (y) but is module (m)")
+                elif option_value == "m" and is_set_str(config, option, "y"):
+                    warn_ret_true("be module (m) but is built-in (y)")
+        else:
+            # Regular string option
+            if not is_set_str(config, option, option_value):
+                return warn_ret_false(f'be set to "{option_value}"')
     elif option_value in [True, False]:
         if option_value != is_set(config, option):
             return warn_ret_false("be set" if option_value else "*not* be set")
