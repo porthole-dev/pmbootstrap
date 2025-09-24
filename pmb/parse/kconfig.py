@@ -94,6 +94,20 @@ def check_option(
             )
         return False
 
+    def warn_ret_true(should_str: str) -> bool:
+        config_name = os.path.basename(config_path)
+        if details:
+            logging.warning(
+                f"INFO: {config_name}: CONFIG_{option} should {should_str} ({component})"
+            )
+        else:
+            logging.warning(
+                f"INFO: {config_name} has suboptimal configuration"
+                f" ({component}), run 'pmbootstrap kconfig check'"
+                " for details!"
+            )
+        return True
+
     if isinstance(option_value, list):
         for string in option_value:
             if not is_in_array(config, option, string):
