@@ -125,16 +125,17 @@ def init(chroot: Chroot) -> None:
 
     pmb.helpers.repo.update(arch)
     # Create the /usr-merge-related symlinks, which needs to be done manually
-    pmb.helpers.run.root(
-        [
-            "mkdir",
-            "-p",
-            f"{chroot.path}/usr/bin",
-            f"{chroot.path}/usr/sbin",
-            f"{chroot.path}/usr/lib",
-        ]
-    )
-    pmb.helpers.run.root(["ln", "-s", "usr/bin", "usr/sbin", "usr/lib", f"{chroot.path}/"])
+    if pmb.config.pmaports.read_config().get("supported_usr_merge", False):
+        pmb.helpers.run.root(
+            [
+                "mkdir",
+                "-p",
+                f"{chroot.path}/usr/bin",
+                f"{chroot.path}/usr/sbin",
+                f"{chroot.path}/usr/lib",
+            ]
+        )
+        pmb.helpers.run.root(["ln", "-s", "usr/bin", "usr/sbin", "usr/lib", f"{chroot.path}/"])
     # Install minimal amount of things to get a functional chroot.
     # We don't use alpine-base since it depends on openrc, and neither
     # postmarketos-base, since that's quite big (e.g: contains an init system)
