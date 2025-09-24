@@ -731,6 +731,12 @@ def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
     )
     add_kernel_arg(migrate, nargs=1)
 
+    generate = sub.add_parser("generate", help="generate kernel config from fragments")
+    generate.add_argument(
+        "--arch", choices=arch_choices, dest="arch", type=lambda x: Arch.from_str(x)
+    )
+    add_kernel_arg(generate, nargs=1)
+
 
 def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
     ret = subparser.add_parser(

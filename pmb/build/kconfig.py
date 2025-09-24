@@ -17,6 +17,7 @@ import pmb.chroot.other
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse
+import pmb.parse.kconfig
 from pmb.core import Chroot
 from pmb.types import Apkbuild, Env, RunOutputTypeDefault
 
@@ -253,3 +254,133 @@ def edit_config(pkgname: str, arch: Arch | None, config_ui: KConfigUI) -> None:
         env["MENUCONFIG_MODE"] = mode
 
     _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
+
+
+def generate_config(pkgname: str, arch: Arch | None) -> None:
+    pkgname, arch, apkbuild, chroot, env = _init(pkgname, arch)
+
+    fragments: list[str] = []
+    if defconfig := apkbuild.get("_defconfig"):
+        fragments += defconfig
+
+    # The 'pmos fragment' is generated from kconfigcheck.toml
+    pmos_frag = pmb.parse.kconfig.create_fragment(apkbuild, arch)
+
+    # Write the pmos fragment to the aports dir and copy it into the kernel source tree
+    aport = pmb.helpers.pmaports.find(pkgname)
+    outputdir = get_outputdir(pkgname, apkbuild, must_exist=False)
+    arch_configs_dir = outputdir / "arch" / arch.kernel() / "configs"
+    pmb.chroot.user(
+        ["mkdir", "-p", str(arch_configs_dir)], chroot, working_dir=Path("/home/pmos/build")
+    )
+    with open(aport / "pmos.config", mode="w") as pmos_frag_file:
+        pmos_frag_file.write(pmos_frag)
+        pmb.helpers.run.root(
+            [
+                "cp",
+                pmos_frag_file.name,
+                f"{Chroot.native() / arch_configs_dir}/pmos_generated.config",
+            ]
+        )
+    fragments.append("pmos.config")
+
+    # Collect and parse other fragments from the kernel package directory
+    fragment_options: dict[str, dict[str, str | list[str]]] = {}
+    for config_file in aport.glob("*.config"):
+        with open(config_file) as f:
+            fragment_options[config_file.name] = parse_fragment(f.read())
+
+        # Copy fragment to arch/$arch/configs in kernel source
+        pmb.helpers.run.root(
+            ["cp", str(config_file), f"{Chroot.native() / arch_configs_dir}/{config_file.name}"]
+        )
+        if config_file.name not in fragments:
+            fragments.append(config_file.name)
+
+    # pmos user needs to be able to R/W this or else _make fails
+    pmb.chroot.root(["chown", "-R", "pmos:pmos", str(arch_configs_dir)])
+
+    # Generate the config using all fragments
+    _make(chroot, fragments, env, pkgname, arch, apkbuild, outputdir)
+
+    # Validate that all fragment options made it to the final config
+    if not pmb.parse.kconfig.check(pkgname, details=True):
+        raise RuntimeError("Generated kernel config does not pass all checks")
+
+    final_config_path = aport / f"config-{apkbuild['_flavor']}.{arch}"
+    with open(final_config_path) as f:
+        final_config = f.read()
+
+    validation_failed = False
+    for fragment_name, options in fragment_options.items():
+        for option, expected_value in options.items():
+            if isinstance(expected_value, str):
+                if expected_value == "n":
+                    # Option should not be set
+                    if pmb.parse.kconfig.is_set(final_config, option):
+                        logging.error(
+                            f"Fragment {fragment_name}: CONFIG_{option} should not be set but is enabled in final config"
+                        )
+                        validation_failed = True
+                else:
+                    # Option should match exactly (y, m, or other value)
+                    if not pmb.parse.kconfig.is_set_str(final_config, option, expected_value):
+                        logging.error(
+                            f"Fragment {fragment_name}: CONFIG_{option} expected to be '{expected_value}' but has different value in final config"
+                        )
+                        validation_failed = True
+            elif isinstance(expected_value, list):
+                for value in expected_value:
+                    if not pmb.parse.kconfig.is_in_array(final_config, option, value):
+                        logging.error(
+                            f"Fragment {fragment_name}: CONFIG_{option} expected to contain '{value}' but doesn't in final config"
+                        )
+                        validation_failed = True
+
+    if validation_failed:
+        raise RuntimeError(
+            "Fragment validation failed: Some options from fragments did not make it to the final kernel config. This usually means missing dependencies."
+        )
+
+
+def parse_fragment(content: str) -> dict[str, str | list[str]]:
+    """Parse a kconfig fragment and return a dict of options and their values."""
+    options: dict[str, str | list[str]] = {}
+
+    for line in content.splitlines():
+        line = line.strip()
+
+        # Skip empty lines and comments (except "is not set" lines)
+        if not line or (line.startswith("#") and not line.endswith("is not set")):
+            continue
+
+        # Handle "is not set" format
+        if "# CONFIG_" in line and "is not set" in line:
+            # Extract option name from "# CONFIG_OPTION is not set"
+            option = line.split("CONFIG_")[1].split(" ")[0]
+            options[option] = "n"
+            continue
+
+        # Handle regular CONFIG_OPTION=value format
+        if line.startswith("CONFIG_"):
+            parts = line.split("=", 1)
+            if len(parts) == 2:
+                option = parts[0].removeprefix("CONFIG_")
+                value = parts[1]
+
+                # Boolean options (y/m)
+                if value in ["y", "m"]:
+                    options[option] = value
+                # String options
+                elif value.startswith('"') and value.endswith('"'):
+                    # Remove quotes and check for comma-separated list
+                    value_unquoted = value[1:-1]
+                    if "," in value_unquoted:
+                        options[option] = value_unquoted.split(",")
+                    else:
+                        options[option] = value_unquoted
+                # Numeric or other options (treat as string)
+                else:
+                    options[option] = value
+
+    return options

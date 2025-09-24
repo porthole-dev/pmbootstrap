@@ -103,3 +103,13 @@ class KConfigMigrate(commands.Command):
     def run(self) -> None:
         for pkgname in self.pkgname_list:
             pmb.build.kconfig.migrate_config(pkgname, self.arch)
+
+
+class KConfigGenerate(commands.Command):
+    def __init__(self, pkgname: str | list[str], arch: Arch | None) -> None:
+        self.pkgname_list = [pkgname] if isinstance(pkgname, str) else pkgname
+        self.arch = arch
+
+    def run(self) -> None:
+        for pkgname in self.pkgname_list:
+            pmb.build.kconfig.generate_config(pkgname, self.arch)
