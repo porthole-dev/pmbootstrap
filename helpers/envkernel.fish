@@ -4,11 +4,13 @@
 
 for arg in $argv
 	if not string match -q -- "--gcc6" $arg;
-		and not string match -q -- "--gcc4" $arg
+		and not string match -q -- "--gcc4" $arg;
+		and not string match -q -- "--llvm" $arg
 		echo "usage: source envkernel.fish"
 		echo "optional arguments:"
 		echo "    --gcc4        Use GCC4 cross compiler"
 		echo "    --gcc6        Use GCC6 cross compiler"
+		echo "    --llvm        Use LLVM toolchain"
 		echo "    --help        Show this help message"
 		exit 1
 	end

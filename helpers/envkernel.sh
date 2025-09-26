@@ -110,14 +110,6 @@ check_device() {
 
 
 initialize_chroot() {
-	gcc_pkgname="gcc"
-	if [ "$gcc6_arg" = "1" ]; then
-		gcc_pkgname="gcc6"
-	fi
-	if [ "$gcc4_arg" = "1" ]; then
-		gcc_pkgname="gcc4"
-	fi
-
 	# Kernel architecture
 	# shellcheck disable=SC2154
 	case "$deviceinfo_arch" in
@@ -140,19 +132,37 @@ initialize_chroot() {
 		need_cross_compiler=0
 	fi
 
+	# LLVM is a cross compiler in itself
+	if [ "$llvm_arg" = "1" ]; then
+		need_cross_compiler=0
+		pkgs="clang lld llvm"
+		toolchain_name="llvm"
+	else
+		if [ "$gcc6_arg" = "1" ]; then
+			gcc_pkgname="gcc6"
+		elif [ "$gcc4_arg" = "1" ]; then
+			gcc_pkgname="gcc4"
+		else
+			gcc_pkgname="gcc"
+		fi
+
+		cross_binutils=""
+		cross_gcc=""
+		if [ "$need_cross_compiler" = 1 ]; then
+			cross_binutils="binutils-$deviceinfo_arch"
+			cross_gcc="$gcc_pkgname-$deviceinfo_arch"
+		fi
+
+		pkgs="$cross_binutils $cross_gcc $gcc_pkgname g++"
+		toolchain_name="$gcc_pkgname"
+	fi
+
 	# Don't initialize twice
-	flag="$chroot/tmp/envkernel/${gcc_pkgname}_setup_done"
+	flag="$chroot/tmp/envkernel/${toolchain_name}_setup_done"
 	[ -e "$flag" ] && return
 
 	# Install needed packages
 	echo "Initializing Alpine chroot (details: 'pmbootstrap log')"
-
-	cross_binutils=""
-	cross_gcc=""
-	if [ "$need_cross_compiler" = 1 ]; then
-		cross_binutils="binutils-$deviceinfo_arch"
-		cross_gcc="$gcc_pkgname-$deviceinfo_arch"
-	fi
 
 	# FIXME: Ideally we would not "guess" the dependencies here.
 	# It might be better to take a kernel package name as parameter
@@ -166,14 +176,10 @@ initialize_chroot() {
 		bc \
 		binutils \
 		bison \
-		$cross_binutils \
-		$cross_gcc \
 		diffutils \
 		elfutils-dev \
 		findutils \
 		flex \
-		g++ \
-		"$gcc_pkgname" \
 		gmp-dev \
 		gnutls-dev \
 		linux-headers \
@@ -188,7 +194,8 @@ initialize_chroot() {
 		sed \
 		yamllint \
 		yaml-dev \
-		xz || return 1
+		xz \
+		$pkgs || return 1
 
 	# Create /mnt/linux
 	sudo mkdir -p "$chroot/mnt/linux"
@@ -247,7 +254,11 @@ set_alias_make() {
 		cmd="$cmd CROSS_COMPILE=$cross_compiler"
 	fi
 	cmd="$cmd make -C /mnt/linux O=/mnt/linux/.output"
-	cmd="$cmd CC=$cc HOSTCC=$hostcc"
+	if [ "$llvm_arg" = "1" ]; then
+		cmd="$cmd LLVM=1"
+	else
+		cmd="$cmd CC=$cc HOSTCC=$hostcc"
+	fi
 
 	# shellcheck disable=SC2139
 	alias make="$cmd"
@@ -352,6 +363,7 @@ print_usage() {
 	echo "    --fish        Print fish alias syntax (internally used)"
 	echo "    --gcc6        Use GCC6 cross compiler"
 	echo "    --gcc4        Use GCC4 cross compiler"
+	echo "    --llvm	Use LLVM toolchain"
 	echo "    --help        Show this help message"
 }
 
@@ -360,6 +372,7 @@ parse_args() {
 	unset fish_arg
 	unset gcc6_arg
 	unset gcc4_arg
+	unset llvm_arg
 
 	while [ "${1:-}" != "" ]; do
 		case $1 in
@@ -373,6 +386,10 @@ parse_args() {
 			;;
 		--gcc4)
 			gcc4_arg=1
+			shift
+			;;
+		--llvm)
+			llvm_arg=1
 			shift
 			;;
 		--help)
