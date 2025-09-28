@@ -1,5 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+
+from __future__ import annotations
+
 import copy
 from pathlib import Path
 from pmb.core.context import get_context
@@ -68,7 +71,7 @@ def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) 
 
 
 @Cache("device", "kernel")
-def deviceinfo(device: str | None = None, kernel: str | None = None) -> "Deviceinfo":
+def deviceinfo(device: str | None = None, kernel: str | None = None) -> Deviceinfo:
     """
     :param device: defaults to args.device
     :param kernel: defaults to args.kernel
