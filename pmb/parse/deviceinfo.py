@@ -286,12 +286,13 @@ class Deviceinfo:
             # FIXME: something to turn on and fix in the future
             # if key not in Deviceinfo.__annotations__.keys():
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
-            if key == "arch":
-                setattr(self, key, Arch.from_str(value))
-            elif key == "gpu_accelerated":  # deprecated
-                setattr(self, "drm", value)
-            else:
-                setattr(self, key, value)
+            match key:
+                case "arch":
+                    setattr(self, key, Arch.from_str(value))
+                case "gpu_accelerated":  # deprecated
+                    setattr(self, "drm", value)
+                case _:
+                    setattr(self, key, value)
 
         if not self.flash_method:
             self.flash_method = "none"
