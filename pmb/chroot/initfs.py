@@ -7,6 +7,7 @@ import pmb.chroot.initfs_hooks
 import pmb.chroot.other
 import pmb.chroot.apk
 import pmb.config.pmaports
+from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
 from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.cli
 from pmb.core import Chroot
@@ -23,7 +24,7 @@ def build(chroot: Chroot) -> None:
     pmb.chroot.root(["mkinitfs"], chroot)
 
 
-def extract(chroot: Chroot, extra: bool = False) -> Path:
+def extract(chroot: Chroot, deviceinfo: Deviceinfo, extra: bool = False) -> Path:
     """
     Extract the initramfs to /tmp/initfs-extracted or the initramfs-extra to
     /tmp/initfs-extra-extracted and return the outside extraction path.
@@ -52,11 +53,47 @@ def extract(chroot: Chroot, extra: bool = False) -> Path:
     with (chroot / "tmp/_extract.sh").open("w") as handle:
         handle.write(f"#!/bin/sh\ncd {inside} && cpio -i < _initfs\n")
 
+    decompress_cmd: PathString | None
+    compress_extension: str
+
+    match deviceinfo.initfs_compression.format_:
+        case InitfsCompressionFormat.ZSTD:
+            pmb.chroot.apk.install(["zstd"], chroot)
+            decompress_cmd = "zstd"
+            compress_extension = ".zst"
+        case InitfsCompressionFormat.LZ4:
+            # FIXME: Decompressing lz4 is weirdly tricky for some reason. Simply doing
+            # `lz4 -d $FILENAME.lz4` followed by `cpio -i < $FILENAME` does not work and makes cpio
+            # error out about not being able to read the cpio archive.
+            #
+            # After investigating it, I found that using `lz4 -d $FILENAME.lz4` along with the
+            # aforementioned cpio invocation using GNU cpio instead of BusyBox cpio makes it go
+            # further, but it still doesn't successfully unpack the cpio archive. Given that not a
+            # single device in pmaports currently uses lz4 compression for its initramfs at the time
+            # of writing, maybe it's just entirely broken.
+            raise RuntimeError("LZ4 compression is not yet supported by the initramfs extractor")
+        case InitfsCompressionFormat.LZMA:
+            pmb.chroot.apk.install(["xz"], chroot)
+            # For some reason, we actually get an XZ archive when the compression format is set to
+            # LZMA.
+            decompress_cmd = "xz"
+            compress_extension = ".xz"
+        case InitfsCompressionFormat.GZIP:
+            decompress_cmd = "gzip"
+            compress_extension = ".gz"
+        case InitfsCompressionFormat.NONE:
+            decompress_cmd = None
+            compress_extension = ""
+        case _:
+            raise AssertionError(f"Please add handling for {deviceinfo.initfs_compression.format_}")
+
     # Extract
     commands: list[list[PathString]] = [
         ["mkdir", "-p", inside],
-        ["cp", initfs_file, f"{inside}/_initfs.gz"],
-        ["gzip", "-d", f"{inside}/_initfs.gz"],
+        ["cp", initfs_file, f"{inside}/_initfs{compress_extension}"],
+        [decompress_cmd, "-d", f"{inside}/_initfs{compress_extension}"]
+        if decompress_cmd
+        else ["echo", "Skipping initramfs decompression as no decompressor was specified."],
         ["cat", "/tmp/_extract.sh"],  # for the log
         ["sh", "/tmp/_extract.sh"],
         ["rm", "/tmp/_extract.sh", f"{inside}/_initfs"],
@@ -68,11 +105,11 @@ def extract(chroot: Chroot, extra: bool = False) -> Path:
     return outside
 
 
-def ls(suffix: Chroot, extra: bool = False) -> None:
+def ls(suffix: Chroot, deviceinfo: Deviceinfo, extra: bool = False) -> None:
     tmp = "/tmp/initfs-extracted"
     if extra:
         tmp = "/tmp/initfs-extra-extracted"
-    extract(suffix, extra)
+    extract(suffix, deviceinfo, extra)
     pmb.chroot.root(["ls", "-lahR", "."], suffix, Path(tmp), RunOutputTypeDefault.STDOUT)
     pmb.chroot.root(["rm", "-r", tmp], suffix)
 
@@ -87,17 +124,17 @@ def frontend(args: PmbArgs) -> None:
     if action == "build":
         build(chroot)
     elif action == "extract":
-        dir = extract(chroot)
+        dir = extract(chroot, deviceinfo)
         logging.info(f"Successfully extracted initramfs to: {dir}")
         if deviceinfo.create_initfs_extra:
-            dir_extra = extract(chroot, True)
+            dir_extra = extract(chroot, deviceinfo, True)
             logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
     elif action == "ls":
         logging.info("*** initramfs ***")
-        ls(chroot)
+        ls(chroot, deviceinfo)
         if deviceinfo.create_initfs_extra:
             logging.info("*** initramfs-extra ***")
-            ls(chroot, True)
+            ls(chroot, deviceinfo, True)
 
     # Handle hook actions
     elif action == "hook_ls":
