@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from pmb.core.context import get_context
 from pmb.core.arch import Arch
@@ -14,6 +16,57 @@ import pmb.config
 import pmb.helpers.other
 import pmb.helpers.devices
 from pmb.meta import Cache
+
+
+class InitfsCompressionFormat(Enum):
+    ZSTD = "zstd"
+    LZ4 = "lz4"
+    LZMA = "lzma"
+    GZIP = "gzip"
+    NONE = "none"
+
+    @staticmethod
+    def from_str(compression_format: str) -> InitfsCompressionFormat:
+        try:
+            return InitfsCompressionFormat(compression_format)
+        except ValueError as exception:
+            raise ValueError(f"Invalid compression format '{compression_format}'") from exception
+
+
+class InitfsCompressionLevel(Enum):
+    DEFAULT = "default"
+    FAST = "fast"
+    BEST = "best"
+
+    @staticmethod
+    def from_str(compression_level: str) -> InitfsCompressionLevel:
+        try:
+            return InitfsCompressionLevel(compression_level)
+        except ValueError as exception:
+            raise ValueError(f"Invalid compression level '{compression_level}'") from exception
+
+
+@dataclass
+class InitfsCompression:
+    format_: InitfsCompressionFormat
+    level: InitfsCompressionLevel | None
+
+    @staticmethod
+    def from_str(initfs_compression: str) -> InitfsCompression | None:
+        segments = initfs_compression.split(":", maxsplit=1)
+
+        try:
+            format_ = InitfsCompressionFormat.from_str(segments[0])
+        except ValueError:
+            # If we can't even figure out the format, the other information is no use.
+            return None
+
+        try:
+            level = InitfsCompressionLevel.from_str(segments[1]) if len(segments) == 2 else None
+        except ValueError:
+            level = None
+
+        return InitfsCompression(format_, level)
 
 
 # FIXME: It feels weird to handle this at parse time.
@@ -123,6 +176,7 @@ class Deviceinfo:
     flash_method: str = ""
     boot_filesystem: str | None = ""
     create_initfs_extra: bool | None = False
+    initfs_compression: InitfsCompression = InitfsCompression(InitfsCompressionFormat.GZIP, None)
 
     # flash
     flash_heimdall_partition_kernel: str | None = ""
@@ -291,6 +345,8 @@ class Deviceinfo:
                     setattr(self, key, Arch.from_str(value))
                 case "gpu_accelerated":  # deprecated
                     setattr(self, "drm", value)
+                case "initfs_compression":
+                    setattr(self, key, InitfsCompression.from_str(value))
                 case _:
                     setattr(self, key, value)
 
