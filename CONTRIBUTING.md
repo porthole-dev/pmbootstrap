@@ -149,7 +149,7 @@ changes. This makes it easy to spot regressions.
 
 ```sh
 pmbootstrap apkbuild_parse > /tmp/new
-git checkout master
+git switch master
 pmbootstrap apkbuild_parse > /tmp/old
 colordiff /tmp/old /tmp/new | less -R
 ```
