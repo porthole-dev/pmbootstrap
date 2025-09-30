@@ -147,7 +147,7 @@ def mount(chroot: Chroot) -> None:
     if not arch.cpu_emulation_required():
         return
 
-    arch_qemu = arch.qemu()
+    arch_qemu = arch.qemu_user()
 
     # mount --bind the qemu-user binary
     pmb.chroot.binfmt.register(arch)

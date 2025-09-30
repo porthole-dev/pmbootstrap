@@ -19,7 +19,7 @@ def register(arch: Arch) -> None:
     """
     Get arch, magic, mask.
     """
-    arch_qemu = arch.qemu()
+    arch_qemu = arch.qemu_user()
     chroot = Chroot.native()
 
     # always make sure the qemu-<arch> binary is installed, since registering
@@ -58,7 +58,7 @@ def register(arch: Arch) -> None:
 
 
 def unregister(arch: Arch) -> None:
-    arch_qemu = arch.qemu()
+    arch_qemu = arch.qemu_user()
     binfmt_file = "/proc/sys/fs/binfmt_misc/qemu-" + arch_qemu
     if not os.path.exists(binfmt_file):
         return

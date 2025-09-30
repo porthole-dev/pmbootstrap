@@ -61,7 +61,7 @@ def which_qemu(arch: Arch) -> str:
     """
     Finds the qemu executable or raises an exception otherwise
     """
-    executable = "qemu-system-" + arch.qemu()
+    executable = "qemu-system-" + arch.qemu_system()
     if shutil.which(executable):
         return executable
     else:
@@ -210,7 +210,7 @@ def command_qemu(
                 ]
             )
         ]
-        command += [chroot_native / "usr/bin" / f"qemu-system-{arch.qemu()}"]
+        command += [chroot_native / "usr/bin" / f"qemu-system-{arch.qemu_system()}"]
         command += ["-L", chroot_native / "usr/share/qemu/"]
 
     command += ["-nodefaults"]
@@ -385,7 +385,7 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         "qemu-hw-display-virtio-gpu-pci-gl",
         "qemu-hw-display-virtio-vga",
         "qemu-hw-display-virtio-vga-gl",
-        "qemu-system-" + arch.qemu(),
+        "qemu-system-" + arch.qemu_system(),
         "qemu-ui-gtk",
         "qemu-ui-opengl",
         "qemu-ui-sdl",
@@ -450,7 +450,7 @@ def run(args: PmbArgs) -> None:
 
     if not args.host_qemu:
         install_depends(args, arch)
-    logging.info("Running postmarketOS in QEMU VM (" + arch.qemu() + ")")
+    logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
 
     qemu, env = command_qemu(args, config, arch, img_path, img_path_2nd)
 

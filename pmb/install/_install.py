@@ -125,7 +125,7 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot) -> None:
     mountpoint_outside = Chroot.native() / mountpoint
 
     # Remove empty qemu-user binary stub (where the binary was bind-mounted)
-    arch_qemu = pmb.parse.deviceinfo().arch.qemu()
+    arch_qemu = pmb.parse.deviceinfo().arch.qemu_user()
     qemu_binary = mountpoint_outside / f"usr/bin/qemu-{arch_qemu}-static"
     if os.path.exists(qemu_binary):
         pmb.helpers.run.root(["rm", qemu_binary])

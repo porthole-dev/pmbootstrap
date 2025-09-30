@@ -155,16 +155,21 @@ class Arch(enum.Enum):
             case _:
                 return self.value
 
-    def qemu(self) -> str:
+    def qemu_user(self) -> str:
         match self:
             case Arch.x86:
                 return "i386"
             case Arch.armhf | Arch.armv7:
                 return "arm"
+            case _:
+                return self.value
+
+    def qemu_system(self) -> str:
+        match self:
             case Arch.ppc64le:
                 return "ppc64"
             case _:
-                return self.value
+                return self.qemu_user()
 
     def requires_efi(self) -> bool:
         match self:
