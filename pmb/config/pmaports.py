@@ -246,7 +246,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     # Attempt to switch branch (git gives a nice error message, mentioning
     # which files need to be committed/stashed, so just pass it through)
     if pmb.helpers.run.user(
-        ["git", "checkout", branch_new], aports, RunOutputTypeDefault.INTERACTIVE, check=False
+        ["git", "switch", branch_new], aports, RunOutputTypeDefault.INTERACTIVE, check=False
     ):
         raise RuntimeError(
             "Failed to switch branch. Go to your pmaports and"

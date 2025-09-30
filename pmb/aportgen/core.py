@@ -181,7 +181,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
         channel_cfg = pmb.config.pmaports.read_config_channel()
         branch = channel_cfg["branch_aports"]
         logging.info(f"Checkout aports.git branch: {branch}")
-        if pmb.helpers.run.user(["git", "checkout", branch], aports_upstream_path, check=False):
+        if pmb.helpers.run.user(["git", "switch", branch], aports_upstream_path, check=False):
             logging.info("NOTE: run 'pmbootstrap pull' and try again")
             logging.info(
                 "NOTE: if it still fails, your aports.git was cloned with"
@@ -189,7 +189,7 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
                 " Unshallow it, or remove it and let pmbootstrap clone it"
                 f" again: {aports_upstream_path}"
             )
-            raise RuntimeError("Branch checkout failed.")
+            raise RuntimeError("Branch switch failed.")
 
     # Search package
     paths = list(aports_upstream_path.glob(f"*/{pkgname}"))

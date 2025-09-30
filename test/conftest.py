@@ -185,7 +185,7 @@ def pmaports(pmb_args: None, monkeypatch: MonkeyPatch) -> None:
     if not cfg.aports[-1].exists():
         pmb.helpers.git.clone("pmaports")
         # Now operate on the cloned repo
-        assert pmb.helpers.run.user(["git", "checkout", "master"], working_dir=cfg.aports[-1]) == 0
+        assert pmb.helpers.run.user(["git", "switch", "master"], working_dir=cfg.aports[-1]) == 0
 
 
 @pytest.fixture
