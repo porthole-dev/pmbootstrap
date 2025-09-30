@@ -175,6 +175,7 @@ def random_valid_deviceinfo(tmp_path: Path) -> Path:
     info["codename"] = tmp_path.name[7:]
     info["chassis"] = random.choice(deviceinfo_chassis_types)
     info["arch"] = random.choice(["armhf", "aarch64", "x86_64"])
+    info["header_version"] = random.randint(0, 4)
     info["initfs_compression"] = random.choice(
         ["zstd", "zstd:best", "lz4", "lzma", "gzip", "gzip:fast", "none"]
     )
