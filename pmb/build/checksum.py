@@ -27,7 +27,7 @@ def update(pkgname: str) -> None:
 def verify(pkgname: str) -> None:
     """Fetch all sources and verify their checksums."""
     pmb.build.init_abuild_minimal()
-    pmb.build.copy_to_buildpath(pkgname)
+    pmb.build.copy_to_buildpath(pkgname, no_override=True)
     logging.info("(native) verify checksums for " + pkgname)
 
     # Fetch and verify sources, "fetch" alone does not verify them:
