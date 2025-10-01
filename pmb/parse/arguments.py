@@ -703,6 +703,7 @@ def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
     # "pmbootstrap kconfig edit"
     edit = sub.add_parser("edit", help="edit kernel aport config")
     edit.add_argument("--arch", choices=arch_choices, dest="arch", type=lambda x: Arch.from_str(x))
+    edit.add_argument("--fragment", help="fragment filename to save changes")
     edit_ui_chooser = edit.add_mutually_exclusive_group()
     edit_ui_chooser.add_argument(
         "-x",

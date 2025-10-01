@@ -218,6 +218,7 @@ class PmbArgs(Namespace):
     force: bool
     fork_alpine: bool
     fork_alpine_retain_branch: bool
+    fragment: str
     full_disk_encryption: bool
     go_mod_cache: bool
     hook: str

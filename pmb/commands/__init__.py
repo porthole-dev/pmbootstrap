@@ -98,11 +98,14 @@ def run_command(args: PmbArgs) -> None:
                         categories,
                     )
                 case "edit":
-                    command = KConfigEdit(args.package[0], args.arch, args.xconfig, args.nconfig)
+                    command = KConfigEdit(
+                        args.package[0], args.arch, args.xconfig, args.nconfig, args.fragment
+                    )
                 case "migrate":
                     command = KConfigMigrate(args.package, args.arch)
                 case "generate":
                     command = KConfigGenerate(args.package, args.arch)
+
         case _:
             raise NotImplementedError(f"Command '{args.action}' is not implemented.")
 

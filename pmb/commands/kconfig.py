@@ -76,10 +76,16 @@ class KConfigCheck(commands.Command):
 
 class KConfigEdit(commands.Command):
     def __init__(
-        self, pkgname: str, arch: Arch | None, use_xconfig: bool, use_nconfig: bool
+        self,
+        pkgname: str,
+        arch: Arch | None,
+        use_xconfig: bool,
+        use_nconfig: bool,
+        fragment: str | None = None,
     ) -> None:
         self.pkgname = pkgname
         self.arch = arch
+        self.fragment = fragment
 
         if use_xconfig and use_nconfig:
             raise AssertionError
@@ -92,7 +98,7 @@ class KConfigEdit(commands.Command):
             self.chosen_ui = KConfigUI.MENUCONFIG
 
     def run(self) -> None:
-        pmb.build.kconfig.edit_config(self.pkgname, self.arch, self.chosen_ui)
+        pmb.build.kconfig.edit_config(self.pkgname, self.arch, self.chosen_ui, self.fragment)
 
 
 class KConfigMigrate(commands.Command):
