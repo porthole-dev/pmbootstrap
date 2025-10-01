@@ -1,9 +1,10 @@
 # Copyright 2023 Lary Gibaud
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pathlib import Path
 import re
 
 
-def arm_big_little_first_group_ncpus() -> int | None:
+def arm_big_little_first_group_ncpus(cpuinfo_path: Path = Path("/proc/cpuinfo")) -> int | None:
     """
     Infer from /proc/cpuinfo on aarch64 if this is a big/little architecture
     (if there is different processor models) and the number of cores in the
@@ -17,7 +18,7 @@ def arm_big_little_first_group_ncpus() -> int | None:
     counter = 0
     part = None
 
-    with open("/proc/cpuinfo") as cpuinfo:
+    with open(cpuinfo_path) as cpuinfo:
         for line in cpuinfo:
             match = pattern.match(line)
             if match:
