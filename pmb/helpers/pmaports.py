@@ -16,6 +16,7 @@ from pmb.types import Apkbuild, WithExtraRepos
 
 from pmb.meta import Cache
 import pmb.parse
+import pmb.parse.version
 
 
 @Cache("with_extra_repos")
@@ -265,6 +266,36 @@ def find_optional(package: str) -> Path | None:
         return None
 
 
+def check_version_constraints(pkgname_with_op: str, apkbuild: Apkbuild) -> bool:
+    version = apkbuild["pkgver"]
+
+    # Operators and matching return values from pmb.parse.version.compare()
+    operators = {
+        ">=": [0, 1],
+        ">": [1],
+        "<=": [-1, 0],
+        "<": [-1],
+    }
+
+    for op, valid_results in operators.items():
+        if op not in pkgname_with_op:
+            continue
+        ver_req = pkgname_with_op.split(op, 1)[1]
+        result = pmb.parse.version.compare(version, ver_req)
+        logging.verbose(
+            f"check_version_constraints: op:{op}, version:{version}, ver_req:{ver_req}, result:{result}"
+        )
+        if result in valid_results:
+            logging.debug(f"{pkgname_with_op}: matches pmaports package")
+            return True
+        else:
+            logging.debug(f"{pkgname_with_op}: does not match pmaports package")
+            return False
+
+    logging.debug(f"check_version_constraints: ignoring {pkgname_with_op}")
+    return True
+
+
 # The only caller with subpackages=False is ui.check_option()
 @Cache("pkgname", "with_extra_repos", subpackages=True)
 def get_with_path(
@@ -278,7 +309,7 @@ def get_with_path(
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
     Relevant variables are defined in pmb.config.apkbuild_attributes.
 
-    :param pkgname: the package name to find
+    :param pkgname: the package name [+ version constraint] to find
     :param must_exist: raise an exception when it can't be found
     :param subpackages: also search for subpackages with the specified
         names (slow! might need to parse all APKBUILDs to find it)
@@ -293,10 +324,12 @@ def get_with_path(
                   "options": [],
                   ... }
     """
-    pkgname = pmb.helpers.package.remove_operators(pkgname)
-    pmaport = find(pkgname, must_exist, subpackages, with_extra_repos)
+    pkgname_no_op = pmb.helpers.package.remove_operators(pkgname)
+    pmaport = find(pkgname_no_op, must_exist, subpackages, with_extra_repos)
     if pmaport:
-        return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
+        apkbuild = pmb.parse.apkbuild(pmaport / "APKBUILD")
+        if pkgname_no_op == pkgname or check_version_constraints(pkgname, apkbuild):
+            return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
     return None, None
 
 
