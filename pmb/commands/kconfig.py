@@ -16,21 +16,25 @@ from pmb.helpers.exceptions import NonBugError
 
 class KConfigCheck(commands.Command):
     def __init__(
-        self, details: bool, file: str, pkgname: str | list[str], keep_going: bool
+        self,
+        details: bool,
+        file: str,
+        pkgname: str | list[str],
+        keep_going: bool,
+        categories: list[str],
     ) -> None:
         self.details = details
         self.file = file
         self.pkgname_list = [pkgname] if isinstance(pkgname, str) else pkgname
         self.keep_going = keep_going
+        self.categories = categories
 
     def run(self) -> None:
-        # Build the components list from cli arguments (--waydroid etc.)
-        components_list: list[str] = []
         error_msg = "kconfig check failed! More info: https://postmarketos.org/kconfig"
 
         # Handle passing a file directly
         if self.file:
-            if pmb.parse.kconfig.check_file(self.file, components_list, details=self.details):
+            if pmb.parse.kconfig.check_file(self.file, self.categories, details=self.details):
                 logging.info("kconfig check succeeded!")
                 return
             raise NonBugError(error_msg)
@@ -53,7 +57,7 @@ class KConfigCheck(commands.Command):
                 if "!pmb:kconfigcheck" in apkbuild["options"]:
                     skipped += 1
                     continue
-            if not pmb.parse.kconfig.check(package, components_list, details=self.details):
+            if not pmb.parse.kconfig.check(package, self.categories, details=self.details):
                 error = True
                 if not self.keep_going:
                     break

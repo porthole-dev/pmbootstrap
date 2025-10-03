@@ -89,8 +89,13 @@ def run_command(args: PmbArgs) -> None:
         case "kconfig":
             match args.action_kconfig:
                 case "check":
+                    categories = args.categories.split(",") if args.categories else []
                     command = KConfigCheck(
-                        args.kconfig_check_details, args.file, args.package, args.keep_going
+                        args.kconfig_check_details,
+                        args.file,
+                        args.package,
+                        args.keep_going,
+                        categories,
                     )
                 case "edit":
                     command = KConfigEdit(args.package[0], args.arch, args.xconfig, args.nconfig)

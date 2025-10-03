@@ -692,6 +692,9 @@ def arguments_kconfig(subparser: argparse._SubParsersAction) -> None:
         action="store_true",
         help="continue on errors instead of aborting on the first error",
     )
+    check.add_argument(
+        "--categories", help="a comma separated list of additional kconfig categories to check"
+    )
     add_kernel_arg(check, nargs="*")
 
     # "pmbootstrap kconfig edit"
