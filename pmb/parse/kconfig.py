@@ -210,7 +210,7 @@ def check_config(
     details: bool = False,
 ) -> bool:
     """
-    Check, whether one kernel config passes the rules of multiple components.
+    Check, whether one kernel config passes the rules of multiple categories.
 
     :param config_path: full path to kernel config file
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
@@ -246,7 +246,7 @@ def check_config(
 @overload
 def check(
     pkgname: str,
-    components_list: list[str] = ...,
+    categories: list[str] = ...,
     details: bool = ...,
     must_exist: Literal[False] = ...,
 ) -> bool | None: ...
@@ -255,28 +255,28 @@ def check(
 @overload
 def check(
     pkgname: str,
-    components_list: list[str] = ...,
+    categories: list[str] = ...,
     details: bool = ...,
     must_exist: Literal[True] = ...,
 ) -> bool: ...
 
 
 def check(
-    pkgname: str, components_list: list[str] = [], details: bool = False, must_exist: bool = True
+    pkgname: str, categories: list[str] = [], details: bool = False, must_exist: bool = True
 ) -> bool | None:
     """
     Check for necessary kernel config options in a package.
 
     :param pkgname: the package to check for, optionally without "linux-"
-    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param categories: what to check for, e.g. ["waydroid", "iwd"]
     :param details: print all warnings if True, otherwise one generic warning
     :param must_exist: if False, just return if the package does not exist
     :returns: True when the check was successful, False otherwise
               None if the aport cannot be found (only if must_exist=False)
     """
-    # Don't modify the original component_list (arguments are passed as
-    # reference, a list is not immutable)
-    components_list = components_list.copy()
+    # Don't modify the original list (arguments are passed as reference, a list
+    # is not immutable)
+    categories = categories.copy()
 
     # Pkgname: allow omitting "linux-" prefix
     flavor = pkgname.split("linux-")[1] if pkgname.startswith("linux-") else pkgname
@@ -363,18 +363,16 @@ def extract_version(config_path: PathString) -> str:
     return "unknown"
 
 
-def check_file(
-    config_path: PathString, components_list: list[str] = [], details: bool = False
-) -> bool:
+def check_file(config_path: PathString, categories: list[str] = [], details: bool = False) -> bool:
     """
     Check for necessary kernel config options in a kconfig file.
 
     :param config_path: full path to kernel config file
-    :param components_list: what to check for, e.g. ["waydroid", "iwd"]
+    :param categories: what to check for, e.g. ["waydroid", "iwd"]
     :param details: print all warnings if True, otherwise one generic warning
     :returns: True when the check was successful, False otherwise
     """
     arch = extract_arch(config_path)
     version = extract_version(config_path)
     logging.debug(f"Check kconfig: parsed arch={arch}, version={version} from file: {config_path}")
-    return check_config(config_path, arch, version, components_list, details=details)
+    return check_config(config_path, arch, version, categories, details=details)
