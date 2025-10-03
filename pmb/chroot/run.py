@@ -8,8 +8,6 @@ from typing import overload, Literal
 
 import pmb.config
 import pmb.chroot
-import pmb.chroot.binfmt
-import pmb.helpers.run
 import pmb.helpers.run_core
 from pmb.core import Chroot
 from pmb.types import (

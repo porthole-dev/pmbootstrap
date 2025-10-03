@@ -13,10 +13,8 @@ import pmb.helpers.apk
 import pmb.helpers.run
 import pmb.helpers.repo
 import pmb.config
-import pmb.config.file
 import pmb.parse.apkindex
 import pmb.helpers.http
-import pmb.parse.version
 from pmb.core.context import get_context
 
 

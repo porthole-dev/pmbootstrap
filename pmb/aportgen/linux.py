@@ -3,7 +3,6 @@
 from pmb.core.context import get_context
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
-import pmb.aportgen.core
 import pmb.parse.apkindex
 
 

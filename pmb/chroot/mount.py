@@ -8,7 +8,6 @@ from pathlib import Path
 import pmb.chroot.binfmt
 import pmb.config
 import pmb.helpers.run
-import pmb.parse
 import pmb.install.losetup
 import pmb.helpers.mount
 from pmb.core import Chroot

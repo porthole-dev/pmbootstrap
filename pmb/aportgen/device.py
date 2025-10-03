@@ -9,8 +9,6 @@ import os
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.run
-import pmb.aportgen.core
-import pmb.parse.apkindex
 import pmb.parse
 
 

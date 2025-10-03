@@ -11,7 +11,6 @@ from typing import Any, NoReturn
 
 import pmb.aportgen
 import pmb.build
-import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.chroot.initfs
@@ -21,9 +20,7 @@ import pmb.config
 from pmb.core import Config
 from pmb.types import Env, PmbArgs, RunOutputTypeDefault
 import pmb.export
-import pmb.flasher
 import pmb.helpers.aportupgrade
-import pmb.helpers.devices
 import pmb.helpers.git
 import pmb.helpers.lint
 import pmb.helpers.logging
@@ -31,7 +28,6 @@ import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.repo_missing
-import pmb.helpers.run
 import pmb.helpers.status
 import pmb.install
 import pmb.install.blockdevice

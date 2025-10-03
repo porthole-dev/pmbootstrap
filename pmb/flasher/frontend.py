@@ -9,7 +9,6 @@ from pmb.helpers.exceptions import NonBugError
 import pmb.config
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.flasher
-import pmb.install
 import pmb.chroot.apk
 import pmb.chroot.initfs
 import pmb.chroot.other

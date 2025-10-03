@@ -6,8 +6,6 @@ import re
 import os
 from typing import Literal, overload
 
-import pmb.build
-import pmb.config
 import pmb.parse
 import pmb.helpers.pmaports
 import pmb.parse.kconfigcheck

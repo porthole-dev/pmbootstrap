@@ -8,7 +8,6 @@ from pmb.helpers import logging
 from pathlib import Path
 import pmb.helpers.run
 import pmb.chroot
-import pmb.chroot.other
 import pmb.chroot.apk
 from pmb.core import Chroot
 from pmb.types import Bootimg, PathString

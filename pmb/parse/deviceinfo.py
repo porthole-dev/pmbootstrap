@@ -13,7 +13,6 @@ from pmb.helpers import logging
 import inspect
 import os
 import pmb.config
-import pmb.helpers.other
 import pmb.helpers.devices
 from pmb.meta import Cache
 

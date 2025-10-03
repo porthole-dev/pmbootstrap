@@ -10,8 +10,6 @@ import datetime
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.build
-import pmb.helpers.file
-import pmb.helpers.git
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex

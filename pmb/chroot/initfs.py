@@ -4,9 +4,7 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 from pathlib import Path
 import pmb.chroot.initfs_hooks
-import pmb.chroot.other
 import pmb.chroot.apk
-import pmb.config.pmaports
 from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
 from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.cli

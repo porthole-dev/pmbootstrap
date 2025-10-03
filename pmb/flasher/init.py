@@ -4,7 +4,6 @@ import pmb.chroot.apk
 import pmb.config
 import pmb.config.pmaports
 import pmb.helpers.mount
-import pmb.helpers.args
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.core import Chroot, ChrootType
 

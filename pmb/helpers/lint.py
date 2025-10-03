@@ -17,8 +17,6 @@ import os
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.build
-import pmb.helpers.run
-import pmb.helpers.pmaports
 
 
 def get_custom_valid_options() -> list[str]:

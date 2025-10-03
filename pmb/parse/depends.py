@@ -3,7 +3,6 @@
 from pmb.helpers import logging
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.helpers.pmaports
 import pmb.parse.apkindex
 from pmb.core import Chroot
 from pmb.core.context import get_context

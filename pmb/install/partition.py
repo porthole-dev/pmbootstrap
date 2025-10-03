@@ -5,7 +5,6 @@ from pmb.helpers import logging
 import os
 import time
 import pmb.chroot
-import pmb.config
 import pmb.install.losetup
 from pmb.core import Chroot
 from pmb.types import PartitionLayout

@@ -20,7 +20,6 @@ import pmb.chroot.apk
 import pmb.config.pmaports
 import pmb.helpers.pmaports
 import pmb.helpers.repo
-import pmb.helpers.mount
 import pmb.helpers.package
 import pmb.parse
 import pmb.parse.apkindex

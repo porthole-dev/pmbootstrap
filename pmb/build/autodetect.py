@@ -5,7 +5,6 @@ from pmb.core.arch import Arch
 from pmb.helpers import logging
 
 import pmb.config
-import pmb.chroot.apk
 import pmb.helpers.pmaports
 from pmb.core.context import get_context
 from pmb.meta import Cache

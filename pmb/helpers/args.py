@@ -7,7 +7,6 @@ from pmb.core.context import Context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.types import PmbArgs
 import pmb.helpers.git
-import pmb.helpers.args
 
 
 """This file constructs the args variable, which is passed to almost all

@@ -13,11 +13,11 @@ from pathlib import Path
 import pmb.build
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.chroot.other
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
 from pmb.helpers.locale import get_xkb_layout
+import pmb.parse.depends
 from pmb.parse.deviceinfo import Deviceinfo
 from pmb.core import Config
 from pmb.types import Env, PartitionLayout, PmbArgs, RunOutputTypeDefault

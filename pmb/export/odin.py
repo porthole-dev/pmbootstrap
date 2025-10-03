@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pmb.build
 import pmb.chroot.apk
-import pmb.config
 import pmb.flasher
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType

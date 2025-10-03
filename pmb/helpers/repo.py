@@ -22,7 +22,6 @@ import pmb.config.pmaports
 from pmb.meta import Cache
 import pmb.helpers.http
 import pmb.helpers.run
-import pmb.helpers.other
 
 
 def apkindex_hash(url: str, length: int = 8) -> Path:

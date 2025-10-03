@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.config
 import pmb.config.other
-import pmb.config.workdir
 import pmb.helpers.git
 from pmb.core import Config
 from pmb.core.context import get_context

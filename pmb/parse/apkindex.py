@@ -8,7 +8,6 @@ from pmb.core.arch import Arch
 from pmb.helpers import logging
 from pathlib import Path
 import tarfile
-import pmb.chroot.apk
 import pmb.helpers.package
 import pmb.helpers.repo
 import pmb.parse.version

@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 import pmb.build
-import pmb.chroot.apk
 import pmb.helpers.repo
-import pmb.helpers.run
 import pmb.parse.apkindex
 from pmb.core import Chroot
 from pmb.core.arch import Arch

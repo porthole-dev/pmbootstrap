@@ -10,7 +10,6 @@ import re
 import pmb.aportgen
 import pmb.aportgen.core
 import pmb.build
-import pmb.build.autodetect
 from pmb.core.pkgrepo import pkgrepo_relative_path
 import pmb.chroot
 from pmb.types import Env, PathString, PmbArgs

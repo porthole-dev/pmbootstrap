@@ -7,7 +7,6 @@ import os
 
 from pmb.types import PmbArgs
 import pmb.helpers.run
-import pmb.helpers.frontend
 import pmb.chroot.initfs
 import pmb.export
 from pmb.core import Chroot, ChrootType

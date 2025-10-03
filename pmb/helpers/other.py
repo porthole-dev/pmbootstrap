@@ -8,7 +8,6 @@ from pathlib import Path
 import re
 import pmb.chroot
 import pmb.config
-import pmb.config.init
 import pmb.helpers.pmaports
 import pmb.helpers.run
 from typing import Any

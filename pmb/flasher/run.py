@@ -3,7 +3,6 @@
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.flasher
 import pmb.chroot.initfs
-import pmb.helpers.args
 from pmb.types import RunOutputTypeDefault
 from pmb.helpers.exceptions import NonBugError
 

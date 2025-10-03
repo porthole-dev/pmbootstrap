@@ -6,7 +6,6 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal
 
-import pmb.chroot
 import pmb.config.pmaports
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
