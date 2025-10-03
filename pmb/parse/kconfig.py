@@ -36,9 +36,9 @@ def is_set_str(config: str, option: str, string: str) -> bool:
     :param string: the expected string
     :returns: True if the check passed, False otherwise
     """
-    match = re.search("^CONFIG_" + option + '="(.*)"$', config, re.MULTILINE)
+    match = re.search("^CONFIG_" + option + "=(.*)$", config, re.MULTILINE)
     if match:
-        return string == match.group(1)
+        return string == match.group(1).strip('"')
     else:
         return False
 
