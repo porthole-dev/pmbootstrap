@@ -118,15 +118,21 @@ def check_option(
             if option_value == "n":
                 if is_set(config, option):
                     return warn_ret_false("*not* be set")
+                return True
+
+            if not is_set(config, option):
+                return warn_ret_false("be set (either built-in or module)")
+
+            # Store value to avoid a few extra calls to is_set_str
+            if is_set_str(config, option, "y"):
+                actual = "y"
+            elif is_set_str(config, option, "m"):
+                actual = "m"
             else:
-                if not is_set(config, option):
-                    return warn_ret_false("be set (either built-in or module)")
-                # Check if it matches preference and don't fail if there's
-                # a mismatch
-                elif option_value == "y" and not is_set_str(config, option, "y"):
-                    warn_ret_true("be built-in (y) but is module (m)")
-                elif option_value == "m" and is_set_str(config, option, "y"):
-                    warn_ret_true("be module (m) but is built-in (y)")
+                return warn_ret_false("be set to y or m (invalid tristate value)")
+
+            if option_value != actual:
+                warn_ret_true(f"be set to {option_value} but is {actual}")
         else:
             # Regular string option
             if not is_set_str(config, option, option_value):
