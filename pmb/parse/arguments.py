@@ -14,7 +14,7 @@ from pmb.types import PmbArgs, RunOutputTypeDefault
 from pmb.helpers.exceptions import NonBugError
 
 with contextlib.suppress(ImportError):
-    import argcomplete  # type:ignore[import-untyped]
+    import argcomplete
 
 import pmb.config
 import pmb.helpers.args

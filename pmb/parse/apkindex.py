@@ -260,7 +260,7 @@ def parse(
     lines: Sequence[str]
     if tarfile.is_tarfile(path):
         with (
-            tarfile.open(path, "r:gz") as tar,  # type:ignore[union-attr]
+            tarfile.open(path, "r:gz") as tar,
             tar.extractfile(tar.getmember("APKINDEX")) as handle,  # type:ignore[union-attr]
         ):
             lines = handle.read().decode().splitlines()

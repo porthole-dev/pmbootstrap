@@ -10,7 +10,7 @@ try:
     from tomllib import load, TOMLDecodeError  # novermin
 except ImportError:
     # Python < 3.11
-    from tomli import load, TOMLDecodeError  # type:ignore[import-not-found,no-redef,assignment]
+    from tomli import load, TOMLDecodeError  # type:ignore[import-not-found,no-redef]
 
 
 @Cache("path")
