@@ -96,7 +96,7 @@ def check_option(
         config_name = os.path.basename(config_path)
         if details:
             logging.warning(
-                f"INFO: {config_name}: CONFIG_{option} should {should_str} ({component})"
+                f"INFO: {config_name}: CONFIG_{option} is preferably {should_str} ({component})"
             )
         else:
             logging.warning(
@@ -130,7 +130,7 @@ def check_option(
                 return warn_ret_false("be set to y or m (invalid tristate value)")
 
             if option_value != actual:
-                warn_ret_true(f"be set to {option_value} but is {actual}")
+                warn_ret_true(f"{option_value}, but currently {actual}")
         else:
             # Regular string option
             if not is_set_str(config, option, option_value):
