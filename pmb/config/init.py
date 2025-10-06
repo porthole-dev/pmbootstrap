@@ -355,7 +355,15 @@ def ask_for_provider_select(apkbuild: dict[str, Any], providers_cfg: dict[str, s
     """
     for select in apkbuild["_pmb_select"]:
         providers = pmb.helpers.pmaports.find_providers(select, apkbuild["_pmb_default"])
-        logging.info(f"Available providers for {select} ({len(providers)}):")
+        provider_count = len(providers)
+
+        if provider_count == 0:
+            logging.warning(
+                f"WARNING: Skipping provider selection for {select}, no providers found! This is probably a packaging bug."
+            )
+            continue
+
+        logging.info(f"Available providers for {select} ({provider_count}):")
 
         has_default = False
         providers_short = {}
