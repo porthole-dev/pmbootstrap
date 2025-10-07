@@ -171,12 +171,16 @@ class Arch(enum.Enum):
             case _:
                 return self.qemu_user()
 
-    def requires_efi(self) -> bool:
+    def uses_direct_kernel_image_boot_by_default(self) -> bool:
         match self:
             case Arch.loongarch64:
-                return True
-            case _:
+                # kernel panics unless EFI booted
                 return False
+            case Arch.ppc64le:
+                # Open Firmware is more standard
+                return False
+            case _:
+                return True
 
     def alpine_triple(self) -> str:
         """Get the cross compiler triple for this architecture on Alpine."""

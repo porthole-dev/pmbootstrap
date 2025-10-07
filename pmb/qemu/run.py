@@ -136,8 +136,8 @@ def command_qemu(
         if not os.path.exists(kernel):
             raise RuntimeError("failed to find the proper vmlinuz path")
 
-    # Some architectures require using EFI and cannot use direct kernel boot
-    use_efi = args.efi or arch.requires_efi()
+    # We do not support direct kernel boot on some architectures
+    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
 
     ncpus = os.cpu_count()
     if not ncpus:
@@ -212,10 +212,10 @@ def command_qemu(
         command += ["-L", chroot_native / "usr/share/qemu/"]
 
     command += ["-nodefaults"]
-    # Only boot a kernel/initramfs directly when not doing EFI boot. This
-    # allows us to load/execute an EFI application on boot, and support
+    # Only boot a kernel/initramfs directly when not doing EFI or OF boot.
+    # This allows us to load/execute an EFI application on boot, and support
     # a wide variety of boot loaders.
-    if not use_efi:
+    if use_direct_kernel_boot:
         command += ["-kernel", kernel]
         command += ["-initrd", chroot / "boot" / f"initramfs{flavor_suffix}"]
         command += ["-append", shlex.quote(cmdline)]
@@ -271,7 +271,7 @@ def command_qemu(
                 # default to 2D-only backend
                 command += ["-device", "virtio-gpu"]
 
-    if use_efi:
+    if not use_direct_kernel_boot:
         host_arch = Arch.native()
         edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
         match arch:
@@ -290,6 +290,9 @@ def command_qemu(
                     "-drive",
                     f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/loongarch64/QEMU_EFI.fd",
                 ]
+            case Arch.ppc64le:
+                # ppc64le uses SLOF included in QEMU
+                pass
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
@@ -397,7 +400,11 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-hw-display-virtio-vga")
         depends.remove("qemu-ui-opengl")
 
-    if args.efi or arch.requires_efi():
+    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
+
+    if not use_direct_kernel_boot:
+        edk2_pkg = None
+
         # EDK2 builds are only available for the target architecture
         match arch:
             case Arch.aarch64:
@@ -406,14 +413,17 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
                 edk2_pkg = "ovmf"
             case Arch.loongarch64:
                 edk2_pkg = "edk2-loongarch64"
+            case Arch.ppc64le:
+                # ppc64le uses SLOF included in QEMU instead of EFI
+                pass
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
         # If we're running natively, install it to the native chroot, otherwise we need to
         # install it in the target chroot
-        if arch == Arch.native():
+        if edk2_pkg is not None and arch == Arch.native():
             depends.append(edk2_pkg)
-        else:
+        elif edk2_pkg is not None:
             target_chroot = Chroot.buildroot(arch)
             pmb.chroot.init(target_chroot)
             pmb.chroot.apk.install([edk2_pkg], target_chroot)

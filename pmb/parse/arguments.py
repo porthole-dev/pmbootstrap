@@ -555,8 +555,11 @@ def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentPa
     )
 
     ret.add_argument(
-        "--efi", action="store_true", help="Use EFI boot (default: direct kernel image boot)"
+        "--efi",
+        action="store_true",
+        help="Use EFI boot (default: direct kernel image boot if supported by arch)",
     )
+
     return ret
 
 
