@@ -74,9 +74,6 @@ def partition(layout: PartitionLayout, size_boot: int, size_reserve: int) -> Non
     * /dev/installp2: root (or reserved space)
     * /dev/installp3: (root, if reserved space > 0)
 
-    When adjusting this function, make sure to also adjust
-    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
-
     :param layout: partition layout from get_partition_layout()
     :param size_boot: size of the boot partition in MiB
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
@@ -241,9 +238,6 @@ def partition_prep(layout: PartitionLayout) -> None:
     Partition /dev/install and create /dev/install{p1,p2}:
     * /dev/installp1: PReP boot
     * /dev/installp2: root
-
-    When adjusting this function, make sure to also adjust
-    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
 
     :param layout: partition layout from get_partition_layout()
     """

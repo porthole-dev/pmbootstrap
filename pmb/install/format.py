@@ -22,9 +22,6 @@ def format_and_mount_boot(args: PmbArgs, device: str, boot_label: str) -> None:
     """
     :param device: boot partition on install block device (e.g. /dev/installp1)
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
-
-    When adjusting this function, make sure to also adjust
-    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
     """
     mountpoint = "/mnt/install/boot"
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
