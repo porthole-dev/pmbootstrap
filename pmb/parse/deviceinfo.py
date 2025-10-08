@@ -175,6 +175,7 @@ class Deviceinfo:
     flash_method: str = ""
     boot_filesystem: str | None = ""
     create_initfs_extra: bool | None = False
+    create_prep_boot: bool | None = False
     initfs_compression: InitfsCompression = InitfsCompression(InitfsCompressionFormat.GZIP, None)
 
     # flash

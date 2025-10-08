@@ -48,7 +48,13 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
             f"expected it to be at {partition_prefix}1!"
         )
 
-    partitions = [layout["boot"], layout["root"]]
+    partitions = [layout["root"]]
+
+    if layout["prep"]:
+        partitions += [layout["prep"]]
+
+    if layout["boot"]:
+        partitions += [layout["boot"]]
 
     if layout["kernel"]:
         partitions += [layout["kernel"]]
@@ -56,6 +62,8 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
     for i in partitions:
         source = Path(f"{partition_prefix}{i}")
         target = Chroot.native() / "dev" / f"installp{i}"
+        pmb.helpers.mount.bind_file(source, target)
+        target = Chroot.native() / "dev" / f"{disk.name}p{i}"
         pmb.helpers.mount.bind_file(source, target)
 
 
@@ -226,3 +234,46 @@ def partition_cgpt(layout: PartitionLayout, size_boot: int, size_reserve: int) -
 
     for command in commands:
         pmb.chroot.root(command, check=False)
+
+
+def partition_prep(layout: PartitionLayout) -> None:
+    """
+    Partition /dev/install and create /dev/install{p1,p2}:
+    * /dev/installp1: PReP boot
+    * /dev/installp2: root
+
+    When adjusting this function, make sure to also adjust
+    ondev-prepare-internal-storage.sh in postmarketos-ondev.git!
+
+    :param layout: partition layout from get_partition_layout()
+    """
+    logging.info("(native) partition /dev/install (PReP boot: 8MB, root: the rest)")
+
+    # Actual partitioning with 'parted'. Using check=False, because parted
+    # sometimes "fails to inform the kernel". In case it really failed with
+    # partitioning, the follow-up mounting/formatting will not work, so it
+    # will stop there (see #463).
+
+    # Only very few OpenFirmware platforms seem to support GPT
+    partition_type = pmb.parse.deviceinfo().partition_type or "msdos"
+
+    commands = [
+        ["mktable", partition_type],
+        ["mkpart", "primary", "1MiB", "9MiB"],
+        ["mkpart", "primary", "9MiB", "100%"],
+        ["set", str(layout["prep"]), "PREP", "on"],
+        ["set", str(layout["prep"]), "boot", "on"],
+    ]
+
+    arch = str(pmb.parse.deviceinfo().arch)
+
+    if partition_type.lower() == "gpt":
+        commands += [
+            ["type", str(layout["prep"]), pmb.core.dps.boot["prep"][1]],
+            ["type", str(layout["root"]), pmb.core.dps.root[arch][1]],
+        ]
+    elif partition_type.lower() == "msdos":
+        commands += [["type", str(layout["prep"]), "0x41"]]  # PReP boot type
+
+    for command in commands:
+        pmb.chroot.root(["parted", "-s", "/dev/install", *command], check=False)

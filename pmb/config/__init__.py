@@ -163,6 +163,7 @@ host_path = os.environ["PATH"] + ":/usr/sbin/"
 # Use no more than one dir after /mnt/pmbootstrap, see remove_mnt_pmbootstrap.
 chroot_mount_bind = {
     "/proc": "/proc",
+    "/sys": "/sys",
     "$WORK/cache_apk_$ARCH": "/var/cache/apk",
     "$WORK/cache_appstream/$ARCH/$CHANNEL": "/mnt/appstream-data",
     "$WORK/cache_ccache_$ARCH": "/mnt/pmbootstrap/ccache",

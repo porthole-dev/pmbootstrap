@@ -141,8 +141,9 @@ WithExtraRepos = Literal["default", "enabled", "disabled"]
 
 
 class PartitionLayout(TypedDict):
+    prep: int | None
     kernel: int | None
-    boot: int
+    boot: int | None
     reserve: int | None
     root: int
 

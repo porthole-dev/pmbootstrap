@@ -4,6 +4,8 @@
 
 boot = {
     "esp": ["ESP", "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"],
+    # Not supported by the spec
+    "prep": ["PREP", "9e1a2d38-c612-4316-aa26-8b49521e5a8b"],
     "xbootldr": ["XBOOTLDR", "bc13c2ff-59e6-4262-a352-b275fd6f7172"],
 }
 

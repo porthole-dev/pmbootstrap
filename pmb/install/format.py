@@ -226,8 +226,14 @@ def format(
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     if layout:
-        root_dev = f"/dev/installp{layout['root']}"
-        boot_dev = f"/dev/installp{layout['boot']}"
+        uses_prep = layout["prep"] is not None
+
+        if not uses_prep:
+            root_dev = f"/dev/installp{layout['root']}"
+            boot_dev = f"/dev/installp{layout['boot']}"
+        else:
+            root_dev = f"/dev/installp{layout['root']}"
+            boot_dev = None
     else:
         root_dev = "/dev/install"
         boot_dev = None

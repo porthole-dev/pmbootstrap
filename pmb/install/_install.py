@@ -777,29 +777,37 @@ def sanity_check_ondev_version(args: PmbArgs) -> None:
         )
 
 
-def get_partition_layout(reserve: bool | int, kernel: bool) -> PartitionLayout:
+def get_partition_layout(reserve: bool | int, kernel: bool, prep: bool | None) -> PartitionLayout:
     """
     :param reserve: create an empty partition between root and boot (pma#463)
     :param kernel: create a separate kernel partition before all other
                    partitions, e.g. for the ChromeOS devices with cgpt
+    :param prep: create a PReP Boot partition before root and no boot partition,
+                 e.g. for PowerVM or OpenFirmware POWER machines
     :returns: the partition layout, e.g. without reserve and kernel:
               {"kernel": None, "boot": 1, "reserve": None, "root": 2}
     """
     ret: PartitionLayout = {
         "kernel": None,
+        "prep": None,
         "boot": 1,
         "reserve": None,
         "root": 2,
     }
 
-    if kernel:
-        ret["kernel"] = 1
-        ret["boot"] += 1
-        ret["root"] += 1
+    if prep:
+        ret["prep"] = 1
+        ret["boot"] = None
+    else:
+        if kernel:
+            ret["kernel"] = 1
+            ret["boot"] = 2
+            ret["root"] += 1
 
-    if reserve:
-        ret["reserve"] = ret["root"]
-        ret["root"] += 1
+        if reserve:
+            ret["reserve"] = ret["root"]
+            ret["root"] += 1
+
     return ret
 
 
@@ -851,8 +859,13 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
     if args.on_device_installer and chroot.type == ChrootType.ROOTFS:
         return
 
-    if layout:
+    uses_prep = layout and layout["prep"] is not None
+
+    if layout and not uses_prep:
         boot_dev = Path(f"/dev/installp{layout['boot']}")
+        root_dev = Path(f"/dev/installp{layout['root']}")
+    elif layout and uses_prep:
+        boot_dev = None
         root_dev = Path(f"/dev/installp{layout['root']}")
     else:
         boot_dev = None
@@ -926,7 +939,9 @@ def install_system_image(
     (size_boot, size_root) = get_subpartitions_size(chroot)
     if not single_partition:
         layout = get_partition_layout(
-            size_reserve, bool(pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt)
+            size_reserve,
+            bool(pmb.parse.deviceinfo().cgpt_kpart) and args.install_cgpt,
+            pmb.parse.deviceinfo().create_prep_boot,
         )
     else:
         layout = None
@@ -935,6 +950,8 @@ def install_system_image(
         if not split and layout:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
                 pmb.install.partition_cgpt(layout, size_boot, size_reserve)
+            elif pmb.parse.deviceinfo().create_prep_boot:
+                pmb.install.partition_prep(layout)
             else:
                 pmb.install.partition(layout, size_boot, size_reserve)
 
@@ -979,6 +996,25 @@ def install_system_image(
         assert layout  # Initialized above for not single_partition case (mypy needs this)
         embed_firmware(args, chroot)
         write_cgpt_kpart(args, layout, chroot)
+
+    # Install GRUB to the PReP boot partition
+    if pmb.parse.deviceinfo().create_prep_boot and layout:
+        pmb.chroot.apk.install(["grub"], Chroot.native())
+        # GRUB is incapable of installing to /dev/installp1, it *needs* to install to
+        # /dev/loop0p1
+        pmb.chroot.root(
+            [
+                "grub-install",
+                "--target=powerpc-ieee1275",
+                "--directory=/mnt/install/usr/lib/grub/powerpc-ieee1275",
+                "--boot-directory=/mnt/install/boot",
+                # Since we are in a chroot, it cannot properly autodetect the modules,
+                # so we need to give it a hint
+                "--modules=part_gpt part_msdos disk normal linux boot search terminal",
+                "--no-nvram",
+                f"/dev/loop0p{layout['prep']}",
+            ]
+        )
 
     if disk:
         logging.info(f"Unmounting disk {disk} (this may take a while to sync, please wait)")
