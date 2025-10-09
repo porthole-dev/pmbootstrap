@@ -188,7 +188,12 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
     if cross.enabled():
         pmb.build.init_compiler(get_context(), [], cross, arch)
 
-    depends = apkbuild["makedepends"] + ["gcc", "make"]
+    # Assume that LLVM is in use if clang is a build dependency
+    uses_llvm = "clang" in apkbuild["makedepends"]
+
+    depends = apkbuild["makedepends"] + ["make"]
+    if not uses_llvm:
+        depends += ["gcc"]
 
     pmb.chroot.apk.install(depends, chroot)
 
@@ -198,9 +203,11 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
         "ARCH": arch.kernel(),
     }
 
-    if cross.enabled():
+    if cross.enabled() and not uses_llvm:
         env["CROSS_COMPILE"] = f"{hostspec}-"
         env["CC"] = f"{hostspec}-gcc"
+    elif uses_llvm:
+        env["LLVM"] = "1"
 
     return pkgname, arch, apkbuild, chroot, env
 
