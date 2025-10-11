@@ -11,6 +11,7 @@ from pmb.types import (
     RunReturnType,
 )
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 from pathlib import Path
 import selectors
@@ -261,7 +262,12 @@ def foreground_pipe(
     timeout = context.command_timeout
     while process.poll() is None:
         wait_start = time.perf_counter()
-        sel.select(timeout)
+        try:
+            sel.select(timeout)
+        except OverflowError as exception:
+            raise NonBugError(
+                f"Specified timeout ({timeout}) isn't valid on this platform, maybe try something smaller ({exception})."
+            ) from exception
 
         # On timeout raise error (we need to measure time on our own, because
         # select() may exit early even if there is no data to read and the
