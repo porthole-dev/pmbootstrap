@@ -351,9 +351,16 @@ def setup_keymap(config: Config) -> None:
     options = deviceinfo.keymaps.split(" ")
     if config.keymap != "" and config.keymap is not None and config.keymap in options:
         layout, variant = config.keymap.split("/")
-        pmb.chroot.root(
-            ["setup-keymap", layout, variant], chroot, output=RunOutputTypeDefault.INTERACTIVE
-        )
+        if pmb.config.is_systemd_selected():
+            pmb.chroot.root(
+                ["systemd-firstboot", "--force", f"--keymap={variant}"],
+                chroot,
+                output=RunOutputTypeDefault.LOG,
+            )
+        else:
+            pmb.chroot.root(
+                ["setup-keymap", layout, variant], chroot, output=RunOutputTypeDefault.INTERACTIVE
+            )
 
         # Check xorg config
         xconfig = None
