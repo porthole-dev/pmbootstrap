@@ -99,7 +99,7 @@ def save(output: Path, config: Config) -> None:
     the global config object."""
     logging.debug(f"Save config: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.touch(0o700, exist_ok=True)
+    output.touch(0o600, exist_ok=True)
 
     cfg = serialize(config)
 
