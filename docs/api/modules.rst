@@ -1,5 +1,5 @@
-pmbootstrap code documentation
-==============================
+Automatically Generated Code Documentation
+==========================================
 
 .. note:: This is the internal API, not a public one.
 

@@ -1,6 +1,6 @@
 
 ################
-SSH key handling
+SSH Key Handling
 ################
 
 pmbootstrap can copy SSH keys to the device during the install step.
