@@ -1,17 +1,15 @@
 #!/bin/sh -e
 # Description: create documentation with sphinx
-# Artifacts: public/
+# Options: native
 # https://postmarketos.org/pmb-ci
 
-
-# Install sphinx + extensions when running in CI
+# Install required packages in CI
 if [ "$(id -u)" = 0 ]; then
 	set -x
 	apk -q add \
-		py3-myst-parser \
-		py3-sphinx_rtd_theme \
-		py3-sphinxcontrib-autoprogram \
-		py3-sphinxcontrib-jquery
+		git \
+		make \
+		py3-pip
 	exec su "${TESTUSER:-build}" -c "sh -e $0"
 fi
 
@@ -31,9 +29,4 @@ if [ "$fail" -eq 1 ]; then
     exit 1
 fi
 
-sphinx-build \
-	--fail-on-warning \
-	docs \
-	public \
-
-#	-E -a -v -T
+make -C docs
