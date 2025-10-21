@@ -154,24 +154,15 @@ docs:
     paths:
       - public
 
-deploy:
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
-      changes:
-        - .ci/docs.sh
-        - .gitlab-ci.yml
-        - "pmb/**/*.py"
+deploy-docs:
   stage: deploy
-  before_script:
-    - apk -q add openssh-client rsync
-  script:
-    - mkdir "${HOME}/.ssh"
-    - echo "${SSH_HOST_KEY}" > "${HOME}/.ssh/known_hosts"
-    - echo "${SSH_PRIVATE_KEY}" > "${HOME}/.ssh/id_ed25519"
-    - chmod 700 "${HOME}/.ssh/id_ed25519"
-    - rsync -hrvz --delete -e "ssh -p ${SSH_PORT}" public/ "${SSH_HOST}":/var/www/docs.postmarketos.org/pmbootstrap/
-  environment:
-    name: deploy
+  trigger:
+    project: postmarketOS/docs.postmarketos.org
+    strategy: depend
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "postmarketOS"
+      changes:
+        - docs/**/*
 
 .integration:
   stage: integration-test
