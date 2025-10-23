@@ -34,7 +34,6 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinxcontrib.autoprogram",
     "sphinxcontrib.jquery",
-    "sphinxext.opengraph",
 ]
 
 templates_path = ["_templates"]
@@ -62,8 +61,6 @@ html_favicon = "https://postmarketos.org/static/img/favicon.ico"
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "pmbootstrapdoc"
-
-ogp_site_url = "https://docs.postmarketos.org/pmbootstrap/"
 
 # -- Options for manual page output ---------------------------------------
 

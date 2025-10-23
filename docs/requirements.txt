@@ -1,8 +1,6 @@
 furo
-matplotlib
 myst-parser
 sphinx
-sphinxext-opengraph
 sphinxcontrib-autoprogram
 sphinxcontrib-jquery
 pmos-theme @ git+https://gitlab.postmarketos.org/postmarketOS/docs.postmarketos.org.git/#subdirectory=theme
