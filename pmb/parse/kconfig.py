@@ -119,7 +119,7 @@ def check_option(
                 return True
 
             if not is_set(config, option):
-                return warn_ret_false("be set (either built-in or module)")
+                return warn_ret_false(f"be enabled and preferably set to '{option_value}'")
 
             # Store value to avoid a few extra calls to is_set_str
             if is_set_str(config, option, "y"):
