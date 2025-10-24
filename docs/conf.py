@@ -10,9 +10,7 @@ import sys
 import os
 import datetime
 
-
 sys.path.insert(0, os.path.abspath(".."))  # Allow modules to be found
-from pmb import __version__
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -20,9 +18,6 @@ from pmb import __version__
 project = "pmbootstrap"
 copyright = str(datetime.date.today().year) + ", postmarketOS developers"
 author = "postmarketOS developers"
-
-release = __version__
-version = ".".join(release.split(".")[:3])
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
