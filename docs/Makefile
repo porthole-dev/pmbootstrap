@@ -5,9 +5,9 @@ default: venv
 		../public
 
 venv: .venv/done
-.venv/done: requirements.txt
+.venv/done:
 	python3 -m venv .venv
-	. .venv/bin/activate && pip install -r requirements.txt
+	. .venv/bin/activate && pip install "pmos-theme @ git+https://gitlab.postmarketos.org/postmarketOS/docs.postmarketos.org.git/#subdirectory=theme"
 	touch $@
 
 run:
