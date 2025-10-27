@@ -11,6 +11,14 @@ sys.path.insert(0, os.path.abspath(".."))  # Allow modules to be found
 project = "pmbootstrap"
 copyright = str(datetime.date.today().year) + ", postmarketOS developers"
 author = "postmarketOS developers"
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.doctest",
+    "sphinxcontrib.autoprogram",
+    "sphinxcontrib.jquery",
+]
 exclude_patterns = ["_build", "_out", "Thumbs.db", ".DS_Store", ".venv", "README.md"]
 
 html_theme = "pmos"
