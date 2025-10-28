@@ -120,6 +120,9 @@ ENV/
 # mypy
 .mypy_cache/
 
+# mypyc
+build/
+
 # Visual Studio Code
 .vscode/
 
