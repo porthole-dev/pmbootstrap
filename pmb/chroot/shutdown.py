@@ -18,6 +18,7 @@ def kill_adb() -> None:
     """
     port = 5038
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.settimeout(2)
         if sock.connect_ex(("127.0.0.1", port)) == 0:
             pmb.chroot.root(["adb", "-P", str(port), "kill-server"])
 
@@ -29,6 +30,7 @@ def kill_sccache() -> None:
     """
     port = 4226
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.settimeout(2)
         if sock.connect_ex(("127.0.0.1", port)) == 0:
             pmb.chroot.root(["sccache", "--stop-server"])
 
