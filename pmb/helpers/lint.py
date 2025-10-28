@@ -64,7 +64,7 @@ def check(pkgnames: Sequence[str]) -> None:
 
     # Locate all APKBUILDs and make the paths be relative to the pmaports
     # root
-    apkbuilds: dict[str, list[str]] = dict(map(lambda x: (x, []), pkgrepo_names()))
+    apkbuilds: dict[str, list[str]] = {x: [] for x in pkgrepo_names()}
     found_pkgnames = set()
     # If a package exists in multiple aports we will lint all of them
     # since.. well, what else do we do?

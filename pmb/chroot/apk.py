@@ -108,7 +108,7 @@ def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list
                 break
 
         # Record all the packages we have visited so far
-        walked |= set([data_repo.pkgname, package])
+        walked |= {data_repo.pkgname, package}
         if data_repo.depends:
             # Add all dependencies to the list of packages to check, excluding
             # meta-deps like cmd:* and so:* as well as conflicts (!).

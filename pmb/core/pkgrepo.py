@@ -15,7 +15,7 @@ from pmb.types import WithExtraRepos
 @Cache("with_extra_repos")
 def pkgrepo_paths(with_extra_repos: WithExtraRepos = "default") -> list[Path]:
     config = get_context().config
-    paths = list(map(lambda x: Path(x), config.aports))
+    paths = [Path(x) for x in config.aports]
     if not paths:
         raise RuntimeError("No package repositories specified?")
 
@@ -131,7 +131,7 @@ def pkgrepo_iter_package_dirs(
     Detect duplicates within the same aports repository but otherwise
     ignore all but the first. This allows for overriding packages.
     """
-    seen: dict[str, list[str]] = dict(map(lambda a: (a, []), pkgrepo_names(with_extra_repos)))
+    seen: dict[str, list[str]] = {a: [] for a in pkgrepo_names(with_extra_repos)}
 
     for repo in pkgrepo_paths(with_extra_repos):
         for root, dirs, files in os.walk(repo, followlinks=True):
