@@ -9,8 +9,7 @@ import datetime
 sys.path.insert(0, os.path.abspath(".."))  # Allow modules to be found
 
 project = "pmbootstrap"
-copyright = str(datetime.date.today().year) + ", postmarketOS developers"
-author = "postmarketOS developers"
+copyright = str(datetime.date.today().year) + ", postmarketOS contributors"
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
@@ -31,4 +30,4 @@ htmlhelp_basename = "pmbootstrapdoc"
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "pmbootstrap", "pmbootstrap Documentation", ["postmarketOS Developers"], 1)]
+man_pages = [("index", "pmbootstrap", "pmbootstrap Documentation", ["postmarketOS Contributors"], 1)]
