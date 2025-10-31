@@ -121,7 +121,7 @@ ENV/
 .mypy_cache/
 
 # mypyc
-build/
+/build/
 
 # Visual Studio Code
 .vscode/
