@@ -390,7 +390,7 @@ def process_package(
     # aren't needed for building (and can conflict with depends for other subpackages)
     depends += functools.reduce(
         operator.iadd,
-        map(lambda sp: sp["depends"] if sp else [], base_apkbuild["subpackages"].values()),
+        (sp["depends"] if sp else [] for sp in base_apkbuild["subpackages"].values()),
         [],
     )
 
@@ -435,7 +435,7 @@ def process_package(
 
             subpkg_deps: list[str] = functools.reduce(
                 operator.iadd,
-                map(lambda sp: sp["depends"] if sp else [], apkbuild["subpackages"].values()),
+                (sp["depends"] if sp else [] for sp in apkbuild["subpackages"].values()),
                 [],
             )
             logging.verbose(
