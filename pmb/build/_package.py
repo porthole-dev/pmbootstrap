@@ -633,14 +633,12 @@ def packages(
         # in pmb.build.init_compiler(), this should all be refactored and enforce correct
         # APKBUILDs rather than trying to hack things in here
         pkg_depends = list(
-            set(
-                [
-                    *pkg["depends"],
-                    *apkbuild.get("makedepends", []),
-                    *apkbuild.get("makedepends_build", []),
-                    *apkbuild.get("makedepends_host", []),
-                ]
-            )
+            {
+                *pkg["depends"],
+                *apkbuild.get("makedepends", []),
+                *apkbuild.get("makedepends_build", []),
+                *apkbuild.get("makedepends_host", []),
+            }
         )
 
         # One time chroot initialization
