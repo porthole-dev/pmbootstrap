@@ -1,9 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
 import sys
 
 import pmb.config
-from pmb.core.context import Context
+from pmb.core.context import CommandTimeout, Context, TimeoutReason
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.types import PmbArgs
 import pmb.helpers.git
@@ -74,9 +75,17 @@ def init(args: PmbArgs) -> PmbArgs:
         if hasattr(args, key):
             delattr(args, key)
 
+    running_in_ci = os.environ.get("CI")
+
     # Configure runtime context
     context = Context(config)
-    context.command_timeout = args.timeout
+    # Only enable the timeout by default in CI.
+    if running_in_ci and args.timeout is None:
+        context.command_timeout = CommandTimeout(length=900, reason=TimeoutReason.CI_DETECTED)
+    elif args.timeout is not None:
+        context.command_timeout = CommandTimeout(
+            length=args.timeout, reason=TimeoutReason.TIMEOUT_ARG
+        )
     context.details_to_stdout = args.details_to_stdout
     context.quiet = args.quiet
     context.offline = args.offline
@@ -91,6 +100,11 @@ def init(args: PmbArgs) -> PmbArgs:
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout)
     pmb.helpers.logging.debug(f"Pmbootstrap v{pmb.__version__} (Python {sys.version})")
+
+    if context.command_timeout:
+        pmb.helpers.logging.info(
+            f"NOTE: Timeout enabled, commands will be killed after {context.command_timeout.length} seconds of not writing any output. Reason: {context.command_timeout.reason}"
+        )
 
     # Initialization code which may raise errors
     if args.action not in [
@@ -107,7 +121,8 @@ def init(args: PmbArgs) -> PmbArgs:
         pmb.helpers.git.parse_channels_cfg(pkgrepo_default_path())
 
     # Remove attributes from args so they don't get used by mistake
-    delattr(args, "timeout")
+    if hasattr(args, "timeout"):
+        delattr(args, "timeout")
     delattr(args, "details_to_stdout")
     delattr(args, "log")
     delattr(args, "quiet")

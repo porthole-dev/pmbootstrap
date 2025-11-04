@@ -3,16 +3,32 @@
 
 """Global runtime context"""
 
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import overload, Literal
 
 from .config import Config
 
 
+class TimeoutReason(Enum):
+    CI_DETECTED = "running in CI based on autodetection (environment variable 'CI' set)"
+    TIMEOUT_ARG = "timeout was explicitly set via the --timeout or -t argument"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+@dataclass(frozen=True)
+class CommandTimeout:
+    length: float
+    reason: TimeoutReason
+
+
 class Context:
     details_to_stdout: bool = False
     quiet: bool = False
-    command_timeout: float = 900
+    command_timeout: CommandTimeout | None = None
     sudo_timer: bool = False
     force: bool = False
     log: Path

@@ -302,7 +302,7 @@ class PmbArgs(Namespace):
     sudo_timer: bool
     suffix: str
     systemd: str
-    timeout: float
+    timeout: float | None
     user: str
     value: str
     verbose: bool

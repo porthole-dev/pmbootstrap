@@ -898,10 +898,8 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-t",
         "--timeout",
-        help="seconds after which processes"
-        " get killed that stopped writing any output (default:"
-        " 900)",
-        default=900,
+        help="seconds after which processes get killed that stopped writing any output (default: "
+        "no timeout unless the environment variable 'CI' is set, in which case it is 900)",
         type=float,
     )
     parser.add_argument(
