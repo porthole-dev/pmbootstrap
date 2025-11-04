@@ -30,4 +30,6 @@ htmlhelp_basename = "pmbootstrapdoc"
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "pmbootstrap", "pmbootstrap Documentation", ["postmarketOS Contributors"], 1)]
+man_pages = [
+    ("index", "pmbootstrap", "pmbootstrap Documentation", ["postmarketOS Contributors"], 1)
+]
