@@ -33,6 +33,11 @@ pytest -vv ./test/test_keys.py
   * [Linux kernel 3.17 or higher](https://postmarketos.org/oldkernel)
   * Note: kernel versions between 5.8.8 and 6.0 might [have issues with
     parted](https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues/2309).
+  * /tmp must be mounted with the `exec` flag. Mounting it with `noexec` breaks
+    pmbootstrap. This is chiefly a concern for "hardened" kernels and OS:es. If
+    you insist on having the `noexec` flag set, you can work around this issue
+    by setting the `TMPDIR` environment variable to a directory with the
+    executable flag set, e.g. `TMPDIR=$HOME/.tmp pmbootstrap chroot`.
 * Python 3.10+
 * For python3 < 3.11: tomli
 * OpenSSL
