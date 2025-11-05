@@ -72,7 +72,7 @@ def properties(
         "NOTE: If you wanted to package new software in general, try"
         " 'pmbootstrap newapkbuild' to generate a template."
     )
-    raise NonBugError("No generator available for " + pkgname + "!")
+    raise NonBugError(f"No generator available for {pkgname}!")
 
 
 def generate(
