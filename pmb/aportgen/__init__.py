@@ -65,9 +65,8 @@ def properties(
             return (prefix, folder, True)
 
     logging.info(
-        "NOTE: aportgen is for generating postmarketOS specific"
-        " aports, such as the cross-compiler related packages"
-        " or the linux kernel fork packages."
+        "NOTE: aportgen is for generating postmarketOS specific aports, such as the cross-compiler "
+        "related packages or the linux kernel fork packages."
     )
     logging.info(
         "NOTE: If you wanted to package new software in general, try"
