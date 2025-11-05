@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from typing import TextIO
+from typing import Literal, TextIO
 
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -53,11 +53,10 @@ def get_mtk_label(path: PathString) -> str | None:
             return label
 
 
-def get_qcdt_type(path: PathString) -> str | None:
+def get_qcdt_type(path: PathString) -> Literal["qcom", "sprd", "exynos"] | None:
     """Get the dt.img type by reading the first four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
     :returns: * None: dt.img is of unknown type
-    * Type string (e.g. "qcom", "sprd", "exynos")
     """
     if not os.path.exists(path):
         return None
@@ -76,7 +75,7 @@ def get_qcdt_type(path: PathString) -> str | None:
                 return None
 
 
-def get_qcdt_exynos_platform_subtype(path: PathString) -> tuple:
+def get_qcdt_exynos_platform_subtype(path: PathString) -> tuple[str, str] | tuple[None, None]:
     """Get the exynos dt.img platform and subtype by reading the first
     four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
