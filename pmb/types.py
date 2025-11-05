@@ -148,10 +148,6 @@ class PartitionLayout(TypedDict):
     root: int
 
 
-class AportGenEntry(TypedDict):
-    confirm_overwrite: bool
-
-
 class Bootimg(TypedDict):
     cmdline: str
     bootimg_qcdt: str

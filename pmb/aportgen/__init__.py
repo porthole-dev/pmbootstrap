@@ -14,7 +14,6 @@ import pmb.aportgen.linux
 import pmb.aportgen.musl
 import pmb.aportgen.grub_efi
 import pmb.config
-from pmb.types import AportGenEntry
 import pmb.helpers.cli
 
 
@@ -40,7 +39,7 @@ def properties(
     pkgname: str,
     folder: Path | None = None,
     device_category: pmb.helpers.devices.DeviceCategory | None = None,
-) -> tuple[str, Path, AportGenEntry]:
+) -> tuple[str, Path, bool]:
     """
     Get the properties for the aport generator, based on the pkgname prefix.
 
@@ -50,12 +49,12 @@ def properties(
     :param folder: optional base folder override
     :param device_category: optional device category for device/linux aports
 
-    :returns: (prefix, folder, options)
+    :returns: (prefix, folder, confirm_overwrite)
     """
 
     for prefix in ["busybox-static", "gcc", "musl", "grub-efi"]:
         if pkgname.startswith(prefix):
-            return (prefix, folder or Path("cross"), {"confirm_overwrite": False})
+            return (prefix, folder or Path("cross"), False)
 
     for prefix in ["device", "linux"]:
         if pkgname.startswith(prefix):
@@ -63,7 +62,7 @@ def properties(
                 folder = (
                     Path("device") / str(device_category) if device_category else Path("device")
                 )
-            return (prefix, folder, {"confirm_overwrite": True})
+            return (prefix, folder, True)
 
     logging.info(
         "NOTE: aportgen is for generating postmarketOS specific"
@@ -84,20 +83,18 @@ def generate(
     folder: Path | None = None,
     device_category: pmb.helpers.devices.DeviceCategory | None = None,
 ) -> None:
-    options: AportGenEntry
-
     if pkgname.startswith(("device", "linux")) and not device_category:
         device_category = pmb.config.ask_for_mainline_downstream()
 
     if fork_alpine:
-        prefix, folder, options = (pkgname, Path("temp"), {"confirm_overwrite": True})
+        prefix, folder, confirm_overwrite = (pkgname, Path("temp"), True)
     else:
-        prefix, folder, options = properties(pkgname, folder, device_category)
+        prefix, folder, confirm_overwrite = properties(pkgname, folder, device_category)
     config = get_context().config
     path_target = pkgrepo_default_path() / folder / pkgname
 
     # Confirm overwrite
-    if options["confirm_overwrite"] and os.path.exists(path_target):
+    if confirm_overwrite and os.path.exists(path_target):
         logging.warning(f"WARNING: Target folder already exists: {path_target}")
         if not pmb.helpers.cli.confirm("Continue and overwrite?"):
             raise RuntimeError("Aborted.")
