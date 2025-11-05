@@ -192,10 +192,10 @@ def bootimg(path: Path) -> Bootimg:
         platform, subtype = get_qcdt_exynos_platform_subtype(f"{bootimg_path}-dt")
         # Omit if platform is default value 0x50a6
         if platform and platform != "0x50a6":
-            output.update({"bootimg_qcdt_exynos_platform": f"0x{platform:04x}"})
+            output.update({"bootimg_qcdt_exynos_platform": platform})
         # Omit if subtype is default value 0x217584da
         if subtype and subtype != "0x217584da":
-            output.update({"bootimg_qcdt_exynos_subtype": f"0x{subtype:08x}"})
+            output.update({"bootimg_qcdt_exynos_subtype": subtype})
 
     output["dtb_second"] = "true" if is_dtb(f"{bootimg_path}-second") else ""
 
