@@ -5,6 +5,7 @@ import os
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import pmb.aportgen.busybox_static
 import pmb.aportgen.core
 import pmb.aportgen.device
@@ -73,7 +74,7 @@ def properties(
         "NOTE: If you wanted to package new software in general, try"
         " 'pmbootstrap newapkbuild' to generate a template."
     )
-    raise ValueError("No generator available for " + pkgname + "!")
+    raise NonBugError("No generator available for " + pkgname + "!")
 
 
 def generate(
