@@ -189,14 +189,14 @@ def validate_hostname(hostname: str) -> bool:
     """
     # Check length
     if len(hostname) > 63:
-        logging.fatal("ERROR: Hostname '" + hostname + "' is too long.")
+        logging.fatal(f"ERROR: Hostname '{hostname}' is too long.")
         return False
 
     # Check that it only contains valid chars
     if not re.match(r"^[0-9a-z-\.]*$", hostname):
         logging.fatal(
-            "ERROR: Hostname must only contain letters (a-z),"
-            " digits (0-9), minus signs (-), or periods (.)"
+            "ERROR: Hostname must only contain letters (a-z), digits (0-9), minus signs "
+            "(-), or periods (.)"
         )
         return False
 
