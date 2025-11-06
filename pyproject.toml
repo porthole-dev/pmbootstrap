@@ -53,6 +53,7 @@ addopts = [
     "--import-mode=importlib",
     "--basetemp=.pytest_tmp"
 ]
+norecursedirs = [".*", "dist", "CVS", "_darcs", "{arch}", "*.egg"]
 
 [tool.mypy]
 check_untyped_defs = true
