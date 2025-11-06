@@ -138,9 +138,8 @@ def deviceinfo(device: str | None = None, kernel: str | None = None) -> Devicein
     path = pmb.helpers.devices.find_path(device, "deviceinfo")
     if not path:
         raise NonBugError(
-            "Device '" + device + "' not found. Run 'pmbootstrap init' to"
-            " start a new device port or to choose another device. It may have"
-            " been renamed, see <https://postmarketos.org/renamed>"
+            f"Device '{device}' not found. Run 'pmbootstrap init' to start a new device port or to "
+            "choose another device. It may have been renamed, see <https://postmarketos.org/renamed>"
         )
 
     return Deviceinfo(path, kernel)
