@@ -83,17 +83,15 @@ def find_kbuild_output_dir(function_body: list[str]) -> str:
     first = next(it, None)
     if first is None:
         raise RuntimeError(
-            "Couldn't find a kbuild out directory. Is your "
-            "APKBUILD messed up? If not, then consider "
-            "adjusting the patterns in pmb/build/envkernel.py "
-            "to work with your APKBUILD, or submit an issue."
+            "Couldn't find a kbuild out directory. Is your APKBUILD messed up? If not, then "
+            "consider adjusting the patterns in pmb/build/envkernel.py to work with your APKBUILD, "
+            "or submit an issue."
         )
     if all(first == rest for rest in it):
         return first
     raise RuntimeError(
-        "Multiple kbuild out directories found. Can you modify "
-        "your APKBUILD so it only has one output path? If you "
-        "can't resolve it, please open an issue."
+        "Multiple kbuild out directories found. Can you modify your APKBUILD so it only has one "
+        "output path? If you can't resolve it, please open an issue."
     )
 
 
@@ -166,12 +164,10 @@ def run_abuild(
 
     if not os.path.exists(chroot / kbuild_out_source):
         raise RuntimeError(
-            "No '.output' dir found in your kernel source dir. "
-            "Compile the " + context.config.device + " kernel first and "
-            "then try again. See https://postmarketos.org/envkernel"
-            "for details. If building on your host and only using "
-            "--envkernel for packaging, make sure you have O=.output "
-            "as an argument to make."
+            "No '.output' dir found in your kernel source dir. Compile the "
+            f"{context.config.device} kernel first and then try again. See "
+            "https://postmarketos.org/envkernel for details. If building on your host and only "
+            "using --envkernel for packaging, make sure you have O=.output as an argument to make."
         )
 
     # Create working directory for abuild
