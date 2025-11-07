@@ -107,7 +107,7 @@ def rewrite(
         skip_in_func = False
         for line in handle:
             # Skip maintainer/contributor
-            if line.startswith(("# Maintainer", "# Contributor")):
+            if line.startswith(("# Maintainer", "# Contributor", "maintainer=")):
                 continue
 
             # Replace functions
