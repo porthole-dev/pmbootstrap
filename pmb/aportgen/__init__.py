@@ -107,9 +107,7 @@ def generate(
             pkgname, retain_branch=fork_alpine_retain_branch
         )
         pmb.helpers.run.user(["cp", "-r", upstream, aportgen])
-        pmb.aportgen.core.rewrite(
-            pkgname, replace_simple={"# Contributor:*": None, "# Maintainer:*": None}
-        )
+        pmb.aportgen.core.rewrite(pkgname)
     else:
         match prefix:
             case "busybox-static":
