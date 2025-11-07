@@ -329,6 +329,45 @@ def _parse_subpackage(
     subpackages[subpkgname] = ret
 
 
+def _apkbuild_from_lines(
+    lines: list[str], path: Path, check_pkgver: bool = True, check_pkgname: bool = True
+) -> Apkbuild:
+    """
+    See `apkbuild()` in this module for full explanation. This function exists
+    as a means of avoiding reading the file twice if you already have the
+    file parsed into this format.
+
+    :param lines: lines of the APKBUILD, as parsed by `read_file()`.
+    :param path: full path to the APKBUILD, for error messages.
+    :param check_pkgver: verify that the pkgver is valid.
+    :param check_pkgname: the pkgname must match the name of the aport folder
+    :returns: relevant variables from the APKBUILD. Arrays get returned as
+              arrays.
+    """
+    # Parse all attributes from the config
+    ret = dict.fromkeys(pmb.config.apkbuild_attributes, "")
+    _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
+
+    # Sanity check: pkgname
+    suffix = f"/{ret['pkgname']}/APKBUILD"
+    if check_pkgname and not os.path.realpath(path).endswith(suffix):
+        logging.info(f"Folder: '{os.path.dirname(path)}'")
+        logging.info(f"Pkgname: '{ret['pkgname']}'")
+        raise NonBugError(
+            "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
+        )
+
+    # Sanity check: pkgver
+    if check_pkgver and not pmb.parse.version.validate(ret["pkgver"]):
+        logging.info(
+            "NOTE: Valid pkgvers are described here: "
+            "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
+        )
+        raise NonBugError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
+
+    return ret
+
+
 @Cache("path")
 def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) -> Apkbuild:
     """
@@ -353,29 +392,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
     # Read the file and check line endings
     lines = read_file(path)
 
-    # Parse all attributes from the config
-    ret = dict.fromkeys(pmb.config.apkbuild_attributes, "")
-    _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
-
-    # Sanity check: pkgname
-    suffix = f"/{ret['pkgname']}/APKBUILD"
-    if check_pkgname and not os.path.realpath(path).endswith(suffix):
-        logging.info(f"Folder: '{os.path.dirname(path)}'")
-        logging.info(f"Pkgname: '{ret['pkgname']}'")
-        raise NonBugError(
-            "The pkgname must be equal to the name of the folder that contains the APKBUILD!"
-        )
-
-    # Sanity check: pkgver
-    if check_pkgver and not pmb.parse.version.validate(ret["pkgver"]):
-        logging.info(
-            "NOTE: Valid pkgvers are described here: "
-            "https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#pkgver"
-        )
-        raise NonBugError(f"Invalid pkgver '{ret['pkgver']}' in APKBUILD: {path}")
-
-    # Fill cache
-    return ret
+    return _apkbuild_from_lines(lines, path, check_pkgver, check_pkgname)
 
 
 def kernels(device: str) -> dict[str, str] | None:
@@ -434,14 +451,21 @@ def maintainers(path: Path) -> list[str] | None:
     :returns: array of (at least one) maintainer, or None
     """
     lines = read_file(path)
-    maintainers = _parse_comment_tags(lines, "Maintainer")
-    if not maintainers:
-        return None
+    apkbuild = _apkbuild_from_lines(lines, path, False, False)
+    maintainers = []
+    if maintainer := apkbuild.get("maintainer"):
+        maintainers.append(maintainer)
+    maintainers += _parse_comment_tags(lines, "Maintainer")
 
-    # An APKBUILD should only have one Maintainer:,
-    # in pmaports others should be defined using Co-Maintainer:
-    if len(maintainers) > 1:
-        raise NonBugError("Multiple Maintainer: lines in APKBUILD")
+    match len(maintainers):
+        case 0:
+            return None
+        case 1:
+            pass
+        case _:
+            # An APKBUILD should only have one or zero maintainer comments or fields,
+            # in pmaports others should be defined using Co-Maintainer:
+            raise NonBugError('Multiple Maintainer: or maintainer="" lines in APKBUILD')
 
     maintainers += _parse_comment_tags(lines, "Co-Maintainer")
     if "" in maintainers:

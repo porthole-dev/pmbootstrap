@@ -263,6 +263,7 @@ apkbuild_package_attributes = {
 # Variables in APKBUILD files that get parsed
 apkbuild_attributes = {
     **apkbuild_package_attributes,
+    "maintainer": {},
     "arch": {"array": True},
     "depends_dev": {"array": True},
     "makedepends": {"array": True},
