@@ -17,6 +17,7 @@ import pmb.helpers.mount
 import pmb.parse.kconfig
 from pmb.core import Chroot, ChrootType
 from pmb.types import RunOutputTypeDefault
+from pathlib import PosixPath
 
 
 def kernel(
@@ -176,12 +177,13 @@ def sideload(
 
     # Mount the buildroot
     chroot = Chroot.buildroot(deviceinfo.arch)
-    mountpoint = "/mnt/" / chroot
+    mountpoint = "mnt" / PosixPath(chroot.__str__())
     pmb.helpers.mount.bind(chroot.path, Chroot.native().path / mountpoint)
 
     # Missing recovery zip error
     if not (
-        mountpoint
+        Chroot.native().path
+        / mountpoint
         / "var/lib/postmarketos-android-recovery-installer"
         / f"pmos-{deviceinfo.codename}.zip"
     ).exists():
