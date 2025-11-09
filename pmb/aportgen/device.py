@@ -278,7 +278,7 @@ def generate_apkbuild(
     # Dependencies
     depends = ["postmarketos-base"]
     if device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
-        depends += ["linux-" + "-".join(pkgname.split("-")[1:])]
+        depends += ["linux-" + "-".join(pkgname.split("-")[1:]), "postmarketos-base-downstream"]
     else:
         depends += ["linux-CHANGEME"]
 
