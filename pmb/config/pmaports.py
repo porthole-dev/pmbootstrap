@@ -12,6 +12,7 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 import os
 import sys
+from typing import Final
 
 import pmb.config
 from pmb.meta import Cache
@@ -191,6 +192,9 @@ def init(do_shallow_clone: bool = False) -> None:
     read_config()
 
 
+DEVELOPMENT_CHANNEL: Final[str] = "edge"
+
+
 def switch_to_channel_branch(channel_new: str) -> bool:
     """Checkout the channel's branch in pmaports.git.
 
@@ -211,7 +215,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     branch_current = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])
     if (
         branch_current == "master_staging_systemd"
-        and channel_new == "edge"
+        and channel_new == DEVELOPMENT_CHANNEL
         and pmb.config.is_systemd_selected()
     ):
         logging.info("NOTE: master_staging_systemd was merged into master, switching to it")
