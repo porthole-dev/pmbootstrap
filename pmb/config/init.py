@@ -20,6 +20,7 @@ from typing import Any
 import pmb.aportgen
 import pmb.config
 import pmb.config.pmaports
+from pmb.config.pmaports import DEVELOPMENT_CHANNEL
 from pmb.core import Config
 from pmb.types import Apkbuild, PmbArgs
 import pmb.helpers.cli
@@ -494,7 +495,23 @@ def ask_for_mainline_downstream() -> pmb.helpers.devices.DeviceCategory:
             raise ValueError(f"Unexpected port_type {port_type}")
 
 
-def ask_for_device(context: Context) -> tuple[str, bool, str]:
+def switch_channel(config: Config, channel: str) -> None:
+    """Wrapper around `pmb.config.pmaports.switch_to_channel_branch(channel)` that also handles
+    installing git hooks if master is selected."""
+    pmb.config.pmaports.switch_to_channel_branch(channel)
+    # FIXME: ???
+    config.is_default_channel = False
+
+    # Copy the git hooks if master was checked out. (Don't symlink them and
+    # only do it on master, so the git hooks don't change unexpectedly when
+    # having a random branch checked out.)
+    branch_current = pmb.helpers.git.rev_parse(pkgrepo_default_path(), extra_args=["--abbrev-ref"])
+    if branch_current == "master":
+        logging.info("NOTE: pmaports is on master branch, copying git hooks.")
+        pmb.config.pmaports.install_githooks()
+
+
+def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
     """
     Prompt for the device vendor, model, and kernel.
 
@@ -563,10 +580,20 @@ def ask_for_device(context: Context) -> tuple[str, bool, str]:
                     "This device does not exist anymore, check <https://postmarketos.org/renamed>"
                     " to see if it was renamed"
                 )
+
+            channel_is_improper = channel != DEVELOPMENT_CHANNEL
+
             logging.info(f"You are about to do a new device port for '{device}'.")
+            if channel_is_improper:
+                logging.info(
+                    f"Earlier you selected the '{channel}' channel. All new ports and packages must "
+                    f"go through '{DEVELOPMENT_CHANNEL}', so it will be switched to if you confirm."
+                )
             if not pmb.helpers.cli.confirm(default=True):
                 current_vendor = vendor
                 continue
+            if channel_is_improper:
+                switch_channel(context.config, DEVELOPMENT_CHANNEL)
 
             device_category = ask_for_mainline_downstream()
 
@@ -899,20 +926,10 @@ def frontend(args: PmbArgs) -> None:
 
     # Choose release channel, possibly switch pmaports branch
     channel = ask_for_channel(config)
-    pmb.config.pmaports.switch_to_channel_branch(channel)
-    # FIXME: ???
-    config.is_default_channel = False
-
-    # Copy the git hooks if master was checked out. (Don't symlink them and
-    # only do it on master, so the git hooks don't change unexpectedly when
-    # having a random branch checked out.)
-    branch_current = pmb.helpers.git.rev_parse(pkgrepo_default_path(), extra_args=["--abbrev-ref"])
-    if branch_current == "master":
-        logging.info("NOTE: pmaports is on master branch, copying git hooks.")
-        pmb.config.pmaports.install_githooks()
+    switch_channel(config, channel)
 
     # Device
-    device, device_exists, kernel = ask_for_device(get_context())
+    device, device_exists, kernel = ask_for_device(get_context(), channel)
     config.device = device
     config.kernel = kernel
 
