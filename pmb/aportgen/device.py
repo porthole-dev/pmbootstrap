@@ -24,10 +24,8 @@ def ask_for_architecture() -> Arch:
         if ret in architectures:
             return Arch.from_str(ret)
         logging.fatal(
-            "ERROR: Invalid architecture specified. If you want to"
-            " add a new architecture, edit"
-            " build_device_architectures in"
-            " pmb/config/__init__.py."
+            "ERROR: Invalid architecture specified. If you want to add a new architecture, edit "
+            "build_device_architectures in pmb/config/__init__.py."
         )
 
 
@@ -81,9 +79,7 @@ def ask_for_flash_method() -> str:
                 while True:
                     logging.info('Does the device use the "isolated recovery" or boot.img?')
                     logging.info(
-                        "<https://wiki.postmarketos.org/wiki"
-                        "/Deviceinfo_flash_methods#Isorec_or_bootimg"
-                        ".3F>"
+                        "<https://wiki.postmarketos.org/wiki/Deviceinfo_flash_methods#Isorec_or_bootimg.3F>"
                     )
                     heimdall_type = pmb.helpers.cli.ask("Type", heimdall_types, heimdall_types[0])
                     if heimdall_type in heimdall_types:
@@ -93,19 +89,16 @@ def ask_for_flash_method() -> str:
             return method
 
         logging.fatal(
-            "ERROR: Invalid flash method specified. If you want to"
-            " add a new flash method, edit flash_methods in"
-            " pmb/config/__init__.py."
+            "ERROR: Invalid flash method specified. If you want to add a new flash method, edit "
+            "flash_methods in pmb/config/__init__.py."
         )
 
 
 def ask_for_bootimg() -> Bootimg | None:
     logging.info(
-        "You can analyze a known working boot.img file to"
-        " automatically fill out the flasher information for your"
-        " deviceinfo file. Either specify the path to an image or"
-        " press return to skip this step (you can do it later with"
-        " 'pmbootstrap bootimg_analyze')."
+        "You can analyze a known working boot.img file to automatically fill out the flasher "
+        "information for your deviceinfo file. Either specify the path to an image or press return "
+        "to skip this step (you can do it later with 'pmbootstrap bootimg_analyze')."
     )
 
     while True:
