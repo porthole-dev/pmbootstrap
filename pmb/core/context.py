@@ -47,7 +47,7 @@ class Context:
     cross: bool = False
     no_depends: bool = False
     ignore_depends: bool = False
-    ccache: bool = False
+    ccache: bool = True
     go_mod_cache: bool = False
 
     config: Config
