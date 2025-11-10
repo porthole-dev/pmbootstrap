@@ -12,10 +12,12 @@ from pmb.core.pkgrepo import pkgrepo_default_path
 
 
 def depends_for_sonames(libraries: dict[str, str], arch_libc: Arch) -> list:
-    """Get packages providing specific sonames from Alpine's main repo. Usually
+    """
+    Get packages providing specific sonames from Alpine's main repo. Usually
     this would be done during package builds using abuild's "tracedeps". But
     this leads to our cross gccs immediately breaking once Alpine gcc packages
-    change. So we figure out depends on our own here."""
+    change. So we figure out depends on our own here.
+    """
     apkindex_main = pmb.helpers.repo.apkindex_files(
         arch_libc, user_repository=False, exclude_mirrors=["pmaports", "systemd"]
     )[0]

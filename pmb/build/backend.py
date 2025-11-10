@@ -27,7 +27,8 @@ class BootstrapStage(enum.IntEnum):
 def override_source(
     apkbuild: Apkbuild, pkgver: str, src: str | None, chroot: Chroot = Chroot.native()
 ) -> None:
-    """Mount local source inside chroot and append new functions (prepare() etc.)
+    """
+    Mount local source inside chroot and append new functions (prepare() etc.)
     to the APKBUILD to make it use the local source.
     """
     if not src:
@@ -137,7 +138,8 @@ def mount_pmaports(chroot: Chroot = Chroot.native()) -> dict[str, Path]:
 
 
 def link_to_git_dir(chroot: Chroot) -> None:
-    """Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
+    """
+    Make ``/home/pmos/build/.git`` point to the .git dir from pmaports.git, with a
     symlink so abuild does not fail (#1841).
 
     abuild expects the current working directory to be a subdirectory of a

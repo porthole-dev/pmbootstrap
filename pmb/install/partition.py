@@ -135,7 +135,6 @@ def partition_cgpt(layout: PartitionLayout, size_boot: int, size_reserve: int) -
     :param size_boot: size of the boot partition in MiB
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     """
-
     pmb.chroot.apk.install(["cgpt"], Chroot.native(), build=False)
 
     deviceinfo = pmb.parse.deviceinfo()

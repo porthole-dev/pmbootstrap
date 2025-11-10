@@ -82,7 +82,8 @@ def update_repository_list(
 
 
 def _prepare_fifo() -> Path:
-    """Prepare the progress fifo for reading / writing.
+    """
+    Prepare the progress fifo for reading / writing.
 
     :param chroot: whether to run the command inside the chroot or on the host
     :param suffix: chroot suffix. Only applies if the "chroot" parameter is
@@ -102,7 +103,8 @@ def _prepare_fifo() -> Path:
 
 
 def _create_command_with_progress(command: Sequence[str], fifo: Path) -> list[str]:
-    """Build a full apk command from a subcommand, set up to redirect progress into a fifo.
+    """
+    Build a full apk command from a subcommand, set up to redirect progress into a fifo.
 
     :param command: apk subcommand in list form
     :param fifo: path of the fifo
@@ -116,7 +118,8 @@ def _create_command_with_progress(command: Sequence[str], fifo: Path) -> list[st
 
 
 def _compute_progress(line: str) -> float:
-    """Compute the progress as a number between 0 and 1.
+    """
+    Compute the progress as a number between 0 and 1.
 
     :param line: line as read from the progress fifo
     :returns: progress as a number between 0 and 1
@@ -132,7 +135,8 @@ def _compute_progress(line: str) -> float:
 
 
 def _apk_with_progress(command: Sequence[str]) -> None:
-    """Run an apk subcommand while printing a progress bar to STDOUT.
+    """
+    Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
     :raises RuntimeError: when the apk command fails
@@ -156,7 +160,8 @@ def _apk_with_progress(command: Sequence[str]) -> None:
 
 
 def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[str]:
-    """Prepare the apk command.
+    """
+    Prepare the apk command.
 
     Returns a tuple of the first part of the command with generic apk flags, and the second part
     with the subcommand and its arguments.
@@ -201,7 +206,8 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
 
 
 def run(command: Sequence[PathString], chroot: Chroot, with_progress: bool = True) -> None:
-    """Run an apk subcommand.
+    """
+    Run an apk subcommand.
 
     :param command: apk subcommand in list form
     :param with_progress: whether to print a progress bar
@@ -287,7 +293,8 @@ def cache_clean(arch: Arch) -> None:
 
 
 def check_outdated(version_installed: str) -> None:
-    """Check if the provided alpine version is outdated.
+    """
+    Check if the provided alpine version is outdated.
 
     This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out
     pmaports branch.

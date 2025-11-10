@@ -20,7 +20,8 @@ class CiScriptDescriptor(TypedDict):
 
 
 def get_ci_scripts(topdir: Path) -> dict[str, CiScriptDescriptor]:
-    """Find 'pmbootstrap ci'-compatible scripts inside a git repository, and
+    """
+    Find 'pmbootstrap ci'-compatible scripts inside a git repository, and
     parse their metadata (description, options). The reference is at:
     https://postmarketos.org/pmb-ci
 
@@ -70,7 +71,8 @@ def get_ci_scripts(topdir: Path) -> dict[str, CiScriptDescriptor]:
 
 
 def sort_scripts_by_speed(scripts: dict[str, CiScriptDescriptor]) -> dict[str, CiScriptDescriptor]:
-    """Order the scripts, so fast scripts run before slow scripts. Whether a
+    """
+    Order the scripts, so fast scripts run before slow scripts. Whether a
     script is fast or not is determined by the '# Options: slow' comment in
     the file.
 
@@ -99,7 +101,8 @@ def sort_scripts_by_speed(scripts: dict[str, CiScriptDescriptor]) -> dict[str, C
 def ask_which_scripts_to_run(
     scripts_available: dict[str, CiScriptDescriptor],
 ) -> dict[str, CiScriptDescriptor]:
-    """Display an interactive prompt about which of the scripts the user
+    """
+    Display an interactive prompt about which of the scripts the user
     wishes to run, or all of them.
 
     :param scripts_available: same format as get_ci_scripts()
@@ -132,7 +135,8 @@ def ask_which_scripts_to_run(
 
 
 def copy_git_repo_to_chroot(topdir: Path, include_dot_git_dir: bool = False) -> None:
-    """Create a tarball of the git repo (including unstaged changes and new
+    """
+    Create a tarball of the git repo (including unstaged changes and new
     files) and extract it in chroot_native.
 
     :param topdir: top directory of the git repository, get it with:
@@ -158,7 +162,8 @@ def copy_git_repo_to_chroot(topdir: Path, include_dot_git_dir: bool = False) -> 
 
 
 def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
-    """Run one of the given scripts after another, either natively or in a
+    """
+    Run one of the given scripts after another, either natively or in a
     chroot. Display a progress message and stop on error (without printing
     a python stack trace).
 

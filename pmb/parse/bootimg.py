@@ -22,11 +22,13 @@ def is_dtb(path: PathString) -> bool:
 
 
 def get_mtk_label(path: PathString) -> str | None:
-    """Read the label from the MediaTek header of the kernel or ramdisk inside
+    """
+    Read the label from the MediaTek header of the kernel or ramdisk inside
     an extracted boot.img.
     :param path: to either the kernel or ramdisk extracted from boot.img
     :returns: * None: file does not exist or does not have MediaTek header
-    * Label string (e.g. "ROOTFS", "KERNEL")"""
+    * Label string (e.g. "ROOTFS", "KERNEL")
+    """
     if not os.path.exists(path):
         return None
 
@@ -54,7 +56,8 @@ def get_mtk_label(path: PathString) -> str | None:
 
 
 def get_qcdt_type(path: PathString) -> Literal["qcom", "sprd", "exynos"] | None:
-    """Get the dt.img type by reading the first four bytes of the file.
+    """
+    Get the dt.img type by reading the first four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
     :returns: * None: dt.img is of unknown type
     """
@@ -76,7 +79,8 @@ def get_qcdt_type(path: PathString) -> Literal["qcom", "sprd", "exynos"] | None:
 
 
 def get_qcdt_exynos_platform_subtype(path: PathString) -> tuple[str, str] | tuple[None, None]:
-    """Get the exynos dt.img platform and subtype by reading the first
+    """
+    Get the exynos dt.img platform and subtype by reading the first
     four bytes of the file.
     :param path: to the qcdt image extracted from boot.img
     :returns: ( Type tuple with platform and subtype, like ("0x50a6", "0x217584da")

@@ -31,7 +31,8 @@ def is_abuild_forked(repo: str | None) -> bool:
 
 
 def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
-    """Get packages that need to be built, with all their dependencies. Include
+    """
+    Get packages that need to be built, with all their dependencies. Include
        packages from extra-repos, no matter if systemd is enabled or not. This
        is used by bpo to fill its package database.
 

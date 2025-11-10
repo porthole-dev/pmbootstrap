@@ -6,11 +6,13 @@ from pmb.helpers import logging
 
 
 def get_groups(config: Config) -> list[str]:
-    """Get all groups to which the user additionally must be added.
+    """
+    Get all groups to which the user additionally must be added.
     The list of groups are listed in _pmb_groups of the UI and
     UI-extras package.
 
-    :returns: list of groups, e.g. ["feedbackd", "udev"]"""
+    :returns: list of groups, e.g. ["feedbackd", "udev"]
+    """
     ret: list[str] = []
     if config.ui == "none":
         return ret

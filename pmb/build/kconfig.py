@@ -49,7 +49,8 @@ class KConfigUI(enum.Enum):
 
 
 def get_arch(apkbuild: Apkbuild) -> Arch:
-    """Take the architecture from the APKBUILD or complain if it's ambiguous.
+    """
+    Take the architecture from the APKBUILD or complain if it's ambiguous.
 
     This function only gets called if --arch is not set.
 
@@ -80,7 +81,8 @@ def get_arch(apkbuild: Apkbuild) -> Arch:
 
 
 def get_outputdir(pkgname: str, apkbuild: Apkbuild, must_exist: bool = True) -> Path:
-    """Get the folder for the kernel compilation output.
+    """
+    Get the folder for the kernel compilation output.
 
     For most APKBUILDs, this is $builddir. But some older ones still use
     $srcdir/build (see the discussion in #1551).
@@ -184,9 +186,7 @@ def _make(
 
 
 def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]:
-    """
-    :returns: pkgname, arch, apkbuild, chroot, env
-    """
+    """:returns: pkgname, arch, apkbuild, chroot, env"""
     # Pkgname: allow omitting "linux-" prefix
     if not pkgname.startswith("linux-"):
         pkgname = "linux-" + pkgname
@@ -301,7 +301,6 @@ def _parse_config_options(config_content: str) -> dict[str, str]:
 
 def _extract_config_diff(new_config: str, baseline_config: str, output: Path) -> None:
     """Extract differences between two kernel configs into a fragment."""
-
     baseline_opts = _parse_config_options(baseline_config)
     new_opts = _parse_config_options(new_config)
 

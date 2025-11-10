@@ -52,7 +52,5 @@ def delete(hook: str, suffix: Chroot) -> None:
 
 
 def update(suffix: Chroot) -> None:
-    """
-    Rebuild and update all hooks that are out of date
-    """
+    """Rebuild and update all hooks that are out of date"""
     pmb.chroot.apk.install(list_chroot(suffix, False), suffix)

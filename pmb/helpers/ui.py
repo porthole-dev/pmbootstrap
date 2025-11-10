@@ -11,7 +11,8 @@ from pmb.types import WithExtraRepos
 
 
 def list_ui(arch: Arch) -> list[tuple[str, str]]:
-    """Get all UIs, for which aports are available with their description.
+    """
+    Get all UIs, for which aports are available with their description.
 
     :param arch: device architecture, for which the UIs must be available
     :returns: [("none", "No graphical..."), ("weston", "Wayland reference...")]

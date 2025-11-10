@@ -12,9 +12,7 @@ https://gitlab.alpinelinux.org/alpine/apk-tools/-/blob/5d796b567819ce91740fcdea7
 
 
 class Token(IntEnum):
-    """
-    C equivalent: enum PARTS
-    """
+    """C equivalent: enum PARTS"""
 
     INVALID = -1
     DIGIT_OR_ZERO = 0
@@ -99,7 +97,6 @@ def parse_suffix(rest: str) -> tuple[str, int, bool]:
 
     C equivalent: get_token(), case TOKEN_SUFFIX
     """
-
     name_suffixes = collections.OrderedDict(
         [
             ("pre", ["alpha", "beta", "pre", "rc"]),
@@ -213,7 +210,6 @@ def compare(a_version: str, b_version: str, fuzzy: bool = False) -> int:
 
     C equivalent: apk_version_compare_blob_fuzzy()
     """
-
     # Defaults
     a_token = Token.DIGIT
     b_token = Token.DIGIT

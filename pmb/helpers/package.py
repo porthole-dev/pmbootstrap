@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Functions that work with both pmaports and binary package repos.
+"""
+Functions that work with both pmaports and binary package repos.
 
 See also:
 
@@ -56,7 +57,8 @@ def get(
     must_exist: bool = True,
     try_other_arches: bool = True,
 ) -> PackageMetadata | None:
-    """Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
+    """
+    Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
 
     :param pkgname: package name (e.g. "hello-world")
     :param arch: preferred architecture of the binary package.
@@ -131,7 +133,8 @@ def get(
 
 @Cache("pkgname", "arch")
 def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
-    """Recursively resolve all of the package's dependencies.
+    """
+    Recursively resolve all of the package's dependencies.
 
     :param pkgname: name of the package (e.g. "device-samsung-i9100")
     :param arch: preferred architecture for binary packages
@@ -160,7 +163,8 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
 
 
 def check_arch(pkgname: str, arch: Arch, binary: bool = True) -> bool:
-    """Check if a package be built for a certain architecture, or is there a binary package for it.
+    """
+    Check if a package be built for a certain architecture, or is there a binary package for it.
 
     :param pkgname: name of the package
     :param arch: architecture to check against

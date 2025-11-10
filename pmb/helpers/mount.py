@@ -10,7 +10,8 @@ from pmb.types import PathString
 
 
 def ismount(folder: Path) -> bool:
-    """Ismount() implementation that works for mount --bind.
+    """
+    Ismount() implementation that works for mount --bind.
 
     Workaround for: https://bugs.python.org/issue29707
     """
@@ -28,7 +29,8 @@ def ismount(folder: Path) -> bool:
 def bind(
     source: PathString, destination: Path, create_folders: bool = True, umount: bool = False
 ) -> None:
-    """Mount --bind a folder and create necessary directory structure.
+    """
+    Mount --bind a folder and create necessary directory structure.
 
     :param umount: when destination is already a mount point, umount it first.
     """
@@ -76,7 +78,8 @@ def bind_file(source: Path, destination: Path, create_folders: bool = False) -> 
 
 
 def umount_all_list(prefix: Path, source: Path = Path("/proc/mounts")) -> list[Path]:
-    """Parse `/proc/mounts` for all folders beginning with a prefix.
+    """
+    Parse `/proc/mounts` for all folders beginning with a prefix.
 
     :source: can be changed for testcases
 

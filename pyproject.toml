@@ -34,11 +34,12 @@ line-length=100
 
 [tool.ruff.lint]
 # B006, B008: Occur in many places and aren't trivial to fix.
+# D205: Not all of our docstrings have a summary yet.
 # FURB101, FURB103: Easier to do if str gets replaced with Path in more places.
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
-extend-ignore = ["B006", "B008", "FURB101", "FURB103", "PERF203"]
-extend-select = ["B", "C4", "CPY001", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
+extend-ignore = ["B006", "B008", "D205", "FURB101", "FURB103", "PERF203"]
+extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -50,6 +51,9 @@ preview = true
 [tool.ruff.lint.isort]
 force-wrap-aliases = true
 combine-as-imports = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
 
 [tool.ruff.format]
 # Enable auto-formatting of code examples in docstrings.

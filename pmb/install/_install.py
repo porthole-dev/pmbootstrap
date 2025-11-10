@@ -160,9 +160,7 @@ def copy_files_from_chroot(chroot: Chroot, rsync: bool, verbose: bool) -> None:
 
 
 def create_home_from_skel(filesystem: str, user: str) -> None:
-    """
-    Create /home/{user} from /etc/skel
-    """
+    """Create /home/{user} from /etc/skel"""
     rootfs = Chroot.native() / "mnt/install"
     # In btrfs, home subvol & home dir is created in format.py
     if filesystem != "btrfs":
@@ -301,9 +299,7 @@ def setup_login(args: PmbArgs, config: Config, chroot: Chroot) -> None:
 
 
 def copy_ssh_keys(config: Config) -> None:
-    """
-    If requested, copy user's SSH public keys to the device if they exist
-    """
+    """If requested, copy user's SSH public keys to the device if they exist"""
     if not config.ssh_keys:
         return
     keys = []
@@ -339,9 +335,7 @@ def copy_ssh_keys(config: Config) -> None:
 
 
 def setup_keymap(config: Config) -> None:
-    """
-    Set the keymap with the setup-keymap utility if the device requires it
-    """
+    """Set the keymap with the setup-keymap utility if the device requires it"""
     chroot = Chroot(ChrootType.ROOTFS, config.device)
     deviceinfo = pmb.parse.deviceinfo(device=config.device)
     if not deviceinfo.keymaps or deviceinfo.keymaps.strip() == "":
@@ -408,9 +402,7 @@ def setup_timezone(chroot: Chroot, timezone: str) -> None:
 
 
 def setup_locale(chroot: Chroot, locale: str) -> None:
-    """
-    Set locale-related settings such as $LANG and keyboard layout
-    """
+    """Set locale-related settings such as $LANG and keyboard layout"""
     # 10locale-pmos.sh gets sourced before 20locale.sh from
     # alpine-baselayout by /etc/profile. Since they don't override the
     # locale if it exists, it warranties we have preference
@@ -441,9 +433,7 @@ def setup_locale(chroot: Chroot, locale: str) -> None:
 
 
 def setup_hostname(device: str, hostname: str | None) -> None:
-    """
-    Set the hostname and update localhost address in /etc/hosts
-    """
+    """Set the hostname and update localhost address in /etc/hosts"""
     # Default to device name. If device name is not a valid hostname then
     # default to a static default.
     if not hostname:
@@ -861,7 +851,6 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
     :param layout: partition layout from get_partition_layout() or None
     :param chroot: of the chroot, which fstab will be created to
     """
-
     # Do not install fstab into target rootfs when using on-device
     # installer. Provide fstab only to installer suffix
     if args.on_device_installer and chroot.type == ChrootType.ROOTFS:
@@ -1068,8 +1057,10 @@ def install_system_image(
 def print_flash_info(
     device: str, deviceinfo: Deviceinfo, split: bool, have_disk: bool, single_partition: bool
 ) -> None:
-    """Print flashing information, based on the deviceinfo data and the
-    pmbootstrap arguments."""
+    """
+    Print flashing information, based on the deviceinfo data and the
+    pmbootstrap arguments.
+    """
     logging.info("")  # make the note stand out
     logging.info("*** FLASHING INFORMATION ***")
 

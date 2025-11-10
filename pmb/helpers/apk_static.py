@@ -55,9 +55,7 @@ def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
 
 
 def extract_temp(tar: tarfile.TarFile, sigfilename: str) -> dict[str, dict]:
-    """
-    Extract apk.static and signature as temporary files.
-    """
+    """Extract apk.static and signature as temporary files."""
     ret = {
         "apk": {"filename": "sbin/apk.static", "temp_path": None},
         "sig": {"filename": sigfilename, "temp_path": None},
@@ -151,9 +149,7 @@ def extract(version: str, apk_path: Path) -> None:
 
 
 def download(file: str) -> Path:
-    """
-    Download a single file from an Alpine mirror.
-    """
+    """Download a single file from an Alpine mirror."""
     channel_cfg = pmb.config.pmaports.read_config_channel()
     mirrordir = channel_cfg["mirrordir_alpine"]
     base_url = f"{get_context().config.mirrors['alpine']}{mirrordir}/main/{Arch.native()}"
@@ -161,9 +157,7 @@ def download(file: str) -> Path:
 
 
 def init() -> None:
-    """
-    Download, verify, extract $WORK/apk.static.
-    """
+    """Download, verify, extract $WORK/apk.static."""
     # Get and parse the APKINDEX. alpine_apkindex_path() will implicitly
     # download the APKINDEX file if it's missing.
     apkindex = pmb.helpers.repo.alpine_apkindex_path("main")

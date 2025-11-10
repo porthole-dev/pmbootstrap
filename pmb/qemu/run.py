@@ -56,9 +56,7 @@ def create_second_storage(args: PmbArgs, device: str) -> Path:
 
 
 def which_qemu(arch: Arch) -> str:
-    """
-    Finds the qemu executable or raises an exception otherwise
-    """
+    """Finds the qemu executable or raises an exception otherwise"""
     executable = "qemu-system-" + arch.qemu_system()
     if shutil.which(executable):
         return executable
@@ -104,9 +102,7 @@ def command_qemu(
     img_path: Path,
     img_path_2nd: Path | None = None,
 ) -> tuple[list[str | Path], Env]:
-    """
-    Generate the full qemu command with arguments to run postmarketOS
-    """
+    """Generate the full qemu command with arguments to run postmarketOS"""
     device = config.device
     cmdline = pmb.parse.deviceinfo().kernel_cmdline or ""
     if args.cmdline:
@@ -384,9 +380,7 @@ def _sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
 
 
 def install_depends(args: PmbArgs, arch: Arch) -> None:
-    """
-    Install any necessary qemu dependencies in native chroot
-    """
+    """Install any necessary qemu dependencies in native chroot"""
     depends = [
         "mesa-dri-gallium",
         "mesa-egl",
@@ -451,9 +445,7 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
 
 
 def run(args: PmbArgs) -> None:
-    """
-    Run a postmarketOS image in qemu
-    """
+    """Run a postmarketOS image in qemu"""
     config = get_context().config
     device = config.device
     if not device.startswith("qemu-"):

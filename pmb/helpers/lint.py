@@ -20,11 +20,13 @@ from pmb.types import RunOutputTypeDefault
 
 
 def get_custom_valid_options() -> list[str]:
-    """Build a list of custom valid APKBUILD options that apkbuild-lint should
+    """
+    Build a list of custom valid APKBUILD options that apkbuild-lint should
     not complain about. The list consists of hardcoded options from
     pmb.config.apkbuild_custom_valid_options like pmb:drm, as well as
     dynamically generated options from kconfigcheck.toml
-    (pmb:kconfigcheck-libcamera etc.)."""
+    (pmb:kconfigcheck-libcamera etc.).
+    """
     ret = list(pmb.config.apkbuild_custom_valid_options)
 
     # Load kconfigcheck.toml from current branch
@@ -50,7 +52,8 @@ def get_custom_valid_options() -> list[str]:
 # We should really make Config.mirrors not a TypedDict.
 # mypy: disable-error-code="index"
 def check(pkgnames: Sequence[str]) -> None:
-    """Run apkbuild-lint on the supplied packages.
+    """
+    Run apkbuild-lint on the supplied packages.
 
     :param pkgnames: Names of the packages to lint
     """

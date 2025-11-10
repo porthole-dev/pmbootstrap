@@ -14,7 +14,8 @@ from pmb.helpers import logging
 
 
 def find_path(codename: str, file: str = "") -> Path | None:
-    """Find path to device APKBUILD under `device/*/device-`.
+    """
+    Find path to device APKBUILD under `device/*/device-`.
 
     :param codename: device codename
     :param file: file to look for (e.g. APKBUILD or deviceinfo), may be empty
@@ -39,12 +40,12 @@ class DeviceCategory(Enum):
 
     @staticmethod
     def shown() -> list[DeviceCategory]:
-        """Get a list of all device categories that typically are visible, in order of "best" to
+        """
+        Get a list of all device categories that typically are visible, in order of "best" to
         "worst".
 
         :returns: List of all non-hidden device categories.
         """
-
         return [
             DeviceCategory.MAIN,
             DeviceCategory.COMMUNITY,
@@ -53,12 +54,12 @@ class DeviceCategory(Enum):
         ]
 
     def allows_downstream_ports(self) -> bool:
-        """Check whether a given category is allowed to contain downstream ports. This does not
+        """
+        Check whether a given category is allowed to contain downstream ports. This does not
         necessarily mean that it exclusively contains downstream ports.
 
         :returns: True, if the category allows downstream ports, False if only allows mainline ports.
         """
-
         match self:
             case DeviceCategory.ARCHIVED | DeviceCategory.DOWNSTREAM:
                 return True
@@ -68,11 +69,11 @@ class DeviceCategory(Enum):
                 raise AssertionError
 
     def explain(self) -> str:
-        """Provide an explanation of a given category.
+        """
+        Provide an explanation of a given category.
 
         :returns: String explaining the given category.
         """
-
         match self:
             case DeviceCategory.ARCHIVED:
                 return "ports that have a better alternative available"
@@ -89,9 +90,11 @@ class DeviceCategory(Enum):
                 raise AssertionError
 
     def color(self) -> str:
-        """Returns the color associated with the given device category.
+        """
+        Returns the color associated with the given device category.
 
-        :returns: ANSI escape sequence for the color associated with the given device category."""
+        :returns: ANSI escape sequence for the color associated with the given device category.
+        """
         styles = pmb.config.styles
 
         match self:
@@ -127,7 +130,8 @@ class DeviceEntry:
 
 
 def list_codenames(vendor: str) -> list[DeviceEntry]:
-    """Get all devices for which aports are available.
+    """
+    Get all devices for which aports are available.
 
     :param vendor: Vendor name to choose devices from.
     :returns: ["first-device", "second-device", ...]}
@@ -149,7 +153,8 @@ def list_codenames(vendor: str) -> list[DeviceEntry]:
 
 
 def list_vendors() -> set[str]:
-    """Get all device vendors, for which aports are available.
+    """
+    Get all device vendors, for which aports are available.
 
     :returns: {"vendor1", "vendor2", ...}
     """
@@ -161,14 +166,14 @@ def list_vendors() -> set[str]:
 
 
 def get_device_category_by_apkbuild_path(apkbuild_path: Path) -> DeviceCategory:
-    """Get the category of a device based on the path to its APKBUILD inside of pmaports.
+    """
+    Get the category of a device based on the path to its APKBUILD inside of pmaports.
 
     This will fail to determine the device category from out-of-tree APKBUILDs.
 
     :apkbuild_path: Path to an APKBUILD within pmaports for a particular device.
     :returns: The device category of the provided device APKBUILD.
     """
-
     # Path is something like this:
     # .../device/community/device-samsung-m0/APKBUILD
     #            ↑         ↑ parent 1
@@ -184,7 +189,8 @@ def get_device_category_by_apkbuild_path(apkbuild_path: Path) -> DeviceCategory:
 
 
 def get_device_category_by_directory_path(device_directory: Path) -> DeviceCategory:
-    """Get the category of a device based on the path to its directory inside of pmaports.
+    """
+    Get the category of a device based on the path to its directory inside of pmaports.
 
     :device_directory: Path to the device package directory for a particular device.
     :returns: The device category of the provided device directory.
@@ -195,7 +201,8 @@ def get_device_category_by_directory_path(device_directory: Path) -> DeviceCateg
 
 
 def get_device_category_by_name(device_name: str) -> DeviceCategory:
-    """Get the category of a device based on its name.
+    """
+    Get the category of a device based on its name.
 
     :device_name: Name of a particular device to determine the category of.
                   Format should be "vendor-codename".

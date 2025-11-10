@@ -28,7 +28,6 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
     Check the minimum apk version, before running it the first time in the
     current session (lifetime of one pmbootstrap call).
     """
-
     # Skip if apk is not installed yet
     if not (chroot / "sbin/apk").exists():
         logging.debug(

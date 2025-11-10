@@ -18,7 +18,6 @@ def test_pkgrepo_paths_no_repos(pmb_args: None) -> None:
 
 def test_pkgrepo_pmaports(pmaports: None, monkeypatch: MonkeyPatch) -> None:
     """Test pkgrepo_paths() with pmaports repository and systemd extra repo"""
-
     # Disable results caching
     pkgrepo_paths.cache_disable()
     pkgrepo_default_path.cache_disable()

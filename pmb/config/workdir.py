@@ -1,9 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Save, read, verify workdir state related information in $WORK/workdir.cfg,
+"""
+Save, read, verify workdir state related information in $WORK/workdir.cfg,
 for example the init dates of the chroots. This is not saved in
 pmbootstrap_v3.cfg, because pmbootstrap_v3.cfg is not tied to a specific work
-dir."""
+dir.
+"""
 
 import configparser
 import os
@@ -50,7 +52,8 @@ def chroots_outdated(chroot: Chroot) -> bool: ...
 
 
 def chroots_outdated(chroot: Chroot | None = None) -> bool | list[Chroot]:
-    """Check if init dates from workdir.cfg indicate that any chroot is
+    """
+    Check if init dates from workdir.cfg indicate that any chroot is
     outdated.
 
     :param suffix: only check a specific chroot suffix
@@ -84,9 +87,11 @@ def chroots_outdated(chroot: Chroot | None = None) -> bool | list[Chroot]:
 
 
 def chroot_check_channel(chroot: Chroot) -> bool:
-    """Check the chroot channel against the current channel. Returns
+    """
+    Check the chroot channel against the current channel. Returns
     True if the chroot should be zapped (both that it needs zapping and
-    the user has auto_zap_misconfigured_chroots enabled), False otherwise."""
+    the user has auto_zap_misconfigured_chroots enabled), False otherwise.
+    """
     if chroot.type == ChrootType.IMAGE:
         return False
 
@@ -134,7 +139,8 @@ def chroot_check_channel(chroot: Chroot) -> bool:
 
 
 def clean() -> bool | None:
-    """Remove obsolete data data from workdir.cfg.
+    """
+    Remove obsolete data data from workdir.cfg.
 
     :returns: None if workdir does not exist,
         True if config was rewritten,

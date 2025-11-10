@@ -50,7 +50,8 @@ def download(
     allow_404: bool = False,
     flush_progress_bar_on_404: bool = False,
 ) -> Path | None:
-    """Download a file to disk.
+    """
+    Download a file to disk.
 
     :param url: the http(s) address of to the file to download
     :param prefix: for the cache, to make it easier to find (cache files
@@ -116,7 +117,8 @@ def retrieve(
 def retrieve(
     url: str, headers: dict[str, str] | None = None, allow_404: bool = False
 ) -> str | None:
-    """Fetch the content of a URL and returns it as string.
+    """
+    Fetch the content of a URL and returns it as string.
 
     :param url: the http(s) address of to the resource to fetch
     :param headers: dict of HTTP headers to use
@@ -144,7 +146,8 @@ def retrieve(
 
 
 def retrieve_json(url: str, headers: dict[str, str] | None = None) -> Any:
-    """Fetch the contents of a URL, parse it as JSON and return it.
+    """
+    Fetch the contents of a URL, parse it as JSON and return it.
 
     See retrieve() for the meaning of the parameters.
     """
@@ -152,7 +155,8 @@ def retrieve_json(url: str, headers: dict[str, str] | None = None) -> Any:
 
 
 def measure_latency(url: str) -> float:
-    """Requests a URL and returns the total time it took to perform the request.
+    """
+    Requests a URL and returns the total time it took to perform the request.
 
     :param url: the http(s) address of the resource to fetch
 

@@ -40,9 +40,7 @@ def previous_install(path: Path) -> bool:
 
 
 def mount_disk(path: Path) -> None:
-    """
-    :param path: path to disk block device (e.g. /dev/mmcblk0)
-    """
+    """:param path: path to disk block device (e.g. /dev/mmcblk0)"""
     # Sanity checks
     if not os.path.exists(path):
         raise RuntimeError(f"The disk block device does not exist: {path}")
@@ -72,7 +70,6 @@ def create_and_mount_image(
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param split: create separate images for boot and root partitions
     """
-
     # Short variables for paths
     chroot = Chroot.native()
     config = get_context().config

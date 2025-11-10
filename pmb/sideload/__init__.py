@@ -18,12 +18,13 @@ su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || echo doas); $_su"
 
 
 def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
-    """Copy the building key of the local installation to the target device,
+    """
+    Copy the building key of the local installation to the target device,
     so it trusts the apks that were signed here.
     :param user: target device ssh username
     :param host: target device ssh hostname
-    :param port: target device ssh port"""
-
+    :param port: target device ssh port
+    """
     keys = list((get_context().config.work / "config_abuild").glob("*.pub"))
     key = keys[0]
     key_name = os.path.basename(key)
@@ -71,13 +72,13 @@ def ssh_install_apks(
     paths: list[Path],
     install_offline: bool,
 ) -> None:
-    """Copy binary packages via SCP and install them via SSH.
+    """
+    Copy binary packages via SCP and install them via SSH.
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
     :param paths: list of absolute paths to locally stored apks
     """
-
     remote_paths = [os.path.join("/tmp", os.path.basename(path)) for path in paths]
 
     logging.info(f"Copying packages to {user}@{host}")
@@ -106,15 +107,16 @@ def sideload(
     copy_key: bool,
     pkgnames: list[str],
 ) -> None:
-    """Build packages if necessary and install them via SSH.
+    """
+    Build packages if necessary and install them via SSH.
 
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
     :param arch: target device architecture
     :param copy_key: copy the abuild key too
-    :param pkgnames: list of pkgnames to be built"""
-
+    :param pkgnames: list of pkgnames to be built
+    """
     paths = []
 
     if arch is None:

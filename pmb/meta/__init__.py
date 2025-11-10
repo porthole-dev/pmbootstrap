@@ -56,12 +56,14 @@ class Wrapper(Generic[FuncArgs, FuncReturn]):
 
 
 class Cache:
-    """Cache decorator for caching function results based on parameters.
+    """
+    Cache decorator for caching function results based on parameters.
 
     :param args: a list of function arguments to use as the cache key.
     :param kwargs: these are arguments where we should only cache if the
     function is called with the given value. For example, in pmb.build._package
-    we never want to use the cached result when called with force=True."""
+    we never want to use the cached result when called with force=True.
+    """
 
     def __init__(self, *args: str, cache_deepcopy: bool = False, **kwargs: Any) -> None:
         for a in args:

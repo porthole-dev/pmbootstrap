@@ -43,9 +43,7 @@ def format_and_mount_boot(device: str, boot_label: str) -> None:
 
 
 def format_luks_root(device: str, cipher: str, iter_time: str) -> None:
-    """
-    :param device: root partition on install block device (e.g. /dev/installp2)
-    """
+    """:param device: root partition on install block device (e.g. /dev/installp2)"""
     mountpoint = "/dev/mapper/pm_crypt"
 
     logging.info(f"(native) format {device} (root, luks), mount to {mountpoint}")
@@ -163,7 +161,8 @@ def prepare_btrfs_subvolumes(device: str, mountpoint: str) -> None:
 def format_and_mount_root(
     device: str, root_label: str, disk: PathString | None, rsync: bool, filesystem: str | None
 ) -> None:
-    """<
+    """
+    <
     :param device: root partition on install block device (e.g. /dev/installp2)
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None

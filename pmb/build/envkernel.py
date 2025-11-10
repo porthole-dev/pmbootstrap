@@ -22,7 +22,8 @@ from pmb.types import Env, PathString
 
 
 def match_kbuild_out(word: str) -> str | None:
-    """Look for paths in the following formats:
+    """
+    Look for paths in the following formats:
       "<prefix>/<kbuild_out>/arch/<arch>/boot"
       "<prefix>/<kbuild_out>/include/config/kernel.release"
 
@@ -56,7 +57,8 @@ def match_kbuild_out(word: str) -> str | None:
 
 
 def find_kbuild_output_dir(function_body: list[str]) -> str:
-    """Guess what the kernel build output directory is.
+    """
+    Guess what the kernel build output directory is.
 
     Parses each line of the function word by word, looking for paths which
     contain the kbuild output directory.

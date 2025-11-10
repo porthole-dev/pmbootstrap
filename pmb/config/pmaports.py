@@ -79,7 +79,6 @@ def check_version_pmbootstrap(min_ver: str) -> None:
 @Cache()
 def read_config_repos() -> dict[str, configparser.SectionProxy]:
     """Read the sections starting with "repo:" from pmaports.cfg."""
-
     cfg = configparser.ConfigParser()
     cfg.read(f"{pkgrepo_default_path()}/pmaports.cfg")
 
@@ -97,10 +96,12 @@ def read_config_repos() -> dict[str, configparser.SectionProxy]:
 def read_config(
     aports: Path | None = None, add_systemd_prefix: bool = True
 ) -> configparser.SectionProxy:
-    """Read and verify pmaports.cfg. If aports is not
+    """
+    Read and verify pmaports.cfg. If aports is not
     specified and systemd is enabled, the returned channel
     will be the systemd one (e.g. systemd-edge instead of edge)
-    since we'll use the first pkgrepo which is systemd."""
+    since we'll use the first pkgrepo which is systemd.
+    """
     if aports is None:
         aports = pkgrepo_paths()[0]
 
@@ -148,7 +149,8 @@ def all_channels() -> list[str]:
 
 
 def read_config_channel() -> dict[str, str]:
-    """Get the properties of the currently active channel in pmaports.git.
+    """
+    Get the properties of the currently active channel in pmaports.git.
 
     As specified in channels.cfg (https://postmarketos.org/channels.cfg).
 
@@ -196,7 +198,8 @@ DEVELOPMENT_CHANNEL: Final[str] = "edge"
 
 
 def switch_to_channel_branch(channel_new: str) -> bool:
-    """Checkout the channel's branch in pmaports.git.
+    """
+    Checkout the channel's branch in pmaports.git.
 
     :channel_new: channel name (e.g. "edge", "v21.03")
 

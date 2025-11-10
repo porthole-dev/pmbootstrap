@@ -103,7 +103,8 @@ def get_package_version_info_gitlab(
 
 
 def upgrade_git_package(pkgname: str, package: Apkbuild, ref: str | None, dry: bool) -> None:
-    """Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if dry is set).
+    """
+    Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if dry is set).
 
     :param pkgname: the package name
     :param package: a dict containing package information
@@ -179,7 +180,6 @@ def upgrade_stable_package(pkgname: str, package: Apkbuild, dry: bool) -> None:
     :param pkgname: the package name
     :param package: a dict containing package information
     """
-
     # Looking up if there's a custom mapping from postmarketOS package name
     # to Anitya project name.
     mappings = pmb.helpers.http.retrieve_json(
@@ -256,7 +256,8 @@ def upgrade_stable_package(pkgname: str, package: Apkbuild, dry: bool) -> None:
 def upgrade(
     pkgname: str, dry: bool, ref: str | None = None, git: bool = True, stable: bool = True
 ) -> None:
-    """Find new versions of a single package and upgrade it.
+    """
+    Find new versions of a single package and upgrade it.
 
     :param pkgname: the name of the package
     :param git: True if git packages should be upgraded

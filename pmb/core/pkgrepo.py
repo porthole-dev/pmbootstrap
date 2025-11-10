@@ -68,9 +68,7 @@ def pkgrepo_name(path: Path) -> str:
 
 
 def pkgrepo_path(name: str) -> Path:
-    """
-    Return the absolute path to the package repository with the given name.
-    """
+    """Return the absolute path to the package repository with the given name."""
     # The pmaports repo is always last, and we hardcode the name.
     if name == "pmaports":
         return get_context().config.aports[-1]
@@ -111,9 +109,7 @@ def pkgrepo_glob_one(path: str) -> Path | None:
 
 
 def pkgrepo_iglob(path: str, recursive: bool = False) -> Generator[Path, None, None]:
-    """
-    Yield each matching glob over each aports repository.
-    """
+    """Yield each matching glob over each aports repository."""
     for repo in pkgrepo_paths():
         for g in glob.iglob(os.path.join(repo, path), recursive=recursive):
             pdir = Path(g)
@@ -162,9 +158,7 @@ def pkgrepo_iter_package_dirs(
 
 
 def pkgrepo_relative_path(path: Path) -> tuple[Path, Path]:
-    """
-    Return the path relative to the first aports repository.
-    """
+    """Return the path relative to the first aports repository."""
     for aports in pkgrepo_paths():
         # Cheeky hack to let us jump from an extra-repo to the
         # main aports repository it's a part of

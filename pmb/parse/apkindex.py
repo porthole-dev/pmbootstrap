@@ -28,7 +28,8 @@ required_apkindex_keys = ["arch", "pkgname", "version"]
 
 
 def parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
-    """Parse the next block in an APKINDEX.
+    """
+    Parse the next block in an APKINDEX.
 
     :param path: to the APKINDEX.tar.gz
     :param start: current index in lines, gets increased in this
@@ -145,7 +146,8 @@ def parse_add_block(
     alias: str | None = None,
     multiple_providers: bool = True,
 ) -> None:
-    """Add one block to the return dictionary of parse().
+    """
+    Add one block to the return dictionary of parse().
 
     :param ret: dictionary of all packages in the APKINDEX that is
                 getting built right now. This function will extend it.
@@ -210,7 +212,8 @@ def parse(
 def parse(
     path: Path, multiple_providers: bool = True
 ) -> dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]]:
-    r"""Parse an APKINDEX.tar.gz file, and return its content as dictionary.
+    r"""
+    Parse an APKINDEX.tar.gz file, and return its content as dictionary.
 
     :param path: path to an APKINDEX.tar.gz file or apk package database
                  (almost the same format, but not compressed).
@@ -414,7 +417,8 @@ def providers(
 def provider_highest_priority(
     providers: dict[str, ApkindexBlock], pkgname: str
 ) -> dict[str, ApkindexBlock]:
-    """Get the provider(s) with the highest provider_priority and log a message.
+    """
+    Get the provider(s) with the highest provider_priority and log a message.
 
     :param providers: returned dict from providers(), must not be empty
     :param pkgname: the package name we are interested in (for the log message)
@@ -441,7 +445,8 @@ def provider_highest_priority(
 
 
 def provider_shortest(providers: dict[str, ApkindexBlock], pkgname: str) -> ApkindexBlock:
-    """Get the provider with the shortest pkgname and log a message. In most cases
+    """
+    Get the provider with the shortest pkgname and log a message. In most cases
     this should be sufficient, e.g. 'mesa-purism-gc7000-egl, mesa-egl' or
     'gtk+2.0-maemo, gtk+2.0'.
 

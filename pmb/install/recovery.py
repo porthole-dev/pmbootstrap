@@ -13,9 +13,7 @@ from pmb.types import PmbArgs
 
 
 def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
-    """
-    Create android recovery compatible installer zip.
-    """
+    """Create android recovery compatible installer zip."""
     zip_root = Path("/var/lib/postmarketos-android-recovery-installer/")
     rootfs = "/mnt/rootfs_" + device
     flavor = pmb.helpers.frontend._parse_flavor(device)

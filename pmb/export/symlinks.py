@@ -10,10 +10,7 @@ from pmb.helpers import logging
 
 
 def symlinks(folder: Path) -> None:
-    """
-    Create convenience symlinks to the rootfs and boot files.
-    """
-
+    """Create convenience symlinks to the rootfs and boot files."""
     device = get_context().config.device
     arch = pmb.parse.deviceinfo(device).arch
 

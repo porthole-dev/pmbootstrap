@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Functions that work with pmaports.
+"""
+Functions that work with pmaports.
 
 See also:
 - pmb/helpers/repo.py (work with binary package repos)
@@ -42,7 +43,8 @@ def get_list() -> list[str]:
 
 
 def guess_main_dev(subpkgname: str) -> Path | None:
-    """Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
+    """
+    Check if a package without "-dev" at the end exists in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
 
@@ -64,7 +66,8 @@ def guess_main_dev(subpkgname: str) -> Path | None:
 
 
 def guess_main_cross(subpkgname: str) -> Path | None:
-    """Check if a subpackage that is part of the cross toolchain is in pmaports or not, and log the appropriate message.
+    """
+    Check if a subpackage that is part of the cross toolchain is in pmaports or not, and log the appropriate message.
 
     Don't call this function directly, use guess_main() instead.
 
@@ -89,7 +92,8 @@ def guess_main_cross(subpkgname: str) -> Path | None:
 
 
 def guess_main(subpkgname: str) -> Path | None:
-    """Find the main package by assuming it is a prefix of the subpkgname.
+    """
+    Find the main package by assuming it is a prefix of the subpkgname.
 
     We do that, because in some APKBUILDs the subpkgname="" variable gets
     filled with a shell loop and the APKBUILD parser in pmbootstrap can't
@@ -133,7 +137,8 @@ def guess_main(subpkgname: str) -> Path | None:
 
 
 def _find_package_in_apkbuild(package: str, path: Path) -> bool:
-    """Look through subpackages and all provides to see if the APKBUILD at the specified path
+    """
+    Look through subpackages and all provides to see if the APKBUILD at the specified path
     contains (or provides) the specified package.
 
     :param package: The package to search for
@@ -167,9 +172,10 @@ def _find_package_in_apkbuild(package: str, path: Path) -> bool:
 
 
 def show_pkg_not_found_systemd_hint(package: str, with_extra_repos: WithExtraRepos) -> None:
-    """Check if a package would be found if systemd was enabled and display a
-    hint about it."""
-
+    """
+    Check if a package would be found if systemd was enabled and display a
+    hint about it.
+    """
     if with_extra_repos != "default" or pmb.config.other.is_systemd_selected():
         return
 
@@ -204,7 +210,8 @@ def find(
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = "default",
 ) -> Path | None:
-    """Find the directory in pmaports that provides a package or subpackage.
+    """
+    Find the directory in pmaports that provides a package or subpackage.
     If you want the parsed APKBUILD instead, use pmb.helpers.pmaports.get().
 
     :param must_exist: Raise an exception, when not found
@@ -304,7 +311,8 @@ def get_with_path(
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = "default",
 ) -> tuple[Path | None, Apkbuild | None]:
-    """Find and parse an APKBUILD file.
+    """
+    Find and parse an APKBUILD file.
 
     Run 'pmbootstrap apkbuild_parse hello-world' for a full output example.
     Relevant variables are defined in pmb.config.apkbuild_attributes.
@@ -361,7 +369,8 @@ def get(
 
 
 def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
-    """Search for providers of the specified (virtual) package in pmaports.
+    """
+    Search for providers of the specified (virtual) package in pmaports.
 
     Note: Currently only providers from a single APKBUILD are returned.
 
@@ -371,7 +380,6 @@ def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
               provider_priority. The provider with the highest priority
               (which would be selected by default) comes first.
     """
-
     providers = {}
 
     apkbuild = get(provide)
@@ -390,7 +398,8 @@ def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
 
 
 def get_repo(pkgname: str) -> str | None:
-    """Get the repository folder of an aport.
+    """
+    Get the repository folder of an aport.
 
     :pkgname: package name
     :returns: * None if pkgname is not in extra-repos/
@@ -406,7 +415,8 @@ def get_repo(pkgname: str) -> str | None:
 
 
 def check_arches(arches: list[str], arch: Arch) -> bool:
-    """Check if building for a certain arch is allowed.
+    """
+    Check if building for a certain arch is allowed.
 
     :param arches: list of all supported arches, as it can be found in the
         arch="" line of APKBUILDS (including all, noarch, !arch, ...).
@@ -422,7 +432,8 @@ def check_arches(arches: list[str], arch: Arch) -> bool:
 
 
 def get_channel_new(channel: str) -> str:
-    """Translate legacy channel names to the new ones.
+    """
+    Translate legacy channel names to the new ones.
 
     Legacy names are still supported for compatibility with old branches (pmb#2015).
     :param channel: name as read from pmaports.cfg or channels.cfg, like "edge", "v21.03" etc.,

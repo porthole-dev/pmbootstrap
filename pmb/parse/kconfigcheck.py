@@ -13,7 +13,8 @@ from pmb.meta import Cache
 
 @Cache()
 def get_path() -> Path:
-    """Get the kconfigcheck.toml from current pmaports branch if it exists, or
+    """
+    Get the kconfigcheck.toml from current pmaports branch if it exists, or
     as fallback the v24.06 version shipped with pmbootstrap.
     """
     ret: Path
@@ -59,7 +60,8 @@ def sanity_check(toml: dict) -> None:
 
 @Cache("name")
 def read_category(name: str) -> dict[str, dict]:
-    """Read either one category or one alias (for one or more categories) from
+    """
+    Read either one category or one alias (for one or more categories) from
     kconfigcheck.toml.
     """
     toml = load_toml_file(get_path())

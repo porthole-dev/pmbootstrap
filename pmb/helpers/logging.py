@@ -97,7 +97,8 @@ class LogHandler(logging.StreamHandler):
 
 
 def add_verbose_log_level() -> None:
-    """Add a new log level "verbose", which is below "debug".
+    """
+    Add a new log level "verbose", which is below "debug".
 
     Also monkeypatch logging, so it can be used with logging.verbose().
 

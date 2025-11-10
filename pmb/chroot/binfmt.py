@@ -16,9 +16,7 @@ def is_registered(arch_qemu: str | Arch) -> bool:
 
 
 def register(arch: Arch) -> None:
-    """
-    Get arch, magic, mask.
-    """
+    """Get arch, magic, mask."""
     arch_qemu = arch.qemu_user()
     chroot = Chroot.native()
 

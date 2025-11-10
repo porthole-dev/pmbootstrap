@@ -62,7 +62,6 @@ def device_package(config_file: Path) -> Path:
 @pytest.fixture(autouse=True)
 def find_required_programs() -> None:
     """Fixture to find required programs for pmbootstrap."""
-
     pmb.config.require_programs()
 
 
@@ -114,12 +113,14 @@ def setup_mock_ask(monkeypatch: MonkeyPatch) -> None:
 # FIXME: get/set_context() is a bad hack :(
 @pytest.fixture
 def mock_context(monkeypatch: MonkeyPatch) -> None:
-    """Mock set_context() to bypass sanity checks. Ideally we would
+    """
+    Mock set_context() to bypass sanity checks. Ideally we would
     mock get_context() as well, but since every submodule of pmb imports
     it like "from pmb.core.context import get_context()", we can't
     actually override it with monkeypatch.setattr(). So this is the
     best we can do... set_context() is only called from one place and is
-    done so with the full namespace, so this works."""
+    done so with the full namespace, so this works.
+    """
 
     def mock_set_context(ctx: Context) -> None:
         print(f"mock_set_context({ctx})")
@@ -132,9 +133,10 @@ def mock_context(monkeypatch: MonkeyPatch) -> None:
 # custom context we set up here.
 @pytest.fixture
 def pmb_args(config_file: Path, mock_context: None, logfile: Path) -> None:
-    """This is (still) a hack, since a bunch of the codebase still
-    expects some global state to be initialised. We do that here."""
-
+    """
+    This is (still) a hack, since a bunch of the codebase still
+    expects some global state to be initialised. We do that here.
+    """
     args = PmbArgs()
     args.config = config_file
     args.aports = None
@@ -168,7 +170,6 @@ def foreign_arch() -> Arch:
 @pytest.fixture
 def pmaports(pmb_args: None, monkeypatch: MonkeyPatch) -> None:
     """Fixture to clone pmaports."""
-
     from pmb.core import Config
     from pmb.core.context import get_context
 

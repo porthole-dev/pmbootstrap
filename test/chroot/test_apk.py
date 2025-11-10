@@ -89,7 +89,6 @@ def create_apk(pkgname: str, arch: Arch) -> Path:
 
 def test_get_local_apks(pmb_args: None, apk_mocks: None) -> None:
     """Ensure packages_get_locally_built_apks() returns paths for local apks"""
-
     pkgname = "package1"
     arch = Arch.x86_64
 

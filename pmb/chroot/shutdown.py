@@ -13,9 +13,7 @@ from pmb.helpers import logging
 
 
 def kill_adb() -> None:
-    """
-    Kill adb daemon if it's running.
-    """
+    """Kill adb daemon if it's running."""
     port = 5038
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         sock.settimeout(2)
@@ -36,9 +34,7 @@ def kill_sccache() -> None:
 
 
 def shutdown_cryptsetup_device(name: str) -> None:
-    """
-    :param name: cryptsetup device name, usually "pm_crypt" in pmbootstrap
-    """
+    """:param name: cryptsetup device name, usually "pm_crypt" in pmbootstrap"""
     if not (Chroot.native() / "dev/mapper" / name).exists():
         return
     pmb.chroot.apk.install(["cryptsetup"], Chroot.native())

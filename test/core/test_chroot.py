@@ -10,7 +10,6 @@ from pmb.core.context import get_context
 
 def test_valid_chroots(pmb_args: None, mock_devices_find_path: None) -> None:
     """Test that Chroot objects work as expected"""
-
     work = get_context().config.work
 
     chroot = Chroot.native()
@@ -50,7 +49,6 @@ def test_valid_chroots(pmb_args: None, mock_devices_find_path: None) -> None:
 # mypy: ignore-errors
 def test_invalid_chroots(pmb_args: None) -> None:
     """Test that we can't create invalid chroots."""
-
     with pytest.raises(ValueError) as excinfo:
         Chroot(ChrootType.BUILDROOT, "BAD_ARCH")
     assert (

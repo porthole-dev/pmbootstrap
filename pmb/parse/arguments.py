@@ -33,7 +33,8 @@ import pmb.helpers.pmaports
 def toggle_other_boolean_flags(
     *other_destinations: str, value: bool = True
 ) -> type[argparse.Action]:
-    """Group several argparse flags to one.
+    """
+    Group several argparse flags to one.
 
     Sets multiple other_destination to value.
 
@@ -62,7 +63,8 @@ def toggle_other_boolean_flags(
 
 
 def type_ondev_cp(val: str) -> list[str]:
-    """Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
+    """
+    Parse and validate arguments to 'pmbootstrap install --ondev --cp'.
 
     :param val: 'HOST_SRC:CHROOT_DEST' string
 

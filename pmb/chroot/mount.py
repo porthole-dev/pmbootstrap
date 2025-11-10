@@ -16,8 +16,10 @@ from pmb.helpers import logging
 
 
 def mount_chroot_image(chroot: Chroot) -> None:
-    """Mount an IMAGE type chroot, to modify an existing rootfs image. This
-    doesn't support split images yet!"""
+    """
+    Mount an IMAGE type chroot, to modify an existing rootfs image. This
+    doesn't support split images yet!
+    """
     # Make sure everything is nicely unmounted just to be super safe
     # this is definitely overkill
     pmb.chroot.shutdown()
@@ -47,9 +49,7 @@ def mount_chroot_image(chroot: Chroot) -> None:
 
 
 def create_device_nodes(chroot: Chroot) -> None:
-    """
-    Create device nodes for null, zero, full, random, urandom in the chroot.
-    """
+    """Create device nodes for null, zero, full, random, urandom in the chroot."""
     try:
         # Create all device nodes as specified in the config
         for dev in pmb.config.chroot_device_nodes:
@@ -180,12 +180,14 @@ def mount_native_into_foreign(chroot: Chroot) -> None:
 
 
 def remove_mnt_pmbootstrap(chroot: Chroot) -> None:
-    """Safely remove /mnt/pmbootstrap directories from the chroot, without
+    """
+    Safely remove /mnt/pmbootstrap directories from the chroot, without
     running rm -r as root and potentially removing data inside the
     mountpoint in case it was still mounted (bug in pmbootstrap, or user
     ran pmbootstrap 2x in parallel). This is similar to running 'rm -r -d',
     but we don't assume that the host's rm has the -d flag (busybox does
-    not)."""
+    not).
+    """
     mnt_dir = chroot / "mnt/pmbootstrap"
 
     if not mnt_dir.exists():

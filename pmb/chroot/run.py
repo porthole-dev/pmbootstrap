@@ -45,7 +45,6 @@ def rootm(
     See pmb.helpers.run_core.core() for a detailed description of all other
     arguments and the return value.
     """
-
     # Convert any Path objects to their string representation
     cmd_strs = [[os.fspath(x) for x in cmd] for cmd in cmds]
 

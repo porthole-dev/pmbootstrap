@@ -36,9 +36,11 @@ class CrossCompile(enum.Enum):
         return self not in [CrossCompile.UNNECESSARY, CrossCompile.QEMU_ONLY]
 
     def host_chroot(self, arch: Arch) -> Chroot:
-        """Chroot for the package target architecture (the "host" machine).
+        """
+        Chroot for the package target architecture (the "host" machine).
         Cross native (v1) is the exception, since we exclusively use the native
-        chroot for that."""
+        chroot for that.
+        """
         if arch == Arch.native():
             return Chroot.native()
 

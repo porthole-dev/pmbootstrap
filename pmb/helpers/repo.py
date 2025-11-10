@@ -25,7 +25,8 @@ from pmb.meta import Cache
 
 
 def apkindex_hash(url: str, length: int = 8) -> Path:
-    r"""Generate the hash that APK adds to the APKINDEX and apk packages in its apk cache folder.
+    r"""
+    Generate the hash that APK adds to the APKINDEX and apk packages in its apk cache folder.
 
     It is the "12345678" part in this example:
     "APKINDEX.12345678.tar.gz".
@@ -57,7 +58,8 @@ def apkindex_hash(url: str, length: int = 8) -> Path:
 def urls(
     user_repository: Path | None = None, mirrors_exclude: list[str] | Literal[True] = []
 ) -> list[str]:
-    """Get a list of repository URLs, as they are in /etc/apk/repositories.
+    """
+    Get a list of repository URLs, as they are in /etc/apk/repositories.
 
     :param user_repository: add /mnt/pmbootstrap/packages
     :param mirrors_exclude: mirrors to exclude (see pmb.core.config.Mirrors) or true to exclude
@@ -125,7 +127,8 @@ def urls(
 def apkindex_files(
     arch: Arch | None = None, user_repository: bool = True, exclude_mirrors: list[str] = []
 ) -> list[Path]:
-    """Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
+    """
+    Get a list of outside paths to all resolved APKINDEX.tar.gz files for a specific arch.
 
     :param arch: defaults to native
     :param user_repository: add path to index of locally built packages
@@ -155,7 +158,8 @@ def apkindex_files(
 
 @Cache("arch", force=False)
 def update(arch: Arch | None = None, force: bool = False, existing_only: bool = False) -> bool:
-    """Download the APKINDEX files for all URLs depending on the architectures.
+    """
+    Download the APKINDEX files for all URLs depending on the architectures.
 
     :param arch: * one Alpine architecture name ("x86_64", "armhf", ...)
                  * None for all architectures
@@ -248,7 +252,8 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
 
 
 def alpine_apkindex_path(repo: str = "main", arch: Arch | None = None) -> Path:
-    """Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
+    """
+    Get the path to a specific Alpine APKINDEX file on disk and download it if necessary.
 
     :param repo: Alpine repository name (e.g. "main")
     :param arch: Alpine architecture (e.g. "armhf"), defaults to native arch.

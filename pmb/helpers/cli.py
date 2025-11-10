@@ -48,7 +48,8 @@ def ask(
     validation_regex: str | None = None,
     complete: KeysView[str] | dict[str, Any] | list[str] | None = None,
 ) -> str:
-    """Ask a question on the terminal.
+    """
+    Ask a question on the terminal.
 
     :param question: display prompt
     :param choices: short list of possible answers, displayed after prompt if set
@@ -109,7 +110,8 @@ def ask(
 def confirm(
     question: str = "Continue?", default: bool = False, no_assumptions: bool = False
 ) -> bool:
-    """Convenience wrapper around ask for simple yes-no questions with validation.
+    """
+    Convenience wrapper around ask for simple yes-no questions with validation.
 
     :param no_assumptions: ask for confirmation, even if "pmbootstrap -y' is set
     :returns: True for "y", False for "n"
@@ -123,7 +125,8 @@ def confirm(
 
 
 def progress_print(progress: float) -> None:
-    """Print a snapshot of a progress bar to STDOUT.
+    """
+    Print a snapshot of a progress bar to STDOUT.
 
     Call progress_flush to end  printing progress and clear the line. No output is printed in
     non-interactive mode.
@@ -144,7 +147,8 @@ def progress_print(progress: float) -> None:
 
 
 def progress_flush() -> None:
-    """Finish printing a progress bar.
+    """
+    Finish printing a progress bar.
 
     This will erase the line. Does nothing in non-interactive mode.
     """

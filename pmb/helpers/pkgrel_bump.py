@@ -21,7 +21,8 @@ class BumpType(Enum):
 def package(
     pkgname: str, reason: str = "", dry: bool = False, bump_type: BumpType = BumpType.PKGREL
 ) -> None:
-    """Increase the pkgrel or pkgver in the APKBUILD of a specific package.
+    """
+    Increase the pkgrel or pkgver in the APKBUILD of a specific package.
 
     :param pkgname: name of the package
     :param reason: string to display as reason why it was increased
@@ -72,7 +73,8 @@ def package(
 def auto_apkindex_package(
     arch: Arch, aport: dict[str, Any], apk: ApkindexBlock, dry: bool = False
 ) -> bool:
-    """Bump the pkgrel of a specific package if it is outdated in the given APKINDEX.
+    """
+    Bump the pkgrel of a specific package if it is outdated in the given APKINDEX.
 
     :param arch: the architecture, e.g. "armhf"
     :param aport: parsed APKBUILD of the binary package's origin:

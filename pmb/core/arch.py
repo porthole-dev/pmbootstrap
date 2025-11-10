@@ -17,7 +17,8 @@ PER_LINUX32 = 0x0008
 
 
 def cpu_is_32_bit_capable() -> bool:
-    """Check whether the host CPU is capable of executing 32-bit binaries.
+    """
+    Check whether the host CPU is capable of executing 32-bit binaries.
 
     This is done by calling personality(PER_LINUX32), similar to how
     util-linux does it
@@ -38,8 +39,10 @@ def cpu_is_32_bit_capable() -> bool:
 
 
 class Arch(enum.Enum):
-    """Supported architectures according to the Alpine
-    APKBUILD format."""
+    """
+    Supported architectures according to the Alpine
+    APKBUILD format.
+    """
 
     x86 = "x86"
     x86_64 = "x86_64"
@@ -107,10 +110,12 @@ class Arch(enum.Enum):
 
     @staticmethod
     def supported() -> set[Arch]:
-        """Officially supported host/target architectures for postmarketOS. Only
+        """
+        Officially supported host/target architectures for postmarketOS. Only
         specify architectures supported by Alpine here. For cross-compiling,
         we need to generate the "musl-$ARCH" and "gcc-$ARCH" packages (use
-        "pmbootstrap aportgen musl-armhf" etc.)."""
+        "pmbootstrap aportgen musl-armhf" etc.).
+        """
         return {
             Arch.armhf,
             Arch.armv7,
@@ -131,8 +136,10 @@ class Arch(enum.Enum):
         return {Arch.from_str(i) for i in pmaports_cfg["supported_arches"].split(",")}
 
     def kernel_dir(self) -> str:
-        """Name of the architecture-specific directory in the Linux kernel
-        (in arch/)."""
+        """
+        Name of the architecture-specific directory in the Linux kernel
+        (in arch/).
+        """
         match self:
             case Arch.x86 | Arch.x86_64:
                 return "x86"

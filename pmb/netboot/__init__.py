@@ -18,7 +18,6 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
     :param ip: IP address to serve nbd server for
     :param port: port of nbd server
     """
-
     chroot = Chroot.native()
     pmb.chroot.init(chroot)
 

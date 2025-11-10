@@ -52,7 +52,8 @@ def load(path: Path) -> Config:
 
 
 def serialize(config: Config, skip_defaults: bool = True) -> configparser.ConfigParser:
-    """Serialize the config object into a ConfigParser to write it out
+    """
+    Serialize the config object into a ConfigParser to write it out
     in the pmbootstrap_v3.cfg INI format.
 
     :param config: The config object to serialize
@@ -93,11 +94,13 @@ def serialize(config: Config, skip_defaults: bool = True) -> configparser.Config
 
 # FIXME: we should have distinct Config and ConfigFile types
 def save(output: Path, config: Config) -> None:
-    """Save the config object to the specified path.
+    """
+    Save the config object to the specified path.
 
     IMPORTANT: The global config (available via get_context().config)
     has invocation arguments merged into it. Do NOT call save() with
-    the global config object."""
+    the global config object.
+    """
     logging.debug(f"Save config: {output}")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.touch(0o600, exist_ok=True)

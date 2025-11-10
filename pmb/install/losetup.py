@@ -23,9 +23,7 @@ def init() -> None:
 
 
 def mount(img_path: Path, _sector_size: int | None = None) -> Path:
-    """
-    :param img_path: Path to the img file inside native chroot.
-    """
+    """:param img_path: Path to the img file inside native chroot."""
     logging.debug(f"(native) mount {img_path} (loop)")
 
     # Try to mount multiple times (let the kernel module initialize #1594)
@@ -59,10 +57,7 @@ def mount(img_path: Path, _sector_size: int | None = None) -> Path:
 
 
 def device_by_back_file(back_file: Path) -> Path:
-    """
-    Get the /dev/loopX device that points to a specific image file.
-    """
-
+    """Get the /dev/loopX device that points to a specific image file."""
     # Get list from losetup
     losetup_output = pmb.chroot.root(["losetup", "--json", "--list"], output_return=True)
     if not losetup_output:
@@ -77,9 +72,7 @@ def device_by_back_file(back_file: Path) -> Path:
 
 
 def umount(img_path: Path) -> None:
-    """
-    :param img_path: Path to the img file inside native chroot.
-    """
+    """:param img_path: Path to the img file inside native chroot."""
     device: Path
     try:
         device = device_by_back_file(img_path)
@@ -90,9 +83,7 @@ def umount(img_path: Path) -> None:
 
 
 def detach_all() -> None:
-    """
-    Detach all loop devices used by pmbootstrap
-    """
+    """Detach all loop devices used by pmbootstrap"""
     losetup_output = pmb.helpers.run.root(["losetup", "--json", "--list"], output_return=True)
     if not losetup_output:
         return

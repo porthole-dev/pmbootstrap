@@ -30,7 +30,8 @@ from .backend import BootstrapStage, run_abuild
 
 
 def check_build_for_arch(pkgname: str, arch: Arch) -> bool:
-    """Check if pmaport can be built or exists as binary for a specific arch.
+    """
+    Check if pmaport can be built or exists as binary for a specific arch.
 
     :returns: * True when it can be built
               * False when it can't be built, but exists in a binary repo
@@ -67,7 +68,8 @@ def check_build_for_arch(pkgname: str, arch: Arch) -> bool:
 
 
 def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
-    """Alpine's abuild always builds/installs the "depends" and "makedepends" of a package
+    """
+    Alpine's abuild always builds/installs the "depends" and "makedepends" of a package
     before building it.
 
     We used to only care about "makedepends"
@@ -98,7 +100,8 @@ def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
 
 
 def get_pkgver(original_pkgver: str, original_source: bool = False) -> str:
-    """Get the original pkgver when using the original source.
+    """
+    Get the original pkgver when using the original source.
 
     Otherwise, get the pkgver with an appended suffix of current date and time.
     For example: ``_p20180218550502``
@@ -170,9 +173,11 @@ _package_cache: dict[str, list[str]] = {}
 
 
 def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
-    """Check if a package is in the visited packages cache, if not
+    """
+    Check if a package is in the visited packages cache, if not
     then mark it as visited. We must mark as visited before building
-    to break cyclical dependency loops."""
+    to break cyclical dependency loops.
+    """
     global _package_cache
 
     key = str(arch)
@@ -188,14 +193,14 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
 
 
 def get_apkbuild(pkgname: str) -> tuple[Path | None, Apkbuild | None]:
-    """Parse the APKBUILD path for pkgname.
+    """
+    Parse the APKBUILD path for pkgname.
 
     When there is none, try to find it in the binary package APKINDEX files or raise an exception.
 
     :param pkgname: package name to be built, as specified in the APKBUILD
     :returns: None or parsed APKBUILD
     """
-
     # Get pmaport, skip upstream only packages
     pmaport, apkbuild = pmb.helpers.pmaports.get_with_path(pkgname, False)
     if pmaport:
@@ -227,10 +232,7 @@ def has_cyclical_dependency(
 
 
 def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueItem]:
-    """
-    Figure out The Correct Order to build packages in, or bail.
-    """
-
+    """Figure out The Correct Order to build packages in, or bail."""
     queue: list[BuildQueueItem] = []
     # (name, unmet_dep) of all unmet dependencies
     unmet_deps: dict[str, list[str]] = {}
@@ -333,9 +335,7 @@ def process_package(
     force: bool,
     from_src: bool,
 ) -> list[str]:
-    """
-    :param arch: Set if we should build for a specific arch.
-    """
+    """:param arch: Set if we should build for a specific arch."""
     # Only build when APKBUILD exists
     base_aports, base_apkbuild = get_apkbuild(pkgname)
     if not base_apkbuild:

@@ -16,7 +16,8 @@ from pmb.helpers.exceptions import NonBugError
 
 
 def folder_size(path: Path) -> int:
-    """Run `du` to calculate the size of a folder.
+    """
+    Run `du` to calculate the size of a folder.
 
     (this is less code and faster than doing the same task in pure Python)
     This result is only approximately right, but good enough for pmbootstrap's use case (#760).
@@ -33,7 +34,8 @@ def folder_size(path: Path) -> int:
 
 
 def check_grsec() -> None:
-    """Check if the current kernel is based on the grsec patchset.
+    """
+    Check if the current kernel is based on the grsec patchset.
 
     Also check if the chroot_deny_chmod option is enabled.
     Raise an exception in that case, with a link to the issue. Otherwise, do nothing.
@@ -48,7 +50,8 @@ def check_grsec() -> None:
 
 
 def check_binfmt_misc() -> None:
-    """Check if the 'binfmt_misc' module is loaded.
+    """
+    Check if the 'binfmt_misc' module is loaded.
 
     This is done by checking, if /proc/sys/fs/binfmt_misc/ exists.
     If it exists, then do nothing.
@@ -164,7 +167,8 @@ def migrate_work_folder() -> None:
 
 
 def normalize_hostname(hostname: str) -> str:
-    """Fixup default hostnames so that they don't fail validate_hostname()
+    """
+    Fixup default hostnames so that they don't fail validate_hostname()
 
     This should not be called on user-chosen hostnames as those should fail
     """
@@ -183,7 +187,8 @@ def normalize_hostname(hostname: str) -> str:
 
 
 def validate_hostname(hostname: str) -> bool:
-    """Check whether the string is a valid hostname.
+    """
+    Check whether the string is a valid hostname.
 
     Check is performed according to
     <http://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names>

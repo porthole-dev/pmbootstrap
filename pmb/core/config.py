@@ -103,8 +103,10 @@ class Config:
 
     @staticmethod
     def get_default(dotted_key: str) -> Any:
-        """Get the default value for a config option, supporting
-        nested dictionaries (e.g. "mirrors.alpine")."""
+        """
+        Get the default value for a config option, supporting
+        nested dictionaries (e.g. "mirrors.alpine").
+        """
         keys = dotted_key.split(".")
         if len(keys) == 1:
             return getattr(Config, keys[0])
@@ -114,8 +116,10 @@ class Config:
             raise ValueError(f"Invalid dotted key: {dotted_key}")
 
     def __setattr__(self, key: str, value: Any) -> None:
-        """Allow for setattr() to be used with a dotted key
-        to set nested dictionaries (e.g. "mirrors.alpine")."""
+        """
+        Allow for setattr() to be used with a dotted key
+        to set nested dictionaries (e.g. "mirrors.alpine").
+        """
         keys = key.split(".")
         if len(keys) == 1:
             type_ = type(getattr(Config, key))
@@ -141,8 +145,10 @@ class Config:
             raise ValueError(f"Invalid dotted key: {key}")
 
     def __getattribute__(self, key: str) -> Any:
-        """Allow for getattr() to be used with a dotted key
-        to get nested dictionaries (e.g. "mirrors.alpine")."""
+        """
+        Allow for getattr() to be used with a dotted key
+        to get nested dictionaries (e.g. "mirrors.alpine").
+        """
         keys = key.split(".")
         if len(keys) == 1:
             return super().__getattribute__(key)

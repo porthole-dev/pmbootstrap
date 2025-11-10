@@ -53,7 +53,6 @@ def copy_to_buildpath(
 
 def abuild_overrides(apkbuild: Path) -> None:
     """Override some abuild functions by patching the APKBUILD file."""
-
     if apkbuild.is_relative_to(get_context().config.work / "cache_git"):
         raise ValueError(f"Refusing to patch file in pmaports repo: {apkbuild}")
 
@@ -80,7 +79,8 @@ class BuildStatus(enum.Enum):
 
 
 def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
-    """Check if the package has already been built.
+    """
+    Check if the package has already been built.
 
     Compared to abuild's check, this check also works for different architectures.
 
@@ -131,7 +131,8 @@ def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
 
 
 def index_repo(arch: Arch | None = None) -> None:
-    """Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
+    """
+    Recreate the APKINDEX.tar.gz for a specific repo, and clear the parsing
     cache for that file for the current pmbootstrap session (to prevent
     rebuilding packages twice, in case the rebuild takes less than a second).
 
@@ -173,7 +174,8 @@ def index_repo(arch: Arch | None = None) -> None:
 
 
 def configure_abuild(chroot: Chroot, verify: bool = False) -> None:
-    """Set the correct JOBS count in ``abuild.conf``.
+    """
+    Set the correct JOBS count in ``abuild.conf``.
 
     :param verify: internally used to test if changing the config has worked.
     """
@@ -201,7 +203,8 @@ def configure_abuild(chroot: Chroot, verify: bool = False) -> None:
 
 
 def configure_ccache(chroot: Chroot = Chroot.native(), verify: bool = False) -> None:
-    """Set the maximum ccache size.
+    """
+    Set the maximum ccache size.
 
     :param verify: internally used to test if changing the config has worked.
     """

@@ -3,12 +3,16 @@
 
 
 class BuildFailedError(Exception):
-    """Exception to be raised when pmbootstrap fails to build a package. This is handled
+    """
+    Exception to be raised when pmbootstrap fails to build a package. This is handled
     separately from NonBugError as it needs to be treated differently as we want to hint
-    to users that they can check the log for more information when a build fails."""
+    to users that they can check the log for more information when a build fails.
+    """
 
 
 class NonBugError(Exception):
-    """Exception which originates from a problem not caused by pmbootstrap's code. This
+    """
+    Exception which originates from a problem not caused by pmbootstrap's code. This
     could for example be raised if there is an error in a package pmbootstrap is
-    interacting with in some way."""
+    interacting with in some way.
+    """

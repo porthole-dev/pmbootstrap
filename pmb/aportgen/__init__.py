@@ -52,7 +52,6 @@ def properties(
 
     :returns: (prefix, folder, confirm_overwrite)
     """
-
     for prefix in ["busybox-static", "gcc", "musl", "grub-efi"]:
         if pkgname.startswith(prefix):
             return (prefix, folder or Path("cross"), False)

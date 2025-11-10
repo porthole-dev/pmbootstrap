@@ -33,7 +33,8 @@ from pmb.types import (
 def flat_cmd(
     cmds: Sequence[Sequence[PathString]], working_dir: Path | None = None, env: Env = {}
 ) -> str:
-    """Convert a shell command passed as list into a flat shell string with proper escaping.
+    """
+    Convert a shell command passed as list into a flat shell string with proper escaping.
 
     :param cmds: list of commands as list, e.g. ["echo", "string with spaces"]
     :param working_dir: when set, prepend "cd ...;" to execute the command
@@ -63,7 +64,8 @@ def sanity_checks(
     output_return: bool = False,
     check: bool | None = None,
 ) -> None:
-    """Raise an exception if the parameters passed to core() don't make sense.
+    """
+    Raise an exception if the parameters passed to core() don't make sense.
 
     (all parameters are described in core() below).
     """
@@ -141,7 +143,8 @@ def pipe_read(
     output_return: bool = False,
     output_return_buffer: list[bytes] | None = None,
 ) -> None:
-    """Read all output from a subprocess, copy it to the log and optionally stdout and a buffer variable.
+    """
+    Read all output from a subprocess, copy it to the log and optionally stdout and a buffer variable.
 
     This is only meant to be called by foreground_pipe() below.
 
@@ -179,7 +182,8 @@ def pipe_read(
 # FIXME: The docstring claims that ppids should be a list of "process ID tuples", but in practice it
 # gets called with a list of string lists for the ppids argument.
 def kill_process_tree(pid: int | str, ppids: list[list[str]], sudo: bool) -> None:
-    """Recursively kill a pid and its child processes.
+    """
+    Recursively kill a pid and its child processes.
 
     :param pid: process id that will be killed
     :param ppids: list of process id and parent process id tuples (pid, ppid)
@@ -196,7 +200,8 @@ def kill_process_tree(pid: int | str, ppids: list[list[str]], sudo: bool) -> Non
 
 
 def kill_command(pid: int, sudo: bool) -> None:
-    """Kill a command process and recursively kill its child processes.
+    """
+    Kill a command process and recursively kill its child processes.
 
     :param pid: process id that will be killed
     :param sudo: use sudo to kill the process
@@ -224,7 +229,8 @@ def foreground_pipe(
     sudo: bool = False,
     stdin: int | None = None,
 ) -> tuple[int, str]:
-    """Run a subprocess in foreground with redirected output.
+    """
+    Run a subprocess in foreground with redirected output.
 
     Optionally kill it after being silent for too long.
 
@@ -301,7 +307,8 @@ def foreground_pipe(
 def foreground_tui(
     cmd: PathString | Sequence[PathString], working_dir: PathString | None = None
 ) -> int:
-    """Run a subprocess in foreground without redirecting any of its output.
+    """
+    Run a subprocess in foreground without redirecting any of its output.
 
     This is the only way text-based user interfaces (ncurses programs like
     vim, nano or the kernel's menuconfig) work properly.
@@ -312,7 +319,8 @@ def foreground_tui(
 
 
 def check_return_code(code: int, log_message: str) -> None:
-    """Check the return code of a command.
+    """
+    Check the return code of a command.
 
     :param code: exit code to check
     :param log_message: simplified and more readable form of the command, e.g.
@@ -351,7 +359,8 @@ def sudo_timer_start() -> None:
 
 
 def add_proxy_env_vars(env: Env) -> None:
-    """Add proxy environment variables from host to the environment of the command we are running.
+    """
+    Add proxy environment variables from host to the environment of the command we are running.
 
     :param env: dict of environment variables, it will be extended with all of the proxy env vars
         that are set on the host
@@ -381,7 +390,8 @@ def core(
     sudo: bool = False,
     disable_timeout: bool = False,
 ) -> RunReturnType:
-    """Run a command and create a log entry.
+    """
+    Run a command and create a log entry.
 
     This is a low level function not meant to be used directly. Use one of the
     following instead: pmb.helpers.run.user(), pmb.helpers.run.root(),
