@@ -362,7 +362,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
         raise RuntimeError(f"IMAGE_SIZE must be {img_size_str} or greater")
 
 
-def sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
+def _sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
     raise RuntimeError(
         "pmbootstrap was terminated by another process, and killed the QEMU VM it was running."
     )
@@ -497,7 +497,7 @@ def run(args: PmbArgs) -> None:
     # Run QEMU and kill it together with pmbootstrap
     process = None
     try:
-        signal.signal(signal.SIGTERM, sigterm_handler)
+        signal.signal(signal.SIGTERM, _sigterm_handler)
         process = pmb.helpers.run.user(qemu, output=RunOutputTypeDefault.TUI, env=env)
     except KeyboardInterrupt:
         # In addition to not showing a trace when pressing ^C, let user know
