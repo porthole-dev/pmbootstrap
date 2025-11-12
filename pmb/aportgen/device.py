@@ -299,6 +299,7 @@ def generate_apkbuild(
     depends_fmt = ("\n" + " " * 12).join(depends)
     content = f"""\
         # Reference: <https://postmarketos.org/devicepkg>
+        maintainer=""
         pkgname={pkgname}
         pkgdesc="{name}"
         pkgver=1

@@ -34,6 +34,7 @@ def generate(pkgname: str) -> None:
             # Automatically generated aport, do not edit!
             # Generator: pmbootstrap aportgen {pkgname}
 
+            maintainer=""
             pkgname={pkgname}
             pkgver={pkgver}
             pkgrel={pkgrel}

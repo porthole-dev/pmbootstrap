@@ -40,6 +40,7 @@ def generate(pkgname: str) -> None:
                 arch_to_hostspec() {{ :; }}
             fi
 
+            maintainer=""
             pkgname={pkgname}
             pkgver={pkgver}
             pkgrel={pkgrel}
