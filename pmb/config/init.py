@@ -520,6 +520,21 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
         * device_exists: bool indicating if device port exists in repo
         * kernel: type of kernel (downstream, etc)
     """
+
+    styles = pmb.config.styles
+
+    def new_port_message(has_codename: bool = True) -> str:
+        """Return the message for new ports."""
+        return (
+            "If you're trying to select a device that is supported, check the following:\n\n"
+            f"* Make sure you spelled the vendor name{' and codename' if has_codename else ''} correctly. \n"
+            "* Check if you're on the right release branch. Devices in the 'downstream' category are only"
+            " available on the 'edge' branch; if you selected a stable branch, run pmbootstrap init again"
+            " and select 'edge'.\n"
+            "* If the device is supported by a generic port, type in the vendor and codename of the generic port.\n\n"
+            "If you want to create a new device port, follow the guide at <https://postmarketos.org/porting/>."
+        )
+
     vendors = sorted(pmb.helpers.devices.list_vendors())
     logging.info(
         "Choose your target device vendor (either an existing one, or a new one for porting)."
@@ -539,14 +554,15 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
         codenames = []
         if new_vendor:
             logging.info(
-                f"The specified vendor ({vendor}) could not be found in existing ports, do you want"
-                " to start a new port?"
+                f"{styles['BOLD']}The specified vendor ({vendor}) could not be found in existing ports.{styles['END']}\n"
+                + new_port_message(has_codename=False)
             )
-            if not pmb.helpers.cli.confirm(default=True):
+            if not pmb.helpers.cli.confirm(
+                "Do you want to create a new device port?", default=True
+            ):
                 continue
         else:
             device_list = "Devices are categorised as follows, from best to worst:\n"
-            styles = pmb.config.styles
             for category in pmb.helpers.devices.DeviceCategory.shown():
                 device_list += f"* {category.color()}{str(category).capitalize()}{styles['END']}: {category.explain()}.\n"
             device_entries = pmb.helpers.devices.list_codenames(vendor)
@@ -583,13 +599,18 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
 
             channel_is_improper = channel != DEVELOPMENT_CHANNEL
 
-            logging.info(f"You are about to do a new device port for '{device}'.")
+            logging.info(
+                f"{styles['BOLD']}The specified device ('{device}') could not be found in existing ports.{styles['END']}\n"
+                + new_port_message(has_codename=True)
+            )
             if channel_is_improper:
                 logging.info(
                     f"Earlier you selected the '{channel}' channel. All new ports and packages must "
                     f"go through '{DEVELOPMENT_CHANNEL}', so it will be switched to if you confirm."
                 )
-            if not pmb.helpers.cli.confirm(default=True):
+            if not pmb.helpers.cli.confirm(
+                "Do you want to create a new device port?", default=True
+            ):
                 current_vendor = vendor
                 continue
             if channel_is_improper:
