@@ -708,10 +708,8 @@ def ask_for_mirror() -> str:
     logging.info("list of available mirrors:")
     mirrors = json.loads(s)
     keys = mirrors.keys()
-    i = 1
-    for key in keys:
+    for i, key in enumerate(keys, start=1):
         logging.info(f"[{i}]\t{key} ({mirrors[key]['location']})")
-        i += 1
     logging.info("choose 'best' to select the one closest to you")
 
     urls = []
