@@ -1,14 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+from pmb.aportgen.device import ask_for_architecture
 from pmb.core.context import get_context
 from pmb.parse.deviceinfo import Deviceinfo
 import pmb.helpers.run
 import pmb.parse.apkindex
 
 
-def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) -> None:
+def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo | None, patches: list[str]) -> None:
     device = "-".join(pkgname.split("-")[1:])
-    carch = deviceinfo.arch.kernel_dir()
+    arch = deviceinfo.arch if deviceinfo else ask_for_architecture()
+    carch = arch.kernel_dir()
 
     makedepends = [
         "bash",
@@ -30,13 +32,29 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) 
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
                 "$_flavor" "$_outdir\""""
 
-    if deviceinfo.header_version and deviceinfo.header_version >= 2:
+    if deviceinfo:
+        has_dtb = deviceinfo.header_version and deviceinfo.header_version >= 2
+    else:
+        has_dtb = pmb.helpers.cli.confirm(
+            "Does the device use DTBs?", default=True, no_assumptions=True
+        )
+
+    if has_dtb:
         package += """
 
             make dtbs_install O="$_outdir" ARCH="$_carch" \\
                 INSTALL_DTBS_PATH="$pkgdir\"/boot/dtbs"""
 
-    if deviceinfo.bootimg_qcdt == "true":
+    if deviceinfo:
+        has_qcdt = deviceinfo.bootimg_qcdt == "true"
+    else:
+        has_qcdt = pmb.helpers.cli.confirm(
+            "Does the device use QCDT (see <https://wiki.postmarketos.org/wiki/QCDT>)?",
+            default=False,
+            no_assumptions=True,
+        )
+
+    if has_qcdt:
         build += """\n
             # Master DTB (deviceinfo_bootimg_qcdt)"""
         vendors = ["spreadtrum", "exynos", "other"]
@@ -74,8 +92,8 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) 
         pkgname={pkgname}
         pkgver=3.x.x
         pkgrel=0
-        pkgdesc="{deviceinfo.name} kernel fork"
-        arch="{deviceinfo.arch}"
+        pkgdesc="{deviceinfo.name if deviceinfo else "(CHANGEME!)"} kernel fork"
+        arch="{arch}"
         _carch="{carch}"
         _flavor="{device}"
         url="https://kernel.org"
@@ -119,7 +137,10 @@ def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) 
 
 def generate(pkgname: str) -> None:
     device = "-".join(pkgname.split("-")[1:])
-    deviceinfo = pmb.parse.deviceinfo(device)
+    try:
+        deviceinfo = pmb.parse.deviceinfo(device)
+    except RuntimeError:  # device not found
+        deviceinfo = None
     work = get_context().config.work
 
     # Symlink commonly used patches
