@@ -125,7 +125,8 @@ def generate(
             case "grub-efi":
                 pmb.aportgen.grub_efi.generate(pkgname)
             case "linux":
-                pmb.aportgen.linux.generate(pkgname)
+                # Ignore mypy error; see note for "device" case above.
+                pmb.aportgen.linux.generate(pkgname, device_category)  # type: ignore[arg-type]
             case "musl":
                 pmb.aportgen.musl.generate(pkgname)
             case _:
