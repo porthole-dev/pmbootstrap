@@ -135,7 +135,7 @@ initialize_chroot() {
 	fi
 
 	# LLVM is a cross compiler in itself
-	if [ "$llvm_arg" = "1" ]; then
+	if [ -z "$gcc_arg" ] && [ -z "$gcc6_arg" ] && [ -z "$gcc4_arg" ]; then
 		need_cross_compiler=0
 		pkgs="clang lld llvm"
 		toolchain_name="llvm"
@@ -144,7 +144,7 @@ initialize_chroot() {
 			gcc_pkgname="gcc6"
 		elif [ "$gcc4_arg" = "1" ]; then
 			gcc_pkgname="gcc4"
-		else
+		elif [ "$gcc_arg" = "1" ]; then
 			gcc_pkgname="gcc"
 		fi
 
@@ -271,7 +271,7 @@ set_alias_make() {
 		cmd="$cmd CROSS_COMPILE=$cross_compiler"
 	fi
 	cmd="$cmd make -C /mnt/linux O=/mnt/linux/.output"
-	if [ "$llvm_arg" = "1" ]; then
+	if [ -z "$gcc_arg" ] && [ -z "$gcc6_arg" ] && [ -z "$gcc4_arg" ]; then
 		cmd="$cmd LLVM=1"
 	else
 		cmd="$cmd CC=$cc HOSTCC=$hostcc"
@@ -380,7 +380,7 @@ print_usage() {
 	echo "    --fish        Print fish alias syntax (internally used)"
 	echo "    --gcc6        Use GCC6 cross compiler"
 	echo "    --gcc4        Use GCC4 cross compiler"
-	echo "    --llvm	Use LLVM toolchain"
+	echo "    --gcc         Use GCC cross compiler"
 	echo "    --help        Show this help message"
 }
 
@@ -389,7 +389,7 @@ parse_args() {
 	unset fish_arg
 	unset gcc6_arg
 	unset gcc4_arg
-	unset llvm_arg
+	unset gcc_arg
 
 	while [ "${1:-}" != "" ]; do
 		case $1 in
@@ -405,8 +405,8 @@ parse_args() {
 			gcc4_arg=1
 			shift
 			;;
-		--llvm)
-			llvm_arg=1
+		--gcc)
+			gcc_arg=1
 			shift
 			;;
 		--help)
