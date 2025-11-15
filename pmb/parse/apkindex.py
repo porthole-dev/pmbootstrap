@@ -480,8 +480,6 @@ def package(
     package_providers = providers(
         package, arch, must_exist, indexes, user_repository=user_repository
     )
-    if package in package_providers:
-        return package_providers[package]
 
     if package_providers:
         providers_priority = provider_highest_priority(package_providers, package)
