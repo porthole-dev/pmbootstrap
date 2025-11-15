@@ -16,6 +16,7 @@ class PackageMetadata:
     pkgname: str
     provides: list[str]
     version: str
+    from_pmaports: bool
 
     @staticmethod
     def from_apkindex_block(apkindex_block: ApkindexBlock) -> "PackageMetadata":
@@ -25,6 +26,7 @@ class PackageMetadata:
             pkgname=apkindex_block.pkgname,
             provides=apkindex_block.provides,
             version=apkindex_block.version,
+            from_pmaports=False,
         )
 
     @staticmethod
@@ -41,4 +43,5 @@ class PackageMetadata:
             pkgname=pmaport_pkgname,
             provides=pmaport_provides,
             version=pmaport_version,
+            from_pmaports=True,
         )

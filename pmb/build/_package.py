@@ -246,6 +246,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 disarray.remove(item)
                 break
 
+    # list of packages in pmaports
     all_pkgnames = []
     for item in disarray:
         all_pkgnames.append(item["name"])
@@ -285,7 +286,7 @@ def prioritise_build_queue(disarray: list[BuildQueueItem]) -> list[BuildQueueIte
                 if dep in item["apkbuild"]["subpackages"]:
                     continue
 
-                if dep in all_pkgnames:
+                if dep in all_pkgnames and dep_data.from_pmaports:
                     unmet_deps.setdefault(item["name"], []).append(dep)
                     missing_deps = True
 
