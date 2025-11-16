@@ -171,6 +171,15 @@ initialize_chroot() {
 	#   (e.g. . envkernel.sh linux-postmarketos-mainline)
 	# and install its build dependencies.
 
+	# If we're running zsh, enable word splitting for this next section. pmbootstrap#2685 workaround.
+	if [ -n "${ZSH_VERSION-}" ]; then
+		case $(setopt)
+			in *shwordsplit*) has_shwordsplit=1 ;;
+		esac
+
+		setopt shwordsplit
+	fi
+
 	# shellcheck disable=SC2086,SC2154
 	"$pmbootstrap" -q chroot -- apk -q add \
 		abuild \
@@ -198,6 +207,12 @@ initialize_chroot() {
 		yaml-dev \
 		xz \
 		$pkgs || return 1
+
+	# Disable shwordsplit if it wasn't enabled before, and unset the temporary variable if it was.
+	if [ -n "${ZSH_VERSION-}" ]; then
+		[ -z "$has_shwordsplit" ] && unsetopt shwordsplit
+		[ -n "$has_shwordsplit" ] && unset has_shwordsplit
+	fi
 
 	# Create /mnt/linux
 	sudo mkdir -p "$chroot/mnt/linux"
