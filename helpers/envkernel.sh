@@ -115,6 +115,7 @@ initialize_chroot() {
 	case "$deviceinfo_arch" in
 		aarch64*) arch="arm64" ;;
 		arm*) arch="arm" ;;
+		riscv*) arch="riscv" ;;
 		x86_64) arch="x86_64" ;;
 		x86) arch="x86" ;;
 	esac
@@ -128,6 +129,7 @@ initialize_chroot() {
 	if [ "$arch" = "$host_arch" ] || \
 		{ [ "$arch_substr" = "arm" ] && [ "$arch_substr" = "$arch" ]; } || \
 		{ [ "$arch" = "arm64" ] && [ "$host_arch" = "aarch64" ]; } || \
+		{ [ "$arch" = "riscv" ] && [ "$host_arch" = "riscv64" ]; } || \
 		{ [ "$arch" = "x86" ] && [ "$host_arch" = "x86_64" ]; }; then
 		need_cross_compiler=0
 	fi
