@@ -129,15 +129,15 @@ def command_qemu(
     if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
         flavor_suffix = ""
 
+    # We do not support direct kernel boot on some architectures
+    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
+
     # Alpine kernels always have the flavor appended to /boot/vmlinuz
     kernel = chroot / "boot" / f"vmlinuz{flavor_suffix}"
-    if not kernel.exists():
+    if use_direct_kernel_boot and not kernel.exists():
         kernel = kernel.with_name(f"{kernel.name}-{flavor}")
         if not os.path.exists(kernel):
             raise RuntimeError("failed to find the proper vmlinuz path")
-
-    # We do not support direct kernel boot on some architectures
-    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
 
     ncpus = os.cpu_count()
     if not ncpus:
@@ -293,6 +293,11 @@ def command_qemu(
             case Arch.ppc64le:
                 # ppc64le uses SLOF included in QEMU
                 pass
+            case Arch.riscv64:
+                command += [
+                    "-drive",
+                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/riscv/RISCV_VIRT_CODE.fd",
+                ]
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
@@ -416,6 +421,8 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
             case Arch.ppc64le:
                 # ppc64le uses SLOF included in QEMU instead of EFI
                 pass
+            case Arch.riscv64:
+                edk2_pkg = "ovmf"
             case _:
                 raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
