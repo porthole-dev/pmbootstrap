@@ -69,7 +69,7 @@ def get_arch(apkbuild: Apkbuild) -> Arch:
         )
 
     # Multiple architectures
-    if len(apkbuild["arch"]) > 1:
+    if len(apkbuild["arch"]) > 1 or "all" in apkbuild["arch"]:
         raise RuntimeError(
             f"'{pkgname}' supports multiple architectures"
             f" ({', '.join(apkbuild['arch'])}). Please use"
