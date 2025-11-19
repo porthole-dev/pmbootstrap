@@ -333,6 +333,9 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     if defconfig := apkbuild.get("_defconfig"):
         fragments += defconfig
 
+    multiple_architectures = "all" in apkbuild["arch"] or len(apkbuild["arch"]) > 1
+    pmos_frag_name = f"pmos.{arch}.config" if multiple_architectures else "pmos.config"
+
     # The 'pmos fragment' is generated from kconfigcheck.toml
     pmos_frag = pmb.parse.kconfig.create_fragment(apkbuild, arch)
 
@@ -343,7 +346,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     pmb.chroot.user(
         ["mkdir", "-p", str(arch_configs_dir)], chroot, working_dir=Path("/home/pmos/build")
     )
-    with open(aport / "pmos.config", mode="w") as pmos_frag_file:
+    with open(aport / pmos_frag_name, mode="w") as pmos_frag_file:
         pmos_frag_file.write(pmos_frag)
         pmb.helpers.run.root(
             [
@@ -352,11 +355,27 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
                 f"{Chroot.native() / arch_configs_dir}/pmos_generated.config",
             ]
         )
-    fragments.append("pmos.config")
+    fragments.append(pmos_frag_name)
 
     # Collect and parse other fragments from the kernel package directory
     fragment_options: dict[str, dict[str, str | list[str]]] = {}
     for config_file in aport.glob("*.config"):
+        # Ignore those with an architecture suffix
+        maybe_architecture = config_file.name.split(".")[-2]
+        try:
+            fragment_architecture = Arch.from_str(maybe_architecture)
+
+            # If it is an architecture, then skip if it does not match the one
+            # we are generating for
+            if fragment_architecture != arch:
+                logging.debug(
+                    f"Skipping fragment {config_file.name} because it is for {fragment_architecture}, but we are building for {arch}"
+                )
+                continue
+        except ValueError:
+            # Not a valid architecture, applies to all
+            pass
+
         with open(config_file) as f:
             fragment_options[config_file.name] = parse_fragment(f.read())
 
