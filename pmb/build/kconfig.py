@@ -218,7 +218,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
     extract_and_patch_sources(pkgname, arch)
 
     env: Env = {
-        "ARCH": arch.kernel(),
+        "ARCH": arch.kernel_arch(),
     }
 
     if cross.enabled() and not uses_llvm:
@@ -339,7 +339,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     # Write the pmos fragment to the aports dir and copy it into the kernel source tree
     aport = pmb.helpers.pmaports.find(pkgname)
     outputdir = get_outputdir(pkgname, apkbuild, must_exist=False)
-    arch_configs_dir = outputdir / "arch" / arch.kernel() / "configs"
+    arch_configs_dir = outputdir / "arch" / arch.kernel_dir() / "configs"
     pmb.chroot.user(
         ["mkdir", "-p", str(arch_configs_dir)], chroot, working_dir=Path("/home/pmos/build")
     )

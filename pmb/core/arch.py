@@ -134,12 +134,12 @@ class Arch(enum.Enum):
             Arch.x86,
         }
 
-    def kernel(self) -> str:
+    def kernel_dir(self) -> str:
+        """Name of the architecture-specific directory in the Linux kernel
+        (in arch/)."""
         match self:
-            case Arch.x86:
+            case Arch.x86 | Arch.x86_64:
                 return "x86"
-            case Arch.x86_64:
-                return "x86_64"
             case Arch.armhf | Arch.armv7:
                 return "arm"
             case Arch.aarch64:
@@ -154,6 +154,16 @@ class Arch(enum.Enum):
                 return "loongarch"
             case _:
                 return self.value
+
+    def kernel_arch(self) -> str:
+        """Value to use for ARCH= when building the Linux kernel."""
+        match self:
+            case Arch.x86:
+                return "i386"
+            case Arch.x86_64:
+                return "x86_64"
+            case _:
+                return self.kernel_dir()
 
     def qemu_user(self) -> str:
         match self:

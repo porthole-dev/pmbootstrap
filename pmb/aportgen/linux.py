@@ -8,7 +8,7 @@ import pmb.parse.apkindex
 
 def generate_apkbuild(pkgname: str, deviceinfo: Deviceinfo, patches: list[str]) -> None:
     device = "-".join(pkgname.split("-")[1:])
-    carch = deviceinfo.arch.kernel()
+    carch = deviceinfo.arch.kernel_dir()
 
     makedepends = [
         "bash",

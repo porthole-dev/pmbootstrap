@@ -35,13 +35,22 @@ def test_valid_arches() -> None:
     assert Arch.s390x in Arch.supported()
     assert Arch.loongarch64 in Arch.supported()
 
-    # kernel arch
-    assert Arch.x86.kernel() == "x86"
-    assert Arch.x86_64.kernel() == "x86_64"
-    assert Arch.aarch64.kernel() == "arm64"  # The fun one
-    assert Arch.armhf.kernel() == "arm"
-    assert Arch.armv7.kernel() == "arm"
-    assert Arch.loongarch64.kernel() == "loongarch"
+    # kernel directory
+    assert Arch.x86.kernel_dir() == "x86"
+    assert Arch.x86_64.kernel_dir() == "x86"
+    assert Arch.aarch64.kernel_dir() == "arm64"  # The fun one
+    assert Arch.armhf.kernel_dir() == "arm"
+    assert Arch.armv7.kernel_dir() == "arm"
+    assert Arch.ppc64le.kernel_dir() == "powerpc"
+    assert Arch.loongarch64.kernel_dir() == "loongarch"
+    # kernel ARCH=
+    assert Arch.x86.kernel_arch() == "i386"
+    assert Arch.x86_64.kernel_arch() == "x86_64"
+    assert Arch.aarch64.kernel_arch() == "arm64"
+    assert Arch.armhf.kernel_arch() == "arm"
+    assert Arch.armv7.kernel_arch() == "arm"
+    assert Arch.ppc64le.kernel_arch() == "powerpc"
+    assert Arch.loongarch64.kernel_arch() == "loongarch"
 
     # qemu arch
     assert Arch.x86.qemu_system() == "i386"
