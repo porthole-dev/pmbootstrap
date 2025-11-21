@@ -131,4 +131,5 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
             # native macros / build scripts
             cross_pkgs += depends
 
+    pmb.chroot.init(Chroot.native())
     pmb.chroot.apk.install(cross_pkgs, Chroot.native())
