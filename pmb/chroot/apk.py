@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 
+import itertools
 import os
 import traceback
-from collections.abc import Sequence
+from collections.abc import Collection
 from pathlib import Path
 
 import pmb.build
@@ -54,7 +55,7 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
         ) from exception
 
 
-def packages_split_to_add_del(packages: list[str]) -> tuple[list[str], list[str]]:
+def packages_split_to_add_del(packages: Collection[str]) -> tuple[list[str], list[str]]:
     """
     Sort packages into "to_add" and "to_del" lists depending on their pkgname
     starting with an exclamation mark.
@@ -75,7 +76,7 @@ def packages_split_to_add_del(packages: list[str]) -> tuple[list[str], list[str]
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list[Path]:
+def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -> list[Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -122,7 +123,7 @@ def packages_get_locally_built_apks(package_list: list[str], arch: Arch) -> list
 
 
 def install_run_apk(
-    to_add: list[str], to_add_local: list[Path], to_del: list[str], chroot: Chroot
+    to_add: Collection[str], to_add_local: Collection[Path], to_del: Collection[str], chroot: Chroot
 ) -> None:
     """
     Run apk to add packages, and ensure only the desired packages get
@@ -139,11 +140,11 @@ def install_run_apk(
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
     local_add = [os.fspath(p) for p in to_add_local]
-    for package in to_add + local_add + to_del:
+    for package in itertools.chain(to_add, local_add, to_del):
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands: list[Sequence[PathString]] = [["add", *to_add]]
+    commands: list[Collection[PathString]] = [["add", *to_add]]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
@@ -188,7 +189,9 @@ def install_run_apk(
         pmb.helpers.apk.run(command, chroot, with_progress=(i == 0))
 
 
-def install(packages: list[str], chroot: Chroot, build: bool = True, quiet: bool = False) -> None:
+def install(
+    packages: Collection[str], chroot: Chroot, build: bool = True, quiet: bool = False
+) -> None:
     """
     Install packages from pmbootstrap's local package index or the pmOS/Alpine
     binary package mirrors. Iterate over all dependencies recursively, and
