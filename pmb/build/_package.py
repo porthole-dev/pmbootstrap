@@ -687,7 +687,7 @@ def packages(
             depends_build.append("rsync")
 
         if hostchroot == buildchroot:
-            pmb.chroot.apk.install(list(set(depends_host + depends_build)), hostchroot, build=False)
+            pmb.chroot.apk.install(set(depends_host + depends_build), hostchroot, build=False)
         else:
             if depends_host:
                 logging.info("*** Install host dependencies")
