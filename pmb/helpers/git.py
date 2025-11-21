@@ -5,6 +5,7 @@ from enum import Enum
 from glob import glob
 from pathlib import Path
 from typing import Final
+from urllib.parse import urlparse
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_path, pkgrepo_name
 from pmb.helpers import logging
@@ -114,6 +115,20 @@ def list_remotes(aports: Path) -> list[str]:
     return output.splitlines()
 
 
+def remote_to_name_and_clean_url(remote_line: str) -> tuple[str, str]:
+    remote_name, url_part = remote_line.split("\t", 1)
+
+    if url_part.startswith("https://"):
+        # GitLab CI adds an authentication segment to the URL, which needs to be removed to be able
+        # to match against the expected URLs later.
+        parsed = urlparse(url_part)
+        clean_url = f"{parsed.scheme}://{parsed.hostname}{parsed.path}"
+    else:
+        clean_url = url_part
+
+    return (remote_name, clean_url)
+
+
 def get_upstream_remote(aports: Path) -> str:
     """Find the remote, which matches the git URL from the config.
 
@@ -126,8 +141,10 @@ def get_upstream_remote(aports: Path) -> str:
     urls = pmb.config.git_repos[name_repo]
     lines = list_remotes(aports)
     for line in lines:
-        if any(u.lower() in line.lower() for u in urls):
-            return line.split("\t", 1)[0]
+        remote_name, clean_url = remote_to_name_and_clean_url(line)
+
+        if any(u.lower() in clean_url.lower() for u in urls):
+            return remote_name
 
     # Fallback to old URLs, in case the migration was not done yet
     if name_repo == "pmaports":
