@@ -96,7 +96,7 @@ def generate(
     if confirm_overwrite and os.path.exists(path_target):
         logging.warning(f"WARNING: Target folder already exists: {path_target}")
         if not pmb.helpers.cli.confirm("Continue and overwrite?"):
-            raise RuntimeError("Aborted.")
+            raise NonBugError("Aborted.")
 
     aportgen = config.work / "aportgen"
 
