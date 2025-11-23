@@ -965,6 +965,7 @@ def frontend(args: PmbArgs) -> None:
     config.user = ask_for_username(config.user)
     ask_for_provider_select_pkg("postmarketos-base", config.providers)
     ask_for_provider_select_pkg("postmarketos-base-ui", config.providers)
+    ask_for_provider_select_pkg("postmarketos-usb-moded", config.providers)
 
     # UI and various build options
     ui = ask_for_ui(deviceinfo)
