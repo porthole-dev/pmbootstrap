@@ -11,6 +11,7 @@ from _pytest.tmpdir import TempPathFactory
 from _pytest.fixtures import FixtureRequest
 
 import pmb.core
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.types import PmbArgs
 from pmb.helpers.args import init as init_args
@@ -155,10 +156,8 @@ def pmb_args(config_file: Path, mock_context: None, logfile: Path) -> None:
 
 
 @pytest.fixture
-def foreign_arch():
+def foreign_arch() -> Arch:
     """Fixture to return the foreign arch."""
-    from pmb.core.arch import Arch
-
     if Arch.native() == Arch.x86_64:
         return Arch.aarch64
 
