@@ -3,6 +3,7 @@
 from pmb.core.arch import Arch
 from pmb.core.context import Context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 import os
 from pathlib import Path
 import re
@@ -232,7 +233,7 @@ def package_kernel(packages: list[str]) -> None:
     """Frontend for 'pmbootstrap build --envkernel': creates a package from envkernel output."""
     pkgname = packages[0]
     if len(packages) > 1 or not pkgname.startswith("linux-"):
-        raise RuntimeError("--envkernel needs exactly one linux-* package as argument.")
+        raise NonBugError("--envkernel needs exactly one linux-* package as argument.")
 
     aport = pmb.helpers.pmaports.find(pkgname)
     context = get_context()
