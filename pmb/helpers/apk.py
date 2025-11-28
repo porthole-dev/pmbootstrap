@@ -101,7 +101,7 @@ def _prepare_fifo() -> Path:
     return fifo
 
 
-def _create_command_with_progress(command: list[str], fifo: Path) -> list[str]:
+def _create_command_with_progress(command: Sequence[str], fifo: Path) -> list[str]:
     """Build a full apk command from a subcommand, set up to redirect progress into a fifo.
 
     :param command: apk subcommand in list form
@@ -131,7 +131,7 @@ def _compute_progress(line: str) -> float:
     return cur / tot if tot > 0 else 0
 
 
-def _apk_with_progress(command: list[str]) -> None:
+def _apk_with_progress(command: Sequence[str]) -> None:
     """Run an apk subcommand while printing a progress bar to STDOUT.
 
     :param command: apk subcommand in list form
