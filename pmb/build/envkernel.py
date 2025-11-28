@@ -12,7 +12,7 @@ import pmb.aportgen.core
 import pmb.build
 from pmb.core.pkgrepo import pkgrepo_relative_path
 import pmb.chroot
-from pmb.types import Env, PathString, PmbArgs
+from pmb.types import Env, PathString
 import pmb.helpers
 import pmb.helpers.mount
 import pmb.helpers.pmaports
@@ -228,10 +228,10 @@ def run_abuild(
     pmb.chroot.root(["rm", build_path / "src"])
 
 
-def package_kernel(args: PmbArgs) -> None:
+def package_kernel(packages: list[str]) -> None:
     """Frontend for 'pmbootstrap build --envkernel': creates a package from envkernel output."""
-    pkgname = args.packages[0]
-    if len(args.packages) > 1 or not pkgname.startswith("linux-"):
+    pkgname = packages[0]
+    if len(packages) > 1 or not pkgname.startswith("linux-"):
         raise RuntimeError("--envkernel needs exactly one linux-* package as argument.")
 
     aport = pmb.helpers.pmaports.find(pkgname)

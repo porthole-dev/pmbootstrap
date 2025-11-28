@@ -8,7 +8,7 @@ import re
 import urllib.parse
 from typing import TypedDict
 
-from pmb.types import Apkbuild, PmbArgs
+from pmb.types import Apkbuild
 import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
@@ -102,8 +102,8 @@ def get_package_version_info_gitlab(
     )
 
 
-def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
-    """Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if args.dry is set).
+def upgrade_git_package(pkgname: str, package: Apkbuild, ref: str | None, dry: bool) -> None:
+    """Update _commit/pkgver/pkgrel in a git-APKBUILD (or pretend to do it if dry is set).
 
     :param pkgname: the package name
     :param package: a dict containing package information
@@ -123,11 +123,9 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
     github_match = re.match(r"https://github\.com/(.+)/(?:archive|releases)", source)
     gitlab_match = re.match(rf"({'|'.join(GITLAB_HOSTS)})/(.+)/-/archive/", source)
     if github_match:
-        verinfo = get_package_version_info_github(github_match.group(1), args.ref)
+        verinfo = get_package_version_info_github(github_match.group(1), ref)
     elif gitlab_match:
-        verinfo = get_package_version_info_gitlab(
-            gitlab_match.group(1), gitlab_match.group(2), args.ref
-        )
+        verinfo = get_package_version_info_gitlab(gitlab_match.group(1), gitlab_match.group(2), ref)
 
     if verinfo is None:
         # ignore for now
@@ -158,25 +156,25 @@ def upgrade_git_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
         return
 
     logging.info(f"{pkgname}: upgrading pmaport")
-    if args.dry:
+    if dry:
         logging.info(f"  Would change _commit from {sha} to {sha_new}")
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return
 
     if package["pkgver"] == "9999":
-        pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
+        pmb.helpers.file.replace_apkbuild(pkgname, "_pkgver", pkgver_new)
     else:
-        pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
-    pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
-    pmb.helpers.file.replace_apkbuild(args, pkgname, "_commit", sha_new, True)
+        pmb.helpers.file.replace_apkbuild(pkgname, "pkgver", pkgver_new)
+    pmb.helpers.file.replace_apkbuild(pkgname, "pkgrel", pkgrel_new)
+    pmb.helpers.file.replace_apkbuild(pkgname, "_commit", sha_new, True)
     return
 
 
-def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> None:
+def upgrade_stable_package(pkgname: str, package: Apkbuild, dry: bool) -> None:
     """
     Update _commit/pkgver/pkgrel in an APKBUILD (or pretend to do it if
-    args.dry is set).
+    dry is set).
 
     :param pkgname: the package name
     :param package: a dict containing package information
@@ -241,21 +239,23 @@ def upgrade_stable_package(args: PmbArgs, pkgname: str, package: Apkbuild) -> No
         return
 
     logging.info(f"{pkgname}: upgrading pmaport")
-    if args.dry:
+    if dry:
         logging.info(f"  Would change pkgver from {pkgver} to {pkgver_new}")
         logging.info(f"  Would change pkgrel from {pkgrel} to {pkgrel_new}")
         return
 
     if package["pkgver"] == "9999":
-        pmb.helpers.file.replace_apkbuild(args, pkgname, "_pkgver", pkgver_new)
+        pmb.helpers.file.replace_apkbuild(pkgname, "_pkgver", pkgver_new)
     else:
-        pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgver", pkgver_new)
+        pmb.helpers.file.replace_apkbuild(pkgname, "pkgver", pkgver_new)
 
-    pmb.helpers.file.replace_apkbuild(args, pkgname, "pkgrel", pkgrel_new)
+    pmb.helpers.file.replace_apkbuild(pkgname, "pkgrel", pkgrel_new)
     return
 
 
-def upgrade(args: PmbArgs, pkgname: str, git: bool = True, stable: bool = True) -> None:
+def upgrade(
+    pkgname: str, dry: bool, ref: str | None = None, git: bool = True, stable: bool = True
+) -> None:
     """Find new versions of a single package and upgrade it.
 
     :param pkgname: the name of the package
@@ -269,14 +269,14 @@ def upgrade(args: PmbArgs, pkgname: str, git: bool = True, stable: bool = True) 
     # Run the correct function
     if "_git" in package["pkgver"]:
         if git:
-            upgrade_git_package(args, pkgname, package)
+            upgrade_git_package(pkgname, package, ref, dry)
     else:
         if stable:
-            upgrade_stable_package(args, pkgname, package)
+            upgrade_stable_package(pkgname, package, dry)
 
 
-def upgrade_all(args: PmbArgs) -> None:
-    """Upgrade all packages, based on args.all, args.all_git and args.all_stable."""
+def upgrade_all(ref: str | None, dry: bool, all: bool, all_git: bool, all_stable: bool) -> None:
+    """Upgrade all packages, based on all, all_git and all_stable."""
     for pkgname in pmb.helpers.pmaports.get_list():
         # Always ignore postmarketOS-specific packages that have no upstream
         # source
@@ -287,4 +287,4 @@ def upgrade_all(args: PmbArgs) -> None:
         if skip:
             continue
 
-        upgrade(args, pkgname, args.all or args.all_git, args.all or args.all_stable)
+        upgrade(pkgname, dry, ref, all or all_git, all or all_stable)

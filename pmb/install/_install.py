@@ -111,7 +111,7 @@ def get_kernel_package(config: Config) -> list[str]:
     return ["device-" + config.device + "-kernel-" + config.kernel]
 
 
-def copy_files_from_chroot(args: PmbArgs, chroot: Chroot) -> None:
+def copy_files_from_chroot(chroot: Chroot, rsync: bool, verbose: bool) -> None:
     """
     Copy all files from the rootfs chroot to /mnt/install, except
     for the home folder (because /home will contain some empty
@@ -143,10 +143,10 @@ def copy_files_from_chroot(args: PmbArgs, chroot: Chroot) -> None:
         folders.append(path.name)
 
     # Update or copy all files
-    if args.rsync:
+    if rsync:
         pmb.chroot.apk.install(["rsync"], Chroot.native())
         rsync_flags = "-a"
-        if args.verbose:
+        if verbose:
             rsync_flags += "vP"
         pmb.chroot.root(
             ["rsync", rsync_flags, "--delete", *folders, "/mnt/install/"], working_dir=mountpoint
@@ -177,7 +177,7 @@ def create_home_from_skel(filesystem: str, user: str) -> None:
     pmb.helpers.run.root(["chown", "-R", "10000", home])
 
 
-def configure_apk(args: PmbArgs) -> None:
+def configure_apk(install_local_pkgs: bool) -> None:
     """
     Copy over all official keys, and the keys used to compile local packages
     (unless --no-local-pkgs is set). Then copy the corresponding APKINDEX files
@@ -187,7 +187,7 @@ def configure_apk(args: PmbArgs) -> None:
     keys_dir = pmb.config.apk_keys_path
 
     # Official keys + local keys
-    if args.install_local_pkgs:
+    if install_local_pkgs:
         keys_dir = get_context().config.work / "config_apk_keys"
 
     # Copy over keys
@@ -818,7 +818,7 @@ def get_partition_layout(reserve: bool | int, kernel: bool, prep: bool | None) -
     return ret
 
 
-def get_uuid(args: PmbArgs, partition: Path) -> str:
+def get_uuid(partition: Path) -> str:
     """
     Get UUID of a partition
 
@@ -837,7 +837,7 @@ def get_uuid(args: PmbArgs, partition: Path) -> str:
     ).rstrip()
 
 
-def create_crypttab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) -> None:
+def create_crypttab(layout: PartitionLayout | None, chroot: Chroot) -> None:
     """
     Create /etc/crypttab config
 
@@ -846,7 +846,7 @@ def create_crypttab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroo
     """
     root_dev = Path(f"/dev/installp{layout['root']}") if layout else Path("/dev/install")
 
-    luks_uuid = get_uuid(args, root_dev)
+    luks_uuid = get_uuid(root_dev)
     crypttab = f"root UUID={luks_uuid} none luks\n"
 
     (chroot / "tmp/crypttab").open("w").write(crypttab)
@@ -879,9 +879,9 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
         root_dev = Path("/dev/install")
 
     root_mount_point = (
-        "/dev/mapper/root" if args.full_disk_encryption else f"UUID={get_uuid(args, root_dev)}"
+        "/dev/mapper/root" if args.full_disk_encryption else f"UUID={get_uuid(root_dev)}"
     )
-    root_filesystem = pmb.install.get_root_filesystem(args)
+    root_filesystem = pmb.install.get_root_filesystem(args.filesystem)
 
     if root_filesystem == "btrfs":
         # btrfs gets separate subvolumes for root, var and home
@@ -902,7 +902,7 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
 """.lstrip()
 
     if boot_dev:
-        boot_mount_point = f"UUID={get_uuid(args, boot_dev)}"
+        boot_mount_point = f"UUID={get_uuid(boot_dev)}"
         boot_options = "nodev,nosuid,noexec"
         boot_filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
         if boot_filesystem in ("fat16", "fat32"):
@@ -953,7 +953,9 @@ def install_system_image(
     else:
         layout = None
     if not args.rsync:
-        pmb.install.blockdevice.create(args, size_boot, size_root, size_reserve, split, disk)
+        pmb.install.blockdevice.create(
+            args.sector_size, size_boot, size_root, size_reserve, split, disk
+        )
         if not split and layout:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
                 pmb.install.partition_cgpt(layout, size_boot, size_reserve)
@@ -979,7 +981,7 @@ def install_system_image(
     create_fstab(args, layout, chroot)
     if args.full_disk_encryption:
         logging.info("(native) create /etc/crypttab")
-        create_crypttab(args, layout, chroot)
+        create_crypttab(layout, chroot)
 
     # Run mkinitfs to pass UUIDs to cmdline
     logging.info(f"({chroot}) mkinitfs")
@@ -992,9 +994,9 @@ def install_system_image(
 
     # Just copy all the files
     logging.info(f"*** ({step + 1}/{steps}) FILL INSTALL BLOCKDEVICE ***")
-    copy_files_from_chroot(args, chroot)
+    copy_files_from_chroot(chroot, args.rsync, args.verbose)
     create_home_from_skel(args.filesystem, config.user)
-    configure_apk(args)
+    configure_apk(args.install_local_pkgs)
     copy_ssh_keys(config)
 
     # Don't try to embed firmware and cgpt on split images since there's no

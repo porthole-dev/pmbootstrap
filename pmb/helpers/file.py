@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import time
 
-from pmb.types import PmbArgs
 import pmb.helpers.run
 import pmb.helpers.pmaports
 
@@ -21,9 +20,7 @@ def replace(path: Path, old: str, new: str) -> None:
         handle.write(text)
 
 
-def replace_apkbuild(
-    args: PmbArgs, pkgname: str, key: str, new: int | str, in_quotes: bool = False
-) -> None:
+def replace_apkbuild(pkgname: str, key: str, new: int | str, in_quotes: bool = False) -> None:
     """Replace one key=value line in an APKBUILD and verify it afterwards.
 
     :param pkgname: package name, e.g. "hello-world"

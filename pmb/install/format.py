@@ -18,7 +18,7 @@ def install_fsprogs(filesystem: str) -> None:
     pmb.chroot.apk.install([fsprogs], Chroot.native())
 
 
-def format_and_mount_boot(args: PmbArgs, device: str, boot_label: str) -> None:
+def format_and_mount_boot(device: str, boot_label: str) -> None:
     """
     :param device: boot partition on install block device (e.g. /dev/installp1)
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
@@ -41,7 +41,7 @@ def format_and_mount_boot(args: PmbArgs, device: str, boot_label: str) -> None:
     pmb.chroot.root(["mount", device, mountpoint])
 
 
-def format_luks_root(args: PmbArgs, device: str) -> None:
+def format_luks_root(device: str, cipher: str, iter_time: str) -> None:
     """
     :param device: root partition on install block device (e.g. /dev/installp2)
     """
@@ -58,9 +58,9 @@ def format_luks_root(args: PmbArgs, device: str) -> None:
         "luksFormat",
         "-q",
         "--cipher",
-        args.cipher,
+        cipher,
         "--iter-time",
-        args.iter_time,
+        iter_time,
         "--use-random",
         device,
     ]
@@ -88,8 +88,8 @@ def format_luks_root(args: PmbArgs, device: str) -> None:
         raise RuntimeError("Failed to open cryptdevice!")
 
 
-def get_root_filesystem(args: PmbArgs) -> str:
-    ret = args.filesystem or pmb.parse.deviceinfo().root_filesystem or "ext4"
+def get_root_filesystem(filesystem: str | None) -> str:
+    ret = filesystem or pmb.parse.deviceinfo().root_filesystem or "ext4"
     pmaports_cfg = pmb.config.pmaports.read_config()
 
     supported = pmaports_cfg.get("supported_root_filesystems", "ext4")
@@ -106,7 +106,7 @@ def get_root_filesystem(args: PmbArgs) -> str:
     return ret
 
 
-def prepare_btrfs_subvolumes(args: PmbArgs, device: str, mountpoint: str) -> None:
+def prepare_btrfs_subvolumes(device: str, mountpoint: str) -> None:
     """
     Create separate subvolumes if root filesystem is btrfs.
     This lets us do snapshots and rollbacks of relevant parts
@@ -160,16 +160,16 @@ def prepare_btrfs_subvolumes(args: PmbArgs, device: str, mountpoint: str) -> Non
 
 
 def format_and_mount_root(
-    args: PmbArgs, device: str, root_label: str, disk: PathString | None
+    device: str, root_label: str, disk: PathString | None, rsync: bool, filesystem: str | None
 ) -> None:
-    """
+    """<
     :param device: root partition on install block device (e.g. /dev/installp2)
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     # Format
-    if not args.rsync:
-        filesystem = get_root_filesystem(args)
+    if not rsync:
+        filesystem = get_root_filesystem(filesystem)
 
         if filesystem == "ext4":
             device_category = get_device_category_by_name(get_context().config.device)
@@ -204,9 +204,9 @@ def format_and_mount_root(
     pmb.chroot.root(["mkdir", "-p", mountpoint])
     pmb.chroot.root(["mount", device, mountpoint])
 
-    if not args.rsync and filesystem == "btrfs":
+    if not rsync and filesystem == "btrfs":
         # Make flat btrfs subvolume layout
-        prepare_btrfs_subvolumes(args, device, mountpoint)
+        prepare_btrfs_subvolumes(device, mountpoint)
 
 
 def format(
@@ -236,9 +236,9 @@ def format(
         boot_dev = None
 
     if args.full_disk_encryption:
-        format_luks_root(args, root_dev)
+        format_luks_root(root_dev, args.cipher, args.iter_time)
         root_dev = "/dev/mapper/pm_crypt"
 
-    format_and_mount_root(args, root_dev, root_label, disk)
+    format_and_mount_root(root_dev, root_label, disk, args.rsync, args.filesystem)
     if boot_dev:
-        format_and_mount_boot(args, boot_dev, boot_label)
+        format_and_mount_boot(boot_dev, boot_label)

@@ -106,7 +106,7 @@ def build(args: PmbArgs) -> None:
         pmb.chroot.zap(False)
 
     if args.envkernel:
-        pmb.build.envkernel.package_kernel(args)
+        pmb.build.envkernel.package_kernel(args.packages)
         return
 
     # Set src and force
@@ -201,7 +201,9 @@ def chroot(args: PmbArgs) -> None:
         size_boot = 128  # 128 MiB
         size_root = 4096  # 4 GiB
         size_reserve = 2048  # 2 GiB
-        pmb.install.blockdevice.create_and_mount_image(args, size_boot, size_root, size_reserve)
+        pmb.install.blockdevice.create_and_mount_image(
+            args.sector_size, size_boot, size_root, size_reserve
+        )
 
     # Bind mount in sysfs dirs to accessing USB devices (e.g. for running fastboot)
     if args.chroot_usb:
@@ -396,7 +398,7 @@ def install(args: PmbArgs) -> None:
             )
 
     # Verify that the root filesystem is supported by current pmaports branch
-    pmb.install.get_root_filesystem(args)
+    pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args)
 
@@ -483,7 +485,9 @@ def apkindex_parse(args: PmbArgs) -> None:
 
 def aportupgrade(args: PmbArgs) -> None:
     if args.all or args.all_stable or args.all_git:
-        pmb.helpers.aportupgrade.upgrade_all(args)
+        pmb.helpers.aportupgrade.upgrade_all(
+            args.ref, args.dry, args.all, args.all_git, args.all_stable
+        )
     else:
         # Each package must exist
         for package in args.packages:
@@ -491,7 +495,7 @@ def aportupgrade(args: PmbArgs) -> None:
 
         # Check each package for a new version
         for package in args.packages:
-            pmb.helpers.aportupgrade.upgrade(args, package)
+            pmb.helpers.aportupgrade.upgrade(package, args.dry)
 
 
 def qemu(args: PmbArgs) -> None:

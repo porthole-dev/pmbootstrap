@@ -3,7 +3,6 @@
 from pmb.helpers import logging
 import os
 from pathlib import Path
-from pmb.types import PmbArgs
 import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.helpers.cli
@@ -62,7 +61,7 @@ def mount_disk(path: Path) -> None:
 
 
 def create_and_mount_image(
-    args: PmbArgs, size_boot: int, size_root: int, size_reserve: int, split: bool = False
+    sector_size: int | None, size_boot: int, size_root: int, size_reserve: int, split: bool = False
 ) -> None:
     """
     Create a new image file, and mount it as /dev/install.
@@ -117,13 +116,18 @@ def create_and_mount_image(
 
     for img_path, mount_point in mount_image_paths.items():
         logging.info(f"(native) mount {mount_point} ({img_path.name})")
-        pmb.install.losetup.mount(img_path, args.sector_size)
+        pmb.install.losetup.mount(img_path, sector_size)
         device = pmb.install.losetup.device_by_back_file(img_path)
         pmb.helpers.mount.bind_file(device, Chroot.native() / mount_point)
 
 
 def create(
-    args: PmbArgs, size_boot: int, size_root: int, size_reserve: int, split: bool, disk: Path | None
+    sector_size: int | None,
+    size_boot: int,
+    size_root: int,
+    size_reserve: int,
+    split: bool,
+    disk: Path | None,
 ) -> None:
     """
     Create /dev/install (the "install blockdevice").
@@ -138,4 +142,4 @@ def create(
     if disk:
         mount_disk(disk)
     else:
-        create_and_mount_image(args, size_boot, size_root, size_reserve, split)
+        create_and_mount_image(sector_size, size_boot, size_root, size_reserve, split)
