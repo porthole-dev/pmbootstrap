@@ -170,7 +170,8 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
         return False
 
     # Architectures and retention time
-    architectures = [arch] if arch else Arch.supported_binary()
+    supported_binary = Arch.supported_binary()
+    architectures = [arch] if arch else supported_binary
     retention_hours = pmb.config.apkindex_retention_time
     retention_seconds = retention_hours * 3600
 
@@ -222,7 +223,10 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
         pmb.helpers.cli.progress_print(i / len(outdated))
         temp = pmb.helpers.http.download(url, "APKINDEX", False, logging.DEBUG, True, True)
         if not temp:
-            if os.environ.get("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
+            if (
+                os.environ.get("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1"
+                or arch not in supported_binary
+            ):
                 missing_ignored = True
                 continue
             else:
@@ -236,7 +240,7 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
 
     if missing_ignored:
         logging.warn_once(
-            "NOTE: ignoring missing APKINDEX due to PMB_APK_FORCE_MISSING_REPOSITORIES=1 (fine during bootstrap)"
+            "NOTE: ignoring missing APKINDEX due to PMB_APK_FORCE_MISSING_REPOSITORIES=1 or architecture without binary repo (fine during bootstrap)"
         )
 
     return True

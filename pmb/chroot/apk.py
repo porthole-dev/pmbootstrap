@@ -174,7 +174,10 @@ def install_run_apk(
         command = [*user_repo, *command]
 
         # Ignore missing repos before initial build (bpo#137)
-        if os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1":
+        if (
+            os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1"
+            or chroot.arch not in Arch.supported_binary()
+        ):
             command = ["--force-missing-repositories", *command]
 
         # Virtual package related commands don't actually install or remove

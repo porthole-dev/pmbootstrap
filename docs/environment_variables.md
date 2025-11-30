@@ -13,6 +13,8 @@ APKINDEX results in a 404 not found error. This is used by
 [bpo](https://build.postmarketos.org) when building a new stable repository for
 the first time. For example if the `x86_64` repository was already built and
 published, but the `aarch64` repository wasn't published yet.
+This is also the default behavior when building for architectures that are not
+marked as supported in `pmaports.cfg`.
 
 ## `PMB_APK_NO_CACHE`
 

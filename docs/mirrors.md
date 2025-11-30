@@ -56,13 +56,3 @@ you want to use in addition to the postmarketOS binary package repository.
 pmbootstrap config mirrors.pmaports_custom http://custom-repository-here
 pmbootstrap config mirrors.systemd_custom http://custom-repository-here/extra-repos/systemd
 ```
-
-### Bootstrapping a repository for an additional architecture
-
-See also the [Environment Variables](environment_variables.md) section
-for a workaround when the APKINDEX is missing
-(e.g., if the repository for the additional architecture isn’t ready yet):
-
-```sh
-PMB_APK_FORCE_MISSING_REPOSITORIES=1 pmbootstrap install
-```
