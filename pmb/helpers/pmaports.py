@@ -236,7 +236,7 @@ def find(
         if guess and _find_package_in_apkbuild(package, guess / "APKBUILD"):
             ret = guess
 
-        if not guess or (guess and not ret):
+        if not ret:
             # Otherwise parse all APKBUILDs (takes time!), is the
             # package we are looking for a subpackage of any of those?
             for path_current in _find_apkbuilds().values():
