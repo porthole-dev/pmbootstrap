@@ -145,8 +145,9 @@ def apkindex_files(
 
     # Resolve the APKINDEX.$HASH.tar.gz files
     ret.extend(
-        get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url)
+        file
         for url in urls(False, exclude_mirrors)
+        if (file := get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url)).exists()
     )
 
     return ret
