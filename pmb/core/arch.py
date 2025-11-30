@@ -7,6 +7,8 @@ import enum
 from pathlib import Path, PosixPath, PurePosixPath
 import platform
 
+import pmb.config
+
 # Initialised at the bottom
 _cached_native_arch: Arch
 
@@ -122,17 +124,11 @@ class Arch(enum.Enum):
             Arch.native(),
         }
 
-    # FIXME: we should use pmaports.cfg "supported_arches" instead
     @staticmethod
     def supported_binary() -> set[Arch]:
         """Officially supported architectures that have a binary repository"""
-        return {
-            Arch.armhf,
-            Arch.armv7,
-            Arch.aarch64,
-            Arch.x86_64,
-            Arch.x86,
-        }
+        pmaports_cfg = pmb.config.pmaports.read_config()
+        return {Arch.from_str(i) for i in pmaports_cfg["supported_arches"].split(",")}
 
     def kernel_dir(self) -> str:
         """Name of the architecture-specific directory in the Linux kernel
