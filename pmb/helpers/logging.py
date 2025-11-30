@@ -105,16 +105,12 @@ def add_verbose_log_level() -> None:
     All stackoverflow user contributions are licensed as CC-BY-SA:
     https://creativecommons.org/licenses/by-sa/3.0/
     """
-    setattr(logging, "VERBOSE", VERBOSE)
+    logging.VERBOSE = VERBOSE  # type: ignore[attr-defined]
     logging.addLevelName(VERBOSE, "VERBOSE")
-    setattr(
-        logging.Logger,
-        "verbose",
-        lambda inst, msg, *args, **kwargs: inst.log(VERBOSE, msg, *args, **kwargs),
+    logging.Logger.verbose = lambda inst, msg, *args, **kwargs: inst.log(  # type: ignore[attr-defined]
+        VERBOSE, msg, *args, **kwargs
     )
-    setattr(
-        logging, "verbose", lambda msg, *args, **kwargs: logging.log(VERBOSE, msg, *args, **kwargs)
-    )
+    logging.verbose = lambda msg, *args, **kwargs: logging.log(VERBOSE, msg, *args, **kwargs)  # type: ignore[attr-defined]
 
 
 def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:

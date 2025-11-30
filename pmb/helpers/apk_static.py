@@ -101,7 +101,7 @@ def verify_signature(files: dict[str, dict], sigkey_path: str) -> None:
                 files["apk"]["temp_path"],
             ]
         )
-    except BaseException:
+    except BaseException as exception:
         os.unlink(files["sig"]["temp_path"])
         os.unlink(files["apk"]["temp_path"])
         raise RuntimeError(
@@ -109,7 +109,7 @@ def verify_signature(files: dict[str, dict], sigkey_path: str) -> None:
             " Either openssl is not installed, or the"
             " download failed. Run 'pmbootstrap zap -hc' to"
             " delete the download and try again."
-        )
+        ) from exception
 
 
 def extract(version: str, apk_path: Path) -> None:

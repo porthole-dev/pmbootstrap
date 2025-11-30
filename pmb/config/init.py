@@ -1017,7 +1017,7 @@ def frontend(args: PmbArgs) -> None:
         and len(list(Chroot.iter_patterns()))
         and pmb.helpers.cli.confirm("Zap existing chroots to apply configuration?", default=True)
     ):
-        setattr(args, "deviceinfo", deviceinfo)
+        args.deviceinfo = deviceinfo
 
         # Do not zap any existing packages or cache_http directories
         pmb.chroot.zap(confirm=False)

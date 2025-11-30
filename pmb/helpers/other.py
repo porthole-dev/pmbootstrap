@@ -138,13 +138,13 @@ def migrate_work_folder() -> None:
         pmb.helpers.git.migrate_upstream_remote()
         try:
             pmb.helpers.git.get_upstream_remote(pkgrepo_default_path())
-        except RuntimeError:
+        except RuntimeError as exception:
             logging.error(
                 "Couldn't find new upstream remote, migration failed."
                 " Please try updating the remote manually with:\n"
                 f" $ git -C '{pkgrepo_default_path()}' remote set-url origin 'https://gitlab.postmarketos.org/postmarketOS/pmaports.git'"
             )
-            raise RuntimeError("Migration failed.")
+            raise RuntimeError("Migration failed.") from exception
 
         # Update version file
         migrate_success(context.config.work, 8)

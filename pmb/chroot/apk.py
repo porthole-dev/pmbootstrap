@@ -42,10 +42,10 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
     # Compare
     try:
         version_installed = installed_pkgs["apk-tools"].version
-    except KeyError:
+    except KeyError as exception:
         raise NonBugError(
             "ERROR: could not find apk-tools in chroot, run 'pmbootstrap zap' and try again"
-        )
+        ) from exception
 
     try:
         pmb.helpers.apk.check_outdated(version_installed)

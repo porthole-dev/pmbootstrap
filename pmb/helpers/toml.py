@@ -20,4 +20,4 @@ def load_toml_file(path: Path) -> dict:
         try:
             return load(f)
         except TOMLDecodeError as e:
-            raise NonBugError(f"{path}: {e}")
+            raise NonBugError(f"{path}: {e}") from e

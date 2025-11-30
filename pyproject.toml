@@ -33,16 +33,19 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
+# B006, B008: Occur in many places and aren't trivial to fix.
 # FURB101, FURB103: Easier to do if str gets replaced with Path in more places.
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
-extend-ignore = ["FURB101", "FURB103", "PERF203"]
-extend-select = ["C4", "CPY001", "FURB", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
+extend-ignore = ["B006", "B008", "FURB101", "FURB103", "PERF203"]
+extend-select = ["B", "C4", "CPY001", "FURB", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
 # SIM905: Makes the test code less readable.
 "test/parse/test_arguments.py" = ["SIM905"]
+# B011: Tests shouldn't be run with python -O set anyway.
+"test/*" = ["B011"]
 
 [tool.ruff.format]
 # Enable auto-formatting of code examples in docstrings.

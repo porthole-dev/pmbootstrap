@@ -70,12 +70,12 @@ class Arch(enum.Enum):
     def from_str(arch: str) -> Arch:
         try:
             return Arch(arch)
-        except ValueError:
+        except ValueError as exception:
             raise ValueError(
                 f"Invalid architecture: '{arch}',"
                 " expected something like:"
                 f" {', '.join(sorted(str(a) for a in Arch.supported()))}"
-            )
+            ) from exception
 
     @staticmethod
     def from_machine_type(machine_type: str) -> Arch:

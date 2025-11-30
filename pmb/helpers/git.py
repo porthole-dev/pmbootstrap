@@ -254,13 +254,13 @@ def parse_channels_cfg(aports: Path) -> dict:
                 command, aports, output=RunOutputTypeDefault.NULL, check=False
             )
             cfg.read_string(stdout)
-    except configparser.MissingSectionHeaderError:
+    except configparser.MissingSectionHeaderError as exception:
         logging.info("NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'")
         raise RuntimeError(
             "Failed to read channels.cfg from"
             f" '{remote}/master' branch of your local"
             " pmaports clone"
-        )
+        ) from exception
 
     # Meta section
     ret: dict[str, dict[str, str | dict[str, str]]] = {"channels": {}}

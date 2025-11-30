@@ -1352,6 +1352,6 @@ def arguments() -> PmbArgs:
 
     if getattr(args, "go_mod_cache", None) is None:
         gomodcache = bool(getattr(args, "src", None))
-        setattr(args, "go_mod_cache", gomodcache)
+        args.go_mod_cache = gomodcache
 
     return args

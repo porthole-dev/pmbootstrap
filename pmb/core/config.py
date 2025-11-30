@@ -127,14 +127,14 @@ class Config:
                         raise ValueError()
                 else:
                     super().__setattr__(key, type_(value))
-            except ValueError:
+            except ValueError as exception:
                 msg = f"Invalid value for '{key}': '{value}' "
                 if issubclass(type_, enum.Enum):
                     valid = [x.value for x in type_]
                     msg += f"(valid values: {', '.join(valid)})"
                 else:
                     msg += f"(expected {type_}, got {type(value)})"
-                raise ValueError(msg)
+                raise ValueError(msg) from exception
         elif len(keys) == 2:
             super().__getattribute__(keys[0])[keys[1]] = value
         else:

@@ -90,7 +90,7 @@ def create_device_nodes(chroot: Chroot) -> None:
     # On failure: Show filesystem-related error
     except Exception as e:
         logging.info(str(e) + "!")
-        raise RuntimeError(f"Failed to create device nodes in the '{chroot}' chroot.")
+        raise RuntimeError(f"Failed to create device nodes in the '{chroot}' chroot.") from e
 
 
 def mount_dev_tmpfs(chroot: Chroot = Chroot.native()) -> None:

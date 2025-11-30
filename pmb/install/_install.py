@@ -620,8 +620,10 @@ def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple
         binary, offset_ = binary_offset.split(":")
         try:
             offset = int(offset_)
-        except ValueError:
-            raise RuntimeError(f"Value for firmware binary offset is not valid: {offset}")
+        except ValueError as exception:
+            raise RuntimeError(
+                f"Value for firmware binary offset is not valid: {offset}"
+            ) from exception
         binary_path = chroot / "usr/share" / binary
         if not os.path.exists(binary_path):
             raise RuntimeError(
@@ -674,10 +676,10 @@ def embed_firmware(args: PmbArgs, suffix: Chroot) -> None:
     if pmb.parse.deviceinfo().sd_embed_firmware_step_size:
         try:
             step = int(pmb.parse.deviceinfo().sd_embed_firmware_step_size or "invalid")
-        except ValueError:
+        except ValueError as exception:
             raise RuntimeError(
                 f"Value for deviceinfo_sd_embed_firmware_step_size is not valid: {step}"
-            )
+            ) from exception
 
     device_rootfs = mount_device_rootfs(suffix)
     binary_list = generate_binary_list(args, suffix, step)

@@ -717,8 +717,8 @@ def packages(
                 src,
                 bootstrap_stage,
             )
-        except RuntimeError:
-            raise BuildFailedError(f"Couldn't build {output}!")
+        except RuntimeError as exception:
+            raise BuildFailedError(f"Couldn't build {output}!") from exception
         finish(pkg["apkbuild"], channel, pkg_arch, output, buildchroot, strict)
 
     # Clear package cache for the next run
