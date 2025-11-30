@@ -16,6 +16,7 @@ import pmb.config
 import pmb.parse.apkindex
 import pmb.helpers.http
 from pmb.core.context import get_context
+from pmb.helpers.exceptions import NonBugError
 
 
 def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
@@ -174,7 +175,10 @@ def init() -> None:
     version = index_data.version
 
     # Verify the apk-tools-static version
-    pmb.helpers.apk.check_outdated(version, "Run 'pmbootstrap update', then try again.")
+    try:
+        pmb.helpers.apk.check_outdated(version)
+    except RuntimeError as exception:
+        raise NonBugError(f"{exception}. Run 'pmbootstrap update', then try again.") from exception
 
     # Download, extract, verify apk-tools-static
     apk_name = f"apk-tools-static-{version}.apk"

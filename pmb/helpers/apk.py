@@ -286,15 +286,13 @@ def cache_clean(arch: Arch) -> None:
     pmb.helpers.run.root(command_)
 
 
-def check_outdated(version_installed: str, action_msg: str) -> None:
+def check_outdated(version_installed: str) -> None:
     """Check if the provided alpine version is outdated.
 
     This depends on the alpine mirrordir (edge, v3.12, ...) related to currently checked out
     pmaports branch.
 
     :param version_installed: currently installed apk version, e.g. "2.12.1-r0"
-    :param action_msg: string explaining what the user should do to resolve
-                       this
     :raises: RuntimeError if the version is outdated
     """
     channel_cfg = pmb.config.pmaports.read_config_channel()
@@ -305,7 +303,5 @@ def check_outdated(version_installed: str, action_msg: str) -> None:
         return
 
     raise RuntimeError(
-        "Found an outdated version of the 'apk' package"
-        f" manager ({version_installed}, expected at least:"
-        f" {version_min}). {action_msg}"
+        f"Found an outdated version of the 'apk' package manager ({version_installed}, expected at least: {version_min})"
     )

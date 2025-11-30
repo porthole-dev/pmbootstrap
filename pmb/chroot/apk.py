@@ -47,10 +47,12 @@ def check_min_version(chroot: Chroot = Chroot.native()) -> None:
             "ERROR: could not find apk-tools in chroot, run 'pmbootstrap zap' and try again"
         )
 
-    pmb.helpers.apk.check_outdated(
-        version_installed,
-        "Delete your http cache and zap all chroots, then try again: 'pmbootstrap zap -hc'",
-    )
+    try:
+        pmb.helpers.apk.check_outdated(version_installed)
+    except RuntimeError as exception:
+        raise NonBugError(
+            f"{exception}. Delete your http cache and zap all chroots, then try again: 'pmbootstrap zap -hc'"
+        ) from exception
 
 
 def packages_split_to_add_del(packages: list[str]) -> tuple[list[str], list[str]]:
