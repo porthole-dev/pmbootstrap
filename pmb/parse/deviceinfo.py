@@ -344,7 +344,7 @@ class Deviceinfo:
                 case "arch":
                     setattr(self, key, Arch.from_str(value))
                 case "gpu_accelerated":  # deprecated
-                    setattr(self, "drm", value)
+                    self.drm = value == "true"
                 case "header_version":
                     setattr(self, key, int(value))
                 case "initfs_compression":

@@ -230,7 +230,7 @@ def ask_for_channel(config: Config) -> str:
 def ask_for_ui(deviceinfo: Deviceinfo) -> str:
     ui_list = pmb.helpers.ui.list_ui(deviceinfo.arch)
     hidden_ui_count = 0
-    if deviceinfo.drm != "true":
+    if not deviceinfo.drm:
         for i in reversed(range(len(ui_list))):
             pkgname = f"postmarketos-ui-{ui_list[i][0]}"
             apkbuild = pmb.helpers.pmaports.get(pkgname, subpackages=False, must_exist=False)
