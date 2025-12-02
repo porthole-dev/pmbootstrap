@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
-import pmb.helpers.git
-import pmb.config
-import pmb.parse.kconfig
 import logging
+
+import pmb.config
+import pmb.helpers.git
+import pmb.parse.kconfig
 from pmb import commands
 from pmb.build.kconfig import KConfigUI
 from pmb.core.arch import Arch

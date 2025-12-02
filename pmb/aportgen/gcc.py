@@ -1,14 +1,14 @@
 # Copyright 2025 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import fnmatch
+import logging
+
 import pmb.aportgen.core
+import pmb.helpers.git
+import pmb.helpers.run
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
-import pmb.helpers.git
-import pmb.helpers.run
-
-import fnmatch
-import logging
 
 
 def depends_for_sonames(libraries: dict[str, str], arch_libc: Arch) -> list:

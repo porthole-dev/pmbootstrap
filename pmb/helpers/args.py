@@ -4,11 +4,10 @@ import os
 import sys
 
 import pmb.config
+import pmb.helpers.git
 from pmb.core.context import CommandTimeout, Context, TimeoutReason
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.types import PmbArgs
-import pmb.helpers.git
-
 
 """This file constructs the args variable, which is passed to almost all
    functions in the pmbootstrap code base. Here's a listing of the kind of

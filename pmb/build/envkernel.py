@@ -1,25 +1,24 @@
 # Copyright 2023 Robert Yang
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.arch import Arch
-from pmb.core.context import Context
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pmb.aportgen
 import pmb.aportgen.core
 import pmb.build
-from pmb.core.pkgrepo import pkgrepo_relative_path
 import pmb.chroot
-from pmb.types import Env, PathString
 import pmb.helpers
 import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.parse
 from pmb.core import Chroot
-from pmb.core.context import get_context
+from pmb.core.arch import Arch
+from pmb.core.context import Context, get_context
+from pmb.core.pkgrepo import pkgrepo_relative_path
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
+from pmb.types import Env, PathString
 
 
 def match_kbuild_out(word: str) -> str | None:

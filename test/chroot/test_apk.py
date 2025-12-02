@@ -4,14 +4,13 @@
 from pathlib import Path
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 
+import pmb.config.pmaports
+from pmb.chroot.apk import packages_get_locally_built_apks
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.parse.apkindex import ApkindexBlock
-from _pytest.monkeypatch import MonkeyPatch
-
-from pmb.chroot.apk import packages_get_locally_built_apks
-import pmb.config.pmaports
 
 
 @pytest.fixture

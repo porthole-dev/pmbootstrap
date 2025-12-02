@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import pmb.aportgen
-from pmb import commands
+from pmb.commands.base import Command
 from pmb.helpers import logging
 
 
-class Aportgen(commands.Command):
+class Aportgen(Command):
     def __init__(
         self, package_list: list[str], fork_alpine: bool, fork_alpine_retain_branch: bool
     ) -> None:

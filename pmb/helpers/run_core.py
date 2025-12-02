@@ -1,19 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fcntl
-from pmb.core.context import get_context
-from pmb.types import (
-    PathString,
-    Env,
-    RunOutputType,
-    RunOutputTypeDefault,
-    RunOutputTypePopen,
-    RunReturnType,
-)
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
 import os
-from pathlib import Path
 import selectors
 import shlex
 import subprocess
@@ -21,8 +9,21 @@ import sys
 import threading
 import time
 from collections.abc import Sequence
-from typing import overload, Literal
+from pathlib import Path
+from typing import Literal, overload
+
 import pmb.helpers.run
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
+from pmb.types import (
+    Env,
+    PathString,
+    RunOutputType,
+    RunOutputTypeDefault,
+    RunOutputTypePopen,
+    RunReturnType,
+)
 
 """For a detailed description of all output modes, read the description of
    core() at the bottom. All other functions in this file get (indirectly)

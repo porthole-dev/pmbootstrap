@@ -1,13 +1,13 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from copy import deepcopy
 import enum
 import inspect
 import multiprocessing
-from typing import Any, ClassVar, TypedDict
-from pathlib import Path
 import os
+from copy import deepcopy
+from pathlib import Path
+from typing import Any, ClassVar, TypedDict
 
 
 class Mirrors(TypedDict):

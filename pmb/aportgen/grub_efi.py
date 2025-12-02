@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import pmb.aportgen.core
 import pmb.build
-from pmb.core.arch import Arch
 import pmb.helpers.repo
 import pmb.parse.apkindex
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 
 
 def generate(pkgname: str) -> None:

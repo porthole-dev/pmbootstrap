@@ -1,20 +1,20 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pathlib import Path
-import pytest
 import shutil
 import tempfile
-from pmb.core.context import Context
+from pathlib import Path
+
+import pytest
+from _pytest.fixtures import FixtureRequest
 from _pytest.monkeypatch import MonkeyPatch
 from _pytest.tmpdir import TempPathFactory
-from _pytest.fixtures import FixtureRequest
 
 import pmb.core
 from pmb.core.arch import Arch
-from pmb.core.context import get_context
-from pmb.types import PmbArgs
+from pmb.core.context import Context, get_context
 from pmb.helpers.args import init as init_args
+from pmb.types import PmbArgs
 
 _testdir = Path(__file__).parent / "data/tests"
 

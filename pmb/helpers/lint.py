@@ -1,6 +1,11 @@
 # Copyright 2023 Danct12 <danct12@disroot.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
 from collections.abc import Sequence
+
+import pmb.build
+import pmb.chroot
+import pmb.chroot.apk
 from pmb.core.chroot import Chroot
 from pmb.core.pkgrepo import (
     pkgrepo_iter_package_dirs,
@@ -12,11 +17,6 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 from pmb.helpers.toml import load_toml_file
 from pmb.types import RunOutputTypeDefault
-import os
-
-import pmb.chroot
-import pmb.chroot.apk
-import pmb.build
 
 
 def get_custom_valid_options() -> list[str]:

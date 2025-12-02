@@ -1,12 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.context import get_context
-from pmb.helpers import logging
 from pathlib import Path
 
 import pmb.build
 import pmb.helpers.file
 from pmb.core import Chroot, ChrootType
+from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def symlinks(folder: Path) -> None:

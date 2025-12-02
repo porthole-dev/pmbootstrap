@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any, Final, TextIO
+
 from pmb.meta import Cache
 
 logfd: TextIO

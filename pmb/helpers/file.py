@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
-from pathlib import Path
 import time
+from pathlib import Path
 
-import pmb.helpers.run
 import pmb.helpers.pmaports
+import pmb.helpers.run
 
 
 def replace(path: Path, old: str, new: str) -> None:

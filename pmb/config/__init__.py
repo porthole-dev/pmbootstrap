@@ -1,25 +1,29 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pathlib import Path
-from pmb.types import PathString
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 #
 # Exported functions
 #
 # FIXME (#2324): this sucks, we should re-organise this and not rely on "lifting"
 # this functions this way
-from pmb.config.file import load as load, save as save, serialize as serialize
-from pmb.config.sudo import which_sudo
-from pmb.config.other import is_systemd_selected as is_systemd_selected
-from .init import (
-    require_programs as require_programs,
-    ask_for_mainline_downstream as ask_for_mainline_downstream,
+from pmb.config.file import (
+    load as load,
+    save as save,
+    serialize as serialize,
 )
-from . import workdir as workdir
+from pmb.config.other import is_systemd_selected as is_systemd_selected
+from pmb.config.sudo import which_sudo
+from pmb.types import PathString
 
+from . import workdir as workdir
+from .init import (
+    ask_for_mainline_downstream as ask_for_mainline_downstream,
+    require_programs as require_programs,
+)
 
 #
 # Exported variables (internal configuration)

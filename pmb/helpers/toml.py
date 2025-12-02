@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
 
-from pmb.meta import Cache
 from pmb.helpers.exceptions import NonBugError
+from pmb.meta import Cache
 
 try:
     # Python >= 3.11
-    from tomllib import load, TOMLDecodeError  # novermin
+    from tomllib import TOMLDecodeError, load  # novermin
 except ImportError:
     # Python < 3.11
-    from tomli import load, TOMLDecodeError  # type:ignore[import-not-found,no-redef]
+    from tomli import TOMLDecodeError, load  # type:ignore[import-not-found,no-redef]
 
 
 @Cache("path")

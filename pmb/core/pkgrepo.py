@@ -1,10 +1,10 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 import glob
-from pathlib import Path
+import os
 from collections.abc import Generator
+from pathlib import Path
 
 import pmb.config
 from pmb.core.context import get_context

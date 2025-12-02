@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
+
 import enum
 from collections.abc import Generator
 from pathlib import Path, PosixPath, PurePosixPath
+
 import pmb.config
 from pmb.core.arch import Arch
+
 from .context import get_context
 
 

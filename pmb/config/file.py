@@ -1,10 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pathlib import Path, PosixPath
-from pmb.helpers import logging
 import configparser
 import os
+from pathlib import Path, PosixPath
+
 from pmb.core import Config
+from pmb.helpers import logging
 
 
 def load(path: Path) -> Config:

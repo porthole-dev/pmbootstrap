@@ -7,16 +7,16 @@ See also:
 - pmb/helpers/package.py (work with both)
 """
 
+from pathlib import Path
+from typing import Any, Literal, overload
+
+import pmb.parse
+import pmb.parse.version
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iter_package_dirs
 from pmb.helpers import logging
-from pathlib import Path
-from typing import overload, Any, Literal
-from pmb.types import Apkbuild, WithExtraRepos
-
 from pmb.meta import Cache
-import pmb.parse
-import pmb.parse.version
+from pmb.types import Apkbuild, WithExtraRepos
 
 
 @Cache("with_extra_repos")

@@ -1,15 +1,15 @@
 # Copyright 2023 Mark Hargreaves, Luca Weiss
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.context import get_context
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
-from pathlib import Path
 import socket
 import time
+from pathlib import Path
 
 import pmb.chroot
 import pmb.helpers.run
 from pmb.core import Chroot
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 
 
 def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: int = 9999) -> None:

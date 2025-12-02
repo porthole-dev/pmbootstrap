@@ -1,13 +1,14 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.helpers import logging
-from pmb.helpers.devices import get_device_category_by_name
+import os
+import tempfile
+
 import pmb.chroot
 from pmb.core import Chroot
 from pmb.core.context import get_context
-from pmb.types import PartitionLayout, PmbArgs, PathString, RunOutputTypeDefault
-import os
-import tempfile
+from pmb.helpers import logging
+from pmb.helpers.devices import get_device_category_by_name
+from pmb.types import PartitionLayout, PathString, PmbArgs, RunOutputTypeDefault
 
 
 def install_fsprogs(filesystem: str) -> None:

@@ -1,18 +1,13 @@
 # Copyright 2023 Pablo Castellano, Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import subprocess
-from collections.abc import Sequence
-from pmb.core.arch import Arch
-from pmb.core.config import Config
-from pmb.core.context import get_context
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
 import os
-from pathlib import Path
 import re
-import signal
 import shlex
 import shutil
+import signal
+import subprocess
+from collections.abc import Sequence
+from pathlib import Path
 from types import FrameType
 
 import pmb.build
@@ -20,11 +15,16 @@ import pmb.chroot
 import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config.pmaports
-import pmb.install.losetup
-from pmb.types import Env, PathString, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.run
+import pmb.install.losetup
 import pmb.parse.cpuinfo
 from pmb.core import Chroot, ChrootType
+from pmb.core.arch import Arch
+from pmb.core.config import Config
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
+from pmb.types import Env, PathString, PmbArgs, RunOutputTypeDefault
 
 
 def system_image(device: str) -> Path:

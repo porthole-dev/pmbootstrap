@@ -1,13 +1,13 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pathlib import Path, PurePath
 import subprocess
 from collections.abc import Sequence
-from typing import overload, Literal
+from pathlib import Path, PurePath
+from typing import Literal, overload
 
-import pmb.config
 import pmb.chroot
+import pmb.config
 import pmb.helpers.run_core
 from pmb.core import Chroot
 from pmb.types import (

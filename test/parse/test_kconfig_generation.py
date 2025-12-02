@@ -1,12 +1,13 @@
 # Copyright 2025 Clayton Craft
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.parse.kconfig import create_fragment
-from pmb.core.arch import Arch
-from pmb.types import Apkbuild
-import pmb.parse.kconfigcheck
-from _pytest.monkeypatch import MonkeyPatch
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
+
+import pmb.parse.kconfigcheck
+from pmb.core.arch import Arch
+from pmb.parse.kconfig import create_fragment
+from pmb.types import Apkbuild
 
 
 @pytest.fixture

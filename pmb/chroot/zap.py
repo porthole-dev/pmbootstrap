@@ -1,24 +1,23 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import glob
-from pathlib import Path
-from pmb.core.arch import Arch
-from pmb.helpers import logging
 import os
+from pathlib import Path
 
 import pmb.build.other
-import pmb.config.workdir
 import pmb.chroot
 import pmb.config.pmaports
 import pmb.config.workdir
 import pmb.helpers.apk
 import pmb.helpers.cli
+import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.helpers.run
-import pmb.helpers.mount
 import pmb.parse.apkindex
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def del_chroot(path: Path, confirm: bool = True, dry: bool = False) -> None:

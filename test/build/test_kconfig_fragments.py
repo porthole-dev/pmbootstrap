@@ -1,8 +1,9 @@
 # Copyright 2025 Clayton Craft
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.build.kconfig import parse_fragment, _parse_config_options, _extract_config_diff
 from pathlib import Path
+
+from pmb.build.kconfig import _extract_config_diff, _parse_config_options, parse_fragment
 
 
 def test_parse_fragment_tristate() -> None:

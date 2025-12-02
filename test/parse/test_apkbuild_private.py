@@ -9,7 +9,6 @@ import pytest
 from pmb.helpers.exceptions import NonBugError
 from pmb.parse._apkbuild import archived, maintainers
 
-
 TESTDIR: Final[Path] = Path(__file__).parent.parent / "data/tests"
 
 

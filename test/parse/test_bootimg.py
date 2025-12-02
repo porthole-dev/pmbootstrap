@@ -1,16 +1,15 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pathlib import Path
-from collections.abc import Callable
-import pytest
 import shutil
 import subprocess
+from collections.abc import Callable
+from pathlib import Path
 
-from pmb.types import Bootimg
+import pytest
 
 from pmb.parse.bootimg import bootimg as parse_bootimg
-
+from pmb.types import Bootimg
 
 """
 This is the result of compiling a totally empty devicetree file:

@@ -3,9 +3,9 @@
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
+
 import pmb.helpers.repo
 import pmb.parse.apkindex
-
 from pmb.aportgen.gcc import depends_for_sonames
 from pmb.core.apkindex_block import ApkindexBlock
 from pmb.core.arch import Arch

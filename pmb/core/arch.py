@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import ctypes
 import enum
-from pathlib import Path, PosixPath, PurePosixPath
 import platform
+from pathlib import Path, PosixPath, PurePosixPath
 
 import pmb.config
 

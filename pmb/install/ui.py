@@ -1,9 +1,8 @@
 # Copyright 2023 Dylan Van Assche
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.helpers import logging
-
-from pmb.core import Config
 import pmb.helpers.pmaports
+from pmb.core import Config
+from pmb.helpers import logging
 
 
 def get_groups(config: Config) -> list[str]:

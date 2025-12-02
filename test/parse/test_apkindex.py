@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
-from pmb.core.arch import Arch
+
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 import pmb.parse.apkindex
-
+from pmb.core.arch import Arch
 from pmb.parse.apkindex import (
-    parse as parse_apkindex,
     clear_cache as clear_apkindex_cache,
     package as package_apkindex,
+    parse as parse_apkindex,
 )
 
 example_apkindex = """

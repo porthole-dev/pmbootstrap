@@ -1,10 +1,8 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.arch import Arch
-from pmb.helpers import logging
+import glob
 import os
 import re
-import glob
 import shlex
 import sys
 from collections.abc import Sequence
@@ -16,22 +14,23 @@ import pmb.chroot.apk
 import pmb.chroot.initfs
 import pmb.config
 import pmb.config.pmaports
-from pmb.helpers.locale import get_xkb_layout
-import pmb.parse.depends
-from pmb.parse.deviceinfo import Deviceinfo
-from pmb.core import Config
-from pmb.types import Env, PartitionLayout, PmbArgs, RunOutputTypeDefault
 import pmb.helpers.devices
-from pmb.helpers.mount import mount_device_rootfs
-import pmb.helpers.run
 import pmb.helpers.other
 import pmb.helpers.package
+import pmb.helpers.run
+import pmb.install
 import pmb.install.blockdevice
 import pmb.install.recovery
 import pmb.install.ui
-import pmb.install
-from pmb.core import Chroot, ChrootType
+import pmb.parse.depends
+from pmb.core import Chroot, ChrootType, Config
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.locale import get_xkb_layout
+from pmb.helpers.mount import mount_device_rootfs
+from pmb.parse.deviceinfo import Deviceinfo
+from pmb.types import Env, PartitionLayout, PmbArgs, RunOutputTypeDefault
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion

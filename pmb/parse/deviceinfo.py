@@ -4,17 +4,18 @@
 from __future__ import annotations
 
 import copy
+import inspect
+import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from pmb.core.context import get_context
-from pmb.core.arch import Arch
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
-import inspect
-import os
+
 import pmb.config
 import pmb.helpers.devices
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pmb.meta import Cache
 
 

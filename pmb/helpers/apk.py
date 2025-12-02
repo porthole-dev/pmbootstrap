@@ -7,17 +7,17 @@ from pathlib import Path
 from typing import Literal
 
 import pmb.config.pmaports
-from pmb.core.arch import Arch
-from pmb.core.chroot import Chroot
-from pmb.types import PathString, RunOutputTypePopen
 import pmb.helpers.cli
 import pmb.helpers.repo
 import pmb.helpers.run
 import pmb.helpers.run_core
 import pmb.parse.version
+from pmb.core.arch import Arch
+from pmb.core.chroot import Chroot
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.meta import Cache
+from pmb.types import PathString, RunOutputTypePopen
 
 
 @Cache("root", "user_repository", mirrors_exclude=[])

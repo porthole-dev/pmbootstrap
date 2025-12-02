@@ -3,9 +3,9 @@
 
 import sys
 
+import pmb.helpers.pkgrel_bump
 from pmb import commands
 from pmb.helpers import logging
-import pmb.helpers.pkgrel_bump
 
 
 class PkgrelBump(commands.Command):

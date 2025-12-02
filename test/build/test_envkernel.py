@@ -1,9 +1,9 @@
 # Copyright 2025 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.build.envkernel import match_kbuild_out, find_kbuild_output_dir
-
 import pytest
+
+from pmb.build.envkernel import find_kbuild_output_dir, match_kbuild_out
 
 
 def test_match_kbuild_out() -> None:

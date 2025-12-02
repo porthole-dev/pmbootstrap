@@ -1,15 +1,15 @@
 # Copyright 2023 Attila Szollosi
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pathlib import Path
-from pmb.core.chroot import Chroot
-from pmb.helpers import logging
 
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.config.pmaports
-from pmb.types import PmbArgs
 import pmb.flasher
 import pmb.helpers.frontend
+from pmb.core.chroot import Chroot
+from pmb.helpers import logging
+from pmb.types import PmbArgs
 
 
 def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:

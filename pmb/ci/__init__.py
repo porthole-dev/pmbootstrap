@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import collections
 import glob
-from pmb.helpers import logging
 import os
 from pathlib import Path
 from typing import TypedDict
+
 import pmb.chroot
-from pmb.types import Env, RunOutputTypeDefault
 import pmb.helpers.cli
 from pmb.core import Chroot
+from pmb.helpers import logging
+from pmb.types import Env, RunOutputTypeDefault
 
 
 class CiScriptDescriptor(TypedDict):

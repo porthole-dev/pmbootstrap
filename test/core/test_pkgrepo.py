@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pytest
-
-from pmb.core.pkgrepo import pkgrepo_paths, pkgrepo_default_path
 from _pytest.monkeypatch import MonkeyPatch
+
+from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_paths
 
 
 @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)

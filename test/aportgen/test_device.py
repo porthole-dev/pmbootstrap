@@ -1,10 +1,10 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.types import Bootimg
 import pytest
 
 from pmb.aportgen.device import generate_deviceinfo_fastboot_content
+from pmb.types import Bootimg
 
 # Test case name -> (input, expected substrings, !expected substrings)
 test_data: dict[str, tuple[Bootimg | None, list[str], list[str]]] = {

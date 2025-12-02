@@ -1,21 +1,21 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import configparser
+import os
+import re
 from enum import Enum
 from glob import glob
 from pathlib import Path
 from typing import Final
 from urllib.parse import urlparse
-from pmb.core.context import get_context
-from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_path, pkgrepo_name
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
-import os
-import re
 
 import pmb.config
 import pmb.helpers.pmaports
 import pmb.helpers.run
+from pmb.core.context import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_name, pkgrepo_path
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pmb.meta import Cache
 from pmb.types import PathString, RunOutputTypeDefault
 

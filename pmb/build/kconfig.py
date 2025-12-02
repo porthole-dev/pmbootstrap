@@ -3,9 +3,6 @@
 import enum
 import os
 from pathlib import Path
-from pmb.core.arch import Arch
-from pmb.core.context import get_context
-from pmb.helpers import logging
 from typing import Any
 
 import pmb.build
@@ -19,6 +16,9 @@ import pmb.helpers.run
 import pmb.parse
 import pmb.parse.kconfig
 from pmb.core import Chroot
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
+from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 from pmb.types import Apkbuild, Env, RunOutputTypeDefault
 

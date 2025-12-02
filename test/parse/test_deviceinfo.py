@@ -1,13 +1,14 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import random
+import tempfile
 from pathlib import Path
-from pmb.parse.deviceinfo import Deviceinfo
-from pmb.config import deviceinfo_chassis_types
 
 import pytest
-import tempfile
-import random
+
+from pmb.config import deviceinfo_chassis_types
+from pmb.parse.deviceinfo import Deviceinfo
 
 # Exported from the wiki using https://www.convertcsv.com/html-table-to-csv.htm
 # on 2024/10/23

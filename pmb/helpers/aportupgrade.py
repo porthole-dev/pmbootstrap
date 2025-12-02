@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import datetime
 import fnmatch
-from pmb.helpers import logging
 import os
 import re
 import urllib.parse
 from typing import TypedDict
 
-from pmb.types import Apkbuild
 import pmb.helpers.file
 import pmb.helpers.http
 import pmb.helpers.pmaports
+from pmb.helpers import logging
+from pmb.types import Apkbuild
 
 
 class PackageVersionInfo(TypedDict):

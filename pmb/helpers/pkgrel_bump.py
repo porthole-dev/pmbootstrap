@@ -3,15 +3,14 @@
 from enum import Enum
 from typing import Any
 
-from pmb.core.apkindex_block import ApkindexBlock
-from pmb.core.arch import Arch
-from pmb.helpers import logging
-
 import pmb.helpers.file
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse
 import pmb.parse.apkindex
+from pmb.core.apkindex_block import ApkindexBlock
+from pmb.core.arch import Arch
+from pmb.helpers import logging
 
 
 class BumpType(Enum):

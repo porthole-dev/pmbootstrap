@@ -38,7 +38,7 @@ line-length=100
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
 extend-ignore = ["B006", "B008", "FURB101", "FURB103", "PERF203"]
-extend-select = ["B", "C4", "CPY001", "FURB", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
+extend-select = ["B", "C4", "CPY001", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -46,6 +46,10 @@ preview = true
 "test/parse/test_arguments.py" = ["SIM905"]
 # B011: Tests shouldn't be run with python -O set anyway.
 "test/*" = ["B011"]
+
+[tool.ruff.lint.isort]
+force-wrap-aliases = true
+combine-as-imports = true
 
 [tool.ruff.format]
 # Enable auto-formatting of code examples in docstrings.

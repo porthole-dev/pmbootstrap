@@ -1,12 +1,13 @@
 # Copyright 2023 Clayton Craft
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+
+import pmb.helpers.package
+import pmb.helpers.pmaports
+import pmb.parse
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.types import WithExtraRepos
-import pmb.helpers.pmaports
-import pmb.helpers.package
-import pmb.parse
 
 
 def list_ui(arch: Arch) -> list[tuple[str, str]]:

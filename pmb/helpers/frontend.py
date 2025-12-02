@@ -1,12 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
-from collections.abc import Sequence
-from pmb.core.arch import Arch
-from pmb.helpers import logging
 import os
-from pathlib import Path
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 from typing import Any, NoReturn
 
 import pmb.aportgen
@@ -17,8 +15,6 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
 import pmb.config
-from pmb.core import Config
-from pmb.types import Env, PmbArgs, RunOutputTypeDefault
 import pmb.export
 import pmb.helpers.aportupgrade
 import pmb.helpers.git
@@ -36,8 +32,11 @@ import pmb.parse
 import pmb.parse.apkindex
 import pmb.qemu
 import pmb.sideload
-from pmb.core import ChrootType, Chroot
+from pmb.core import Chroot, ChrootType, Config
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.types import Env, PmbArgs, RunOutputTypeDefault
 
 
 def _parse_flavor(device: str, autoinstall: bool = True) -> str:

@@ -1,19 +1,18 @@
 # Copyright 2025 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.arch import Arch
-from pmb.core.context import get_context
-from pmb.meta import Cache
-from pmb.types import WithExtraRepos
-from pmb.helpers.devices import DeviceCategory, get_device_category_by_apkbuild_path
+import glob
+import logging
+import os
 from pathlib import Path
 
 import pmb.build
 import pmb.helpers.package
 import pmb.helpers.pmaports
-import pmb.helpers.package
-import glob
-import os
-import logging
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
+from pmb.helpers.devices import DeviceCategory, get_device_category_by_apkbuild_path
+from pmb.meta import Cache
+from pmb.types import WithExtraRepos
 
 
 @Cache("repo")

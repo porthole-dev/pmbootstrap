@@ -1,9 +1,9 @@
 # Copyright 2024 Anri Dellal
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.helpers import logging
-
 from typing import Final
+
+from pmb.helpers import logging
 
 """
 Helper used to configure locale-related settings in pmOS installation.

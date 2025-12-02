@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from pmb import commands
+
 import pmb.build.other
+from pmb import commands
 
 
 class Index(commands.Command):

@@ -1,19 +1,19 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import filecmp
-from pmb.meta import Cache
-from pmb.helpers import logging
 import os
 
 import pmb.chroot
 import pmb.config
 import pmb.config.workdir
-import pmb.helpers.apk_static
 import pmb.helpers.apk
+import pmb.helpers.apk_static
 import pmb.helpers.repo
 import pmb.helpers.run
 from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.meta import Cache
 from pmb.types import PathString
 
 

@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from pmb import commands
-import pmb.helpers.git
-import pmb.config
+
 import logging
+
+import pmb.config
+import pmb.helpers.git
+from pmb import commands
 
 
 class Pull(commands.Command):

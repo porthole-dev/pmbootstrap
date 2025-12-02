@@ -1,17 +1,17 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import argparse
-from collections.abc import Sequence
 import contextlib
 import os
-from pathlib import Path
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 from typing import Any, cast
 
-from pmb.core.arch import Arch
 from pmb.core import Config
-from pmb.types import PmbArgs, RunOutputTypeDefault
+from pmb.core.arch import Arch
 from pmb.helpers.exceptions import NonBugError
+from pmb.types import PmbArgs, RunOutputTypeDefault
 
 with contextlib.suppress(ImportError):
     import argcomplete

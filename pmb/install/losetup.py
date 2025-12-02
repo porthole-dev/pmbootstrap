@@ -1,16 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
-from pathlib import Path
-from pmb.core.context import get_context
-from pmb.helpers import logging
 import time
+from pathlib import Path
 
-from pmb.types import PathString
+import pmb.chroot
 import pmb.helpers.mount
 import pmb.helpers.run
-import pmb.chroot
 from pmb.core import Chroot
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.types import PathString
 
 
 def init() -> None:

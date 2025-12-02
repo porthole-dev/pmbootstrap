@@ -1,21 +1,21 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pmb.core.arch import Arch
-from pmb.helpers import logging
 import shutil
+import stat
 import tarfile
 import tempfile
-import stat
 from pathlib import Path
 
-import pmb.helpers.apk
-import pmb.helpers.run
-import pmb.helpers.repo
 import pmb.config
-import pmb.parse.apkindex
+import pmb.helpers.apk
 import pmb.helpers.http
+import pmb.helpers.repo
+import pmb.helpers.run
+import pmb.parse.apkindex
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 
 

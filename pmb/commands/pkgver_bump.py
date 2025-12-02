@@ -1,8 +1,8 @@
 # Copyright 2024 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb import commands
 import pmb.helpers.pkgrel_bump
+from pmb import commands
 
 
 class PkgverBump(commands.Command):

@@ -1,14 +1,14 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
 import logging
+import os
+from pathlib import Path
 
 import pmb.config
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers.toml import load_toml_file
 from pmb.meta import Cache
-from pathlib import Path
 
 
 @Cache()

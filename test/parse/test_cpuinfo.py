@@ -1,11 +1,10 @@
 # Copyright 2025 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.parse.cpuinfo import arm_big_little_first_group_ncpus
-
 from pathlib import Path
 from typing import Final
 
+from pmb.parse.cpuinfo import arm_big_little_first_group_ncpus
 
 TESTDIR: Final[Path] = Path(__file__).parent.parent / "data/tests"
 

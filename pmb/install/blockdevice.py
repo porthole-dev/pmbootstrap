@@ -1,14 +1,15 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.helpers import logging
 import os
 from pathlib import Path
+
+import pmb.config
+import pmb.helpers.cli
 import pmb.helpers.mount
 import pmb.install.losetup
-import pmb.helpers.cli
-import pmb.config
 from pmb.core import Chroot
 from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def previous_install(path: Path) -> bool:

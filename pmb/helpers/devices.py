@@ -6,10 +6,11 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+
 import pmb.config
+import pmb.helpers.pmaports
 from pmb.core.pkgrepo import pkgrepo_glob_one, pkgrepo_iglob
 from pmb.helpers import logging
-import pmb.helpers.pmaports
 
 
 def find_path(codename: str, file: str = "") -> Path | None:

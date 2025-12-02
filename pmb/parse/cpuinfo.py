@@ -1,7 +1,7 @@
 # Copyright 2023 Lary Gibaud
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pathlib import Path
 import re
+from pathlib import Path
 
 
 def arm_big_little_first_group_ncpus(cpuinfo_path: Path = Path("/proc/cpuinfo")) -> int | None:

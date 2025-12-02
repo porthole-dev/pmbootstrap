@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from pmb import commands, logging
-import pmb.helpers.repo
-import pmb.parse.apkindex
-from pmb.core.arch import Arch
+
 import time
 
+import pmb.helpers.logging as logging
+import pmb.helpers.repo
+import pmb.parse.apkindex
+from pmb import commands
+from pmb.core.arch import Arch
 
 """Various internal test commands for performance testing and debugging."""
 

@@ -1,15 +1,15 @@
 # Copyright 2017 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.core.context import get_context
-from pmb.helpers import logging
 import os
 
-from pmb.types import PmbArgs
-import pmb.helpers.run
 import pmb.chroot.initfs
 import pmb.export
+import pmb.helpers.run
 from pmb.core import Chroot, ChrootType
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.types import PmbArgs
 
 
 def frontend(args: PmbArgs) -> None:  # FIXME: ARGS_REFACTOR

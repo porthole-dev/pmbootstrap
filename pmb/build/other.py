@@ -1,15 +1,14 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import enum
-from pmb.helpers import logging
-import os
-from pathlib import Path
-import shlex
 import datetime
+import enum
+import os
+import shlex
+from pathlib import Path
 
+import pmb.build
 import pmb.chroot
 import pmb.config.pmaports
-import pmb.build
 import pmb.helpers.pmaports
 import pmb.helpers.run
 import pmb.parse.apkindex
@@ -17,6 +16,7 @@ import pmb.parse.version
 from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 from pmb.types import Apkbuild
 
 

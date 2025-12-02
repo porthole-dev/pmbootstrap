@@ -1,14 +1,15 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import fnmatch
-from pmb.helpers import logging
-from pathlib import Path
 import re
+from pathlib import Path
+
 import pmb.helpers.git
 import pmb.helpers.run
 from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def indent_size(line: str) -> int:

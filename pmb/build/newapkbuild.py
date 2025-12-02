@@ -1,16 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pmb.core.pkgrepo import pkgrepo_default_path
-from pmb.helpers import logging
-from pmb.types import PathString
 from pathlib import Path
+
+import pmb.build
 import pmb.chroot
 import pmb.helpers.cli
 import pmb.parse
-import pmb.build
-
 from pmb.core import Chroot
+from pmb.core.pkgrepo import pkgrepo_default_path
+from pmb.helpers import logging
+from pmb.types import PathString
 
 
 def newapkbuild(folder: PathString, args_passed: list[str], force: bool = False) -> None:

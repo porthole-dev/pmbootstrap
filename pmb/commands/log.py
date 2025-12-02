@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from pmb import commands
-from pmb.types import PathString, RunOutputTypeDefault
-from pmb.helpers import run
-from pmb.core.context import get_context
+
 import pmb.config
+from pmb import commands
+from pmb.core.context import get_context
+from pmb.helpers import run
+from pmb.types import PathString, RunOutputTypeDefault
 
 
 class Log(commands.Command):

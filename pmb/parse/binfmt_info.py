@@ -1,7 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.helpers import logging
 import pmb.config
+from pmb.helpers import logging
 
 # Get magic and mask from binfmt info file
 # Return: {magic: ..., mask: ...}

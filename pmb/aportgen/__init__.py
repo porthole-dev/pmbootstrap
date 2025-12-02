@@ -1,20 +1,21 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pathlib import Path
 import os
-from pmb.core.context import get_context
-from pmb.core.pkgrepo import pkgrepo_default_path
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
+from pathlib import Path
+
 import pmb.aportgen.busybox_static
 import pmb.aportgen.core
 import pmb.aportgen.device
 import pmb.aportgen.gcc
+import pmb.aportgen.grub_efi
 import pmb.aportgen.linux
 import pmb.aportgen.musl
-import pmb.aportgen.grub_efi
 import pmb.config
 import pmb.helpers.cli
+from pmb.core.context import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 
 
 def get_cross_package_arches(pkgname: str) -> str:

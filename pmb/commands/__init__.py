@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from pmb.types import PmbArgs
-from pmb.helpers import frontend
 
-from .base import Command
+from pmb.helpers import frontend
+from pmb.types import PmbArgs
+
 from .aportgen import Aportgen
+from .base import Command
 from .flasher import Flasher
-from .log import Log
 from .index import Index
-from .shutdown import Shutdown
-from .test import Test
+from .kconfig import KConfigCheck, KConfigEdit, KConfigGenerate, KConfigMigrate
+from .log import Log
 from .pkgrel_bump import PkgrelBump
 from .pkgver_bump import PkgverBump
 from .pull import Pull
-from .kconfig import KConfigCheck, KConfigEdit, KConfigMigrate, KConfigGenerate
+from .shutdown import Shutdown
+from .test import Test
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 

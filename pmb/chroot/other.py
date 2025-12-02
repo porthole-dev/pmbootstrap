@@ -1,11 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
-from pmb.core.context import get_context
-from pmb.helpers import logging
+
 import pmb.chroot.apk
 import pmb.install
 from pmb.core import Chroot
+from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def kernel_flavor_installed(chroot: Chroot, autoinstall: bool = True) -> str | None:

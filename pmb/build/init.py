@@ -1,16 +1,15 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.arch import Arch
-from pmb.core.context import Context
-from pmb.helpers import logging
 import os
 import pathlib
 
-import pmb.config
 import pmb.chroot
 import pmb.chroot.apk
+import pmb.config
 from pmb.core import Chroot
-from pmb.core.context import get_context
+from pmb.core.arch import Arch
+from pmb.core.context import Context, get_context
+from pmb.helpers import logging
 from pmb.types import CrossCompile
 
 

@@ -1,9 +1,9 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
+import pmb.config.pmaports
+import pmb.helpers.ui
 from pmb.core import Config
 from pmb.core.config import SystemdConfig
-import pmb.helpers.ui
-import pmb.config.pmaports
 from pmb.meta import Cache
 
 

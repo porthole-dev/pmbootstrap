@@ -3,32 +3,30 @@
 import datetime
 import functools
 import operator
-from typing import Any, TypedDict
 from collections.abc import Callable
-from pmb.build.other import BuildStatus
-from pmb.core.arch import Arch
-from pmb.core.context import Context
-from pmb.core.pkgrepo import pkgrepo_relative_path
-from pmb.helpers import logging
-from pmb.types import Apkbuild, CrossCompile
 from pathlib import Path
+from typing import Any, TypedDict
 
 import pmb.build
 import pmb.build.autodetect
 import pmb.chroot
 import pmb.chroot.apk
 import pmb.config.pmaports
+import pmb.helpers.package
 import pmb.helpers.pmaports
 import pmb.helpers.repo
-import pmb.helpers.package
 import pmb.parse
 import pmb.parse.apkindex
-from pmb.helpers.exceptions import BuildFailedError, NonBugError
-
-from .backend import run_abuild
-from .backend import BootstrapStage
+from pmb.build.other import BuildStatus
 from pmb.core import Chroot
-from pmb.core.context import get_context
+from pmb.core.arch import Arch
+from pmb.core.context import Context, get_context
+from pmb.core.pkgrepo import pkgrepo_relative_path
+from pmb.helpers import logging
+from pmb.helpers.exceptions import BuildFailedError, NonBugError
+from pmb.types import Apkbuild, CrossCompile
+
+from .backend import BootstrapStage, run_abuild
 
 
 def check_build_for_arch(pkgname: str, arch: Arch) -> bool:

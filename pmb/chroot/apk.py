@@ -4,22 +4,22 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import traceback
-from pmb.core.arch import Arch
-from pmb.helpers import logging
 from collections.abc import Sequence
+from pathlib import Path
 
 import pmb.build
 import pmb.chroot
 import pmb.config
 import pmb.helpers.apk
-from pmb.meta import Cache
 import pmb.parse.apkindex
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
-from pmb.types import PathString
+from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
+from pmb.meta import Cache
+from pmb.types import PathString
 
 
 @Cache("chroot")

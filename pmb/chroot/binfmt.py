@@ -1,14 +1,14 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+
+import pmb.chroot.apk
+import pmb.helpers.other
+import pmb.helpers.run
+import pmb.parse
 from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
-
-import pmb.helpers.run
-import pmb.helpers.other
-import pmb.parse
-import pmb.chroot.apk
 
 
 def is_registered(arch_qemu: str | Arch) -> bool:

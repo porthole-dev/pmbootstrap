@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Configuration file for the Sphinx documentation builder.
 
-import sys
-import os
 import datetime
+import os
+import sys
 
 sys.path.insert(0, os.path.abspath(".."))  # Allow modules to be found
 

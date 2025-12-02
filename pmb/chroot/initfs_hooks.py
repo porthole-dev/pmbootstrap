@@ -1,12 +1,12 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
+
+import pmb.chroot.apk
+import pmb.config
+from pmb.core import Chroot
 from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.helpers import logging
-
-import pmb.config
-import pmb.chroot.apk
-from pmb.core import Chroot
 
 
 def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:

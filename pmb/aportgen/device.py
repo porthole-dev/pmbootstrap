@@ -1,15 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.context import get_context
-from pmb.core.arch import Arch
-from pmb.helpers import logging
-from pmb.types import Bootimg
-from pathlib import Path
 import os
+from pathlib import Path
+
 import pmb.helpers.cli
 import pmb.helpers.devices
 import pmb.helpers.run
 import pmb.parse
+from pmb.core.arch import Arch
+from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.types import Bootimg
 
 
 def ask_for_architecture() -> Arch:

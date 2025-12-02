@@ -1,17 +1,18 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.chroot import ChrootType
-from pmb.core.pkgrepo import pkgrepo_default_path
-from pmb.helpers import logging
 import os
 from pathlib import Path
+
 import pmb.chroot.binfmt
 import pmb.config
+import pmb.helpers.mount
 import pmb.helpers.run
 import pmb.install.losetup
-import pmb.helpers.mount
 from pmb.core import Chroot
+from pmb.core.chroot import ChrootType
 from pmb.core.context import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
+from pmb.helpers import logging
 
 
 def mount_chroot_image(chroot: Chroot) -> None:

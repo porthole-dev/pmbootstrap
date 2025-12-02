@@ -1,7 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.core.arch import Arch
-from pmb.helpers import logging
 import socket
 from contextlib import closing
 
@@ -9,7 +7,9 @@ import pmb.chroot
 import pmb.helpers.mount
 import pmb.install.losetup
 from pmb.core import Chroot, ChrootType
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 
 
 def kill_adb() -> None:

@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # PYTHON_ARGCOMPLETE_OK
 import sys
+
 import pmb
 
 # A convenience wrapper for running pmbootstrap from the git repository. This

@@ -1,11 +1,11 @@
 # Copyright 2025 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from pmb.helpers.devices import DeviceCategory, get_device_category_by_apkbuild_path
-
 from pathlib import Path
 
 import pytest
+
+from pmb.helpers.devices import DeviceCategory, get_device_category_by_apkbuild_path
 
 
 def test_get_device_category_by_apkbuild_path() -> None:

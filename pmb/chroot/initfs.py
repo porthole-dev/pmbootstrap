@@ -1,15 +1,16 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
 from pathlib import Path
-import pmb.chroot.initfs_hooks
+
 import pmb.chroot.apk
-from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
-from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
+import pmb.chroot.initfs_hooks
 import pmb.helpers.cli
 from pmb.core import Chroot
 from pmb.core.context import get_context
+from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
+from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
+from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 
 
 def build(chroot: Chroot) -> None:
