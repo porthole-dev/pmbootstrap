@@ -714,8 +714,7 @@ def sanity_check_boot_size() -> None:
     sys.exit(1)
 
 
-def sanity_check_disk(args: PmbArgs) -> None:
-    device = args.disk
+def sanity_check_disk(device: Path) -> None:
     device_name = os.path.basename(device)
     if not os.path.exists(device):
         raise RuntimeError(f"{device} doesn't exist, is the disk plugged?")
@@ -1465,7 +1464,7 @@ def install(args: PmbArgs) -> None:
     # Sanity checks
     sanity_check_boot_size()
     if not args.android_recovery_zip and args.disk:
-        sanity_check_disk(args)
+        sanity_check_disk(args.disk)
         sanity_check_disk_size(args)
     if args.on_device_installer:
         sanity_check_ondev_version(args)
