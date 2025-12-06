@@ -267,7 +267,7 @@ def is_root_locked(chroot: Chroot) -> bool:
     return shadow_root.startswith("root:!:")
 
 
-def setup_login(args: PmbArgs, config: Config, chroot: Chroot) -> None:
+def setup_login(config: Config, chroot: Chroot, password: str, on_device_installer: bool) -> None:
     """
     Loop until the password for user has been set successfully, and disable
     root login.
@@ -275,10 +275,10 @@ def setup_login(args: PmbArgs, config: Config, chroot: Chroot) -> None:
     :param suffix: of the chroot, where passwd will be execute (either the
                    rootfs_{args.device} or installer_{args.device}
     """
-    if not args.on_device_installer:
+    if not on_device_installer:
         # User password
         logging.info(f" *** SET LOGIN PASSWORD FOR: '{config.user}' ***")
-        if args.password:
+        if password:
             setup_login_chpasswd_user_from_arg(config.user, password, chroot)
         else:
             while True:
@@ -1231,7 +1231,7 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
         pmb.chroot.root(["rm", f"/home/pmos/rootfs/{img_boot}"])
 
     # Disable root login
-    setup_login(args, config, chroot_installer)
+    setup_login(config, chroot_installer, args.password, args.on_device_installer)
 
     # Generate installer image
     size_reserve = round(os.path.getsize(img_path_dest) / 1024 / 1024) + 200
@@ -1436,7 +1436,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     pmb.chroot.initfs.build(chroot)
 
     # Set the user password
-    setup_login(args, config, chroot)
+    setup_login(config, chroot, password, on_device_installer)
 
     # Set the keymap if the device requires it
     setup_keymap(config)
