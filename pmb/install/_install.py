@@ -684,14 +684,14 @@ def embed_firmware(suffix: Chroot) -> None:
         )
 
 
-def write_cgpt_kpart(args: PmbArgs, layout: PartitionLayout, suffix: Chroot) -> None:
+def write_cgpt_kpart(layout: PartitionLayout, suffix: Chroot, install_cgpt: bool) -> None:
     """
     Write the kernel to the ChromeOS kernel partition.
 
     :param layout: partition layout from get_partition_layout()
     :param suffix: of the chroot, which holds the image file to be flashed
     """
-    if not pmb.parse.deviceinfo().cgpt_kpart or not args.install_cgpt:
+    if not pmb.parse.deviceinfo().cgpt_kpart or not install_cgpt:
         return
 
     device_rootfs = mount_device_rootfs(suffix)
@@ -991,7 +991,7 @@ def install_system_image(
     if not split and not single_partition:
         assert layout  # Initialized above for not single_partition case (mypy needs this)
         embed_firmware(chroot)
-        write_cgpt_kpart(args, layout, chroot)
+        write_cgpt_kpart(layout, chroot, args.install_cgpt)
 
     # Install GRUB to the PReP boot partition
     if pmb.parse.deviceinfo().create_prep_boot and layout:
