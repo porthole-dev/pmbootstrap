@@ -724,8 +724,7 @@ def sanity_check_disk(device: Path) -> None:
             raise RuntimeError(f"{device} is read-only, maybe a locked SD card?")
 
 
-def sanity_check_disk_size(args: PmbArgs) -> None:
-    device = args.disk
+def sanity_check_disk_size(device: Path) -> None:
     devpath = os.path.realpath(device)
     sysfs = "/sys/class/block/{}/size".format(devpath.replace("/dev/", ""))
     if not os.path.isfile(sysfs):
@@ -740,7 +739,7 @@ def sanity_check_disk_size(args: PmbArgs) -> None:
 
     # Warn if the size is larger than 100GiB
     if (
-        not args.assume_yes
+        not get_context().assume_yes
         and size > (100 * 2 * 1024 * 1024)
         and not pmb.helpers.cli.confirm(
             f"WARNING: The target disk ({devpath}) "
@@ -1465,7 +1464,7 @@ def install(args: PmbArgs) -> None:
     sanity_check_boot_size()
     if not args.android_recovery_zip and args.disk:
         sanity_check_disk(args.disk)
-        sanity_check_disk_size(args)
+        sanity_check_disk_size(args.disk)
     if args.on_device_installer:
         sanity_check_ondev_version(args)
 
