@@ -960,7 +960,17 @@ def install_system_image(
         assert layout  # Initialized above for not single_partition case (mypy needs this)
         pmb.install.partitions_mount(device, layout, disk)
 
-    pmb.install.format(args, layout, boot_label, root_label, disk)
+    pmb.install.format(
+        layout,
+        boot_label,
+        root_label,
+        disk,
+        args.rsync,
+        args.filesystem,
+        args.full_disk_encryption,
+        args.cipher,
+        args.iter_time,
+    )
 
     # Since we shut down the chroot we need to mount it again
     pmb.chroot.mount(chroot)

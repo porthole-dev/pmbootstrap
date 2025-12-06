@@ -8,7 +8,7 @@ from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.devices import get_device_category_by_name
-from pmb.types import PartitionLayout, PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import PartitionLayout, PathString, RunOutputTypeDefault
 
 
 def install_fsprogs(filesystem: str) -> None:
@@ -234,11 +234,15 @@ def format_and_mount_root(
 
 
 def format(
-    args: PmbArgs,
     layout: PartitionLayout | None,
     boot_label: str,
     root_label: str,
     disk: PathString | None,
+    rsync: bool,
+    filesystem: str,
+    full_disk_encryption: bool,
+    fde_cipher: str,
+    fde_iter_time: str,
 ) -> None:
     """
     :param layout: partition layout from get_partition_layout() or None
@@ -259,10 +263,10 @@ def format(
         root_dev = "/dev/install"
         boot_dev = None
 
-    if args.full_disk_encryption:
-        format_luks_root(root_dev, args.cipher, args.iter_time)
+    if full_disk_encryption:
+        format_luks_root(root_dev, fde_cipher, fde_iter_time)
         root_dev = "/dev/mapper/pm_crypt"
 
-    format_and_mount_root(root_dev, root_label, disk, args.rsync, args.filesystem)
+    format_and_mount_root(root_dev, root_label, disk, rsync, filesystem)
     if boot_dev:
         format_and_mount_boot(boot_dev, boot_label)
