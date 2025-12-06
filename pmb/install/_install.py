@@ -1369,7 +1369,18 @@ def get_recommends(packages: list[str], install_recommends: bool) -> Sequence[st
     return ret
 
 
-def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
+def create_device_rootfs(
+    step: int,
+    steps: int,
+    add: str,
+    password: str,
+    install_base: bool,
+    install_recommends: bool,
+    full_disk_encryption: bool,
+    on_device_installer: bool,
+    no_sshd: bool,
+    no_firewall: bool,
+) -> None:
     # list all packages to be installed (including the ones specified by --add)
     # and upgrade the installed packages/apkindexes
     context = get_context()
@@ -1385,7 +1396,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
 
     # Fill install_packages
     install_packages = [*pmb.config.install_device_packages, "device-" + device]
-    if not args.install_base:
+    if not install_base:
         install_packages = [p for p in install_packages if p != "postmarketos-base"]
     ui_package_name = f"postmarketos-ui-{config.ui}"
     if config.ui.lower() != "none":
@@ -1406,8 +1417,8 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
 
     if context.config.extra_packages.lower() != "none":
         install_packages += context.config.extra_packages.split(",")
-    if args.add:
-        install_packages += args.add.split(",")
+    if add:
+        install_packages += add.split(",")
 
     pmaports_cfg = pmb.config.pmaports.read_config()
     # postmarketos-base supports a dummy package for blocking unl0kr install
@@ -1417,7 +1428,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
         # explicitly in the rootfs until there's a mechanism to selectively
         # install it when the ondev installer is running.
         # Always install it when --fde is specified.
-        if args.full_disk_encryption or args.on_device_installer:
+        if full_disk_encryption or on_device_installer:
             # Pick the most suitable unlocker depending on the packages
             # selected for installation
             unlocker = pmb.parse.depends.package_provider(
@@ -1466,9 +1477,9 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
 
     setup_appstream(context.offline, chroot)
 
-    if args.no_sshd:
+    if no_sshd:
         disable_service(chroot, "sshd")
-    if args.no_firewall:
+    if no_firewall:
         disable_service(chroot, "nftables")
 
 
@@ -1512,7 +1523,18 @@ def install(args: PmbArgs) -> None:
     step += 1
 
     if not args.ondev_no_rootfs:
-        create_device_rootfs(args, step, steps)
+        create_device_rootfs(
+            step,
+            steps,
+            args.add,
+            args.password,
+            args.install_base,
+            args.install_recommends,
+            args.full_disk_encryption,
+            args.on_device_installer,
+            args.no_sshd,
+            args.no_firewall,
+        )
         step += 1
 
     if args.no_image:
