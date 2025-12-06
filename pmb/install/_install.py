@@ -486,12 +486,12 @@ def setup_appstream(offline: bool, chroot: Chroot) -> None:
         )
 
 
-def print_sshd_info(args: PmbArgs) -> None:
+def print_sshd_info(ondev_no_rootfs: bool, no_sshd: bool, on_device_installer: bool) -> None:
     logging.info("")  # make the note stand out
     logging.info("*** SSH DAEMON INFORMATION ***")
 
-    if not args.ondev_no_rootfs:
-        if args.no_sshd:
+    if not ondev_no_rootfs:
+        if no_sshd:
             logging.info("SSH daemon is disabled (--no-sshd).")
         else:
             logging.info("SSH daemon is enabled (disable with --no-sshd).")
@@ -500,7 +500,7 @@ def print_sshd_info(args: PmbArgs) -> None:
                 " during installation."
             )
 
-    if args.on_device_installer:
+    if on_device_installer:
         # We don't disable sshd in the installer OS. If the device is reachable
         # on the network by default (e.g. Raspberry Pi), one can lock down the
         # installer OS down by disabling the debug user (see wiki page).
@@ -1528,7 +1528,7 @@ def install(args: PmbArgs) -> None:
         bool(args.disk and args.disk.is_absolute()),
         args.single_partition,
     )
-    print_sshd_info(args)
+    print_sshd_info(args.ondev_no_rootfs, args.no_sshd, args.on_device_installer)
     print_firewall_info(args.no_firewall, deviceinfo.arch)
 
     # Leave space before 'chroot still active' note
