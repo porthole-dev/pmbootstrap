@@ -752,14 +752,14 @@ def sanity_check_disk_size(device: Path) -> None:
         raise RuntimeError("Aborted.")
 
 
-def get_ondev_pkgver(args: PmbArgs) -> str:
+def get_ondev_pkgver() -> str:
     arch = pmb.parse.deviceinfo().arch
     package = pmb.helpers.package.get("postmarketos-ondev", arch)
     return package.version.split("-r")[0]
 
 
 def sanity_check_ondev_version(args: PmbArgs) -> None:
-    ver_pkg = get_ondev_pkgver(args)
+    ver_pkg = get_ondev_pkgver()
     ver_min = pmb.config.ondev_min_version
     if pmb.parse.version.compare(ver_pkg, ver_min) == -1:
         raise RuntimeError(
