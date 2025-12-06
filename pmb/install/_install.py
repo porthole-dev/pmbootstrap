@@ -646,7 +646,7 @@ def generate_binary_list(chroot: Chroot, step: int) -> list[tuple[str, int]]:
     return binary_list
 
 
-def embed_firmware(args: PmbArgs, suffix: Chroot) -> None:
+def embed_firmware(suffix: Chroot) -> None:
     """
     This method will embed firmware, located at /usr/share, that are specified
     by the "sd_embed_firmware" deviceinfo parameter into the SD card image
@@ -990,7 +990,7 @@ def install_system_image(
     # place to put it and it will end up in /dev of the chroot instead
     if not split and not single_partition:
         assert layout  # Initialized above for not single_partition case (mypy needs this)
-        embed_firmware(args, chroot)
+        embed_firmware(chroot)
         write_cgpt_kpart(args, layout, chroot)
 
     # Install GRUB to the PReP boot partition
