@@ -1311,7 +1311,7 @@ def get_selected_providers(packages: list[str]) -> list[str]:
     return ret
 
 
-def get_recommends(args: PmbArgs, packages: list[str]) -> Sequence[str]:
+def get_recommends(packages: list[str], install_recommends: bool) -> Sequence[str]:
     """
     Look through the specified packages and collect additional packages
     specified under _pmb_recommends in them. This is recursive, so it will dive
@@ -1330,7 +1330,7 @@ def get_recommends(args: PmbArgs, packages: list[str]) -> Sequence[str]:
     global get_recommends_visited
 
     ret: list[str] = []
-    if not args.install_recommends:
+    if not install_recommends:
         return ret
 
     for package in packages:
@@ -1360,11 +1360,11 @@ def get_recommends(args: PmbArgs, packages: list[str]) -> Sequence[str]:
             ret += recommends
             # Call recursively in case recommends have pmb_recommends of their
             # own.
-            ret += get_recommends(args, recommends)
+            ret += get_recommends(recommends, install_recommends)
         # Also iterate through dependencies to collect any recommends they have
         depends = apkbuild["depends"]
         if depends:
-            ret += get_recommends(args, depends)
+            ret += get_recommends(depends, install_recommends)
 
     return ret
 
@@ -1435,7 +1435,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
     pmb.helpers.repo.update(pmb.parse.deviceinfo().arch)
 
     # Install uninstallable "dependencies" by default
-    install_packages += get_recommends(args, install_packages)
+    install_packages += get_recommends(install_packages, install_recommends)
 
     # Install the base-systemd package first to make sure presets are available
     # when services are installed later
