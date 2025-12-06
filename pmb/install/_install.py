@@ -839,7 +839,13 @@ def create_crypttab(layout: PartitionLayout | None, chroot: Chroot) -> None:
     pmb.chroot.root(["mv", "/tmp/crypttab", "/etc/crypttab"], chroot)
 
 
-def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) -> None:
+def create_fstab(
+    layout: PartitionLayout | None,
+    chroot: Chroot,
+    on_device_installer: bool,
+    filesystem: str,
+    full_disk_encryption: bool,
+) -> None:
     """
     Create /etc/fstab config
 
@@ -848,7 +854,7 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
     """
     # Do not install fstab into target rootfs when using on-device
     # installer. Provide fstab only to installer suffix
-    if args.on_device_installer and chroot.type == ChrootType.ROOTFS:
+    if on_device_installer and chroot.type == ChrootType.ROOTFS:
         return
 
     uses_prep = layout and layout["prep"] is not None
@@ -863,10 +869,8 @@ def create_fstab(args: PmbArgs, layout: PartitionLayout | None, chroot: Chroot) 
         boot_dev = None
         root_dev = Path("/dev/install")
 
-    root_mount_point = (
-        "/dev/mapper/root" if args.full_disk_encryption else f"UUID={get_uuid(root_dev)}"
-    )
-    root_filesystem = pmb.install.get_root_filesystem(args.filesystem)
+    root_mount_point = "/dev/mapper/root" if full_disk_encryption else f"UUID={get_uuid(root_dev)}"
+    root_filesystem = pmb.install.get_root_filesystem(filesystem)
 
     if root_filesystem == "btrfs":
         # btrfs gets separate subvolumes for root, var and home
@@ -963,7 +967,9 @@ def install_system_image(
 
     # Create /etc/fstab and /etc/crypttab
     logging.info("(native) create /etc/fstab")
-    create_fstab(args, layout, chroot)
+    create_fstab(
+        layout, chroot, args.on_device_installer, args.filesystem, args.full_disk_encryption
+    )
     if args.full_disk_encryption:
         logging.info("(native) create /etc/crypttab")
         create_crypttab(layout, chroot)
