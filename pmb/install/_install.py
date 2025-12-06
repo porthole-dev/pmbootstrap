@@ -1265,7 +1265,7 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
     )
 
 
-def get_selected_providers(args: PmbArgs, packages: list[str]) -> list[str]:
+def get_selected_providers(packages: list[str]) -> list[str]:
     """
     Look through the specified packages and see which providers were selected
     in "pmbootstrap init". Install those as extra packages to select them
@@ -1306,7 +1306,7 @@ def get_selected_providers(args: PmbArgs, packages: list[str]) -> list[str]:
         # Also iterate through dependencies to collect any providers they have
         depends = apkbuild["depends"]
         if depends:
-            ret += get_selected_providers(args, depends)
+            ret += get_selected_providers(depends)
 
     return ret
 
@@ -1392,7 +1392,7 @@ def create_device_rootfs(args: PmbArgs, step: int, steps: int) -> None:
         install_packages += [ui_package_name]
 
     # Add additional providers of base/device/UI package
-    install_packages += get_selected_providers(args, install_packages)
+    install_packages += get_selected_providers(install_packages)
 
     install_packages += get_kernel_package(config)
     install_packages += get_nonfree_packages(device)
