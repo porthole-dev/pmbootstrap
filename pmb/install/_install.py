@@ -758,7 +758,7 @@ def get_ondev_pkgver() -> str:
     return package.version.split("-r")[0]
 
 
-def sanity_check_ondev_version(args: PmbArgs) -> None:
+def sanity_check_ondev_version() -> None:
     ver_pkg = get_ondev_pkgver()
     ver_min = pmb.config.ondev_min_version
     if pmb.parse.version.compare(ver_pkg, ver_min) == -1:
@@ -1466,7 +1466,7 @@ def install(args: PmbArgs) -> None:
         sanity_check_disk(args.disk)
         sanity_check_disk_size(args.disk)
     if args.on_device_installer:
-        sanity_check_ondev_version(args)
+        sanity_check_ondev_version()
 
     # --single-partition implies --no-split. There is nothing to split if
     # there is only a single partition.
