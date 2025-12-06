@@ -590,7 +590,7 @@ def print_firewall_info(disabled: bool, arch: Arch) -> None:
     logging.info("For more information: https://postmarketos.org/firewall")
 
 
-def generate_binary_list(args: PmbArgs, chroot: Chroot, step: int) -> list[tuple[str, int]]:
+def generate_binary_list(chroot: Chroot, step: int) -> list[tuple[str, int]]:
     """
     Perform three checks prior to writing binaries to disk: 1) that binaries
     exist, 2) that binaries do not extend into the first partition, 3) that
@@ -670,7 +670,7 @@ def embed_firmware(args: PmbArgs, suffix: Chroot) -> None:
             ) from exception
 
     device_rootfs = mount_device_rootfs(suffix)
-    binary_list = generate_binary_list(args, suffix, step)
+    binary_list = generate_binary_list(suffix, step)
 
     # Write binaries to disk
     for binary, offset in binary_list:
