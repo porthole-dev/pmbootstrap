@@ -4,6 +4,7 @@ import os
 import logging
 
 import pmb.config
+from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers.toml import load_toml_file
 from pmb.meta import Cache
@@ -46,6 +47,14 @@ def sanity_check(toml: dict) -> None:
             continue
         if not section.startswith("category:"):
             raise RuntimeError(f"{path}: unexpected section: {section}")
+        for versions in toml[section]:
+            for arches in toml[section][versions]:
+                if arches == "all":
+                    continue
+                if not isinstance(toml[section][versions][arches], dict):
+                    raise RuntimeError(f"{path}: {section} is missing architecture information")
+                for arch in arches.split(" "):
+                    _ = Arch.from_str(arch)
 
 
 @Cache("name")
