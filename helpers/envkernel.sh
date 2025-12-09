@@ -187,6 +187,7 @@ initialize_chroot() {
 		bc \
 		binutils \
 		bison \
+		clang-libclang \
 		diffutils \
 		elfutils-dev \
 		findutils \
@@ -202,6 +203,10 @@ initialize_chroot() {
 		ncurses-dev \
 		perl \
 		py3-dt-schema \
+		rust \
+		rust-bindgen \
+		rust-src \
+		rustfmt \
 		sed \
 		yamllint \
 		yaml-dev \
