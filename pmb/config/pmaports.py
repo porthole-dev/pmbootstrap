@@ -204,15 +204,24 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     """
     aports = pkgrepo_default_path()
 
-    # Check current pmaports branch channel
-    channel_current = read_config(aports)["channel"]
-    if channel_current == channel_new:
-        return False
-
     # list current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
     branch_new = channels_cfg["channels"][channel_new]["branch_pmaports"]
     branch_current = pmb.helpers.git.rev_parse(aports, extra_args=["--abbrev-ref"])
+
+    # Check current pmaports branch channel
+    channel_current = read_config(aports)["channel"]
+    # If we are on edge and on master but edge calls for main
+    if (
+        channel_current == DEVELOPMENT_CHANNEL
+        and branch_current == "master"
+        and branch_new == "main"
+    ):
+        logging.info("NOTE: master was renamed to main, switching to it")
+        branch_new = "main"
+    elif channel_current == channel_new:
+        return False
+
     if (
         branch_current == "master_staging_systemd"
         and channel_new == DEVELOPMENT_CHANNEL
