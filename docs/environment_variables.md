@@ -25,9 +25,9 @@ is used by bpo for image build jobs, so these jobs don't need as much space.
 ## `PMB_CHANNELS_CFG`
 
 Set this variable to the path of a copy of
-[channels.cfg](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/channels.cfg)
-on disk to have pmbootstrap read it from there instead of `origin/master` from
-pmaports. This is used by bpo with shallow clones of pmaports, where the master
+[channels.cfg](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/main/channels.cfg)
+on disk to have pmbootstrap read it from there instead of `origin/main` from
+pmaports. This is used by bpo with shallow clones of pmaports, where the main
 branch may not be available (e.g. when building packages for a release branch).
 
 ## `PMB_FDE_PASSWORD`

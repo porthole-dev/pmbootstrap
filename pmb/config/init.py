@@ -504,18 +504,18 @@ def ask_for_mainline_downstream() -> pmb.helpers.devices.DeviceCategory:
 def switch_channel(config: Config, channel: str) -> None:
     """
     Wrapper around `pmb.config.pmaports.switch_to_channel_branch(channel)` that also handles
-    installing git hooks if master is selected.
+    installing git hooks if main is selected.
     """
     pmb.config.pmaports.switch_to_channel_branch(channel)
     # FIXME: ???
     config.is_default_channel = False
 
-    # Copy the git hooks if master was checked out. (Don't symlink them and
-    # only do it on master, so the git hooks don't change unexpectedly when
+    # Copy the git hooks if main was checked out. (Don't symlink them and
+    # only do it on main, so the git hooks don't change unexpectedly when
     # having a random branch checked out.)
     branch_current = pmb.helpers.git.rev_parse(pkgrepo_default_path(), extra_args=["--abbrev-ref"])
-    if branch_current == "master":
-        logging.info("NOTE: pmaports is on master branch, copying git hooks.")
+    if branch_current == "main":
+        logging.info("NOTE: pmaports is on main branch, copying git hooks.")
         pmb.config.pmaports.install_githooks()
 
 

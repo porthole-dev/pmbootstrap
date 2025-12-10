@@ -81,7 +81,7 @@ def rev_parse(
     :param extra_args: additional arguments for ``git rev-parse``. Pass
         ``--abbrev-ref`` to get the branch instead of the commit, if possible.
     :returns: commit string like "90cd0ad84d390897efdcf881c0315747a4f3a966"
-        or (with ``--abbrev-ref``): the branch name, e.g. "master"
+        or (with ``--abbrev-ref``): the branch name, e.g. "main"
     """
     command = ["git", "rev-parse", *extra_args, revision]
     rev = pmb.helpers.run.user_output(
@@ -231,7 +231,7 @@ def migrate_upstream_remote() -> None:
 @Cache("aports")
 def parse_channels_cfg(aports: Path) -> dict:
     """
-    Parse channels.cfg from pmaports.git, origin/master branch.
+    Parse channels.cfg from pmaports.git, origin/main branch.
 
     Reference: https://postmarketos.org/channels.cfg
 
@@ -253,7 +253,7 @@ def parse_channels_cfg(aports: Path) -> dict:
             cfg.read(override)
         else:
             remote = get_upstream_remote(aports)
-            command = ["git", "show", f"{remote}/master:channels.cfg"]
+            command = ["git", "show", f"{remote}/main:channels.cfg"]
             stdout = pmb.helpers.run.user_output(
                 command, aports, output=RunOutputTypeDefault.NULL, check=False
             )
@@ -261,9 +261,7 @@ def parse_channels_cfg(aports: Path) -> dict:
     except configparser.MissingSectionHeaderError as exception:
         logging.info("NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'")
         raise RuntimeError(
-            "Failed to read channels.cfg from"
-            f" '{remote}/master' branch of your local"
-            " pmaports clone"
+            f"Failed to read channels.cfg from '{remote}/main' branch of your local pmaports clone"
         ) from exception
 
     # Meta section
@@ -293,7 +291,7 @@ def branch_looks_official(repo: Path, branch: str) -> bool:
 
     :returns: True if it looks official, False otherwise
     """
-    if branch == "master":
+    if branch == "main":
         return True
     if repo.parts[-1] == "pmaports":
         if re_branch_pmaports.match(branch):
@@ -326,7 +324,7 @@ def pull(repo_name: str) -> int:
     msg_start = f"{repo_name} (branch: {branch}):"
     if not branch_looks_official(repo, branch):
         if repo.parts[-1] == "pmaports":
-            official_looking_branches = "master, v24.06, …"
+            official_looking_branches = "main, v24.06, …"
         else:
             official_looking_branches = "master, 3.20-stable, …"
         logging.warning(

@@ -19,7 +19,7 @@ def pull() -> None:
     logging.info("WARNING: failed to update: " + ", ".join(failed))
     logging.info("")
     logging.info("'pmbootstrap pull' will only update the repositories, if:")
-    logging.info("* they are on an officially supported branch (e.g. master)")
+    logging.info("* they are on an officially supported branch (e.g. main)")
     logging.info("* the history is not conflicting (fast-forward is possible)")
     logging.info("* the git workdirs are clean")
     logging.info("You have changed mentioned repositories, so they don't meet")

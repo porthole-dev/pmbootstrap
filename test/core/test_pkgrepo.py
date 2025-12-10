@@ -23,7 +23,7 @@ def test_pkgrepo_pmaports(pmaports: None, monkeypatch: MonkeyPatch) -> None:
     pkgrepo_default_path.cache_disable()
 
     paths = pkgrepo_paths()
-    print(f"[master] pkgrepo_paths: {paths}")
+    print(f"[main] pkgrepo_paths: {paths}")
     assert len(paths) == 1
     assert "pmaports" in paths[0].name
 

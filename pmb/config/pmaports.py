@@ -173,7 +173,7 @@ def read_config_channel() -> dict[str, str]:
     logging.info(
         "NOTE: fix the error by rebasing or cherry picking relevant"
         " commits from this branch onto a branch that is on a"
-        " supported channel: master, v24.06, …"
+        " supported channel: main, v24.06, …"
     )
     logging.info(
         "NOTE: as workaround, you may pass --config-channels with a"
@@ -183,7 +183,7 @@ def read_config_channel() -> dict[str, str]:
     raise RuntimeError(
         f"Current branch '{branch}' of pmaports.git is on"
         f" channel '{channel}', but this channel was not"
-        f" found in channels.cfg (of {remote}/master"
+        f" found in channels.cfg (of {remote}/main"
         " branch). Looks like a very old branch."
     )
 
@@ -230,7 +230,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
         and channel_new == DEVELOPMENT_CHANNEL
         and pmb.config.is_systemd_selected()
     ):
-        logging.info("NOTE: master_staging_systemd was merged into master, switching to it")
+        logging.info("NOTE: master_staging_systemd was merged into main, switching to it")
 
     logging.info(
         f"Currently checked out branch '{branch_current}' of"

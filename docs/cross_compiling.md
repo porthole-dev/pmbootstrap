@@ -42,7 +42,7 @@ Linkers and all other commands used during the build still need to run through
 QEMU and so these are still very slow.
 
 The native chroot gets mounted in the foreign arch chroot at `/native`. The
-[crossdirect](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/cross/crossdirect/APKBUILD)
+[crossdirect](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/main/cross/crossdirect/APKBUILD)
 package gets installed into the native chroot and creates wrapper scripts
 pointing to the cross compilers. When building packages for `armv7`, the build
 runs in the foreign chroot and `PATH` will get prepended with

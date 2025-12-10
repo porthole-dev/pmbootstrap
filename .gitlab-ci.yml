@@ -6,7 +6,7 @@ image: alpine:latest
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'wip'
     - if: $CI_COMMIT_BRANCH == 'docs'
 
@@ -142,7 +142,7 @@ docs:
         - .gitlab-ci.yml
         - docs/**/*
         - "pmb/**/*.py"
-    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
       changes:
         - .ci/docs.sh
         - .gitlab-ci.yml
