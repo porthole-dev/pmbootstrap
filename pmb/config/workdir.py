@@ -15,6 +15,7 @@ import pmb.config.pmaports
 from pmb.core import Chroot, ChrootType
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 
 
 def chroot_save_init(suffix: Chroot) -> None:
@@ -127,7 +128,7 @@ def chroot_check_channel(chroot: Chroot) -> bool:
             else:
                 logging.debug(f"{msg} Zapping chroot.")
             return True
-        raise RuntimeError(f"{msg} {msg_again}")
+        raise NonBugError(f"{msg} {msg_again}")
 
     return False
 
