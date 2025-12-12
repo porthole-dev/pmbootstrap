@@ -344,7 +344,7 @@ def _sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
     )
 
 
-def install_depends(args: PmbArgs, arch: Arch) -> None:
+def install_depends(arch: Arch) -> None:
     """Install any necessary qemu dependencies in native chroot"""
     depends = [
         "mesa-dri-gallium",
@@ -428,7 +428,7 @@ def run(args: PmbArgs) -> None:
         img_path_2nd = create_second_storage(args.second_storage, device)
 
     if not args.host_qemu:
-        install_depends(args, arch)
+        install_depends(arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
 
     qemu, env = command_qemu(args, config, arch, img_path, img_path_2nd)
