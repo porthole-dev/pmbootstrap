@@ -38,7 +38,7 @@ def system_image(device: str) -> Path:
     return path
 
 
-def create_second_storage(args: PmbArgs, device: str) -> Path:
+def create_second_storage(size: str, device: str) -> Path:
     """
     Generate a second storage image if it does not exist.
 
@@ -48,7 +48,7 @@ def create_second_storage(args: PmbArgs, device: str) -> Path:
     path = Chroot.native() / "home/pmos/rootfs" / f"{device}-2nd.img"
     pmb.helpers.run.root(["touch", path])
     pmb.helpers.run.root(["chmod", "a+w", path])
-    resize_image(args.second_storage, path)
+    resize_image(size, path)
     return path
 
 
@@ -425,7 +425,7 @@ def run(args: PmbArgs) -> None:
     img_path = system_image(device)
     img_path_2nd = None
     if args.second_storage:
-        img_path_2nd = create_second_storage(args, device)
+        img_path_2nd = create_second_storage(args.second_storage, device)
 
     if not args.host_qemu:
         install_depends(args, arch)
