@@ -65,7 +65,7 @@ def which_qemu(arch: Arch) -> str:
         )
 
 
-def create_gdk_loader_cache(args: PmbArgs) -> Path:
+def create_gdk_loader_cache() -> Path:
     """
     Create a gdk loader cache that can be used for running GTK UIs outside of
     the chroot.
@@ -137,7 +137,7 @@ def command_qemu(
         }
 
         if "gtk" in args.qemu_display:
-            gdk_cache = create_gdk_loader_cache(args)
+            gdk_cache = create_gdk_loader_cache()
             env.update(
                 {
                     "GTK_THEME": "Default",
