@@ -17,7 +17,7 @@ from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || echo doas); $_su"
 
 
-def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
+def scp_abuild_key(user: str, host: str, port: str) -> None:
     """
     Copy the building key of the local installation to the target device,
     so it trusts the apks that were signed here.
@@ -156,6 +156,6 @@ def sideload(
                 raise RuntimeError(f"The package '{pkgname}' could not be built")
 
     if copy_key:
-        scp_abuild_key(args, user, host, port)
+        scp_abuild_key(user, host, port)
 
     ssh_install_apks(user, host, port, paths, install_offline)
