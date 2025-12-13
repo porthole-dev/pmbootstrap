@@ -229,7 +229,7 @@ class PmbArgs(Namespace):
     host_qemu: bool
     http: bool
     ignore_depends: bool
-    image_size: str
+    image_size: str | None
     image: bool
     install_base: bool
     install_blockdev: bool
@@ -278,8 +278,8 @@ class PmbArgs(Namespace):
     pkgs_local_mismatch: bool
     pkgs_online_mismatch: bool
     port: int
-    qemu_audio: str
-    qemu_cpu: str
+    qemu_audio: str | None
+    qemu_cpu: str | None
     qemu_display: str
     qemu_gl: bool
     qemu_kvm: bool
@@ -295,7 +295,7 @@ class PmbArgs(Namespace):
     rootfs: bool
     rsync: bool
     scripts: str
-    second_storage: str
+    second_storage: str | None
     sector_size: int | None
     selected_providers: dict[str, str]
     sparse: bool
