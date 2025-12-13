@@ -282,7 +282,6 @@ class PmbArgs(Namespace):
     qemu_display: str
     qemu_gl: bool
     qemu_kvm: bool
-    qemu_redir_stdio: str
     qemu_tablet: bool
     qemu_video: str
     recovery_flash_kernel: bool
