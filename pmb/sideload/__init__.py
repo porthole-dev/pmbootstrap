@@ -12,7 +12,7 @@ import pmb.parse.apkindex
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import PathString, RunOutputTypeDefault
 
 su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || echo doas); $_su"
 
@@ -100,7 +100,6 @@ def ssh_install_apks(
 
 
 def sideload(
-    args: PmbArgs,
     user: str,
     host: str,
     port: str,
