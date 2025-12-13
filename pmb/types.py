@@ -246,6 +246,7 @@ class PmbArgs(Namespace):
     keep_going: bool
     lines: int
     log: Path
+    memory: int
     mirror_alpine: str
     mirror_postmarketos: str
     name: str
