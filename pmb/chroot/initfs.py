@@ -10,7 +10,7 @@ from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import CommandFailedError, NonBugError, PackagingError
 from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
-from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import PathString, RunOutputTypeDefault
 
 
 def build(chroot: Chroot) -> None:
@@ -113,37 +113,41 @@ def ls(suffix: Chroot, deviceinfo: Deviceinfo, extra: bool = False) -> None:
     pmb.chroot.root(["rm", "-r", tmp], suffix)
 
 
-def frontend(args: PmbArgs) -> None:
+def frontend(action: str, hook: str | None) -> None:
     context = get_context()
     chroot = Chroot.rootfs(context.config.device)
     deviceinfo = pmb.parse.deviceinfo()
 
-    # Handle initfs actions
-    action = args.action_initfs
-    if action == "build":
-        build(chroot)
-    elif action == "extract":
-        dir = extract(chroot, deviceinfo)
-        logging.info(f"Successfully extracted initramfs to: {dir}")
-        if deviceinfo.create_initfs_extra:
-            dir_extra = extract(chroot, deviceinfo, True)
-            logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
-    elif action == "ls":
-        logging.info("*** initramfs ***")
-        ls(chroot, deviceinfo)
-        if deviceinfo.create_initfs_extra:
-            logging.info("*** initramfs-extra ***")
-            ls(chroot, deviceinfo, True)
+    match action:
+        case "hook_ls":
+            pmb.chroot.initfs_hooks.ls(chroot)
+        case "hook_add" | "hook_del":
+            if hook is None:
+                raise AssertionError
 
-    # Handle hook actions
-    elif action == "hook_ls":
-        pmb.chroot.initfs_hooks.ls(chroot)
-    else:
-        if action == "hook_add":
-            pmb.chroot.initfs_hooks.add(args.hook, chroot)
-        elif action == "hook_del":
-            pmb.chroot.initfs_hooks.delete(args.hook, chroot)
+            match action:
+                case "hook_add":
+                    pmb.chroot.initfs_hooks.add(hook, chroot)
+                case "hook_del":
+                    pmb.chroot.initfs_hooks.delete(hook, chroot)
+                case _:
+                    raise AssertionError("Unreachable")
+        case "extract":
+            dir = extract(chroot, deviceinfo)
+            logging.info(f"Successfully extracted initramfs to: {dir}")
+            if deviceinfo.create_initfs_extra:
+                dir_extra = extract(chroot, deviceinfo, True)
+                logging.info(f"Successfully extracted initramfs-extra to: {dir_extra}")
+        case "ls":
+            logging.info("*** initramfs ***")
+            ls(chroot, deviceinfo)
+            if deviceinfo.create_initfs_extra:
+                logging.info("*** initramfs-extra ***")
+                ls(chroot, deviceinfo, True)
+        case "build" | _:
+            build(chroot)
 
+    if action in ["hook_add", "hook_del"]:
         # Rebuild the initfs after adding/removing a hook
         try:
             build(chroot)

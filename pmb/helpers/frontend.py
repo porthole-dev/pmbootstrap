@@ -311,7 +311,7 @@ def repo_missing(args: PmbArgs) -> None:
 
 
 def initfs(args: PmbArgs) -> None:
-    pmb.chroot.initfs.frontend(args)
+    pmb.chroot.initfs.frontend(args.action_initfs, args.hook if "hook" in args else None)
 
 
 def install(args: PmbArgs) -> None:
