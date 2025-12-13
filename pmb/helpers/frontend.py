@@ -424,7 +424,7 @@ def install(args: PmbArgs) -> None:
 
 
 def export(args: PmbArgs) -> None:
-    pmb.export.frontend(args)
+    pmb.export.frontend(args.export_folder, args.autoinstall, args.odin_flashable_tar)
 
 
 def update(args: PmbArgs) -> None:
