@@ -276,7 +276,7 @@ class PmbArgs(Namespace):
     pkgs_local: bool
     pkgs_local_mismatch: bool
     pkgs_online_mismatch: bool
-    port: str
+    port: int
     qemu_audio: str
     qemu_cpu: str
     qemu_display: str

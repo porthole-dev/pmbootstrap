@@ -323,7 +323,7 @@ def arguments_sideload(subparser: argparse._SubParsersAction) -> argparse.Argume
         default="172.16.42.1",
     )
     ret.add_argument(
-        "--port", help="SSH port of the device over wifi (defaults to 22)", default="22"
+        "--port", help="SSH port of the device over wifi (defaults to 22)", type=int, default=22
     )
     ret.add_argument("--user", help="use a different username than the one set in init")
     ret.add_argument(
