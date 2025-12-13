@@ -21,7 +21,7 @@ from pmb.core.config import Config
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
-from pmb.types import Env, PathString, PmbArgs, RunOutputTypeDefault
+from pmb.types import Env, PathString, RunOutputTypeDefault
 
 
 def system_image(device: str) -> Path:
@@ -93,20 +93,23 @@ def create_gdk_loader_cache() -> Path:
 
 
 def command_qemu(
-    args: PmbArgs,
     config: Config,
     arch: Arch,
+    cmdline_arg: str,
+    qemu_audio: str | None,
+    qemu_cpu: str | None,
+    qemu_display: str,
+    qemu_video: str,
+    memory_size: int,
+    port_ssh: int,
+    use_host_qemu: bool,
+    use_qemu_gl: bool,
+    use_qemu_kvm: bool,
+    use_qemu_tablet: bool,
     img_path: Path,
     img_path_2nd: Path | None = None,
 ) -> tuple[list[str | Path], Env]:
     """Generate the full qemu command with arguments to run postmarketOS"""
-    if args.efi:
-        logging.warning(
-            "WARNING: The --efi argument to 'pmbootstrap qemu' is deprecated. EFI boot is the default now and the argument no longer has any effect."
-        )
-
-    port_ssh = str(args.port)
-
     chroot_native = Chroot.native()
     chroot_target = Chroot.buildroot(arch)
 
@@ -125,7 +128,7 @@ def command_qemu(
     # this is not just a list of paths.
     command: list[str | Path]
 
-    if args.host_qemu:
+    if use_host_qemu:
         qemu_bin = which_qemu(arch)
         env = {}
         command = [qemu_bin]
@@ -136,7 +139,7 @@ def command_qemu(
             "LIBGL_DRIVERS_PATH": chroot_native / "usr/lib/xorg/modules/dri",
         }
 
-        if "gtk" in args.qemu_display:
+        if "gtk" in qemu_display:
             gdk_cache = create_gdk_loader_cache()
             env.update(
                 {
@@ -184,7 +187,7 @@ def command_qemu(
 
     command += ["-nodefaults"]
     command += ["-smp", str(ncpus)]
-    command += ["-m", str(args.memory)]
+    command += ["-m", str(memory_size)]
 
     command += ["-serial"]
     if config.qemu_redir_stdio:
@@ -196,7 +199,7 @@ def command_qemu(
     if img_path_2nd:
         command += ["-drive", f"file={img_path_2nd}" + ",format=raw,if=virtio"]
 
-    if args.qemu_tablet:
+    if use_qemu_tablet:
         command += ["-device", "virtio-tablet-pci"]
     else:
         command += ["-device", "virtio-mouse-pci"]
@@ -231,7 +234,7 @@ def command_qemu(
             command += ["-M", "virt"]
 
     # Configure display
-    if args.qemu_display != "none":
+    if qemu_display != "none":
         match arch:
             case Arch.x86_64:
                 command += ["-device", "virtio-vga-gl"]
@@ -274,26 +277,26 @@ def command_qemu(
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.parse.deviceinfo().arch.is_native()
-    if args.qemu_kvm and native and os.path.exists("/dev/kvm"):
+    if use_qemu_kvm and native and os.path.exists("/dev/kvm"):
         command += ["-enable-kvm"]
         command += ["-cpu", "host"]
     else:
         logging.info("WARNING: QEMU is not using KVM and will run slower!")
 
-    if args.qemu_cpu:
-        command += ["-cpu", args.qemu_cpu]
+    if qemu_cpu:
+        command += ["-cpu", qemu_cpu]
 
-    display = args.qemu_display
+    display = qemu_display
     if display != "none":
-        display += ",show-cursor=on,gl=" + ("on" if args.qemu_gl else "off")
+        display += ",show-cursor=on,gl=" + ("on" if use_qemu_gl else "off")
 
     # Separate -show-cursor option is deprecated. If your host qemu fails here,
     # it's old (#1995).
     command += ["-display", f"{display}"]
 
     # Audio support
-    if args.qemu_audio:
-        command += ["-audio", f"{args.qemu_audio},model=hda"]
+    if qemu_audio:
+        command += ["-audio", f"{qemu_audio},model=hda"]
 
     return (command, env)
 
@@ -406,10 +409,29 @@ def install_depends(arch: Arch) -> None:
     pmb.chroot.apk.install(depends, chroot)
 
 
-def run(args: PmbArgs) -> None:
+def run(
+    cmdline_arg: str,
+    qemu_audio: str | None,
+    qemu_cpu: str | None,
+    qemu_display: str,
+    qemu_video: str,
+    memory_size: int,
+    image_size: str | None,
+    second_storage: str | None,
+    port_ssh: int,
+    use_efi: bool,
+    use_host_qemu: bool,
+    use_qemu_gl: bool,
+    use_qemu_kvm: bool,
+    use_qemu_tablet: bool,
+) -> None:
     """Run a postmarketOS image in qemu"""
     config = get_context().config
     device = config.device
+    if use_efi:
+        logging.warning(
+            "WARNING: The --efi argument to 'pmbootstrap qemu' is deprecated. EFI boot is the default now and the argument no longer has any effect."
+        )
     if not device.startswith("qemu-"):
         raise NonBugError(
             "'pmbootstrap qemu' can be only used with one of "
@@ -424,14 +446,30 @@ def run(args: PmbArgs) -> None:
 
     img_path = system_image(device)
     img_path_2nd = None
-    if args.second_storage:
-        img_path_2nd = create_second_storage(args.second_storage, device)
+    if second_storage:
+        img_path_2nd = create_second_storage(second_storage, device)
 
-    if not args.host_qemu:
+    if not use_host_qemu:
         install_depends(arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
 
-    qemu, env = command_qemu(args, config, arch, img_path, img_path_2nd)
+    qemu, env = command_qemu(
+        config,
+        arch,
+        cmdline_arg,
+        qemu_audio,
+        qemu_cpu,
+        qemu_display,
+        qemu_video,
+        memory_size,
+        port_ssh,
+        use_host_qemu,
+        use_qemu_gl,
+        use_qemu_kvm,
+        use_qemu_tablet,
+        img_path,
+        img_path_2nd,
+    )
 
     # Workaround: QEMU runs as local user and needs write permissions in the
     # rootfs, which is owned by root
@@ -439,8 +477,8 @@ def run(args: PmbArgs) -> None:
         pmb.helpers.run.root(["chmod", "666", img_path])
 
     # Resize the rootfs (or show hint)
-    if args.image_size:
-        resize_image(args.image_size, img_path)
+    if image_size:
+        resize_image(image_size, img_path)
     else:
         logging.info(
             "NOTE: Run 'pmbootstrap qemu --image-size 2G' to set"
@@ -449,7 +487,7 @@ def run(args: PmbArgs) -> None:
 
     # SSH/serial/network hints
     logging.info("Connect to the VM:")
-    logging.info(f"* (ssh) ssh -p {args.port} {config.user}@localhost")
+    logging.info(f"* (ssh) ssh -p {port_ssh} {config.user}@localhost")
     logging.info("* (serial) in this console (stdout/stdin)")
 
     if config.qemu_redir_stdio:

@@ -519,7 +519,22 @@ def aportupgrade(args: PmbArgs) -> None:
 
 
 def qemu(args: PmbArgs) -> None:
-    pmb.qemu.run(args)
+    pmb.qemu.run(
+        args.cmdline,
+        args.qemu_audio,
+        args.qemu_cpu,
+        args.qemu_display,
+        args.qemu_video,
+        args.memory,
+        args.image_size,
+        args.second_storage,
+        args.port,
+        args.efi,
+        args.host_qemu,
+        args.qemu_gl,
+        args.qemu_kvm,
+        args.qemu_tablet,
+    )
 
 
 def stats(args: PmbArgs) -> None:
