@@ -41,7 +41,7 @@ pytest -vv ./test/test_keys.py
 * Python 3.10+
 * For python3 < 3.11: tomli
 * OpenSSL
-* git
+* git 2.46+
 * kpartx (from multipath-tools)
 * losetup (with --json support, e.g. util-linux version)
 * ps
