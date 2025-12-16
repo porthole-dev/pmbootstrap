@@ -243,11 +243,21 @@ def command_qemu(
     command += ["-device", "virtio-net-pci,netdev=net"]
 
     # Check that arch is supported by pmb qemu
-    if arch not in [Arch.x86_64, Arch.aarch64, Arch.riscv64, Arch.ppc64le, Arch.loongarch64]:
+    if arch not in [
+        Arch.x86_64,
+        Arch.aarch64,
+        Arch.riscv64,
+        Arch.ppc64le,
+        Arch.loongarch64,
+        Arch.armv7,
+    ]:
         raise RuntimeError(f"Architecture {arch} not supported by this command yet.")
 
     # Apply arch-specific qemu config
     match arch:
+        case Arch.armv7:
+            command += ["-M", "virt"]
+            command += ["-cpu", "cortex-a15"]
         case Arch.aarch64:
             command += ["-M", "virt"]
             command += ["-cpu", "cortex-a57"]
