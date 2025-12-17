@@ -211,6 +211,8 @@ chroot_device_nodes = [
     [666, "c", 1, 7, "full"],
     [644, "c", 1, 8, "random"],
     [644, "c", 1, 9, "urandom"],
+    [666, "c", 5, 0, "tty"],
+    [666, "c", 5, 2, "ptmx"],
 ]
 
 # Age in hours that we keep the APKINDEXes before downloading them again.

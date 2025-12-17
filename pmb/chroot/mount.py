@@ -108,11 +108,20 @@ def mount_dev_tmpfs(chroot: Chroot = Chroot.native()) -> None:
     pmb.helpers.run.root(["mkdir", "-p", dev])
     pmb.helpers.run.root(["mount", "-t", "tmpfs", "-o", "size=1M,noexec,dev", "tmpfs", dev])
 
+    # Create /dev/{stdin,stdout,stderr}
+    pmb.helpers.run.root(["ln", "-s", "/proc/self/fd/0", dev / "stdin"])
+    pmb.helpers.run.root(["ln", "-s", "/proc/self/fd/1", dev / "stdout"])
+    pmb.helpers.run.root(["ln", "-s", "/proc/self/fd/2", dev / "stderr"])
+
     # Create pts, shm folders and device nodes
     pmb.helpers.run.root(["mkdir", "-p", dev / "pts", dev / "shm"])
     pmb.helpers.run.root(
         ["mount", "-t", "tmpfs", "-o", "nodev,nosuid,noexec", "tmpfs", dev / "shm"]
     )
+
+    # Mount devpts for PTY support
+    pmb.helpers.run.root(["mount", "-t", "devpts", "-o", "ptmxmode=0666", "devpts", dev / "pts"])
+
     create_device_nodes(chroot)
 
     # Setup /dev/fd as a symlink
