@@ -131,6 +131,7 @@ filesystems = {
     "f2fs": "f2fs-tools",
     "fat16": "dosfstools",
     "fat32": "dosfstools",
+    "xfs": "xfsprogs",
 }
 
 # Legacy channels and their new names (pmb#2015)

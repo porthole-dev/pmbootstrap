@@ -280,7 +280,7 @@ def arguments_install(subparser: argparse._SubParsersAction) -> None:
     # Other
     group = ret.add_argument_group("other optional arguments")
     group.add_argument(
-        "--filesystem", help="root filesystem type", choices=["ext4", "f2fs", "btrfs"]
+        "--filesystem", help="root filesystem type", choices=["ext4", "f2fs", "btrfs", "xfs"]
     )
 
 

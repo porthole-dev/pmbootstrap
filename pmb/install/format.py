@@ -36,6 +36,21 @@ def format_and_mount_boot(device: str, boot_label: str) -> None:
         pmb.chroot.root(["mkfs.ext2", "-F", "-q", "-L", boot_label, device])
     elif filesystem == "btrfs":
         pmb.chroot.root(["mkfs.btrfs", "-f", "-q", "-L", boot_label, device])
+    elif filesystem == "xfs":
+        # mkfs.xfs requires specifying the sector size
+        format_cmd = ["mkfs.xfs", "-f", "-q"]
+        sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
+        if sector_size is None or sector_size == "" or sector_size == 512:
+            format_cmd += ["-s", "size=512"]
+        else:
+            format_cmd += [
+                "-b",
+                "size=" + str(int(sector_size * 2)),
+                "-s",
+                "size=" + str(sector_size),
+            ]
+        format_cmd += ["-L", boot_label, device]
+        pmb.chroot.root(format_cmd)
     else:
         raise RuntimeError("Filesystem " + filesystem + " is not supported!")
     pmb.chroot.root(["mkdir", "-p", mountpoint])
@@ -197,6 +212,20 @@ def format_and_mount_root(
             ]
         elif filesystem == "btrfs":
             mkfs_root_args = ["mkfs.btrfs", "-f", "-L", root_label]
+        elif filesystem == "xfs":
+            # mkfs.xfs requires specifying the sector size
+            sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
+            mkfs_root_args = ["mkfs.xfs", "-f"]
+            if sector_size is None or sector_size == "" or sector_size == 512:
+                mkfs_root_args += ["-s", "size=512"]
+            else:
+                mkfs_root_args += [
+                    "-b",
+                    "size=" + str(int(sector_size) * 2),
+                    "-s",
+                    "size=" + str(sector_size),
+                ]
+            mkfs_root_args += ["-L", root_label]
         else:
             raise RuntimeError(f"Don't know how to format {filesystem}!")
 
