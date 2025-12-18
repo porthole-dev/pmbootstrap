@@ -67,3 +67,14 @@ def symlinks(target: Path) -> None:
         logging.info(msg)
 
         pmb.helpers.file.symlink(file, link)
+
+    # Create dtbs in folder
+    dtbs = list(path_boot.glob("*.dtb"))
+    if len(dtbs) == 0:
+        return
+
+    logging.info(" * dtbs/ (Device tree blobs)")
+    target = target / "dtbs"
+    target.mkdir(exist_ok=True)
+    for dtb in dtbs:
+        pmb.helpers.file.symlink(dtb, target / dtb.name)
