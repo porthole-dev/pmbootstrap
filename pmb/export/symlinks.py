@@ -9,7 +9,7 @@ from pmb.core.context import get_context
 from pmb.helpers import logging
 
 
-def symlinks(folder: Path) -> None:
+def symlinks(target: Path) -> None:
     """Create convenience symlinks to the rootfs and boot files."""
     device = get_context().config.device
     arch = pmb.parse.deviceinfo(device).arch
@@ -58,7 +58,7 @@ def symlinks(folder: Path) -> None:
     # Iterate through all files
     for file in files:
         basename = file.name
-        link = folder / basename
+        link = target / basename
 
         # Display a readable message
         msg = " * " + basename
