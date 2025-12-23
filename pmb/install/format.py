@@ -188,7 +188,13 @@ def format_and_mount_root(
                 # indoes that we don't run into "out of space" errors
                 mkfs_root_args = [*mkfs_root_args, "-i", "16384"]
         elif filesystem == "f2fs":
-            mkfs_root_args = ["mkfs.f2fs", "-f", "-l", root_label]
+            mkfs_root_args = [
+                "mkfs.f2fs",
+                "-O extra_attr,inode_checksum,sb_checksum",
+                "-f",
+                "-l",
+                root_label,
+            ]
         elif filesystem == "btrfs":
             mkfs_root_args = ["mkfs.btrfs", "-f", "-L", root_label]
         else:
