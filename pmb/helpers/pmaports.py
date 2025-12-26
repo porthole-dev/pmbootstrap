@@ -376,6 +376,9 @@ def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:
 
     apkbuild = get(provide)
     for subpkgname, subpkg in apkbuild["subpackages"].items():
+        if subpkg is None:
+            # subpackage might be for an abuild split func
+            continue
         for provides in subpkg["provides"]:
             # Strip provides version (=$pkgver-r$pkgrel)
             if provides.split("=", 1)[0] == provide:
