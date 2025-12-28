@@ -91,6 +91,7 @@ def init(args: PmbArgs) -> PmbArgs:
     context.offline = args.offline
     context.command = args.action
     context.cross = args.cross
+    context.ccache = args.ccache
     context.assume_yes = getattr(args, "assume_yes", False)
     context.force = getattr(args, "force", False)
 

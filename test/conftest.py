@@ -145,6 +145,7 @@ def pmb_args(config_file: Path, mock_context: None, logfile: Path) -> None:
     args.offline = False
     args.action = "init"
     args.cross = False
+    args.ccache = True
     args.log = logfile
 
     init_args(args)
