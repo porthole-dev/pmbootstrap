@@ -19,6 +19,66 @@ def install_fsprogs(filesystem: str) -> None:
     pmb.chroot.apk.install([fsprogs], Chroot.native())
 
 
+def format_partition_with_filesystem(
+    device: str, label: str, filesystem: str, is_disk: bool
+) -> None:
+    """
+    :param device: partition to format with filesystem
+    :param label: label to apply to filesystem
+    :param filesystem: filesystem type to format partition with
+    :param is_disk: whether we are formatting on physical disk
+    """
+    # Install binaries for formatting the selected filesystem
+    install_fsprogs(filesystem)
+
+    # Create formatting command
+    if filesystem == "ext4":
+        # ext4 uses more complex logic because it is used by downstream kernels
+        device_category = get_device_category_by_name(get_context().config.device)
+        if device_category.allows_downstream_ports():
+            # Some downstream kernels don't support metadata_csum (#1364).
+            # When changing the options of mkfs.ext4, also change them in the
+            # recovery zip code (see 'grep -r mkfs\.ext4')!
+            category_opts = ["-O", "^metadata_csum"]
+        else:
+            category_opts = []
+        mkfs_args = ["mkfs.ext4", *category_opts, "-F", "-q", "-L", label]
+        if not is_disk:
+            # pmb#2568: tell mkfs.ext4 to make a filesystem with enough
+            # indoes that we don't run into "out of space" errors
+            mkfs_args = [*mkfs_args, "-i", "16384"]
+    elif filesystem == "fat16":
+        mkfs_args = ["mkfs.fat", "-F", "16", "-n", label]
+    elif filesystem == "fat32":
+        mkfs_args = ["mkfs.fat", "-F", "32", "-n", label]
+    elif filesystem == "ext2":
+        mkfs_args = ["mkfs.ext2", "-F", "-q", "-L", label]
+    elif filesystem == "f2fs":
+        mkfs_args = ["mkfs.f2fs", "-O extra_attr,inode_checksum,sb_checksum", "-f", "-l", label]
+    elif filesystem == "btrfs":
+        mkfs_args = ["mkfs.btrfs", "-f", "-q", "-L", label]
+    elif filesystem == "xfs":
+        # mkfs.xfs requires specifying the sector size
+        mkfs_args = ["mkfs.xfs", "-f", "-q"]
+        sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
+        if sector_size is None or sector_size == "" or sector_size == 512:
+            mkfs_args += ["-s", "size=512"]
+        else:
+            mkfs_args += [
+                "-b",
+                "size=" + str(int(sector_size * 2)),
+                "-s",
+                "size=" + str(sector_size),
+            ]
+        mkfs_args += ["-L", label]
+    else:
+        raise RuntimeError("Filesystem " + filesystem + " is not supported!")
+
+    # Format the partition with the selected filesystem
+    logging.info(f"(native) format {device} ({label}, {filesystem})")
+    pmb.chroot.root([*mkfs_args, device])
+
+
 def format_and_mount_boot(device: str, boot_label: str) -> None:
     """
     :param device: boot partition on install block device (e.g. /dev/installp1)
@@ -26,33 +86,8 @@ def format_and_mount_boot(device: str, boot_label: str) -> None:
     """
     mountpoint = "/mnt/install/boot"
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
-    install_fsprogs(filesystem)
-    logging.info(f"(native) format {device} (boot, {filesystem}), mount to {mountpoint}")
-    if filesystem == "fat16":
-        pmb.chroot.root(["mkfs.fat", "-F", "16", "-n", boot_label, device])
-    elif filesystem == "fat32":
-        pmb.chroot.root(["mkfs.fat", "-F", "32", "-n", boot_label, device])
-    elif filesystem == "ext2":
-        pmb.chroot.root(["mkfs.ext2", "-F", "-q", "-L", boot_label, device])
-    elif filesystem == "btrfs":
-        pmb.chroot.root(["mkfs.btrfs", "-f", "-q", "-L", boot_label, device])
-    elif filesystem == "xfs":
-        # mkfs.xfs requires specifying the sector size
-        format_cmd = ["mkfs.xfs", "-f", "-q"]
-        sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
-        if sector_size is None or sector_size == "" or sector_size == 512:
-            format_cmd += ["-s", "size=512"]
-        else:
-            format_cmd += [
-                "-b",
-                "size=" + str(int(sector_size * 2)),
-                "-s",
-                "size=" + str(sector_size),
-            ]
-        format_cmd += ["-L", boot_label, device]
-        pmb.chroot.root(format_cmd)
-    else:
-        raise RuntimeError("Filesystem " + filesystem + " is not supported!")
+    format_partition_with_filesystem(device, boot_label, filesystem, False)
+
     pmb.chroot.root(["mkdir", "-p", mountpoint])
     pmb.chroot.root(["mount", device, mountpoint])
 
@@ -182,56 +217,12 @@ def format_and_mount_root(
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
-    # Format
-    if not rsync:
-        filesystem = get_root_filesystem(filesystem)
+    # Set default filesystem to ext4
+    if filesystem is None:
+        filesystem = "ext4"
 
-        if filesystem == "ext4":
-            device_category = get_device_category_by_name(get_context().config.device)
-
-            if device_category.allows_downstream_ports():
-                # Some downstream kernels don't support metadata_csum (#1364).
-                # When changing the options of mkfs.ext4, also change them in the
-                # recovery zip code (see 'grep -r mkfs\.ext4')!
-                category_opts = ["-O", "^metadata_csum"]
-            else:
-                category_opts = []
-
-            mkfs_root_args = ["mkfs.ext4", *category_opts, "-F", "-q", "-L", root_label]
-            if not disk:
-                # pmb#2568: tell mkfs.ext4 to make a filesystem with enough
-                # indoes that we don't run into "out of space" errors
-                mkfs_root_args = [*mkfs_root_args, "-i", "16384"]
-        elif filesystem == "f2fs":
-            mkfs_root_args = [
-                "mkfs.f2fs",
-                "-O extra_attr,inode_checksum,sb_checksum",
-                "-f",
-                "-l",
-                root_label,
-            ]
-        elif filesystem == "btrfs":
-            mkfs_root_args = ["mkfs.btrfs", "-f", "-L", root_label]
-        elif filesystem == "xfs":
-            # mkfs.xfs requires specifying the sector size
-            sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
-            mkfs_root_args = ["mkfs.xfs", "-f"]
-            if sector_size is None or sector_size == "" or sector_size == 512:
-                mkfs_root_args += ["-s", "size=512"]
-            else:
-                mkfs_root_args += [
-                    "-b",
-                    "size=" + str(int(sector_size) * 2),
-                    "-s",
-                    "size=" + str(sector_size),
-                ]
-            mkfs_root_args += ["-L", root_label]
-        else:
-            raise RuntimeError(f"Don't know how to format {filesystem}!")
-
-        install_fsprogs(filesystem)
-        logging.info(f"(native) format {device} (root, {filesystem})")
-        pmb.chroot.root([*mkfs_root_args, device])
+    is_disk = not rsync and disk is not None
+    format_partition_with_filesystem(device, root_label, filesystem, is_disk)
 
     # Mount
     mountpoint = "/mnt/install"
