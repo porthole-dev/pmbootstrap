@@ -21,6 +21,7 @@ def scp_abuild_key(args: PmbArgs, user: str, host: str, port: str) -> None:
     """
     Copy the building key of the local installation to the target device,
     so it trusts the apks that were signed here.
+
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
@@ -74,6 +75,7 @@ def ssh_install_apks(
 ) -> None:
     """
     Copy binary packages via SCP and install them via SSH.
+
     :param user: target device ssh username
     :param host: target device ssh hostname
     :param port: target device ssh port
