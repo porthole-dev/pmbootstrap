@@ -269,7 +269,7 @@ def command_qemu(
         match arch:
             case Arch.x86_64:
                 command += ["-device", "virtio-vga-gl"]
-            case Arch.aarch64:
+            case Arch.aarch64 | Arch.armv7:
                 command += ["-device", "virtio-gpu-gl"]
             case Arch.riscv64 | Arch.ppc64le | Arch.loongarch64:
                 command += ["-device", "virtio-gpu-pci"]
