@@ -114,16 +114,19 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
     )
     while True:
         try:
-            work = os.path.expanduser(
-                pmb.helpers.cli.ask(
-                    "Work path", None, str(default) if default is not None else default, False
+            work = (
+                Path(
+                    pmb.helpers.cli.ask(
+                        "Work path", None, str(default) if default is not None else default, False
+                    )
                 )
+                .expanduser()
+                .resolve()
             )
-            work = os.path.realpath(work)
-            exists = os.path.exists(work)
+            exists = work.exists()
 
             # Work must not be inside the pmbootstrap path
-            if work == pmb.config.pmb_src or work.startswith(f"{pmb.config.pmb_src}/"):
+            if work == pmb.config.pmb_src or str(work).startswith(f"{pmb.config.pmb_src}/"):
                 logging.fatal(
                     "ERROR: The work path must not be inside the"
                     " pmbootstrap path. Please specify another"
@@ -132,21 +135,19 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
                 continue
 
             # Create the folder with a version file
-            if not exists:
-                os.makedirs(work, 0o700, True)
+            work.mkdir(mode=0o700, parents=True, exist_ok=True)
 
             # If the version file doesn't exists yet because we either just
             # created the work directory or the user has deleted it for
             # whatever reason then we need to write initialize it.
-            work_version_file = f"{work}/version"
+            work_version_file = work / "version"
             if not os.path.isfile(work_version_file):
-                with open(work_version_file, "w") as handle:
-                    handle.write(f"{pmb.config.work_version}\n")
+                work_version_file.write_text(f"{pmb.config.work_version}\n")
 
             # Create cache_git dir, so it is owned by the host system's user
             # (otherwise pmb.helpers.mount.bind would create it as root)
-            os.makedirs(f"{work}/cache_git", 0o700, True)
-            return (Path(work), exists)
+            work.joinpath("cache_git").mkdir(mode=0o700, parents=True, exist_ok=True)
+            return (work, exists)
         except OSError:
             logging.fatal(
                 "ERROR: Could not create this folder, or write inside it! Please try again."
