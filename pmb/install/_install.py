@@ -245,8 +245,7 @@ def setup_login_chpasswd_user_from_arg(args: PmbArgs, user: str, chroot: Chroot)
     path = "/tmp/pmbootstrap_chpasswd_in"
     path_outside = chroot / path
 
-    with open(path_outside, "w", encoding="utf-8") as handle:
-        handle.write(f"{user}:{args.password}")
+    path_outside.write_text(f"{user}:{args.password}", encoding="utf-8")
 
     pmb.chroot.root(["sh", "-c", f"cat {shlex.quote(path)} | chpasswd"], chroot)
 
