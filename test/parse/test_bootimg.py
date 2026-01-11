@@ -57,8 +57,7 @@ def bootimg(progs: dict[str, str], tmp_path: Path) -> Callable:
     def with_args(**kwargs: dict) -> Path:
         # Header version 2 requires a dtb file, be helpful and add one if it's missing
         if kwargs.get("header_version", 0) == 2 and "dtb" not in kwargs:
-            with open(path.with_suffix(".dtb"), "wb") as f:
-                f.write(empty_dtb)
+            path.with_suffix(".dtb").write_bytes(empty_dtb)
             cmd.extend(["--dtb", str(path.with_suffix(".dtb"))])
         for key, value in kwargs.items():
             cmd.extend([f"--{key}", str(value)])
