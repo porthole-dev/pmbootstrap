@@ -121,8 +121,7 @@ def format_luks_root(device: str, cipher: str, iter_time: str) -> None:
         # Write passphrase to a temp file, to avoid printing it in any log
         path = tempfile.mktemp(dir="/tmp")
         path_outside = Chroot.native() / path
-        with open(path_outside, "w", encoding="utf-8") as handle:
-            handle.write(f"{fde_key}")
+        path_outside.write_text(fde_key, encoding="utf-8")
         format_cmd += [str(path)]
         open_cmd += ["--key-file", str(path)]
 
@@ -131,7 +130,7 @@ def format_luks_root(device: str, cipher: str, iter_time: str) -> None:
         pmb.chroot.root([*open_cmd, device, "pm_crypt"], output=RunOutputTypeDefault.INTERACTIVE)
     finally:
         if path_outside:
-            os.unlink(path_outside)
+            path_outside.unlink()
 
     if not (Chroot.native() / mountpoint).exists():
         raise RuntimeError("Failed to open cryptdevice!")
