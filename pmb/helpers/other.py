@@ -77,8 +77,7 @@ def check_binfmt_misc() -> None:
 
 def migrate_success(work: Path, version: int) -> None:
     logging.info("Migration to version " + str(version) + " done")
-    with open(work / "version", "w") as handle:
-        handle.write(str(version) + "\n")
+    work.joinpath("version").write_text(str(version) + "\n")
 
 
 def migrate_work_folder() -> None:
