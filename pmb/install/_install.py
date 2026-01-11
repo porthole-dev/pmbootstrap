@@ -425,8 +425,7 @@ def setup_locale(chroot: Chroot, locale: str) -> None:
         config_tmp_path = f"/tmp/{config_name}"
         config_path = f"/etc/X11/xorg.conf.d/{config_name}"
         pmb.chroot.root(["mkdir", "-p", "/etc/X11/xorg.conf.d"], chroot)
-        with open(chroot / config_tmp_path, "w") as f:
-            f.write(kb_config)
+        (chroot / config_tmp_path).write_text(kb_config)
         pmb.chroot.root(["mv", config_tmp_path, config_path], chroot)
         pmb.chroot.root(["chown", "root:root", config_path], chroot)
 
