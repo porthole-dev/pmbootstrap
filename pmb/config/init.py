@@ -128,9 +128,8 @@ def ask_for_work_path(default: Path | None) -> tuple[Path, bool]:
             # Work must not be inside the pmbootstrap path
             if work == pmb.config.pmb_src or str(work).startswith(f"{pmb.config.pmb_src}/"):
                 logging.fatal(
-                    "ERROR: The work path must not be inside the"
-                    " pmbootstrap path. Please specify another"
-                    " location."
+                    "ERROR: The work path must not be inside the pmbootstrap"
+                    " path. Please specify another location."
                 )
                 continue
 
