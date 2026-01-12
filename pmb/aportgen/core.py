@@ -100,13 +100,22 @@ def rewrite(
                 line = line[8:]
             lines_new += line.rstrip() + "\n"
 
-    # Copy/modify lines, skip Maintainer/Contributor
+    # Copy/modify lines, skip Contributor
     path = get_context().config.work / "aportgen/APKBUILD"
     with open(path, "r+", encoding="utf-8") as handle:
         skip_in_func = False
+        have_maintainer = False
         for line in handle:
-            # Skip maintainer/contributor
-            if line.startswith(("# Maintainer", "# Contributor", "maintainer=")):
+            # Clear maintainer line
+            if line.startswith(("# Maintainer", "maintainer=")):
+                if have_maintainer:
+                    line = ""  # APKBUILDs may use the variable + comment
+                else:
+                    line = 'maintainer="YOUR NAME <EMAIL@ADDRESS> (CHANGEME!)"\n'
+                    have_maintainer = True
+
+            # Contributor
+            if line.startswith("# Contributor"):
                 continue
 
             # Replace functions
