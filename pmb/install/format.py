@@ -66,7 +66,7 @@ def format_partition_with_filesystem(
         else:
             mkfs_args += [
                 "-b",
-                "size=" + str(int(sector_size * 2)),
+                "size=" + str(int(sector_size) * 2),
                 "-s",
                 "size=" + str(sector_size),
             ]
