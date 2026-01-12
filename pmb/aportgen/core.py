@@ -86,12 +86,10 @@ def rewrite(
             "# Automatically generated aport, do not edit!\n",
             f"# Generator: pmbootstrap aportgen {pkgname}\n",
             f"# Based on: {path_original}\n",
-            "\n",
         ]
     else:
         lines_new = [
             "# Forked from Alpine INSERT-REASON-HERE (CHANGEME!)\n",
-            "\n",
         ]
 
     if below_header:
