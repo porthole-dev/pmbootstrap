@@ -12,11 +12,13 @@ from pmb.types import Apkbuild
 
 @pytest.fixture
 def mock_kconfigcheck(monkeypatch: MonkeyPatch) -> None:
-    """Mock kconfigcheck.read_category to return test rules."""
+    """Mock kconfigcheck.read_categories to return test rules."""
 
-    def mock_read_category(category: str) -> dict:
-        if category == "default":
-            return {
+    def mock_read_categories(categories: list[str]) -> dict[str, dict]:
+        out: dict[str, dict] = {}
+
+        if "default" in categories:
+            out |= {
                 "category:default": {
                     ">=0": {
                         "all": {
@@ -27,8 +29,8 @@ def mock_kconfigcheck(monkeypatch: MonkeyPatch) -> None:
                     }
                 }
             }
-        elif category == "community":
-            return {
+        if "community" in categories:
+            out |= {
                 "category:community": {
                     ">=6.0": {
                         "aarch64": {
@@ -38,9 +40,14 @@ def mock_kconfigcheck(monkeypatch: MonkeyPatch) -> None:
                     }
                 }
             }
-        return {}
+        if "community" in categories and "uefi" in categories:
+            out |= {"category:community category:uefi": {">=0": {"all": {"UEFI_RELATED": "y"}}}}
+        if "community" in categories and "ofw" in categories:
+            out |= {"category:community category:ofw": {">=0": {"all": {"OFW_RELATED": "y"}}}}
 
-    monkeypatch.setattr(pmb.parse.kconfigcheck, "read_category", mock_read_category)
+        return out
+
+    monkeypatch.setattr(pmb.parse.kconfigcheck, "read_categories", mock_read_categories)
 
 
 def test_create_fragment_basic(mock_kconfigcheck: None) -> None:
@@ -92,3 +99,19 @@ def test_create_fragment_arch_filtering(mock_kconfigcheck: None) -> None:
 
     # Community (aarch64 only) should NOT be included
     assert "CONFIG_DRM" not in fragment
+
+
+def test_create_fragment_match_multiple(mock_kconfigcheck: None) -> None:
+    """Test that multiple category requirements are respected."""
+    apkbuild: Apkbuild = {
+        "pkgver": "6.6.0",
+        "options": ["pmb:kconfigcheck-community", "pmb:kconfigcheck-uefi"],
+    }
+
+    fragment = create_fragment(apkbuild, Arch.x86_64)
+
+    # The community + UEFI related configs should be included
+    assert "CONFIG_UEFI_RELATED=y" in fragment
+
+    # The community + OFW should NOT be included
+    assert "CONFIG_OFW_RELATED" not in fragment

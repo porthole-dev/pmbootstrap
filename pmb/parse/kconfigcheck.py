@@ -46,7 +46,7 @@ def sanity_check(toml: dict) -> None:
     for section in toml:
         if section == "aliases":
             continue
-        if not section.startswith("category:"):
+        if not all(cat.startswith("category:") for cat in section.split()):
             raise RuntimeError(f"{path}: unexpected section: {section}")
         for versions in toml[section]:
             for arches in toml[section][versions]:
@@ -58,28 +58,49 @@ def sanity_check(toml: dict) -> None:
                     _ = Arch.from_str(arch)
 
 
-@Cache("name")
-def read_category(name: str) -> dict[str, dict]:
-    """
-    Read either one category or one alias (for one or more categories) from
-    kconfigcheck.toml.
-    """
+@Cache("categories")
+def read_categories(categories: list[str]) -> dict[str, dict]:
+    """Read multiple categories (including aliases) from kconfigcheck.toml."""
     toml = load_toml_file(get_path())
     sanity_check(toml)
 
     # Potentially resolve category alias
-    categories = [name]
-    if name in toml["aliases"]:
-        categories = []
-        for category in toml["aliases"][name]:
-            categories += [category.split(":", 1)[1]]
-        logging.debug(f"kconfigcheck: read_component: '{name}' -> {categories}")
+    # category: exists
+    real_categories: dict[str, bool] = {}
+    for category in categories:
+        if category in toml["aliases"]:
+            resolved_aliases = [c.split(":", 1)[1] for c in toml["aliases"][category]]
+            real_categories |= dict.fromkeys(resolved_aliases, False)
+            logging.debug(f"kconfigcheck: read_categories: '{category}' -> {resolved_aliases}")
+        else:
+            real_categories[category] = False
 
     ret = {}
-    for category in categories:
-        key = f"category:{category}"
-        if key not in toml:
-            raise RuntimeError(f"{get_path()}: couldn't find {key}")
-        ret[key] = toml[key]
+
+    for key in toml:
+        # Keys may contain multiple space-separated category:name entries, which all need
+        # to be satisfied for a section to be considered.
+        if key.startswith("category:"):
+            # This must be a kconfigcheck section
+            required_categories = [c.split(":", 1)[1] for c in key.split()]
+            all_requirements_met = True
+
+            for required_category in required_categories:
+                if required_category in real_categories:
+                    # This category exists!
+                    real_categories[required_category] = True
+                else:
+                    # We still keep going through categories since we still want
+                    # to be able to error on nonexisting categories
+                    all_requirements_met = False
+
+            if all_requirements_met:
+                logging.debug(f"kconfigcheck: section {key} has all requirements met")
+                ret[key] = toml[key]
+
+    # Make sure that all specified categories actually exist in the TOML
+    for category, exists in real_categories.items():
+        if not exists:
+            raise RuntimeError(f"{get_path()}: couldn't find {category}")
 
     return ret

@@ -166,7 +166,7 @@ def check_config_options_set(
     :param config: full kernel config as string
     :param config_path: full path to kernel config file
     :param config_arch: architecture name (alpine format, e.g. aarch64, x86_64)
-    :param options: dictionary returned by pmb.parse.kconfigcheck.read_category().
+    :param options: dictionary returned by pmb.parse.kconfigcheck.read_categories().
     :param component: name of the component to test (postmarketOS, waydroid, …)
     :param pkgver: kernel version
     :param details: print all warnings if True, otherwise one per component
@@ -228,9 +228,7 @@ def check_config(
         categories += ["default"]
 
     # Get all rules
-    rules: dict = {}
-    for category in categories:
-        rules |= pmb.parse.kconfigcheck.read_category(category)
+    rules = pmb.parse.kconfigcheck.read_categories(categories)
 
     # Check the rules of each category
     ret = []
@@ -397,20 +395,17 @@ def create_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
             categories.append(category)
 
     # Collect all rules from the categories
-    all_rules = {}
-    for category in categories:
-        try:
-            rules = pmb.parse.kconfigcheck.read_category(category)
-            all_rules.update(rules)
-        except RuntimeError as e:
-            logging.warning(f"Failed to read category {category}: {e}")
+    try:
+        all_rules = pmb.parse.kconfigcheck.read_categories(categories)
+    except RuntimeError as e:
+        logging.warning(f"Failed to read categories {categories}: {e}")
 
     fragment_lines = []
 
     # Process each category
     for category_key, category_rules in all_rules.items():
         # Extract category name from "category:name" format
-        category_name = category_key.split(":", 1)[1]
+        category_name = " + ".join(cat.split(":", 1)[1] for cat in category_key.split())
         options_added = False
 
         # Check if this rule applies to kernel version

@@ -52,3 +52,21 @@ def test_missing_arch() -> None:
     with pytest.raises(RuntimeError) as missing_arch:
         sanity_check(toml)
     assert "category:containers is missing architecture information" in str(missing_arch.value)
+
+
+def test_multiple_categories(pmb_args: None) -> None:
+    toml = {
+        "aliases": {"community": ["category:default"]},
+        "category:default category:uefi": {">=0.0.0": {"all": {"CGROUPS": "y"}}},
+    }
+    sanity_check(toml)
+
+
+def test_multiple_categories_missing_category(pmb_args: None) -> None:
+    toml = {
+        "aliases": {"community": ["category:default"]},
+        "category:default uefi": {">=0.0.0": {"all": {"CGROUPS": "y"}}},
+    }
+    with pytest.raises(RuntimeError) as missing_category:
+        sanity_check(toml)
+    assert "unexpected section: category:default uefi" in str(missing_category.value)
