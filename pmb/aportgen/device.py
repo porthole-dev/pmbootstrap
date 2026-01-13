@@ -56,8 +56,9 @@ def ask_for_chassis() -> str:
 
     logging.info("What type of device is it?")
     logging.info("Valid types are: " + ", ".join(types))
+    logging.info("Leave empty if this property is defined elsewhere, e.g. in Devicetree or ACPI")
     return pmb.helpers.cli.ask(
-        "Chassis", None, None, True, validation_regex="|".join(types), complete=types
+        "Chassis", None, None, True, validation_regex="|".join([*types, "None"]), complete=types
     )
 
 
@@ -202,7 +203,11 @@ def generate_deviceinfo(
         deviceinfo_arch="{arch}"
 
         # Device related
-        deviceinfo_chassis="{chassis}"
+        """
+
+    content += f'deviceinfo_chassis="{chassis}"\n' if chassis != "None" else ""
+
+    content += f"""\
         deviceinfo_external_storage="{external_storage}"
 
         # Bootloader related
