@@ -6,7 +6,7 @@ from _pytest.monkeypatch import MonkeyPatch
 
 import pmb.parse.kconfigcheck
 from pmb.core.arch import Arch
-from pmb.parse.kconfig import create_fragment
+from pmb.parse.kconfig import create_pmos_fragment
 from pmb.types import Apkbuild
 
 
@@ -50,14 +50,14 @@ def mock_kconfigcheck(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(pmb.parse.kconfigcheck, "read_categories", mock_read_categories)
 
 
-def test_create_fragment_basic(mock_kconfigcheck: None) -> None:
+def test_create_pmos_fragment_basic(mock_kconfigcheck: None) -> None:
     """Test fragment generation from kconfigcheck rules."""
     apkbuild: Apkbuild = {
         "pkgver": "6.6.0",
         "options": ["pmb:kconfigcheck-community"],
     }
 
-    fragment = create_fragment(apkbuild, Arch.aarch64)
+    fragment = create_pmos_fragment(apkbuild, Arch.aarch64)
 
     # Check default category included
     assert "CONFIG_BASE=y" in fragment
@@ -69,14 +69,14 @@ def test_create_fragment_basic(mock_kconfigcheck: None) -> None:
     assert 'CONFIG_CMDLINE="console=tty0"' in fragment
 
 
-def test_create_fragment_version_filtering(mock_kconfigcheck: None) -> None:
+def test_create_pmos_fragment_version_filtering(mock_kconfigcheck: None) -> None:
     """Test that version constraints are respected."""
     apkbuild: Apkbuild = {
         "pkgver": "5.15.0",  # Below 6.0
         "options": ["pmb:kconfigcheck-community"],
     }
 
-    fragment = create_fragment(apkbuild, Arch.aarch64)
+    fragment = create_pmos_fragment(apkbuild, Arch.aarch64)
 
     # Default should be included
     assert "CONFIG_BASE=y" in fragment
@@ -85,14 +85,14 @@ def test_create_fragment_version_filtering(mock_kconfigcheck: None) -> None:
     assert "CONFIG_DRM" not in fragment
 
 
-def test_create_fragment_arch_filtering(mock_kconfigcheck: None) -> None:
+def test_create_pmos_fragment_arch_filtering(mock_kconfigcheck: None) -> None:
     """Test that arch constraints are respected."""
     apkbuild: Apkbuild = {
         "pkgver": "6.6.0",
         "options": ["pmb:kconfigcheck-community"],
     }
 
-    fragment = create_fragment(apkbuild, Arch.x86_64)
+    fragment = create_pmos_fragment(apkbuild, Arch.x86_64)
 
     # Default (all arches) should be included
     assert "CONFIG_BASE=y" in fragment
@@ -101,14 +101,14 @@ def test_create_fragment_arch_filtering(mock_kconfigcheck: None) -> None:
     assert "CONFIG_DRM" not in fragment
 
 
-def test_create_fragment_match_multiple(mock_kconfigcheck: None) -> None:
+def test_create_pmos_fragment_match_multiple(mock_kconfigcheck: None) -> None:
     """Test that multiple category requirements are respected."""
     apkbuild: Apkbuild = {
         "pkgver": "6.6.0",
         "options": ["pmb:kconfigcheck-community", "pmb:kconfigcheck-uefi"],
     }
 
-    fragment = create_fragment(apkbuild, Arch.x86_64)
+    fragment = create_pmos_fragment(apkbuild, Arch.x86_64)
 
     # The community + UEFI related configs should be included
     assert "CONFIG_UEFI_RELATED=y" in fragment

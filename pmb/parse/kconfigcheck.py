@@ -7,7 +7,7 @@ from pathlib import Path
 import pmb.config
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_default_path
-from pmb.helpers.toml import load_toml_file
+from pmb.helpers.toml import NonBugError, load_toml_file
 from pmb.meta import Cache
 
 
@@ -104,3 +104,14 @@ def read_categories(categories: list[str]) -> dict[str, dict]:
             raise RuntimeError(f"{get_path()}: couldn't find {category}")
 
     return ret
+
+
+def get_generic_kconfig() -> dict[str, dict]:
+    """Reads the contents of kconfig-generic.toml and returns the parsed TOML."""
+    path = Path(pkgrepo_default_path(), "kconfig-generic.toml")
+    try:
+        return load_toml_file(path)
+    except NonBugError as exception:
+        raise NonBugError(
+            f"kconfig-generic.toml not found, please update your pmaports checkout with 'pmbootstrap pull'. ({exception})"
+        ) from exception

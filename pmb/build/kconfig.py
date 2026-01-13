@@ -333,8 +333,16 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     multiple_architectures = "all" in apkbuild["arch"] or len(apkbuild["arch"]) > 1
     pmos_frag_name = f"pmos.{arch}.config" if multiple_architectures else "pmos.config"
 
+    generated_fragments: dict[str, str] = {}
+
     # The 'pmos fragment' is generated from kconfigcheck.toml
-    pmos_frag = pmb.parse.kconfig.create_fragment(apkbuild, arch)
+    generated_fragments[pmos_frag_name] = pmb.parse.kconfig.create_pmos_fragment(apkbuild, arch)
+
+    # The 'generic fragment' is generated from kconfig-generic.toml
+    if "pmb:generic-kernel" in apkbuild["options"]:
+        generated_fragments[f"generic.{arch}.config"] = pmb.parse.kconfig.create_generic_fragment(
+            apkbuild, arch
+        )
 
     # Write the pmos fragment to the aports dir and copy it into the kernel source tree
     aport = pmb.helpers.pmaports.find(pkgname)
@@ -343,16 +351,18 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     pmb.chroot.user(
         ["mkdir", "-p", str(arch_configs_dir)], chroot, working_dir=Path("/home/pmos/build")
     )
-    with open(aport / pmos_frag_name, mode="w") as pmos_frag_file:
-        pmos_frag_file.write(pmos_frag)
-        pmb.helpers.run.root(
-            [
-                "cp",
-                pmos_frag_file.name,
-                f"{Chroot.native() / arch_configs_dir}/pmos_generated.config",
-            ]
-        )
-    fragments.append(pmos_frag_name)
+
+    for frag_name, frag_contents in generated_fragments.items():
+        with open(aport / frag_name, mode="w") as frag_file:
+            frag_file.write(frag_contents)
+            pmb.helpers.run.root(
+                [
+                    "cp",
+                    frag_file.name,
+                    f"{Chroot.native() / arch_configs_dir / frag_name}",
+                ]
+            )
+        fragments.append(frag_name)
 
     # Collect and parse other fragments from the kernel package directory
     fragment_options: dict[str, dict[str, str | list[str]]] = {}

@@ -374,34 +374,22 @@ def check_file(config_path: Path, categories: list[str] = [], details: bool = Fa
     return check_config(config_path, arch, version, categories, details=details)
 
 
-def create_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
+def create_fragment_from_rules(apkbuild: Apkbuild, rules: dict[str, dict], arch: Arch) -> str:
     """
-    Generate a kconfig fragment based on categories and version from a kernel's
-    APKBUILD.
+    Given a set of kconfigcheck rules, generate a kconfig fragment for a specific architecture
+    based on the version of the kernel package.
 
     :param apkbuild: parsed apkbuild for kernel package
+    :param rules: kconfigcheck rules
     :param arch: target architecture
     :returns: kconfig fragment as a string
     """
     pkgver = apkbuild["pkgver"]
 
-    # Extract categories from APKBUILD options
-    categories = ["default"]  # Always include default
-    for option in apkbuild["options"]:
-        if option.startswith("pmb:kconfigcheck-"):
-            category = option.split("-", 1)[1]
-            categories.append(category)
-
-    # Collect all rules from the categories
-    try:
-        all_rules = pmb.parse.kconfigcheck.read_categories(categories)
-    except RuntimeError as e:
-        logging.warning(f"Failed to read categories {categories}: {e}")
-
-    fragment_lines = []
+    fragment_lines: list[str] = []
 
     # Process each category
-    for category_key, category_rules in all_rules.items():
+    for category_key, category_rules in rules.items():
         # Extract category name from "category:name" format
         category_name = " + ".join(cat.split(":", 1)[1] for cat in category_key.split())
         options_added = False
@@ -451,3 +439,43 @@ def create_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
             fragment_lines.append("")
 
     return "\n".join(fragment_lines)
+
+
+def create_pmos_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
+    """
+    Generate a kconfig fragment based on categories and version from a kernel's
+    APKBUILD.
+
+    :param apkbuild: parsed apkbuild for kernel package
+    :param arch: target architecture
+    :returns: kconfig fragment as a string
+    """
+    # Extract categories from APKBUILD options
+    categories = ["default"]  # Always include default
+    for option in apkbuild["options"]:
+        if option.startswith("pmb:kconfigcheck-"):
+            category = option.split("-", 1)[1]
+            categories.append(category)
+
+    # Collect all rules from the categories
+    try:
+        all_rules = pmb.parse.kconfigcheck.read_categories(categories)
+    except RuntimeError as e:
+        logging.warning(f"Failed to read categories {categories}: {e}")
+
+    return create_fragment_from_rules(apkbuild, all_rules, arch)
+
+
+def create_generic_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
+    """
+    Generate a kconfig fragment for a generic kernel using options from
+    kconfig-generic.toml.
+
+    :param apkbuild: parsed apkbuild for kernel package
+    :param arch: target architecture
+    :returns: kconfig fragment as a string
+    """
+    # Collect rules from kconfig-generic.toml
+    generic_rules = pmb.parse.kconfigcheck.get_generic_kconfig()
+
+    return create_fragment_from_rules(apkbuild, generic_rules, arch)
