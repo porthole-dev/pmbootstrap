@@ -10,6 +10,7 @@ from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 
 
 def indent_size(line: str) -> int:
@@ -202,7 +203,9 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     if len(paths) > 1:
         raise RuntimeError("Package " + pkgname + " found in multiple aports subfolders.")
     elif len(paths) == 0:
-        raise RuntimeError("Package " + pkgname + " not found in alpine aports repository.")
+        raise NonBugError(
+            f"Package {pkgname} not found in alpine aports repository. Maybe it's a subpackage of a different origin package?"
+        )
     aport_path = paths[0]
 
     # Parse APKBUILD
