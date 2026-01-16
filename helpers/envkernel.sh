@@ -181,7 +181,7 @@ initialize_chroot() {
 	fi
 
 	# shellcheck disable=SC2086,SC2154
-	"$pmbootstrap" -q chroot -- apk -q add \
+	if ! "$pmbootstrap" -q chroot -- apk -q add \
 		abuild \
 		bash \
 		bc \
@@ -211,7 +211,13 @@ initialize_chroot() {
 		yamllint \
 		yaml-dev \
 		xz \
-		$pkgs || return 1
+		$pkgs; then
+		printf "\nFailed to install all dependencies, see the error \
+above for details.\nIf a package is missing, ensure you have selected the Edge \
+channel in pmbootstrap and not a stable version as some development packages \
+may not be available on stable releases.\n\n"
+		return 1
+	fi
 
 	# Disable shwordsplit if it wasn't enabled before, and unset the temporary variable if it was.
 	if [ -n "${ZSH_VERSION-}" ]; then
