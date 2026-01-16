@@ -36,6 +36,7 @@ from pmb.core import Chroot, ChrootType, Config
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import CommandFailedError, NonBugError
 from pmb.types import Env, PmbArgs, RunOutputTypeDefault
 
 
@@ -220,13 +221,16 @@ def chroot(args: PmbArgs) -> None:
 
     pmb.helpers.apk.update_repository_list(chroot.path, user_repository=True)
 
-    # Run the command as user/root
-    if user:
-        logging.info(f"({chroot}) % su pmos -c '" + " ".join(args.command) + "'")
-        pmb.chroot.user(args.command, chroot, output=args.output, env=env)
-    else:
-        logging.info(f"({chroot}) % " + " ".join(args.command))
-        pmb.chroot.root(args.command, chroot, output=args.output, env=env)
+    try:
+        # Run the command as user/root
+        if user:
+            logging.info(f"({chroot}) % su pmos -c '" + " ".join(args.command) + "'")
+            pmb.chroot.user(args.command, chroot, output=args.output, env=env)
+        else:
+            logging.info(f"({chroot}) % " + " ".join(args.command))
+            pmb.chroot.root(args.command, chroot, output=args.output, env=env)
+    except CommandFailedError as exception:
+        raise NonBugError(exception) from exception
 
 
 def config(args: PmbArgs) -> None:
