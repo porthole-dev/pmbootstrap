@@ -15,7 +15,7 @@ from typing import Literal, overload
 import pmb.helpers.run
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.exceptions import CommandFailedError, NonBugError
 from pmb.types import (
     Env,
     PathString,
@@ -334,7 +334,7 @@ def check_return_code(code: int, log_message: str) -> None:
         logging.info(
             f"NOTE: The failed command's output is above the ^^^ line in the log file: {log_file}"
         )
-        raise RuntimeError(f"Command failed (exit code {code}): " + log_message)
+        raise CommandFailedError(f"Command failed (exit code {code}): " + log_message)
 
 
 def sudo_timer_iterate() -> None:

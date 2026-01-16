@@ -10,6 +10,13 @@ class BuildFailedError(Exception):
     """
 
 
+class CommandFailedError(Exception):
+    """
+    Exception to be raised when a command pmbootstrap has launched via shell fails. Should only be
+    handled on a selective basis.
+    """
+
+
 class NonBugError(Exception):
     """
     Exception which originates from a problem not caused by pmbootstrap's code. This
