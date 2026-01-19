@@ -156,9 +156,9 @@ def bootimg(path: Path) -> Bootimg:
     header_version = 0
     # Get base, offsets, pagesize, cmdline and qcdt info
     # This file does not exist for example for qcdt images
-    if os.path.isfile(f"{bootimg_path}-header_version"):
-        with open(f"{bootimg_path}-header_version") as f:
-            header_version = int(f.read().replace("\n", ""))
+    bootimg_header_version = Path(f"{bootimg_path}-header_version")
+    if bootimg_header_version.exists():
+        header_version = int(bootimg_header_version.read_text().replace("\n", ""))
 
     if header_version >= 3:
         output["pagesize"] = "4096"
