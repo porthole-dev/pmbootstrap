@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import pmb.config
 import pmb.helpers.git
@@ -25,7 +26,7 @@ class KConfigCheck(commands.Command):
         categories: list[str],
     ) -> None:
         self.details = details
-        self.file = file
+        self.file = Path(file)
         self.pkgname_list = [pkgname] if isinstance(pkgname, str) else pkgname
         self.keep_going = keep_going
         self.categories = categories

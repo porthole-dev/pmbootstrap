@@ -11,7 +11,7 @@ import pmb.parse.kconfigcheck
 from pmb.core.arch import Arch
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
-from pmb.types import Apkbuild, PathString
+from pmb.types import Apkbuild
 
 
 def is_set(config: str, option: str) -> bool:
@@ -63,7 +63,7 @@ def check_option(
     component: str,
     details: bool,
     config: str,
-    config_path: PathString,
+    config_path: Path,
     option: str,
     option_value: bool | str | list[str],
 ) -> bool:
@@ -151,7 +151,7 @@ def check_option(
 
 def check_config_options_set(
     config: str,
-    config_path: PathString,
+    config_path: Path,
     config_arch: str,  # TODO: Replace with Arch type?
     options: dict[str, dict],
     component: str,
@@ -204,7 +204,7 @@ def check_config_options_set(
 
 # TODO: This should probably use Arch and not str for config_arch
 def check_config(
-    config_path: PathString,
+    config_path: Path,
     config_arch: str,
     pkgver: str,
     categories: list[str],
@@ -327,7 +327,7 @@ def check(
 
 
 # TODO: Make this use the Arch type probably
-def extract_arch(config_path: PathString) -> str:
+def extract_arch(config_path: Path) -> str:
     # Extract the architecture out of the config
     with open(config_path) as f:
         config = f.read()
@@ -347,7 +347,7 @@ def extract_arch(config_path: PathString) -> str:
     return "unknown"
 
 
-def extract_version(config_path: PathString) -> str:
+def extract_version(config_path: Path) -> str:
     # Try to extract the version string out of the comment header
     with open(config_path) as f:
         # Read the first 3 lines of the file and get the third line only
@@ -361,7 +361,7 @@ def extract_version(config_path: PathString) -> str:
     return "unknown"
 
 
-def check_file(config_path: PathString, categories: list[str] = [], details: bool = False) -> bool:
+def check_file(config_path: Path, categories: list[str] = [], details: bool = False) -> bool:
     """
     Check for necessary kernel config options in a kconfig file.
 
