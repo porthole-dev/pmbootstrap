@@ -267,14 +267,12 @@ def edit_config(
                 f"Run 'pmbootstrap kconfig generate {pkgname}' first."
             )
 
-        with open(full_config) as f:
-            baseline_config = f.read()
+        baseline_config = full_config.read_text()
 
     _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
 
     if fragment:
-        with open(full_config) as f:
-            new_config = f.read()
+        new_config = full_config.read_text()
         _extract_config_diff(new_config, baseline_config, aport / fragment)
 
         logging.info("Validating fragment changes...")
@@ -375,8 +373,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
             # Not a valid architecture, applies to all
             pass
 
-        with open(config_file) as f:
-            fragment_options[config_file.name] = parse_fragment(f.read())
+        fragment_options[config_file.name] = parse_fragment(config_file.read_text())
 
         # Copy fragment to arch/$arch/configs in kernel source
         pmb.helpers.run.root(
@@ -395,9 +392,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     if not pmb.parse.kconfig.check(pkgname, details=True):
         raise RuntimeError("Generated kernel config does not pass all checks")
 
-    final_config_path = aport / f"config-{apkbuild['_flavor']}.{arch}"
-    with open(final_config_path) as f:
-        final_config = f.read()
+    final_config = aport.joinpath(f"config-{apkbuild['_flavor']}.{arch}").read_text()
 
     validation_failed = False
     for fragment_name, options in fragment_options.items():
