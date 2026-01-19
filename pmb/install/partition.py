@@ -17,6 +17,7 @@ from pmb.types import PartitionLayout
 def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) -> None:
     """
     Mount blockdevices of partitions inside native chroot
+
     :param layout: partition layout from get_partition_layout()
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """

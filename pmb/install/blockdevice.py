@@ -17,6 +17,7 @@ def previous_install(path: Path) -> bool:
     Search the disk for possible existence of a previous installation of
     pmOS. We temporarily mount the possible pmOS_boot partition as
     /dev/diskp1 inside the native chroot to check the label from there.
+
     :param path: path to disk block device (e.g. /dev/mmcblk0)
     """
     label = ""

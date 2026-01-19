@@ -211,7 +211,6 @@ def format_and_mount_root(
     device: str, root_label: str, disk: PathString | None, rsync: bool, filesystem: str | None
 ) -> None:
     """
-    <
     :param device: root partition on install block device (e.g. /dev/installp2)
     :param root_label: label of the root partition (e.g. "pmOS_root")
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
