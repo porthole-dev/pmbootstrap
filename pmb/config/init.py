@@ -727,11 +727,9 @@ def ask_for_additional_options(config: Config) -> None:
 def ask_for_mirror() -> str:
     regex = "^(?:[1-9][0-9]*|best)$"  # single non-zero number only
 
-    json_path = pmb.helpers.http.download(
+    s = pmb.helpers.http.download(
         "https://postmarketos.org/mirrors.json", "pmos_mirrors", cache=False
-    )
-    with open(json_path) as handle:
-        s = handle.read()
+    ).read_text()
 
     logging.info("list of available mirrors:")
     mirrors = json.loads(s)
