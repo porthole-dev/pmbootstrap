@@ -88,14 +88,13 @@ def migrate_work_folder() -> None:
     current_with_suffix = ""
     path = context.config.work / "version"
     if os.path.exists(path):
-        with open(path) as f:
-            # pmb 2.3.x added a suffix due to conflicting work versions
-            # We need to be able to handle that going forward
-            current_with_suffix = f.read().rstrip()
-            version_parts = current_with_suffix.split("-")
-            current = int(version_parts[0])
-            if len(version_parts) == 2:
-                suffix = version_parts[1]
+        # pmb 2.3.x added a suffix due to conflicting work versions
+        # We need to be able to handle that going forward
+        current_with_suffix = path.read_text().rstrip()
+        version_parts = current_with_suffix.split("-")
+        current = int(version_parts[0])
+        if len(version_parts) == 2:
+            suffix = version_parts[1]
 
     # Compare version, print warning or do nothing
     required = pmb.config.work_version
