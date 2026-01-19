@@ -221,8 +221,7 @@ def check_config(
     :returns: True if the check passed, False otherwise
     """
     logging.debug(f"Check kconfig: {config_path}")
-    with open(config_path) as handle:
-        config = handle.read()
+    config = config_path.read_text()
 
     if "default" not in categories:
         categories += ["default"]
@@ -329,8 +328,7 @@ def check(
 # TODO: Make this use the Arch type probably
 def extract_arch(config_path: Path) -> str:
     # Extract the architecture out of the config
-    with open(config_path) as f:
-        config = f.read()
+    config = config_path.read_text()
     if is_set(config, "ARM"):
         return "armv7"
     elif is_set(config, "ARM64"):
