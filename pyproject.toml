@@ -35,11 +35,10 @@ line-length=100
 [tool.ruff.lint]
 # B006, B008: Occur in many places and aren't trivial to fix.
 # D205: Not all of our docstrings have a summary yet.
-# FURB101: Easier to do if str gets replaced with Path in more places.
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
 # RUF067: Occurs in many places and isn't trivial to fix.
-ignore = ["B006", "B008", "D205", "FURB101", "PERF203", "RUF067"]
+ignore = ["B006", "B008", "D205", "PERF203", "RUF067"]
 extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
