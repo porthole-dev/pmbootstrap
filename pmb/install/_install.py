@@ -719,8 +719,7 @@ def sanity_check_disk(args: PmbArgs) -> None:
     if not os.path.exists(device):
         raise RuntimeError(f"{device} doesn't exist, is the disk plugged?")
     if os.path.isdir(f"/sys/class/block/{device_name}"):
-        with open(f"/sys/class/block/{device_name}/ro") as handle:
-            ro = handle.read()
+        ro = Path(f"/sys/class/block/{device_name}/ro").read_text()
         if ro == "1\n":
             raise RuntimeError(f"{device} is read-only, maybe a locked SD card?")
 
@@ -733,8 +732,7 @@ def sanity_check_disk_size(args: PmbArgs) -> None:
         # This is a best-effort sanity check, continue if it's not checkable
         return
 
-    with open(sysfs) as handle:
-        raw = handle.read()
+    raw = Path(sysfs).read_text()
 
     # Size is in 512-byte blocks
     size = int(raw.strip())
