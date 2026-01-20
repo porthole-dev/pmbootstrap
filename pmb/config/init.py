@@ -835,7 +835,7 @@ def ask_build_pkgs_on_install(default: bool) -> bool:
 
 def get_locales() -> list[str]:
     ret = []
-    list_path = f"{pmb.config.pmb_src}/pmb/data/locales"
+    list_path = pmb.config.pmb_src / "pmb/data/locales"
     with open(list_path) as handle:
         for line in handle:
             ret += [line.rstrip()]
