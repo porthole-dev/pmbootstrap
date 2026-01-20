@@ -1,7 +1,6 @@
 # Copyright 2024 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
-import os
 from pathlib import Path
 
 import pmb.config
@@ -17,16 +16,15 @@ def get_path() -> Path:
     Get the kconfigcheck.toml from current pmaports branch if it exists, or
     as fallback the v24.06 version shipped with pmbootstrap.
     """
-    ret: Path
-    ret = Path(pkgrepo_default_path(), "kconfigcheck.toml")
-    if os.path.exists(ret):
+    ret = pkgrepo_default_path() / "kconfigcheck.toml"
+    if ret.exists():
         return ret
 
     logging.info(
         "NOTE: couldn't find kconfigcheck.toml in pmaports dir, using"
         " the version from postmarketOS v24.06"
     )
-    return Path(pmb.config.pmb_src, "pmb/data/kconfigcheck.toml")
+    return pmb.config.pmb_src / "pmb/data/kconfigcheck.toml"
 
 
 def sanity_check(toml: dict) -> None:
