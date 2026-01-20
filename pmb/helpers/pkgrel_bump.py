@@ -137,9 +137,6 @@ def auto(dry: bool = False) -> list[str]:
             logging.info(f"scan {path}")
             index = pmb.parse.apkindex.parse(path, False)
             for pkgname, apk in index.items():
-                if isinstance(apk, dict):
-                    raise AssertionError("pmb.parse.apkindex.parse returned an illegal structure")
-
                 origin = apk.origin
                 # Only increase once!
                 if origin in ret:
