@@ -1179,7 +1179,13 @@ def get_parser() -> argparse.ArgumentParser:
         " sources and verify that the checksums of the"
         " APKBUILD match, instead of updating them",
     )
-    add_packages_arg(checksum, nargs="+")
+    checksum_changed = checksum.add_mutually_exclusive_group(required=True)
+    checksum_changed.add_argument(
+        "--changed",
+        action="store_true",
+        help="update checksums of all packages that have unstaged or uncommitted changes",
+    )
+    checksum_changed.add_argument("packages", nargs="*", default=[])
 
     # Action: aportgen
     aportgen = sub.add_parser(

@@ -137,11 +137,19 @@ def build_init(args: PmbArgs) -> None:
 
 def checksum(args: PmbArgs) -> None:
     pmb.chroot.init(Chroot.native())
-    for package in args.packages:
+
+    packages = pmb.helpers.git.get_changed_packages() if args.changed else args.packages
+
+    for package in packages:
         if args.verify:
             pmb.build.checksum.verify(package)
         else:
             pmb.build.checksum.update(package)
+
+    if not packages:
+        # We should only ever reach this if the --changed argument is used as
+        # otherwise at least one package must be specified in the arguments.
+        logging.info("NOTE: No changed packages detected, not updating any checksums")
 
 
 def sideload(args: PmbArgs) -> None:

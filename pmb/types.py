@@ -195,6 +195,7 @@ class PmbArgs(Namespace):
     built: bool
     ccache: bool
     ccache_size: str
+    changed: bool
     chroot_usb: bool
     cipher: str
     clear_log: bool
