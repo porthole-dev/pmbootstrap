@@ -412,3 +412,78 @@ def get_files(repo: Path, include_dot_git_dir: bool = False) -> list[str]:
             ret += [file]
 
     return ret
+
+
+def get_changed_files() -> set[Path]:
+    """Get all changed files.
+
+    Provides a set of all file paths that have uncommitted changes—both staged
+    and unstaged—in the default package repository's git repository (usually
+    pmaports).
+
+    :returns: Set of changed file paths.
+    """
+    # Changed files
+    ret = set()
+    for file_string in pmb.helpers.run.user_output(
+        # Diff against HEAD so we get both staged and unstaged changes.
+        ["git", "diff", "--name-only", "HEAD"],
+        working_dir=pkgrepo_default_path(),
+    ).splitlines():
+        file = Path(file_string)
+
+        if (pkgrepo_default_path() / file).exists():
+            ret.add(file)
+    return ret
+
+
+def _is_path_hidden(maybe_hidden: Path) -> bool:
+    """Check whether a path would be considered hidden on Unix systems.
+
+    Attempts to determine whether a path would be considered hidden on a Unix
+    system.
+
+    :param maybe_hidden: Path to analyse.
+    :returns: True if the path is to be considered hidden, False otherwise.
+    """
+    return any(part[0] == "." for part in maybe_hidden.parts)
+
+
+def get_changed_packages() -> set[str]:
+    """Get all changed packages.
+
+    Provides a set of the names of all packages that have uncommitted
+    changes—both staged and unstaged—in the default package repository's git
+    repository (usually pmaports).
+
+    :returns: Set of the names of changed packages.
+    """
+    ret = set()
+    for file in get_changed_files():
+        # Skip files:
+        # * in the root dir of pmaports (e.g. README.md)
+        # * path with a dot (e.g. .ci/, device/.shared-patches/)
+        if not file.parent or _is_path_hidden(file):
+            continue
+
+        dirname = file.parent
+        if file.name != "APKBUILD":
+            # Walk up directories until we (eventually) find the package
+            # the file belongs to (could be in a subdirectory of a package)
+            while dirname and not (pkgrepo_default_path() / dirname / "APKBUILD").exists():
+                dirname = dirname.parent
+
+            # Unable to find APKBUILD the file belong to
+            if not dirname:
+                # ... maybe the package was deleted entirely?
+                if not (pkgrepo_default_path() / file).exists():
+                    continue
+
+                # Weird, file does not belong to any package?
+                continue
+        elif not (pkgrepo_default_path() / file).exists():
+            continue  # APKBUILD was deleted
+
+        ret.add(dirname.name)
+
+    return ret
