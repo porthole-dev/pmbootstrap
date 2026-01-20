@@ -60,7 +60,7 @@ def check_version_pmbootstrap(min_ver: str) -> None:
 
     # Error for git clone
     pmb_src = pmb.config.pmb_src
-    if os.path.exists(pmb_src / ".git"):
+    if (pmb_src / ".git").exists():
         raise RuntimeError(
             "Please update your local pmbootstrap repository."
             f" Usually with: 'git -C \"{pmb_src}\" pull'"
