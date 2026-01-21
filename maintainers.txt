@@ -1,4 +1,5 @@
 # https://postmarketos.org/maintainers.txt
+Aelin
 Newbyte
 grimler
 kcxt
