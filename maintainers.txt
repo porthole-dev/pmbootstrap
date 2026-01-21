@@ -1,0 +1,5 @@
+# https://postmarketos.org/maintainers.txt
+Newbyte
+grimler
+kcxt
+ollieparanoid
