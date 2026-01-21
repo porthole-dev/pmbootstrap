@@ -20,13 +20,13 @@ class KConfigCheck(commands.Command):
     def __init__(
         self,
         details: bool,
-        file: str,
+        file: str | None,
         pkgname: str | list[str],
         keep_going: bool,
         categories: list[str],
     ) -> None:
         self.details = details
-        self.file = Path(file)
+        self.file = Path(file) if file is not None else None
         self.pkgname_list = [pkgname] if isinstance(pkgname, str) else pkgname
         self.keep_going = keep_going
         self.categories = categories
