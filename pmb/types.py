@@ -213,7 +213,7 @@ class PmbArgs(Namespace):
     export_folder: Path
     extra_space: str
     fast: bool
-    file: str
+    file: str | None
     filesystem: str
     flash_method: str
     folder: str
