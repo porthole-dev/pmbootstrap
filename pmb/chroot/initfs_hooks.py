@@ -21,22 +21,21 @@ def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
     return ret
 
 
-def list_aports() -> list[str]:
+def list_hook_packages() -> list[str]:
     prefix = pmb.config.initfs_hook_prefix
     return [os.path.basename(path)[len(prefix) :] for path in pkgrepo_iglob(f"*/{prefix}*")]
 
 
 def ls(suffix: Chroot) -> None:
     hooks_chroot = list_chroot(suffix)
-    hooks_aports = list_aports()
 
-    for hook in hooks_aports:
+    for hook in list_hook_packages():
         line = f"* {hook} ({'' if hook in hooks_chroot else 'not '}installed)"
         logging.info(line)
 
 
 def add(hook: str, suffix: Chroot) -> None:
-    if hook not in list_aports():
+    if hook not in list_hook_packages():
         raise RuntimeError(
             "Invalid hook name! Run 'pmbootstrap initfs hook_ls' to get a list of all hooks."
         )
