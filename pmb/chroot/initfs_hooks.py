@@ -7,6 +7,7 @@ import pmb.config
 from pmb.core import Chroot
 from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 
 
 def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
@@ -36,7 +37,7 @@ def ls(suffix: Chroot) -> None:
 
 def add(hook: str, suffix: Chroot) -> None:
     if hook not in list_hook_packages():
-        raise RuntimeError(
+        raise NonBugError(
             "Invalid hook name! Run 'pmbootstrap initfs hook_ls' to get a list of all hooks."
         )
     prefix = pmb.config.initfs_hook_prefix
@@ -45,7 +46,7 @@ def add(hook: str, suffix: Chroot) -> None:
 
 def delete(hook: str, suffix: Chroot) -> None:
     if hook not in list_chroot(suffix):
-        raise RuntimeError("There is no such hook installed!")
+        raise NonBugError("There is no such hook installed!")
     prefix = pmb.config.initfs_hook_prefix
     pmb.helpers.apk.run(["del", f"{prefix}{hook}"], suffix)
 
