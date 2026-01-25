@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import re
-import shlex
 import shutil
 import signal
 import subprocess
@@ -10,10 +9,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from types import FrameType
 
-import pmb.build
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.chroot.other
 import pmb.config.pmaports
 import pmb.helpers.run
 import pmb.install.losetup
@@ -103,37 +100,15 @@ def command_qemu(
     img_path_2nd: Path | None = None,
 ) -> tuple[list[str | Path], Env]:
     """Generate the full qemu command with arguments to run postmarketOS"""
-    device = config.device
-    cmdline = pmb.parse.deviceinfo().kernel_cmdline or ""
-    if args.cmdline:
-        cmdline = args.cmdline
-
-    if "video=" not in cmdline:
-        cmdline += " video=" + args.qemu_video
-
-    logging.debug("Kernel cmdline: " + cmdline)
+    if args.efi:
+        logging.warning(
+            "WARNING: The --efi argument to 'pmbootstrap qemu' is deprecated. EFI boot is the default now and the argument no longer has any effect."
+        )
 
     port_ssh = str(args.port)
 
-    chroot = Chroot(ChrootType.ROOTFS, device)
     chroot_native = Chroot.native()
     chroot_target = Chroot.buildroot(arch)
-    flavor = pmb.chroot.other.kernel_flavor_installed(chroot, autoinstall=False)
-    flavor_suffix = f"-{flavor}"
-    # Backwards compatibility with old mkinitfs (pma#660)
-    pmaports_cfg = pmb.config.pmaports.read_config()
-    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        flavor_suffix = ""
-
-    # We do not support direct kernel boot on some architectures
-    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
-
-    # Alpine kernels always have the flavor appended to /boot/vmlinuz
-    kernel = chroot / "boot" / f"vmlinuz{flavor_suffix}"
-    if use_direct_kernel_boot and not kernel.exists():
-        kernel = kernel.with_name(f"{kernel.name}-{flavor}")
-        if not os.path.exists(kernel):
-            raise RuntimeError("failed to find the proper vmlinuz path")
 
     ncpus = os.cpu_count()
     if not ncpus:
@@ -208,16 +183,7 @@ def command_qemu(
         command += ["-L", chroot_native / "usr/share/qemu/"]
 
     command += ["-nodefaults"]
-    # Only boot a kernel/initramfs directly when not doing EFI or OF boot.
-    # This allows us to load/execute an EFI application on boot, and support
-    # a wide variety of boot loaders.
-    if use_direct_kernel_boot:
-        command += ["-kernel", kernel]
-        command += ["-initrd", chroot / "boot" / f"initramfs{flavor_suffix}"]
-        command += ["-append", shlex.quote(cmdline)]
-
     command += ["-smp", str(ncpus)]
-
     command += ["-m", str(args.memory)]
 
     command += ["-serial"]
@@ -277,35 +243,34 @@ def command_qemu(
                 # default to 2D-only backend
                 command += ["-device", "virtio-gpu"]
 
-    if not use_direct_kernel_boot:
-        host_arch = Arch.native()
-        edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
-        match arch:
-            case Arch.aarch64:
-                command += [
-                    "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/AAVMF/AAVMF_CODE.fd",
-                ]
-            case Arch.x86_64:
-                command += [
-                    "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/OVMF/OVMF.fd",
-                ]
-            case Arch.loongarch64:
-                command += [
-                    "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/loongarch64/QEMU_EFI.fd",
-                ]
-            case Arch.ppc64le:
-                # ppc64le uses SLOF included in QEMU
-                pass
-            case Arch.riscv64:
-                command += [
-                    "-drive",
-                    f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/riscv/RISCV_VIRT_CODE.fd",
-                ]
-            case _:
-                raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
+    host_arch = Arch.native()
+    edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
+    match arch:
+        case Arch.aarch64:
+            command += [
+                "-drive",
+                f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/AAVMF/AAVMF_CODE.fd",
+            ]
+        case Arch.x86_64:
+            command += [
+                "-drive",
+                f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/OVMF/OVMF.fd",
+            ]
+        case Arch.loongarch64:
+            command += [
+                "-drive",
+                f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/loongarch64/QEMU_EFI.fd",
+            ]
+        case Arch.ppc64le:
+            # ppc64le uses SLOF included in QEMU
+            pass
+        case Arch.riscv64:
+            command += [
+                "-drive",
+                f"if=pflash,format=raw,readonly=on,file={edk2_chroot}/usr/share/edk2/riscv/RISCV_VIRT_CODE.fd",
+            ]
+        case _:
+            raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
     # Kernel Virtual Machine (KVM) support
     native = pmb.parse.deviceinfo().arch.is_native()
@@ -409,35 +374,32 @@ def install_depends(args: PmbArgs, arch: Arch) -> None:
         depends.remove("qemu-hw-display-virtio-vga")
         depends.remove("qemu-ui-opengl")
 
-    use_direct_kernel_boot = arch.uses_direct_kernel_image_boot_by_default() and not args.efi
+    edk2_pkg = None
 
-    if not use_direct_kernel_boot:
-        edk2_pkg = None
+    # EDK2 builds are only available for the target architecture
+    match arch:
+        case Arch.aarch64:
+            edk2_pkg = "aavmf"
+        case Arch.x86_64:
+            edk2_pkg = "ovmf"
+        case Arch.loongarch64:
+            edk2_pkg = "edk2-loongarch64"
+        case Arch.ppc64le:
+            # ppc64le uses SLOF included in QEMU instead of EFI
+            pass
+        case Arch.riscv64:
+            edk2_pkg = "ovmf"
+        case _:
+            raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
 
-        # EDK2 builds are only available for the target architecture
-        match arch:
-            case Arch.aarch64:
-                edk2_pkg = "aavmf"
-            case Arch.x86_64:
-                edk2_pkg = "ovmf"
-            case Arch.loongarch64:
-                edk2_pkg = "edk2-loongarch64"
-            case Arch.ppc64le:
-                # ppc64le uses SLOF included in QEMU instead of EFI
-                pass
-            case Arch.riscv64:
-                edk2_pkg = "ovmf"
-            case _:
-                raise RuntimeError(f"Architecture {arch} not configured for EFI support.")
-
-        # If we're running natively, install it to the native chroot, otherwise we need to
-        # install it in the target chroot
-        if edk2_pkg is not None and arch == Arch.native():
-            depends.append(edk2_pkg)
-        elif edk2_pkg is not None:
-            target_chroot = Chroot.buildroot(arch)
-            pmb.chroot.init(target_chroot)
-            pmb.chroot.apk.install([edk2_pkg], target_chroot)
+    # If we're running natively, install it to the native chroot, otherwise we need to
+    # install it in the target chroot
+    if edk2_pkg is not None and arch == Arch.native():
+        depends.append(edk2_pkg)
+    elif edk2_pkg is not None:
+        target_chroot = Chroot.buildroot(arch)
+        pmb.chroot.init(target_chroot)
+        pmb.chroot.apk.install([edk2_pkg], target_chroot)
 
     chroot = Chroot.native()
     pmb.chroot.init(chroot)
