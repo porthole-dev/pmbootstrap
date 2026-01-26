@@ -35,14 +35,11 @@ def toggle_other_boolean_flags(
 ) -> type[argparse.Action]:
     """
     Group several argparse flags to one.
-
     Sets multiple other_destination to value.
 
     :param other_destinations: 'the other argument names' str
-
-    :param value 'the value to set the other_destinations to' bool
-
-    :returns custom Action
+    :param value: 'the value to set the other_destinations to' bool
+    :returns: custom Action
     """
 
     class SetOtherDestinationsAction(argparse.Action):
