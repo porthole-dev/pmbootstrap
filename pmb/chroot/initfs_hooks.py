@@ -1,13 +1,19 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
+from collections.abc import Generator
+from pathlib import Path
 
 import pmb.chroot.apk
 import pmb.config
+import pmb.parse._apkbuild
 from pmb.core import Chroot
 from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
+
+
+def path_to_hook_name(path: Path) -> str:
+    return path.name[len(pmb.config.initfs_hook_prefix) :]
 
 
 def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
@@ -22,16 +28,21 @@ def list_chroot(suffix: Chroot, remove_prefix: bool = True) -> list[str]:
     return ret
 
 
+def list_hook_paths() -> Generator[Path, None, None]:
+    return pkgrepo_iglob(f"*/{pmb.config.initfs_hook_prefix}*")
+
+
 def list_hook_packages() -> list[str]:
-    prefix = pmb.config.initfs_hook_prefix
-    return [os.path.basename(path)[len(prefix) :] for path in pkgrepo_iglob(f"*/{prefix}*")]
+    return [path_to_hook_name(path) for path in list_hook_paths()]
 
 
 def ls(suffix: Chroot) -> None:
     hooks_chroot = list_chroot(suffix)
 
-    for hook in list_hook_packages():
-        line = f"* {hook} ({'' if hook in hooks_chroot else 'not '}installed)"
+    for hook_path in list_hook_paths():
+        hook_desc = pmb.parse._apkbuild.apkbuild(hook_path)["pkgdesc"]
+        hook = path_to_hook_name(hook_path)
+        line = f"* {hook}: {hook_desc} ({'' if hook in hooks_chroot else 'not '}installed)"
         logging.info(line)
 
 
