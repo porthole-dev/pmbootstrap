@@ -27,6 +27,7 @@ from pmb.core import Chroot, ChrootType, Config
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pmb.helpers.locale import get_xkb_layout
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.parse.deviceinfo import Deviceinfo
@@ -100,7 +101,7 @@ def get_kernel_package(config: Config) -> list[str]:
 
     # Sanity check
     if config.kernel not in kernels:
-        raise RuntimeError(
+        raise NonBugError(
             "Selected kernel (" + config.kernel + ") is not"
             " valid for device " + config.device + ". Please"
             " run 'pmbootstrap init' to select a valid kernel."
