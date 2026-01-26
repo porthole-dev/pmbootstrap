@@ -23,3 +23,11 @@ class NonBugError(Exception):
     could for example be raised if there is an error in a package pmbootstrap is
     interacting with in some way.
     """
+
+
+class PackagingError(Exception):
+    """
+    Exception which at least very likely originates from a problem in the pmaports/aports packaging.
+    This could for instance be due to a package specifying a path to a file that no longer exists or
+    mkinitfs failing to run.
+    """

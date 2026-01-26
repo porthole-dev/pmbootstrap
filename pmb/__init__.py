@@ -7,7 +7,7 @@ import traceback
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pmb.helpers.exceptions import BuildFailedError, NonBugError
+from pmb.helpers.exceptions import BuildFailedError, NonBugError, PackagingError
 
 if TYPE_CHECKING:
     from pmb.types import PmbArgs
@@ -127,6 +127,18 @@ def main() -> int:
         logging.error(f"ERROR: {exception}")
         print_log_hint()
         return 3
+
+    except PackagingError as exception:
+        logging.error(f"ERROR: {exception}")
+        print_log_hint()
+        print("""
+This error likely originates from a packaging issue. Please ensure that your
+local pmaports clone is up-to-date with 'pmbootstrap pull'. If the issue still
+persists, try zapping all chroots with 'pmbootstrap zap --all' and try again.
+
+Should that still not work, please open an issue in the pmaports (not
+pmbootstrap) issue tracker including the pmbootstrap log.""")
+        return 4
 
     except Exception as e:
         # Dump log to stdout when args (and therefore logging) init failed
