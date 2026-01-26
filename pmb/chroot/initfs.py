@@ -8,7 +8,7 @@ import pmb.helpers.cli
 from pmb.core import Chroot
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.exceptions import CommandFailedError, NonBugError, PackagingError
 from pmb.parse.deviceinfo import Deviceinfo, InitfsCompressionFormat
 from pmb.types import PathString, PmbArgs, RunOutputTypeDefault
 
@@ -145,7 +145,10 @@ def frontend(args: PmbArgs) -> None:
             pmb.chroot.initfs_hooks.delete(args.hook, chroot)
 
         # Rebuild the initfs after adding/removing a hook
-        build(chroot)
+        try:
+            build(chroot)
+        except CommandFailedError as exception:
+            raise PackagingError("Failed to rebuild initramfs. Broken hook?") from exception
 
     if action in ["ls", "extract"]:
         link = "https://wiki.postmarketos.org/wiki/Initramfs_development"
