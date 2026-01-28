@@ -264,14 +264,12 @@ def foreground_pipe(
 
     # While process exists wait for output (with timeout)
     output_buffer: list[bytes] = []
-    if context.command_timeout is not None:
-        sel = selectors.DefaultSelector()
-        sel.register(stdout, selectors.EVENT_READ)
+    sel = selectors.DefaultSelector()
+    sel.register(stdout, selectors.EVENT_READ)
     while process.poll() is None:
-        wait_start = time.perf_counter()
         if context.command_timeout is not None:
+            wait_start = time.perf_counter()
             timeout = context.command_timeout.length
-
             try:
                 sel.select(timeout)
             except OverflowError as exception:
@@ -291,6 +289,9 @@ def foreground_pipe(
                     logging.info("NOTE: The timeout can be increased with 'pmbootstrap -t'.")
                     kill_command(process.pid, sudo)
                     continue
+        else:
+            # Block until output is received when no timeout is configured
+            sel.select(None)
 
         # Read all currently available output
         pipe_read(process, output_to_stdout, output_log, output_return, output_buffer)
