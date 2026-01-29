@@ -143,23 +143,20 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
         "linux-samsung-i9100", ...]
     """
     # Build ret (by iterating over the queue)
-    queue = [pkgname]
-    ret = []
+    queue = {pkgname}
+    ret: set[str] = set()
     while len(queue):
-        pkgname_queue = queue.pop()
-        package = get(pkgname_queue, arch)
+        package = get(queue.pop(), arch)
 
         # Add its depends to the queue
         for depend in package.depends:
-            if depend not in ret and depend not in queue:
-                queue += [depend]
+            if depend not in ret:
+                queue.add(depend)
 
         # Add the pkgname (not possible subpkgname) to ret
-        if package.pkgname not in ret:
-            ret += [package.pkgname]
-    ret.sort()
+        ret.add(package.pkgname)
 
-    return ret
+    return sorted(ret)
 
 
 def check_arch(pkgname: str, arch: Arch, binary: bool = True) -> bool:
