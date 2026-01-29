@@ -151,7 +151,7 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
 
         # Add its depends to the queue
         for depend in package.depends:
-            if depend not in ret:
+            if depend not in ret and depend not in queue:
                 queue += [depend]
 
         # Add the pkgname (not possible subpkgname) to ret
