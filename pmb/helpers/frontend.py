@@ -3,7 +3,7 @@
 import json
 import os
 import sys
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from pathlib import Path
 from typing import Any, NoReturn
 
@@ -137,9 +137,17 @@ def build_init(args: PmbArgs) -> None:
 
 
 def checksum(args: PmbArgs) -> None:
+    def get_relevant_packages() -> Collection[str]:
+        if args.changed:
+            return pmb.helpers.git.get_changed_packages()
+        elif args.packages:
+            return args.packages
+        else:
+            return {Path.cwd().name}
+
     pmb.chroot.init(Chroot.native())
 
-    packages = pmb.helpers.git.get_changed_packages() if args.changed else args.packages
+    packages = get_relevant_packages()
 
     for package in packages:
         if args.verify:
