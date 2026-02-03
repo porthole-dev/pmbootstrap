@@ -42,9 +42,8 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
         {"pkgname": "package-depending-on-hello-world", "version": "0.5-r0", "repo": None}]
     """
     ret = []
-    pmaports_dirs = [Path(x) for x in get_context().config.aports]
 
-    for pmaports_dir in pmaports_dirs:
+    for pmaports_dir in get_context().config.aports:
         pattern = os.path.join(pmaports_dir, "**/*/APKBUILD")
 
         for apkbuild_path_str in glob.glob(pattern, recursive=True):
