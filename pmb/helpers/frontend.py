@@ -16,7 +16,6 @@ import pmb.chroot.other
 import pmb.ci
 import pmb.config
 import pmb.export
-import pmb.helpers.aportupgrade
 import pmb.helpers.git
 import pmb.helpers.lint
 import pmb.helpers.logging
@@ -501,21 +500,6 @@ def apkindex_parse(args: PmbArgs) -> None:
             raise AssertionError
         result = result_temp
     print(json.dumps(result, indent=4))
-
-
-def aportupgrade(args: PmbArgs) -> None:
-    if args.all or args.all_stable or args.all_git:
-        pmb.helpers.aportupgrade.upgrade_all(
-            args.ref, args.dry, args.all, args.all_git, args.all_stable
-        )
-    else:
-        # Each package must exist
-        for package in args.packages:
-            pmb.helpers.pmaports.find(package)
-
-        # Check each package for a new version
-        for package in args.packages:
-            pmb.helpers.aportupgrade.upgrade(package, args.dry)
 
 
 def qemu(args: PmbArgs) -> None:

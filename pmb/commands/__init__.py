@@ -30,7 +30,6 @@ unmigrated_commands = [
     "netboot",
     "initfs",
     "qemu",
-    "aportupgrade",
     "newapkbuild",
     "lint",
     "status",

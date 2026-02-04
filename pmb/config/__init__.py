@@ -646,22 +646,6 @@ newapkbuild_arguments_switches_other = [
 ]
 
 #
-# UPGRADE
-#
-# Patterns of package names to ignore for automatic pmaport upgrading
-# ("pmbootstrap aportupgrade --all")
-upgrade_ignore = [
-    "device-*",
-    "firmware-*",
-    "linux-*",
-    "postmarketos-*",
-    "*-aarch64",
-    "*-armhf",
-    "*-armv7",
-    "*-riscv64",
-]
-
-#
 # CI
 #
 # Valid options for 'pmbootstrap ci', see https://postmarketos.org/pmb-ci

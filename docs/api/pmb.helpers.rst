@@ -20,14 +20,6 @@ pmb.helpers.apk module
    :undoc-members:
    :show-inheritance:
 
-pmb.helpers.aportupgrade module
--------------------------------
-
-.. automodule:: pmb.helpers.aportupgrade
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.helpers.args module
 -----------------------
 

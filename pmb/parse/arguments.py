@@ -598,28 +598,6 @@ def arguments_pkgver_bump(subparser: argparse._SubParsersAction) -> argparse.Arg
     return ret
 
 
-def arguments_aportupgrade(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
-    ret = subparser.add_parser(
-        "aportupgrade", help="check for outdated packages that need upgrading"
-    )
-    ret.add_argument(
-        "--dry",
-        action="store_true",
-        help="instead of modifying APKBUILDs, print the changes that would be made",
-    )
-    ret.add_argument("--ref", help="git ref (tag, commit, etc) to use")
-
-    # Mutually exclusive: "--all" or package names
-    mode = ret.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--all", action="store_true", help="iterate through all packages")
-    mode.add_argument(
-        "--all-stable", action="store_true", help="iterate through all non-git packages"
-    )
-    mode.add_argument("--all-git", action="store_true", help="iterate through all git packages")
-    mode.add_argument("packages", nargs="*", default=[])
-    return ret
-
-
 def arguments_newapkbuild(subparser: argparse._SubParsersAction) -> None:
     """
     Wrapper for Alpine's "newapkbuild" command.
@@ -992,7 +970,6 @@ def get_parser() -> argparse.ArgumentParser:
     arguments_qemu(sub)
     arguments_pkgrel_bump(sub)
     arguments_pkgver_bump(sub)
-    arguments_aportupgrade(sub)
     arguments_newapkbuild(sub)
     arguments_lint(sub)
     arguments_test(sub)
