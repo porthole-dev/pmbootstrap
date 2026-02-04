@@ -4,12 +4,7 @@
 from __future__ import annotations
 
 import pmb.build.other
-from pmb import commands
 
 
-class Index(commands.Command):
-    def __init__(self) -> None:
-        pass
-
-    def run(self) -> None:
-        pmb.build.other.index_repo()
+def index() -> None:
+    pmb.build.other.index_repo()

@@ -8,7 +8,6 @@ import time
 import pmb.helpers.logging as logging
 import pmb.helpers.repo
 import pmb.parse.apkindex
-from pmb import commands
 from pmb.core.arch import Arch
 
 """Various internal test commands for performance testing and debugging."""
@@ -27,10 +26,6 @@ def apkindex_parse_all() -> None:
     logging.info(f"Parsed {pkgs} packages from {indxs} APKINDEX files in {end - start:.3f} seconds")
 
 
-class Test(commands.Command):
-    def __init__(self, action: str) -> None:
-        self.action = action
-
-    def run(self) -> None:
-        if self.action == "apkindex_parse_all":
-            apkindex_parse_all()
+def test(action: str) -> None:
+    if action == "apkindex_parse_all":
+        apkindex_parse_all()

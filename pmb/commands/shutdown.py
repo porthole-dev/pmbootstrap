@@ -4,12 +4,7 @@
 from __future__ import annotations
 
 import pmb.chroot
-from pmb import commands
 
 
-class Shutdown(commands.Command):
-    def __init__(self) -> None:
-        pass
-
-    def run(self) -> None:
-        pmb.chroot.shutdown()
+def shutdown() -> None:
+    pmb.chroot.shutdown()

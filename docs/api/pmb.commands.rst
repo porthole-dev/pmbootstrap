@@ -12,14 +12,6 @@ pmb.commands.aportgen module
    :undoc-members:
    :show-inheritance:
 
-pmb.commands.base module
-------------------------
-
-.. automodule:: pmb.commands.base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.commands.flasher module
 ---------------------------
 
