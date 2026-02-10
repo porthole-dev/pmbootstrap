@@ -15,7 +15,6 @@ import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.ci
 import pmb.config
-import pmb.export
 import pmb.helpers.git
 import pmb.helpers.logging
 import pmb.helpers.mount
@@ -411,10 +410,6 @@ def install(args: PmbArgs) -> None:
     pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args)
-
-
-def export(args: PmbArgs) -> None:
-    pmb.export.frontend(args.export_folder, args.autoinstall, args.odin_flashable_tar)
 
 
 def update(args: PmbArgs) -> None:

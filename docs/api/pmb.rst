@@ -14,7 +14,6 @@ Subpackages
    pmb.commands
    pmb.config
    pmb.core
-   pmb.export
    pmb.flasher
    pmb.helpers
    pmb.install
