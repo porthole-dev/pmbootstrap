@@ -29,7 +29,6 @@ import pmb.netboot
 import pmb.parse
 import pmb.parse.apkindex
 import pmb.qemu
-import pmb.sideload
 from pmb.core import Chroot, ChrootType, Config
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
@@ -157,13 +156,6 @@ def checksum(args: PmbArgs) -> None:
         # We should only ever reach this if the --changed argument is used as
         # otherwise at least one package must be specified in the arguments.
         logging.info("NOTE: No changed packages detected, not updating any checksums")
-
-
-def sideload(args: PmbArgs) -> None:
-    arch = args.arch
-    user = args.user or get_context().config.user
-    host = args.host
-    pmb.sideload.sideload(user, host, str(args.port), arch, args.install_key, args.packages)
 
 
 def netboot(args: PmbArgs) -> None:

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from pmb.core.context import get_context
 from pmb.helpers import frontend
 from pmb.types import PmbArgs
 
@@ -15,6 +16,7 @@ from .pkgrel_bump import pkgrel_bump
 from .pkgver_bump import pkgver_bump
 from .pull import pull
 from .shutdown import shutdown
+from .sideload import sideload
 from .test import test
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
@@ -25,7 +27,6 @@ unmigrated_commands = [
     "work_migrate",
     "repo_missing",
     "export",
-    "sideload",
     "netboot",
     "initfs",
     "qemu",
@@ -75,6 +76,15 @@ def run_command(args: PmbArgs) -> None:
             index()
         case "shutdown":
             shutdown()
+        case "sideload":
+            sideload(
+                args.user or get_context().config.user,
+                args.host,
+                str(args.port),
+                args.arch,
+                args.install_key,
+                args.packages,
+            )
         case "test":
             test(args.action_test)
         case "pkgrel_bump":

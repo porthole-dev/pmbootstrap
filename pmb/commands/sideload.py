@@ -1,4 +1,4 @@
-# Copyright 2023 Martijn Braam
+# Copyright 2026 Stefan Hansson, Martijn Braam
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 import shlex

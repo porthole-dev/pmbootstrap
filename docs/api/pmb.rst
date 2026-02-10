@@ -21,7 +21,6 @@ Subpackages
    pmb.netboot
    pmb.parse
    pmb.qemu
-   pmb.sideload
    pmb.types
 
 Module contents
