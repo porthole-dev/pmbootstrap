@@ -12,6 +12,14 @@ pmb.commands.aportgen module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.build module
+----------------------------
+
+.. automodule:: pmb.commands.build
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.export module
 ---------------------------
 

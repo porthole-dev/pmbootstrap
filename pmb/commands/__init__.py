@@ -8,6 +8,7 @@ from pmb.helpers import frontend
 from pmb.types import PmbArgs
 
 from .aportgen import aportgen
+from .build import build
 from .export import export
 from .flasher import flasher
 from .index import index
@@ -40,7 +41,6 @@ unmigrated_commands = [
     "chroot",
     "install",
     "checksum",
-    "build",
     "apkbuild_parse",
     "apkindex_parse",
     "config",
@@ -57,6 +57,8 @@ def run_command(args: PmbArgs) -> None:
     match args.action:
         case "aportgen":
             aportgen(args.packages, args.fork_alpine, args.fork_alpine_retain_branch)
+        case "build":
+            build(args.packages, args.arch, args.src, args.envkernel, args.strict)
         case "export":
             export(args.export_folder, args.autoinstall, args.odin_flashable_tar)
         case "flasher":

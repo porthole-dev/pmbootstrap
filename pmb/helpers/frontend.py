@@ -96,36 +96,6 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]
     )
 
 
-def build(args: PmbArgs) -> None:
-    # Strict mode: zap everything
-    if args.strict:
-        pmb.chroot.zap(False)
-
-    if args.envkernel:
-        pmb.build.envkernel.package_kernel(args.packages)
-        return
-
-    # Set src and force
-    src = os.path.realpath(os.path.expanduser(args.src[0])) if args.src else None
-    force = True if src else get_context().force
-    if src and not os.path.exists(src):
-        raise RuntimeError("Invalid path specified for --src: " + src)
-
-    context = get_context()
-    # Build all packages
-    built = pmb.build.packages(
-        context, args.packages, args.arch, force, strict=args.strict, src=src
-    )
-
-    # Notify about packages that weren't built
-    for package in set(args.packages) - set(built):
-        logging.info(
-            "NOTE: Package '" + package + "' is up to date. Use"
-            " 'pmbootstrap build " + package + " --force'"
-            " if needed."
-        )
-
-
 def build_init(args: PmbArgs) -> None:
     chroot = _parse_suffix(args)
     pmb.build.init(chroot)
