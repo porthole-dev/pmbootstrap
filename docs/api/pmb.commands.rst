@@ -20,6 +20,14 @@ pmb.commands.build module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.checksum module
+----------------------------
+
+.. automodule:: pmb.commands.checksum
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.export module
 ---------------------------
 
