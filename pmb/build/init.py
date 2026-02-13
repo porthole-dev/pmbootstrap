@@ -116,10 +116,10 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
         cross_pkgs += ["gcc4-" + arch_str]
     elif "gcc6" in depends:
         cross_pkgs += ["gcc6-" + arch_str]
+    elif "clang" in depends or "clang-dev" in depends:
+        cross_pkgs += ["clang"]
     else:
         cross_pkgs += ["gcc-" + arch_str, "g++-" + arch_str]
-    if "clang" in depends or "clang-dev" in depends:
-        cross_pkgs += ["clang"]
     if cross == CrossCompile.CROSSDIRECT:
         cross_pkgs += ["crossdirect"]
         if "rust" in depends or "cargo" in depends:

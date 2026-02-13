@@ -193,6 +193,7 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
 
     aport = pmb.helpers.pmaports.find(pkgname)
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
+    makedepends = apkbuild.get("makedepends", [])
 
     if arch is None:
         arch = get_arch(apkbuild)
@@ -204,12 +205,12 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
     # Set up build tools and makedepends
     pmb.build.init(chroot)
     if cross.enabled():
-        pmb.build.init_compiler(get_context(), [], cross, arch)
+        pmb.build.init_compiler(get_context(), makedepends, cross, arch)
 
     # Assume that LLVM is in use if clang is a build dependency
-    uses_llvm = "clang" in apkbuild["makedepends"]
+    uses_llvm = "clang" in makedepends
 
-    depends = apkbuild["makedepends"] + ["make"]
+    depends = [*makedepends, "make"]
     if not uses_llvm:
         depends += ["gcc"]
 
