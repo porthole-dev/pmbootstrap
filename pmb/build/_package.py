@@ -23,7 +23,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import Context, get_context
 from pmb.core.pkgrepo import pkgrepo_relative_path
 from pmb.helpers import logging
-from pmb.helpers.exceptions import BuildFailedError, NonBugError
+from pmb.helpers.exceptions import BuildFailedError, CommandFailedError, NonBugError
 from pmb.types import Apkbuild, CrossCompile
 
 from .backend import BootstrapStage, run_abuild
@@ -715,7 +715,7 @@ def packages(
                 src,
                 bootstrap_stage,
             )
-        except RuntimeError as exception:
+        except CommandFailedError as exception:
             raise BuildFailedError(f"Couldn't build {output}!") from exception
         finish(pkg["apkbuild"], channel, pkg_arch, output, buildchroot, strict)
 
