@@ -65,10 +65,12 @@ def arch(package: str | Apkbuild) -> Arch:
         preferred_arch = Arch.native()
         preferred_arch_2nd = deviceinfo.arch
 
-    if "noarch" in arches or "all" in arches or preferred_arch in arches:
+    # TODO: Ideally we wouldn't convert preferred_arch and preferred_arch_2nd to strings here and
+    # instead be able to parse apkbuild["arch"] in a properly typed way.
+    if "noarch" in arches or "all" in arches or str(preferred_arch) in arches:
         return preferred_arch
 
-    if preferred_arch_2nd in arches:
+    if str(preferred_arch_2nd) in arches:
         return preferred_arch_2nd
 
     try:
