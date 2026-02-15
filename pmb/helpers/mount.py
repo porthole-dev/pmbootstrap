@@ -21,7 +21,7 @@ def ismount(folder: Path) -> bool:
             words = line.split()
             if len(words) >= 2 and Path(words[1]) == folder:
                 return True
-            if words[0] == folder:
+            if words[0] == str(folder):
                 return True
     return False
 
