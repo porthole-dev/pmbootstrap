@@ -56,7 +56,7 @@ def rewrite(
     fields: dict[str, str] = {},
     replace_pkgname: str | None = None,
     replace_functions: dict[str, str | None] = {},
-    replace_simple: dict = {},  # Can't type this dictionary properly without fixing type errors
+    replace_simple: dict[str, str | None] = {},
     below_header: str = "",
     remove_indent: int = 4,
 ) -> None:
@@ -93,6 +93,7 @@ def rewrite(
             "# Forked from Alpine INSERT-REASON-HERE (CHANGEME!)\n",
         ]
 
+    line: str | None
     if below_header:
         for line in below_header.split("\n"):
             if not line[:8].strip():
@@ -153,8 +154,7 @@ def rewrite(
             # Replace simple
             for pattern, replacement in replace_simple.items():
                 if fnmatch.fnmatch(line, pattern + "\n"):
-                    line = replacement
-                    if replacement:
+                    if line := replacement:
                         line += "\n"
                     break
             if line is None:
