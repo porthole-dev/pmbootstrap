@@ -273,9 +273,7 @@ def find_optional(package: str) -> Path | None:
         return None
 
 
-def check_version_constraints(pkgname_with_op: str, apkbuild: Apkbuild) -> bool:
-    version = apkbuild["pkgver"]
-
+def check_version_constraints(pkgname_with_op: str, version: str) -> bool:
     # Operators and matching return values from pmb.parse.version.compare()
     operators = {
         ">=": [0, 1],
@@ -336,7 +334,7 @@ def get_with_path(
     pmaport = find(pkgname_no_op, must_exist, subpackages, with_extra_repos)
     if pmaport:
         apkbuild = pmb.parse.apkbuild(pmaport / "APKBUILD")
-        if pkgname_no_op == pkgname or check_version_constraints(pkgname, apkbuild):
+        if pkgname_no_op == pkgname or check_version_constraints(pkgname, apkbuild["pkgver"]):
             return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
     return None, None
 
