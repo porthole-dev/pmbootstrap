@@ -15,6 +15,7 @@ from typing import overload
 import pmb.build._package
 import pmb.helpers.pmaports
 import pmb.helpers.repo
+import pmb.parse.version
 from pmb.core.arch import Arch
 from pmb.core.package_metadata import PackageMetadata
 from pmb.helpers import logging
@@ -27,6 +28,34 @@ def remove_operators(package: str) -> str:
             package = package.split(operator)[0]
             break
     return package
+
+
+def check_version_constraints(pkgname_with_op: str, version: str) -> bool:
+    # Operators and matching return values from pmb.parse.version.compare()
+    operators = {
+        ">=": [0, 1],
+        ">": [1],
+        "<=": [-1, 0],
+        "<": [-1],
+    }
+
+    for op, valid_results in operators.items():
+        if op not in pkgname_with_op:
+            continue
+        ver_req = pkgname_with_op.split(op, 1)[1]
+        result = pmb.parse.version.compare(version, ver_req)
+        logging.verbose(
+            f"check_version_constraints: op:{op}, version:{version}, ver_req:{ver_req}, result:{result}"
+        )
+        if result in valid_results:
+            logging.debug(f"{pkgname_with_op}: matches package")
+            return True
+        else:
+            logging.debug(f"{pkgname_with_op}: does not match package")
+            return False
+
+    logging.debug(f"check_version_constraints: ignoring {pkgname_with_op}")
+    return True
 
 
 @overload
