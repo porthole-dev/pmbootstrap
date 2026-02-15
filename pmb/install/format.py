@@ -61,7 +61,7 @@ def format_partition_with_filesystem(
         # mkfs.xfs requires specifying the sector size
         mkfs_args = ["mkfs.xfs", "-f", "-q"]
         sector_size = pmb.parse.deviceinfo().rootfs_image_sector_size
-        if sector_size is None or sector_size == "" or sector_size == 512:
+        if sector_size is None or sector_size == "" or sector_size == "512":
             mkfs_args += ["-s", "size=512"]
         else:
             mkfs_args += [
