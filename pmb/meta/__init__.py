@@ -118,13 +118,7 @@ class Cache:
         if self.params:
             for k, v in passed_args.items():
                 if k in self.params:
-                    if v.__str__ != object.__str__:
-                        key += f"{v}~"
-                    else:
-                        raise ValueError(
-                            f"Cache key argument {k} to function"
-                            f" {func.__name__} must be a stringable type"
-                        )
+                    key += f"{v}~"
 
         return key
 
