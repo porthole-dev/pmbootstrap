@@ -12,7 +12,6 @@ See also:
 
 from typing import overload
 
-import pmb.build._package
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.parse.version
