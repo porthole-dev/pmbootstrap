@@ -374,7 +374,8 @@ def providers(
     if not indexes:
         indexes = pmb.helpers.repo.apkindex_files(arch, user_repository=user_repository)
 
-    package = pmb.helpers.package.remove_operators(package)
+    pkgname_with_op = package
+    package = pmb.helpers.package.remove_operators(pkgname_with_op)
 
     ret: dict[str, ApkindexBlock] = collections.OrderedDict()
     for path in indexes:
@@ -390,8 +391,10 @@ def providers(
 
         # Iterate over found providers
         for provider_pkgname, provider in indexed_package.items():
-            # Skip lower versions of providers we already found
             version = provider.version
+            if not pmb.helpers.package.check_version_constraints(pkgname_with_op, version):
+                continue
+            # Skip lower versions of providers we already found
             if provider_pkgname in ret:
                 version_last = ret[provider_pkgname].version
                 if pmb.parse.version.compare(version, version_last) == -1:
