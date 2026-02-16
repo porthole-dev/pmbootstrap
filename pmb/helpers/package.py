@@ -174,18 +174,20 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
     # Build ret (by iterating over the queue)
     queue = {pkgname}
     ret: set[str] = set()
-    providers: set[str] = set()
+    alternative_names: set[str] = set()
     while len(queue):
-        package = get(queue.pop(), arch)
+        pkgname = queue.pop()
+        package = get(pkgname, arch)
 
         # Add its depends to the queue
         for depend in package.depends:
-            if depend not in ret and depend not in providers:
+            if depend not in ret and depend not in alternative_names:
                 queue.add(depend)
 
         # Add the pkgname (not possible subpkgname) to ret
         ret.add(package.pkgname)
-        providers.update(package.provides)
+        alternative_names.update(package.provides)
+        alternative_names.add(pkgname)
 
     return sorted(ret)
 
