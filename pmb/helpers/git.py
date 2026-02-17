@@ -470,11 +470,14 @@ def get_changed_packages() -> set[str]:
         if file.name != "APKBUILD":
             # Walk up directories until we (eventually) find the package
             # the file belongs to (could be in a subdirectory of a package)
-            while dirname and not (pkgrepo_default_path() / dirname / "APKBUILD").exists():
+            while (
+                dirname != dirname.parent
+                and not (pkgrepo_default_path() / dirname / "APKBUILD").exists()
+            ):
                 dirname = dirname.parent
 
             # Unable to find APKBUILD the file belong to
-            if not dirname:
+            if dirname == dirname.parent:
                 # ... maybe the package was deleted entirely?
                 if not (pkgrepo_default_path() / file).exists():
                     continue
