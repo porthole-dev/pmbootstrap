@@ -469,7 +469,9 @@ def setup_appstream(offline: bool, chroot: Chroot) -> None:
     if "alpine-appstream-downloader" not in installed_pkgs or offline:
         return
 
-    if not pmb.chroot.root(
+    # FIXME: mypy infers root() to return Popen here, but it should be inferring int. Broken
+    # overloads.
+    if not pmb.chroot.root(  # type: ignore[truthy-bool]
         ["alpine-appstream-downloader", "/mnt/appstream-data"], chroot, check=False
     ):
         pmb.chroot.root(["mkdir", "-p", "/var/lib/swcatalog"], chroot)
