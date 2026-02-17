@@ -190,8 +190,8 @@ def export(target: Path, autoinstall: bool, odin_flashable_tar: bool) -> None:
 
     # Rootfs image note
     chroot = Chroot.native()
-    rootfs_dir = chroot / "home/pmos/rootfs" / config.device
-    if not rootfs_dir.glob("*.img"):
+    rootfs_dir = chroot / "home/pmos/rootfs"
+    if not any(rootfs_dir.glob(f"{config.device}*.img")):
         logging.info(
             "NOTE: To export the rootfs image, run 'pmbootstrap"
             " install' first (without the 'disk' parameter)."
