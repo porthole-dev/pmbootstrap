@@ -207,7 +207,7 @@ class PmbArgs(Namespace):
     details_to_stdout: bool
     deviceinfo_parse_kernel: str
     devices: str
-    disk: Path
+    disk: Path | None
     dry: bool
     efi: bool
     envkernel: bool
