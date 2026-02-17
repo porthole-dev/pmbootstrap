@@ -50,8 +50,6 @@ def arch(package: str | Apkbuild) -> Arch:
     """
     pkgname = package["pkgname"] if isinstance(package, dict) else package
     aport = pmb.helpers.pmaports.find(pkgname)
-    if not aport:
-        raise FileNotFoundError(f"APKBUILD not found for {pkgname}")
     ret = arch_from_deviceinfo(pkgname, aport)
     if ret:
         return ret
