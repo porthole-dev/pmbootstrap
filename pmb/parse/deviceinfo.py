@@ -243,79 +243,6 @@ class Deviceinfo:
     # keymaps
     keymaps: str | None = ""
 
-    @staticmethod
-    def __validate(info: dict[str, str], path: Path) -> None:
-        # Resolve path for more readable error messages
-        path = path.resolve()
-
-        # Legacy errors
-        if "flash_methods" in info:
-            raise RuntimeError(
-                "deviceinfo_flash_methods has been renamed to"
-                " deviceinfo_flash_method. Please adjust your"
-                f" deviceinfo file: {path}"
-            )
-        if "external_disk" in info or "external_disk_install" in info:
-            raise RuntimeError(
-                "Instead of deviceinfo_external_disk and"
-                " deviceinfo_external_disk_install, please use the"
-                " new variable deviceinfo_external_storage in your"
-                f" deviceinfo file: {path}"
-            )
-        if "msm_refresher" in info:
-            raise RuntimeError(
-                "It is enough to specify 'msm-fb-refresher' in the"
-                " depends of your device's package now. Please"
-                " delete the deviceinfo_msm_refresher line in: "
-                f"{path}"
-            )
-        if "flash_fastboot_vendor_id" in info:
-            raise RuntimeError(
-                "Fastboot doesn't allow specifying the vendor ID"
-                " anymore (#1830). Try removing the"
-                " 'deviceinfo_flash_fastboot_vendor_id' line in: "
-                f"{path} (if you are sure that you need this, then"
-                " we can probably bring it back to fastboot, just"
-                " let us know in the postmarketOS issues!)"
-            )
-        if "nonfree" in info:
-            raise RuntimeError(f"deviceinfo_nonfree is unused. Please delete it in: {path}")
-        if "dev_keyboard" in info:
-            raise RuntimeError(f"deviceinfo_dev_keyboard is unused. Please delete it in: {path}")
-        if "date" in info:
-            raise RuntimeError(
-                "deviceinfo_date was replaced by deviceinfo_year. "
-                f"Set it to the release year in: {path}"
-            )
-
-        # "codename" is required
-        codename = os.path.basename(os.path.dirname(path))[7:]
-        if "codename" not in info or info["codename"] != codename:
-            raise RuntimeError(f"Please add 'deviceinfo_codename=\"{codename}\"' to: {path}")
-
-        # "arch" is required
-        if "arch" not in info or not info["arch"]:
-            raise RuntimeError(f"Please add 'deviceinfo_arch' to: {path}")
-
-        arch = Arch.from_str(info["arch"])
-        if not arch.is_native() and arch not in Arch.supported():
-            raise ValueError(
-                f"Arch '{arch}' is not available in"
-                " postmarketOS. If you would like to add it, see:"
-                " <https://postmarketos.org/newarch>"
-            )
-
-        # "chassis" validation
-        if "chassis" in info:
-            chassis_types = pmb.config.deviceinfo_chassis_types
-            chassis_type = info["chassis"]
-            if chassis_type not in chassis_types:
-                raise RuntimeError(
-                    f"Unknown chassis type '{chassis_type}', should"
-                    f" be one of {', '.join(chassis_types)}. Fix this"
-                    f" and try again: {path}"
-                )
-
     def __init__(self, path: Path, kernel: str | None = None) -> None:
         ret = {}
         with open(path) as handle:
@@ -330,7 +257,6 @@ class Deviceinfo:
                 ret[key] = value
 
         ret = _parse_kernel_suffix(ret, ret["codename"], kernel)
-        Deviceinfo.__validate(ret, path)
 
         for key, value in ret.items():
             # FIXME: something to turn on and fix in the future
