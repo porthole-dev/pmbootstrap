@@ -13,6 +13,7 @@ from .flasher import flasher
 from .index import index
 from .kconfig import KConfigCheck, KConfigEdit, KConfigGenerate, KConfigMigrate
 from .log import log
+from .netboot import netboot
 from .pkgrel_bump import pkgrel_bump
 from .pkgver_bump import pkgver_bump
 from .pull import pull
@@ -27,7 +28,6 @@ unmigrated_commands = [
     "init",
     "work_migrate",
     "repo_missing",
-    "netboot",
     "initfs",
     "qemu",
     "newapkbuild",
@@ -89,6 +89,8 @@ def run_command(args: PmbArgs) -> None:
             )
         case "test":
             test(args.action_test)
+        case "netboot":
+            netboot(args.action_netboot, args.replace)
         case "pkgrel_bump":
             pkgrel_bump(args.packages, args.dry, args.auto)
         case "pkgver_bump":

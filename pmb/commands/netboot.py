@@ -72,3 +72,9 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
         # On a reboot nbd-server will quit, but the IP address sticks around
         # for a bit longer, so wait.
         time.sleep(5)
+
+
+def netboot(action_netboot: str, do_replace: bool) -> None:
+    if action_netboot == "serve":
+        device = get_context().config.device
+        start_nbd_server(device, do_replace)

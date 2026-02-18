@@ -17,7 +17,6 @@ Subpackages
    pmb.flasher
    pmb.helpers
    pmb.install
-   pmb.netboot
    pmb.parse
    pmb.qemu
    pmb.types
