@@ -147,13 +147,7 @@ def deviceinfo(device: str | None = None, kernel: str | None = None) -> Devicein
 
 
 class Deviceinfo:
-    """
-    Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>
-    Many of these are unused in pmbootstrap, and still more that are described
-    on the wiki are missing. Eventually this class and associated code should
-    be moved to a separate library and become the authoritative source of truth
-    for the deviceinfo format.
-    """
+    """Variables from deviceinfo. Reference: <https://postmarketos.org/deviceinfo>"""
 
     path: Path
     # general
