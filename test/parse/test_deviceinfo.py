@@ -22,7 +22,6 @@ deviceinfo_keys = [
     "chassis",
     "dtb",
     "append_dtb",
-    "external_storage",
     "flash_method",
     "arch",
     "dev_internal_storage",

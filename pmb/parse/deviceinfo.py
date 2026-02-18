@@ -168,7 +168,6 @@ class Deviceinfo:
     # device
     chassis: str | None
     keyboard: str | None = ""  # deprecated
-    external_storage: str | None = ""
     drm: bool | None = False
     dev_touchscreen: str | None = ""
     dev_touchscreen_calibration: str | None = ""

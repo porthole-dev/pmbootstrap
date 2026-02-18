@@ -62,12 +62,6 @@ def ask_for_chassis() -> str:
     )
 
 
-def ask_for_external_storage() -> bool:
-    return pmb.helpers.cli.confirm(
-        "Does the device have a sdcard or other external storage medium?"
-    )
-
-
 def ask_for_flash_method() -> str:
     while True:
         logging.info("Which flash method does the device support?")
@@ -182,12 +176,10 @@ def generate_deviceinfo(
     year: str,
     arch: Arch,
     chassis: str,
-    has_external_storage: bool,
     flash_method: str,
     bootimg: Bootimg | None = None,
 ) -> None:
     codename = "-".join(pkgname.split("-")[1:])
-    external_storage = "true" if has_external_storage else "false"
     # Note: New variables must be added to pmb/config/__init__.py as well
     content = f"""\
         # Reference: <https://postmarketos.org/deviceinfo>
@@ -208,7 +200,6 @@ def generate_deviceinfo(
     content += f'deviceinfo_chassis="{chassis}"\n' if chassis != "None" else ""
 
     content += f"""\
-        deviceinfo_external_storage="{external_storage}"
 
         # Bootloader related
         deviceinfo_flash_method="{flash_method}"
@@ -343,7 +334,6 @@ def generate(pkgname: str, device_category: pmb.helpers.devices.DeviceCategory) 
     name = ask_for_name(manufacturer)
     year = ask_for_year()
     chassis = ask_for_chassis()
-    has_external_storage = ask_for_external_storage()
     flash_method = ask_for_flash_method()
     bootimg = None
     if flash_method in ["fastboot", "heimdall-bootimg"]:
@@ -356,7 +346,6 @@ def generate(pkgname: str, device_category: pmb.helpers.devices.DeviceCategory) 
         year,
         arch,
         chassis,
-        has_external_storage,
         flash_method,
         bootimg,
     )
