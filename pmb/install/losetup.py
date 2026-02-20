@@ -49,9 +49,9 @@ def mount(img_path: Path, _sector_size: int | None = None) -> Path:
 
         try:
             return device_by_back_file(img_path)
-        except RuntimeError as e:
+        except RuntimeError:
             if i == 4:
-                raise e
+                raise
 
     raise AssertionError("This should never be reached")
 
