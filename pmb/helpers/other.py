@@ -29,8 +29,7 @@ def folder_size(path: Path) -> int:
     # Only look at last line to filter out sudo garbage (#1766)
     last_line = output.split("\n")[-2]
 
-    ret = int(last_line.split("\t")[0])
-    return ret
+    return int(last_line.split("\t")[0])
 
 
 def check_grsec() -> None:
