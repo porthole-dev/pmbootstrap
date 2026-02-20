@@ -32,8 +32,7 @@ def _find_apkbuilds(with_extra_repos: WithExtraRepos = "default") -> dict[str, P
 
     # Sort dictionary so we don't need to do it over and over again in
     # get_list()
-    apkbuilds = dict(sorted(apkbuilds.items()))
-    return apkbuilds
+    return dict(sorted(apkbuilds.items()))
 
 
 def get_list() -> list[str]:
