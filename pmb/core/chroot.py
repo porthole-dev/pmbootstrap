@@ -50,7 +50,7 @@ class Chroot:
             raise ValueError(f"Invalid buildroot suffix: '{self.__name}'")
 
         # A rootfs or installer suffix must have a name matching a device.
-        if self.__type == ChrootType.INSTALLER or self.__type == ChrootType.ROOTFS:
+        if self.__type in {ChrootType.INSTALLER, ChrootType.ROOTFS}:
             # FIXME: pmb.helpers.devices.find_path() requires args parameter
             pass
 
