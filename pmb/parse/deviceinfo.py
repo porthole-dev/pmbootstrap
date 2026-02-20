@@ -257,13 +257,13 @@ class Deviceinfo:
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
             match key:
                 case "arch":
-                    setattr(self, key, Arch.from_str(value))
+                    self.arch = Arch.from_str(value)
                 case "gpu_accelerated":  # deprecated
                     self.drm = value == "true"
                 case "header_version":
-                    setattr(self, key, int(value))
+                    self.header_version = int(value)
                 case "initfs_compression":
-                    setattr(self, key, InitfsCompression.from_str(value))
+                    self.initfs_compression = InitfsCompression.from_str(value)
                 case _:
                     setattr(self, key, value)
 
