@@ -57,7 +57,7 @@ def start_nbd_server(device: str, replace: bool, ip: str = "172.16.42.2", port: 
                 test_socket.bind((ip, 9998))
             except OSError as e:
                 if e.errno != 99:  # Cannot assign requested address
-                    raise e
+                    raise
                 # Wait a bit before retrying
                 time.sleep(0.5)
                 continue
