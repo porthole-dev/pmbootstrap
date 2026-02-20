@@ -61,8 +61,7 @@ def ssh_find_arch(user: str, host: str, port: str) -> Arch:
     output_lines = output.strip().splitlines()
     # Pick out last line which should contain the foreign device's architecture
     foreign_machine_type = output_lines[-1]
-    alpine_architecture = Arch.from_machine_type(foreign_machine_type)
-    return alpine_architecture
+    return Arch.from_machine_type(foreign_machine_type)
 
 
 def ssh_install_apks(
