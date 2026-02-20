@@ -186,10 +186,10 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
     outdated = {}
     outdated_arches: list[Arch] = []
     for url in urls(False):
-        for arch in architectures:
+        for architecture in architectures:
             # APKINDEX file name from the URL
-            url_full = f"{url}/{arch}/APKINDEX.tar.gz"
-            cache_apk_outside = get_context().config.work / f"cache_apk_{arch}"
+            url_full = f"{url}/{architecture}/APKINDEX.tar.gz"
+            cache_apk_outside = get_context().config.work / f"cache_apk_{architecture}"
             apkindex = cache_apk_outside / f"{apkindex_hash(url)}"
 
             # Find update reason, possibly skip non-existing or known 404 files
@@ -208,8 +208,8 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
             # Update outdated and outdated_arches
             logging.debug("APKINDEX outdated (" + reason + "): " + url_full)
             outdated[url_full] = apkindex
-            if arch not in outdated_arches:
-                outdated_arches.append(arch)
+            if architecture not in outdated_arches:
+                outdated_arches.append(architecture)
 
     # Bail out or show log message
     if not len(outdated):
