@@ -53,14 +53,12 @@ class InitfsCompression:
     level: InitfsCompressionLevel | None
 
     @staticmethod
-    def from_str(initfs_compression: str) -> InitfsCompression | None:
+    def from_str(initfs_compression: str) -> InitfsCompression:
         segments = initfs_compression.split(":", maxsplit=1)
 
-        try:
-            format_ = InitfsCompressionFormat.from_str(segments[0])
-        except ValueError:
-            # If we can't even figure out the format, the other information is no use.
-            return None
+        # If we can't even figure out the format, the other information is no use. As such, let this
+        # raise an exception if it happens.
+        format_ = InitfsCompressionFormat.from_str(segments[0])
 
         try:
             level = InitfsCompressionLevel.from_str(segments[1]) if len(segments) == 2 else None
