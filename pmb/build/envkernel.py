@@ -272,7 +272,7 @@ def package_kernel(packages: list[str]) -> None:
 
     try:
         run_abuild(context, pkgname, arch, pmaports_path, apkbuild_path, kbuild_out)
-    except Exception as e:
+    except Exception:
         pmb.helpers.mount.umount_all(Chroot.native() / "mnt/linux")
-        raise e
+        raise
     pmb.build.other.index_repo(arch)
