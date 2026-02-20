@@ -743,8 +743,7 @@ def arguments_test(subparser: argparse._SubParsersAction) -> None:
 
 
 def arguments_status(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
-    ret = subparser.add_parser("status", help="show a config and pmaports overview")
-    return ret
+    return subparser.add_parser("status", help="show a config and pmaports overview")
 
 
 def arguments_netboot(subparser: argparse._SubParsersAction) -> argparse.ArgumentParser:
