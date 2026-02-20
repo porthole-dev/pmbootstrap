@@ -102,7 +102,6 @@ class Arch(enum.Enum):
 
     @staticmethod
     def native() -> Arch:
-        global _cached_native_arch
         return _cached_native_arch
 
     def is_native(self) -> bool:
