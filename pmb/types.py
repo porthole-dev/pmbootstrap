@@ -249,7 +249,7 @@ class PmbArgs(Namespace):
     memory: int
     mirror_alpine: str
     mirror_postmarketos: str
-    name: str
+    name: str | None
     nconfig: bool
     netboot: bool
     no_depends: bool
