@@ -3,6 +3,7 @@
 import collections
 import glob
 import os
+import sys
 from pathlib import Path
 from typing import TypedDict
 
@@ -56,7 +57,7 @@ def get_ci_scripts(topdir: Path) -> dict[str, CiScriptDescriptor]:
 
         if not description:
             logging.error(f"ERROR: {script}: missing '# Description: …' line")
-            exit(1)
+            sys.exit(1)
 
         for option in options:
             if option not in pmb.config.ci_valid_options:
@@ -208,7 +209,7 @@ def run_scripts(topdir: Path, scripts: dict[str, CiScriptDescriptor]) -> None:
             )
         if rc:
             logging.error(f"ERROR: CI script failed: {script_name}")
-            exit(1)
+            sys.exit(1)
 
         if script["artifacts"]:
             logging.info(f"Copy CI artifacts to ./ci-artifacts/{script_name}")

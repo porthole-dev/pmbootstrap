@@ -501,7 +501,7 @@ def ci(args: PmbArgs) -> None:
             " repository (e.g. pmbootstrap, pmaports) before running"
             " 'pmbootstrap ci'."
         )
-        exit(1)
+        sys.exit(1)
 
     scripts_available = pmb.ci.get_ci_scripts(topdir)
     scripts_available = pmb.ci.sort_scripts_by_speed(scripts_available)
@@ -510,7 +510,7 @@ def ci(args: PmbArgs) -> None:
             "ERROR: no supported CI scripts found in current git"
             " repository, see https://postmarketos.org/pmb-ci"
         )
-        exit(1)
+        sys.exit(1)
 
     scripts_selected = {}
     if args.scripts:
@@ -523,7 +523,7 @@ def ci(args: PmbArgs) -> None:
                     " repository, found these:"
                     f" {', '.join(scripts_available.keys())}"
                 )
-                exit(1)
+                sys.exit(1)
             scripts_selected[script] = scripts_available[script]
     elif args.all:
         scripts_selected = scripts_available
