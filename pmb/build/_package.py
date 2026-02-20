@@ -177,8 +177,6 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
     then mark it as visited. We must mark as visited before building
     to break cyclical dependency loops.
     """
-    global _package_cache
-
     key = str(arch)
     if key not in _package_cache:
         _package_cache[key] = []
