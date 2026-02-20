@@ -70,8 +70,6 @@ def get_context(allow_failure: Literal[True] = ...) -> Context | None: ...
 
 def get_context(allow_failure: bool = False) -> Context | None:
     """Get immutable global runtime context."""
-    global __context
-
     # We must defer this to first call to avoid
     # circular imports.
     if "__context" not in globals():
