@@ -34,11 +34,18 @@ line-length=100
 
 [tool.ruff.lint]
 # B006, B008: Occur in many places and aren't trivial to fix.
+# BLE001: Requires more investigation and maybe some exemptions to enable.
 # D205: Not all of our docstrings have a summary yet.
+# DTZ: Require many changes, unsure what the impacts would be.
+# FLY002: Questionable whether this actually makes some things more readable.
+# LOG015: Would require a lot of changes, might affect the logging output too.
 # PERF203: Negligible performance improvement on Python 3.11 and newer, and
 #          not worth the required rework.
+# PLC0206: Unsure whether this makes some code more readable.
 # RUF067: Occurs in many places and isn't trivial to fix.
-ignore = ["B006", "B008", "D205", "PERF203", "RUF067"]
+# TRY004: Arguable false positives.
+# TRY300: Might change functionality in some cases, needs investigation.
+ignore = ["B006", "B008", "BLE001", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "TRY004", "TRY300"]
 extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
