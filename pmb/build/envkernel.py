@@ -47,7 +47,7 @@ def match_kbuild_out(word: str) -> str | None:
         return None
 
     groups = match.groups()
-    if groups is None or len(groups) != 3:
+    if len(groups) != 3:
         return None
 
     logging.debug("word = " + str(word))
