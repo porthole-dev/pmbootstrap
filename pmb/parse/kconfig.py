@@ -284,9 +284,9 @@ def check(
     aport: Path
     try:
         aport = pmb.helpers.pmaports.find("linux-" + flavor)
-    except RuntimeError as e:
+    except RuntimeError:
         if must_exist:
-            raise e
+            raise
         return None
     apkbuild = pmb.parse.apkbuild(aport / "APKBUILD")
     pkgver = apkbuild["pkgver"]
