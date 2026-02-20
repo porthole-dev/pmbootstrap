@@ -77,7 +77,6 @@ def apk_mocks(monkeypatch: MonkeyPatch) -> None:
         return None
 
     monkeypatch.setattr(pmb.parse.apkindex, "package", _apkindex_package)
-    return None
 
 
 def create_apk(pkgname: str, arch: Arch) -> Path:
