@@ -102,5 +102,4 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
 
     # "or -1" is needed for mypy
     # https://github.com/python/mypy/issues/9765#issuecomment-1238263745
-    ret = sorted(ret, key=lambda d: d.get("pkgname") or -1)
-    return ret
+    return sorted(ret, key=lambda d: d.get("pkgname") or -1)
