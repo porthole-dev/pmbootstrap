@@ -95,8 +95,7 @@ def get_depends(context: Context, apkbuild: dict[str, Any]) -> list[str]:
             ret.remove(pkgname)
 
     # FIXME: is this needed? is this sensible?
-    ret = list(filter(lambda x: not x.startswith("!"), ret))
-    return ret
+    return list(filter(lambda x: not x.startswith("!"), ret))
 
 
 def get_pkgver(original_pkgver: str, original_source: bool = False) -> str:
