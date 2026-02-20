@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import time
 
-import pmb.helpers.logging as logging
 import pmb.helpers.repo
 import pmb.parse.apkindex
 from pmb.core.arch import Arch
+from pmb.helpers import logging
 
 """Various internal test commands for performance testing and debugging."""
 
