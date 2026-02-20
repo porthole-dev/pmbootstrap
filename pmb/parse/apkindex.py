@@ -293,9 +293,8 @@ def parse(
 
         # Add the next package and all aliases
         parse_add_block(ret, block, None, multiple_providers)
-        if block.provides is not None:
-            for alias in block.provides:
-                parse_add_block(ret, block, alias, multiple_providers)
+        for alias in block.provides:
+            parse_add_block(ret, block, alias, multiple_providers)
 
     # Update the cache
     key = cache_key(path)
