@@ -253,6 +253,8 @@ class Deviceinfo:
 
         for key, value in ret.items():
             # FIXME: something to turn on and fix in the future
+            # Should be rewritten to use deviceinfo_schema.toml as source of truth instead of the
+            # Deviceinfo class keys first though.
             # if key not in Deviceinfo.__annotations__.keys():
             #     logging.warning(f"deviceinfo: {key} is not a known attribute")
             match key:
