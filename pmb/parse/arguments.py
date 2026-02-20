@@ -781,10 +781,7 @@ def package_completer(
     parser: argparse.ArgumentParser | None = None,
     parsed_args: list[str] | None = None,
 ) -> set[str]:
-    packages = {
-        package for package in pmb.helpers.pmaports.get_list() if package.startswith(prefix)
-    }
-    return packages
+    return {package for package in pmb.helpers.pmaports.get_list() if package.startswith(prefix)}
 
 
 def kernel_completer(
