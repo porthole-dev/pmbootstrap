@@ -22,6 +22,7 @@ from .pull import pull
 from .shutdown import shutdown
 from .sideload import sideload
 from .test import test
+from .zap import zap
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
@@ -35,7 +36,6 @@ unmigrated_commands = [
     "newapkbuild",
     "status",
     "ci",
-    "zap",
     "stats",
     "update",
     "build_init",
@@ -120,6 +120,16 @@ def run_command(args: PmbArgs) -> None:
                     KConfigMigrate(args.package, args.arch).run()
                 case "generate":
                     KConfigGenerate(args.package, args.arch).run()
-
+        case "zap":
+            zap(
+                args.dry,
+                args.http,
+                args.distfiles,
+                args.pkgs_local,
+                args.pkgs_local_mismatch,
+                args.pkgs_online_mismatch,
+                args.rust,
+                args.netboot,
+            )
         case _:
             raise NotImplementedError(f"Command '{args.action}' is not implemented.")

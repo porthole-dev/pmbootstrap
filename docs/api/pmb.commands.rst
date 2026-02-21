@@ -124,6 +124,14 @@ pmb.commands.test module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.zap module
+----------------------------
+
+.. automodule:: pmb.commands.zap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

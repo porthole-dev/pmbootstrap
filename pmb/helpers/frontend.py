@@ -9,7 +9,6 @@ from typing import Any, NoReturn
 
 import pmb.aportgen
 import pmb.build
-import pmb.chroot
 import pmb.chroot.apk
 import pmb.chroot.initfs
 import pmb.chroot.other
@@ -459,22 +458,6 @@ def stats(args: PmbArgs) -> None:
 
 def work_migrate(args: PmbArgs) -> None:
     # do nothing (pmb/__init__.py already did the migration)
-    pmb.helpers.logging.disable()
-
-
-def zap(args: PmbArgs) -> None:
-    pmb.chroot.zap(
-        dry=args.dry,
-        http=args.http,
-        distfiles=args.distfiles,
-        pkgs_local=args.pkgs_local,
-        pkgs_local_mismatch=args.pkgs_local_mismatch,
-        pkgs_online_mismatch=args.pkgs_online_mismatch,
-        rust=args.rust,
-        netboot=args.netboot,
-    )
-
-    # Don't write the "Done" message
     pmb.helpers.logging.disable()
 
 
