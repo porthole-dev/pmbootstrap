@@ -370,6 +370,12 @@ def install_depends(arch: Arch) -> None:
         "qemu-ui-sdl",
     ]
 
+    chroot = Chroot.native()
+    pmb.chroot.init(chroot)
+    pmb.chroot.apk.install(depends, chroot)
+
+
+def install_efi_image(arch: Arch) -> None:
     edk2_pkg = None
 
     # EDK2 builds are only available for the target architecture
@@ -382,7 +388,7 @@ def install_depends(arch: Arch) -> None:
             edk2_pkg = "edk2-loongarch64"
         case Arch.ppc64le:
             # ppc64le uses SLOF included in QEMU instead of EFI
-            pass
+            return
         case Arch.riscv64:
             edk2_pkg = "ovmf"
         case _:
@@ -390,16 +396,9 @@ def install_depends(arch: Arch) -> None:
 
     # If we're running natively, install it to the native chroot, otherwise we need to
     # install it in the target chroot
-    if edk2_pkg is not None and arch == Arch.native():
-        depends.append(edk2_pkg)
-    elif edk2_pkg is not None:
-        target_chroot = Chroot.buildroot(arch)
-        pmb.chroot.init(target_chroot)
-        pmb.chroot.apk.install([edk2_pkg], target_chroot)
-
-    chroot = Chroot.native()
-    pmb.chroot.init(chroot)
-    pmb.chroot.apk.install(depends, chroot)
+    target_chroot = Chroot.native() if arch == Arch.native() else Chroot.buildroot(arch)
+    pmb.chroot.init(target_chroot)
+    pmb.chroot.apk.install([edk2_pkg], target_chroot)
 
 
 def qemu(
@@ -445,6 +444,8 @@ def qemu(
     if not use_host_qemu:
         install_depends(arch)
     logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
+
+    install_efi_image(arch)
 
     qemu, env = command_qemu(
         config,
