@@ -603,8 +603,8 @@ def packages(
             " build the package with --src again."
         )
 
-    cross = None
-    prev_cross = None
+    cross: CrossCompile | None = None
+    prev_cross: CrossCompile | None = None
     hostchroot = None  # buildroot for the architecture we're building for
 
     total_pkgs = len(build_queue)
