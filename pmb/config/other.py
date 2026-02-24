@@ -19,11 +19,9 @@ def is_systemd_selected(config: Config) -> bool:
         return True
     if config.systemd == SystemdConfig.NEVER:
         return False
-    current_ui_needs_systemd = pmb.helpers.ui.check_option(
+    return pmb.helpers.ui.check_option(
         config.ui, "pmb:systemd", with_extra_repos="disabled", must_exist=False
     )
-
-    return current_ui_needs_systemd if current_ui_needs_systemd is not None else False
 
 
 def systemd_selected_str(config: Config) -> tuple[str, str]:
