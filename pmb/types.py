@@ -308,7 +308,7 @@ class PmbArgs(Namespace):
     systemd: str
     timeout: float | None
     user: str
-    value: str
+    value: str | None
     verbose: bool
     verify: bool
     work: Path
