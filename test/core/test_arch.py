@@ -91,7 +91,7 @@ def test_valid_arches() -> None:
     for arch in Arch:
         if arch == Arch.noarch:
             continue
-        assert arch.alpine_triple() is not None
+        assert arch.alpine_triple()
 
     # Arch-as-path magic
     assert Arch.aarch64 / Path("beep") == Path("aarch64/beep")
