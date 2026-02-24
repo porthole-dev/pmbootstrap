@@ -74,6 +74,8 @@ addopts = [
 norecursedirs = [".*", "dist", "CVS", "_darcs", "{arch}", "*.egg"]
 
 [tool.mypy]
+pretty = true
+
 check_untyped_defs = true
 disallow_incomplete_defs = true
 disallow_untyped_calls = true
