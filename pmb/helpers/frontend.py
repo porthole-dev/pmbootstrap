@@ -160,6 +160,7 @@ def install(args: PmbArgs) -> None:
     config = get_context().config
     device = config.device
     deviceinfo = pmb.parse.deviceinfo(device)
+    is_split = args.split if args.split is not None else False
     if args.no_fde:
         logging.warning("WARNING: --no-fde is deprecated, as it is now the default.")
     if args.rsync and args.full_disk_encryption:
@@ -222,7 +223,7 @@ def install(args: PmbArgs) -> None:
         # Default to split if the flash method requires it
         flasher = pmb.config.flashers.get(deviceinfo.flash_method, {})
         if flasher.get("split", False):
-            args.split = True
+            is_split = True
 
     # Android recovery zip related
     if args.android_recovery_zip and args.filesystem:
@@ -262,7 +263,7 @@ def install(args: PmbArgs) -> None:
     # Verify that the root filesystem is supported by current pmaports branch
     pmb.install.get_root_filesystem(args.filesystem)
 
-    pmb.install.install(args)
+    pmb.install.install(args, is_split)
 
 
 def newapkbuild(args: PmbArgs) -> None:

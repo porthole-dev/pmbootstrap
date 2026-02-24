@@ -299,7 +299,7 @@ class PmbArgs(Namespace):
     sector_size: int | None
     selected_providers: dict[str, str]
     sparse: bool | None
-    split: bool
+    split: bool | None
     src: str
     ssh_keys: str
     strict: bool

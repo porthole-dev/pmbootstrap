@@ -1184,7 +1184,7 @@ def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps: int) -> 
     logging.info("https://postmarketos.org/recoveryzip")
 
 
-def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
+def install_on_device_installer(args: PmbArgs, is_split: bool, step: int, steps: int) -> None:
     # Generate the rootfs image
     config = get_context().config
     if not args.ondev_no_rootfs:
@@ -1262,7 +1262,7 @@ def install_on_device_installer(args: PmbArgs, step: int, steps: int) -> None:
         steps,
         boot_label,
         "pmOS_install",
-        args.split,
+        is_split,
         args.single_partition,
         args.disk,
     )
@@ -1486,7 +1486,7 @@ def create_device_rootfs(
         disable_service(chroot, "nftables")
 
 
-def install(args: PmbArgs) -> None:
+def install(args: PmbArgs, is_split: bool) -> None:
     device = get_context().config.device
     chroot = Chroot(ChrootType.ROOTFS, device)
     deviceinfo = pmb.parse.deviceinfo()
@@ -1501,7 +1501,7 @@ def install(args: PmbArgs) -> None:
     # --single-partition implies --no-split. There is nothing to split if
     # there is only a single partition.
     if args.single_partition:
-        args.split = False
+        is_split = False
         if deviceinfo.create_initfs_extra:
             raise RuntimeError("--single-partition does not work for devices with initramfs-extra")
 
@@ -1547,7 +1547,7 @@ def install(args: PmbArgs) -> None:
 
     if args.on_device_installer:
         # Runs install_system_image twice
-        install_on_device_installer(args, step, steps)
+        install_on_device_installer(args, is_split, step, steps)
     else:
         install_system_image(
             args,
@@ -1555,7 +1555,7 @@ def install(args: PmbArgs) -> None:
             chroot,
             step,
             steps,
-            split=args.split,
+            split=is_split,
             disk=args.disk,
             single_partition=args.single_partition,
         )
@@ -1563,7 +1563,7 @@ def install(args: PmbArgs) -> None:
     print_flash_info(
         device,
         deviceinfo,
-        args.split,
+        is_split,
         bool(args.disk and args.disk.is_absolute()),
         args.single_partition,
     )
