@@ -81,5 +81,6 @@ disallow_incomplete_defs = true
 disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
+strict_bytes = true
 strict_equality = true
 enable_error_code = "truthy-bool"
