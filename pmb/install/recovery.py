@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.config.pmaports
 import pmb.flasher
 import pmb.helpers.frontend
 from pmb.core.chroot import Chroot
@@ -52,6 +51,7 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
     options: dict[str, bool | str] = {
         "DEVICE": device,
         "FLASH_KERNEL": args.recovery_flash_kernel,
+        "FLAVOR": "",
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": fvars["$PARTITION_KERNEL"],
         "INITFS_PARTLABEL": fvars["$PARTITION_INITFS"],
@@ -61,13 +61,6 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
         "CIPHER": args.cipher,
         "FDE": args.full_disk_encryption,
     }
-
-    # Backwards compatibility with old mkinitfs (pma#660)
-    pmaports_cfg = pmb.config.pmaports.read_config()
-    if pmaports_cfg.get("supported_mkinitfs_without_flavors", False):
-        options["FLAVOR"] = ""
-    else:
-        options["FLAVOR"] = f"-{flavor}" if flavor is not None else "-"
 
     # Write to a temporary file
     config_temp = chroot / "tmp/install_options"
