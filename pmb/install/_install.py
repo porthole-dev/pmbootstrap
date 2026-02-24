@@ -342,7 +342,7 @@ def setup_keymap(config: Config) -> None:
         logging.info("NOTE: No valid keymap specified for device")
         return
     options = deviceinfo.keymaps.split(" ")
-    if config.keymap != "" and config.keymap is not None and config.keymap in options:
+    if config.keymap != "" and config.keymap in options:
         layout, variant = config.keymap.split("/")
         if pmb.config.is_systemd_selected():
             pmb.chroot.root(
