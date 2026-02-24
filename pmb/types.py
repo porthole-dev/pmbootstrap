@@ -298,7 +298,7 @@ class PmbArgs(Namespace):
     second_storage: str | None
     sector_size: int | None
     selected_providers: dict[str, str]
-    sparse: bool
+    sparse: bool | None
     split: bool
     src: str
     ssh_keys: str
