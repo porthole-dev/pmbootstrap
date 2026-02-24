@@ -95,7 +95,9 @@ class Chroot:
         # for certain pmbootstrap commands... It was like this
         # before but it should be fixed.
         arch = pmb.parse.deviceinfo().arch
-        if arch is not None:
+        # FIXME: We will remove the arch property from deviceinfo soon, so don't bother fixing this
+        # type error. See https://gitlab.postmarketos.org/postmarketOS/pmaports/-/issues/4353
+        if arch is not None:  # type: ignore[comparison-overlap]
             return arch
 
         raise ValueError(f"Invalid chroot suffix: {self} (wrong device chosen in 'init' step?)")
