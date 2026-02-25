@@ -23,7 +23,7 @@ def build(
     src = os.path.realpath(os.path.expanduser(code_src[0])) if code_src else None
     force = True if src else get_context().force
     if src and not os.path.exists(src):
-        raise RuntimeError("Invalid path specified for --src: " + src)
+        raise RuntimeError(f"Invalid path specified for --src: {src}")
 
     context = get_context()
     # Build all packages
@@ -32,7 +32,6 @@ def build(
     # Notify about packages that weren't built
     for package in set(packages) - set(built):
         logging.info(
-            "NOTE: Package '" + package + "' is up to date. Use"
-            " 'pmbootstrap build " + package + " --force'"
-            " if needed."
+            f"NOTE: Package '{package}' is up to date. Use"
+            f" 'pmbootstrap build {package} --force' if needed."
         )
