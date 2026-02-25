@@ -1,5 +1,7 @@
 # Copyright 2024 Stefan Hansson
 # SPDX-License-Identifier: GPL-3.0-or-later
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 import pmb.build._package
@@ -19,7 +21,7 @@ class PackageMetadata:
     from_pmaports: bool
 
     @staticmethod
-    def from_apkindex_block(apkindex_block: ApkindexBlock) -> "PackageMetadata":
+    def from_apkindex_block(apkindex_block: ApkindexBlock) -> PackageMetadata:
         return PackageMetadata(
             arch=[str(apkindex_block.arch)],
             depends=apkindex_block.depends,
@@ -30,7 +32,7 @@ class PackageMetadata:
         )
 
     @staticmethod
-    def from_pmaport(pmaport: Apkbuild) -> "PackageMetadata":
+    def from_pmaport(pmaport: Apkbuild) -> PackageMetadata:
         pmaport_arches = pmaport["arch"]
         pmaport_depends = pmb.build._package.get_depends(get_context(), pmaport)
         pmaport_pkgname = pmaport["pkgname"]
