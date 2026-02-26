@@ -82,8 +82,8 @@ def check_option(
     def warn_ret_false(should_str: str) -> bool:
         config_name = os.path.basename(config_path)
         if details:
-            logging.warning(
-                f"WARNING: {config_name}: CONFIG_{option} should {should_str} ({component})"
+            logging.error(
+                f"ERROR: {config_name}: CONFIG_{option} should {should_str} ({component})"
             )
         else:
             logging.warning(
