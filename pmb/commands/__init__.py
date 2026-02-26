@@ -25,6 +25,7 @@ from .shutdown import shutdown
 from .sideload import sideload
 from .status import status
 from .test import test
+from .update import update
 from .zap import zap
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
@@ -38,7 +39,6 @@ unmigrated_commands = [
     "qemu",
     "newapkbuild",
     "stats",
-    "update",
     "build_init",
     "chroot",
     "install",
@@ -126,6 +126,8 @@ def run_command(args: PmbArgs) -> None:
                     KConfigGenerate(args.package, args.arch).run()
         case "status":
             status()
+        case "update":
+            update(args.arch, args.non_existing)
         case "zap":
             zap(
                 args.dry,

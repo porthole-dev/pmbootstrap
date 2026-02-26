@@ -13,7 +13,6 @@ import pmb.config
 import pmb.helpers.logging
 import pmb.helpers.mount
 import pmb.helpers.pmaports
-import pmb.helpers.repo
 import pmb.helpers.repo_missing
 import pmb.install
 import pmb.install.blockdevice
@@ -283,21 +282,6 @@ def install(args: PmbArgs) -> None:
     pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args)
-
-
-def update(args: PmbArgs) -> None:
-    existing_only = not args.non_existing
-    if not pmb.helpers.repo.update(args.arch, True, existing_only):
-        logging.info(
-            "No APKINDEX files exist, so none have been updated."
-            " The pmbootstrap command downloads the APKINDEX files on"
-            " demand."
-        )
-        logging.info(
-            "If you want to force downloading the APKINDEX files for"
-            " all architectures (not recommended), use:"
-            " pmbootstrap update --non-existing"
-        )
 
 
 def newapkbuild(args: PmbArgs) -> None:

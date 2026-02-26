@@ -148,6 +148,14 @@ pmb.commands.status module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.update module
+----------------------------
+
+.. automodule:: pmb.commands.update
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.zap module
 ----------------------------
 
