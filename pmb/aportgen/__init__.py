@@ -30,10 +30,9 @@ def get_cross_package_arches(pkgname: str) -> str:
               that aren't necessarily valid arches like "!armhf", "noarch", or
               "x86 x86_64".
     """
-    if pkgname.endswith("-x86_64"):
-        return "aarch64"
-    else:
-        return "x86_64"
+    cross_architecture = pkgname.split("-")[-1]
+    host_architectures = ["aarch64", "x86_64"]
+    return " ".join(filter(lambda i: i != cross_architecture, host_architectures))
 
 
 def properties(

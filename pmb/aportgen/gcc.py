@@ -18,6 +18,7 @@ def depends_for_sonames(libraries: dict[str, str], arch_libc: Arch) -> list:
     this leads to our cross gccs immediately breaking once Alpine gcc packages
     change. So we figure out depends on our own here.
     """
+    pmb.helpers.repo.update(arch_libc)
     apkindex_main = pmb.helpers.repo.apkindex_files(
         arch_libc, user_repository=False, exclude_mirrors=["pmaports", "systemd"]
     )[0]
@@ -69,7 +70,8 @@ def generate(pkgname: str) -> None:
     # Until pmb#2517 is resolved properly, we set the tracedeps manually. The
     # musl soname contains the architecture name, support cross compiling from
     # aarch64 to x86_64 and x86_64 to all other arches.
-    arch_libc = Arch.from_str("aarch64" if pkgname.split("-")[1] == "x86_64" else "x86_64")
+    host_arches = [Arch.from_str(a) for a in pmb.aportgen.get_cross_package_arches(pkgname).split()]
+    arch_libc = host_arches[0]
     context = get_context()
     if prefix == "gcc":
         upstream = pmb.aportgen.core.get_upstream_aport("gcc", arch)
@@ -106,7 +108,6 @@ def generate(pkgname: str) -> None:
     }
 
     libraries = {
-        f"so:libc.musl-{arch_libc}.so.*": "musl",
         "so:libgcc_s.so.*": "libgcc",
         "so:libgmp.so.*": "gmp",
         "so:libisl.so.*": "isl*",
@@ -149,7 +150,6 @@ def generate(pkgname: str) -> None:
     )
 
     libraries_gpp = {
-        f"so:libc.musl-{arch_libc}.so.*": "musl",
         "so:libgmp.so.*": "gmp",
         "so:libisl.so.*": "isl*",
         "so:libmpc.so.*": "mpc1",
@@ -158,6 +158,16 @@ def generate(pkgname: str) -> None:
     }
     logging.info(f"*** Getting sonames for depends in gpp subpackage (arch_libc: {arch_libc})")
     depends_gpp = " ".join(depends_for_sonames(libraries_gpp, arch_libc))
+
+    # musl soname must be set conditionally by abuild in the APKBUILD since it
+    # depends on the host arch
+    musl_case_lines = '\ncase "$CARCH" in\n'
+    for host_arch in host_arches:
+        musl_soname = depends_for_sonames({f"so:libc.musl-{host_arch}.so.*": "musl"}, host_arch)[0]
+        musl_case_lines += f'{host_arch}) depends="$depends {musl_soname}" ;;\n'
+    musl_case_lines += "esac"
+    # for gpp():
+    musl_case_lines_indented = musl_case_lines.replace("\n", "\n\t")
 
     replace_simple = {
         # Do not package libstdc++, do not add "g++-$ARCH" here (already
@@ -174,10 +184,13 @@ def generate(pkgname: str) -> None:
         "*# These are moved into packages with arch=*": "",
         "*# cross prefix (doesn't exist when BOOTSTRAP=nolibc)*": "",
         '*BOOTSTRAP" != nolibc ] && mv *': "",
-        # Add depends to the gpp subpackage, so we don't need to use tracedeps
-        "*amove $_gcclibexec/cc1plus*": f'\tdepends="$depends {depends_gpp}"\n\n\tamove $_gcclibexec/cc1plus',
+        # Add depends and musl case block to the gpp subpackage, so we don't need to use tracedeps
+        "*amove $_gcclibexec/cc1plus*": f'\tdepends="$depends {depends_gpp}"\n{musl_case_lines_indented}\n\n\tamove $_gcclibexec/cc1plus',
         # Disable libsanitizer for e.g. aarch64 -> x86_64 gcc (pma!6722)
         '*_sanitizer_configure="--enable-libsanitizer"*': "",
+        # inject musl soname case statement, which depends on $depends, after
+        # depends=
+        f'depends="{fields["depends"]}"': f'depends="{fields["depends"]}"\n{musl_case_lines}',
     }
 
     pmb.aportgen.core.rewrite(
