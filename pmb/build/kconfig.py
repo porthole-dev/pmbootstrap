@@ -23,6 +23,9 @@ from pmb.helpers.exceptions import NonBugError
 from pmb.types import Apkbuild, Env, RunOutputTypeDefault
 
 
+class FragmentValidationFailedError(RuntimeError): ...
+
+
 class KConfigUI(enum.Enum):
     MENUCONFIG = "menuconfig"
     XCONFIG = "xconfig"
@@ -432,7 +435,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
                         validation_failed = True
 
     if validation_failed:
-        raise RuntimeError(
+        raise FragmentValidationFailedError(
             "Fragment validation failed: Some options from fragments did not make it to the final kernel config. This usually means missing dependencies."
         )
 

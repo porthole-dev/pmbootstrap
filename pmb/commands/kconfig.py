@@ -9,7 +9,7 @@ from pathlib import Path
 import pmb.config
 import pmb.helpers.git
 import pmb.parse.kconfig
-from pmb.build.kconfig import KConfigUI
+from pmb.build.kconfig import FragmentValidationFailedError, KConfigUI
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers.exceptions import NonBugError
@@ -119,4 +119,7 @@ class KConfigGenerate:
 
     def run(self) -> None:
         for pkgname in self.pkgname_list:
-            pmb.build.kconfig.generate_config(pkgname, self.arch)
+            try:
+                pmb.build.kconfig.generate_config(pkgname, self.arch)
+            except FragmentValidationFailedError as exception:
+                raise NonBugError(exception) from exception
