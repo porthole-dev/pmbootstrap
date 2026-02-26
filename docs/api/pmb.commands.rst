@@ -68,6 +68,14 @@ pmb.commands.index module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.initfs module
+--------------------------
+
+.. automodule:: pmb.commands.initfs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.kconfig module
 ---------------------------
 

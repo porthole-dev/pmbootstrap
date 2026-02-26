@@ -15,6 +15,7 @@ from .config import config
 from .export import export
 from .flasher import flasher
 from .index import index
+from .initfs import initfs
 from .kconfig import KConfigCheck, KConfigEdit, KConfigGenerate, KConfigMigrate
 from .log import log
 from .netboot import netboot
@@ -35,7 +36,6 @@ unmigrated_commands = [
     "init",
     "work_migrate",
     "repo_missing",
-    "initfs",
     "qemu",
     "newapkbuild",
     "stats",
@@ -84,6 +84,8 @@ def run_command(args: PmbArgs) -> None:
         case "index":
             # FIXME: should index support --arch?
             index()
+        case "initfs":
+            initfs(args.action_initfs, args.hook if "hook" in args else None)
         case "shutdown":
             shutdown()
         case "sideload":

@@ -7,7 +7,6 @@ from collections.abc import Sequence
 import pmb.aportgen
 import pmb.build
 import pmb.chroot.apk
-import pmb.chroot.initfs
 import pmb.chroot.other
 import pmb.config
 import pmb.helpers.logging
@@ -169,10 +168,6 @@ def repo_missing(args: PmbArgs) -> None:
         )
     missing = pmb.helpers.repo_missing.generate(args.arch)
     print(json.dumps(missing, indent=4))
-
-
-def initfs(args: PmbArgs) -> None:
-    pmb.chroot.initfs.frontend(args.action_initfs, args.hook if "hook" in args else None)
 
 
 def install(args: PmbArgs) -> None:

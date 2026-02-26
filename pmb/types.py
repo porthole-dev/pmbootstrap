@@ -224,7 +224,7 @@ class PmbArgs(Namespace):
     fragment: str
     full_disk_encryption: bool
     go_mod_cache: bool
-    hook: str
+    hook: str | None
     host: str
     host_qemu: bool
     http: bool
