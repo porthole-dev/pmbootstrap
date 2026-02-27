@@ -21,6 +21,7 @@ from .pkgver_bump import pkgver_bump
 from .pull import pull
 from .shutdown import shutdown
 from .sideload import sideload
+from .status import status
 from .test import test
 from .zap import zap
 
@@ -34,7 +35,6 @@ unmigrated_commands = [
     "initfs",
     "qemu",
     "newapkbuild",
-    "status",
     "ci",
     "stats",
     "update",
@@ -120,6 +120,8 @@ def run_command(args: PmbArgs) -> None:
                     KConfigMigrate(args.package, args.arch).run()
                 case "generate":
                     KConfigGenerate(args.package, args.arch).run()
+        case "status":
+            status()
         case "zap":
             zap(
                 args.dry,

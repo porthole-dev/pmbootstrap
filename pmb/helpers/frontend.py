@@ -5,7 +5,7 @@ import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any
 
 import pmb.aportgen
 import pmb.build
@@ -20,7 +20,6 @@ import pmb.helpers.mount
 import pmb.helpers.pmaports
 import pmb.helpers.repo
 import pmb.helpers.repo_missing
-import pmb.helpers.status
 import pmb.install
 import pmb.install.blockdevice
 import pmb.parse
@@ -467,13 +466,6 @@ def bootimg_analyze(args: PmbArgs) -> None:
     for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(bootimg).split("\n"):
         tmp_output += "\n" + line.lstrip()
     logging.info(tmp_output)
-
-
-def status(args: PmbArgs) -> NoReturn:
-    pmb.helpers.status.print_status()
-
-    # Do not print the DONE! line
-    sys.exit(0)
 
 
 def ci(args: PmbArgs) -> None:
