@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
 import os
-import sys
 from collections.abc import Sequence
-from pathlib import Path
-from typing import Any
 
 import pmb.aportgen
 import pmb.build
@@ -23,7 +20,7 @@ import pmb.install.blockdevice
 import pmb.parse
 import pmb.parse.apkindex
 import pmb.qemu
-from pmb.core import Chroot, ChrootType, Config
+from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -162,64 +159,6 @@ def chroot(args: PmbArgs) -> None:
             pmb.chroot.root(args.command, chroot, output=args.output, env=env)
     except CommandFailedError as exception:
         raise NonBugError(exception) from exception
-
-
-def config(args: PmbArgs) -> None:
-    keys = Config.keys()
-    if args.name and args.name not in keys:
-        logging.info("NOTE: Valid config keys: " + ", ".join(keys))
-        raise RuntimeError("Invalid config key: " + args.name)
-
-    # Reload the config because get_context().config has been overwritten
-    # by any rogue cmdline arguments.
-    config = pmb.config.load(args.config)
-    if args.reset:
-        if args.name is None:
-            raise RuntimeError("config --reset requires a name to be given.")
-        def_value = Config.get_default(args.name)
-        setattr(config, args.name, def_value)
-        logging.info(f"Config changed to default: {args.name}='{def_value}'")
-        pmb.config.save(args.config, config)
-    elif args.value is not None and args.name:
-        if args.name.startswith("mirrors."):
-            name = args.name.split(".", 1)[1]
-            # Ignore mypy 'error: TypedDict key must be a string literal'.
-            # Argparse already ensures 'name' is a valid Config.Mirrors key.
-            if value_changed := (config.mirrors[name] != args.value):  # type: ignore
-                config.mirrors[name] = args.value  # type: ignore
-        elif isinstance(getattr(Config, args.name), list):
-            new_list = args.value.split(",")
-            if value_changed := (getattr(config, args.name, None) != new_list):
-                setattr(config, args.name, new_list)
-        else:
-            if value_changed := (getattr(config, args.name) != args.value):
-                setattr(config, args.name, args.value)
-        if value_changed:
-            print(f"{args.name} = {args.value}")
-        pmb.config.save(args.config, config)
-    elif args.name:
-        value = getattr(config, args.name) if hasattr(config, args.name) else ""
-
-        def to_shell_friendly_representation(value: Any) -> str:
-            friendly_representation: str
-
-            if isinstance(value, list) and len(value) == 1:
-                value = value[0]
-
-            friendly_representation = value.as_posix() if isinstance(value, Path) else str(value)
-
-            return friendly_representation
-
-        print(to_shell_friendly_representation(value))
-    else:
-        # Serialize the entire config including default values for
-        # the user. Even though the defaults aren't actually written
-        # to disk.
-        cfg = pmb.config.serialize(config, skip_defaults=False)
-        cfg.write(sys.stdout)
-
-    # Don't write the "Done" message
-    pmb.helpers.logging.disable()
 
 
 def repo_missing(args: PmbArgs) -> None:

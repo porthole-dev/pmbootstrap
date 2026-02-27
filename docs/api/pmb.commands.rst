@@ -36,6 +36,14 @@ pmb.commands.ci module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.config module
+----------------------------
+
+.. automodule:: pmb.commands.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.export module
 ---------------------------
 

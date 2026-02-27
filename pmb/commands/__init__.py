@@ -11,6 +11,7 @@ from .aportgen import aportgen
 from .build import build
 from .checksum import checksum
 from .ci import ci
+from .config import config
 from .export import export
 from .flasher import flasher
 from .index import index
@@ -43,7 +44,6 @@ unmigrated_commands = [
     "install",
     "apkbuild_parse",
     "apkindex_parse",
-    "config",
     "bootimg_analyze",
 ]
 
@@ -63,6 +63,8 @@ def run_command(args: PmbArgs) -> None:
             checksum(args.packages, args.changed, args.verify)
         case "ci":
             ci(args.scripts, args.all, args.fast)
+        case "config":
+            config(args.name, args.value, args.reset, args.config)
         case "export":
             export(args.export_folder, args.autoinstall, args.odin_flashable_tar)
         case "flasher":
