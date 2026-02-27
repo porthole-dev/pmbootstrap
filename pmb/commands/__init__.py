@@ -10,6 +10,7 @@ from pmb.types import PmbArgs
 from .aportgen import aportgen
 from .build import build
 from .checksum import checksum
+from .ci import ci
 from .export import export
 from .flasher import flasher
 from .index import index
@@ -35,7 +36,6 @@ unmigrated_commands = [
     "initfs",
     "qemu",
     "newapkbuild",
-    "ci",
     "stats",
     "update",
     "build_init",
@@ -61,6 +61,8 @@ def run_command(args: PmbArgs) -> None:
             build(args.packages, args.arch, args.src, args.envkernel, args.strict)
         case "checksum":
             checksum(args.packages, args.changed, args.verify)
+        case "ci":
+            ci(args.scripts, args.all, args.fast)
         case "export":
             export(args.export_folder, args.autoinstall, args.odin_flashable_tar)
         case "flasher":
