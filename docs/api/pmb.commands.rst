@@ -164,6 +164,14 @@ pmb.commands.update module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.work_migrate module
+---------------------------------
+
+.. automodule:: pmb.commands.work_migrate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.zap module
 ----------------------------
 

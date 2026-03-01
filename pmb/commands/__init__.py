@@ -27,6 +27,7 @@ from .sideload import sideload
 from .status import status
 from .test import test
 from .update import update
+from .work_migrate import work_migrate
 from .zap import zap
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
@@ -34,7 +35,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "work_migrate",
     "repo_missing",
     "qemu",
     "newapkbuild",
@@ -130,6 +130,8 @@ def run_command(args: PmbArgs) -> None:
             status()
         case "update":
             update(args.arch, args.non_existing)
+        case "work_migrate":
+            work_migrate()
         case "zap":
             zap(
                 args.dry,

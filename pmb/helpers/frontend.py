@@ -371,11 +371,6 @@ def stats(args: PmbArgs) -> None:
     pmb.chroot.user(["ccache", "-s"], chroot, output=RunOutputTypeDefault.STDOUT)
 
 
-def work_migrate(args: PmbArgs) -> None:
-    # do nothing (pmb/__init__.py already did the migration)
-    pmb.helpers.logging.disable()
-
-
 def bootimg_analyze(args: PmbArgs) -> None:
     bootimg = pmb.parse.bootimg(args.path)
     tmp_output = "Put these variables in the deviceinfo file of your device:\n"
