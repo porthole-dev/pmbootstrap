@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from pmb.commands.repo_missing import repo_missing
 from pmb.core.context import get_context
 from pmb.helpers import frontend
 from pmb.types import PmbArgs
@@ -35,7 +36,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "repo_missing",
     "qemu",
     "newapkbuild",
     "stats",
@@ -126,6 +126,8 @@ def run_command(args: PmbArgs) -> None:
                     KConfigMigrate(args.package, args.arch).run()
                 case "generate":
                     KConfigGenerate(args.package, args.arch).run()
+        case "repo_missing":
+            repo_missing(args.arch, args.built)
         case "status":
             status()
         case "update":

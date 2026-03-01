@@ -124,6 +124,14 @@ pmb.commands.pull module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.repo_missing module
+--------------------------------
+
+.. automodule:: pmb.commands.repo_missing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.shutdown module
 ----------------------------
 

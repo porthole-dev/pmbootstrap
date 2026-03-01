@@ -9,10 +9,8 @@ import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config
-import pmb.helpers.logging
 import pmb.helpers.mount
 import pmb.helpers.pmaports
-import pmb.helpers.repo_missing
 import pmb.install
 import pmb.install.blockdevice
 import pmb.parse
@@ -157,17 +155,6 @@ def chroot(args: PmbArgs) -> None:
             pmb.chroot.root(args.command, chroot, output=args.output, env=env)
     except CommandFailedError as exception:
         raise NonBugError(exception) from exception
-
-
-def repo_missing(args: PmbArgs) -> None:
-    if args.arch is None:
-        raise AssertionError
-    if args.built:
-        logging.warning(
-            "WARNING: --built is deprecated (bpo#148: this warning is expected on build.postmarketos.org for now)"
-        )
-    missing = pmb.helpers.repo_missing.generate(args.arch)
-    print(json.dumps(missing, indent=4))
 
 
 def install(args: PmbArgs) -> None:
