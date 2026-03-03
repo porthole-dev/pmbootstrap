@@ -148,18 +148,18 @@ pmb.commands.sideload module
    :undoc-members:
    :show-inheritance:
 
-pmb.commands.test module
-----------------------------
-
-.. automodule:: pmb.commands.test
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.commands.status module
 ----------------------------
 
 .. automodule:: pmb.commands.status
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pmb.commands.test module
+----------------------------
+
+.. automodule:: pmb.commands.test
    :members:
    :undoc-members:
    :show-inheritance:
