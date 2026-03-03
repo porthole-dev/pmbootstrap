@@ -3,6 +3,7 @@
 import json
 import os
 from collections.abc import Sequence
+from getpass import getpass
 
 import pmb.aportgen
 import pmb.build
@@ -259,6 +260,11 @@ def install(args: PmbArgs) -> None:
                 " packages found. Consider 'pmbootstrap zap -p'"
                 " to delete them."
             )
+
+    if not args.password:
+        args.password = getpass(f"Choose a password for the user '{config.user}': ")
+        if getpass(f"Confirm password for '{config.user}': ") != args.password:
+            raise NonBugError("Passwords did not match!")
 
     # Verify that the root filesystem is supported by current pmaports branch
     pmb.install.get_root_filesystem(args.filesystem)

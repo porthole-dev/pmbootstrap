@@ -278,17 +278,7 @@ def setup_login(config: Config, chroot: Chroot, password: str, on_device_install
     if not on_device_installer:
         # User password
         logging.info(f" *** SET LOGIN PASSWORD FOR: '{config.user}' ***")
-        if password:
-            setup_login_chpasswd_user_from_arg(config.user, password, chroot)
-        else:
-            while True:
-                try:
-                    pmb.chroot.root(
-                        ["passwd", config.user], chroot, output=RunOutputTypeDefault.INTERACTIVE
-                    )
-                    break
-                except RuntimeError:
-                    logging.info("WARNING: Failed to set the password. Try it one more time.")
+        setup_login_chpasswd_user_from_arg(config.user, password, chroot)
 
     # Disable root login
     if is_root_locked(chroot):
