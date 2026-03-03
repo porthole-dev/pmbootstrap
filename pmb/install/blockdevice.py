@@ -126,7 +126,6 @@ def create(
     size_root: int,
     size_reserve: int,
     split: bool,
-    disk: Path | None,
 ) -> None:
     """
     Create /dev/install (the "install blockdevice").
@@ -135,10 +134,16 @@ def create(
     :param size_root: size of the root partition in MiB
     :param size_reserve: empty partition between root and boot in MiB (pma#463)
     :param split: create separate images for boot and root partitions
-    :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
     pmb.helpers.mount.umount_all(Chroot.native() / "dev/install")
-    if disk:
-        mount_disk(disk)
-    else:
-        create_and_mount_image(sector_size, size_boot, size_root, size_reserve, split)
+    create_and_mount_image(sector_size, size_boot, size_root, size_reserve, split)
+
+
+def handle_disk_mount(disk: Path) -> None:
+    """
+    Mount disk as /dev/install (the "install blockdevice").
+
+    :param disk: path to disk block device (e.g. /dev/mmcblk0).
+    """
+    pmb.helpers.mount.umount_all(Chroot.native() / "dev/install")
+    mount_disk(disk)

@@ -935,9 +935,11 @@ def install_system_image(
     else:
         layout = None
     if not args.rsync:
-        pmb.install.blockdevice.create(
-            args.sector_size, size_boot, size_root, size_reserve, split, disk
-        )
+        # If disk is set, we already handled this earlier.
+        if not disk:
+            pmb.install.blockdevice.create(
+                args.sector_size, size_boot, size_root, size_reserve, split
+            )
         if not split and layout:
             if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
                 pmb.install.partition_cgpt(layout, size_boot, size_reserve)
@@ -1254,7 +1256,6 @@ def install_on_device_installer(args: PmbArgs, is_split: bool, step: int, steps:
         "pmOS_install",
         is_split,
         args.single_partition,
-        args.disk,
     )
 
 
@@ -1512,6 +1513,8 @@ def install(args: PmbArgs, is_split: bool) -> None:
     step = 1
     logging.info(f"*** ({step}/{steps}) PREPARE NATIVE CHROOT ***")
     pmb.chroot.init(Chroot.native())
+    if args.disk:
+        pmb.install.blockdevice.handle_disk_mount(args.disk)
     pmb.chroot.apk.install(pmb.config.install_native_packages, Chroot.native(), build=False)
     step += 1
 
@@ -1546,7 +1549,6 @@ def install(args: PmbArgs, is_split: bool) -> None:
             step,
             steps,
             split=is_split,
-            disk=args.disk,
             single_partition=args.single_partition,
         )
 
