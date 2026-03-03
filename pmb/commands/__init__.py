@@ -23,6 +23,7 @@ from .netboot import netboot
 from .pkgrel_bump import pkgrel_bump
 from .pkgver_bump import pkgver_bump
 from .pull import pull
+from .qemu import qemu
 from .shutdown import shutdown
 from .sideload import sideload
 from .status import status
@@ -36,7 +37,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "qemu",
     "newapkbuild",
     "stats",
     "build_init",
@@ -107,6 +107,23 @@ def run_command(args: PmbArgs) -> None:
             pkgver_bump(args.packages)
         case "pull":
             pull()
+        case "qemu":
+            qemu(
+                args.cmdline,
+                args.qemu_audio,
+                args.qemu_cpu,
+                args.qemu_display,
+                args.qemu_video,
+                args.memory,
+                args.image_size,
+                args.second_storage,
+                args.port,
+                args.efi,
+                args.host_qemu,
+                args.qemu_gl,
+                args.qemu_kvm,
+                args.qemu_tablet,
+            )
         case "kconfig":
             match args.action_kconfig:
                 case "check":

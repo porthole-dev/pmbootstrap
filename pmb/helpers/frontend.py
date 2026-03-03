@@ -15,7 +15,6 @@ import pmb.install
 import pmb.install.blockdevice
 import pmb.parse
 import pmb.parse.apkindex
-import pmb.qemu
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
@@ -325,25 +324,6 @@ def apkindex_parse(args: PmbArgs) -> None:
             raise AssertionError
         result = result_temp
     print(json.dumps(result, indent=4))
-
-
-def qemu(args: PmbArgs) -> None:
-    pmb.qemu.run(
-        args.cmdline,
-        args.qemu_audio,
-        args.qemu_cpu,
-        args.qemu_display,
-        args.qemu_video,
-        args.memory,
-        args.image_size,
-        args.second_storage,
-        args.port,
-        args.efi,
-        args.host_qemu,
-        args.qemu_gl,
-        args.qemu_kvm,
-        args.qemu_tablet,
-    )
 
 
 def stats(args: PmbArgs) -> None:

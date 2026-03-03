@@ -409,7 +409,7 @@ def install_depends(arch: Arch) -> None:
     pmb.chroot.apk.install(depends, chroot)
 
 
-def run(
+def qemu(
     cmdline_arg: str,
     qemu_audio: str | None,
     qemu_cpu: str | None,

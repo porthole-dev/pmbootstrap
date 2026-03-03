@@ -124,6 +124,14 @@ pmb.commands.pull module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.qemu module
+------------------------
+
+.. automodule:: pmb.commands.qemu
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.repo_missing module
 --------------------------------
 

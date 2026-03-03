@@ -18,7 +18,6 @@ Subpackages
    pmb.helpers
    pmb.install
    pmb.parse
-   pmb.qemu
    pmb.types
 
 Module contents
