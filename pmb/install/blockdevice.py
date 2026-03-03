@@ -22,7 +22,7 @@ def previous_install(path: Path) -> bool:
     """
     label = ""
     for blockdevice_outside in [path.with_stem(f"{path.name}1"), path.with_stem(f"{path.name}p1")]:
-        if not os.path.exists(blockdevice_outside):
+        if not blockdevice_outside.exists():
             continue
         blockdevice_inside = "/dev/diskp1"
         pmb.helpers.mount.bind_file(blockdevice_outside, Chroot.native() / blockdevice_inside)
@@ -43,7 +43,7 @@ def previous_install(path: Path) -> bool:
 def mount_disk(path: Path) -> None:
     """:param path: path to disk block device (e.g. /dev/mmcblk0)"""
     # Sanity checks
-    if not os.path.exists(path):
+    if not path.exists():
         raise RuntimeError(f"The disk block device does not exist: {path}")
     for path_mount in path.parent.glob(f"{path.name}*"):
         if pmb.helpers.mount.ismount(path_mount):
@@ -82,7 +82,7 @@ def create_and_mount_image(
     # Umount and delete existing images
     for img_path in [img_path_full, img_path_boot, img_path_root]:
         outside = chroot / img_path
-        if os.path.exists(outside):
+        if outside.exists():
             pmb.helpers.mount.umount_all(chroot / "mnt")
             pmb.install.losetup.umount(img_path)
             pmb.chroot.root(["rm", img_path])
