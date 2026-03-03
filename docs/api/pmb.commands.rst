@@ -156,6 +156,14 @@ pmb.commands.sideload module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.stats module
+----------------------------
+
+.. automodule:: pmb.commands.stats
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.status module
 ----------------------------
 

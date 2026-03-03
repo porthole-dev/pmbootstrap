@@ -21,7 +21,7 @@ from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import CommandFailedError, NonBugError
-from pmb.types import Env, PmbArgs, RunOutputTypeDefault
+from pmb.types import Env, PmbArgs
 
 
 def _parse_flavor(device: str, autoinstall: bool = True) -> str:
@@ -331,18 +331,6 @@ def apkindex_parse(args: PmbArgs) -> None:
             raise AssertionError
         result = result_temp
     print(json.dumps(result, indent=4))
-
-
-def stats(args: PmbArgs) -> None:
-    # Chroot suffix
-    chroot = Chroot.buildroot(args.arch or Arch.native())
-
-    pmb.chroot.init(chroot)
-
-    # Install ccache and display stats
-    pmb.chroot.apk.install(["ccache"], chroot)
-    logging.info(f"({chroot}) % ccache -s")
-    pmb.chroot.user(["ccache", "-s"], chroot, output=RunOutputTypeDefault.STDOUT)
 
 
 def bootimg_analyze(args: PmbArgs) -> None:

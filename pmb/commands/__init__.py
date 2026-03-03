@@ -26,6 +26,7 @@ from .pull import pull
 from .qemu import qemu
 from .shutdown import shutdown
 from .sideload import sideload
+from .stats import stats
 from .status import status
 from .test import test
 from .update import update
@@ -38,7 +39,6 @@ from .zap import zap
 unmigrated_commands = [
     "init",
     "newapkbuild",
-    "stats",
     "build_init",
     "chroot",
     "install",
@@ -145,6 +145,8 @@ def run_command(args: PmbArgs) -> None:
                     KConfigGenerate(args.package, args.arch).run()
         case "repo_missing":
             repo_missing(args.arch, args.built)
+        case "stats":
+            stats(args.arch)
         case "status":
             status()
         case "update":
