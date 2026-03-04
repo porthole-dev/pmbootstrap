@@ -8,7 +8,7 @@ from pmb.core import Config
 from pmb.helpers import logging
 
 
-def config(name: str | None, value: str, reset: bool, configpath: Path) -> None:
+def config(name: str | None, value: str | None, reset: bool, configpath: Path) -> None:
     keys = Config.keys()
     if name and name not in keys:
         logging.info("NOTE: Valid config keys: " + ", ".join(keys))
