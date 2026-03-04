@@ -116,6 +116,14 @@ pmb.commands.netboot module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.newapkbuild module
+-------------------------------
+
+.. automodule:: pmb.commands.newapkbuild
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.pkgrel_bump module
 -------------------------------
 

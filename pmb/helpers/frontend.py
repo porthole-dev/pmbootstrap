@@ -5,7 +5,6 @@ import os
 from getpass import getpass
 
 import pmb.aportgen
-import pmb.build
 import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config
@@ -263,40 +262,6 @@ def install(args: PmbArgs) -> None:
     pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args, is_split)
-
-
-def newapkbuild(args: PmbArgs) -> None:
-    # Check for SRCURL usage
-    is_url = False
-    for prefix in ["http://", "https://", "ftp://"]:
-        if args.pkgname_pkgver_srcurl.startswith(prefix):
-            is_url = True
-            break
-
-    # Sanity check: -n is only allowed with SRCURL
-    if args.pkgname and not is_url:
-        raise RuntimeError(
-            "You can only specify a pkgname (-n) when using SRCURL as last parameter."
-        )
-
-    # Passthrough: Strings (e.g. -d "my description")
-    pass_through = []
-    for entry in pmb.config.newapkbuild_arguments_strings:
-        value = getattr(args, entry[1])
-        if value:
-            pass_through += [entry[0], value]
-
-    # Passthrough: Switches (e.g. -C for CMake)
-    for entry in (
-        pmb.config.newapkbuild_arguments_switches_pkgtypes
-        + pmb.config.newapkbuild_arguments_switches_other
-    ):
-        if getattr(args, entry[1]) is True:
-            pass_through.append(entry[0])
-
-    # Passthrough: PKGNAME[-PKGVER] | SRCURL
-    pass_through.append(args.pkgname_pkgver_srcurl)
-    pmb.build.newapkbuild(args.folder, pass_through, get_context().force)
 
 
 def apkindex_parse(args: PmbArgs) -> None:

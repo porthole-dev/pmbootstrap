@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import pmb.config
 from pmb.commands.repo_missing import repo_missing
 from pmb.core.context import get_context
 from pmb.helpers import frontend
@@ -22,6 +23,7 @@ from .initfs import initfs
 from .kconfig import KConfigCheck, KConfigEdit, KConfigGenerate, KConfigMigrate
 from .log import log
 from .netboot import netboot
+from .newapkbuild import newapkbuild
 from .pkgrel_bump import pkgrel_bump
 from .pkgver_bump import pkgver_bump
 from .pull import pull
@@ -105,6 +107,25 @@ def run_command(args: PmbArgs) -> None:
             test(args.action_test)
         case "netboot":
             netboot(args.action_netboot, args.replace)
+        case "newapkbuild":
+            # Passthrough: Strings (e.g. -d "my description")
+            pass_through = []
+            for entry in pmb.config.newapkbuild_arguments_strings:
+                value = getattr(args, entry[1])
+                if value:
+                    pass_through += [entry[0], value]
+
+            # Passthrough: Switches (e.g. -C for CMake)
+            for entry in (
+                pmb.config.newapkbuild_arguments_switches_pkgtypes
+                + pmb.config.newapkbuild_arguments_switches_other
+            ):
+                if getattr(args, entry[1]) is True:
+                    pass_through.append(entry[0])
+
+            # Passthrough: PKGNAME[-PKGVER] | SRCURL
+            pass_through.append(args.pkgname_pkgver_srcurl)
+            newapkbuild(args.folder, pass_through, args.pkgname, args.pkgname_pkgver_srcurl)
         case "pkgrel_bump":
             pkgrel_bump(args.packages, args.dry, args.auto)
         case "pkgver_bump":
