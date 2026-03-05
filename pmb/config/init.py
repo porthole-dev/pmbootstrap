@@ -471,7 +471,6 @@ def ask_for_device_kernel(config: Config, device: str) -> str:
         if ret in kernels:
             return ret
         logging.fatal("ERROR: Invalid kernel specified, please type in one from the list above.")
-    return ret
 
 
 def ask_for_mainline_downstream() -> pmb.helpers.devices.DeviceCategory:
