@@ -200,6 +200,10 @@ def parse_add_block(
 
 
 @overload
+def parse(path: Path) -> dict[str, dict[str, ApkindexBlock]]: ...
+
+
+@overload
 def parse(path: Path, multiple_providers: Literal[False] = ...) -> dict[str, ApkindexBlock]: ...
 
 
@@ -384,9 +388,6 @@ def providers(
             continue
 
         indexed_package = index_packages[package]
-
-        if isinstance(indexed_package, ApkindexBlock):
-            raise AssertionError
 
         # Iterate over found providers
         for provider_pkgname, provider in indexed_package.items():
