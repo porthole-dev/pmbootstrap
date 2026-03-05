@@ -13,8 +13,6 @@ def apkindex_parse(apkindex_path: Path, package: str | list[str]) -> None:
             raise RuntimeError(f"Package not found in the APKINDEX: {package}")
         if isinstance(package, list):
             raise AssertionError
-        result_temp = result[package]
-        if isinstance(result_temp, pmb.parse.apkindex.ApkindexBlock):
-            raise AssertionError
-        result = result_temp
-    print(json.dumps(result, indent=4))
+        print(json.dumps(result[package], indent=4, default=vars))
+    else:
+        print(json.dumps(result, indent=4, default=vars))
