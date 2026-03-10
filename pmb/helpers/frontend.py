@@ -83,11 +83,6 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]
     )
 
 
-def build_init(args: PmbArgs) -> None:
-    chroot = _parse_suffix(args)
-    pmb.build.init(chroot)
-
-
 def chroot(args: PmbArgs) -> None:
     # Suffix
     chroot = _parse_suffix(args)

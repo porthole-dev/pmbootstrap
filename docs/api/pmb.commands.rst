@@ -28,6 +28,14 @@ pmb.commands.build module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.build_init module
+------------------------------
+
+.. automodule:: pmb.commands.build_init
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.checksum module
 ----------------------------
 

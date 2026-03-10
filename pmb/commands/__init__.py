@@ -11,6 +11,7 @@ from pmb.types import PmbArgs
 from .apkbuild_parse import apkbuild_parse
 from .aportgen import aportgen
 from .build import build
+from .build_init import build_init
 from .checksum import checksum
 from .ci import ci
 from .config import config
@@ -40,7 +41,6 @@ from .zap import zap
 unmigrated_commands = [
     "init",
     "newapkbuild",
-    "build_init",
     "chroot",
     "install",
     "apkindex_parse",
@@ -61,6 +61,8 @@ def run_command(args: PmbArgs) -> None:
             aportgen(args.packages, args.fork_alpine, args.fork_alpine_retain_branch)
         case "build":
             build(args.packages, args.arch, args.src, args.envkernel, args.strict)
+        case "build_init":
+            build_init(frontend._parse_suffix(args))
         case "checksum":
             checksum(args.packages, args.changed, args.verify)
         case "ci":
