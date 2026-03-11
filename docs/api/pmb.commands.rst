@@ -4,6 +4,14 @@ pmb.commands package
 Submodules
 ----------
 
+pmb.commands.apkbuild_parse module
+----------------------------------
+
+.. automodule:: pmb.commands.apkbuild_parse
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.aportgen module
 ----------------------------
 

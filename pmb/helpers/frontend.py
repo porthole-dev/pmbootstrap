@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
 import os
-from collections.abc import Sequence
 from getpass import getpass
 
 import pmb.aportgen
@@ -11,7 +10,6 @@ import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config
 import pmb.helpers.mount
-import pmb.helpers.pmaports
 import pmb.install
 import pmb.install.blockdevice
 import pmb.parse
@@ -304,19 +302,6 @@ def newapkbuild(args: PmbArgs) -> None:
     # Passthrough: PKGNAME[-PKGVER] | SRCURL
     pass_through.append(args.pkgname_pkgver_srcurl)
     pmb.build.newapkbuild(args.folder, pass_through, get_context().force)
-
-
-def apkbuild_parse(args: PmbArgs) -> None:
-    # Default to all packages
-    packages: Sequence[str] = args.packages
-    if not packages:
-        packages = pmb.helpers.pmaports.get_list()
-
-    # Iterate over all packages
-    for package in packages:
-        print(package + ":")
-        aport = pmb.helpers.pmaports.find(package)
-        print(json.dumps(pmb.parse.apkbuild(aport), indent=4, sort_keys=True))
 
 
 def apkindex_parse(args: PmbArgs) -> None:
