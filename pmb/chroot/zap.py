@@ -18,6 +18,7 @@ from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.exceptions import CommandFailedError, NonBugError
 
 
 def del_chroot(path: Path, confirm: bool = True, dry: bool = False) -> None:
@@ -74,7 +75,12 @@ def zap(
     if pkgs_online_mismatch:
         zap_pkgs_online_mismatch(confirm, dry)
 
-    pmb.chroot.shutdown()
+    try:
+        pmb.chroot.shutdown()
+    except CommandFailedError as exception:
+        raise NonBugError(
+            f"Failed to shut down all chroots. Ensure they're not doing any work and you're not chrooted into any. ({exception})"
+        ) from exception
 
     # Deletion patterns for folders inside get_context().config.work
     patterns = []
