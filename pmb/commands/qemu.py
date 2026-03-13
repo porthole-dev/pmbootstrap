@@ -11,7 +11,6 @@ from types import FrameType
 
 import pmb.chroot
 import pmb.chroot.apk
-import pmb.config.pmaports
 import pmb.helpers.run
 import pmb.install.losetup
 import pmb.parse.cpuinfo
@@ -368,14 +367,6 @@ def install_depends(arch: Arch) -> None:
         "qemu-ui-opengl",
         "qemu-ui-sdl",
     ]
-
-    # QEMU packaging isn't split up as much in 3.12
-    channel_cfg = pmb.config.pmaports.read_config_channel()
-    if channel_cfg["branch_aports"] == "3.12-stable":
-        depends.remove("qemu-hw-display-virtio-gpu")
-        depends.remove("qemu-hw-display-virtio-gpu-pci")
-        depends.remove("qemu-hw-display-virtio-vga")
-        depends.remove("qemu-ui-opengl")
 
     edk2_pkg = None
 
