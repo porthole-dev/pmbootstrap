@@ -122,15 +122,15 @@ def init(args: PmbArgs) -> PmbArgs:
 
     # Remove attributes from args so they don't get used by mistake
     if hasattr(args, "timeout"):
-        delattr(args, "timeout")
-    delattr(args, "details_to_stdout")
-    delattr(args, "log")
-    delattr(args, "quiet")
-    delattr(args, "offline")
+        del args.timeout
+    del args.details_to_stdout
+    del args.log
+    del args.quiet
+    del args.offline
     if hasattr(args, "force"):
-        delattr(args, "force")
+        del args.force
     if hasattr(args, "device"):
-        delattr(args, "device")
+        del args.device
 
     # Copy all properties from args to out that don't start with underscores
     for key, value in vars(args).items():
