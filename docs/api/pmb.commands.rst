@@ -28,6 +28,14 @@ pmb.commands.aportgen module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.bootimg_analyze module
+-----------------------------------
+
+.. automodule:: pmb.commands.bootimg_analyze
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.build module
 ----------------------------
 

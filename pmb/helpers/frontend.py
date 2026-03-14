@@ -3,7 +3,6 @@
 import os
 from getpass import getpass
 
-import pmb.aportgen
 import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config
@@ -260,11 +259,3 @@ def install(args: PmbArgs) -> None:
     pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args, is_split)
-
-
-def bootimg_analyze(args: PmbArgs) -> None:
-    bootimg = pmb.parse.bootimg(args.path)
-    tmp_output = "Put these variables in the deviceinfo file of your device:\n"
-    for line in pmb.aportgen.device.generate_deviceinfo_fastboot_content(bootimg).split("\n"):
-        tmp_output += "\n" + line.lstrip()
-    logging.info(tmp_output)
