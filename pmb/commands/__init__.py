@@ -10,6 +10,7 @@ from pmb.helpers import frontend
 from pmb.types import PmbArgs
 
 from .apkbuild_parse import apkbuild_parse
+from .apkindex_parse import apkindex_parse
 from .aportgen import aportgen
 from .build import build
 from .build_init import build_init
@@ -45,7 +46,6 @@ unmigrated_commands = [
     "newapkbuild",
     "chroot",
     "install",
-    "apkindex_parse",
     "bootimg_analyze",
 ]
 
@@ -59,6 +59,8 @@ def run_command(args: PmbArgs) -> None:
     match args.action:
         case "apkbuild_parse":
             apkbuild_parse(args.packages)
+        case "apkindex_parse":
+            apkindex_parse(args.apkindex_path, args.packages)
         case "aportgen":
             aportgen(args.packages, args.fork_alpine, args.fork_alpine_retain_branch)
         case "build":

@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import json
 import os
 from getpass import getpass
 
@@ -12,7 +11,6 @@ import pmb.helpers.mount
 import pmb.install
 import pmb.install.blockdevice
 import pmb.parse
-import pmb.parse.apkindex
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
@@ -262,20 +260,6 @@ def install(args: PmbArgs) -> None:
     pmb.install.get_root_filesystem(args.filesystem)
 
     pmb.install.install(args, is_split)
-
-
-def apkindex_parse(args: PmbArgs) -> None:
-    result = pmb.parse.apkindex.parse(args.apkindex_path)
-    if args.package:
-        if args.package not in result:
-            raise RuntimeError(f"Package not found in the APKINDEX: {args.package}")
-        if isinstance(args.package, list):
-            raise AssertionError
-        result_temp = result[args.package]
-        if isinstance(result_temp, pmb.parse.apkindex.ApkindexBlock):
-            raise AssertionError
-        result = result_temp
-    print(json.dumps(result, indent=4))
 
 
 def bootimg_analyze(args: PmbArgs) -> None:

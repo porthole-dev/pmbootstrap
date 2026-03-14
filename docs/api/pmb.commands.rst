@@ -12,6 +12,14 @@ pmb.commands.apkbuild_parse module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.apkindex_parse module
+----------------------------------
+
+.. automodule:: pmb.commands.apkindex_parse
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.aportgen module
 ----------------------------
 
