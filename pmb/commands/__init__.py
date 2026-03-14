@@ -23,6 +23,7 @@ from .export import export
 from .flasher import flasher
 from .index import index
 from .initfs import initfs
+from .install import install
 from .kconfig import KConfigCheck, KConfigEdit, KConfigGenerate, KConfigMigrate
 from .log import log
 from .netboot import netboot
@@ -45,7 +46,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "install",
 ]
 
 
@@ -107,6 +107,8 @@ def run_command(args: PmbArgs) -> None:
             index()
         case "initfs":
             initfs(args.action_initfs, args.hook if "hook" in args else None)
+        case "install":
+            install(args)
         case "shutdown":
             shutdown()
         case "sideload":

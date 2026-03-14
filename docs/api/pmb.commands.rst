@@ -116,6 +116,14 @@ pmb.commands.initfs module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.install module
+---------------------------
+
+.. automodule:: pmb.commands.install
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.kconfig module
 ---------------------------
 
