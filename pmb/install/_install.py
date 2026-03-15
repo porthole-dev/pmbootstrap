@@ -1106,7 +1106,18 @@ def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps: int) -> 
     chroot = Chroot(ChrootType.BUILDROOT, arch)
     pmb.chroot.init(chroot)
     mount_device_rootfs(Chroot.rootfs(device), chroot)
-    pmb.install.recovery.create_zip(args, chroot, device)
+    pmb.install.recovery.create_zip(
+        args.cipher,
+        getattr(args, "cmdline", None),
+        args.full_disk_encryption,
+        getattr(args, "no_reboot", None),
+        getattr(args, "partition", None),
+        args.recovery_flash_kernel,
+        args.recovery_install_partition,
+        getattr(args, "resume", None),
+        chroot,
+        device,
+    )
 
     # Flash information
     logging.info("*** FLASHING INFORMATION ***")

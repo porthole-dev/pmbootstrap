@@ -8,10 +8,20 @@ import pmb.flasher
 import pmb.helpers.frontend
 from pmb.core.chroot import Chroot
 from pmb.helpers import logging
-from pmb.types import PmbArgs
 
 
-def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
+def create_zip(
+    cipher: str,
+    cmdline: str | None,
+    full_disk_encryption: bool,
+    no_reboot: bool | None,
+    partition: str | None,
+    recovery_flash_kernel: bool,
+    recovery_install_partition: str,
+    resume: bool | None,
+    chroot: Chroot,
+    device: str,
+) -> None:
     """Create android recovery compatible installer zip."""
     zip_root = Path("/var/lib/postmarketos-android-recovery-installer/")
     rootfs = "/mnt/rootfs_" + device
@@ -21,10 +31,10 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
     fvars = pmb.flasher.variables(
         flavor,
         method,
-        getattr(args, "cmdline", None),
-        getattr(args, "no_reboot", None),
-        getattr(args, "partition", None),
-        getattr(args, "resume", None),
+        cmdline,
+        no_reboot,
+        partition,
+        resume,
     )
 
     # Install recovery installer package in buildroot
@@ -50,16 +60,16 @@ def create_zip(args: PmbArgs, chroot: Chroot, device: str) -> None:
     # Create config file for the recovery installer
     options: dict[str, bool | str] = {
         "DEVICE": device,
-        "FLASH_KERNEL": args.recovery_flash_kernel,
+        "FLASH_KERNEL": recovery_flash_kernel,
         "FLAVOR": "",
         "ISOREC": method == "heimdall-isorec",
         "KERNEL_PARTLABEL": fvars["$PARTITION_KERNEL"],
         "INITFS_PARTLABEL": fvars["$PARTITION_INITFS"],
         # Name is still "SYSTEM", not "ROOTFS" in the recovery installer
         "SYSTEM_PARTLABEL": fvars["$PARTITION_ROOTFS"],
-        "INSTALL_PARTITION": args.recovery_install_partition,
-        "CIPHER": args.cipher,
-        "FDE": args.full_disk_encryption,
+        "INSTALL_PARTITION": recovery_install_partition,
+        "CIPHER": cipher,
+        "FDE": full_disk_encryption,
     }
 
     # Write to a temporary file
