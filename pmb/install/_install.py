@@ -842,7 +842,16 @@ def create_fstab(
 
 
 def install_system_image(
-    args: PmbArgs,
+    cipher: str,
+    filesystem: str,
+    full_disk_encryption: bool,
+    install_cgpt: bool,
+    install_local_pkgs: bool,
+    iter_time: str,
+    rsync: bool,
+    sector_size: int | None,
+    sparse: bool | None,
+    verbose: bool,
     chroot: Chroot,
     step: int,
     steps: int,
@@ -871,17 +880,17 @@ def install_system_image(
     (size_boot, size_root) = get_subpartitions_size(chroot)
     if not single_partition:
         layout = get_partition_layout(
-            bool(pmb.parse.deviceinfo().cgpt_kpart) and args.install_cgpt,
+            bool(pmb.parse.deviceinfo().cgpt_kpart) and install_cgpt,
             pmb.parse.deviceinfo().create_prep_boot,
         )
     else:
         layout = None
-    if not args.rsync:
+    if not rsync:
         # If disk is set, we already handled this earlier.
         if not disk:
-            pmb.install.blockdevice.create(args.sector_size, size_boot, size_root, split)
+            pmb.install.blockdevice.create(sector_size, size_boot, size_root, split)
         if not split and layout:
-            if pmb.parse.deviceinfo().cgpt_kpart and args.install_cgpt:
+            if pmb.parse.deviceinfo().cgpt_kpart and install_cgpt:
                 pmb.install.partition_cgpt(layout, size_boot)
             elif pmb.parse.deviceinfo().create_prep_boot:
                 pmb.install.partition_prep(layout)
@@ -900,11 +909,11 @@ def install_system_image(
         boot_label,
         root_label,
         disk,
-        args.rsync,
-        args.filesystem,
-        args.full_disk_encryption,
-        args.cipher,
-        args.iter_time,
+        rsync,
+        filesystem,
+        full_disk_encryption,
+        cipher,
+        iter_time,
     )
 
     # Since we shut down the chroot we need to mount it again
@@ -912,8 +921,8 @@ def install_system_image(
 
     # Create /etc/fstab and /etc/crypttab
     logging.info("(native) create /etc/fstab")
-    create_fstab(layout, chroot, args.filesystem, args.full_disk_encryption)
-    if args.full_disk_encryption:
+    create_fstab(layout, chroot, filesystem, full_disk_encryption)
+    if full_disk_encryption:
         logging.info("(native) create /etc/crypttab")
         create_crypttab(layout, chroot)
 
@@ -928,9 +937,9 @@ def install_system_image(
 
     # Just copy all the files
     logging.info(f"*** ({step + 1}/{steps}) FILL INSTALL BLOCKDEVICE ***")
-    copy_files_from_chroot(chroot, args.rsync, args.verbose)
-    create_home_from_skel(args.filesystem, config.user)
-    configure_apk(args.install_local_pkgs)
+    copy_files_from_chroot(chroot, rsync, verbose)
+    create_home_from_skel(filesystem, config.user)
+    configure_apk(install_local_pkgs)
     copy_ssh_keys(config)
 
     # Don't try to embed firmware and cgpt on split images since there's no
@@ -938,7 +947,7 @@ def install_system_image(
     if not split and not single_partition:
         assert layout  # Initialized above for not single_partition case (mypy needs this)
         embed_firmware(chroot)
-        write_cgpt_kpart(layout, chroot, args.install_cgpt)
+        write_cgpt_kpart(layout, chroot, install_cgpt)
 
     # Install GRUB to the PReP boot partition
     if pmb.parse.deviceinfo().create_prep_boot and layout:
@@ -964,7 +973,6 @@ def install_system_image(
     pmb.chroot.shutdown(True)
 
     # Convert rootfs to sparse using img2simg
-    sparse = args.sparse
     if sparse is None:
         sparse = pmb.parse.deviceinfo().flash_sparse == "true"
 
@@ -1418,7 +1426,16 @@ def install(args: PmbArgs, is_split: bool) -> None:
         )
 
     install_system_image(
-        args,
+        args.cipher,
+        args.filesystem,
+        args.full_disk_encryption,
+        args.install_cgpt,
+        args.install_local_pkgs,
+        args.iter_time,
+        args.rsync,
+        args.sector_size,
+        args.sparse,
+        args.verbose,
         chroot,
         step,
         steps,
