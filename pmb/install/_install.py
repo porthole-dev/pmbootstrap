@@ -1101,20 +1101,32 @@ def print_flash_info(
     )
 
 
-def install_recovery_zip(args: PmbArgs, device: str, arch: Arch, steps: int) -> None:
+def install_recovery_zip(
+    cipher: str,
+    cmdline: str | None,
+    full_disk_encryption: bool,
+    no_reboot: bool | None,
+    partition: str | None,
+    recovery_flash_kernel: bool,
+    recovery_install_partition: str,
+    resume: bool | None,
+    device: str,
+    arch: Arch,
+    steps: int,
+) -> None:
     logging.info(f"*** ({steps}/{steps}) CREATING RECOVERY-FLASHABLE ZIP ***")
     chroot = Chroot(ChrootType.BUILDROOT, arch)
     pmb.chroot.init(chroot)
     mount_device_rootfs(Chroot.rootfs(device), chroot)
     pmb.install.recovery.create_zip(
-        args.cipher,
-        getattr(args, "cmdline", None),
-        args.full_disk_encryption,
-        getattr(args, "no_reboot", None),
-        getattr(args, "partition", None),
-        args.recovery_flash_kernel,
-        args.recovery_install_partition,
-        getattr(args, "resume", None),
+        cipher,
+        cmdline,
+        full_disk_encryption,
+        no_reboot,
+        partition,
+        recovery_flash_kernel,
+        recovery_install_partition,
+        resume,
         chroot,
         device,
     )
@@ -1391,7 +1403,19 @@ def install(args: PmbArgs, is_split: bool) -> None:
     if args.no_image:
         return
     elif args.android_recovery_zip:
-        return install_recovery_zip(args, device, deviceinfo.arch, steps)
+        return install_recovery_zip(
+            args.cipher,
+            getattr(args, "cmdline", None),
+            args.full_disk_encryption,
+            getattr(args, "no_reboot", None),
+            getattr(args, "partition", None),
+            args.recovery_flash_kernel,
+            args.recovery_install_partition,
+            getattr(args, "resume", None),
+            device,
+            deviceinfo.arch,
+            steps,
+        )
 
     install_system_image(
         args,
