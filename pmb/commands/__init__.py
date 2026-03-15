@@ -238,7 +238,7 @@ def run_command(args: PmbArgs) -> None:
                 case "generate":
                     KConfigGenerate(args.package, args.arch).run()
         case "repo_missing":
-            repo_missing(args.arch, args.built)
+            repo_missing(args.arch)
         case "stats":
             stats(args.arch)
         case "status":

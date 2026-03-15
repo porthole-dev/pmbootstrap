@@ -670,15 +670,6 @@ def arguments_repo_missing(subparser: argparse._SubParsersAction) -> argparse.Ar
     ret.add_argument(
         "--arch", choices=Arch.supported(), default=Arch.native(), type=lambda x: Arch.from_str(x)
     )
-    # Deprecated argument that is currently kept so pmbootstrap can be called
-    # the same way for repo_missing by bpo with pmbv2 and pmbv3. Once we drop
-    # support for pmbv2 in bpo (can do that after v24.06 is EOL), we can adjust
-    # bpo to not use --built and remove this parameter from pmbootstrap.
-    ret.add_argument(
-        "--built",
-        action="store_true",
-        help=argparse.SUPPRESS,
-    )
     return ret
 
 
