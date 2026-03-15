@@ -72,7 +72,10 @@ def main() -> int:
         # Sanity checks
         other.check_grsec()
         if not args.as_root and os.geteuid() == 0:
-            raise RuntimeError("Do not run pmbootstrap as root!")
+            raise RuntimeError(
+                "Do not run pmbootstrap as root!\n"
+                "If you absolutely must run it as root, use 'pmbootstrap --as-root'"
+            )
 
         # Check for required programs (and find their absolute paths)
         require_programs()
