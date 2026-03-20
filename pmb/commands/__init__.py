@@ -16,6 +16,7 @@ from .bootimg_analyze import bootimg_analyze
 from .build import build
 from .build_init import build_init
 from .checksum import checksum
+from .chroot import chroot
 from .ci import ci
 from .config import config
 from .export import export
@@ -44,7 +45,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "chroot",
     "install",
 ]
 
@@ -68,6 +68,18 @@ def run_command(args: PmbArgs) -> None:
             build(args.packages, args.arch, args.src, args.envkernel, args.strict)
         case "build_init":
             build_init(frontend._parse_suffix(args))
+        case "chroot":
+            chroot(
+                args.add,
+                frontend._parse_suffix(args),
+                args.chroot_usb,
+                args.command,
+                args.install_blockdev,
+                args.output,
+                getattr(args, "sector_size", None),
+                args.user,
+                args.xauth,
+            )
         case "checksum":
             checksum(args.packages, args.changed, args.verify)
         case "ci":

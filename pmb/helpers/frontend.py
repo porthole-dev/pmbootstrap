@@ -1,21 +1,17 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
 from getpass import getpass
 
-import pmb.chroot.apk
 import pmb.chroot.other
 import pmb.config
-import pmb.helpers.mount
 import pmb.install
-import pmb.install.blockdevice
 import pmb.parse
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pmb.helpers.exceptions import CommandFailedError, NonBugError
-from pmb.types import Env, PmbArgs
+from pmb.helpers.exceptions import NonBugError
+from pmb.types import PmbArgs
 
 
 def _parse_flavor(device: str, autoinstall: bool = True) -> str:
@@ -77,73 +73,6 @@ def _install_ondev_verify_no_rootfs(device: str, ondev_cp: list[tuple[str, str]]
         " rootfs once, or supply a rootfs file with:"
         f" --cp os.img:{chroot_dest}"
     )
-
-
-def chroot(args: PmbArgs) -> None:
-    # Suffix
-    chroot = _parse_suffix(args)
-    user = args.user
-    if (
-        user
-        and chroot != Chroot.native()
-        and chroot.type not in [ChrootType.BUILDROOT, ChrootType.IMAGE]
-    ):
-        raise RuntimeError("--user is only supported for native or buildroot_* chroots.")
-    if args.xauth and chroot != Chroot.native():
-        raise RuntimeError("--xauth is only supported for native chroot.")
-
-    if chroot.type == ChrootType.IMAGE:
-        pmb.chroot.mount(chroot)
-
-    # apk: check minimum version, install packages
-    pmb.chroot.apk.check_min_version(chroot)
-    if args.add:
-        pmb.chroot.apk.install(args.add.split(","), chroot)
-
-    pmb.chroot.init(chroot)
-
-    # Xauthority
-    env: Env = {}
-    if args.xauth:
-        pmb.chroot.other.copy_xauthority(chroot)
-        x11_display = os.environ.get("DISPLAY")
-        if x11_display is None:
-            raise AssertionError("$DISPLAY was unset despite that it should be set at this point")
-        env["DISPLAY"] = x11_display
-        env["XAUTHORITY"] = "/home/pmos/.Xauthority"
-
-    # Install blockdevice
-    if args.install_blockdev:
-        logging.warning(
-            "--install-blockdev is deprecated for the chroot command"
-            " and will be removed in a future release. If you need this"
-            " for some reason, please open an issue on"
-            " https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git"
-        )
-        size_boot = 128  # 128 MiB
-        size_root = 4096  # 4 GiB
-        size_reserve = 2048  # 2 GiB
-        pmb.install.blockdevice.create_and_mount_image(
-            args.sector_size, size_boot, size_root, size_reserve
-        )
-
-    # Bind mount in sysfs dirs to accessing USB devices (e.g. for running fastboot)
-    if args.chroot_usb:
-        for folder in pmb.config.flash_mount_bind:
-            pmb.helpers.mount.bind(folder, Chroot.native() / folder)
-
-    pmb.helpers.apk.update_repository_list(chroot.path, user_repository=True)
-
-    try:
-        # Run the command as user/root
-        if user:
-            logging.info(f"({chroot}) % su pmos -c '" + " ".join(args.command) + "'")
-            pmb.chroot.user(args.command, chroot, output=args.output, env=env)
-        else:
-            logging.info(f"({chroot}) % " + " ".join(args.command))
-            pmb.chroot.root(args.command, chroot, output=args.output, env=env)
-    except CommandFailedError as exception:
-        raise NonBugError(exception) from exception
 
 
 def install(args: PmbArgs) -> None:

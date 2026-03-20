@@ -52,6 +52,14 @@ pmb.commands.build_init module
    :undoc-members:
    :show-inheritance:
 
+pmb.commands.chroot module
+------------------------------
+
+.. automodule:: pmb.commands.chroot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pmb.commands.checksum module
 ----------------------------
 
