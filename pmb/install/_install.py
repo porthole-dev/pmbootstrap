@@ -30,7 +30,7 @@ from pmb.helpers.exceptions import NonBugError
 from pmb.helpers.locale import get_xkb_layout
 from pmb.helpers.mount import mount_device_rootfs
 from pmb.parse.deviceinfo import Deviceinfo
-from pmb.types import PartitionLayout, PmbArgs, RunOutputTypeDefault
+from pmb.types import PartitionLayout, RunOutputTypeDefault
 
 # Keep track of the packages we already visited in get_recommends() to avoid
 # infinite recursion
@@ -1358,101 +1358,130 @@ def create_device_rootfs(
         disable_service(chroot, "nftables")
 
 
-def install(args: PmbArgs, is_split: bool) -> None:
+def install(
+    add: str,
+    android_recovery_zip: bool,
+    cipher: str,
+    cmdline: str | None,
+    filesystem: str,
+    full_disk_encryption: bool,
+    disk: Path | None,
+    install_base: bool,
+    install_cgpt: bool,
+    install_local_pkgs: bool,
+    install_recommends: bool,
+    iter_time: str,
+    no_firewall: bool,
+    no_image: bool,
+    no_reboot: bool | None,
+    no_sshd: bool,
+    partition: str | None,
+    password: str,
+    recovery_flash_kernel: bool,
+    recovery_install_partition: str,
+    resume: bool | None,
+    rsync: bool,
+    sector_size: int | None,
+    single_partition: bool,
+    sparse: bool | None,
+    verbose: bool,
+    zap: bool,
+    is_split: bool,
+) -> None:
     device = get_context().config.device
     chroot = Chroot(ChrootType.ROOTFS, device)
     deviceinfo = pmb.parse.deviceinfo()
     # Sanity checks
     sanity_check_boot_size()
-    if not args.android_recovery_zip and args.disk:
-        sanity_check_disk(args.disk)
-        sanity_check_disk_size(args.disk)
+    if not android_recovery_zip and disk:
+        sanity_check_disk(disk)
+        sanity_check_disk_size(disk)
 
     # --single-partition implies --no-split. There is nothing to split if
     # there is only a single partition.
-    if args.single_partition:
+    if single_partition:
         is_split = False
         if deviceinfo.create_initfs_extra:
             raise RuntimeError("--single-partition does not work for devices with initramfs-extra")
 
     # Number of steps for the different installation methods.
-    if args.no_image:
+    if no_image:
         steps = 2
-    elif args.android_recovery_zip:
+    elif android_recovery_zip:
         steps = 3
     else:
         steps = 4
 
-    if args.zap:
+    if zap:
         pmb.chroot.zap(False)
 
     # Install required programs in native chroot
     step = 1
     logging.info(f"*** ({step}/{steps}) PREPARE NATIVE CHROOT ***")
     pmb.chroot.init(Chroot.native())
-    if args.disk:
-        pmb.install.blockdevice.handle_disk_mount(args.disk)
+    if disk:
+        pmb.install.blockdevice.handle_disk_mount(disk)
     pmb.chroot.apk.install(pmb.config.install_native_packages, Chroot.native(), build=False)
     step += 1
 
     create_device_rootfs(
         step,
         steps,
-        args.add,
-        args.password,
-        args.install_base,
-        args.install_recommends,
-        args.full_disk_encryption,
-        args.no_sshd,
-        args.no_firewall,
+        add,
+        password,
+        install_base,
+        install_recommends,
+        full_disk_encryption,
+        no_sshd,
+        no_firewall,
     )
     step += 1
 
-    if args.no_image:
+    if no_image:
         return
-    elif args.android_recovery_zip:
+    elif android_recovery_zip:
         return install_recovery_zip(
-            args.cipher,
-            getattr(args, "cmdline", None),
-            args.full_disk_encryption,
-            getattr(args, "no_reboot", None),
-            getattr(args, "partition", None),
-            args.recovery_flash_kernel,
-            args.recovery_install_partition,
-            getattr(args, "resume", None),
+            cipher,
+            cmdline,
+            full_disk_encryption,
+            no_reboot,
+            partition,
+            recovery_flash_kernel,
+            recovery_install_partition,
+            resume,
             device,
             deviceinfo.arch,
             steps,
         )
 
     install_system_image(
-        args.cipher,
-        args.filesystem,
-        args.full_disk_encryption,
-        args.install_cgpt,
-        args.install_local_pkgs,
-        args.iter_time,
-        args.rsync,
-        args.sector_size,
-        args.sparse,
-        args.verbose,
+        cipher,
+        filesystem,
+        full_disk_encryption,
+        install_cgpt,
+        install_local_pkgs,
+        iter_time,
+        rsync,
+        sector_size,
+        sparse,
+        verbose,
         chroot,
         step,
         steps,
         split=is_split,
-        single_partition=args.single_partition,
-        disk=args.disk,
+        single_partition=single_partition,
+        disk=disk,
     )
 
     print_flash_info(
         device,
         deviceinfo,
         is_split,
-        bool(args.disk and args.disk.is_absolute()),
-        args.single_partition,
+        bool(disk and disk.is_absolute()),
+        single_partition,
     )
-    print_sshd_info(args.no_sshd)
-    print_firewall_info(args.no_firewall, deviceinfo.arch)
+    print_sshd_info(no_sshd)
+    print_firewall_info(no_firewall, deviceinfo.arch)
 
     # Leave space before 'chroot still active' note
     logging.info("")

@@ -75,4 +75,33 @@ def install(args: PmbArgs) -> None:
     # Verify that the root filesystem is supported by current pmaports branch
     pmb.install.get_root_filesystem(args.filesystem)
 
-    pmb.install.install(args, is_split)
+    pmb.install.install(
+        args.add,
+        args.android_recovery_zip,
+        args.cipher,
+        getattr(args, "cmdline", None),
+        args.filesystem,
+        args.full_disk_encryption,
+        args.disk,
+        args.install_base,
+        args.install_cgpt,
+        args.install_local_pkgs,
+        args.install_recommends,
+        args.iter_time,
+        args.no_firewall,
+        args.no_image,
+        getattr(args, "no_reboot", None),
+        args.no_sshd,
+        getattr(args, "partition", None),
+        args.password,
+        args.recovery_flash_kernel,
+        args.recovery_install_partition,
+        getattr(args, "resume", None),
+        args.rsync,
+        args.sector_size,
+        args.single_partition,
+        args.sparse,
+        args.verbose,
+        args.zap,
+        is_split,
+    )
