@@ -283,3 +283,8 @@ inspect initramfs:
   extends: .integration
   script:
     - .ci/integration_tests/inspect_initramfs
+
+parse APKINDEX:
+  extends: .integration
+  script:
+    - .ci/integration_tests/parse_apkindex

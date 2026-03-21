@@ -128,6 +128,11 @@ inspect_initramfs() {
 	pmbootstrap initfs extract
 }
 
+parse_apkindex() {
+	wget https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/APKINDEX.tar.gz
+	pmbootstrap apkindex_parse APKINDEX.tar.gz
+}
+
 # Run the test
 echo "Running $test $*"
 "$test" "$@"
