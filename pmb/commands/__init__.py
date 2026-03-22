@@ -108,7 +108,37 @@ def run_command(args: PmbArgs) -> None:
         case "initfs":
             initfs(args.action_initfs, args.hook if "hook" in args else None)
         case "install":
-            install(args)
+            install(
+                args.add,
+                args.android_recovery_zip,
+                args.cipher,
+                getattr(args, "cmdline", None),
+                args.filesystem,
+                args.full_disk_encryption,
+                args.disk,
+                args.install_base,
+                args.install_cgpt,
+                args.install_local_pkgs,
+                args.install_recommends,
+                args.iter_time,
+                args.no_fde,
+                args.no_firewall,
+                args.no_image,
+                getattr(args, "no_reboot", None),
+                args.no_sshd,
+                getattr(args, "partition", None),
+                args.password,
+                args.recovery_flash_kernel,
+                args.recovery_install_partition,
+                getattr(args, "resume", None),
+                args.rsync,
+                args.sector_size,
+                args.single_partition,
+                args.sparse,
+                args.split,
+                args.verbose,
+                args.zap,
+            )
         case "shutdown":
             shutdown()
         case "sideload":

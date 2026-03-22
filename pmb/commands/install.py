@@ -1,6 +1,7 @@
 # Copyright 2026 Oliver Smith, Paul Adam
 # SPDX-License-Identifier: GPL-3.0-or-later
 from getpass import getpass
+from pathlib import Path
 
 import pmb.config
 import pmb.install
@@ -8,36 +9,65 @@ import pmb.parse
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
-from pmb.types import PmbArgs
 
 
-def install(args: PmbArgs) -> None:
+def install(
+    add: str,
+    android_recovery_zip: bool,
+    cipher: str,
+    cmdline: str | None,
+    filesystem: str,
+    full_disk_encryption: bool,
+    disk: Path | None,
+    install_base: bool,
+    install_cgpt: bool,
+    install_local_pkgs: bool,
+    install_recommends: bool,
+    iter_time: str,
+    no_fde: bool,
+    no_firewall: bool,
+    no_image: bool,
+    no_reboot: bool | None,
+    no_sshd: bool,
+    partition: str | None,
+    password: str,
+    recovery_flash_kernel: bool,
+    recovery_install_partition: str,
+    resume: bool | None,
+    rsync: bool,
+    sector_size: int | None,
+    single_partition: bool,
+    sparse: bool | None,
+    split: bool | None,
+    verbose: bool,
+    zap: bool,
+) -> None:
     config = get_context().config
     device = config.device
     deviceinfo = pmb.parse.deviceinfo(device)
-    is_split = args.split if args.split is not None else False
-    if args.no_fde:
+    is_split = split if split is not None else False
+    if no_fde:
         logging.warning("WARNING: --no-fde is deprecated, as it is now the default.")
-    if args.rsync and args.full_disk_encryption:
+    if rsync and full_disk_encryption:
         raise ValueError("Installation using rsync is not compatible with full disk encryption.")
-    if args.rsync and not args.disk:
+    if rsync and not disk:
         raise ValueError("Installation using rsync only works with --disk.")
 
-    if args.rsync and args.filesystem == "btrfs":
+    if rsync and filesystem == "btrfs":
         raise ValueError("Installation using rsync is not currently supported on btrfs filesystem.")
 
-    if not args.disk and args.split is None:
+    if not disk and split is None:
         # Default to split if the flash method requires it
         flasher = pmb.config.flashers.get(deviceinfo.flash_method, {})
         if flasher.get("split", False):
             is_split = True
 
     # Android recovery zip related
-    if args.android_recovery_zip and args.filesystem:
+    if android_recovery_zip and filesystem:
         raise ValueError(
             "--android-recovery-zip cannot be combined with --filesystem (patches welcome)"
         )
-    if args.android_recovery_zip and args.full_disk_encryption:
+    if android_recovery_zip and full_disk_encryption:
         logging.info(
             "WARNING: --fde is rarely used in combination with"
             " --android-recovery-zip. If this does not work, consider"
@@ -45,7 +75,7 @@ def install(args: PmbArgs) -> None:
         )
         logging.info(
             "WARNING: the kernel of the recovery system (e.g. TWRP)"
-            f" must support the cryptsetup cipher '{args.cipher}'."
+            f" must support the cryptsetup cipher '{cipher}'."
         )
         logging.info(
             "If you know what you are doing, consider setting a"
@@ -54,7 +84,7 @@ def install(args: PmbArgs) -> None:
         )
 
     # Don't install locally compiled packages and package signing keys
-    if not args.install_local_pkgs:
+    if not install_local_pkgs:
         # Implies that we don't build outdated packages (overriding the answer
         # in 'pmbootstrap init')
         config.build_pkgs_on_install = False
@@ -67,41 +97,41 @@ def install(args: PmbArgs) -> None:
                 " to delete them."
             )
 
-    if not args.password:
-        args.password = getpass(f"Choose a password for the user '{config.user}': ")
-        if getpass(f"Confirm password for '{config.user}': ") != args.password:
+    if not password:
+        password = getpass(f"Choose a password for the user '{config.user}': ")
+        if getpass(f"Confirm password for '{config.user}': ") != password:
             raise NonBugError("Passwords did not match!")
 
     # Verify that the root filesystem is supported by current pmaports branch
-    pmb.install.get_root_filesystem(args.filesystem)
+    pmb.install.get_root_filesystem(filesystem)
 
     pmb.install.install(
-        args.add,
-        args.android_recovery_zip,
-        args.cipher,
-        getattr(args, "cmdline", None),
-        args.filesystem,
-        args.full_disk_encryption,
-        args.disk,
-        args.install_base,
-        args.install_cgpt,
-        args.install_local_pkgs,
-        args.install_recommends,
-        args.iter_time,
-        args.no_firewall,
-        args.no_image,
-        getattr(args, "no_reboot", None),
-        args.no_sshd,
-        getattr(args, "partition", None),
-        args.password,
-        args.recovery_flash_kernel,
-        args.recovery_install_partition,
-        getattr(args, "resume", None),
-        args.rsync,
-        args.sector_size,
-        args.single_partition,
-        args.sparse,
-        args.verbose,
-        args.zap,
+        add,
+        android_recovery_zip,
+        cipher,
+        cmdline,
+        filesystem,
+        full_disk_encryption,
+        disk,
+        install_base,
+        install_cgpt,
+        install_local_pkgs,
+        install_recommends,
+        iter_time,
+        no_firewall,
+        no_image,
+        no_reboot,
+        no_sshd,
+        partition,
+        password,
+        recovery_flash_kernel,
+        recovery_install_partition,
+        resume,
+        rsync,
+        sector_size,
+        single_partition,
+        sparse,
+        verbose,
+        zap,
         is_split,
     )
