@@ -43,7 +43,6 @@ from .zap import zap
 # Commands that are still invoked via pmb/helpers/frontend.py
 unmigrated_commands = [
     "init",
-    "newapkbuild",
     "chroot",
     "install",
     "bootimg_analyze",
