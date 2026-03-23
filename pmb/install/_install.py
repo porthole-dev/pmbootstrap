@@ -1242,6 +1242,7 @@ def install_on_device_installer(args: PmbArgs, is_split: bool, step: int, steps:
         "pmOS_install",
         is_split,
         args.single_partition,
+        args.disk,
     )
 
 
@@ -1536,6 +1537,7 @@ def install(args: PmbArgs, is_split: bool) -> None:
             steps,
             split=is_split,
             single_partition=args.single_partition,
+            disk=args.disk,
         )
 
     print_flash_info(
