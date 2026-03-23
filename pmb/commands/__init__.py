@@ -8,7 +8,7 @@ from pmb.commands.repo_missing import repo_missing
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
-from pmb.helpers import frontend
+from pmb.helpers import frontend as frontend
 from pmb.types import PmbArgs
 
 from .apkbuild_parse import apkbuild_parse
@@ -45,11 +45,6 @@ from .zap import zap
 
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
-# Commands that are still invoked via pmb/helpers/frontend.py
-unmigrated_commands = [
-    "init",
-]
-
 
 def _parse_suffix(args: PmbArgs) -> Chroot:
     deviceinfo = pmb.parse.deviceinfo()
@@ -72,11 +67,6 @@ def _parse_suffix(args: PmbArgs) -> Chroot:
 
 
 def run_command(args: PmbArgs) -> None:
-    # Handle deprecated command format
-    if args.action in unmigrated_commands:
-        getattr(frontend, args.action)(args)
-        return
-
     match args.action:
         case "apkbuild_parse":
             apkbuild_parse(args.packages)
