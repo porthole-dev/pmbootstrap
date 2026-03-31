@@ -458,10 +458,7 @@ def create_pmos_fragment(apkbuild: Apkbuild, arch: Arch) -> str:
             categories.append(category)
 
     # Collect all rules from the categories
-    try:
-        all_rules = pmb.parse.kconfigcheck.read_categories(categories)
-    except RuntimeError as e:
-        logging.warning(f"Failed to read categories {categories}: {e}")
+    all_rules = pmb.parse.kconfigcheck.read_categories(categories)
 
     return create_fragment_from_rules(apkbuild, all_rules, arch)
 
