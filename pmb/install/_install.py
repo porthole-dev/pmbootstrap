@@ -576,7 +576,7 @@ def generate_binary_list(chroot: Chroot, step: int) -> list[tuple[str, int]]:
             offset = int(offset_)
         except ValueError as exception:
             raise RuntimeError(
-                f"Value for firmware binary offset is not valid: {offset}"
+                f"Value for firmware binary offset is not valid: {offset_}"
             ) from exception
         binary_path = chroot / "usr/share" / binary
         if not os.path.exists(binary_path):
