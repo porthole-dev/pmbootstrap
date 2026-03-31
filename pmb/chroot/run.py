@@ -102,6 +102,15 @@ def rootm(
 def root(
     cmds: Sequence[PathString],
     chroot: Chroot = ...,
+    *,
+    check: bool = ...,
+) -> int: ...
+
+
+@overload
+def root(
+    cmds: Sequence[PathString],
+    chroot: Chroot = ...,
     working_dir: PurePath = ...,
     output: RunOutputTypePopen = ...,
     output_return: Literal[False] = ...,
