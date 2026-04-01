@@ -128,6 +128,11 @@ inspect_initramfs() {
 	pmbootstrap initfs extract
 }
 
+newapkbuild() {
+	pmbootstrap newapkbuild something-that-would-not-exist
+	[ -e ~/.local/var/pmbootstrap/cache_git/pmaports/main/something-that-would-not-exist/APKBUILD ]
+}
+
 parse_apkindex() {
 	wget https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/APKINDEX.tar.gz
 	pmbootstrap apkindex_parse APKINDEX.tar.gz

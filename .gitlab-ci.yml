@@ -284,6 +284,11 @@ inspect initramfs:
   script:
     - .ci/integration_tests/inspect_initramfs
 
+newapkbuild:
+  extends: .integration
+  script:
+    - .ci/integration_tests/newapkbuild
+
 parse APKINDEX:
   extends: .integration
   script:
