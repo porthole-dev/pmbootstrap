@@ -246,23 +246,30 @@ def parse_channels_cfg(aports: Path) -> dict:
     cfg = configparser.ConfigParser()
     override = os.environ.get("PMB_CHANNELS_CFG")
 
-    try:
-        if override:
-            if not os.path.exists(override):
-                raise NonBugError(f"Override from PMB_CHANNELS_CFG not found: {override}")
+    if override:
+        if not os.path.exists(override):
+            raise NonBugError(f"Override from PMB_CHANNELS_CFG not found: {override}")
+        try:
             cfg.read(override)
-        else:
-            remote = get_upstream_remote(aports)
-            command = ["git", "show", f"{remote}/main:channels.cfg"]
-            stdout = pmb.helpers.run.user_output(
-                command, aports, output=RunOutputTypeDefault.NULL, check=False
-            )
+        except configparser.MissingSectionHeaderError as exception:
+            raise RuntimeError(
+                f"Failed to read channels.cfg from '{override}' (as set in environment by PMB_CHANNELS_CFG)"
+            ) from exception
+    else:
+        remote = get_upstream_remote(aports)
+        command = ["git", "show", f"{remote}/main:channels.cfg"]
+        stdout = pmb.helpers.run.user_output(
+            command, aports, output=RunOutputTypeDefault.NULL, check=False
+        )
+        try:
             cfg.read_string(stdout)
-    except configparser.MissingSectionHeaderError as exception:
-        logging.info("NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'")
-        raise RuntimeError(
-            f"Failed to read channels.cfg from '{remote}/main' branch of your local pmaports clone"
-        ) from exception
+        except configparser.MissingSectionHeaderError as exception:
+            logging.info(
+                "NOTE: fix this by fetching your pmaports.git, e.g. with 'pmbootstrap pull'"
+            )
+            raise RuntimeError(
+                f"Failed to read channels.cfg from '{remote}/main' branch of your local pmaports clone"
+            ) from exception
 
     # Meta section
     ret: dict[str, dict[str, str | dict[str, str]]] = {"channels": {}}
