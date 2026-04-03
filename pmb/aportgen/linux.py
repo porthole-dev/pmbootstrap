@@ -16,7 +16,7 @@ def generate_apkbuild(
 ) -> None:
     device = "-".join(pkgname.split("-")[1:])
     arch = deviceinfo.arch if deviceinfo else ask_for_architecture()
-    carch = arch.kernel_dir()
+    carch = arch.kernel_arch()
 
     makedepends = [
         "bash",
