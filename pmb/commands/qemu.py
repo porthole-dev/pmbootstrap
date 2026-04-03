@@ -5,7 +5,6 @@ import re
 import shutil
 import signal
 import subprocess
-from collections.abc import Sequence
 from pathlib import Path
 from types import FrameType
 
@@ -20,7 +19,7 @@ from pmb.core.config import Config
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
-from pmb.types import Env, PathString, RunOutputTypeDefault
+from pmb.types import Env, RunOutputTypeDefault
 
 
 def system_image(device: str) -> Path:
@@ -61,33 +60,6 @@ def which_qemu(arch: Arch) -> str:
             f"Could not find the '{executable}' executable in your PATH."
             "  Please install it in order to run qemu."
         )
-
-
-def create_gdk_loader_cache() -> Path:
-    """
-    Create a gdk loader cache that can be used for running GTK UIs outside of
-    the chroot.
-    """
-    gdk_cache_dir = Path("/usr/lib/gdk-pixbuf-2.0/2.10.0/")
-    custom_cache_path = gdk_cache_dir / "loaders-pmos-chroot.cache"
-    chroot_native = Chroot.native()
-    if (chroot_native / custom_cache_path).is_file():
-        return chroot_native / custom_cache_path
-
-    cache_path = gdk_cache_dir / "loaders.cache"
-    if not (chroot_native / cache_path).is_file():
-        raise RuntimeError(f"gdk pixbuf cache file not found: {cache_path}")
-
-    pmb.chroot.root(["cp", cache_path, custom_cache_path])
-    cmd: Sequence[PathString] = [
-        "sed",
-        "-i",
-        "-e",
-        f's@"{gdk_cache_dir}@"{chroot_native / gdk_cache_dir}@',
-        custom_cache_path,
-    ]
-    pmb.chroot.root(cmd)
-    return chroot_native / custom_cache_path
 
 
 def command_qemu(
@@ -138,11 +110,9 @@ def command_qemu(
         }
 
         if "gtk" in qemu_display:
-            gdk_cache = create_gdk_loader_cache()
             env.update(
                 {
                     "GTK_THEME": "Default",
-                    "GDK_PIXBUF_MODULE_FILE": str(gdk_cache),
                     "XDG_DATA_DIRS": ":".join(
                         [
                             str(chroot_native / "usr/local/share"),
