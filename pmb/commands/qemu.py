@@ -57,10 +57,9 @@ def which_qemu(arch: Arch) -> str:
     if shutil.which(executable):
         return executable
     else:
-        raise RuntimeError(
-            "Could not find the '" + executable + "' executable"
-            " in your PATH. Please install it in order to"
-            " run qemu."
+        raise NonBugError(
+            f"Could not find the '{executable}' executable in your PATH."
+            "  Please install it in order to run qemu."
         )
 
 
