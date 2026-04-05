@@ -273,6 +273,7 @@ def arguments_sideload(subparser: argparse._SubParsersAction) -> argparse.Argume
     ret.add_argument("--user", help="use a different username than the one set in init")
     ret.add_argument(
         "--arch",
+        choices=Arch.supported(),
         help="skip automatic architecture deduction and use the given value",
         type=lambda x: Arch.from_str(x),
     )
