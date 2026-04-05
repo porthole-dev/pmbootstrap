@@ -135,6 +135,7 @@ RunReturnType = str | int | subprocess.Popen
 PathString = Path | str
 Env = dict[str, PathString]
 Apkbuild = dict[str, Any]
+ActionKConfig = Literal["check", "edit", "migrate", "generate"]
 WithExtraRepos = Literal["default", "enabled", "disabled"]
 
 # These types are not definitive / API, they exist to describe the current
@@ -174,7 +175,7 @@ class Bootimg(TypedDict):
 class PmbArgs(Namespace):
     action_flasher: str
     action_initfs: str
-    action_kconfig: str
+    action_kconfig: ActionKConfig
     action_netboot: str
     action_test: str
     add: str
