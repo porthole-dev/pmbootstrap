@@ -274,6 +274,8 @@ def get_xkb_layout(locale: str) -> XkbLayout:
             return XkbLayout("pak", "urd-nla")
         case "yo":
             return XkbLayout("ng", "yoruba")
+        case _:
+            pass
     if language not in locales_without_layout:
         logging.warning(f'Language "{language}" not found in language list')
     return XkbLayout()  # return default layout if no layout was found

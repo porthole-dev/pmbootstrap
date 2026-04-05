@@ -363,6 +363,8 @@ def setup_keymap(config: Config) -> None:
                     layout = "dano"
                 case "rx51_pt" | "rx51_es":
                     layout = "ptes"
+                case _:
+                    pass
             # Multiple files can contain the keyboard layout, take last
             xconfig = xconfig.splitlines()[-1]
             old_text = 'Option *\\"XkbLayout\\" *\\".*\\"'

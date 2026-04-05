@@ -231,6 +231,8 @@ def command_qemu(
             command += ["-M", "pseries"]
         case Arch.loongarch64:
             command += ["-M", "virt"]
+        case _:
+            pass
 
     # Configure display
     if qemu_display != "none":
