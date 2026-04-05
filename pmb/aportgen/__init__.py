@@ -117,7 +117,7 @@ def generate(
                 # "DeviceCategory | None"; expected "DeviceCategory".
                 # The check on the top of the page already ensures device_category is not
                 # None in this case.
-                pmb.aportgen.device.generate(pkgname, device_category)  # type: ignore
+                pmb.aportgen.device.generate(pkgname, device_category)  # type: ignore[arg-type]
             case "gcc":
                 pmb.aportgen.gcc.generate(pkgname)
             case "grub-efi":

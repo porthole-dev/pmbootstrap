@@ -145,7 +145,7 @@ def generate_deviceinfo_fastboot_content(bootimg: Bootimg | None = None) -> str:
         "mtk_label_ramdisk",
         "header_version",
     ]:
-        v = bootimg[k]  # type: ignore
+        v = bootimg[k]  # type: ignore[literal-required]
         if v:
             content += f"""\
             deviceinfo_{k}="{v}"

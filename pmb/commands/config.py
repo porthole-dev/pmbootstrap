@@ -29,8 +29,8 @@ def config(name: str | None, value: str | None, reset: bool, configpath: Path) -
             mirror = name.split(".", 1)[1]
             # Ignore mypy 'error: TypedDict name must be a string literal'.
             # Argparse already ensures 'mirror' is a valid Config.Mirrors key.
-            if value_changed := (config.mirrors[mirror] != value):  # type: ignore
-                config.mirrors[mirror] = value  # type: ignore
+            if value_changed := (config.mirrors[mirror] != value):  # type: ignore[literal-required]
+                config.mirrors[mirror] = value  # type: ignore[literal-required]
         elif isinstance(getattr(Config, name), list):
             new_list = value.split(",")
             if value_changed := (getattr(config, name, None) != new_list):
