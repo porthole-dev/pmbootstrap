@@ -442,9 +442,9 @@ def qemu(
 
     if not use_host_qemu:
         install_depends(arch)
-    logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
-
     install_efi_image(arch)
+
+    logging.info("Running postmarketOS in QEMU VM (" + arch.qemu_system() + ")")
 
     qemu, env = command_qemu(
         config,
