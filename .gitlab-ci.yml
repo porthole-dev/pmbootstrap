@@ -124,10 +124,9 @@ mypy:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
-        # We don't run mypy on tests, so no need to include test/**/*.py here.
+        - "**/*.py"
         - .ci/mypy.sh
         - .gitlab-ci.yml
-        - "pmb/**/*.py"
         - pmbootstrap.py
         - pyproject.toml
   script:
