@@ -485,7 +485,7 @@ main() {
 fish_compat() {
 	[ "$1" = "--fish" ] || return 0
 	for name in make kernelroot pmbootstrap pmbroot; do
-		alias "$name" >/dev/null 2>&1 && echo "alias $(alias "$name" | sed 's/=/ /')"
+		alias "$name" >/dev/null 2>&1 && echo "alias $(alias "$name" | sed 's/alias //; s/=/ /')"
 	done
 }
 
