@@ -1,37 +1,11 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-from pathlib import Path
-
 import pmb.config
 import pmb.helpers.pmaports
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
-from pmb.helpers import logging
 from pmb.meta import Cache
 from pmb.types import Apkbuild, CrossCompile
-
-
-def arch_from_deviceinfo(pkgname: str, aport: Path) -> Arch | None:
-    """
-    The device- packages are noarch packages. But it only makes sense to build
-    them for the device's architecture, which is specified in the deviceinfo
-    file.
-
-    :returns: None (no deviceinfo file)
-              arch from the deviceinfo (e.g. "armhf")
-    """
-    # Require a deviceinfo file in the aport
-    if not pkgname.startswith("device-"):
-        return None
-    deviceinfo = aport / "deviceinfo"
-    if not deviceinfo.exists():
-        return None
-
-    # Return its arch
-    device = pkgname.split("-", 1)[1]
-    arch = pmb.parse.deviceinfo(device).arch
-    logging.verbose(f"{pkgname}: arch from deviceinfo: {arch}")
-    return arch
 
 
 @Cache("package")
@@ -50,9 +24,6 @@ def arch(package: str | Apkbuild) -> Arch:
     """
     pkgname = package["pkgname"] if isinstance(package, dict) else package
     aport = pmb.helpers.pmaports.find(pkgname)
-    ret = arch_from_deviceinfo(pkgname, aport)
-    if ret:
-        return ret
 
     apkbuild = pmb.parse.apkbuild(aport) if isinstance(package, str) else package
     arches = apkbuild["arch"]
