@@ -19,7 +19,7 @@ end
 # Fish compatibility code from envkernel.sh
 set envkernel_fish (status filename)
 set script_dir (dirname "$envkernel_fish")
-sh "$script_dir/envkernel.sh" $argv --fish 1>| read -z fishcode
+bash "$script_dir/envkernel.sh" $argv --fish 1>| read -z fishcode
 set pmbootstrap_dir (realpath "$script_dir/..")
 if not test -e "$pmbootstrap_dir/pmbootstrap.py"
 	set -e pmbootstrap_dir
