@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import pmb.config
 from pmb.commands.repo_missing import repo_missing
+from pmb.core import Chroot, ChrootType
+from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import frontend
 from pmb.types import PmbArgs
@@ -49,6 +51,26 @@ unmigrated_commands = [
 ]
 
 
+def _parse_suffix(args: PmbArgs) -> Chroot:
+    deviceinfo = pmb.parse.deviceinfo()
+    if getattr(args, "image", None):
+        rootfs = Chroot.native() / f"home/pmos/rootfs/{deviceinfo.codename}.img"
+        return Chroot(ChrootType.IMAGE, str(rootfs))
+    if getattr(args, "rootfs", None):
+        return Chroot(ChrootType.ROOTFS, get_context().config.device)
+    elif args.buildroot:
+        if args.buildroot == "device":
+            return Chroot.buildroot(deviceinfo.arch)
+        else:
+            return Chroot.buildroot(Arch.from_str(args.buildroot))
+    elif args.suffix:
+        (t_, s) = args.suffix.split("_")
+        t: ChrootType = ChrootType(t_)
+        return Chroot(t, s)
+    else:
+        return Chroot(ChrootType.NATIVE)
+
+
 def run_command(args: PmbArgs) -> None:
     # Handle deprecated command format
     if args.action in unmigrated_commands:
@@ -67,11 +89,11 @@ def run_command(args: PmbArgs) -> None:
         case "build":
             build(args.packages, args.arch, args.src, args.envkernel, args.strict)
         case "build_init":
-            build_init(frontend._parse_suffix(args))
+            build_init(_parse_suffix(args))
         case "chroot":
             chroot(
                 args.add,
-                frontend._parse_suffix(args),
+                _parse_suffix(args),
                 args.chroot_usb,
                 args.command,
                 args.install_blockdev,
