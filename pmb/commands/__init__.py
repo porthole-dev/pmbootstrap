@@ -46,20 +46,20 @@ from .zap import zap
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
 
-def _parse_suffix(args: PmbArgs) -> Chroot:
+def _parse_suffix(buildroot: str, image: bool | None, rootfs: bool | None, suffix: str) -> Chroot:
     deviceinfo = pmb.parse.deviceinfo()
-    if getattr(args, "image", None):
-        rootfs = Chroot.native() / f"home/pmos/rootfs/{deviceinfo.codename}.img"
-        return Chroot(ChrootType.IMAGE, str(rootfs))
-    if getattr(args, "rootfs", None):
+    if image:
+        rootfs_path = Chroot.native() / f"home/pmos/rootfs/{deviceinfo.codename}.img"
+        return Chroot(ChrootType.IMAGE, str(rootfs_path))
+    if rootfs:
         return Chroot(ChrootType.ROOTFS, get_context().config.device)
-    elif args.buildroot:
-        if args.buildroot == "device":
+    elif buildroot:
+        if buildroot == "device":
             return Chroot.buildroot(deviceinfo.arch)
         else:
-            return Chroot.buildroot(Arch.from_str(args.buildroot))
-    elif args.suffix:
-        (t_, s) = args.suffix.split("_")
+            return Chroot.buildroot(Arch.from_str(buildroot))
+    elif suffix:
+        (t_, s) = suffix.split("_")
         t: ChrootType = ChrootType(t_)
         return Chroot(t, s)
     else:
@@ -79,11 +79,23 @@ def run_command(args: PmbArgs) -> None:
         case "build":
             build(args.packages, args.arch, args.src, args.envkernel, args.strict)
         case "build_init":
-            build_init(_parse_suffix(args))
+            build_init(
+                _parse_suffix(
+                    args.buildroot,
+                    getattr(args, "image", None),
+                    getattr(args, "rootfs", None),
+                    args.suffix,
+                )
+            )
         case "chroot":
             chroot(
                 args.add,
-                _parse_suffix(args),
+                _parse_suffix(
+                    args.buildroot,
+                    getattr(args, "image", None),
+                    getattr(args, "rootfs", None),
+                    args.suffix,
+                ),
                 args.chroot_usb,
                 args.command,
                 args.install_blockdev,
