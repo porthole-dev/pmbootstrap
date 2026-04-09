@@ -1,6 +1,5 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
-
 from __future__ import annotations
 
 import pmb.config
@@ -8,7 +7,6 @@ from pmb.commands.repo_missing import repo_missing
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
-from pmb.helpers import frontend as frontend
 from pmb.types import PmbArgs
 
 from .apkbuild_parse import apkbuild_parse
