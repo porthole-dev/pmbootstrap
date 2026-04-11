@@ -109,6 +109,13 @@ check_device() {
 }
 
 
+is_source_tree_u_boot() {
+	[ -f Kconfig ] || return 1
+
+	grep -q 'mainmenu "U-Boot' Kconfig
+}
+
+
 initialize_chroot() {
 	# Kernel architecture
 	# shellcheck disable=SC2154
@@ -139,6 +146,10 @@ initialize_chroot() {
 		need_cross_compiler=0
 		pkgs="clang lld llvm"
 		toolchain_name="llvm"
+
+		if is_source_tree_u_boot; then
+			echo "Warning: Building U-Boot with LLVM requires special care, try --gcc or read the documentation: https://docs.u-boot.org/en/latest/build/clang.html"
+		fi
 	else
 		if [ "$gcc6_arg" = "1" ]; then
 			gcc_pkgname="gcc6"
