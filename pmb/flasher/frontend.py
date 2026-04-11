@@ -48,7 +48,7 @@ def kernel(
     ):
         raise NonBugError(
             "deviceinfo_header_version' <= 2 is currently only supported with fastboot. See also:"
-            " <https://wiki.postmarketos.org/wiki/Deviceinfo_reference>"
+            " <https://postmarketos.org/deviceinfo>"
         )
 
     # Generate the paths and run the flasher

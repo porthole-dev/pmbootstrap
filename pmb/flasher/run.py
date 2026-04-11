@@ -60,7 +60,7 @@ def run(
             "Your device does not have 'vbmeta' partition specified; set"
             " 'deviceinfo_flash_fastboot_partition_vbmeta' or"
             " 'deviceinfo_flash_heimdall_partition_vbmeta' in deviceinfo file. See also:"
-            " <https://wiki.postmarketos.org/wiki/Deviceinfo_reference>"
+            " <https://postmarketos.org/deviceinfo>"
         )
 
     if (
@@ -71,8 +71,7 @@ def run(
         raise NonBugError(
             "'vendor_boot' is only supported with"
             " 'deviceinfo_header_version' >= 3. See also:"
-            " <https://wiki.postmarketos.org/wiki/"
-            "Deviceinfo_reference>"
+            " <https://postmarketos.org/deviceinfo>"
         )
 
     # dtbo flasher requires dtbo partition to be explicitly specified
@@ -82,8 +81,7 @@ def run(
             " specified; set"
             " 'deviceinfo_flash_fastboot_partition_dtbo'"
             " in deviceinfo file. See also:"
-            " <https://wiki.postmarketos.org/wiki/"
-            "Deviceinfo_reference>"
+            " <https://postmarketos.org/deviceinfo>"
         )
 
     if no_reboot and ("flash" not in action or method != "heimdall-bootimg"):
