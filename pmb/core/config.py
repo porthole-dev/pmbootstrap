@@ -53,7 +53,7 @@ class Config:
     aports: list[Path] = [  # noqa: RUF012
         Path(os.path.expanduser("~") + "/.local/var/pmbootstrap/cache_git/pmaports")
     ]
-    boot_size: int = 256
+    boot_size: int = 512
     build_default_device_arch: bool = False
     build_pkgs_on_install: bool = True
     ccache_size: str = "5G"  # yeahhhh this one has a suffix
