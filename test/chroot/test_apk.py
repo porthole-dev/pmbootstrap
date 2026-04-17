@@ -94,9 +94,9 @@ def test_get_local_apks(pmb_args: None, apk_mocks: None) -> None:
     apk_file = create_apk(pkgname, arch)
 
     local = packages_get_locally_built_apks([pkgname, "fake-package"], arch)
-    print(local)
     assert len(local) == 1
-    assert local[0].parts[-2:] == apk_file.parts[-2:]
+    assert "package1" in local
+    assert local["package1"].parts[-2:] == apk_file.parts[-2:]
 
     create_apk("package2", arch)
     create_apk("package3", arch)
@@ -104,5 +104,5 @@ def test_get_local_apks(pmb_args: None, apk_mocks: None) -> None:
 
     # Test recursive dependencies
     local = packages_get_locally_built_apks(["package3"], arch)
-    print(local)
     assert len(local) == 4
+    assert set(local.keys()) == {"package1", "package2", "package3", "package4"}

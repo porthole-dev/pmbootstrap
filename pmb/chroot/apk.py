@@ -76,7 +76,7 @@ def packages_split_to_add_del(packages: Collection[str]) -> tuple[list[str], lis
     return (to_add, to_del)
 
 
-def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -> list[Path]:
+def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -> dict[str, Path]:
     """
     Iterate over packages and if existing, get paths to locally built packages.
     This is used to force apk to upgrade packages to newer local versions, even
@@ -84,12 +84,12 @@ def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -
 
     :param packages: list of pkgnames
     :param arch: architecture that the locally built packages should have
-    :returns: Pair of lists, the first is the input packages with local apks removed.
-              the second is a list of apk file paths that are valid inside the chroots, e.g.
-              ["/mnt/pmbootstrap/packages/x86_64/hello-world-1-r6.apk", ...]
+    :returns: a dict mapping pkgname to apk file path for each locally built
+              package found, e.g.
+              {"hello-world": Path("/mnt/pmbootstrap/packages/edge/x86_64/hello-world-1-r6.apk")}
     """
     channels: list[str] = pmb.config.pmaports.all_channels()
-    local: list[Path] = []
+    local: dict[str, Path] = {}
 
     packages = set(package_list)
 
@@ -107,7 +107,7 @@ def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -
         for channel in channels:
             apk_path = get_context().config.work / "packages" / channel / arch / apk_file
             if apk_path.exists():
-                local.append(apk_path)
+                local[data_repo.pkgname] = apk_path
                 break
 
         # Record all the packages we have visited so far
@@ -123,7 +123,7 @@ def packages_get_locally_built_apks(package_list: Collection[str], arch: Arch) -
 
 
 def install_run_apk(
-    to_add: Collection[str], to_add_local: Collection[Path], to_del: Collection[str], chroot: Chroot
+    to_add: Collection[str], to_add_local: dict[str, Path], to_del: Collection[str], chroot: Chroot
 ) -> None:
     """
     Run apk to add packages, and ensure only the desired packages get
@@ -138,20 +138,11 @@ def install_run_apk(
     """
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
-    local_add = [os.fspath(p) for p in to_add_local]
-    for package in itertools.chain(to_add, local_add, to_del):
+    for package in itertools.chain(to_add, to_del):
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
     commands: list[Sequence[PathString]] = [["add", *to_add]]
-
-    # Use a virtual package to mark only the explicitly requested packages as
-    # explicitly installed, not the ones in to_add_local
-    if to_add_local:
-        commands += [
-            ["add", "-u", "--virtual", ".pmbootstrap", *local_add],
-            ["del", ".pmbootstrap"],
-        ]
 
     if to_del:
         commands += [["del", *to_del]]
@@ -178,6 +169,26 @@ def install_run_apk(
         # So only display a progress bar for the "apk add" command which is
         # always the first one we process (i == 0).
         pmb.helpers.apk.run(command, chroot, with_progress=(i == 0))
+
+    # Upgrade locally built packages to their local versions. This is done
+    # after the main apk add so that apk has already resolved providers
+    # correctly. This should only upgrade packages that apk actually installed.
+    if to_add_local:
+        installed_pkgs = installed(chroot)
+        # Use pkg.pkgname rather than the dict keys, since the installed db
+        # is indexed by both pkgname and all provides aliases. If we used the
+        # provides alias, it would potentially result in a conflict (e.g.
+        # installing eudev when systemd-udev is in the rootfs)
+        installed_pkgnames = {pkg.pkgname for pkg in installed_pkgs.values()}
+        local_add = [
+            os.fspath(p) for pkgname, p in to_add_local.items() if pkgname in installed_pkgnames
+        ]
+        if local_add:
+            # Use a virtual package to mark only the explicitly requested packages as
+            # explicitly installed, not the ones in to_add_local
+            command = ["add", "-u", "--virtual", ".pmbootstrap", *local_add]
+            pmb.helpers.apk.run(command, chroot, with_progress=False)
+            pmb.helpers.apk.run(["del", ".pmbootstrap"], chroot, with_progress=False)
 
 
 def install(
