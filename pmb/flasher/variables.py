@@ -51,7 +51,7 @@ def variables(
     elif method.startswith("mtkclient"):
         partition_kernel = deviceinfo.flash_mtkclient_partition_kernel or "boot"
         partition_vendor_boot = (
-            deviceinfo.flash_fastboot_partition_vendor_boot or None
+            deviceinfo.flash_mtkclient_partition_vendor_boot or None
         )  # TODO: is there a default?
         partition_rootfs = deviceinfo.flash_mtkclient_partition_rootfs or "userdata"
         partition_vbmeta = deviceinfo.flash_mtkclient_partition_vbmeta or None
