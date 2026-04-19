@@ -264,40 +264,40 @@ def foreground_pipe(
 
     # While process exists wait for output (with timeout)
     output_buffer: list[bytes] = []
-    sel = selectors.DefaultSelector()
-    sel.register(stdout, selectors.EVENT_READ)
-    while process.poll() is None:
-        if context.command_timeout is not None:
-            wait_start = time.perf_counter()
-            timeout = context.command_timeout.length
-            try:
-                sel.select(timeout)
-            except OverflowError as exception:
-                raise NonBugError(
-                    f"Specified timeout ({timeout}) isn't valid on this platform, maybe try something smaller ({exception})."
-                ) from exception
+    with selectors.DefaultSelector() as sel:
+        sel.register(stdout, selectors.EVENT_READ)
+        while process.poll() is None:
+            if context.command_timeout is not None:
+                wait_start = time.perf_counter()
+                timeout = context.command_timeout.length
+                try:
+                    sel.select(timeout)
+                except OverflowError as exception:
+                    raise NonBugError(
+                        f"Specified timeout ({timeout}) isn't valid on this platform, maybe try something smaller ({exception})."
+                    ) from exception
 
-            # On timeout raise error (we need to measure time on our own, because
-            # select() may exit early even if there is no data to read and the
-            # timeout was not reached.)
-            if output_timeout:
-                wait_end = time.perf_counter()
-                if wait_end - wait_start >= timeout:
-                    logging.info(
-                        f"Process did not write any output for {timeout} seconds. Killing it. Reason: {context.command_timeout.reason}"
-                    )
-                    logging.info("NOTE: The timeout can be increased with 'pmbootstrap -t'.")
-                    kill_command(process.pid, sudo)
-                    continue
-        else:
-            # Block until output is received when no timeout is configured
-            sel.select(None)
+                # On timeout raise error (we need to measure time on our own, because
+                # select() may exit early even if there is no data to read and the
+                # timeout was not reached.)
+                if output_timeout:
+                    wait_end = time.perf_counter()
+                    if wait_end - wait_start >= timeout:
+                        logging.info(
+                            f"Process did not write any output for {timeout} seconds. Killing it. Reason: {context.command_timeout.reason}"
+                        )
+                        logging.info("NOTE: The timeout can be increased with 'pmbootstrap -t'.")
+                        kill_command(process.pid, sudo)
+                        continue
+            else:
+                # Block until output is received when no timeout is configured
+                sel.select(None)
 
-        # Read all currently available output
+            # Read all currently available output
+            pipe_read(process, output_to_stdout, output_log, output_return, output_buffer)
+
+        # There may still be output after the process quit
         pipe_read(process, output_to_stdout, output_log, output_return, output_buffer)
-
-    # There may still be output after the process quit
-    pipe_read(process, output_to_stdout, output_log, output_return, output_buffer)
 
     # Return the return code and output (the output gets built as list of
     # output chunks and combined at the end, this is faster than extending the
