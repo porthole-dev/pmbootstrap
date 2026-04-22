@@ -98,7 +98,7 @@ def generate(pkgname: str) -> None:
         # gcc6: options is already there, so we need to replace it and not only
         # set it below the header like done below.
         # !tracedeps: workaround for issue 2517
-        "options": "!strip !tracedeps",
+        "options": "!strip !tracedeps toolchain",
         "LIBGOMP": "false",
         "LIBGCC": "false",
         "LIBATOMIC": "false",
