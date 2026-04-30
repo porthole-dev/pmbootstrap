@@ -596,6 +596,7 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, Path, str
 
         device = f"{vendor}-{codename}"
         device_path = pmb.helpers.devices.find_path(device, "deviceinfo")
+        device_category = None
         if device_path is not None:
             device_category = pmb.helpers.devices.get_device_category_by_apkbuild_path(device_path)
         if device_path is None:
