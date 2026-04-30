@@ -101,6 +101,7 @@ def generate(pkgname: str) -> None:
         # set it below the header like done below.
         # !tracedeps: workaround for issue 2517
         "options": "!strip !tracedeps toolchain",
+        "provides": "cmd:$CTARGET-gcc=$pkgver-r$pkgrel",
         "LIBGOMP": "false",
         "LIBGCC": "false",
         "LIBATOMIC": "false",
