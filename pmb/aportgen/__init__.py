@@ -1,6 +1,5 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
 from pathlib import Path
 
 import pmb.aportgen.busybox_static
@@ -92,14 +91,14 @@ def generate(
     path_target = pkgrepo_default_path() / folder / pkgname
 
     # Confirm overwrite
-    if confirm_overwrite and os.path.exists(path_target):
+    if confirm_overwrite and path_target.exists():
         logging.warning(f"WARNING: Target folder already exists: {path_target}")
         if not pmb.helpers.cli.confirm("Continue and overwrite?"):
             raise NonBugError("Aborted.")
 
     aportgen = config.work / "aportgen"
 
-    if os.path.exists(aportgen):
+    if aportgen.exists():
         pmb.helpers.run.user(["rm", "-r", aportgen])
     if fork_alpine:
         upstream = pmb.aportgen.core.get_upstream_aport(
@@ -130,7 +129,7 @@ def generate(
                 raise ValueError(f"Unexpected prefix {prefix}")
 
     # Move to the aports folder
-    if os.path.exists(path_target):
+    if path_target.exists():
         pmb.helpers.run.user(["rm", "-r", path_target])
     pmb.helpers.run.user(["mv", aportgen, path_target])
 
