@@ -65,8 +65,6 @@ class DeviceCategory(Enum):
                 return True
             case DeviceCategory.TESTING | DeviceCategory.COMMUNITY | DeviceCategory.MAIN:
                 return False
-            case _:
-                raise AssertionError
 
     def explain(self) -> str:
         """
@@ -86,8 +84,6 @@ class DeviceCategory(Enum):
                 return "often mostly usable, but may lack important functionality"
             case DeviceCategory.MAIN:
                 return "ports where mostly everything works"
-            case _:
-                raise AssertionError
 
     def color(self) -> str:
         """
@@ -108,8 +104,6 @@ class DeviceCategory(Enum):
                 return styles["BLUE"]
             case DeviceCategory.MAIN:
                 return styles["MAGENTA"]
-            case _:
-                raise AssertionError
 
     def __str__(self) -> str:
         return self.value
