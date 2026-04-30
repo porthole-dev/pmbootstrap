@@ -273,15 +273,16 @@ def edit_config(
 
         baseline_config = full_config.read_text()
 
-    _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
+        _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
 
-    if fragment:
         new_config = full_config.read_text()
         _extract_config_diff(new_config, baseline_config, aport / fragment)
 
         logging.info("Validating fragment changes...")
         generate_config(pkgname, arch)
         logging.info(f"Fragment saved to {fragment}")
+    else:
+        _make(chroot, [str(config_ui)], env, pkgname, arch, apkbuild)
 
 
 def _parse_config_options(config_content: str) -> dict[str, str]:
