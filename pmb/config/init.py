@@ -518,7 +518,7 @@ def switch_channel(config: Config, channel: str) -> None:
         pmb.config.pmaports.install_githooks()
 
 
-def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
+def ask_for_device(context: Context, channel: str) -> tuple[str, bool, Path, str]:
     """
     Prompt for the device vendor, model, and kernel.
 
@@ -552,6 +552,8 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
     if context.config.device:
         current_vendor = context.config.device.split("-", 1)[0]
         current_codename = context.config.device.split("-", 1)[1]
+
+    device_is_new = False
 
     while True:
         vendor = pmb.helpers.cli.ask("Vendor", None, current_vendor, False, r"[a-z0-9]+", vendors)
@@ -626,7 +628,9 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
 
             # New port creation confirmed
             logging.info(f"Generating new aports for: {device}...")
-            pmb.aportgen.generate(f"device-{device}", device_category=device_category)
+            device_is_new = True
+            device_dir = pmb.aportgen.generate(f"device-{device}", device_category=device_category)
+            device_path = device_dir / "deviceinfo"
             if device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
                 pmb.aportgen.generate(f"linux-{device}", device_category=device_category)
         elif device_category == pmb.helpers.devices.DeviceCategory.ARCHIVED:
@@ -644,7 +648,7 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, str]:
         break
 
     kernel = ask_for_device_kernel(context.config, device)
-    return (device, device_path is not None, kernel)
+    return (device, device_is_new, device_path, kernel)
 
 
 def ask_for_additional_options(config: Config) -> None:
@@ -866,9 +870,9 @@ def ask_for_locale(current_locale: str) -> str:
         return f"{ret}.UTF-8"
 
 
-def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) -> None:
+def print_systemd_warning(device_is_new: bool, apkbuild: Apkbuild, kernel: str) -> None:
     kernel_version = None
-    if device_exists:
+    if not device_is_new:
         linuxdep = next((pkg for pkg in apkbuild["depends"] if pkg.startswith("linux-")), None)
         if linuxdep is None:
             kernel_subpkg = next(
@@ -890,7 +894,7 @@ def print_systemd_warning(device_exists: bool, apkbuild: Apkbuild, kernel: str) 
     pmaports_cfg = pmb.config.pmaports.read_config()
     systemd_req = pmaports_cfg.get("systemd_linux_min_version", "5.4")
     systemd_recommended = pmaports_cfg.get("systemd_linux_recommended_version", "5.7")
-    systemd_warning = not device_exists or (
+    systemd_warning = device_is_new or (
         kernel_version
         and pmb.parse.version.compare(
             kernel_version,
@@ -952,19 +956,16 @@ def frontend(args: PmbArgs) -> None:
     switch_channel(config, channel)
 
     # Device
-    device, device_exists, kernel = ask_for_device(get_context(), channel)
+    device, device_is_new, deviceinfo_path, kernel = ask_for_device(get_context(), channel)
     config.device = device
     config.kernel = kernel
 
     deviceinfo = pmb.parse.deviceinfo(device)
-    apkbuild_path = pmb.helpers.devices.find_path(device, "APKBUILD")
-    if apkbuild_path:
-        apkbuild = pmb.parse.apkbuild(apkbuild_path)
-        ask_for_provider_select(apkbuild, config.providers)
+    apkbuild = pmb.parse.apkbuild(deviceinfo_path.parent / "APKBUILD")
+    ask_for_provider_select(apkbuild, config.providers)
 
     # Device keymap
-    if device_exists:
-        config.keymap = ask_for_keymaps(config, deviceinfo)
+    config.keymap = ask_for_keymaps(config, deviceinfo)
 
     config.user = ask_for_username(config.user)
     ask_for_provider_select_pkg("postmarketos-base", config.providers)
@@ -977,7 +978,7 @@ def frontend(args: PmbArgs) -> None:
     config.ui_extras = ask_for_ui_extras(config, ui)
 
     # systemd
-    print_systemd_warning(device_exists, apkbuild, config.kernel)
+    print_systemd_warning(device_is_new, apkbuild, config.kernel)
     config.systemd = ask_for_systemd(config, ui)
 
     ask_for_provider_select_pkg(f"postmarketos-ui-{ui}", config.providers)
@@ -1017,7 +1018,6 @@ def frontend(args: PmbArgs) -> None:
     # Zap existing chroots
     if (
         work_exists
-        and device_exists
         and len(list(Chroot.iter_patterns()))
         and pmb.helpers.cli.confirm("Zap existing chroots to apply configuration?", default=True)
     ):
