@@ -94,6 +94,7 @@ enable_error_code = [
     "redundant-expr",
     "redundant-self",
     "mutable-override",
+    "possibly-undefined",
     "truthy-bool",
     "truthy-iterable",
     "unimported-reveal",
