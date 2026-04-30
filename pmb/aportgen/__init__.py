@@ -79,7 +79,7 @@ def generate(
     fork_alpine_retain_branch: bool = False,
     folder: Path | None = None,
     device_category: pmb.helpers.devices.DeviceCategory | None = None,
-) -> None:
+) -> Path:
     if pkgname.startswith(("device", "linux")) and not device_category:
         device_category = pmb.config.ask_for_mainline_downstream()
 
@@ -134,3 +134,5 @@ def generate(
     pmb.helpers.run.user(["mv", aportgen, path_target])
 
     logging.info(f"*** pmaport generated: {path_target}")
+
+    return path_target
