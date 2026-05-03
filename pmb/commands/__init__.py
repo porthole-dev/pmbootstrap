@@ -44,7 +44,7 @@ from .zap import zap
 """New way to model pmbootstrap subcommands that can be invoked without PmbArgs."""
 
 
-def _parse_suffix(buildroot: str, image: bool | None, rootfs: bool | None, suffix: str) -> Chroot:
+def _parse_suffix(buildroot: str, image: bool, rootfs: bool, suffix: str) -> Chroot:
     deviceinfo = pmb.parse.deviceinfo()
     if image:
         rootfs_path = Chroot.native() / f"home/pmos/rootfs/{deviceinfo.codename}.img"
@@ -80,8 +80,8 @@ def run_command(args: PmbArgs) -> None:
             build_init(
                 _parse_suffix(
                     args.buildroot,
-                    getattr(args, "image", None),
-                    getattr(args, "rootfs", None),
+                    getattr(args, "image", False),
+                    getattr(args, "rootfs", False),
                     args.suffix,
                 )
             )
@@ -90,8 +90,8 @@ def run_command(args: PmbArgs) -> None:
                 args.add,
                 _parse_suffix(
                     args.buildroot,
-                    getattr(args, "image", None),
-                    getattr(args, "rootfs", None),
+                    getattr(args, "image", False),
+                    getattr(args, "rootfs", False),
                     args.suffix,
                 ),
                 args.chroot_usb,
