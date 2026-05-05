@@ -5,7 +5,7 @@ import contextlib
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from pmb.core import Config
 from pmb.core.arch import Arch
@@ -1253,8 +1253,8 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 def arguments() -> PmbArgs:
-    # FIXME: It would be nice to not use cast here, but I don't know what else we could do.
-    args = cast(PmbArgs, get_parser().parse_args())
+    args = PmbArgs()
+    get_parser().parse_args(namespace=args)
 
     if getattr(args, "fork_alpine_retain_branch", False):
         # fork_alpine_retain_branch largely matches the behaviour of fork_alpine, so
