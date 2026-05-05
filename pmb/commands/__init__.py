@@ -118,9 +118,9 @@ def run_command(args: PmbArgs) -> None:
                 getattr(args, "autoinstall", True),
                 getattr(args, "cmdline", None),
                 args.flash_method,
-                getattr(args, "no_reboot", None),
+                getattr(args, "no_reboot", False),
                 getattr(args, "partition", None),
-                getattr(args, "resume", None),
+                getattr(args, "resume", False),
             )
         case "log":
             log(args.clear_log, args.lines)
@@ -146,13 +146,13 @@ def run_command(args: PmbArgs) -> None:
                 args.no_fde,
                 args.no_firewall,
                 args.no_image,
-                getattr(args, "no_reboot", None),
+                getattr(args, "no_reboot", False),
                 args.no_sshd,
                 getattr(args, "partition", None),
                 args.password,
                 args.recovery_flash_kernel,
                 args.recovery_install_partition,
-                getattr(args, "resume", None),
+                getattr(args, "resume", False),
                 args.rsync,
                 args.sector_size,
                 args.single_partition,

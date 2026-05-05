@@ -13,9 +13,9 @@ def flasher(
     autoinstall: bool,
     cmdline: str | None,
     flash_method: str,
-    no_reboot: bool | None,
+    no_reboot: bool,
     partition: str | None,
-    resume: bool | None,
+    resume: bool,
 ) -> None:
     context = get_context()
     device = context.config.device

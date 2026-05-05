@@ -26,9 +26,9 @@ def kernel(
     boot: bool = False,
     autoinstall: bool = False,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     # Rebuild the initramfs, just to make sure (see #69)
     flavor = pmb.helpers.frontend._parse_flavor(deviceinfo.codename, autoinstall)
@@ -108,9 +108,9 @@ def rootfs(
     deviceinfo: Deviceinfo,
     method: str,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     # Generate rootfs, install flasher
     suffix = ".img"
@@ -147,9 +147,9 @@ def list_devices(
     deviceinfo: Deviceinfo,
     method: str,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     # pmb.flasher.run provides user-facing error messages for unsupported
     # flags, hence why we pass them here despite them being unused
@@ -168,9 +168,9 @@ def sideload(
     deviceinfo: Deviceinfo,
     method: str,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     # Install depends
     pmb.flasher.install_depends(method)
@@ -208,9 +208,9 @@ def flash_lk2nd(
     deviceinfo: Deviceinfo,
     method: str,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     if method == "fastboot":
         # In the future this could be expanded to use "fastboot flash lk2nd $img"

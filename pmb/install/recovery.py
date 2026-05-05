@@ -14,11 +14,11 @@ def create_zip(
     cipher: str,
     cmdline: str | None,
     full_disk_encryption: bool,
-    no_reboot: bool | None,
+    no_reboot: bool,
     partition: str | None,
     recovery_flash_kernel: bool,
     recovery_install_partition: str,
-    resume: bool | None,
+    resume: bool,
     chroot: Chroot,
     device: str,
 ) -> None:

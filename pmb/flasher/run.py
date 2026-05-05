@@ -31,9 +31,9 @@ def run(
     action: str,
     flavor: str | None = None,
     cmdline: str | None = None,
-    no_reboot: bool | None = None,
+    no_reboot: bool = False,
     partition: str | None = None,
-    resume: bool | None = None,
+    resume: bool = False,
 ) -> None:
     pmb.flasher.init(deviceinfo.codename, method)
 

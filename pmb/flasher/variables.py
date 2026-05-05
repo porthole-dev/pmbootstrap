@@ -9,9 +9,9 @@ def variables(
     flavor: str | None,
     method: str,
     cmdline: str | None,
-    no_reboot: bool | None,
+    no_reboot: bool,
     partition: str | None,
-    resume: bool | None,
+    resume: bool,
 ) -> dict[str, str | None]:
     device = get_context().config.device
     deviceinfo = pmb.parse.deviceinfo()
