@@ -154,12 +154,10 @@ pmbootstrap) issue tracker including the pmbootstrap log.""")
         logging.debug(traceback.format_exc())
 
         print_log_hint()
-        print()
-        print("Before you report this error, ensure that pmbootstrap is up to date.")
-        print(
-            "Find the latest version here: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/tags"
-        )
-        print(f"Your version: {__version__}")
+        print(f"""
+Before you report this error, ensure that pmbootstrap is up to date.
+Find the latest version here: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/tags
+Your version: {__version__}""")
         if can_print_status:
             status.print_status()
         return 1
