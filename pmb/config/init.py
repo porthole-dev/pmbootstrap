@@ -182,7 +182,7 @@ def ask_for_pmaports_path(default: Path) -> Path:
             if not path.exists():
                 try:
                     path.parent.mkdir(0o700, parents=True, exist_ok=True)
-                except Exception as e:
+                except (FileExistsError, FileNotFoundError) as e:
                     logging.error("ERROR: Could not create parent directories: %s", str(e))
                     continue
 
