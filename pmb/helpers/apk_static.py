@@ -19,7 +19,7 @@ from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 
 
-def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
+def read_signature_info(tar: tarfile.TarFile) -> tuple[str, Path]:
     """
     Find various information about the signature that was used to sign
     /sbin/apk.static inside the archive (not to be confused with the normal apk
@@ -46,8 +46,8 @@ def read_signature_info(tar: tarfile.TarFile) -> tuple[str, str]:
     logging.debug(f"sigkey: {sigkey}")
 
     # Get path to keyfile on disk
-    sigkey_path = f"{pmb.config.apk_keys_path}/{sigkey}"
-    if "/" in sigkey or not os.path.exists(sigkey_path):
+    sigkey_path = pmb.config.apk_keys_path / sigkey
+    if "/" in sigkey or not sigkey_path.exists():
         logging.debug(f"sigkey_path: {sigkey_path}")
         raise RuntimeError(f"Invalid signature key: {sigkey}")
 
@@ -78,7 +78,7 @@ def extract_temp(tar: tarfile.TarFile, sigfilename: str) -> dict[str, dict]:
     return ret
 
 
-def verify_signature(files: dict[str, dict], sigkey_path: str) -> None:
+def verify_signature(files: dict[str, dict], sigkey_path: Path) -> None:
     """
     Verify the signature with openssl.
 
