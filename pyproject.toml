@@ -34,7 +34,6 @@ line-length=100
 
 [tool.ruff.lint]
 # B006, B008: Occur in many places and aren't trivial to fix.
-# BLE001: Requires more investigation and maybe some exemptions to enable.
 # D205: Not all of our docstrings have a summary yet.
 # DTZ: Require many changes, unsure what the impacts would be.
 # FLY002: Questionable whether this actually makes some things more readable.
@@ -45,11 +44,14 @@ line-length=100
 # RUF067: Occurs in many places and isn't trivial to fix.
 # TRY004: Arguable false positives.
 # TRY300: Might change functionality in some cases, needs investigation.
-ignore = ["B006", "B008", "BLE001", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "TRY004", "TRY300"]
+ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "TRY004", "TRY300"]
 extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
+# BLE001: In these cases we do want to handle any exception, no way around it.
+"pmb/__init__.py" = ["BLE001"]
+"pmb/helpers/logging.py" = ["BLE001"]
 # SIM905: Makes the test code less readable.
 "test/parse/test_arguments.py" = ["SIM905"]
 # B011: Tests shouldn't be run with python -O set anyway.
