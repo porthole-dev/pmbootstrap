@@ -104,7 +104,7 @@ def ask_for_bootimg() -> Bootimg | None:
         path = Path(os.path.expanduser(response))
         try:
             return pmb.parse.bootimg(path)
-        except Exception as e:
+        except RuntimeError as e:
             logging.fatal("ERROR: " + str(e) + ". Please try again.")
 
 
