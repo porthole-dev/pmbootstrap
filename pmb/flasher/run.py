@@ -14,14 +14,8 @@ def check_partition_blacklist(deviceinfo: Deviceinfo, key: str, value: str) -> N
     name = deviceinfo.name
     if value in (deviceinfo.partition_blacklist or "").split(","):
         raise RuntimeError(
-            "'"
-            + value
-            + "'"
-            + " partition is blacklisted "
-            + "from being flashed! See the "
-            + name
-            + " device "
-            + "wiki page for more information."
+            f"'{value}' partition is blacklisted from being flashed! See the"
+            f" {name} device wiki page for more information."
         )
 
 
@@ -43,12 +37,9 @@ def run(
         raise TypeError(f"Flashers misconfigured! {method} key 'actions' should be a dictionary")
     if action not in cfg["actions"]:
         raise RuntimeError(
-            "action " + action + " is not"
-            " configured for method " + method + "!"
-            " You can use the '--method' option to specify a"
-            " different flash method. See also:"
-            " <https://wiki.postmarketos.org/wiki/"
-            "Deviceinfo_flash_methods>"
+            f"action {action} is not configured for method {method}! You can"
+            " use the '--method' option to specify a different flash method."
+            " See also: <https://wiki.postmarketos.org/wiki/Deviceinfo_flash_methods>"
         )
 
     # Variable setup
@@ -69,19 +60,16 @@ def run(
         and deviceinfo.header_version <= 2
     ):
         raise NonBugError(
-            "'vendor_boot' is only supported with"
-            " 'deviceinfo_header_version' >= 3. See also:"
-            " <https://postmarketos.org/deviceinfo>"
+            "'vendor_boot' is only supported with 'deviceinfo_header_version'"
+            " >= 3. See also: <https://postmarketos.org/deviceinfo>"
         )
 
     # dtbo flasher requires dtbo partition to be explicitly specified
     if action == "flash_dtbo" and not fvars["$PARTITION_DTBO"]:
         raise RuntimeError(
-            "Your device does not have 'dtbo' partition"
-            " specified; set"
-            " 'deviceinfo_flash_fastboot_partition_dtbo'"
-            " in deviceinfo file. See also:"
-            " <https://postmarketos.org/deviceinfo>"
+            "Your device does not have 'dtbo' partition specified; set"
+            " 'deviceinfo_flash_fastboot_partition_dtbo' in deviceinfo file."
+            " See also: <https://postmarketos.org/deviceinfo>"
         )
 
     if no_reboot and ("flash" not in action or method != "heimdall-bootimg"):
@@ -102,10 +90,9 @@ def run(
                 if key in command[i]:
                     if value is None:
                         raise RuntimeError(
-                            f"Variable {key} found in action"
-                            f" {action} for method {method},"
-                            " but the value for this variable"
-                            " is None! Is that missing in your"
+                            f"Variable {key} found in action {action} for"
+                            f" method {method}, but the value for this"
+                            " variable is None! Is that missing in your"
                             " deviceinfo?"
                         )
                     check_partition_blacklist(deviceinfo, key, value)
