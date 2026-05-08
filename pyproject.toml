@@ -45,17 +45,23 @@ line-length=100
 # TRY004: Arguable false positives.
 # TRY300: Might change functionality in some cases, needs investigation.
 ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "TRY004", "TRY300"]
-extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP"]
+extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S3", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
-# BLE001: In these cases we do want to handle any exception, no way around it.
+# BLE001: In this case we do want to handle any exception, no way around it.
 "pmb/__init__.py" = ["BLE001"]
+# S310: May be worth fixing.
+"pmb/helpers/http.py" = ["S310"]
+# BLE001: In this case we do want to handle any exception, no way around it.
 "pmb/helpers/logging.py" = ["BLE001"]
+# S306: Should be fixed.
+"pmb/install/format.py" = ["S306"]
 # SIM905: Makes the test code less readable.
 "test/parse/test_arguments.py" = ["SIM905"]
 # B011: Tests shouldn't be run with python -O set anyway.
-"test/*" = ["B011"]
+# S311: Tests don't need cryptographically secure randomness.
+"test/*" = ["B011", "S311"]
 
 [tool.ruff.lint.isort]
 force-wrap-aliases = true
