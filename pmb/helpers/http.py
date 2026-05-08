@@ -17,7 +17,9 @@ from pmb.helpers import logging
 
 def cache_file(prefix: str, url: str) -> Path:
     prefix = prefix.replace("/", "_")
-    return Path(f"{prefix}_{hashlib.sha256(url.encode('utf-8')).hexdigest()}")
+    return Path(
+        f"{prefix}_{hashlib.sha256(url.encode('utf-8'), usedforsecurity=False).hexdigest()}"
+    )
 
 
 @overload

@@ -40,7 +40,7 @@ def apkindex_hash(url: str, length: int = 8) -> Path:
     apk_defines.h: APK_CACHE_CSUM_BYTES
     database.c: apk_repo_format_cache_index()
     """
-    binary = hashlib.sha1(url.encode("utf-8")).digest()
+    binary = hashlib.sha1(url.encode("utf-8"), usedforsecurity=False).digest()
     xd = "0123456789abcdefghijklmnopqrstuvwxyz"
     csum_bytes = int(length / 2)
 
