@@ -83,8 +83,6 @@ def extract(chroot: Chroot, deviceinfo: Deviceinfo, extra: bool = False) -> Path
         case InitfsCompressionFormat.NONE:
             decompress_cmd = None
             compress_extension = ""
-        case _:
-            raise AssertionError(f"Please add handling for {deviceinfo.initfs_compression.format_}")
 
     # Extract
     commands: list[list[PathString]] = [
