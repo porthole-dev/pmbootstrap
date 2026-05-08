@@ -172,7 +172,7 @@ def parse_add_block(
             if not isinstance(picked_aliases, dict):
                 raise AssertionError
             block_old = picked_aliases[pkgname]
-    elif not multiple_providers:
+    else:
         if alias in ret:
             ret = cast(dict[str, ApkindexBlock], ret)
             picked_alias = ret[alias]
