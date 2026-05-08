@@ -423,8 +423,8 @@ def test_apkindex_parse_cache_hit(valid_apkindex_file: Path, monkeypatch: Monkey
     def mock_parse_next_block(path: Path, lines: list[str]) -> None:
         assert False
 
-    # parse_next_block() is only called on cache miss
-    monkeypatch.setattr(pmb.parse.apkindex, "parse_next_block", mock_parse_next_block)
+    # _parse_next_block() is only called on cache miss
+    monkeypatch.setattr(pmb.parse.apkindex, "_parse_next_block", mock_parse_next_block)
 
     # Now we expect the cache to be hit and thus the mock won't be called, so no assertion error
     parse_apkindex(valid_apkindex_file)

@@ -27,7 +27,7 @@ apkindex_map = {
 required_apkindex_keys = ["arch", "pkgname", "version"]
 
 
-def parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
+def _parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
     """
     Parse the next block in an APKINDEX.
 
@@ -151,7 +151,7 @@ def parse_add_block(
 
     :param ret: dictionary of all packages in the APKINDEX that is
                 getting built right now. This function will extend it.
-    :param block: return value from parse_next_block().
+    :param block: return value from _parse_next_block().
     :param alias: defaults to the pkgname, could be an alias from the
                   "provides" list.
     :param multiple_providers: assume that there are more than one provider for
@@ -241,7 +241,7 @@ def parse(
     Example:
         ``{ "postmarketos-mkinitfs": {"postmarketos-mkinitfs": ApkindexBlock},"so:libGL.so.1": {"mesa-egl": ApkindexBlock, "libhybris": ApkindexBlock}, ...}``
 
-    *NOTE:* ``block`` is the return value from ``parse_next_block()`` above.
+    *NOTE:* ``block`` is the return value from ``_parse_next_block()`` above.
 
     """
     # Require the file to exist
@@ -286,7 +286,7 @@ def parse(
     if lines[-1] == "\n":
         lines.pop()  # Strip the trailing newline
     while True:
-        block = parse_next_block(path, lines)
+        block = _parse_next_block(path, lines)
         if not block:
             break
 
@@ -324,7 +324,7 @@ def parse_blocks(path: Path) -> list[ApkindexBlock]:
     # Parse lines into blocks
     ret: list[ApkindexBlock] = []
     while True:
-        block = pmb.parse.apkindex.parse_next_block(path, lines)
+        block = _parse_next_block(path, lines)
         if not block:
             return ret
         ret.append(block)
