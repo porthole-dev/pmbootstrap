@@ -117,7 +117,7 @@ def _parse_next_block(path: Path, lines: list[str]) -> ApkindexBlock | None:
 def parse_add_block(
     ret: dict[str, ApkindexBlock],
     block: ApkindexBlock,
-    alias: str | None = ...,
+    provide: str | None = ...,
     multiple_providers: Literal[False] = ...,
 ) -> None: ...
 
@@ -126,7 +126,7 @@ def parse_add_block(
 def parse_add_block(
     ret: dict[str, dict[str, ApkindexBlock]],
     block: ApkindexBlock,
-    alias: str | None = ...,
+    provide: str | None = ...,
     multiple_providers: Literal[True] = ...,
 ) -> None: ...
 
@@ -135,7 +135,7 @@ def parse_add_block(
 def parse_add_block(
     ret: dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]],
     block: ApkindexBlock,
-    alias: str | None = ...,
+    provide: str | None = ...,
     multiple_providers: bool = ...,
 ) -> None: ...
 
@@ -143,7 +143,7 @@ def parse_add_block(
 def parse_add_block(
     ret: dict[str, ApkindexBlock] | dict[str, dict[str, ApkindexBlock]],
     block: ApkindexBlock,
-    alias: str | None = None,
+    provide: str | None = None,
     multiple_providers: bool = True,
 ) -> None:
     """
@@ -152,33 +152,33 @@ def parse_add_block(
     :param ret: dictionary of all packages in the APKINDEX that is
                 getting built right now. This function will extend it.
     :param block: return value from _parse_next_block().
-    :param alias: defaults to the pkgname, could be an alias from the
-                  "provides" list.
+    :param provide: defaults to the pkgname, could be a provide from the
+                    "provides" list.
     :param multiple_providers: assume that there are more than one provider for
-                               the alias. This makes sense when parsing the
+                               the package. This makes sense when parsing the
                                APKINDEX files from a repository (#1122), but
                                not when parsing apk's installed packages DB.
     """
     # Defaults
     pkgname = block.pkgname
-    alias = alias or pkgname
+    provide = provide or pkgname
 
-    # Get an existing block with the same alias
+    # Get an existing block with the same provide
     block_old = None
     if multiple_providers:
         ret = cast(dict[str, dict[str, ApkindexBlock]], ret)
-        if alias in ret and pkgname in ret[alias]:
-            picked_aliases = ret[alias]
-            if not isinstance(picked_aliases, dict):
+        if provide in ret and pkgname in ret[provide]:
+            picked_provides = ret[provide]
+            if not isinstance(picked_provides, dict):
                 raise AssertionError
-            block_old = picked_aliases[pkgname]
+            block_old = picked_provides[pkgname]
     else:
-        if alias in ret:
+        if provide in ret:
             ret = cast(dict[str, ApkindexBlock], ret)
-            picked_alias = ret[alias]
-            if not isinstance(picked_alias, ApkindexBlock):
+            picked_provide = ret[provide]
+            if not isinstance(picked_provide, ApkindexBlock):
                 raise AssertionError
-            block_old = picked_alias
+            block_old = picked_provide
 
     # Ignore the block, if the block we already have has a higher version
     if block_old:
@@ -190,13 +190,13 @@ def parse_add_block(
     # Add it to the result set
     if multiple_providers:
         ret = cast(dict[str, dict[str, ApkindexBlock]], ret)
-        if alias not in ret:
-            ret[alias] = {}
-        picked_aliases = cast(dict[str, ApkindexBlock], ret[alias])
-        picked_aliases[pkgname] = block
+        if provide not in ret:
+            ret[provide] = {}
+        picked_provides = cast(dict[str, ApkindexBlock], ret[provide])
+        picked_provides[pkgname] = block
     else:
         ret = cast(dict[str, ApkindexBlock], ret)
-        ret[alias] = block
+        ret[provide] = block
 
 
 @overload
@@ -222,7 +222,7 @@ def parse(
     :param path: path to an APKINDEX.tar.gz file or apk package database
                  (almost the same format, but not compressed).
     :param multiple_providers: assume that there are more than one provider for
-                               the alias. This makes sense when parsing the
+                               the package. This makes sense when parsing the
                                APKINDEX files from a repository (#1122), but
                                not when parsing apk's installed packages DB.
     :returns: (without multiple_providers)
@@ -295,10 +295,10 @@ def parse(
             logging.verbose(f"Skipped virtual package {block} in file: {path}")
             continue
 
-        # Add the next package and all aliases
+        # Add the next package and all provides
         parse_add_block(ret, block, None, multiple_providers)
-        for alias in block.provides:
-            parse_add_block(ret, block, alias, multiple_providers)
+        for provide in block.provides:
+            parse_add_block(ret, block, provide, multiple_providers)
 
     # Update the cache
     key = cache_key(path)
