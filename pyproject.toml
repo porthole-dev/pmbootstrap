@@ -42,10 +42,13 @@ line-length=100
 #          not worth the required rework.
 # PLC0206: Unsure whether this makes some code more readable.
 # RUF067: Occurs in many places and isn't trivial to fix.
+# S108: Hard-coded temp files within chroots should be sufficiently secure.
+# S404: We rely on the subprocess module, can't really avoid it.
+# S603, S607: Need more investigation.
 # TRY004: Arguable false positives.
 # TRY300: Might change functionality in some cases, needs investigation.
-ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "TRY004", "TRY300"]
-extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S3", "SIM", "UP"]
+ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "S108", "S404", "S603", "S607", "TRY004", "TRY300"]
+extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -60,8 +63,11 @@ preview = true
 # SIM905: Makes the test code less readable.
 "test/parse/test_arguments.py" = ["SIM905"]
 # B011: Tests shouldn't be run with python -O set anyway.
+# S101: Tests should never run with assertions disabled.
 # S311: Tests don't need cryptographically secure randomness.
-"test/*" = ["B011", "S311"]
+"test/*" = ["B011", "S101", "S311"]
+# S105: In this case we do want a bogus token in the code.
+"test/helpers/test_git.py" = ["S105"]
 
 [tool.ruff.lint.isort]
 force-wrap-aliases = true
