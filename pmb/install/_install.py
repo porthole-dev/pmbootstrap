@@ -203,7 +203,6 @@ def configure_apk(install_local_pkgs: bool) -> None:
     pmb.chroot.root(
         ["sed", "-i", r"/\/mnt\/pmbootstrap\/packages/d", "/mnt/install/etc/apk/repositories"]
     )
-    pmb.helpers.run.user(["cat", rootfs / "etc/apk/repositories"])
 
 
 def set_user(config: Config) -> None:
