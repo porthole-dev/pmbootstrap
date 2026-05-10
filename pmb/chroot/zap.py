@@ -112,8 +112,6 @@ def zap(
     # Remove config init dates for deleted chroots
     pmb.config.workdir.clean()
 
-    # Chroots were zapped, so no repo lists exist anymore
-    pmb.helpers.apk.update_repository_list.cache_clear()
     # Let chroot.init be called again
     pmb.chroot.init.cache_clear()
 

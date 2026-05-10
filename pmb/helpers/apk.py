@@ -15,11 +15,9 @@ from pmb.core.arch import Arch
 from pmb.core.chroot import Chroot
 from pmb.core.context import get_context
 from pmb.helpers import logging
-from pmb.meta import Cache
 from pmb.types import PathString, RunOutputTypePopen
 
 
-@Cache("root", "user_repository")
 def update_repository_list(
     root: Path,
     user_repository: bool = False,
