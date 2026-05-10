@@ -68,13 +68,6 @@ def urls(
                                             "http://...", ...]
     """
     ret: list[str] = []
-    config = get_context().config
-
-    # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
-    # the pmaports branch of the channel, no need to make it more complicated)
-    channel_cfg = pmb.config.pmaports.read_config_channel()
-    mirrordir_pmos = channel_cfg["branch_pmaports"]
-    mirrordir_alpine = channel_cfg["mirrordir_alpine"]
 
     # Local user repository (for packages compiled with pmbootstrap)
     if user_repository:
@@ -82,6 +75,14 @@ def urls(
 
     if mirrors_exclude is True:
         return ret
+
+    config = get_context().config
+
+    # Get mirrordirs from channels.cfg (postmarketOS mirrordir is the same as
+    # the pmaports branch of the channel, no need to make it more complicated)
+    channel_cfg = pmb.config.pmaports.read_config_channel()
+    mirrordir_pmos = channel_cfg["branch_pmaports"]
+    mirrordir_alpine = channel_cfg["mirrordir_alpine"]
 
     # Don't add the systemd mirror if systemd is disabled
     if not pmb.config.is_systemd_selected(config):
