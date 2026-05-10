@@ -25,7 +25,6 @@ def update_repository_list(
     root: Path,
     user_repository: bool | Path = False,
     mirrors_exclude: list[str] | Literal[True] = [],
-    check: bool = False,
 ) -> None:
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
@@ -33,10 +32,6 @@ def update_repository_list(
 
     :param root: the root directory to operate on
     :param mirrors_exclude: mirrors to exclude from the repository list
-    :param check: This function calls it self after updating the
-                  /etc/apk/repositories file, to check if it was successful.
-                  Only for this purpose, the "check" parameter should be set to
-                  True.
     """
     # Read old entries or create folder structure
     path = root / "etc/apk/repositories"
@@ -63,22 +58,18 @@ def update_repository_list(
     if lines_old == lines_new:
         return
 
-    # Check phase: raise error when still outdated
-    if check:
-        raise RuntimeError(f"Failed to update: {path}")
-
     # Update the file
     logging.debug(f"({root.name}) update /etc/apk/repositories")
     if path.exists():
         pmb.helpers.run.root(["rm", path])
     for line in lines_new:
         pmb.helpers.run.root(["sh", "-c", f"echo {shlex.quote(line)} >> {path}"])
-    update_repository_list(
-        root,
-        user_repository=user_repository,
-        mirrors_exclude=mirrors_exclude,
-        check=True,
-    )
+
+    # Verify that we properly wrote the data
+    with path.open() as handle:
+        lines_old = handle.read().splitlines()
+        if lines_old != lines_new:
+            raise RuntimeError(f"Failed to update: {path}: old: {lines_old}, new: {lines_new}")
 
 
 def _prepare_fifo() -> Path:
