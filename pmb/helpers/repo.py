@@ -150,7 +150,7 @@ def apkindex_files(
     # Resolve the APKINDEX.$HASH.tar.gz files
     ret.extend(
         file
-        for url in get_repos_from_config(False, exclude_mirrors)
+        for url in get_repos_from_config(None, exclude_mirrors)
         if (file := get_context().config.work / f"cache_apk_{arch}" / apkindex_hash(url)).exists()
     )
 
@@ -186,7 +186,7 @@ def update(arch: Arch | None = None, force: bool = False, existing_only: bool = 
     # outdated_arches: ["armhf", "x86_64", ... ]
     outdated = {}
     outdated_arches: list[Arch] = []
-    for url in get_repos_from_config(False):
+    for url in get_repos_from_config(None):
         for architecture in architectures:
             # APKINDEX file name from the URL
             url_full = f"{url}/{architecture}/APKINDEX.tar.gz"
