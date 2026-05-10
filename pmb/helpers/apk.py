@@ -49,7 +49,7 @@ def update_repository_list(
         user_repo_dir = Path("/mnt/pmbootstrap/packages") if user_repository else None
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(user_repository=user_repo_dir)
+    lines_new = pmb.helpers.repo.get_repos_from_config(user_repository=user_repo_dir)
     if lines_old == lines_new:
         return
 
@@ -173,7 +173,7 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
         else:
             command_.extend(["--cache-dir", str(cache_dir)])
 
-        local_repos = pmb.helpers.repo.urls(
+        local_repos = pmb.helpers.repo.get_repos_from_config(
             user_repository=config.work / "packages", mirrors_exclude=True
         )
         for repo in local_repos:
