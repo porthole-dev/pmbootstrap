@@ -6,7 +6,7 @@ from __future__ import annotations
 import itertools
 import os
 import traceback
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
 from pathlib import Path
 
 import pmb.build
@@ -136,7 +136,6 @@ def install_run_apk(
                    installed or their dependencies (e.g. ["unl0kr"])
     :param chroot: the chroot suffix, e.g. "native" or "rootfs_qemu-amd64"
     """
-    context = get_context()
     # Sanitize packages: don't allow '--allow-untrusted' and other options
     # to be passed to apk!
     local_add = [os.fspath(p) for p in to_add_local]
@@ -144,7 +143,7 @@ def install_run_apk(
         if package.startswith("-"):
             raise ValueError(f"Invalid package name: {package}")
 
-    commands: list[Collection[PathString]] = [["add", *to_add]]
+    commands: list[Sequence[PathString]] = [["add", *to_add]]
 
     # Use a virtual package to mark only the explicitly requested packages as
     # explicitly installed, not the ones in to_add_local
@@ -157,7 +156,6 @@ def install_run_apk(
     if to_del:
         commands += [["del", *to_del]]
 
-    channel = pmb.config.pmaports.read_config()["channel"]
     # There are still some edgecases where we manage to get here while the chroot is not
     # initialized. To not break the build, we initialize it here but print a big warning
     # and a stack trace so hopefully folks report it.
@@ -167,14 +165,7 @@ def install_run_apk(
         traceback.print_stack(file=logging.logfd)
         pmb.chroot.init(chroot)
 
-    # FIXME: use /mnt/pmb… until MR 2351 is reverted (pmb#2388)
-    user_repo: list[PathString] = []
-    for channel in pmb.config.pmaports.all_channels():
-        user_repo += ["--repository", context.config.work / "packages" / channel]
-
     for i, command in enumerate(commands):
-        command = [*user_repo, *command]
-
         # Ignore missing repos before initial build (bpo#137)
         if (
             os.getenv("PMB_APK_FORCE_MISSING_REPOSITORIES") == "1"
