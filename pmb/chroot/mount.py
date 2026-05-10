@@ -79,14 +79,18 @@ def create_device_nodes(chroot: Chroot) -> None:
             path = chroot / "dev" / str(dev[4])
             stat_result = path.stat()
             rdev = stat_result.st_rdev
-            assert os.major(rdev) == dev[2], f"Wrong major in {path}"
-            assert os.minor(rdev) == dev[3], f"Wrong minor in {path}"
+            if not os.major(rdev) == dev[2]:
+                raise RuntimeError(f"Wrong major in {path}")
+            if not os.minor(rdev) == dev[3]:
+                raise RuntimeError(f"Wrong minor in {path}")
 
         # Verify /dev/zero reading and writing
         path = chroot / "dev/zero"
         with open(path, "r+b", 0) as handle:
-            assert handle.write(bytes([0xFF])), f"Write failed for {path}"
-            assert handle.read(1) == bytes([0x00]), f"Read failed for {path}"
+            if not handle.write(bytes([0xFF])):
+                raise RuntimeError(f"Write failed for {path}")
+            if not handle.read(1) == bytes([0x00]):
+                raise RuntimeError(f"Read failed for {path}")
 
     # On failure: Show filesystem-related error
     except Exception as e:

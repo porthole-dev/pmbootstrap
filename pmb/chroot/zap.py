@@ -28,8 +28,10 @@ def del_chroot(path: Path, confirm: bool = True, dry: bool = False) -> None:
         return
 
     # Safety first!
-    assert path.is_absolute()
-    assert path.is_relative_to(get_context().config.work)
+    if not path.is_absolute():
+        raise ValueError("Path must be absolute")
+    if not path.is_relative_to(get_context().config.work):
+        raise ValueError("Path must be relative to pmbootstrap's work directory")
 
     # umount_all() will throw if any mount under path fails to unmount
     pmb.helpers.mount.umount_all(path)

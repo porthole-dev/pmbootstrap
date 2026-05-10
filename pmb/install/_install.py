@@ -900,7 +900,8 @@ def install_system_image(
     pmb.chroot.root(["partprobe", "/dev/install"], check=False)
 
     if not split and not single_partition:
-        assert layout  # Initialized above for not single_partition case (mypy needs this)
+        if layout is None:
+            raise AssertionError  # Initialized above for not single_partition case (mypy needs this)
         pmb.install.partitions_mount(device, layout, disk)
 
     pmb.install.format(
@@ -944,7 +945,8 @@ def install_system_image(
     # Don't try to embed firmware and cgpt on split images since there's no
     # place to put it and it will end up in /dev of the chroot instead
     if not split and not single_partition:
-        assert layout  # Initialized above for not single_partition case (mypy needs this)
+        if layout is None:
+            raise AssertionError  # Initialized above for not single_partition case (mypy needs this)
         embed_firmware(chroot)
         write_cgpt_kpart(layout, chroot, install_cgpt)
 

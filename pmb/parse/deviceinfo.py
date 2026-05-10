@@ -96,7 +96,8 @@ def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) 
     if os.environ.get("PYTEST_CURRENT_TEST", "").startswith("pmb/parse/test_deviceinfo.py"):
         # If you hit this, you're probably trying to add a test for kernel variants.
         # You'll need to figure out how to mock the APKBUILD parsing below.
-        assert kernel is None
+        if kernel is not None:
+            raise ValueError
         return info
     # Do nothing if the configured kernel isn't available in the kernel (e.g.
     # after switching from device with multiple kernels to device with only one
