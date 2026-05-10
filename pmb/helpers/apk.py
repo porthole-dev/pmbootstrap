@@ -22,7 +22,7 @@ from pmb.types import PathString, RunOutputTypePopen
 @Cache("root", "user_repository")
 def update_repository_list(
     root: Path,
-    user_repository: bool | Path = False,
+    user_repository: bool = False,
 ) -> None:
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
@@ -42,11 +42,7 @@ def update_repository_list(
     else:
         pmb.helpers.run.root(["mkdir", "-p", path.parent])
 
-    user_repo_dir: Path | None
-    if isinstance(user_repository, Path):
-        user_repo_dir = user_repository
-    else:
-        user_repo_dir = Path("/mnt/pmbootstrap/packages") if user_repository else None
+    user_repo_dir = Path("/mnt/pmbootstrap/packages") if user_repository else None
 
     # Up to date: Save cache, return
     lines_new = pmb.helpers.repo.get_repos_from_config(user_repository=user_repo_dir)
@@ -173,11 +169,12 @@ def _prepare_cmd(command: Sequence[PathString], chroot: Chroot | None) -> list[s
         else:
             command_.extend(["--cache-dir", str(cache_dir)])
 
-        local_repos = pmb.helpers.repo.get_repos_from_config(
-            user_repository=config.work / "packages", mirrors_exclude=True
-        )
-        for repo in local_repos:
-            command_.extend(["--repository", repo])
+    local_repos = pmb.helpers.repo.get_repos_from_config(
+        user_repository=config.work / "packages", mirrors_exclude=True
+    )
+    for repo in local_repos:
+        command_.extend(["--repository", repo])
+
     if get_context().offline:
         command_.append("--no-network")
 
@@ -254,7 +251,7 @@ def cache_clean(arch: Arch) -> None:
 
         # Our fake rootfs needs a valid repositories file for apk
         # to have something to compare the cache against
-        update_repository_list(tmproot, user_repository=work / "packages")
+        update_repository_list(tmproot)
 
     # Point our tmproot cache dir to the real cache dir
     # this is much simpler than passing --cache-dir to apk
