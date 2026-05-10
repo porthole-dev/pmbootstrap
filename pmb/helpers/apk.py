@@ -4,7 +4,6 @@ import os
 import shlex
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal
 
 import pmb.config.pmaports
 import pmb.helpers.cli
@@ -20,18 +19,16 @@ from pmb.meta import Cache
 from pmb.types import PathString, RunOutputTypePopen
 
 
-@Cache("root", "user_repository", mirrors_exclude=[])
+@Cache("root", "user_repository")
 def update_repository_list(
     root: Path,
     user_repository: bool | Path = False,
-    mirrors_exclude: list[str] | Literal[True] = [],
 ) -> None:
     """
     Update /etc/apk/repositories, if it is outdated (when the user changed the
     --mirror-alpine or --mirror-pmOS parameters).
 
     :param root: the root directory to operate on
-    :param mirrors_exclude: mirrors to exclude from the repository list
     """
     # Read old entries or create folder structure
     path = root / "etc/apk/repositories"
@@ -52,9 +49,7 @@ def update_repository_list(
         user_repo_dir = Path("/mnt/pmbootstrap/packages") if user_repository else None
 
     # Up to date: Save cache, return
-    lines_new = pmb.helpers.repo.urls(
-        user_repository=user_repo_dir, mirrors_exclude=mirrors_exclude
-    )
+    lines_new = pmb.helpers.repo.urls(user_repository=user_repo_dir)
     if lines_old == lines_new:
         return
 
