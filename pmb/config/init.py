@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import urllib
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 import pmb.aportgen
 import pmb.chroot.zap
@@ -518,14 +518,22 @@ def switch_channel(config: Config, channel: str) -> None:
         pmb.config.pmaports.install_githooks()
 
 
-def ask_for_device(context: Context, channel: str) -> tuple[str, bool, Path, str]:
+class ChosenDevice(NamedTuple):
+    device: str
+    """<vendor>-<codename> string for device."""
+    device_is_new: bool
+    """Whether the device just was created."""
+    device_path: Path
+    """Path to the device's device package directory."""
+    kernel: str
+    """Type of kernel (downstream, etc)."""
+
+
+def ask_for_device(context: Context, channel: str) -> ChosenDevice:
     """
     Prompt for the device vendor, model, and kernel.
 
-    :returns: Tuple consisting of: (device, device_exists, kernel)
-        * device: "<vendor>-<codename>" string for device
-        * device_exists: bool indicating if device port exists in repo
-        * kernel: type of kernel (downstream, etc)
+    :returns: NamedTuple with the relevant metadata.
     """
     styles = pmb.config.styles
 
@@ -649,7 +657,7 @@ def ask_for_device(context: Context, channel: str) -> tuple[str, bool, Path, str
         break
 
     kernel = ask_for_device_kernel(context.config, device)
-    return (device, device_is_new, device_path, kernel)
+    return ChosenDevice(device, device_is_new, device_path, kernel)
 
 
 def ask_for_additional_options(config: Config) -> None:
