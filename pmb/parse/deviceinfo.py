@@ -91,6 +91,7 @@ def _parse_kernel_suffix(info: dict[str, str], device: str, kernel: str | None) 
                "b": "second",
                "b_downstream": "third"}
     """
+    # FIXME: We shouldn't have test-specific code in regular implementations like this.
     # We don't support parsing the kernel variants in tests yet, since this code
     # depends on pmaports being available and calls into a whole lot of other code.
     if os.environ.get("PYTEST_CURRENT_TEST", "").startswith("pmb/parse/test_deviceinfo.py"):
