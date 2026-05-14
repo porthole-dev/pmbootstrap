@@ -232,8 +232,8 @@ force build amd64:
     - .ci/integration_tests/force_build aarch64 hello-world
     - .ci/integration_tests/force_build armv7 hello-world
   # cross compiling: cross-native
-    - .ci/integration_tests/force_build aarch64 arch-bin-masquerade
-    - .ci/integration_tests/force_build armv7 arch-bin-masquerade
+    - .ci/integration_tests/force_build aarch64 lk2nd
+    - .ci/integration_tests/force_build armv7 lk2nd
   # cross compiling: cross-native2
     - .ci/integration_tests/force_build aarch64 postmarketos-mkinitfs
     - .ci/integration_tests/force_build armv7 postmarketos-mkinitfs
