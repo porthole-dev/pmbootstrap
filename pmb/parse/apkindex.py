@@ -192,7 +192,7 @@ def parse_add_block(
         ret = cast(dict[str, dict[str, ApkindexBlock]], ret)
         if provide not in ret:
             ret[provide] = {}
-        picked_provides = cast(dict[str, ApkindexBlock], ret[provide])
+        picked_provides = ret[provide]
         picked_provides[pkgname] = block
     else:
         ret = cast(dict[str, ApkindexBlock], ret)
