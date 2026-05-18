@@ -298,7 +298,7 @@ def branch_looks_official(repo: Path, branch: str) -> bool:
 
     :returns: True if it looks official, False otherwise
     """
-    if branch == "main":
+    if branch == "main" or branch == "master":
         return True
     if repo.parts[-1] == "pmaports":
         if re_branch_pmaports.match(branch):
