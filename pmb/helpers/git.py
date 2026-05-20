@@ -389,8 +389,6 @@ def get_topdir(repo: Path) -> Path:
     res = pmb.helpers.run.user(
         ["git", "rev-parse", "--show-toplevel"], repo, output_return=True, check=False
     )
-    if not isinstance(res, str):
-        raise RuntimeError("Not a git repository: " + str(repo))
     return Path(res.strip())
 
 
