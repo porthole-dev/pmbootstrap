@@ -121,11 +121,7 @@ def user_output(
     env: Env = {},
     sudo: bool = False,
 ) -> str:
-    ret = user(cmd, working_dir, output, output_return=True, check=check, env=env, sudo=sudo)
-    if not isinstance(ret, str):
-        raise TypeError("Expected str output, got " + str(ret))
-
-    return ret
+    return user(cmd, working_dir, output, output_return=True, check=check, env=env, sudo=sudo)
 
 
 @overload
