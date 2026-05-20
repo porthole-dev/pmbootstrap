@@ -3,7 +3,26 @@
 
 from pathlib import Path
 
-from pmb.helpers.git import _is_path_hidden, remote_to_name_and_clean_url
+from pmb.helpers.git import _is_path_hidden, branch_looks_official, remote_to_name_and_clean_url
+
+
+def test_branch_looks_official() -> None:
+    assert branch_looks_official(Path("Code/pmaports"), "main")
+    # Old checkouts of pmaports may still be set to the "master" branch, and we need to allow
+    # pulling from it for pmbootstrap to automatically switch to "main".
+    assert branch_looks_official(Path("Code/pmaports"), "master")
+    assert branch_looks_official(Path("Code/pmaports"), "v26.06")
+    assert branch_looks_official(
+        Path("/home/codemaster3000/.local/var/pmbootstrap/cache_git/pmaports"), "v26.06"
+    )
+    assert not branch_looks_official(Path("Code/pmaports"), "newbyte/cloudberry-eating-machine")
+    assert not branch_looks_official(Path("Code/pmaports"), "3.19-stable")
+
+    # Alpine aports still uses "master" as its development branch.
+    assert branch_looks_official(Path("Code/aports"), "master")
+    assert branch_looks_official(Path("Code/aports"), "3.23-stable")
+    assert not branch_looks_official(Path("Code/aports"), "OpenRClover67/gnome-99")
+    assert not branch_looks_official(Path("Code/aports"), "v25.06")
 
 
 def test_remote_to_clean_url() -> None:
