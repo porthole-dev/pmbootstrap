@@ -4,7 +4,6 @@ import os
 import re
 import shutil
 import signal
-import subprocess
 from pathlib import Path
 from types import FrameType
 
@@ -467,16 +466,12 @@ def qemu(
         )
 
     # Run QEMU and kill it together with pmbootstrap
-    process = None
     try:
         signal.signal(signal.SIGTERM, _sigterm_handler)
-        process = pmb.helpers.run.user(qemu, output=RunOutputTypeDefault.TUI, env=env)
+        pmb.helpers.run.user(qemu, output=RunOutputTypeDefault.TUI, env=env)
     except KeyboardInterrupt:
         # In addition to not showing a trace when pressing ^C, let user know
         # they can override this behavior:
         logging.info("Quitting because Ctrl+C detected.")
         logging.info("To override this behavior and have pmbootstrap send Ctrl+C to the VM, run:")
         logging.info("$ pmbootstrap config qemu_redir_stdio True")
-    finally:
-        if isinstance(process, subprocess.Popen):
-            process.terminate()
