@@ -18,7 +18,7 @@ def arm_big_little_first_group_ncpus(cpuinfo_path: Path = Path("/proc/cpuinfo"))
     counter = 0
     part = None
 
-    with open(cpuinfo_path) as cpuinfo:
+    with cpuinfo_path.open() as cpuinfo:
         for line in cpuinfo:
             match = pattern.match(line)
             if match:
