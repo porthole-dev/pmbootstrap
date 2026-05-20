@@ -17,6 +17,63 @@ from pmb.types import (
 )
 
 
+@overload
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Path | None = ...,
+    *,
+    check: bool = ...,
+) -> int: ...
+
+
+@overload
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Path | None = ...,
+    output: RunOutputTypePopen = ...,
+    output_return: Literal[False] = ...,
+    check: bool | None = ...,
+    env: Env = ...,
+    sudo: bool = ...,
+) -> subprocess.Popen: ...
+
+
+@overload
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Path | None = ...,
+    output: RunOutputTypeDefault = ...,
+    output_return: Literal[False] = ...,
+    check: bool | None = ...,
+    env: Env = ...,
+    sudo: bool = ...,
+) -> int: ...
+
+
+@overload
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Path | None = ...,
+    output: RunOutputType = ...,
+    output_return: Literal[True] = ...,
+    check: bool | None = ...,
+    env: Env = ...,
+    sudo: bool = ...,
+) -> str: ...
+
+
+@overload
+def user(
+    cmd: Sequence[PathString],
+    working_dir: Path | None = None,
+    output: RunOutputType = RunOutputTypeDefault.LOG,
+    output_return: bool = False,
+    check: bool | None = None,
+    env: Env = {},
+    sudo: bool = False,
+) -> RunReturnType: ...
+
+
 def user(
     cmd: Sequence[PathString],
     working_dir: Path | None = None,
