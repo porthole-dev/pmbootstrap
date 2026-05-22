@@ -402,27 +402,8 @@ def process_package(
             continue
 
         cross = pmb.build.autodetect.crosscompile(apkbuild, arch)
-
-        if context.no_depends:
-            pmb.helpers.repo.update(arch)
-            dep_arch = Arch.native() if cross == CrossCompile.CROSS_NATIVE2 else arch
-            if not pmb.parse.apkindex.package(dep, dep_arch, False):
-                raise RuntimeError(
-                    "Missing binary package for dependency '" + dep + "' of '" + parent + "', but"
-                    " pmbootstrap won't build any depends since"
-                    " it was started with --no-depends."
-                )
-
         bstatus = pmb.build.get_status(arch, apkbuild)
         if bstatus.necessary() and dep not in pmb.config.build_packages:
-            if context.no_depends:
-                raise RuntimeError(
-                    f"Binary package for dependency '{dep}'"
-                    f" of '{parent}' is outdated, but"
-                    f" pmbootstrap won't build any depends"
-                    f" since it was started with --no-depends."
-                )
-
             deps = get_depends(context, apkbuild)
             logging.debug(
                 f"BUILDQUEUE: queue {dep} (dependency of {parent}) for build, reason: {bstatus}"
@@ -597,11 +578,18 @@ def packages(
     for item in build_queue:
         logging.info(f"   @BLUE@*@END@ {item['channel']}/{item['name']}")
 
-    if len(build_queue) > 1 and src:
-        raise NonBugError(
-            "Additional packages need building, please build them first and then"
-            " build the package with --src again."
-        )
+    if len(build_queue) > 1:
+        if src:
+            raise NonBugError(
+                "Additional packages need building, please build them first"
+                " and then build the package with --src again."
+            )
+        if context.no_depends:
+            raise NonBugError(
+                "Additional packages need building, but pmbootstrap was"
+                " started with --no-depends. If you see this error in BPO, then add"
+                " missing makedepends to the package to fix this."
+            )
 
     cross: CrossCompile | None = None
     prev_cross: CrossCompile | None = None
