@@ -152,7 +152,7 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:
 
     if "--password" in sys.argv:
         sys.argv[sys.argv.index("--password") + 1] = "[REDACTED]"
-    logging.debug(f"$ pmbootstrap {' '.join(sys.argv)}")
+    logging.debug(f"$ {' '.join(sys.argv)}")
 
 
 def disable() -> None:
