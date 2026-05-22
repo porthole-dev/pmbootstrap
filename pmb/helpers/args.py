@@ -93,6 +93,7 @@ def init(args: PmbArgs) -> PmbArgs:
     context.ccache = args.ccache
     context.assume_yes = getattr(args, "assume_yes", False)
     context.force = getattr(args, "force", False)
+    context.no_depends = getattr(args, "no_depends", False)
 
     # Initialize context
     pmb.core.context.set_context(context)
