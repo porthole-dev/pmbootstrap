@@ -338,9 +338,12 @@ def setup_keymap(config: Config) -> None:
                 output=RunOutputTypeDefault.LOG,
             )
         else:
+            pmb.chroot.root(["mkdir", "-p", "/run/openrc"], chroot)
+            pmb.chroot.root(["touch", "/run/openrc/softlevel"], chroot)
             pmb.chroot.root(
                 ["setup-keymap", layout, variant], chroot, output=RunOutputTypeDefault.INTERACTIVE
             )
+            pmb.chroot.root(["rm", "-r", "/run/openrc"], chroot)
 
         # Check xorg config
         xconfig = None
