@@ -227,7 +227,20 @@ chroot_outdated = 3600 * 24 * 2
 # for the first time
 # IMPORTANT: the order here matters, it is the order these packages will
 # be built in (if needed). abuild must be first!
-build_packages = ["abuild", "apk-tools", "build-base", "ccache", "git", "pigz"]
+# NOTE: build-base is not installed here to avoid pulling in gcc early.
+# The dependencies of build-base are installed individually.
+build_packages = [
+    "abuild",
+    "apk-tools",
+    "ccache",
+    "file",
+    "fortify-headers",
+    "git",
+    "libc-dev",
+    "make",
+    "patch",
+    "pigz",
+]
 
 #
 # PARSE
