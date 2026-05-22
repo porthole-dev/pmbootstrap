@@ -598,7 +598,7 @@ def packages(
         logging.info(f"   @BLUE@*@END@ {item['channel']}/{item['name']}")
 
     if len(build_queue) > 1 and src:
-        raise RuntimeError(
+        raise NonBugError(
             "Additional packages need building, please build them first and then"
             " build the package with --src again."
         )
