@@ -99,7 +99,7 @@ def init(args: PmbArgs) -> PmbArgs:
 
     # Initialize logs (we could raise errors below)
     pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout)
-    pmb.helpers.logging.debug(f"Pmbootstrap v{pmb.__version__} (Python {sys.version})")
+    pmb.helpers.logging.debug(f"pmbootstrap v{pmb.__version__} (Python {sys.version})")
 
     if context.command_timeout:
         pmb.helpers.logging.info(
