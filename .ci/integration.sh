@@ -90,6 +90,17 @@ force_strict_build() {
 	pmbootstrap build --force --strict --arch "$arch" $packages
 }
 
+no_depends_build() {
+	pmbootstrap pkgrel_bump hello-world-wrapper
+	pmbootstrap pkgrel_bump hello-world
+	if pmbootstrap build --no-depends hello-world-wrapper; then
+		echo "ERROR: pmbootstrap didn't abort with --no-depends!"
+		exit 1
+	fi
+	pmbootstrap build --no-depends hello-world
+	pmbootstrap build --no-depends hello-world-wrapper
+}
+
 bump_autobuild() {
 	device="$1"
 	package="$2"

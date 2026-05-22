@@ -162,7 +162,7 @@ deploy-docs:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "postmarketOS"
       changes:
         - docs/**/*
-        - "pmb/**/*.py" 
+        - "pmb/**/*.py"
 
 .integration:
   stage: integration-test
@@ -214,6 +214,13 @@ install aarch64:
   # This is currently broken on the ARM64 runners, see infra#202
   # so disable it until OSUOSL can fix it.
     # - .ci/integration_tests/build_images qemu-amd64 console
+
+# Test building with --no-depends
+no_depends build amd64:
+  extends: .integration
+  tags: [qemu]
+  script:
+    - .ci/integration_tests/no_depends_build
 
 # Test building packages with --force on AMD64 for AMD64, aarch64, and armv7
 force build amd64:
