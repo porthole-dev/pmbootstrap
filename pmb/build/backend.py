@@ -192,7 +192,7 @@ def run_abuild(
     channel: str,
     arch: Arch,
     cross: CrossCompile,
-    strict: bool = False,
+    strict: bool = True,
     force: bool = False,
     src: str | None = None,
     bootstrap_stage: int = BootstrapStage.NONE,

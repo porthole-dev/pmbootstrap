@@ -256,24 +256,24 @@ force build aarch64:
     - .ci/integration_tests/force_build aarch64 hello-world postmarketos-mkinitfs
     # - .ci/integration_tests/force_build armv7 hello-world postmarketos-mkinitfs
 
-# Test building packages with --strict on AMD64 for ARM64
+# Test building packages with --lax on AMD64 for ARM64
 # since the cross-build codepath is the more complicated one.
-strict build amd64:
+lax build amd64:
   extends: .integration
   tags: [qemu]
   script:
   # Packages chosen for being small, unlikely to break, and for language coverage.
-    - .ci/integration_tests/strict_build aarch64 hello-world postmarketos-mkinitfs
+    - .ci/integration_tests/lax_build aarch64 hello-world postmarketos-mkinitfs
 
-# Test building with --force --strict, for diversity run this on the ARM64 runner
-force_strict build aarch64:
+# Test building with --force --lax, for diversity run this on the ARM64 runner
+force_lax build aarch64:
   extends: .integration
   tags: [arm64]
   script:
   # Packages chosen for being small, unlikely to break, and for language coverage.
   # The ARM64 runner seems to have QEMU binfmt issues.
-    # - .ci/integration_tests/force_strict_build x86_64 hello-world postmarketos-mkinitfs
-    - .ci/integration_tests/force_strict_build aarch64 hello-world postmarketos-mkinitfs
+    # - .ci/integration_tests/force_lax_build x86_64 hello-world postmarketos-mkinitfs
+    - .ci/integration_tests/force_lax_build aarch64 hello-world postmarketos-mkinitfs
 
 pkgrel_bump amd64:
   extends: .integration

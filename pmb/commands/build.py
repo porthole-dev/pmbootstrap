@@ -3,6 +3,7 @@
 import os
 
 import pmb.build
+import pmb.chroot
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
@@ -11,9 +12,12 @@ from pmb.helpers import logging
 def build(
     packages: list[str], arch: Arch | None, code_src: str, use_envkernel: bool, use_strict: bool
 ) -> None:
-    # Strict mode: zap everything
+    # Strict mode: zap chroots used for package building
     if use_strict:
-        pmb.chroot.zap(False)
+        logging.info(
+            "zapping buildroots (running in strict mode by default, use --lax to skip zap)"
+        )
+        pmb.chroot.zap_buildroots()
 
     if use_envkernel:
         pmb.build.envkernel.package_kernel(packages)

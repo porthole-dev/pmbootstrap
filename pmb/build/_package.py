@@ -132,7 +132,7 @@ def finish(
     arch: Arch,
     output: Path,
     chroot: Chroot,
-    strict: bool = False,
+    strict: bool = True,
 ) -> None:
     """Various finishing tasks that need to be done after a build."""
     # Verify output file
@@ -146,21 +146,17 @@ def finish(
     pmb.parse.apkindex.clear_cache(out_dir / arch / "APKINDEX.tar.gz")
 
     # Zap chroots (strict mode)
-    zap_reason = None
-    if "pmb:strict" in apkbuild["options"]:
-        zap_reason = "pmb:strict in APKBUILD"
-    elif strict:
-        zap_reason = "running with --strict"
-
-    if zap_reason:
-        logging.info(f"({chroot}) zapping chroots ({zap_reason})")
-        pmb.chroot.zap(False)
+    if strict:
+        logging.info(
+            "zapping buildroots (running in strict mode by default, use --lax to skip zap)"
+        )
+        pmb.chroot.zap_buildroots()
 
     logging.info(f"@YELLOW@=>@END@ @BLUE@{channel}/{apkbuild['pkgname']}@END@: Done!")
 
     # If we just built a package which is used to build other packages, then
     # update the buildroot to use the newly built version.
-    if not zap_reason and apkbuild["pkgname"] in pmb.config.build_packages:
+    if not strict and apkbuild["pkgname"] in pmb.config.build_packages:
         logging.info(
             f"NOTE: Updating package {apkbuild['pkgname']} in buildroot since it's"
             " used for building..."
@@ -429,7 +425,7 @@ def packages(
     pkgnames: list[str],
     arch: Arch | None = None,
     force: bool = False,
-    strict: bool = False,
+    strict: bool = True,
     src: str | None = None,
     bootstrap_stage: int = BootstrapStage.NONE,
     log_callback: Callable | None = None,

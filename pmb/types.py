@@ -245,6 +245,7 @@ class PmbArgs(Namespace):
     kernel: str
     keymap: str
     keep_going: bool
+    lax: bool
     lines: int
     log: Path
     memory: int

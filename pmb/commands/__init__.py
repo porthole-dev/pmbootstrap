@@ -7,6 +7,7 @@ from pmb.commands.repo_missing import repo_missing
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.helpers import logging
 from pmb.types import PmbArgs
 
 from .apkbuild_parse import apkbuild_parse
@@ -75,7 +76,12 @@ def run_command(args: PmbArgs) -> None:
         case "bootimg_analyze":
             bootimg_analyze(args.path)
         case "build":
-            build(args.packages, args.arch, args.src, args.envkernel, args.strict)
+            if args.strict:
+                logging.warning(
+                    "WARNING: The --strict argument to 'pmbootstrap build' is deprecated. It is now the default behavior and the flag no longer has any effect."
+                )
+
+            build(args.packages, args.arch, args.src, args.envkernel, not args.lax)
         case "build_init":
             build_init(
                 _parse_suffix(

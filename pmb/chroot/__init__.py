@@ -20,4 +20,5 @@ from pmb.chroot.shutdown import shutdown as shutdown
 from pmb.chroot.zap import (
     del_chroot as del_chroot,
     zap as zap,
+    zap_buildroots as zap_buildroots,
 )

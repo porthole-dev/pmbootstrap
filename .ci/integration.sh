@@ -64,7 +64,7 @@ force_build() {
 	pmbootstrap $PMB_EXTRA_ARGS build --force --arch "$arch" $packages
 }
 
-strict_build() {
+lax_build() {
 	arch="$1"
 	shift
 	packages="$*"
@@ -72,12 +72,12 @@ strict_build() {
 		usage "<arch> <packages...>"
 	fi
 
-	echo "Strict building $packages for $arch"
+	echo "Lax building $packages for $arch"
 	# shellcheck disable=SC2086
-	pmbootstrap build --strict --arch "$arch" $packages
+	pmbootstrap build --lax --arch "$arch" $packages
 }
 
-force_strict_build() {
+force_lax_build() {
 	arch="$1"
 	shift
 	packages="$*"
@@ -87,7 +87,7 @@ force_strict_build() {
 
 	echo "Force building $packages for $arch"
 	# shellcheck disable=SC2086
-	pmbootstrap build --force --strict --arch "$arch" $packages
+	pmbootstrap build --force --lax --arch "$arch" $packages
 }
 
 no_depends_build() {

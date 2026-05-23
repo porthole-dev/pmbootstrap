@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import socket
 from contextlib import closing
+from itertools import repeat
 
 import pmb.chroot
 import pmb.helpers.mount
@@ -57,7 +58,7 @@ def shutdown_cryptsetup_device(name: str) -> None:
         raise RuntimeError("Failed to parse 'cryptsetup status' output!")
 
 
-def shutdown(only_install_related: bool = False) -> None:
+def shutdown(only_install_related: bool = False, only_build_related: bool = False) -> None:
     # Stop daemons
     kill_adb()
     kill_sccache()
@@ -83,6 +84,14 @@ def shutdown(only_install_related: bool = False) -> None:
     if only_install_related:
         for chroot_type in [ChrootType.ROOTFS, ChrootType.INSTALLER]:
             chroot = Chroot(chroot_type, get_context().config.device)
+            if chroot.path.exists():
+                pmb.helpers.mount.umount_all(chroot.path)
+        return
+
+    # Unmount native and build chroots
+    if only_build_related:
+        for chroot_type, arch in zip(repeat(ChrootType.BUILDROOT), Arch.supported()):
+            chroot = Chroot(chroot_type, arch)
             if chroot.path.exists():
                 pmb.helpers.mount.umount_all(chroot.path)
         return

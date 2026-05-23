@@ -1124,11 +1124,12 @@ def get_parser() -> argparse.ArgumentParser:
     )
     build.add_argument("--force", action="store_true", help="even build if not necessary")
     build.add_argument(
-        "--strict",
+        "--strict", action="store_true", help="Deprecated: strict builds are now the default"
+    )
+    build.add_argument(
+        "--lax",
         action="store_true",
-        help="(slower) zap and"
-        " install only required depends when building, to"
-        " detect dependency errors",
+        help="(faster) do not zap chroots for faster package builds",
     )
     build.add_argument(
         "--src",

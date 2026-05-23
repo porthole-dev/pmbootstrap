@@ -39,6 +39,18 @@ def del_chroot(path: Path, confirm: bool = True, dry: bool = False) -> None:
     pmb.helpers.run.root(["rm", "-rf", path])
 
 
+def zap_buildroots() -> None:
+    """
+    Shutdown everything inside the chroots used for package builds, umount
+    everything and then delete the chroots from the work-directory.
+    """
+    pmb.chroot.shutdown(only_build_related=True)
+    for root in Chroot.glob():
+        if root.name == "chroot_native" or root.name.startswith("chroot_buildroot"):
+            del_chroot(root, False, False)
+    pmb.chroot.init.cache_clear()
+
+
 def zap(
     confirm: bool = True,
     dry: bool = False,
