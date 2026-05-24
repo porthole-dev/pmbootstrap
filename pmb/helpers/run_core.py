@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Literal, overload
 
 import pmb.helpers.run
+from pmb.config.sudo import which_sudo
 from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import CommandFailedError, NonBugError
@@ -340,7 +341,7 @@ def check_return_code(code: int, log_message: str) -> None:
 
 def sudo_timer_iterate() -> None:
     """Run sudo -v and schedule a new timer to repeat the same."""
-    if pmb.config.which_sudo() == "sudo":
+    if which_sudo() == "sudo":
         subprocess.Popen(["sudo", "-v"]).wait()
     else:
         subprocess.Popen(pmb.config.sudo(["true"])).wait()
