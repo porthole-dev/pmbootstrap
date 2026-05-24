@@ -8,9 +8,9 @@ from _pytest.monkeypatch import MonkeyPatch
 
 import pmb.config.pmaports
 from pmb.chroot.apk import packages_get_locally_built_apks
+from pmb.core.apkindex_block import ApkindexBlock
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
-from pmb.parse.apkindex import ApkindexBlock
 
 
 @pytest.fixture

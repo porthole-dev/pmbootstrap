@@ -221,7 +221,7 @@ def install(
     install_run_apk(to_add, to_add_local, to_del, chroot)
 
 
-def installed(suffix: Chroot = Chroot.native()) -> dict[str, pmb.parse.apkindex.ApkindexBlock]:
+def installed(suffix: Chroot = Chroot.native()) -> dict[str, pmb.core.apkindex_block.ApkindexBlock]:
     """
     Read the list of installed packages (which has almost the same format, as
     an APKINDEX, but with more keys).
