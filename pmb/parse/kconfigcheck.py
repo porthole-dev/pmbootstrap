@@ -6,7 +6,8 @@ from pathlib import Path
 import pmb.config
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_default_path
-from pmb.helpers.toml import NonBugError, load_toml_file
+from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.toml import load_toml_file
 from pmb.meta import Cache
 
 
