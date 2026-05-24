@@ -3,8 +3,9 @@
 import pmb.chroot
 import pmb.chroot.apk
 from pmb.core import Chroot
+from pmb.core.arch import Arch
 from pmb.helpers import logging
-from pmb.types import Arch, RunOutputTypeDefault
+from pmb.types import RunOutputTypeDefault
 
 
 def stats(arch: Arch | None) -> None:
