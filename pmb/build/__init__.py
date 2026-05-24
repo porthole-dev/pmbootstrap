@@ -1,7 +1,6 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 from pmb.build._package import (
-    BootstrapStage as BootstrapStage,
     BuildQueueItem as BuildQueueItem,
     get_apkbuild as get_apkbuild,
     get_depends as get_depends,
