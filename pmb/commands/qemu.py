@@ -392,12 +392,6 @@ def qemu(
         logging.warning(
             "WARNING: The --efi argument to 'pmbootstrap qemu' is deprecated. EFI boot is the default now and the argument no longer has any effect."
         )
-    if not device.startswith("qemu-"):
-        raise NonBugError(
-            "'pmbootstrap qemu' can be only used with one of "
-            "the QEMU device packages. Run 'pmbootstrap init' "
-            "and select the 'qemu' vendor."
-        )
     arch = pmb.parse.deviceinfo().arch
 
     # Make sure the rootfs image isn't mounted
