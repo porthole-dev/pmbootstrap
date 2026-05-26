@@ -38,6 +38,18 @@ def cpu_is_32_bit_capable() -> bool:
         return True
 
 
+def cp15_barriers_supported() -> bool:
+    """
+    Check whether the kernel is configured to emulate or execute cp15 barriers
+    in hardware for aarch32.
+    """
+    sysctl_path = Path("/proc/sys/abi/cp15_barrier")
+    # The path only exists if the kernel is configured with
+    # CONFIG_ARMV8_DEPRECATED=y and CONFIG_CP15_BARRIER_EMULATION=y
+    # A value of 1 means emulation, 2 is execution in hardware
+    return sysctl_path.exists() and int(sysctl_path.read_text()) >= 1
+
+
 class Arch(enum.Enum):
     """
     Supported architectures according to the Alpine
@@ -263,6 +275,12 @@ class Arch(enum.Enum):
             Arch.aarch64: [Arch.armv7],
             Arch.loongarch64: [Arch.loongarch32],
         }
+
+        # Not all aarch64 CPUs that are 32-bit capable are configured for
+        # execution of ARMv6 binaries
+        if self == Arch.aarch64 and cp15_barriers_supported():
+            not_required[Arch.aarch64].append(Arch.armhf)
+
         return not (Arch.native() in not_required and self in not_required[Arch.native()])
 
     # Magic to let us use an arch as a Path element
