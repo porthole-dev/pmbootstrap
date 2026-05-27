@@ -278,7 +278,7 @@ class Arch(enum.Enum):
 
         # Not all aarch64 CPUs that are 32-bit capable are configured for
         # execution of ARMv6 binaries
-        if self == Arch.aarch64 and cp15_barriers_supported():
+        if Arch.native() == Arch.aarch64 and cp15_barriers_supported():
             not_required[Arch.aarch64].append(Arch.armhf)
 
         return not (Arch.native() in not_required and self in not_required[Arch.native()])
