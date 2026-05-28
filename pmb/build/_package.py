@@ -587,8 +587,9 @@ def packages(
         if context.no_depends:
             raise NonBugError(
                 "Additional packages need building, but pmbootstrap was"
-                " started with --no-depends. If you see this error in BPO, then add"
-                " missing makedepends to the package to fix this."
+                " started with --no-depends. If you see this error in BPO, it"
+                " might be this bug:"
+                " https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/work_items/2762"
             )
 
     cross: CrossCompile | None = None
