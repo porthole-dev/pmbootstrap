@@ -393,6 +393,12 @@ def process_package(
         if is_cached_or_cache(arch, pmb.helpers.package.remove_operators(dep)):
             continue
 
+        # If there is a best provider in the binary repository, we should use
+        # that one to satisfy the dependency
+        index_data = pmb.parse.apkindex.package(dep, arch, False)
+        if index_data:
+            dep = index_data.pkgname
+
         aports, apkbuild = get_apkbuild(dep)
         if not apkbuild:
             continue
