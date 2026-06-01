@@ -15,7 +15,7 @@ def build(
     # Strict mode: zap chroots used for package building
     if use_strict:
         logging.info(
-            "zapping buildroots (running in strict mode by default, use --lax to skip zap)"
+            "Zapping buildroots (running in strict mode by default, use --lax to skip zap)"
         )
         pmb.chroot.zap_buildroots()
 

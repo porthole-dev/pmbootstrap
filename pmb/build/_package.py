@@ -148,7 +148,7 @@ def finish(
     # Zap chroots (strict mode)
     if strict:
         logging.info(
-            "zapping buildroots (running in strict mode by default, use --lax to skip zap)"
+            "Zapping buildroots (running in strict mode by default, use --lax to skip zap)"
         )
         pmb.chroot.zap_buildroots()
 
