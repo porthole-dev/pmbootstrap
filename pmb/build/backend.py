@@ -250,7 +250,7 @@ def run_abuild(
     )
 
     # Environment variables
-    env: Env = {"SUDO_APK": "abuild-apk --no-progress"}
+    env: Env = {"SUDO_APK": "abuild-apk --no-progress", "PMB_CROSS": str(cross)}
     if cross == CrossCompile.CROSS_NATIVE:
         hostspec = arch.alpine_triple()
         env["CROSS_COMPILE"] = hostspec + "-"

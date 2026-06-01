@@ -116,3 +116,25 @@ repository with `pmbootstrap build --src`, patch out the override of
   native compiler.
 * Running tests doesn't really work (e.g. when building squeekboard, the tests
   hang and time out).
+
+## Detecting cross-compilation
+
+Sometimes, it might be desirable to have conditional logic in `APKBUILD` files
+that is only executed when no cross-compilation or only certain methods of
+cross-compilation are in use. For example, certain testsuites might fail if ran
+with `qemu-user`.
+
+pmbootstrap exposes the `PMB_CROSS` variable at package build time, which is
+set to either `unnecessary`, `qemu-only`, `crossdirect`, `cross-native` or
+`cross-native2`, depending on which method is currently in use.
+
+To then conditionally only run tests when running natively, you can do
+something like this in an `APKBUILD`:
+
+```shell
+check() {
+  if [ "$PMB_CROSS" = "unnecessary" ]; then
+    meson test -C build
+  fi
+}
+```
