@@ -221,9 +221,6 @@ def get_upstream_aport(pkgname: str, arch: Arch | None = None, retain_branch: bo
     index_path = pmb.helpers.repo.alpine_apkindex_path(repo, arch)
     package = pmb.parse.apkindex.package(pkgname, indexes=[index_path], arch=arch)
 
-    if package is None:
-        raise RuntimeError(f"Couldn't find {pkgname} in APKINDEX!")
-
     # Compare version (return when equal)
     compare = pmb.parse.version.compare(apkbuild_version, package.version)
 

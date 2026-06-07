@@ -16,8 +16,6 @@ def generate(pkgname: str) -> None:
     pmb.helpers.repo.update(arch)
 
     package_data = pmb.parse.apkindex.package("grub", arch=arch)
-    if package_data is None:
-        raise RuntimeError("Couldn't find package grub!")
     version = package_data.version
     pkgver = version.split("-r")[0]
     pkgrel = version.split("-r")[1]
