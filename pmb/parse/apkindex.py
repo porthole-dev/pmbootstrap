@@ -465,6 +465,26 @@ def provider_shortest(providers: dict[str, ApkindexBlock], pkgname: str) -> Apki
     return providers[ret]
 
 
+@overload
+def package(
+    package: str,
+    arch: Arch | None = ...,
+    must_exist: Literal[True] = ...,
+    indexes: list[Path] | None = ...,
+    user_repository: bool = ...,
+) -> ApkindexBlock: ...
+
+
+@overload
+def package(
+    package: str,
+    arch: Arch | None = ...,
+    must_exist: bool = ...,
+    indexes: list[Path] | None = ...,
+    user_repository: bool = ...,
+) -> ApkindexBlock | None: ...
+
+
 # This can't be cached because the APKINDEX can change during pmbootstrap build!
 def package(
     package: str,

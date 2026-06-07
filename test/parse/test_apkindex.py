@@ -1,5 +1,6 @@
 # Copyright 2024 Caleb Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
+# mypy: disable-error-code="comparison-overlap"
 
 from pathlib import Path
 
@@ -534,6 +535,6 @@ p:so:libGL.so.1=22-r0
 """)
 
     index_block = package_apkindex("so:libGL.so.1", arch=Arch.aarch64, indexes=[tmpfile])
-    assert index_block
+    assert index_block is not None
     assert index_block.pkgname == "mesa-egl"
     assert index_block.origin == "mesa"
