@@ -56,6 +56,10 @@ def replace_apkbuild(pkgname: str, key: str, new: int | str, in_quotes: bool = F
         )
 
 
+def is_apk(path: Path) -> bool:
+    return path.is_file() and path.suffix == ".apk"
+
+
 def is_up_to_date(
     path_sources: list[Path], path_target: Path | None = None, lastmod_target: float | None = None
 ) -> bool:

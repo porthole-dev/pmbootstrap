@@ -12,6 +12,7 @@ import pmb.parse.apkindex
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.helpers.file import is_apk
 from pmb.types import PathString, RunOutputTypeDefault
 
 su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || (command -v doas >/dev/null && echo doas || echo run0)); $_su"
@@ -125,10 +126,16 @@ def sideload(
     to_build = []
     install_offline = True
     for pkgname in pkgnames:
-        data_repo = pmb.parse.apkindex.package(pkgname, arch, True)
+        data_repo = pmb.parse.apkindex.package(pkgname, arch, False)
 
         if data_repo is None:
-            raise RuntimeError(f"Couldn't find APKINDEX data for {pkgname}!")
+            package_path = Path(pkgname)
+
+            if is_apk(package_path):
+                paths.append(package_path)
+                continue
+            else:
+                raise RuntimeError(f"Couldn't find APKINDEX data for {pkgname}!")
 
         base_aports, _ = pmb.build.get_apkbuild(pkgname)
         channel = pmb.config.pmaports.read_config(base_aports)["channel"]
