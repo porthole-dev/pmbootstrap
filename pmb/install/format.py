@@ -46,7 +46,7 @@ def format_partition_with_filesystem(
         if not is_disk:
             # pmb#2568: tell mkfs.ext4 to make a filesystem with enough
             # indoes that we don't run into "out of space" errors
-            mkfs_args = [*mkfs_args, "-i", "16384"]
+            mkfs_args = [*mkfs_args, "-i", "8192"]
     elif filesystem == "fat16":
         mkfs_args = ["mkfs.fat", "-F", "16", "-n", label]
     elif filesystem == "fat32":
