@@ -283,6 +283,11 @@ class Arch(enum.Enum):
 
         return not (Arch.native() in not_required and self in not_required[Arch.native()])
 
+    def linux32_required(self) -> bool:
+        # Currently, the only case where CPU emulation isn't required for non-host
+        # architectures is where the CPU supports 32-bit execution
+        return self != Arch.native() and not self.cpu_emulation_required()
+
     # Magic to let us use an arch as a Path element
     def __truediv__(self, other: object) -> Path:
         if isinstance(other, (PosixPath, PurePosixPath)):

@@ -297,6 +297,8 @@ def run_abuild(
     # This is also required so that abuild doesn't try to install base-build-$ARCH packages
     # which don't exist
     cmd = ["abuild", "-d", "-D", "postmarketOS"]
+    if arch.linux32_required():
+        cmd = ["linux32", *cmd]
     if force:
         cmd += ["-f"]
     if src:
