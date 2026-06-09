@@ -636,9 +636,6 @@ def packages(
             pmb.build.other.configure_ccache(buildchroot)
             if "rust" in all_dependencies or "cargo" in all_dependencies:
                 pmb.chroot.apk.install(["sccache"], buildchroot)
-            # Handle installing the native compilers since we don't install build-base
-            if "clang" not in all_dependencies or "clang-dev" not in all_dependencies:
-                pmb.chroot.apk.install(["binutils", "gcc", "g++"], buildchroot)
 
         if (strict or cross != prev_cross) and cross.enabled():
             pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
