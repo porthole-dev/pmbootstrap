@@ -20,7 +20,7 @@ from pmb.types import Apkbuild, WithExtraRepos
 
 
 @Cache("with_extra_repos")
-def _find_apkbuilds(with_extra_repos: WithExtraRepos = "default") -> dict[str, Path]:
+def _find_apkbuilds(with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT) -> dict[str, Path]:
     apkbuilds = {}
     for package in pkgrepo_iter_package_dirs(with_extra_repos=with_extra_repos):
         pkgname = package.name
@@ -174,10 +174,10 @@ def show_pkg_not_found_systemd_hint(package: str, with_extra_repos: WithExtraRep
     Check if a package would be found if systemd was enabled and display a
     hint about it.
     """
-    if with_extra_repos != "default" or pmb.config.other.is_systemd_selected():
+    if with_extra_repos != WithExtraRepos.DEFAULT or pmb.config.other.is_systemd_selected():
         return
 
-    if find(package, False, with_extra_repos="enabled"):
+    if find(package, False, with_extra_repos=WithExtraRepos.ENABLED):
         logging.info(
             f"NOTE: The package '{package}' exists in extra-repos/systemd, but systemd is currently disabled"
         )
@@ -206,7 +206,7 @@ def find(
     package: str,
     must_exist: bool = True,
     subpackages: bool = True,
-    with_extra_repos: WithExtraRepos = "default",
+    with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> Path | None:
     """
     Find the directory in pmaports that provides a package or subpackage.
@@ -277,7 +277,7 @@ def get_with_path(
     pkgname: str,
     must_exist: bool = True,
     subpackages: bool = True,
-    with_extra_repos: WithExtraRepos = "default",
+    with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> tuple[Path | None, Apkbuild | None]:
     """
     Find and parse an APKBUILD file.
@@ -333,7 +333,7 @@ def get(
     pkgname: str,
     must_exist: bool = True,
     subpackages: bool = True,
-    with_extra_repos: WithExtraRepos = "default",
+    with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> Apkbuild | None:
     return get_with_path(pkgname, must_exist, subpackages, with_extra_repos)[1]
 

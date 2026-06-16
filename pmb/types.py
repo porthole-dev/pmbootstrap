@@ -130,13 +130,18 @@ class RunOutputTypePopen(enum.Enum):
         return False
 
 
+class WithExtraRepos(enum.Enum):
+    DEFAULT = enum.auto()
+    ENABLED = enum.auto()
+    DISABLED = enum.auto()
+
+
 RunOutputType = RunOutputTypeDefault | RunOutputTypePopen
 RunReturnType = str | int | subprocess.Popen
 PathString = Path | str
 Env = dict[str, PathString]
 Apkbuild = dict[str, Any]
 ActionKConfig = Literal["check", "edit", "migrate", "generate"]
-WithExtraRepos = Literal["default", "enabled", "disabled"]
 
 # These types are not definitive / API, they exist to describe the current
 # state of things so that we can improve our type hinting coverage and make

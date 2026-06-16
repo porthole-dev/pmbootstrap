@@ -39,7 +39,10 @@ def list_ui(arch: Arch) -> list[tuple[str, str]]:
 
 
 def check_option(
-    ui: str, option: str, must_exist: bool = True, with_extra_repos: WithExtraRepos = "default"
+    ui: str,
+    option: str,
+    must_exist: bool = True,
+    with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> bool:
     """
     Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.

@@ -5,6 +5,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_paths
+from pmb.types import WithExtraRepos
 
 
 @pytest.mark.parametrize("config_file", ["no-repos"], indirect=True)
@@ -32,10 +33,10 @@ def test_pkgrepo_pmaports(pmaports: None, monkeypatch: MonkeyPatch) -> None:
     assert default_path.name == "pmaports"
 
     # Test extra-repos
-    paths = pkgrepo_paths(with_extra_repos="disabled")
+    paths = pkgrepo_paths(WithExtraRepos.DISABLED)
     assert len(paths) == 1
 
-    paths = pkgrepo_paths(with_extra_repos="enabled")
+    paths = pkgrepo_paths(WithExtraRepos.ENABLED)
     assert len(paths) == 2
 
     # systemd is the first path, since we want packages there to take priority

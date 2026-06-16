@@ -13,7 +13,7 @@ from pmb.types import WithExtraRepos
 
 
 @Cache("with_extra_repos")
-def pkgrepo_paths(with_extra_repos: WithExtraRepos = "default") -> list[Path]:
+def pkgrepo_paths(with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT) -> list[Path]:
     config = get_context().config
     paths = [Path(x) for x in config.aports]
     if not paths:
@@ -22,11 +22,11 @@ def pkgrepo_paths(with_extra_repos: WithExtraRepos = "default") -> list[Path]:
     with_systemd = False
 
     match with_extra_repos:
-        case "disabled":
+        case WithExtraRepos.DISABLED:
             return paths
-        case "enabled":
+        case WithExtraRepos.ENABLED:
             with_systemd = True
-        case "default":
+        case WithExtraRepos.DEFAULT:
             with_systemd = pmb.config.is_systemd_selected(config)
 
     out_paths = []
@@ -41,10 +41,10 @@ def pkgrepo_paths(with_extra_repos: WithExtraRepos = "default") -> list[Path]:
 
 @Cache()
 def pkgrepo_default_path() -> Path:
-    return pkgrepo_paths(with_extra_repos="disabled")[0]
+    return pkgrepo_paths(with_extra_repos=WithExtraRepos.DISABLED)[0]
 
 
-def pkgrepo_names(with_extra_repos: WithExtraRepos = "default") -> list[str]:
+def pkgrepo_names(with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT) -> list[str]:
     """
     Return a list of all the package repository names. We REQUIRE
     that the last repository is "pmaports", though the directory
@@ -120,7 +120,7 @@ def pkgrepo_iglob(path: str, recursive: bool = False) -> Generator[Path, None, N
 
 
 def pkgrepo_iter_package_dirs(
-    with_extra_repos: WithExtraRepos = "default",
+    with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> Generator[Path, None, None]:
     """
     Yield each matching glob over each aports repository.

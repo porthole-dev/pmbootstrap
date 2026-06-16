@@ -5,6 +5,7 @@ import pmb.helpers.ui
 from pmb.core import Config
 from pmb.core.config import SystemdConfig
 from pmb.meta import Cache
+from pmb.types import WithExtraRepos
 
 
 @Cache()
@@ -12,7 +13,7 @@ def is_systemd_selected(config: Config) -> bool:
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return False
     if pmb.helpers.ui.check_option(
-        config.ui, "pmb:systemd-never", with_extra_repos="disabled", must_exist=False
+        config.ui, "pmb:systemd-never", with_extra_repos=WithExtraRepos.DISABLED, must_exist=False
     ):
         return False
     if config.systemd == SystemdConfig.ALWAYS:
@@ -20,7 +21,7 @@ def is_systemd_selected(config: Config) -> bool:
     if config.systemd == SystemdConfig.NEVER:
         return False
     return pmb.helpers.ui.check_option(
-        config.ui, "pmb:systemd", with_extra_repos="disabled", must_exist=False
+        config.ui, "pmb:systemd", with_extra_repos=WithExtraRepos.DISABLED, must_exist=False
     )
 
 

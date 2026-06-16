@@ -21,9 +21,9 @@ def is_abuild_forked(repo: str | None) -> bool:
     with_extra_repos: WithExtraRepos
 
     if repo == "systemd":
-        with_extra_repos = "enabled"
+        with_extra_repos = WithExtraRepos.ENABLED
     elif repo is None:
-        with_extra_repos = "disabled"
+        with_extra_repos = WithExtraRepos.DISABLED
     else:
         raise RuntimeError(f"Unexpected repo value: {repo}")
 
