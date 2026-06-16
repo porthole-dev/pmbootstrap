@@ -66,6 +66,8 @@ preview = true
 # S101: Tests should never run with assertions disabled.
 # S311: Tests don't need cryptographically secure randomness.
 "test/*" = ["B011", "S101", "S311"]
+# RUF076: Per the Ruff documentation this is "most problematic" outside conftest.py
+"test/conftest.py" = ["RUF076"]
 # S105: In this case we do want a bogus token in the code.
 "test/helpers/test_git.py" = ["S105"]
 
