@@ -1454,6 +1454,16 @@ def install(
             steps,
         )
 
+    # The creation of the device rootfs may have built packages, which in turn
+    # would result in zapping of the native chroot.
+    # FIXME: Ideally we'd be building the packages in an earlier stage, but I
+    # believe that would require a complete overhaul of pmbootstrap
+    if not Chroot.native().exists():
+        pmb.chroot.init(Chroot.native())
+        if disk:
+            pmb.install.blockdevice.handle_disk_mount(disk)
+        pmb.chroot.apk.install(pmb.config.install_native_packages, Chroot.native(), build=False)
+
     install_system_image(
         cipher,
         filesystem,
