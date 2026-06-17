@@ -142,21 +142,3 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
         alternative_names.add(pkgname)
 
     return sorted(ret)
-
-
-def check_arch(pkgname: str, arch: Arch, binary: bool = True) -> bool:
-    """
-    Check if a package be built for a certain architecture, or is there a binary package for it.
-
-    :param pkgname: name of the package
-    :param arch: architecture to check against
-    :param binary: set to False to only look at the pmaports, not at binary
-        packages
-
-    :returns: True when the package can be built, or there is a binary package, False otherwise
-    """
-    if binary:
-        arches = get(pkgname, arch).arch
-    else:
-        arches = pmb.helpers.pmaports.get(pkgname, must_exist=True)["arch"]
-    return pmb.helpers.pmaports.check_arches(arches, arch)
