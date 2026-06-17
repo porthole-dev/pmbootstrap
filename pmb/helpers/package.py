@@ -58,30 +58,22 @@ def check_version_constraints(pkgname_with_op: str, version: str) -> bool:
 
 
 @overload
-def get(pkgname: str, arch: Arch, replace_subpkgnames: bool = ...) -> PackageMetadata: ...
-
-
-@overload
-def get(
-    pkgname: str, arch: Arch, replace_subpkgnames: bool = ..., must_exist: bool = ...
-) -> PackageMetadata | None: ...
+def get(pkgname: str, arch: Arch) -> PackageMetadata: ...
 
 
 @overload
 def get(
     pkgname: str,
     arch: Arch,
-    replace_subpkgnames: bool = ...,
     must_exist: bool = ...,
     try_other_arches: bool = ...,
 ) -> PackageMetadata | None: ...
 
 
-@Cache("pkgname", "arch", "replace_subpkgnames", "try_other_arches")
+@Cache("pkgname", "arch", "try_other_arches")
 def get(
     pkgname: str,
     arch: Arch,
-    replace_subpkgnames: bool = False,
     must_exist: bool = True,
     try_other_arches: bool = True,
 ) -> PackageMetadata | None:
@@ -93,8 +85,6 @@ def get(
         When it can't be found for this arch, we'll still look for another arch to see whether the
         package exists at all. So make sure to check the returned arch against what you wanted
         with check_arch(). Example: "armhf"
-    :param replace_subpkgnames: replace all subpkgnames with their main pkgnames in the depends
-        (see #1733)
     :param must_exist: raise an exception, if not found
     :param try_other_arches: set to False to not attempt to find other arches
 
@@ -132,22 +122,6 @@ def get(
                     ret = PackageMetadata.from_apkindex_block(apkindex_block)
             if ret:
                 break
-
-    # Replace subpkgnames if desired
-    if replace_subpkgnames and ret:
-        depends_new = []
-        for depend in ret.depends:
-            depend_data = get(depend, arch, must_exist=False, try_other_arches=try_other_arches)
-            if not depend_data:
-                logging.warning(f"WARNING: {pkgname}: failed to resolve dependency '{depend}'")
-                # Can't replace potential subpkgname
-                if depend not in depends_new:
-                    depends_new += [depend]
-                continue
-            depend_pkgname = depend_data.pkgname
-            if depend_pkgname not in depends_new:
-                depends_new += [depend_pkgname]
-        ret.depends = depends_new
 
     # Save to cache and return
     if ret:
