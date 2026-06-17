@@ -72,9 +72,7 @@ def generate(arch: Arch) -> list[dict[str, list[str] | str | None]]:
                     if dep.startswith("!"):
                         continue
 
-                    dep_data = pmb.helpers.package.get(
-                        dep, arch, must_exist=False, try_other_arches=False
-                    )
+                    dep_data = pmb.helpers.package.get(dep, arch, must_exist=False)
                     if not dep_data:
                         logging.warning(f"WARNING: {pkgname}: failed to resolve dependency '{dep}'")
                         # Can't replace potential subpkgname

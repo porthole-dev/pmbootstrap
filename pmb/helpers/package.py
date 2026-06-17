@@ -62,31 +62,21 @@ def get(pkgname: str, arch: Arch) -> PackageMetadata: ...
 
 
 @overload
-def get(
-    pkgname: str,
-    arch: Arch,
-    must_exist: bool = ...,
-    try_other_arches: bool = ...,
-) -> PackageMetadata | None: ...
+def get(pkgname: str, arch: Arch, must_exist: bool = ...) -> PackageMetadata | None: ...
 
 
-@Cache("pkgname", "arch", "try_other_arches")
+@Cache("pkgname", "arch")
 def get(
     pkgname: str,
     arch: Arch,
     must_exist: bool = True,
-    try_other_arches: bool = True,
 ) -> PackageMetadata | None:
     """
     Find a package in pmaports, and as fallback in the APKINDEXes of the binary packages.
 
     :param pkgname: package name (e.g. "hello-world")
-    :param arch: preferred architecture of the binary package.
-        When it can't be found for this arch, we'll still look for another arch to see whether the
-        package exists at all. So make sure to check the returned arch against what you wanted
-        with check_arch(). Example: "armhf"
+    :param arch: architecture of the binary package.
     :param must_exist: raise an exception, if not found
-    :param try_other_arches: set to False to not attempt to find other arches
 
     :returns: * data from the parsed APKBUILD or APKINDEX in the following format:
                     {"arch": ["noarch"], "depends": ["busybox-extras", "lddtree", ...],
@@ -101,7 +91,7 @@ def get(
     if pmaport:
         ret = PackageMetadata.from_pmaport(pmaport)
 
-    # Find in APKINDEX (given arch)
+    # Find in APKINDEX
     if not ret or not pmb.helpers.pmaports.check_arches(ret.arch, arch):
         pmb.helpers.repo.update(arch)
         ret_repo = pmb.parse.apkindex.package(pkgname, arch, False)
@@ -111,17 +101,6 @@ def get(
         # (e.g. temp/mesa can't be built for x86_64, but Alpine has it)
         if ret_repo and (not ret or ret_repo.arch == arch):
             ret = PackageMetadata.from_apkindex_block(ret_repo)
-
-    # Find in APKINDEX (other arches)
-    if not ret and try_other_arches:
-        pmb.helpers.repo.update()
-        for arch_i in Arch.supported():
-            if arch_i != arch:
-                apkindex_block = pmb.parse.apkindex.package(pkgname, arch_i, False)
-                if apkindex_block is not None:
-                    ret = PackageMetadata.from_apkindex_block(apkindex_block)
-            if ret:
-                break
 
     # Save to cache and return
     if ret:
@@ -150,7 +129,7 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
     alternative_names: set[str] = set()
     while len(queue):
         pkgname = queue.pop()
-        package = get(pkgname, arch, try_other_arches=False)
+        package = get(pkgname, arch)
 
         # Add its depends to the queue
         for depend in package.depends:
