@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os
 
-import pmb.helpers.package
 import pmb.helpers.pmaports
 import pmb.parse
 from pmb.core.arch import Arch
@@ -33,7 +32,7 @@ def list_ui(arch: Arch) -> list[tuple[str, str]]:
             logging.debug("Skipping UI directory without APKBUILD '%s' (%s)", path, exception)
             continue
         ui = os.path.basename(path).split("-", 2)[2]
-        if pmb.helpers.package.check_arch(apkbuild["pkgname"], arch):
+        if pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))
     return ret
 
