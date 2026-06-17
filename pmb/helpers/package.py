@@ -150,7 +150,7 @@ def depends_recurse(pkgname: str, arch: Arch) -> list[str]:
     alternative_names: set[str] = set()
     while len(queue):
         pkgname = queue.pop()
-        package = get(pkgname, arch)
+        package = get(pkgname, arch, try_other_arches=False)
 
         # Add its depends to the queue
         for depend in package.depends:
