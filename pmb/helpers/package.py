@@ -86,25 +86,15 @@ def get(
         * None if the package was not found
     """
     # Find in pmaports
-    ret: PackageMetadata | None = None
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
-    if pmaport:
-        ret = PackageMetadata.from_pmaport(pmaport)
+    if pmaport and pmb.helpers.pmaports.check_arches(pmaport["arch"], arch):
+        return PackageMetadata.from_pmaport(pmaport)
 
     # Find in APKINDEX
-    if not ret or not pmb.helpers.pmaports.check_arches(ret.arch, arch):
-        pmb.helpers.repo.update(arch)
-        ret_repo = pmb.parse.apkindex.package(pkgname, arch, False)
-
-        # Save as result if there was no pmaport, or if the pmaport can not be
-        # built for the given arch, but there is a binary package for that arch
-        # (e.g. temp/mesa can't be built for x86_64, but Alpine has it)
-        if ret_repo and (not ret or ret_repo.arch == arch):
-            ret = PackageMetadata.from_apkindex_block(ret_repo)
-
-    # Save to cache and return
-    if ret:
-        return ret
+    pmb.helpers.repo.update(arch)
+    ret_repo = pmb.parse.apkindex.package(pkgname, arch, False)
+    if ret_repo:
+        return PackageMetadata.from_apkindex_block(ret_repo)
 
     # Could not find the package
     if not must_exist:
