@@ -376,10 +376,6 @@ def setup_keymap(config: Config) -> None:
         logging.info("NOTE: No valid keymap specified for device")
 
 
-def setup_timezone(chroot: Chroot, timezone: str) -> None:
-    pmb.chroot.root(["setup-timezone", "-i", timezone], chroot)
-
-
 def setup_locale(chroot: Chroot, locale: str) -> None:
     """Set locale-related settings such as $LANG and keyboard layout"""
     # 10locale-pmos.sh gets sourced before 20locale.sh from
@@ -1346,7 +1342,7 @@ def create_device_rootfs(
     setup_keymap(config)
 
     # Set timezone
-    setup_timezone(chroot, config.timezone)
+    pmb.chroot.root(["setup-timezone", "-i", config.timezone], chroot)
 
     # Set locale
     setup_locale(chroot, config.locale)
