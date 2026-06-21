@@ -93,12 +93,6 @@ def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
     version_pmaports = apkbuild["pkgver"] + "-r" + apkbuild["pkgrel"]
     msg = "Build is necessary for package '" + package + "': "
 
-    # Get version from APKINDEX
-    index_data = pmb.parse.apkindex.package(package, arch, False)
-    if not index_data:
-        logging.debug(msg + "No binary package available")
-        return BuildStatus.NEW
-
     # Can't build pmaport for arch: use Alpine's package (#1897)
     if arch and not pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
         logging.verbose(
@@ -107,6 +101,12 @@ def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
             " package."
         )
         return BuildStatus.CANT_BUILD
+
+    # Get version from APKINDEX
+    index_data = pmb.parse.apkindex.package(package, arch, False)
+    if not index_data:
+        logging.debug(msg + "No binary package available")
+        return BuildStatus.NEW
 
     # a) Binary repo has a newer version
     version_binary = index_data.version
