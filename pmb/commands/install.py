@@ -98,7 +98,12 @@ def install(
             )
 
     if not password:
-        password = getpass(f"Choose a password for the user '{config.user}': ")
+        password = ""
+        while not password:
+            password = getpass(f"Choose a password for the user '{config.user}': ")
+            if not password:
+                logging.error("ERROR: Password must not be empty!")
+
         if getpass(f"Confirm password for '{config.user}': ") != password:
             raise NonBugError("Passwords did not match!")
 
