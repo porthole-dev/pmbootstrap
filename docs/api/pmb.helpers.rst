@@ -173,14 +173,6 @@ pmb.helpers.run\_core module
    :undoc-members:
    :show-inheritance:
 
-pmb.helpers.status module
--------------------------
-
-.. automodule:: pmb.helpers.status
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pmb.helpers.toml module
 -----------------------
 

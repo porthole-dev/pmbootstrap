@@ -14,13 +14,14 @@ if TYPE_CHECKING:
 
 from . import config, parse
 from .commands import run_command
+from .commands.status import print_status
 from .config import (
     init as config_init,
     require_programs,
 )
 from .core import Chroot, Config
 from .core.context import get_context
-from .helpers import logging, mount, other, status
+from .helpers import logging, mount, other
 
 # pmbootstrap version
 __version__ = "3.10.1"
@@ -162,7 +163,7 @@ Before you report this error, ensure that pmbootstrap is up to date.
 Find the latest version here: https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/tags
 Your version: {__version__}""")
         if can_print_status:
-            status.print_status()
+            print_status()
         return 1
 
     return 0
