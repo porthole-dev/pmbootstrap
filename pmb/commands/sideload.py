@@ -16,6 +16,14 @@ from pmb.helpers.file import is_apk
 from pmb.types import PathString, RunOutputTypeDefault
 
 su_cmd = "_su=$(command -v sudo >/dev/null && echo sudo || (command -v doas >/dev/null && echo doas || echo run0)); $_su"
+ssh_opts = [
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath='~/.ssh/controlmaster_%r@%h:%p'",
+    "-o",
+    "ControlPersist=60",
+]
 
 
 def scp_abuild_key(user: str, host: str, port: str) -> None:
@@ -32,7 +40,7 @@ def scp_abuild_key(user: str, host: str, port: str) -> None:
     key_name = os.path.basename(key)
 
     logging.info(f"Copying signing key ({key_name}) to {user}@{host}")
-    command: list[PathString] = ["scp", "-P", port, key, f"{user}@{host}:/tmp"]
+    command: list[PathString] = ["scp", *ssh_opts, "-P", port, key, f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output=RunOutputTypeDefault.INTERACTIVE)
 
     logging.info(f"Installing signing key at {user}@{host}")
@@ -45,7 +53,7 @@ def scp_abuild_key(user: str, host: str, port: str) -> None:
     ]
     remote_cmd = pmb.helpers.run_core.flat_cmd([remote_cmd_l])
     full_cmd = shlex.quote(f"{su_cmd} {remote_cmd}")
-    command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {full_cmd}"]
+    command = ["ssh", *ssh_opts, "-t", "-p", port, f"{user}@{host}", f"sh -c {full_cmd}"]
     pmb.helpers.run.user(command, output=RunOutputTypeDefault.TUI)
 
 
@@ -55,7 +63,7 @@ def ssh_find_arch(user: str, host: str, port: str) -> Arch:
     # Run command in a subshell in case the foreign device has a weird uname
     # implementation, e.g. Nushell.
     architecture_cmd = shlex.quote("uname -m")
-    command = ["ssh", "-p", port, f"{user}@{host}", f"sh -c {architecture_cmd}"]
+    command = ["ssh", *ssh_opts, "-p", port, f"{user}@{host}", f"sh -c {architecture_cmd}"]
     output = pmb.helpers.run.user_output(command)
     # Split by newlines so we can pick out any irrelevant output, e.g. the "permanently
     # added to list of known hosts" warnings.
@@ -83,7 +91,7 @@ def ssh_install_apks(
     remote_paths = [os.path.join("/tmp", os.path.basename(path)) for path in paths]
 
     logging.info(f"Copying packages to {user}@{host}")
-    command: list[PathString] = ["scp", "-P", port, *paths, f"{user}@{host}:/tmp"]
+    command: list[PathString] = ["scp", *ssh_opts, "-P", port, *paths, f"{user}@{host}:/tmp"]
     pmb.helpers.run.user(command, output=RunOutputTypeDefault.INTERACTIVE)
 
     logging.info(f"Installing packages at {user}@{host}")
@@ -95,7 +103,7 @@ def ssh_install_apks(
     clean_cmd = pmb.helpers.run_core.flat_cmd([["rm", *remote_paths]])
     add_cmd_complete = shlex.quote(f"{su_cmd} {add_cmd} rc=$?; {clean_cmd} exit $rc")
     # Run apk command in a subshell in case the foreign device has a non-POSIX shell.
-    command = ["ssh", "-t", "-p", port, f"{user}@{host}", f"sh -c {add_cmd_complete}"]
+    command = ["ssh", *ssh_opts, "-t", "-p", port, f"{user}@{host}", f"sh -c {add_cmd_complete}"]
     pmb.helpers.run.user(command, output=RunOutputTypeDefault.TUI)
 
 
