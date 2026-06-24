@@ -212,6 +212,7 @@ initialize_chroot() {
 		mpfr-dev \
 		musl-dev \
 		ncurses-dev \
+		pahole \
 		perl \
 		py3-dt-schema \
 		rust \
