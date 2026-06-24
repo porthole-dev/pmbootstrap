@@ -576,13 +576,20 @@ def generate_binary_list(chroot: Chroot, step: int) -> list[tuple[str, int]]:
             raise RuntimeError(
                 f"Value for firmware binary offset is not valid: {offset_}"
             ) from exception
-        binary_path = chroot / "usr/share" / binary
-        if not os.path.exists(binary_path):
+        binary_path_list = list((chroot / "usr/share").glob(binary))
+        if len(binary_path_list) == 0:
             raise RuntimeError(
                 "The following firmware binary does not "
                 f"exist in the {chroot} chroot: "
                 f"/usr/share/{binary}"
             )
+        elif len(binary_path_list) != 1:
+            raise NonBugError(
+                "The following firmware binary pattern is ambiguous "
+                f"and matches multiple files in the {chroot} chroot: "
+                f"/usr/share/{binary} "
+            )
+        binary_path = binary_path_list[0]
         # Insure that embedding the firmware will not overrun the
         # first partition
         boot_part_start = pmb.parse.deviceinfo().boot_part_start or "2048"
@@ -605,7 +612,9 @@ def generate_binary_list(chroot: Chroot, step: int) -> list[tuple[str, int]]:
                 )
 
         binary_ranges[binary_start] = binary_end
-        binary_list.append((binary, offset))
+
+        binary_path_str = str(binary_path.relative_to(chroot / "usr/share"))
+        binary_list.append((binary_path_str, offset))
 
     return binary_list
 
