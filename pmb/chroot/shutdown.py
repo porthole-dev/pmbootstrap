@@ -78,6 +78,9 @@ def shutdown(only_install_related: bool = False, only_build_related: bool = Fals
     # contents get copied to a rootfs / installer image, or if creating an
     # android recovery zip from its contents).
     for marker in get_context().config.work.glob("chroot_*/in-pmbootstrap"):
+        # We don't want to touch the rootfs marker if we're only shutting down build chroots
+        if only_build_related and marker.parent.name == "chroot_rootfs":
+            continue
         pmb.helpers.run.root(["rm", marker])
 
     # Umount device rootfs and installer chroots
