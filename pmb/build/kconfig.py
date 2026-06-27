@@ -230,6 +230,8 @@ def _init(pkgname: str, arch: Arch | None) -> tuple[str, Arch, Any, Chroot, Env]
         env["CC"] = f"{hostspec}-gcc"
     elif uses_llvm:
         env["LLVM"] = "1"
+        # See https://github.com/ClangBuiltLinux/linux/issues/2167
+        env["HOSTLDFLAGS"] = "-fuse-ld=lld"
 
     return pkgname, arch, apkbuild, chroot, env
 
