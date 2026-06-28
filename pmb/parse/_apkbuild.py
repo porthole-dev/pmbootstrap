@@ -4,7 +4,7 @@ import os
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 import pmb.config
 import pmb.helpers.devices
@@ -31,6 +31,33 @@ revar4 = re.compile(r"\${([a-zA-Z_]+[a-zA-Z0-9_]*)#(.*)}")
 
 # foo=
 revar5 = re.compile(r"([a-zA-Z_]+[a-zA-Z0-9_]*)=")
+
+"""
+List based on the following abuild source code due to the apparent lack of documentation:
+ - https://gitlab.alpinelinux.org/alpine/abuild/-/blob/66f65aaade11fca7882b75f3dae6d85ec52ef04a/abuild.in#L978-988
+ - https://gitlab.alpinelinux.org/alpine/abuild/-/blob/66f65aaade11fca7882b75f3dae6d85ec52ef04a/abuild.in#L1960-2224
+"""
+DEFAULT_FUNCTION_SUBPACKAGES: Final[frozenset[str]] = frozenset(
+    {
+        "lang",
+        "doc",
+        "dbg",
+        "dev",
+        "static",
+        "libs",
+        "openrc",
+        "systemd",
+        "udev",
+        "bashcomp",
+        "bash-completion",
+        "zshcomp",
+        "zsh-completion",
+        "fishcomp",
+        "fish-completion",
+        "pyc",
+        "nftrules",
+    }
+)
 
 
 def replace_variable(apkbuild: Apkbuild, value: str) -> str:
@@ -285,18 +312,27 @@ def _parse_subpackage(
             break
 
     if not start:
-        # Unable to find subpackage function in the APKBUILD.
-        # The subpackage function could be actually missing, or this is a
-        # problem in the parser. For now we also don't handle subpackages with
-        # default functions (e.g. -dev or -doc).
-        # In the future we may want to specifically handle these, and throw
-        # an exception here for all other missing subpackage functions.
-        subpackages[subpkgname] = None
-        logging.verbose(
-            f"{apkbuild['pkgname']}: subpackage function '{subpkgsplit}' for "
-            f"subpackage '{subpkgname}' not found, ignoring"
-        )
-        return
+        # First check if the subpkgname ends with any known default subpackage, then check if the
+        # specified subpackage function is a default one if there is one. This more or less matches
+        # how abuild handles it.
+        if (
+            any(subpkgname.endswith(x) for x in DEFAULT_FUNCTION_SUBPACKAGES)
+            or subpkgsplit in DEFAULT_FUNCTION_SUBPACKAGES
+        ):
+            subpackages[subpkgname] = None
+            logging.verbose(
+                f"{apkbuild['pkgname']}: subpackage function '{subpkgsplit}' for subpackage "
+                f"'{subpkgname}' not found, ignoring as abuild provides a default implementation."
+            )
+            return
+        else:
+            # Unable to find subpackage function in the APKBUILD.
+            # The subpackage function could be actually missing, or this is a
+            # problem in the parser.
+            raise ValueError(
+                f"{apkbuild['pkgname']}: subpackage function '{subpkgsplit}' for subpackage "
+                f"'{subpkgname}' not found and does not have a default implementation in abuild."
+            )
 
     if not end:
         raise NonBugError(
