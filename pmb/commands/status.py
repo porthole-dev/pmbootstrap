@@ -62,5 +62,6 @@ def print_status() -> None:
 
 
 def status() -> NoReturn:
+    print_status()
     # Do not print the DONE! line
     sys.exit(0)
