@@ -8,7 +8,7 @@ sumcheck() {
 
 	# get number of checksums
 	set -- $sums
-	local numsums=$(( $# / 2 ))
+	local numsums=$(($# / 2))
 
 	set -- $source
 	if [ $# -ne $numsums ]; then
@@ -20,13 +20,14 @@ sumcheck() {
 	IFS=$'\n'
 	endreturnval=0
 	for src in $sums; do
-		origin=$1; shift
+		origin=$1
+		shift
 		if ! echo "$src" | sha512sum -c; then
 			if is_remote $origin; then
 				endreturnval=2
 			else
 				if [ "$endreturnval" -ne 2 ]; then
-				endreturnval=1
+					endreturnval=1
 				fi
 				continue
 			fi
@@ -49,11 +50,11 @@ verify() {
 	sumcheck "$sha512sums" && verified=true
 	retval=$?
 	if [ $retval -eq 2 ]; then
-		echo "network" > /tmp/apkbuild_verify_failed
+		echo "network" >/tmp/apkbuild_verify_failed
 		die "Failed to verify checksums of remote sources. The file has been renamed" >&2
 	fi
 	if [ -n "$source" ] && ! $verified; then
-		echo "local" > /tmp/apkbuild_verify_failed
+		echo "local" >/tmp/apkbuild_verify_failed
 	fi
 	return 0
 }

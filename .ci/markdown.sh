@@ -12,9 +12,11 @@ MDL="markdownlint-cli"
 if ! command -v "$MDL" >/dev/null; then
 	MDL="$HOME/node_modules/markdownlint-cli/markdownlint.js"
 	if ! command -v "$MDL" >/dev/null; then
-		(cd ~;
-		 set -x;
-		 npm install markdownlint-cli)
+		(
+			cd ~
+			set -x
+			npm install markdownlint-cli
+		)
 	fi
 fi
 if ! command -v "$MDL" >/dev/null; then
@@ -23,11 +25,11 @@ if ! command -v "$MDL" >/dev/null; then
 fi
 
 find . -name '*.md' |
-while read -r file; do
-	echo "mdl: $file"
-	if ! "$MDL" "$file"; then
-		echo
-		echo "markdown lint failed!"
-		exit 1
-	fi
-done
+	while read -r file; do
+		echo "mdl: $file"
+		if ! "$MDL" "$file"; then
+			echo
+			echo "markdown lint failed!"
+			exit 1
+		fi
+	done

@@ -34,5 +34,5 @@ python -m pytest \
 	-vv \
 	--junitxml=junit.xml \
 	$cov_arg \
-		-m "not skip_ci" \
-		"$@"
+	-m "not skip_ci" \
+	"$@"

@@ -9,7 +9,7 @@ if [ "$(id -u)" = 0 ]; then
 fi
 
 find . -name '*.sh' |
-while read -r file; do
-	echo "shellcheck: $file"
-	shellcheck "$file"
-done
+	while read -r file; do
+		echo "shellcheck: $file"
+		shellcheck "$file"
+	done
