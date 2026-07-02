@@ -1,6 +1,7 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import os
 import time
 from pathlib import Path
@@ -110,3 +111,22 @@ def symlink(file: Path, link: Path) -> None:
 
     # Create the symlink
     pmb.helpers.run.user(["ln", "-s", file, link])
+
+
+def wait_until_exists(file: Path) -> None:
+    """
+    Wait up to 2 seconds for the given file to appear and raise a RuntimeError
+    if it didn't. This function waits 100ms between each attempt.
+    """
+    if os.path.exists(file):
+        return
+
+    logging.debug(f"Waiting for file to appear: {file}")
+
+    tries = 20
+    for _i in range(tries):
+        if os.path.exists(file):
+            return
+        time.sleep(0.1)
+
+    raise RuntimeError(f"File did not appear: {file}")

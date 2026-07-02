@@ -1,11 +1,10 @@
 # Copyright 2023 Oliver Smith
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
-import time
 from pathlib import Path
 
 import pmb.chroot
 import pmb.core.dps
+import pmb.helpers.file
 import pmb.install.losetup
 from pmb.core import Chroot
 from pmb.helpers import logging
@@ -27,28 +26,12 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
 
     logging.info(f"Mounting partitions of {disk} inside the chroot")
 
-    tries = 20
-
     # Devices ending with a number have a "p" before the partition number,
     # /dev/sda1 has no "p", but /dev/mmcblk0p1 has. See add_partition() in
     # block/partitions/core.c of linux.git.
     partition_prefix = str(disk)
     if str.isdigit(disk.name[-1:]):
         partition_prefix = f"{disk}p"
-
-    found = False
-    for i in range(tries):
-        if os.path.exists(f"{partition_prefix}1"):
-            found = True
-            break
-        logging.debug(f"NOTE: ({i + 1}/{tries}) failed to find the install partition. Retrying...")
-        time.sleep(0.1)
-
-    if not found:
-        raise RuntimeError(
-            f"Unable to find the first partition of {disk}, "
-            f"expected it to be at {partition_prefix}1!"
-        )
 
     partitions = [layout["root"]]
 
@@ -63,6 +46,7 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
 
     for i in partitions:
         source = Path(f"{partition_prefix}{i}")
+        pmb.helpers.file.wait_until_exists(source)
         target = Chroot.native() / "dev" / f"installp{i}"
         pmb.helpers.mount.bind_file(source, target)
         target = Chroot.native() / "dev" / f"{disk.name}p{i}"
