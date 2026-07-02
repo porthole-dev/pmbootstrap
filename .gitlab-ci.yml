@@ -83,17 +83,17 @@ ruff:
   script:
     - ".ci/ruff.sh"
 
-shellcheck:
+shellcheck and shfmt:
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
         - "**/*.sh"
-        - .ci/shellcheck.sh
+        - .ci/shellcheck_and_shfmt.sh
         - .gitlab-ci.yml
         - .shellcheckrc
   script:
-    - ".ci/shellcheck.sh"
+    - ".ci/shellcheck_and_shfmt.sh"
 
 vermin:
   stage: test
