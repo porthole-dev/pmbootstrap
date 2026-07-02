@@ -82,7 +82,7 @@ def partition(layout: PartitionLayout, size_boot: int) -> None:
     # Convert to MB and print info
     mb_boot = f"{size_boot}M"
     mb_root_start = f"{size_boot}M"
-    logging.info(f"(native) partition /dev/install (boot: {mb_boot}M)")
+    logging.info(f"(native) partition /dev/install (boot: {mb_boot})")
 
     filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
 
