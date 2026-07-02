@@ -6,7 +6,7 @@ import re
 from enum import Enum
 from glob import glob
 from pathlib import Path
-from typing import Final
+from typing import Final, TypedDict
 from urllib.parse import urlparse
 
 import pmb.config
@@ -228,8 +228,20 @@ def migrate_upstream_remote() -> None:
             set_remote_url(repo, remote_name, current_git_remote_http, remote_type)
 
 
+class ChannelInfo(TypedDict):
+    description: str
+    branch_pmaports: str
+    branch_aports: str
+    mirrordir_alpine: str
+
+
+class ChannelsCfg(TypedDict):
+    meta: dict[str, str]
+    channels: dict[str, ChannelInfo]
+
+
 @Cache("aports")
-def parse_channels_cfg(aports: Path) -> dict:
+def parse_channels_cfg(aports: Path) -> ChannelsCfg:
     """
     Parse channels.cfg from pmaports.git, origin/main branch.
 
@@ -272,8 +284,10 @@ def parse_channels_cfg(aports: Path) -> dict:
             ) from exception
 
     # Meta section
-    ret: dict[str, dict[str, str | dict[str, str]]] = {"channels": {}}
-    ret["meta"] = {"recommended": cfg.get("channels.cfg", "recommended")}
+    ret: ChannelsCfg = {
+        "channels": {},
+        "meta": {"recommended": cfg.get("channels.cfg", "recommended")},
+    }
 
     # Channels
     for channel in cfg.sections():
@@ -282,11 +296,12 @@ def parse_channels_cfg(aports: Path) -> dict:
 
         channel_new = pmb.helpers.pmaports.get_channel_new(channel)
 
-        ret["channels"][channel_new] = {}
-        for key in ["description", "branch_pmaports", "branch_aports", "mirrordir_alpine"]:
-            value = cfg.get(channel, key)
-            # FIXME: how to type this properly??
-            ret["channels"][channel_new][key] = value  # type: ignore[index]
+        ret["channels"][channel_new] = ChannelInfo(
+            description=cfg.get(channel, "description"),
+            branch_pmaports=cfg.get(channel, "branch_pmaports"),
+            branch_aports=cfg.get(channel, "branch_aports"),
+            mirrordir_alpine=cfg.get(channel, "mirrordir_alpine"),
+        )
 
     return ret
 

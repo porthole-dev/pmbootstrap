@@ -148,7 +148,7 @@ def all_channels() -> list[str]:
     return list(ret)
 
 
-def read_config_channel() -> dict[str, str]:
+def read_config_channel() -> pmb.helpers.git.ChannelInfo:
     """
     Get the properties of the currently active channel in pmaports.git.
 
