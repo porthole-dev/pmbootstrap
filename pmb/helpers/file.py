@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
-import os
 import time
 from pathlib import Path
 
@@ -79,12 +78,12 @@ def is_up_to_date(
 
     lastmod_source = None
     for path_source in path_sources:
-        lastmod = os.path.getmtime(path_source)
+        lastmod = path_source.stat().st_mtime
         if not lastmod_source or lastmod > lastmod_source:
             lastmod_source = lastmod
 
     if path_target:
-        lastmod_target = os.path.getmtime(path_target)
+        lastmod_target = path_target.stat().st_mtime
 
     if lastmod_target is None or lastmod_source is None:
         raise AssertionError
@@ -94,16 +93,16 @@ def is_up_to_date(
 
 def is_older_than(path: Path, seconds: int) -> bool:
     """Check if a single file is older than a given amount of seconds."""
-    if not os.path.exists(path):
+    if not path.exists():
         return True
-    lastmod = os.path.getmtime(path)
+    lastmod = path.stat().st_mtime
     return lastmod + seconds < time.time()
 
 
 def symlink(file: Path, link: Path) -> None:
     """Check if the symlink is already present, otherwise create it."""
-    if os.path.exists(link):
-        if os.path.islink(link) and os.path.realpath(os.readlink(link)) == os.path.realpath(file):
+    if link.exists():
+        if link.is_symlink() and link.readlink().resolve() == file.resolve():
             return
         raise RuntimeError(f"File exists: {link}")
     elif link.is_symlink():
@@ -118,14 +117,14 @@ def wait_until_exists(file: Path) -> None:
     Wait up to 15 seconds for the given file to appear and raise a RuntimeError
     if it didn't. This function waits 100ms between each attempt.
     """
-    if os.path.exists(file):
+    if file.exists():
         return
 
     logging.debug(f"Waiting for file to appear: {file}")
 
     tries = 150
     for _i in range(tries):
-        if os.path.exists(file):
+        if file.exists():
             return
         time.sleep(0.1)
 
