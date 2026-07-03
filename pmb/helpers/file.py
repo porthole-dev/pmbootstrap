@@ -115,7 +115,7 @@ def symlink(file: Path, link: Path) -> None:
 
 def wait_until_exists(file: Path) -> None:
     """
-    Wait up to 2 seconds for the given file to appear and raise a RuntimeError
+    Wait up to 15 seconds for the given file to appear and raise a RuntimeError
     if it didn't. This function waits 100ms between each attempt.
     """
     if os.path.exists(file):
@@ -123,7 +123,7 @@ def wait_until_exists(file: Path) -> None:
 
     logging.debug(f"Waiting for file to appear: {file}")
 
-    tries = 20
+    tries = 150
     for _i in range(tries):
         if os.path.exists(file):
             return
