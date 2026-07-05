@@ -14,24 +14,37 @@ def generate_apkbuild(
     patches: list[str],
     device_category: pmb.helpers.devices.DeviceCategory,
 ) -> None:
-    device = "-".join(pkgname.split("-")[1:])
     arch = deviceinfo.arch if deviceinfo else ask_for_architecture()
     carch = arch.kernel_arch()
 
     makedepends = [
-        "bash",
-        "bc",
         "bison",
-        "devicepkg-dev",
         "findutils",
         "flex",
         "openssl-dev",
         "perl",
     ]
 
+    patches_str = ("\n" + " " * 12).join(patches)
+    config = "config-${pkgname#linux-}.$arch"
+    # TODO: remove once this line is in the minimum pmb version in pmaports
+    flavor = "${pkgname#linux-}"
+
     # Downstream kernel
     if device_category == pmb.helpers.devices.DeviceCategory.DOWNSTREAM:
         reference_url = "https://postmarketos.org/vendorkernel"
+
+        makedepends += [
+            "bash",
+            "bc",
+            "devicepkg-dev",
+        ]
+
+        source = f"""source="
+            $pkgname-$_commit.tar.gz::https://github.com/(CHANGEME_Organization!)/(CHANGEME_Repository!)/archive/$_commit.tar.gz
+            {config}
+            {patches_str}
+            \""""
 
         outdir = '_outdir="out"\n'
 
@@ -42,11 +55,11 @@ def generate_apkbuild(
         build = """
             unset LDFLAGS
             make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" \\
-                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS\""""
+                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))"-postmarketOS"""
 
         package = """
             downstreamkernel_package "$builddir" "$pkgdir" "$_carch\" \\
-                "$_flavor" "$_outdir\""""
+                "${pkgname#linux-}" "$_outdir\""""
 
         if deviceinfo:
             has_dtb = deviceinfo.header_version and deviceinfo.header_version >= 2
@@ -77,42 +90,47 @@ def generate_apkbuild(
             if soc_vendor == "spreadtrum":
                 makedepends.append("dtbtool-sprd")
                 build += """
-            dtbTool-sprd -p "$_outdir/scripts/dtc/" \\
-                -o "$_outdir/arch/$_carch/boot"/dt.img \\
+            dtbTool-sprd -p "$_outdir"/scripts/dtc/ \\
+                -o "$_outdir"/arch/"$_carch"/boot/dt.img \\
                 "$_outdir/arch/$_carch/boot/dts/\""""
             elif soc_vendor == "exynos":
                 codename = "-".join(pkgname.split("-")[2:])
                 makedepends.append("dtbtool-exynos")
                 build += """
-            dtbTool-exynos -o "$_outdir/arch/$_carch/boot"/dt.img \\
-                $(find "$_outdir/arch/$_carch/boot/dts/\""""
+            dtbTool-exynos -o "$_outdir"/arch/"$_carch"/boot/dt.img \\
+                $(find "$_outdir"/arch/"$_carch"/boot/dts/"""
                 build += f" -name *{codename}*.dtb)"
             else:
                 makedepends.append("dtbtool")
                 build += """
-            dtbTool -o "$_outdir/arch/$_carch/boot"/dt.img \\
-                "$_outdir/arch/$_carch/boot/\""""
+            dtbTool -o "$_outdir"/arch/"$_carch"/boot/dt.img \\
+                "$_outdir"/arch/"$_carch"/boot/"""
             package += """
-            install -Dm644 "$_outdir/arch/$_carch/boot"/dt.img \\
+            install -Dm644 "$_outdir"/arch/"$_carch"/boot/dt.img \\
                 "$pkgdir"/boot/dt.img"""
 
     # Mainline kernel
     else:
         reference_url = None
 
-        # Add LLVM dependencies
-        makedepends += ["clang", "lld", "llvm"]
+        # Add mainline dependencies
+        makedepends += ["clang", "lld", "llvm", "postmarketos-installkernel", "zstd"]
+
+        source = f"""source="
+            $pkgname-$_commit.tar.gz::https://github.com/(CHANGEME_Organization!)/(CHANGEME_Repository!)/archive/$_commit.tar.gz
+            {config}
+            \""""
 
         outdir = ""
 
-        prepare = """
+        prepare = f"""
             default_prepare
-            cp -v "$srcdir/$_config" .config"""
+            cp "$srcdir"/{config} .config"""
 
         build = """
             unset LDFLAGS
             make ARCH="$_carch" LLVM=1 \\
-                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS\""""
+                KBUILD_BUILD_VERSION="$((pkgrel + 1 ))"-postmarketOS"""
 
         package = """
             mkdir -p "$pkgdir"/boot
@@ -121,45 +139,47 @@ def generate_apkbuild(
                 LLVM=1 \\
                 INSTALL_MOD_STRIP=1 \\
                 INSTALL_PATH="$pkgdir"/boot \\
-                INSTALL_MOD_PATH="$pkgdir" \\
-                INSTALL_DTBS_PATH="$pkgdir/boot/dtbs"
+                INSTALL_MOD_PATH="$pkgdir"/usr \\
+                INSTALL_DTBS_PATH="$pkgdir"/boot/dtbs
+
+            rm -f "$pkgdir"/usr/lib/modules/*/build "$pkgdir"/usr/lib/modules/*/source
 
             install -D "$builddir"/include/config/kernel.release \\
-                "$pkgdir/usr/share/kernel/$_flavor/kernel.release\""""
+                "$pkgdir"/usr/share/kernel/"${pkgname#linux-}"/kernel.release"""
 
     makedepends.sort()
     makedepends_fmt = ("\n" + " " * 12).join(makedepends)
-    patches_str = ("\n" + " " * 12).join(patches)
     reference_str = " " * 8 + f"# Reference: <{reference_url}>\n" if reference_url else ""
     content = f"""{reference_str}\
         # Kernel config based on: arch/{carch}/configs/(CHANGEME!)
-
         maintainer=""
         pkgname={pkgname}
         pkgver=3.x.x
         pkgrel=0
+        _commit=ffffffffffffffffffffffffffffffffffffffff
         pkgdesc="{deviceinfo.name if deviceinfo else "(CHANGEME!)"} kernel fork"
         arch="{arch}"
-        _carch="{carch}"
-        _flavor="{device}"
         url="https://kernel.org"
         license="GPL-2.0-only"
-        options="!strip !check !tracedeps pmb:cross-native"
         makedepends="
             {makedepends_fmt}
-        "
-
-        # Source
-        _repository="(CHANGEME!)"
-        _commit="ffffffffffffffffffffffffffffffffffffffff"
-        _config="config-$_flavor.$arch"
-        source="
-            $pkgname-$_commit.tar.gz::https://github.com/(CHANGEME!)/$_repository/archive/$_commit.tar.gz
-            $_config
-            {patches_str}
-        "
-        builddir="$srcdir/$_repository-$_commit"
+            "
+        {source}
+        builddir="$srcdir/(CHANGEME_Repository!)-$_commit"
+        options="
+            !check
+            !strip
+            !tracedeps
+            pmb:cross-native
+            "
         {outdir}
+        _carch="{carch}"
+
+        # Used internally by pmbootstrap. Don't touch.
+        # TODO: Remove once minimum default pmbootstrap version supports
+        # kernel packages without '_flavor'.
+        _flavor="{flavor}"
+
         prepare() {{{prepare}
         }}
 
