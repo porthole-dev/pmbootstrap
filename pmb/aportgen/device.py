@@ -280,7 +280,7 @@ def generate_apkbuild(
         depends += ["linux-CHANGEME"]
 
     if flash_method in ["fastboot", "heimdall-bootimg"]:
-        depends.append("mkbootimg")
+        depends.append("android-tools-mkbootimg")
     if flash_method == "0xffff":
         depends.append("uboot-tools")
 
@@ -291,21 +291,21 @@ def generate_apkbuild(
         # Reference: <https://postmarketos.org/devicepkg>
         maintainer=""
         pkgname={pkgname}
-        pkgdesc="{name}"
         pkgver=1
         pkgrel=0
+        pkgdesc="{name}"
         url="https://postmarketos.org"
-        license="MIT"
         arch="{arch}"
-        options="!check !archcheck"
+        license="MIT"
         depends="
             {depends_fmt}
-        "
+            "
         makedepends="devicepkg-dev"
         source="
             deviceinfo
             modules-initfs
-        "
+            "
+        options="!archcheck !check"
 
         build() {{
             devicepkg_build $startdir $pkgname
