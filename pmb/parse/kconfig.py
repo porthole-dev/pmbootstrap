@@ -431,6 +431,8 @@ def create_fragment_from_rules(apkbuild: Apkbuild, rules: dict[str, dict], arch:
                         # For lists, join with commas
                         joined = ",".join(value)
                         fragment_lines.append(f'CONFIG_{option}="{joined}"')
+                    elif isinstance(value, int):
+                        fragment_lines.append(f"CONFIG_{option}={value}")
                     else:
                         logging.info(f"WARNING: value is of unknown type, ignoring: {value}")
 
