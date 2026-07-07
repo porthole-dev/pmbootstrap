@@ -47,7 +47,7 @@ def kernel(
         deviceinfo.header_version and deviceinfo.header_version >= 3
     ):
         raise NonBugError(
-            "deviceinfo_header_version' <= 2 is currently only supported with fastboot. See also:"
+            "deviceinfo_header_version >= 3 is currently only supported with fastboot. See also:"
             " <https://postmarketos.org/deviceinfo>"
         )
 
