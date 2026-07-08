@@ -212,8 +212,7 @@ def command_qemu(
             case Arch.riscv64 | Arch.ppc64le | Arch.loongarch64:
                 command += ["-device", "virtio-gpu-pci"]
             case _:
-                # default to 2D-only backend
-                command += ["-device", "virtio-gpu"]
+                raise RuntimeError(f"Missing gpu device case for {arch}")
 
     host_arch = Arch.native()
     edk2_chroot = chroot_native.path if arch == host_arch else chroot_target.path
