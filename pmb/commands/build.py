@@ -12,16 +12,16 @@ from pmb.helpers import logging
 def build(
     packages: list[str], arch: Arch | None, code_src: str, use_envkernel: bool, use_strict: bool
 ) -> None:
+    if use_envkernel:
+        pmb.build.envkernel.package_kernel(packages)
+        return
+
     # Strict mode: zap chroots used for package building
     if use_strict:
         logging.info(
             "Zapping buildroots (running in strict mode by default, use --lax to skip zap)"
         )
         pmb.chroot.zap_buildroots()
-
-    if use_envkernel:
-        pmb.build.envkernel.package_kernel(packages)
-        return
 
     # Set src and force
     src = os.path.realpath(os.path.expanduser(code_src[0])) if code_src else None
