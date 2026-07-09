@@ -12,10 +12,6 @@ from pmb.types import WithExtraRepos
 def is_systemd_selected(config: Config) -> bool:
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return False
-    if pmb.helpers.ui.check_option(
-        config.ui, "pmb:systemd-never", with_extra_repos=WithExtraRepos.DISABLED, must_exist=False
-    ):
-        return False
     if config.systemd == SystemdConfig.ALWAYS:
         return True
     if config.systemd == SystemdConfig.NEVER:
@@ -28,8 +24,6 @@ def is_systemd_selected(config: Config) -> bool:
 def systemd_selected_str(config: Config) -> tuple[str, str]:
     if "systemd" not in pmb.config.pmaports.read_config_repos():
         return "no", "not supported by pmaports branch"
-    if pmb.helpers.ui.check_option(config.ui, "pmb:systemd-never", must_exist=False):
-        return "no", "not supported by selected UI"
     if config.systemd == SystemdConfig.ALWAYS:
         return "yes", "'always' selected in 'pmbootstrap init'"
     if config.systemd == SystemdConfig.NEVER:
