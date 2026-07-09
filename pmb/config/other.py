@@ -31,7 +31,19 @@ def service_managers_from_packaging(
         reason = f"{pkgname_ui} does not exist on current pmaports branch"
     else:
         opts = apkbuild_ui["options"]
-        if "pmb:support-systemd" not in opts:
+        if "pmb:default-systemd" not in opts and "pmb:default-openrc" not in opts:
+            # Legacy case where we don't know whether systemd and openrc are
+            # explicitly supported or not. We only know the default by looking
+            # at the deprecated pmb:systemd being present or not.
+            # TODO: Remove after enforcing in pmaports CI that all UIs have
+            # either pmb:default-systemd or pmb:default-openrc set and that all
+            # supported pmaports branches have this
+            if "pmb:systemd" in opts:
+                reason = f"{pkgname_ui} defaults to systemd"
+            else:
+                default = ServiceManagerConfig.OPENRC
+                reason = f"{pkgname_ui} defaults to openrc"
+        elif "pmb:support-systemd" not in opts:
             default = ServiceManagerConfig.OPENRC
             available = [ServiceManagerConfig.OPENRC]
             reason = f"{pkgname_ui} doesn't support systemd"
