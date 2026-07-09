@@ -14,6 +14,7 @@ from typing import Any, NamedTuple
 import pmb.aportgen
 import pmb.chroot.zap
 import pmb.config
+import pmb.config.other
 import pmb.config.pmaports
 import pmb.helpers.cli
 import pmb.helpers.devices
@@ -27,7 +28,7 @@ import pmb.parse.deviceinfo
 from pmb.config.pmaports import DEVELOPMENT_CHANNEL
 from pmb.core import Config
 from pmb.core.chroot import Chroot
-from pmb.core.config import SystemdConfig
+from pmb.core.config import ServiceManagerConfig
 from pmb.core.context import Context, get_context
 from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
@@ -286,25 +287,28 @@ def ask_for_ui_extras(config: Config, ui: str) -> bool:
     return pmb.helpers.cli.confirm("Enable this package?", default=config.ui_extras)
 
 
-def ask_for_systemd(config: Config, ui: str) -> SystemdConfig:
-    if "systemd" not in pmb.config.pmaports.read_config_repos():
-        return config.systemd
+def ask_for_service_manager(config: Config, ui: str) -> ServiceManagerConfig:
+    default, available, reason = pmb.config.other.service_managers_from_packaging(ui)
 
-    default_is_systemd = pmb.helpers.ui.check_option(ui, "pmb:systemd")
-    not_str = " " if default_is_systemd else " not "
-    logging.info(
-        f"Based on your UI selection, 'default' will result in{not_str}installing systemd."
-    )
+    if len(available) == 1:
+        logging.info(f"{default} will be used as service manager ({reason})")
+        # The user doesn't have a choice here, so don't change the config. This
+        # way, when switching between UIs that have 2 and 1 service manager,
+        # the selection will not change when going back to the UI with 2
+        # service managers.
+        return config.service_manager
 
-    choices = SystemdConfig.choices()
+    logging.info(f"Based on your UI selection, 'default' will result in choosing {default}.")
+
+    choices = ServiceManagerConfig.choices()
     answer = pmb.helpers.cli.ask(
-        "Install systemd?",
+        "Which service manager should be used?",
         choices,
-        str(config.systemd),
+        str(config.service_manager),
         validation_regex=f"^({'|'.join(choices)})$",
         complete=choices,
     )
-    return SystemdConfig(answer)
+    return ServiceManagerConfig(answer)
 
 
 def ask_for_keymaps(config: Config, deviceinfo: Deviceinfo) -> str:
@@ -979,9 +983,9 @@ def frontend(args: PmbArgs) -> None:
     config.ui = ui
     config.ui_extras = ask_for_ui_extras(config, ui)
 
-    # systemd
+    # service manager
     print_systemd_warning(device_is_new, apkbuild, config.kernel)
-    config.systemd = ask_for_systemd(config, ui)
+    config.service_manager = ask_for_service_manager(config, ui)
 
     ask_for_provider_select_pkg(f"postmarketos-ui-{ui}", config.providers)
     ask_for_additional_options(config)

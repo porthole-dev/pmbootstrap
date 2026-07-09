@@ -19,17 +19,17 @@ class Mirrors(TypedDict):
     systemd: str
 
 
-class SystemdConfig(enum.Enum):
+class ServiceManagerConfig(enum.Enum):
     DEFAULT = "default"
-    ALWAYS = "always"
-    NEVER = "never"
+    OPENRC = "openrc"
+    SYSTEMD = "systemd"
 
     def __str__(self) -> str:
         return self.value
 
     @staticmethod
     def choices() -> list[str]:
-        return [e.value for e in SystemdConfig]
+        return [e.value for e in ServiceManagerConfig]
 
 
 class AutoZapConfig(enum.Enum):
@@ -75,10 +75,10 @@ class Config:
         "systemd": "http://mirror.postmarketos.org/postmarketos/extra-repos/systemd/",
     }
     qemu_redir_stdio: bool = False
+    service_manager: ServiceManagerConfig = ServiceManagerConfig.DEFAULT
     ssh_key_glob: str = "~/.ssh/*.pub"
     ssh_keys: bool = False
     sudo_timer: bool = False
-    systemd: SystemdConfig = SystemdConfig.DEFAULT
     timezone: str = "GMT"
     ui: str = "console"
     ui_extras: bool = False
