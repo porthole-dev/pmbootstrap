@@ -63,7 +63,7 @@ def check_option(
     with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
 ) -> bool:
     """
-    Check if an option, such as pmb:systemd, is inside an UI's APKBUILD.
+    Check if an option, such as pmb:drm, is inside an UI's APKBUILD.
 
     If must_exist is set to False, False will be returned if the UI doesn't exist.
     """
