@@ -119,13 +119,16 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
         cross_pkgs += ["gcc-" + arch_str, "g++-" + arch_str]
     if cross == CrossCompile.CROSSDIRECT:
         cross_pkgs += ["crossdirect"]
-        if "rust" in depends or "cargo" in depends:
-            if context.ccache:
-                cross_pkgs += ["sccache"]
-            # crossdirect for rust installs all build dependencies in the
-            # native chroot too, as some of them can be required for building
-            # native macros / build scripts
-            cross_pkgs += depends
+    if "rust" in depends or "cargo" in depends or "cargo-auditable" in depends:
+        if context.ccache:
+            cross_pkgs += ["sccache"]
+        # crossdirect for rust installs all build dependencies in the
+        # native chroot too, as some of them can be required for building
+        # native macros / build scripts
+        cross_pkgs += depends
+        # Rust depends on gcc and musl-dev; we always install the cross GCC
+        # but we do not install the cross musl-dev by default
+        cross_pkgs += ["musl-dev-" + arch_str]
 
     pmb.chroot.init(Chroot.native())
     pmb.chroot.apk.install(cross_pkgs, Chroot.native())
