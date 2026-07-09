@@ -7,7 +7,25 @@ import pmb.parse
 from pmb.core.arch import Arch
 from pmb.core.pkgrepo import pkgrepo_iglob
 from pmb.helpers import logging
+from pmb.helpers.exceptions import NonBugError
 from pmb.types import WithExtraRepos
+
+
+def validate_ui_options(ui: str) -> None:
+    if check_option(ui, "pmb:default-systemd") and check_option(ui, "pmb:default-openrc"):
+        raise NonBugError(
+            f"ERROR: UI {ui} has both pmb:default-systemd and pmb:default-openrc in the APKBUILD options. Only one can be used at a time!"
+        )
+
+    if check_option(ui, "pmb:default-systemd") and not check_option(ui, "pmb:support-systemd"):
+        raise NonBugError(
+            f"ERROR: UI {ui} has pmb:default-systemd without pmb:support-systemd the APKBUILD options!"
+        )
+
+    if check_option(ui, "pmb:default-openrc") and not check_option(ui, "pmb:support-openrc"):
+        raise NonBugError(
+            f"ERROR: UI {ui} has pmb:default-openrc without pmb:support-openrc the APKBUILD options!"
+        )
 
 
 def list_ui(arch: Arch) -> list[tuple[str, str]]:
@@ -32,6 +50,7 @@ def list_ui(arch: Arch) -> list[tuple[str, str]]:
             logging.debug("Skipping UI directory without APKBUILD '%s' (%s)", path, exception)
             continue
         ui = os.path.basename(path).split("-", 2)[2]
+        validate_ui_options(ui)
         if pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
             ret.append((ui, apkbuild["pkgdesc"]))
     return ret
