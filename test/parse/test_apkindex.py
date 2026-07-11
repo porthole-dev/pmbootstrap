@@ -1,4 +1,4 @@
-# Copyright 2024 Caleb Connolly
+# Copyright 2024 Casey Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 # mypy: disable-error-code="comparison-overlap"
 
@@ -235,7 +235,7 @@ T:Base files for the postmarketOS initramfs / initramfs-extra
 U:https://postmarketos.org
 L:GPL-2.0-or-later
 o:postmarketos-initramfs
-m:Caleb Connolly <caleb@postmarketos.org>
+m:Casey Connolly <kcxt@postmarketos.org>
 t:1728049308
 c:f3a4285732781d5577bad06046b7bbeaf132ce1f-dirty
 k:10
@@ -352,7 +352,7 @@ T:Base files for the postmarketOS initramfs / initramfs-extra
 U:https://postmarketos.org
 L:GPL-2.0-or-later
 o:postmarketos-initramfs
-m:Caleb Connolly <caleb@postmarketos.org>
+m:Casey Connolly <kcxt@postmarketos.org>
 t:1728049308
 c:f3a4285732781d5577bad06046b7bbeaf132ce1f-dirty
 k:beep

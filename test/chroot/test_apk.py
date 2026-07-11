@@ -1,4 +1,4 @@
-# Copyright 2024 Caleb Connolly
+# Copyright 2024 Casey Connolly
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
