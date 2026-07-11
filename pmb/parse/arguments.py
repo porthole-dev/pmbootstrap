@@ -479,12 +479,6 @@ def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentPa
         action="store_false",
         help="Avoid using GL for accelerating graphics in QEMU  (use software rasterizer, slow!)",
     )
-    ret.add_argument(
-        "--video",
-        dest="qemu_video",
-        default="1024x768@60",
-        help="Video resolution for QEMU (WidthxHeight@RefreshRate). Default is 1024x768@60.",
-    )
 
     ret.add_argument(
         "--audio",

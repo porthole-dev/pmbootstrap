@@ -213,7 +213,6 @@ def run_command(args: PmbArgs) -> None:
                 args.qemu_audio,
                 args.qemu_cpu,
                 args.qemu_display,
-                args.qemu_video,
                 args.memory,
                 args.image_size,
                 args.second_storage,
