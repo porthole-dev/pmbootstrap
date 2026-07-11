@@ -83,7 +83,7 @@ def ask(
         # Stop completing (question is answered)
         if complete:
             # set_completer(None) would use the default file system completer
-            readline.set_completer(lambda text, state: None)
+            readline.set_completer(lambda _text, _state: None)
 
         if lowercase_answer:
             ret = ret.lower()

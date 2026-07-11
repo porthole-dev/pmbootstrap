@@ -158,7 +158,7 @@ def test_install_run_apk_provider_conflict(
 
     run_calls: list[list] = []
     monkeypatch.setattr(
-        pmb.helpers.apk, "run", lambda cmd, _chroot, **kwargs: run_calls.append(list(cmd))
+        pmb.helpers.apk, "run", lambda cmd, _chroot, **_kwargs: run_calls.append(list(cmd))
     )
 
     chroot = MagicMock()

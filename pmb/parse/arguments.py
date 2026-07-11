@@ -47,10 +47,10 @@ def toggle_other_boolean_flags(
 
         def __call__(
             self,
-            parser: argparse.ArgumentParser,
+            _parser: argparse.ArgumentParser,
             namespace: argparse.Namespace,
-            values: str | Sequence[Any] | None,
-            option_string: str | None = None,
+            _values: str | Sequence[Any] | None,
+            _option_string: str | None = None,
         ) -> None:
             for destination in other_destinations:
                 setattr(namespace, destination, value)
@@ -713,9 +713,9 @@ def arguments_ci(subparser: argparse._SubParsersAction) -> argparse.ArgumentPars
 
 def package_completer(
     prefix: str,
-    action: str,
-    parser: argparse.ArgumentParser | None = None,
-    parsed_args: list[str] | None = None,
+    _action: str,
+    _parser: argparse.ArgumentParser | None = None,
+    _parsed_args: list[str] | None = None,
 ) -> set[str]:
     return {package for package in pmb.helpers.pmaports.get_list() if package.startswith(prefix)}
 

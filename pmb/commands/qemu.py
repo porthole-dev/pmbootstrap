@@ -309,7 +309,7 @@ def resize_image(img_size_new: str, img_path: Path) -> None:
         raise RuntimeError(f"IMAGE_SIZE must be {img_size_str} or greater")
 
 
-def _sigterm_handler(number: int, stack_frame: FrameType | None) -> None:
+def _sigterm_handler(_number: int, _stack_frame: FrameType | None) -> None:
     raise RuntimeError(
         "pmbootstrap was terminated by another process, and killed the QEMU VM it was running."
     )

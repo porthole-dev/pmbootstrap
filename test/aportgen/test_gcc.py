@@ -41,7 +41,7 @@ def test_depends_for_sonames(monkeypatch: MonkeyPatch) -> None:
 
     monkeypatch.setattr(pmb.helpers.repo, "apkindex_files", fake_apkindex_files)
     monkeypatch.setattr(pmb.parse.apkindex, "parse", fake_apkindex_parse)
-    monkeypatch.setattr(pmb.helpers.repo, "update", lambda *args, **kwargs: None)
+    monkeypatch.setattr(pmb.helpers.repo, "update", lambda *_args, **_kwargs: None)
 
     # Empty apkindex -> can't find it
     with pytest.raises(RuntimeError) as e:
