@@ -333,9 +333,11 @@ def _extract_config_diff(new_config: str, baseline_config: str, output: Path) ->
 def generate_config(pkgname: str, arch: Arch | None) -> None:
     pkgname, arch, apkbuild, chroot, env = _init(pkgname, arch)
 
-    fragments: list[str] = []
-    if defconfig := apkbuild.get("_defconfig"):
-        fragments += defconfig
+    # If _defconfig is unset, we explicitly pass "defconfig" because otherwise,
+    # the kernel build system uses .config as a base if it exists, which would
+    # not generate a deterministic configuration, but rather persist previous
+    # manual edits made to the configuration.
+    fragments: list[str] = apkbuild.get("_defconfig") or ["defconfig"]
 
     multiple_architectures = "all" in apkbuild["arch"] or len(apkbuild["arch"]) > 1
     pmos_frag_name = f"pmos.{arch}.config" if multiple_architectures else "pmos.config"
