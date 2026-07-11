@@ -209,7 +209,6 @@ def run_command(args: PmbArgs) -> None:
             pull()
         case "qemu":
             qemu(
-                args.cmdline,
                 args.qemu_audio,
                 args.qemu_cpu,
                 args.qemu_display,

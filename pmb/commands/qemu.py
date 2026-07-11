@@ -64,7 +64,6 @@ def which_qemu(arch: Arch) -> str:
 def command_qemu(
     config: Config,
     arch: Arch,
-    cmdline_arg: str,
     qemu_audio: str | None,
     qemu_cpu: str | None,
     qemu_display: str,
@@ -368,7 +367,6 @@ def install_efi_image(arch: Arch) -> None:
 
 
 def qemu(
-    cmdline_arg: str,
     qemu_audio: str | None,
     qemu_cpu: str | None,
     qemu_display: str,
@@ -409,7 +407,6 @@ def qemu(
     qemu, env = command_qemu(
         config,
         arch,
-        cmdline_arg,
         qemu_audio,
         qemu_cpu,
         qemu_display,
