@@ -8,7 +8,6 @@ from typing import Final
 
 import pmb.config
 import pmb.helpers.git
-import pmb.helpers.pmaports
 import pmb.parse.version
 from pmb.core.pkgrepo import (
     pkgrepo_default_path,
@@ -130,9 +129,6 @@ def read_config(
     # Version checks
     check_version_pmaports(ret["version"])
     check_version_pmbootstrap(ret["pmbootstrap_min_version"])
-
-    # Translate legacy channel names
-    ret["channel"] = pmb.helpers.pmaports.get_channel_new(ret["channel"])
 
     if systemd and add_systemd_prefix:
         ret["channel"] = "systemd-" + ret["channel"]

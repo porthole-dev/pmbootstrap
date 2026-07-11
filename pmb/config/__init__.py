@@ -129,8 +129,6 @@ filesystems = {
     "xfs": "xfsprogs",
 }
 
-# Legacy channels and their new names (pmb#2015)
-pmaports_channels_legacy = {"stable": "v20.05", "stable-next": "v21.03"}
 #
 # CHROOT
 #

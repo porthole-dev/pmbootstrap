@@ -10,7 +10,6 @@ from typing import Final, TypedDict
 from urllib.parse import urlparse
 
 import pmb.config
-import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.core.context import get_context
 from pmb.core.pkgrepo import pkgrepo_default_path, pkgrepo_name, pkgrepo_path
@@ -294,9 +293,7 @@ def parse_channels_cfg(aports: Path) -> ChannelsCfg:
         if channel == "channels.cfg":
             continue  # meta section
 
-        channel_new = pmb.helpers.pmaports.get_channel_new(channel)
-
-        ret["channels"][channel_new] = ChannelInfo(
+        ret["channels"][channel] = ChannelInfo(
             description=cfg.get(channel, "description"),
             branch_pmaports=cfg.get(channel, "branch_pmaports"),
             branch_aports=cfg.get(channel, "branch_aports"),

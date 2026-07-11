@@ -399,19 +399,3 @@ def check_arches(arches: list[str], arch: Arch) -> bool:
     if f"!{arch}" in arches:
         return False
     return any(value in arches for value in [str(arch), "all", "noarch"])
-
-
-def get_channel_new(channel: str) -> str:
-    """
-    Translate legacy channel names to the new ones.
-    Legacy names are still supported for compatibility with old branches (pmb#2015).
-
-    :param channel: name as read from pmaports.cfg or channels.cfg, like "edge", "v21.03" etc., or potentially a legacy name like "stable".
-    :returns: name in the new format, e.g. "edge" or "v21.03"
-    """
-    legacy_cfg = pmb.config.pmaports_channels_legacy
-    if channel in legacy_cfg:
-        ret = legacy_cfg[channel]
-        logging.verbose(f"Legacy channel '{channel}' translated to '{ret}'")
-        return ret
-    return channel
