@@ -428,3 +428,19 @@ def deviceinfo_schema() -> DeviceinfoSchema:
         parsed_categories[category_name] = parsed_category
 
     return DeviceinfoSchema(schema_version=schema_version, categories=parsed_categories)
+
+
+@Cache()
+def deviceinfo_schema_default_boot_filesystem() -> str:
+    """Reads the deviceinfo schema and returns the default boot filesystem specified"""
+    variable = deviceinfo_schema().get("flash", "boot_filesystem")
+    if variable and variable.default_value is not None:
+        return variable.default_value
+    elif variable:
+        raise NonBugError(
+            "[variable.flash.boot_filesystem] lacks a default value in the deviceinfo schema"
+        )
+    else:
+        raise NonBugError(
+            "Could not find [variable.flash.boot_filesystem] in the deviceinfo schema"
+        )

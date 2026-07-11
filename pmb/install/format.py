@@ -85,7 +85,10 @@ def format_and_mount_boot(device: str, boot_label: str) -> None:
     :param boot_label: label of the root partition (e.g. "pmOS_boot")
     """
     mountpoint = "/mnt/install/boot"
-    filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
+    filesystem = (
+        pmb.parse.deviceinfo().boot_filesystem
+        or pmb.parse.deviceinfo_schema_default_boot_filesystem()
+    )
     format_partition_with_filesystem(device, boot_label, filesystem, False)
 
     pmb.chroot.root(["mkdir", "-p", mountpoint])

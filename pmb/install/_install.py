@@ -828,7 +828,10 @@ def create_fstab(
     if boot_dev:
         boot_mount_point = f"UUID={get_uuid(boot_dev)}"
         boot_options = "nodev,nosuid,noexec"
-        boot_filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
+        boot_filesystem = (
+            pmb.parse.deviceinfo().boot_filesystem
+            or pmb.parse.deviceinfo_schema_default_boot_filesystem()
+        )
         if boot_filesystem in ("fat16", "fat32"):
             boot_filesystem = "vfat"
             boot_options += ",umask=0077,nosymfollow,codepage=437,iocharset=ascii"

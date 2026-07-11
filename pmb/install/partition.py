@@ -68,7 +68,10 @@ def partition(layout: PartitionLayout, size_boot: int) -> None:
     mb_root_start = f"{size_boot}M"
     logging.info(f"(native) partition /dev/install (boot: {mb_boot})")
 
-    filesystem = pmb.parse.deviceinfo().boot_filesystem or "ext2"
+    filesystem = (
+        pmb.parse.deviceinfo().boot_filesystem
+        or pmb.parse.deviceinfo_schema_default_boot_filesystem()
+    )
 
     # Actual partitioning with 'parted'. Using check=False, because parted
     # sometimes "fails to inform the kernel". In case it really failed with
