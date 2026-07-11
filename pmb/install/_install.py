@@ -514,7 +514,7 @@ def disable_service(chroot: Chroot, service_name: str) -> None:
         disable_service_openrc(chroot, service_name)
 
 
-def print_firewall_info(disabled: bool, arch: Arch) -> None:
+def print_firewall_info(disabled: bool) -> None:
     pmaports_cfg = pmb.config.pmaports.read_config()
     pmaports_ok = pmaports_cfg.get("supported_firewall", None) == "nftables"
 
@@ -1491,7 +1491,7 @@ def install(
         single_partition,
     )
     print_sshd_info(no_sshd)
-    print_firewall_info(no_firewall, deviceinfo.arch)
+    print_firewall_info(no_firewall)
 
     # Leave space before 'chroot still active' note
     logging.info("")
