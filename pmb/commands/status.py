@@ -18,7 +18,7 @@ def print_status_line(key: str, value: str) -> None:
     print(f"{key.ljust(padding)} {value}")
 
 
-def print_channel(config: Config) -> None:
+def print_channel() -> None:
     pmaports_cfg = pmb.config.pmaports.read_config()
     channel = pmaports_cfg["channel"]
 
@@ -55,7 +55,7 @@ def print_systemd(config: Config) -> None:
 
 def print_status() -> None:
     config = get_context().config
-    print_channel(config)
+    print_channel()
     print_device(config)
     print_ui(config)
     print_systemd(config)
