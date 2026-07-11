@@ -27,7 +27,7 @@ class LogHandler(logging.StreamHandler):
     def __init__(self, details_to_stdout: bool = False, quiet: bool = False) -> None:
         super().__init__()
         self.details_to_stdout = details_to_stdout
-        self.quiet = False
+        self.quiet = quiet
 
         # FIXME: importing pmb.config pulls in a whole lot of stuff
         # and can easily lead to circular imports, so we defer it until here.
@@ -115,7 +115,9 @@ def add_verbose_log_level() -> None:
     logging.verbose = lambda msg, *args, **kwargs: logging.log(VERBOSE, msg, *args, **kwargs)  # type: ignore[attr-defined]
 
 
-def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:
+def init(
+    logfile: Path, verbose: bool, details_to_stdout: bool = False, quiet: bool = False
+) -> None:
     """Set log format and add the log file descriptor to logfd, add the verbose log level."""
     global logfd
 
@@ -146,7 +148,7 @@ def init(logfile: Path, verbose: bool, details_to_stdout: bool = False) -> None:
         root_logger.setLevel(VERBOSE)
 
     # Add a custom log handler
-    handler = LogHandler(details_to_stdout=details_to_stdout)
+    handler = LogHandler(details_to_stdout=details_to_stdout, quiet=quiet)
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 

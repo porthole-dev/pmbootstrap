@@ -99,7 +99,7 @@ def init(args: PmbArgs) -> PmbArgs:
     pmb.core.context.set_context(context)
 
     # Initialize logs (we could raise errors below)
-    pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout)
+    pmb.helpers.logging.init(context.log, args.verbose, context.details_to_stdout, args.quiet)
     pmb.helpers.logging.debug(f"pmbootstrap v{pmb.__version__} (Python {sys.version})")
 
     if context.command_timeout:
