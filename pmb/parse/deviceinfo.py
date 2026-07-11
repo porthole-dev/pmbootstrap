@@ -9,13 +9,16 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
 import pmb.config
 import pmb.helpers.devices
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
+from pmb.core.pkgrepo import pkgrepo_default_path
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
+from pmb.helpers.toml import load_toml_file
 from pmb.meta import Cache
 
 
@@ -271,3 +274,157 @@ class Deviceinfo:
 
         if not self.flash_method:
             self.flash_method = "none"
+
+
+class DeviceinfoSchemaDatatype(Enum):
+    INTEGER = "integer"
+    ENUMERATION = "enumeration"
+    BOOLEAN = "boolean"
+    STRING = "string"
+
+    @property
+    def default_value_type(self) -> type:
+        match self:
+            case DeviceinfoSchemaDatatype.INTEGER:
+                return int
+            case DeviceinfoSchemaDatatype.ENUMERATION:
+                return str
+            case DeviceinfoSchemaDatatype.BOOLEAN:
+                return bool
+            case DeviceinfoSchemaDatatype.STRING:
+                return str
+
+
+@dataclass
+class DeviceinfoSchemaVariable:
+    """A variable in the deviceinfo schema."""
+
+    name: str
+    description: str
+    datatype: DeviceinfoSchemaDatatype = DeviceinfoSchemaDatatype.STRING
+    mandatory: bool = False
+    allow_device_variant_suffix: bool = False
+    behaviour_if_unset: str | None = None
+    fate: str | None = None
+    # Any following attributes could be expressed more concisely if not for
+    # Python's quite limited type system / enum APIs
+    epitaph: str | None = None
+    integer_interval: range | None = None
+    enum_values: set[str] | None = None
+    # mypy treats Any | None different from Any
+    default_value: Any | None = None
+
+    def validate(self) -> None:
+        # This is where we test what Python cannot test for us, i.e. that all
+        # attributes are only set if specific conditions are met
+        if self.integer_interval and self.datatype != DeviceinfoSchemaDatatype.INTEGER:
+            raise NonBugError(
+                f"Deviceinfo schema variable deviceinfo_{self.name} does not set integer type but has an integer interval"
+            )
+        if self.enum_values and self.datatype != DeviceinfoSchemaDatatype.ENUMERATION:
+            raise NonBugError(
+                f"Deviceinfo schema variable deviceinfo_{self.name} does not set enumeration type but has enum values"
+            )
+        if self.epitaph and not self.fate:
+            raise NonBugError(
+                f"Deviceinfo schema variable deviceinfo_{self.name} has an epitaph but does not have a fate set"
+            )
+
+        if self.default_value is not None:
+            default_value_type = type(self.default_value)
+            expected_value_type = self.datatype.default_value_type
+            if default_value_type != expected_value_type:
+                raise NonBugError(
+                    f"Deviceinfo schema variable deviceinfo_{self.name} has default value of type {default_value_type}, expected {expected_value_type}"
+                )
+
+
+@dataclass
+class DeviceinfoSchemaCategory:
+    """A category in the deviceinfo schema."""
+
+    name: str
+    description: str
+    variables: dict[str, DeviceinfoSchemaVariable]
+
+
+@dataclass
+class DeviceinfoSchema:
+    """Parsed deviceinfo schema."""
+
+    schema_version: str
+    categories: dict[str, DeviceinfoSchemaCategory]
+    # We're omitting renames for now
+
+    @Cache("category_name", "variable_name")
+    def get(self, category_name: str, variable_name: str) -> DeviceinfoSchemaVariable | None:
+        """Look up a variable in a category of the schema"""
+        if not (category := self.categories.get(category_name)):
+            return None
+        return category.variables.get(variable_name)
+
+
+@Cache()
+def deviceinfo_schema() -> DeviceinfoSchema:
+    """Parse the deviceinfo_schema.toml file in pmaports into a structured format"""
+    deviceinfo_schema_path = pkgrepo_default_path() / "deviceinfo_schema.toml"
+    if not deviceinfo_schema_path.exists():
+        raise NonBugError(
+            "pmaports checkout does not contain a 'deviceinfo_schema.toml'. You may be on an unsupported branch"
+        )
+
+    toml = load_toml_file(deviceinfo_schema_path)
+
+    if not (metadata := toml.get("metadata")):
+        raise NonBugError("Deviceinfo schema does not contain a 'metadata' section")
+
+    if (schema_version := metadata.get("schema_version")) != "0.1":
+        raise NonBugError(
+            f"pmbootstrap only implements deviceinfo schema version 0.1, got {schema_version}"
+        )
+
+    if not (categories := metadata.get("categories")):
+        raise NonBugError("No categories found under the 'metadata' table in the deviceinfo schema")
+
+    if not (variables := toml.get("variable")):
+        raise NonBugError("No variables found in the deviceinfo schema")
+
+    # For the sake of simplicity we assume that the file is mostly
+    # well-formatted, otherwise this would be extremely verbose
+
+    parsed_categories: dict[str, DeviceinfoSchemaCategory] = {}
+
+    for category_name, category_description in categories.items():
+        parsed_variables: dict[str, DeviceinfoSchemaVariable] = {}
+
+        for variable_name, variable in variables[category_name].items():
+            # Some of these need type conversions
+            if datatype := variable.get("datatype"):
+                variable["datatype"] = DeviceinfoSchemaDatatype(datatype)
+            if enum_values := variable.get("enum_values"):
+                variable["enum_values"] = set(enum_values)
+            if interval := variable.get("integer_interval"):
+                parts = interval[1:-1].split(", ")
+                start = int(parts[0])
+                end = int(parts[1])
+                # Python ranges are start inclusive by default
+                if interval[0] == "(":
+                    start += 1
+                # ...and end exclusive by default
+                if interval[-1] == "]":
+                    end += 1
+                variable["integer_interval"] = range(start, end)
+
+            parsed_variable = DeviceinfoSchemaVariable(
+                name=variable_name,
+                **variable,
+            )
+            parsed_variable.validate()
+            parsed_variables[variable_name] = parsed_variable
+
+        parsed_category = DeviceinfoSchemaCategory(
+            name=category_name, description=category_description, variables=parsed_variables
+        )
+        parsed_categories[category_name] = parsed_category
+
+    return DeviceinfoSchema(schema_version=schema_version, categories=parsed_categories)
