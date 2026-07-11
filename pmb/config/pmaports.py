@@ -9,6 +9,7 @@ from typing import Final
 import pmb.config
 import pmb.helpers.git
 import pmb.parse.version
+from pmb.core.context import get_context
 from pmb.core.pkgrepo import (
     pkgrepo_default_path,
     pkgrepo_name,
@@ -202,6 +203,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     :returns: True if another branch was checked out, False otherwise
     """
     aports = pkgrepo_default_path()
+    config = get_context().config
 
     # list current and new branches/channels
     channels_cfg = pmb.helpers.git.parse_channels_cfg(aports)
@@ -224,7 +226,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     if (
         branch_current == "master_staging_systemd"
         and channel_new == DEVELOPMENT_CHANNEL
-        and pmb.config.is_systemd_selected()
+        and pmb.config.is_systemd_selected(config)
     ):
         logging.info("NOTE: master_staging_systemd was merged into main, switching to it")
 

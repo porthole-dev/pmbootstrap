@@ -331,7 +331,7 @@ def setup_keymap(config: Config) -> None:
     options = deviceinfo.keymaps.split(" ")
     if config.keymap != "" and config.keymap in options:
         layout, variant = config.keymap.split("/")
-        if pmb.config.is_systemd_selected():
+        if pmb.config.is_systemd_selected(config):
             pmb.chroot.root(
                 ["systemd-firstboot", "--force", f"--keymap={variant}"],
                 chroot,
@@ -507,8 +507,8 @@ def disable_service_openrc(chroot: Chroot, service_name: str) -> None:
         raise RuntimeError(f"Failed to disable service {service_name} (openrc): {runlevel_files}")
 
 
-def disable_service(chroot: Chroot, service_name: str) -> None:
-    if pmb.config.is_systemd_selected():
+def disable_service(config: Config, chroot: Chroot, service_name: str) -> None:
+    if pmb.config.is_systemd_selected(config):
         disable_service_systemd(chroot, service_name)
     else:
         disable_service_openrc(chroot, service_name)
@@ -1353,9 +1353,9 @@ def create_device_rootfs(
     setup_appstream(context.offline, chroot)
 
     if no_sshd:
-        disable_service(chroot, "sshd")
+        disable_service(config, chroot, "sshd")
     if no_firewall:
-        disable_service(chroot, "nftables")
+        disable_service(config, chroot, "nftables")
 
 
 def install(
