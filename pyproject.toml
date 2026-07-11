@@ -48,7 +48,7 @@ line-length=100
 # TRY004: Arguable false positives.
 # TRY300: Might change functionality in some cases, needs investigation.
 ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "S108", "S404", "S603", "S607", "TRY004", "TRY300"]
-extend-select = ["B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S", "SIM", "UP"]
+extend-select = ["ARG", "B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -62,10 +62,11 @@ preview = true
 "pmb/install/format.py" = ["S306"]
 # SIM905: Makes the test code less readable.
 "test/parse/test_arguments.py" = ["SIM905"]
+# ARG001: Many tests have unused arguments to ensure context gets set up.
 # B011: Tests shouldn't be run with python -O set anyway.
 # S101: Tests should never run with assertions disabled.
 # S311: Tests don't need cryptographically secure randomness.
-"test/*" = ["B011", "S101", "S311"]
+"test/*" = ["ARG001" ,"B011", "S101", "S311"]
 # RUF076: Per the Ruff documentation this is "most problematic" outside conftest.py
 "test/conftest.py" = ["RUF076"]
 # S105: In this case we do want a bogus token in the code.
