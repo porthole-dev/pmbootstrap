@@ -492,12 +492,6 @@ def arguments_qemu(subparser: argparse._SubParsersAction) -> argparse.ArgumentPa
         "--host-qemu", dest="host_qemu", action="store_true", help="Use the host system's qemu"
     )
 
-    ret.add_argument(
-        "--efi",
-        action="store_true",
-        help="Deprecated: EFI boot is now the default (direct kernel boot has been removed)",
-    )
-
     return ret
 
 

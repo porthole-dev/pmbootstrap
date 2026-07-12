@@ -216,7 +216,6 @@ def run_command(args: PmbArgs) -> None:
                 args.image_size,
                 args.second_storage,
                 args.port,
-                args.efi,
                 args.host_qemu,
                 args.qemu_gl,
                 args.qemu_kvm,

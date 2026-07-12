@@ -374,7 +374,6 @@ def qemu(
     image_size: str | None,
     second_storage: str | None,
     port_ssh: int,
-    use_efi: bool,
     use_host_qemu: bool,
     use_qemu_gl: bool,
     use_qemu_kvm: bool,
@@ -383,10 +382,6 @@ def qemu(
     """Run a postmarketOS image in qemu"""
     config = get_context().config
     device = config.device
-    if use_efi:
-        logging.warning(
-            "WARNING: The --efi argument to 'pmbootstrap qemu' is deprecated. EFI boot is the default now and the argument no longer has any effect."
-        )
     arch = pmb.parse.deviceinfo().arch
 
     # Make sure the rootfs image isn't mounted

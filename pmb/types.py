@@ -215,7 +215,6 @@ class PmbArgs(Namespace):
     devices: str
     disk: Path | None
     dry: bool
-    efi: bool
     envkernel: bool
     export_folder: Path
     extra_space: str
