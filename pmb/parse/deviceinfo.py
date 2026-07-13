@@ -356,7 +356,6 @@ class DeviceinfoSchema:
     categories: dict[str, DeviceinfoSchemaCategory]
     # We're omitting renames for now
 
-    @Cache("category_name", "variable_name")
     def get(self, category_name: str, variable_name: str) -> DeviceinfoSchemaVariable | None:
         """Look up a variable in a category of the schema"""
         if not (category := self.categories.get(category_name)):
