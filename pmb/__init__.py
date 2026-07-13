@@ -24,7 +24,7 @@ from .core.context import get_context
 from .helpers import logging, mount, other
 
 # pmbootstrap version
-__version__ = "3.11.0"
+__version__ = "3.11.1"
 
 # Python version check
 # === CHECKLIST FOR UPGRADING THE REQUIRED PYTHON VERSION ===
