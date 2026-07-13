@@ -20,6 +20,7 @@ In case of any problems, have a look at the `issue-tracker`_.
    ssh-keys
    mirrors
    environment_variables
+   stability_policy
 
    api/modules
 
