@@ -51,6 +51,14 @@ class KConfigUI(enum.Enum):
         return self.value
 
 
+def get_kconfig_name(apkbuild: Apkbuild, arch: Arch) -> str:
+    # Backwards compat with old _flavor logic
+    if apkbuild["_flavor"]:
+        return f"config-{apkbuild['_flavor']}.{arch}"
+    else:
+        return f"config-{apkbuild['pkgname'].lstrip('linux-')}.{arch}"
+
+
 def get_arch(apkbuild: Apkbuild) -> Arch:
     """
     Take the architecture from the APKBUILD or complain if it's ambiguous.
@@ -182,7 +190,7 @@ def _make(
 
     # Update the aport (config and checksum)
     logging.info("Copy kernel config back to pmaports dir")
-    config = f"config-{apkbuild['_flavor']}.{arch}"
+    config = get_kconfig_name(apkbuild, arch)
     target = aport / config
     pmb.helpers.run.user(["cp", source, target])
     pmb.build.checksum.update(pkgname)
@@ -264,7 +272,7 @@ def edit_config(
 
     if fragment:
         aport = pmb.helpers.pmaports.find(pkgname)
-        config_name = f"config-{apkbuild['_flavor']}.{arch}"
+        config_name = get_kconfig_name(apkbuild, arch)
         full_config = aport / config_name
 
         if not full_config.exists():
@@ -411,7 +419,8 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     if not pmb.parse.kconfig.check(pkgname, details=True):
         raise RuntimeError("Generated kernel config does not pass all checks")
 
-    final_config = aport.joinpath(f"config-{apkbuild['_flavor']}.{arch}").read_text()
+    config = get_kconfig_name(apkbuild, arch)
+    final_config = aport.joinpath(config).read_text()
 
     validation_failed = False
     for fragment_name, options in fragment_options.items():
