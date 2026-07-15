@@ -262,7 +262,7 @@ def switch_to_channel_branch(channel_new: str) -> bool:
     if pmb.helpers.run.user(
         ["git", "switch", branch_new], aports, RunOutputTypeDefault.INTERACTIVE, check=False
     ):
-        raise RuntimeError(
+        raise NonBugError(
             "Failed to switch branch. Go to your pmaports and"
             " fix what git complained about, then try again: "
             f"{aports}"
