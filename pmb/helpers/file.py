@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -114,15 +115,16 @@ def symlink(file: Path, link: Path) -> None:
 
 def wait_until_exists(file: Path) -> None:
     """
-    Wait up to 15 seconds for the given file to appear and raise a RuntimeError
-    if it didn't. This function waits 100ms between each attempt.
+    Wait for the given file to appear and raise a RuntimeError if it didn't.
+    The timeout is about 15s by default and can be adjusted with the
+    environment variable PMB_FILE_WAIT_UNTIL_EXISTS_MAX.
     """
     if file.exists():
         return
 
     logging.debug(f"Waiting for file to appear: {file}")
 
-    tries = 150
+    tries = int(os.getenv("PMB_FILE_WAIT_UNTIL_EXISTS_MAX", "150"))
     for _i in range(tries):
         if file.exists():
             return

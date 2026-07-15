@@ -37,3 +37,11 @@ password is written to a temporary file and can be read from
 `/proc/<pid>/environ`. Make sure you are aware of the security implications,
 consider using this feature only with test passwords or in environments such as
 live operating systems running in memory.
+
+## `PMB_FILE_WAIT_UNTIL_EXISTS_MAX`
+
+During installation, pmbootstrap creates partitions and uses partprobe to
+inform the OS of partition table changes. Unfortunately the partition device
+files do not appear instantly, and so we need to poll until the files exist.
+pmbootstrap polls every 100 ms. This variable can be used to tweak the maximum
+tries, the default is 150 (roughly 15s).
