@@ -33,44 +33,60 @@ pmb = "pmb"
 line-length=100
 
 [tool.ruff.lint]
-# B006, B008: Occur in many places and aren't trivial to fix.
-# D205: Not all of our docstrings have a summary yet.
+# mutable-argument-default, function-call-in-default-argument: Occur in many places and aren't trivial to fix.
+# missing-blank-line-after-summary: Not all of our docstrings have a summary yet.
 # DTZ: Require many changes, unsure what the impacts would be.
-# FLY002: Questionable whether this actually makes some things more readable.
-# LOG015: Would require a lot of changes, might affect the logging output too.
-# PERF203: Negligible performance improvement on Python 3.11 and newer, and
-#          not worth the required rework.
-# PLC0206: Unsure whether this makes some code more readable.
-# RUF067: Occurs in many places and isn't trivial to fix.
-# S108: Hard-coded temp files within chroots should be sufficiently secure.
-# S404: We rely on the subprocess module, can't really avoid it.
-# S603, S607: Need more investigation.
-# TRY004: Arguable false positives.
-# TRY300: Might change functionality in some cases, needs investigation.
-ignore = ["B006", "B008", "D205", "DTZ", "FLY002", "LOG015", "PERF203", "PLC0206", "RUF067", "S108", "S404", "S603", "S607", "TRY004", "TRY300"]
-extend-select = ["ARG", "B", "C4", "CPY001", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S", "SIM", "UP"]
+# static-join-to-f-string: Questionable whether this actually makes some things more readable.
+# root-logger-call: Would require a lot of changes, might affect the logging output too.
+# try-except-in-loop: Negligible performance improvement on Python 3.11 and newer, and
+#                     not worth the required rework.
+# dict-index-missing-items: Unsure whether this makes some code more readable.
+# non-empty-init-module: Occurs in many places and isn't trivial to fix.
+# hardcoded-temp-file: Hard-coded temp files within chroots should be sufficiently secure.
+# suspicious-subprocess-import: We rely on the subprocess module, can't really avoid it.
+# subprocess-without-shell-equals-true, start-process-with-partial-path: Need more investigation.
+# type-check-without-type-error: Arguable false positives.
+# try-consider-else: Might change functionality in some cases, needs investigation.
+ignore = [
+	"mutable-argument-default",
+	"function-call-in-default-argument",
+	"missing-blank-line-after-summary",
+	"DTZ",
+	"static-join-to-f-string",
+	"root-logger-call",
+	"try-except-in-loop",
+	"dict-index-missing-items",
+	"non-empty-init-module",
+	"hardcoded-temp-file",
+	"suspicious-subprocess-import",
+	"subprocess-without-shell-equals-true",
+	"start-process-with-partial-path",
+	"type-check-without-type-error",
+	"try-consider-else",
+]
+extend-select = ["ARG", "B", "C4", "missing-copyright-notice", "D2", "FURB", "I", "N", "PERF", "PIE", "RUF", "S", "SIM", "UP"]
 preview = true
 
 [tool.ruff.lint.extend-per-file-ignores]
-# BLE001: In this case we do want to handle any exception, no way around it.
-"pmb/__init__.py" = ["BLE001"]
-# S310: May be worth fixing.
-"pmb/helpers/http.py" = ["S310"]
-# BLE001: In this case we do want to handle any exception, no way around it.
-"pmb/helpers/logging.py" = ["BLE001"]
-# S306: Should be fixed.
-"pmb/install/format.py" = ["S306"]
-# SIM905: Makes the test code less readable.
-"test/parse/test_arguments.py" = ["SIM905"]
-# ARG001: Many tests have unused arguments to ensure context gets set up.
-# B011: Tests shouldn't be run with python -O set anyway.
-# S101: Tests should never run with assertions disabled.
-# S311: Tests don't need cryptographically secure randomness.
-"test/*" = ["ARG001" ,"B011", "S101", "S311"]
-# RUF076: Per the Ruff documentation this is "most problematic" outside conftest.py
-"test/conftest.py" = ["RUF076"]
-# S105: In this case we do want a bogus token in the code.
-"test/helpers/test_git.py" = ["S105"]
+# blind-except: In this case we do want to handle any exception, no way around it.
+"pmb/__init__.py" = ["blind-except"]
+# suspicious-url-open-usage: May be worth fixing.
+"pmb/helpers/http.py" = ["suspicious-url-open-usage"]
+# blind-except: In this case we do want to handle any exception, no way around it.
+"pmb/helpers/logging.py" = ["blind-except"]
+# suspicious-mktemp-usage: Should be fixed.
+"pmb/install/format.py" = ["suspicious-mktemp-usage"]
+# split-static-string: Makes the test code less readable.
+"test/parse/test_arguments.py" = ["split-static-string"]
+# unused-function-argument: Many tests have unused arguments to ensure context gets set up.
+# assert-false: Tests shouldn't be run with python -O set anyway.
+# assert: Tests should never run with assertions disabled.
+# suspicious-non-cryptographic-random-usage: Tests don't need cryptographically secure randomness.
+"test/*" = ["unused-function-argument", "assert-false", "assert", "suspicious-non-cryptographic-random-usage"]
+# pytest-fixture-autouse: Per the Ruff documentation this is "most problematic" outside conftest.py
+"test/conftest.py" = ["pytest-fixture-autouse"]
+# hardcoded-password-string: In this case we do want a bogus token in the code.
+"test/helpers/test_git.py" = ["hardcoded-password-string"]
 
 [tool.ruff.lint.isort]
 force-wrap-aliases = true

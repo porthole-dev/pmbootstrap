@@ -129,12 +129,12 @@ def init(
     # folder and break the folder migration logic, which needs to set the
     # version upon creation)
     if not details_to_stdout and logfile.parent.exists():
-        logfd = open(logfile, "a+")  # noqa: SIM115
+        logfd = open(logfile, "a+")  # ruff:ignore[open-file-with-context-handler]
         logfd.write("\n\n")
     elif details_to_stdout:
         logfd = sys.stdout
     else:
-        logfd = open(os.devnull, "w")  # noqa: SIM115
+        logfd = open(os.devnull, "w")  # ruff:ignore[open-file-with-context-handler]
 
     # Set log format
     root_logger = logging.getLogger()

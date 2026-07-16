@@ -66,7 +66,7 @@ def serialize(config: Config, skip_defaults: bool = True) -> configparser.Config
 
     # .keys() flat maps dictionaries like config.mirrors with
     # dotted notation
-    for key in Config.keys():  # noqa: SIM118
+    for key in Config.keys():  # ruff:ignore[in-dict-keys]
         # If the default value hasn't changed then don't write out,
         # this makes it possible to update the default, otherwise
         # we wouldn't be able to tell if the user overwrote it.
