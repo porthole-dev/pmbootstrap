@@ -109,6 +109,8 @@ class Arch(enum.Enum):
                 return Arch.ppc64le
             case "loongarch64":
                 return Arch.loongarch64
+            case "riscv64":
+                return Arch.riscv64
             case _:
                 raise ValueError(f"Unsupported machine type '{machine_type}'")
 
