@@ -472,14 +472,14 @@ def packages(
             if force:
                 logging.warning(
                     f"WARNING: A binary package for {name} has a newer version ({index_data.version})"
-                    f" than the source ({pkgver}-{apkbuild['pkgrel']}). The package to be build will"
+                    f" than the source ({pkgver}-r{apkbuild['pkgrel']}). The package to be build will"
                     f" not be installed automatically, use 'apk add {name}={pkgver}-r{apkbuild['pkgrel']}'"
                     " to install it."
                 )
             else:
                 raise NonBugError(
                     f"A binary package for {name} has a newer version ({index_data.version})"
-                    f" than the source ({pkgver}-{apkbuild['pkgrel']}). Please ensure your pmaports branch is up"
+                    f" than the source ({pkgver}-r{apkbuild['pkgrel']}). Please ensure your pmaports branch is up"
                     " to date and that you don't have a newer version of the package in your local"
                     f" binary repo ({context.config.work / 'packages' / channel / pkg_arch})."
                 )
