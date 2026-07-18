@@ -73,22 +73,24 @@ def get_arch(apkbuild: Apkbuild) -> Arch:
     """
     pkgname = apkbuild["pkgname"]
 
-    # Disabled package (arch="")
-    if not apkbuild["arch"]:
-        raise RuntimeError(
-            f"'{pkgname}' is disabled (arch=\"\"). Please use"
-            " '--arch' to specify the desired architecture."
-        )
+    supported_architectures = Arch.from_arch_field(apkbuild["arch"])
 
-    # Multiple architectures
-    if len(apkbuild["arch"]) > 1 or "all" in apkbuild["arch"]:
-        raise RuntimeError(
-            f"'{pkgname}' supports multiple architectures"
-            f" ({', '.join(apkbuild['arch'])}). Please use"
-            " '--arch' to specify the desired architecture."
-        )
-
-    return Arch.from_str(apkbuild["arch"][0])
+    match len(supported_architectures):
+        # Disabled package (arch="")
+        case 0:
+            raise RuntimeError(
+                f"'{pkgname}' is disabled (arch=\"\"). Please use"
+                " '--arch' to specify the desired architecture."
+            )
+        case 1:
+            return supported_architectures.pop()
+        # Multiple architectures
+        case _:
+            raise RuntimeError(
+                f"'{pkgname}' supports multiple architectures"
+                f" ({', '.join(apkbuild['arch'])}). Please use"
+                " '--arch' to specify the desired architecture."
+            )
 
 
 def get_outputdir(pkgname: str, apkbuild: Apkbuild, must_exist: bool = True) -> Path:
@@ -347,7 +349,7 @@ def generate_config(pkgname: str, arch: Arch | None) -> None:
     # manual edits made to the configuration.
     fragments: list[str] = apkbuild.get("_defconfig") or ["defconfig"]
 
-    multiple_architectures = "all" in apkbuild["arch"] or len(apkbuild["arch"]) > 1
+    multiple_architectures = len(Arch.from_arch_field(apkbuild["arch"])) != 1
     pmos_frag_name = f"pmos.{arch}.config" if multiple_architectures else "pmos.config"
 
     generated_fragments: dict[str, str] = {}

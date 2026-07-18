@@ -26,7 +26,7 @@ def arch(package: str | Apkbuild) -> Arch:
     aport = pmb.helpers.pmaports.find(pkgname)
 
     apkbuild = pmb.parse.apkbuild(aport) if isinstance(package, str) else package
-    arches = apkbuild["arch"]
+    arches = Arch.from_arch_field(apkbuild["arch"])
     deviceinfo = pmb.parse.deviceinfo()
 
     if get_context().config.build_default_device_arch:
@@ -36,12 +36,10 @@ def arch(package: str | Apkbuild) -> Arch:
         preferred_arch = Arch.native()
         preferred_arch_2nd = deviceinfo.arch
 
-    # TODO: Ideally we wouldn't convert preferred_arch and preferred_arch_2nd to strings here and
-    # instead be able to parse apkbuild["arch"] in a properly typed way.
-    if "noarch" in arches or "all" in arches or str(preferred_arch) in arches:
+    if preferred_arch in arches:
         return preferred_arch
 
-    if str(preferred_arch_2nd) in arches:
+    if preferred_arch_2nd in arches:
         return preferred_arch_2nd
 
     try:
