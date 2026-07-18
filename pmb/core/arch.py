@@ -5,6 +5,8 @@ from __future__ import annotations
 import ctypes
 import enum
 import platform
+from collections.abc import Sequence
+from itertools import islice
 from pathlib import Path, PosixPath, PurePosixPath
 
 import pmb.config
@@ -113,6 +115,29 @@ class Arch(enum.Enum):
                 return Arch.riscv64
             case _:
                 raise ValueError(f"Unsupported machine type '{machine_type}'")
+
+    @staticmethod
+    def from_arch_field(arch_field: Sequence[str]) -> set[Arch]:
+        if len(arch_field) == 0:
+            return set()
+
+        match arch_field[0]:
+            case "all" | "noarch":
+                supported_arches = set(Arch)
+                start = 1
+            case _:
+                supported_arches = set()
+                start = 0
+
+        for entry in islice(arch_field, start, None):
+            if entry[0] == "!":
+                arch = Arch.from_str(entry[1:])
+                supported_arches.discard(arch)
+            else:
+                arch = Arch.from_str(entry)
+                supported_arches.add(arch)
+
+        return supported_arches
 
     @staticmethod
     def native() -> Arch:
