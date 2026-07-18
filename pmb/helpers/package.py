@@ -87,7 +87,7 @@ def get(
     """
     # Find in pmaports
     pmaport = pmb.helpers.pmaports.get(pkgname, False)
-    if pmaport and pmb.helpers.pmaports.check_arches(pmaport["arch"], arch):
+    if pmaport and arch in Arch.from_arch_field(pmaport["arch"]):
         return PackageMetadata.from_pmaport(pmaport)
 
     # Find in APKINDEX

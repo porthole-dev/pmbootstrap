@@ -51,7 +51,7 @@ def list_ui(arch: Arch) -> list[tuple[str, str]]:
             continue
         ui = os.path.basename(path).split("-", 2)[2]
         validate_ui_options(ui)
-        if pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
+        if arch in Arch.from_arch_field(apkbuild["arch"]):
             ret.append((ui, apkbuild["pkgdesc"]))
     return ret
 

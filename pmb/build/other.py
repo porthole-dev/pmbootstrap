@@ -94,7 +94,7 @@ def get_status(arch: Arch | None, apkbuild: Apkbuild) -> BuildStatus:
     msg = "Build is necessary for package '" + package + "': "
 
     # Can't build pmaport for arch: use Alpine's package (#1897)
-    if arch and not pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
+    if arch and arch not in Arch.from_arch_field(apkbuild["arch"]):
         logging.verbose(
             f"{package}: build is not necessary, because pmaport"
             f" can't be built for {arch}. Using Alpine's binary"

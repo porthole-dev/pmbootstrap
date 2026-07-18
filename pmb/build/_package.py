@@ -40,7 +40,7 @@ def check_build_for_arch(pkgname: str, arch: Arch) -> bool:
     context = get_context()
     # Check for pmaport with arch
     apkbuild = pmb.helpers.pmaports.get(pkgname)
-    if pmb.helpers.pmaports.check_arches(apkbuild["arch"], arch):
+    if arch in Arch.from_arch_field(apkbuild["arch"]):
         return True
 
     # Check for binary package

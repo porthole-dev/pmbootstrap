@@ -384,20 +384,3 @@ def get_repo(pkgname: str) -> str | None:
         return aport.parent.name
 
     return None
-
-
-def check_arches(arches: list[str], arch: Arch) -> bool:
-    """
-    Check if building for a certain arch is allowed.
-
-    :param arches: list of all supported arches, as it can be found in the
-        arch="" line of APKBUILDS (including all, noarch, !arch, ...).
-        For example: ["x86_64", "x86", "!armhf"]
-
-    :param arch: the architecture to check for
-
-    :returns: True when building is allowed, False otherwise
-    """
-    if f"!{arch}" in arches:
-        return False
-    return any(value in arches for value in [str(arch), "all", "noarch"])
