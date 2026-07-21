@@ -118,3 +118,13 @@ def test_invalid_arches() -> None:
     with pytest.raises(ValueError) as excinfo:
         Arch.from_machine_type("invalid")
     assert "Unsupported machine type 'invalid'" in str(excinfo.value)
+
+
+def test_arch_field_parsing() -> None:
+    assert len(Arch.from_arch_field([])) == 0
+    assert Arch.aarch64 in Arch.from_arch_field(["noarch"])
+    assert Arch.aarch64 not in Arch.from_arch_field(["noarch", "!aarch64"])
+    assert Arch.aarch64 in Arch.from_arch_field(["all"])
+    assert Arch.aarch64 not in Arch.from_arch_field(["all", "!aarch64"])
+    assert Arch.armv7 in Arch.from_arch_field(["armv7", "aarch64"])
+    assert Arch.armel not in Arch.from_arch_field(["armv7", "aarch64"])
