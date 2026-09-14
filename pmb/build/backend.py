@@ -185,6 +185,32 @@ def handle_csum_failure(apkbuild: Apkbuild, chroot: Chroot) -> None:
         raise RuntimeError(f"Remote checksum mismatch for {apkbuild['pkgname']}")
 
 
+def rust_cross_native2_env(arch: Arch, sysroot: str = "/mnt/sysroot") -> Env:
+    """Environment for cargo to cross-compile for arch in the native chroot.
+
+    cargo and rustc run natively. The target's standard library comes from the
+    rust package in the sysroot, which is the same toolchain release as the
+    native one -- crossdirect relies on that match too (cross/crossdirect).
+
+    The sysroot goes in RUSTFLAGS, not target.<triple>.rustflags: abuild's
+    default.conf exports RUSTFLAGS, and cargo lets RUSTFLAGS replace any
+    target-scoped rustflags. abuild appends to the value passed in, and with
+    a build target set cargo passes RUSTFLAGS to target artifacts only, so
+    build scripts and proc-macros stay native: bindgen in a build script
+    loads the native libclang and is only told the target and sysroot.
+    """
+    triple = arch.alpine_triple()
+    cargo_triple = triple.upper().replace("-", "_")
+    return {
+        "CARGO_BUILD_TARGET": triple,
+        f"CARGO_TARGET_{cargo_triple}_LINKER": f"{triple}-gcc",
+        "RUSTFLAGS": f"--sysroot={sysroot}/usr -Clink-arg=--sysroot={sysroot}",
+        f"BINDGEN_EXTRA_CLANG_ARGS_{triple.replace('-', '_')}": (
+            f"--target={triple} --sysroot={sysroot}"
+        ),
+    }
+
+
 def run_abuild(
     context: Context,
     apkbuild: Apkbuild,
@@ -265,6 +291,7 @@ def run_abuild(
             env["GOARCH"] = arch.go()
         except ValueError:
             logging.debug(f"Not setting $GOARCH for {arch}")
+        env.update(rust_cross_native2_env(arch))
 
     elif cross == CrossCompile.CROSSDIRECT:
         env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}", pmb.config.chroot_path])

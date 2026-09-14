@@ -90,13 +90,24 @@ crossdirect to cross-native2 to make them build faster.
 
 ### Rust
 
-Rust packages can either be built with QEMU only, or with the crossdirect
-method. **Now that we have cross-native2 it makes more sense to try to get
-rust support working there as it will be faster and more reliable.** Rust
-support in crossdirect is still experimental.
+Rust packages can be built with QEMU only, crossdirect, or cross-native2.
+
+**cross-native2** is the fast one: cargo and rustc run natively and
+cross-compile for the target, so build scripts and proc-macros are native too.
+pmbootstrap sets `CARGO_BUILD_TARGET`, the target's linker, `--sysroot` in
+`RUSTFLAGS` (target artifacts only, since a build target is set) pointing at
+the target chroot (which provides the target's standard
+library through its own `rust` package) and `BINDGEN_EXTRA_CLANG_ARGS_<target>`.
+Put build tools (`cargo`, `cargo-auditable`, `clang-libclang` for bindgen,
+`meson`, ...) in `makedepends_build`, and target libraries plus `rust` in
+`makedepends_host`. A build system that locates cargo's output itself must
+honour `CARGO_BUILD_TARGET`, since cargo then writes to `target/<triple>/`.
+
+Rust support in crossdirect is still experimental.
 [pmaports!4234](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/merge_requests/4234)
 (cross/crossdirect: improve rust handling) describes some of the problems with
-this approach.
+that approach; notably, build scripts that load target libraries at run time
+(bindgen and its libclang) cannot work there.
 
 #### CARGO\_HOME
 

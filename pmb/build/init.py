@@ -124,8 +124,12 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
             cross_pkgs += ["sccache"]
         # crossdirect for rust installs all build dependencies in the
         # native chroot too, as some of them can be required for building
-        # native macros / build scripts
-        cross_pkgs += depends
+        # native macros / build scripts. cross-native2 already installs
+        # makedepends_build natively and makedepends_host in the sysroot;
+        # adding the target libraries here would build them for the native
+        # arch as well.
+        if cross == CrossCompile.CROSSDIRECT:
+            cross_pkgs += depends
         # Rust depends on gcc and musl-dev; we always install the cross GCC
         # but we do not install the cross musl-dev by default
         cross_pkgs += ["musl-dev-" + arch_str]
