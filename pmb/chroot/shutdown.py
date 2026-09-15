@@ -5,12 +5,15 @@ from contextlib import closing
 from itertools import repeat
 
 import pmb.chroot
+import pmb.config
 import pmb.helpers.mount
+import pmb.helpers.run
 import pmb.install.losetup
 from pmb.core import Chroot, ChrootType
 from pmb.core.arch import Arch
 from pmb.core.context import get_context
 from pmb.helpers import logging
+from pmb.types import Env
 
 
 def kill_adb() -> None:
@@ -24,14 +27,27 @@ def kill_adb() -> None:
 
 def kill_sccache() -> None:
     """
-    Kill sccache daemon if it's running. Unlike ccache it automatically spawns
-    a daemon when you call it and exits after some time of inactivity.
+    Stop the sccache servers of all chroots. Unlike ccache, sccache spawns a
+    server when it is called, which exits only after some time of inactivity
+    and keeps files in the chroot's mounts open meanwhile.
+
+    Each chroot has its own server on a socket in its /tmp, see
+    pmb.build.backend.abuild_env(). Crossdirect runs sccache from /native in
+    the foreign chroot, so that is where its server is.
     """
-    port = 4226
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-        sock.settimeout(2)
-        if sock.connect_ex(("127.0.0.1", port)) == 0:
-            pmb.chroot.root(["sccache", "--stop-server"])
+    for path in Chroot.glob():
+        sock = path / pmb.config.sccache_server_uds.lstrip("/")
+        if not sock.is_socket():
+            continue
+        env: Env = {"SCCACHE_SERVER_UDS": pmb.config.sccache_server_uds}
+        sccache = "/usr/bin/sccache"
+        if not (path / sccache.lstrip("/")).exists():
+            sccache = "/native/usr/bin/sccache"
+            env["LD_LIBRARY_PATH"] = "/native/lib:/native/usr/lib"
+        if (path / sccache.lstrip("/")).exists():
+            chroot = Chroot.from_str(path.name.removeprefix("chroot_"))
+            pmb.chroot.root([sccache, "--stop-server"], chroot, env=env, check=False)
+        pmb.helpers.run.root(["rm", "-f", sock])
 
 
 def shutdown_cryptsetup_device(name: str) -> None:

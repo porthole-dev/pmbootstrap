@@ -177,6 +177,9 @@ chroot_mount_bind = {
     "$WORK/packages/": "/mnt/pmbootstrap/packages",
 }
 
+# The sccache server's socket inside each chroot, see pmb.build.backend.abuild_env()
+sccache_server_uds = "/tmp/sccache.sock"
+
 # Building chroots (all chroots, except for the rootfs_ chroot) get symlinks in
 # the "pmos" user's home folder pointing to mountfolders from above.
 # Rust packaging is new and still a bit weird in Alpine and postmarketOS. As of
