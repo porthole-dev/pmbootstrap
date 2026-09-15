@@ -4,7 +4,7 @@ import os
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Final
 
 import pmb.config
 import pmb.helpers.devices
@@ -13,7 +13,11 @@ from pmb.core.context import get_context
 from pmb.helpers import logging
 from pmb.helpers.exceptions import NonBugError
 from pmb.meta import Cache
+from pmb.parse._apkbuild_cond import resolve as resolve_conditionals
 from pmb.types import Apkbuild
+
+if TYPE_CHECKING:
+    from pmb.core.arch import Arch
 
 # sh variable name regex: https://stackoverflow.com/a/2821201/3527128
 
@@ -227,7 +231,11 @@ def parse_next_attribute(
 
 
 def _parse_attributes(
-    path: Path, lines: list[str], apkbuild_attributes: dict[str, dict[str, bool]], ret: Apkbuild
+    path: Path,
+    lines: list[str],
+    apkbuild_attributes: dict[str, dict[str, bool]],
+    ret: Apkbuild,
+    arch: "Arch | None" = None,
 ) -> None:
     """
     Parse attributes from a list of lines. Variables are replaced with values
@@ -237,6 +245,7 @@ def _parse_attributes(
     :param lines: the lines to parse
     :param apkbuild_attributes: the attributes to parse
     :param ret: a dict to update with new parsed variable
+    :param arch: evaluate architecture conditionals of subpackage functions
     """
     # Parse all variables first, and replace variables mentioned earlier
     for i in range(len(lines)):
@@ -250,7 +259,7 @@ def _parse_attributes(
         subpackages: OrderedDict[str, str] = OrderedDict()
         for subpkg in ret["subpackages"].split(" "):
             if subpkg:
-                _parse_subpackage(path, lines, ret, subpackages, subpkg)
+                _parse_subpackage(path, lines, ret, subpackages, subpkg, arch)
         ret["subpackages"] = subpackages
 
     # Split attributes
@@ -259,9 +268,11 @@ def _parse_attributes(
             # Split up arrays, delete empty strings inside the list
             ret[attribute] = list(filter(None, ret[attribute].split()))
         if options.get("int", False):
-            if ret[attribute]:
-                ret[attribute] = int(ret[attribute])
-            else:
+            try:
+                ret[attribute] = int(ret[attribute] or 0)
+            except ValueError:
+                # e.g. provider_priority=$((_majorver + 1)), which needs a shell
+                logging.verbose(f"{path}: can't parse {attribute}={ret[attribute]}, using 0")
                 ret[attribute] = 0
 
     # Remove variables not in attributes
@@ -271,7 +282,12 @@ def _parse_attributes(
 
 
 def _parse_subpackage(
-    path: Path, lines: list[str], apkbuild: Apkbuild, subpackages: dict[str, Any], subpkg: str
+    path: Path,
+    lines: list[str],
+    apkbuild: Apkbuild,
+    subpackages: dict[str, Any],
+    subpkg: str,
+    arch: "Arch | None" = None,
 ) -> None:
     """
     Attempt to parse attributes from a subpackage function.
@@ -284,6 +300,7 @@ def _parse_subpackage(
     :param subpackages: the subpackages dict to update
     :param subpkg: the subpackage to parse
                    (may contain subpackage function name separated by :)
+    :param arch: evaluate architecture conditionals in the function for arch
     """
     subpkgparts = subpkg.split(":")
     subpkgname = subpkgparts[0]
@@ -344,6 +361,10 @@ def _parse_subpackage(
     lines = lines[start:end]
     # Strip tabs before lines in function
     lines = [line.strip() + "\n" for line in lines]
+    if arch:
+        lines = resolve_conditionals(
+            lines, {"CARCH": str(arch), "CTARGET_ARCH": str(arch), "subpkgname": subpkgname}
+        )
 
     # Copy variables
     apkbuild = apkbuild.copy()
@@ -366,7 +387,11 @@ def _parse_subpackage(
 
 
 def _apkbuild_from_lines(
-    lines: list[str], path: Path, check_pkgver: bool = True, check_pkgname: bool = True
+    lines: list[str],
+    path: Path,
+    check_pkgver: bool = True,
+    check_pkgname: bool = True,
+    arch: "Arch | None" = None,
 ) -> Apkbuild:
     """
     See `apkbuild()` in this module for full explanation. This function exists
@@ -377,12 +402,16 @@ def _apkbuild_from_lines(
     :param path: full path to the APKBUILD, for error messages.
     :param check_pkgver: verify that the pkgver is valid.
     :param check_pkgname: the pkgname must match the name of the aport folder
+    :param arch: see `apkbuild()`
     :returns: relevant variables from the APKBUILD. Arrays get returned as
               arrays.
     """
+    if arch:
+        lines = resolve_conditionals(lines, {"CARCH": str(arch), "CTARGET_ARCH": str(arch)})
+
     # Parse all attributes from the config
     ret = dict.fromkeys(pmb.config.apkbuild_attributes, "")
-    _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret)
+    _parse_attributes(path, lines, pmb.config.apkbuild_attributes, ret, arch)
 
     # Sanity check: pkgname
     suffix = f"/{ret['pkgname']}/APKBUILD"
@@ -404,8 +433,10 @@ def _apkbuild_from_lines(
     return ret
 
 
-@Cache("path")
-def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) -> Apkbuild:
+@Cache("path", "arch")
+def apkbuild(
+    path: Path, check_pkgver: bool = True, check_pkgname: bool = True, arch: "Arch | None" = None
+) -> Apkbuild:
     """
     Parse relevant information out of the APKBUILD file. This is not meant
     to be perfect and catch every edge case (for that, a full shell parser
@@ -416,6 +447,10 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
     :param path: full path to the APKBUILD
     :param check_pkgver: verify that the pkgver is valid.
     :param check_pkgname: the pkgname must match the name of the aport folder
+    :param arch: evaluate the APKBUILD for this architecture, like abuild does
+                 with $CARCH: blocks such as ``case "$CARCH" in`` that decide
+                 depends, makedepends or subpackages get the branch for arch.
+                 Without arch, such blocks are skipped.
     :returns: relevant variables from the APKBUILD. Arrays get returned as
               arrays.
     """
@@ -428,7 +463,7 @@ def apkbuild(path: Path, check_pkgver: bool = True, check_pkgname: bool = True) 
     # Read the file and check line endings
     lines = read_file(path)
 
-    return _apkbuild_from_lines(lines, path, check_pkgver, check_pkgname)
+    return _apkbuild_from_lines(lines, path, check_pkgver, check_pkgname, arch)
 
 
 def kernels(device: str) -> dict[str, str] | None:

@@ -274,12 +274,13 @@ def find_optional(package: str) -> Path | None:
 
 
 # The only caller with subpackages=False is ui.check_option()
-@Cache("pkgname", "with_extra_repos", subpackages=True)
+@Cache("pkgname", "with_extra_repos", "arch", subpackages=True)
 def get_with_path(
     pkgname: str,
     must_exist: bool = True,
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
+    arch: Arch | None = None,
 ) -> tuple[Path | None, Apkbuild | None]:
     """
     Find and parse an APKBUILD file.
@@ -293,6 +294,8 @@ def get_with_path(
         names (slow! might need to parse all APKBUILDs to find it)
     :param with_extra_repos: use extra repositories (e.g. systemd) when
         searching for the package
+    :param arch: evaluate the APKBUILD for this architecture, see
+        pmb.parse.apkbuild()
 
     :returns: relevant variables from the APKBUILD as dictionary, e.g.:
                   { "pkgname": "hello-world",
@@ -305,11 +308,11 @@ def get_with_path(
     pkgname_no_op = pmb.helpers.package.remove_operators(pkgname)
     pmaport = find(pkgname_no_op, must_exist, subpackages, with_extra_repos)
     if pmaport:
-        apkbuild = pmb.parse.apkbuild(pmaport / "APKBUILD")
+        apkbuild = pmb.parse.apkbuild(pmaport / "APKBUILD", arch=arch)
         if pkgname_no_op == pkgname or pmb.helpers.package.check_version_constraints(
             pkgname, apkbuild["pkgver"]
         ):
-            return pmaport, pmb.parse.apkbuild(pmaport / "APKBUILD")
+            return pmaport, apkbuild
     return None, None
 
 
@@ -319,6 +322,7 @@ def get(
     must_exist: Literal[True] = ...,
     subpackages: bool = ...,
     with_extra_repos: WithExtraRepos = ...,
+    arch: Arch | None = ...,
 ) -> Apkbuild: ...
 
 
@@ -328,6 +332,7 @@ def get(
     must_exist: bool = ...,
     subpackages: bool = ...,
     with_extra_repos: WithExtraRepos = ...,
+    arch: Arch | None = ...,
 ) -> Apkbuild | None: ...
 
 
@@ -336,8 +341,9 @@ def get(
     must_exist: bool = True,
     subpackages: bool = True,
     with_extra_repos: WithExtraRepos = WithExtraRepos.DEFAULT,
+    arch: Arch | None = None,
 ) -> Apkbuild | None:
-    return get_with_path(pkgname, must_exist, subpackages, with_extra_repos)[1]
+    return get_with_path(pkgname, must_exist, subpackages, with_extra_repos, arch)[1]
 
 
 def find_providers(provide: str, default: list[str]) -> list[tuple[Any, Any]]:

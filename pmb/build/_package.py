@@ -39,7 +39,7 @@ def check_build_for_arch(pkgname: str, arch: Arch) -> bool:
     """
     context = get_context()
     # Check for pmaport with arch
-    apkbuild = pmb.helpers.pmaports.get(pkgname)
+    apkbuild = pmb.helpers.pmaports.get(pkgname, arch=arch)
     if arch in Arch.from_arch_field(apkbuild["arch"]):
         return True
 
@@ -184,17 +184,18 @@ def is_cached_or_cache(arch: Arch, pkgname: str) -> bool:
     return visited
 
 
-def get_apkbuild(pkgname: str) -> tuple[Path | None, Apkbuild | None]:
+def get_apkbuild(pkgname: str, arch: Arch | None = None) -> tuple[Path | None, Apkbuild | None]:
     """
     Parse the APKBUILD path for pkgname.
 
     When there is none, try to find it in the binary package APKINDEX files or raise an exception.
 
     :param pkgname: package name to be built, as specified in the APKBUILD
+    :param arch: architecture to evaluate the APKBUILD for, see pmb.parse.apkbuild()
     :returns: None or parsed APKBUILD
     """
     # Get pmaport, skip upstream only packages
-    pmaport, apkbuild = pmb.helpers.pmaports.get_with_path(pkgname, False)
+    pmaport, apkbuild = pmb.helpers.pmaports.get_with_path(pkgname, False, arch=arch)
     if pmaport:
         pmaport = pkgrepo_relative_path(pmaport)[0]
         return pmaport, apkbuild
@@ -346,6 +347,9 @@ def process_package(
     if arch is None:
         arch = pmb.build.autodetect.arch(base_apkbuild)
 
+    # Depends, makedepends and subpackages may depend on the architecture
+    base_apkbuild = get_apkbuild(pkgname, arch)[1] or base_apkbuild
+
     if is_cached_or_cache(arch, pkgname) and not force:
         logging.verbose(f"S{arch}/{pkgname}: already queued")
         return []
@@ -388,7 +392,7 @@ def process_package(
         if index_data:
             dep = index_data.pkgname
 
-        aports, apkbuild = get_apkbuild(dep)
+        aports, apkbuild = get_apkbuild(dep, arch)
         if not apkbuild:
             continue
 
@@ -539,7 +543,7 @@ def packages(
     if not src:
         for pkgname in pmb.config.build_packages:
             if pkgname not in pkgnames:
-                aport, apkbuild = get_apkbuild(pkgname)
+                aport, apkbuild = get_apkbuild(pkgname, arch)
                 if not aport or not apkbuild:
                     continue
                 bstatus = pmb.build.get_status(arch, apkbuild)
