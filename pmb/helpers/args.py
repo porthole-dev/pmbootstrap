@@ -94,6 +94,7 @@ def init(args: PmbArgs) -> PmbArgs:
     context.assume_yes = getattr(args, "assume_yes", False)
     context.force = getattr(args, "force", False)
     context.no_depends = getattr(args, "no_depends", False)
+    context.ignore_depends = getattr(args, "ignore_depends", False)
 
     # Initialize context
     pmb.core.context.set_context(context)
