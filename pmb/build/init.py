@@ -10,6 +10,7 @@ from pmb.core import Chroot
 from pmb.core.arch import Arch
 from pmb.core.context import Context, get_context
 from pmb.helpers import logging
+from pmb.parse import apkindex
 from pmb.types import CrossCompile
 
 
@@ -119,6 +120,7 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
         cross_pkgs += ["gcc-" + arch_str, "g++-" + arch_str]
     if cross == CrossCompile.CROSSDIRECT:
         cross_pkgs += ["crossdirect"]
+    native_depends: list[str] = []
     if "rust" in depends or "cargo" in depends or "cargo-auditable" in depends:
         if context.ccache:
             cross_pkgs += ["sccache"]
@@ -129,10 +131,22 @@ def init_compiler(context: Context, depends: list[str], cross: CrossCompile, arc
         # adding the target libraries here would build them for the native
         # arch as well.
         if cross == CrossCompile.CROSSDIRECT:
-            cross_pkgs += depends
+            native_depends = depends
         # Rust depends on gcc and musl-dev; we always install the cross GCC
         # but we do not install the cross musl-dev by default
         cross_pkgs += ["musl-dev-" + arch_str]
 
     pmb.chroot.init(Chroot.native())
     pmb.chroot.apk.install(cross_pkgs, Chroot.native())
+    if native_depends:
+        # The native chroot only needs these as tools and headers for build
+        # scripts and proc-macros, never as build output. Take the binary
+        # package where a repository has one, even if pmaports has a newer
+        # version: building that fork for the native arch (a whole mesa, for
+        # gtk4.0-dev) only to install it here costs more than the build it is
+        # for. Only what no repository provides gets built.
+        native = Arch.native()
+        binary = [d for d in native_depends if apkindex.providers(d, native, must_exist=False)]
+        to_build = [d for d in native_depends if d not in binary]
+        pmb.chroot.apk.install(binary, Chroot.native(), build=False)
+        pmb.chroot.apk.install(to_build, Chroot.native())
