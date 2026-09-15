@@ -178,3 +178,14 @@ def test_pmaports_get_evaluates_for_arch(tmp_path: Path, monkeypatch: pytest.Mon
     assert "rust" in pmb.helpers.pmaports.get("hello-arch", arch=Arch.aarch64)["makedepends"]
     assert "rust" not in pmb.helpers.pmaports.get("hello-arch", arch=Arch.riscv64)["makedepends"]
     assert "rust" not in pmb.helpers.pmaports.get("hello-arch")["makedepends"]
+
+
+def test_find_package_in_apkbuild_all_arches(tmp_path: Path) -> None:
+    aport = tmp_path / "hello-arch"
+    aport.mkdir()
+    (aport / "APKBUILD").write_text((TESTDIR / "APKBUILD.arch-conditionals").read_text())
+    find = pmb.helpers.pmaports._find_package_in_apkbuild
+
+    assert not find("hello-arch-vulkan", aport / "APKBUILD")
+    assert find("hello-arch-vulkan", aport / "APKBUILD", all_arches=True)
+    assert not find("hello-arch-missing", aport / "APKBUILD", all_arches=True)

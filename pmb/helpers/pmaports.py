@@ -135,16 +135,23 @@ def guess_main(subpkgname: str) -> Path | None:
     return None
 
 
-def _find_package_in_apkbuild(package: str, path: Path) -> bool:
+def _find_package_in_apkbuild(package: str, path: Path, all_arches: bool = False) -> bool:
     """
     Look through subpackages and all provides to see if the APKBUILD at the specified path
     contains (or provides) the specified package.
 
     :param package: The package to search for
     :param path: The path to the apkbuild
+    :param all_arches: also find subpackages that the APKBUILD only has on some
+                       architectures, e.g. mesa-vulkan-freedreno inside a
+                       'case "$CARCH"' (parses the APKBUILD once per arch)
     :return: True if the APKBUILD contains or provides the package
     """
     apkbuild = pmb.parse.apkbuild(path)
+    if all_arches and package not in apkbuild["subpackages"]:
+        for arch in sorted(Arch.from_arch_field(apkbuild["arch"]), key=str):
+            if package in pmb.parse.apkbuild(path, arch=arch)["subpackages"]:
+                return True
 
     # Subpackages
     if package in apkbuild["subpackages"]:
@@ -240,7 +247,7 @@ def find(
         # looking for as subpackage
         guess = guess_main(package)
         # Parse the APKBUILD and verify if the guess was right
-        if guess and _find_package_in_apkbuild(package, guess / "APKBUILD"):
+        if guess and _find_package_in_apkbuild(package, guess / "APKBUILD", all_arches=True):
             ret = guess
 
         if not ret:
