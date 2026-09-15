@@ -1,0 +1,63 @@
+# Shaped like Alpine's mesa: dependencies and subpackages chosen per $CARCH
+pkgname=hello-arch
+pkgver=1.0
+pkgrel=0
+pkgdesc="architecture conditionals"
+url="https://postmarketos.org"
+arch="all"
+license="MIT"
+_llvmver=23
+subpackages="$pkgname-doc"
+makedepends="
+	meson
+	"
+options="!check"
+
+case "$CARCH" in
+x86*)
+	_drivers="iris"
+	;;
+armv7|aarch64)
+	_drivers="freedreno"
+	subpackages="
+		$subpackages
+		$pkgname-vulkan:_vulkan
+		"
+	;;
+esac
+
+case "$CARCH" in
+armv7|aarch64|x86_64) makedepends="$makedepends clang$_llvmver-dev rust" ;;
+*) ;;
+esac
+
+if [ "$CARCH" = "riscv64" ]; then
+	depends="riscv-only"
+elif [ "$CARCH" != "x86_64" ] && [ "$_llvmver" -ge 20 ]; then
+	depends="not-x86_64"
+else
+	depends="x86_64-only"
+fi
+
+[ "$CARCH" = "armv7" ] && options="$options textrels" || checkdepends="not-armv7"
+
+# Needs a variable that only exists in abuild: left alone
+[ -z "$BOOTSTRAP" ] && makedepends="$makedepends bootstrap-tools"
+
+build() {
+	case "$CARCH" in
+	aarch64) makedepends="never-parsed" ;;
+	esac
+}
+
+_vulkan() {
+	pkgdesc="Vulkan driver"
+	case "$CARCH" in
+	aarch64) depends="vulkan-aarch64" ;;
+	*) depends="vulkan-other" ;;
+	esac
+}
+
+sha512sums="
+0000  hello.tar.gz
+"
