@@ -605,9 +605,14 @@ def packages(
         # FIXME: this is only used to detect special compilers and a workaround for rust
         # in pmb.build.init_compiler(), this should all be refactored and enforce correct
         # APKBUILDs rather than trying to hack things in here
+        #
+        # Build dependencies only: with crossdirect, init_compiler() installs all of these
+        # in the native chroot for Rust. Runtime depends and checkdepends have no business
+        # there, and a runtime depends on the package's own subpackage (chromium depends
+        # on chromium-common=$pkgver-r$pkgrel) made pmbootstrap build the whole package
+        # for the native arch first, only to satisfy it.
         pkg_depends = list(
             {
-                *pkg["depends"],
                 *apkbuild.get("makedepends", []),
                 *apkbuild.get("makedepends_build", []),
                 *apkbuild.get("makedepends_host", []),
