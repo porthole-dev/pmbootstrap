@@ -1,5 +1,17 @@
 # pmbootstrap
 
+> **Unofficial.** Not affiliated with or endorsed by postmarketOS, Google, or
+> Qualcomm. Do not report problems with this port to postmarketOS; open an
+> issue here.
+>
+> **Experimental.** Flashing can brick the device or erase data. No warranty,
+> see LICENSE.
+>
+> **AI-assisted.** See [AI.md](AI.md).
+>
+> **Fork.** This is the porthole-dev fork of pmbootstrap. See
+> [FORK.md](FORK.md) for what differs and why.
+
 Sophisticated chroot/build/flash tool to develop and install
 [postmarketOS](https://postmarketos.org).
 
