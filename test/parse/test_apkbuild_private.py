@@ -6,8 +6,9 @@ from typing import Final
 
 import pytest
 
+import pmb.helpers.logging
 from pmb.helpers.exceptions import NonBugError
-from pmb.parse._apkbuild import archived, maintainers
+from pmb.parse._apkbuild import _apkbuild_from_lines, archived, maintainers, read_file
 
 TESTDIR: Final[Path] = Path(__file__).parent.parent / "data/tests"
 
@@ -55,3 +56,15 @@ def test_archived() -> None:
         archived(TESTDIR / "APKBUILD.archived")
         == "I am tired of maintaining so many hello world programs!!"
     )
+
+
+def test_empty_assignment_clears_variable(tmp_path: Path) -> None:
+    path = tmp_path / "APKBUILD"
+    path.write_text(
+        'pkgname=a\npkgver=1\npkgrel=0\ndepends="foo"\n_extra=""\n'
+        'makedepends="$_extra bar"\nsubpackages="a-sub:sub"\nsub() {\n\tdepends=\n}\n'
+    )
+    pmb.helpers.logging.add_verbose_log_level()
+    apkbuild = _apkbuild_from_lines(read_file(path), path, check_pkgname=False)
+    assert apkbuild["makedepends"] == ["bar"]
+    assert apkbuild["subpackages"]["a-sub"]["depends"] == []

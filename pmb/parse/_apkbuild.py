@@ -241,8 +241,9 @@ def _parse_attributes(
     # Parse all variables first, and replace variables mentioned earlier
     for i in range(len(lines)):
         attribute, value, i = parse_next_attribute(lines, i, path)
-        if not attribute or not value:
+        if attribute is None or value is None:
             continue
+        # An empty value still assigns: "foo=" clears foo, like in the shell
         ret[attribute] = replace_variable(ret, value)
 
     if "subpackages" in apkbuild_attributes:
