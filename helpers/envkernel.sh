@@ -189,6 +189,7 @@ initialize_chroot() {
 		bc \
 		binutils \
 		bison \
+		ccache \
 		clang-libclang \
 		diffutils \
 		elfutils-dev \
@@ -227,6 +228,10 @@ may not be available on stable releases.\n\n"
 		[ -z "$has_shwordsplit" ] && unsetopt shwordsplit
 		[ -n "$has_shwordsplit" ] && unset has_shwordsplit
 	fi
+
+	# ccache masquerades as gcc, but Alpine's ccache has no links for clang
+	"$pmbootstrap" -q chroot -- ln -sf ../../../bin/ccache /usr/lib/ccache/bin/clang
+	"$pmbootstrap" -q chroot -- ln -sf ../../../bin/ccache /usr/lib/ccache/bin/clang++
 
 	# Create /mnt/linux
 	sudo mkdir -p "$chroot/mnt/linux"
@@ -278,7 +283,8 @@ set_alias_make() {
 	# Build make command
 	cmd="echo '*** pmbootstrap envkernel.sh active for $PWD! ***';"
 	cmd="$cmd pmbootstrap -q chroot --user --"
-	cmd="$cmd CCACHE_DISABLE=1"
+	# ccache: the dir pmbootstrap mounts for it in the native chroot
+	cmd="$cmd CCACHE_DIR=/mnt/pmbootstrap/ccache"
 	cmd="$cmd ARCH=$arch"
 	if [ "$need_cross_compiler" = 1 ]; then
 		cmd="$cmd CROSS_COMPILE=$cross_compiler"
