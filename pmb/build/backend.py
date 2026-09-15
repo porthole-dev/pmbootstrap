@@ -211,6 +211,61 @@ def rust_cross_native2_env(arch: Arch, sysroot: str = "/mnt/sysroot") -> Env:
     }
 
 
+def abuild_env(context: Context, arch: Arch, cross: CrossCompile, bootstrap_stage: int) -> Env:
+    """Environment for abuild, depending on the cross-compiler method and target arch."""
+    env: Env = {"SUDO_APK": "abuild-apk --no-progress", "PMB_CROSS": str(cross)}
+    if cross == CrossCompile.CROSS_NATIVE:
+        hostspec = arch.alpine_triple()
+        env["CROSS_COMPILE"] = hostspec + "-"
+        env["CC"] = hostspec + "-gcc"
+    if cross == CrossCompile.CROSS_NATIVE2:
+        env["CHOST"] = str(arch)
+        env["CBUILDROOT"] = "/mnt/sysroot"
+        env["CFLAGS"] = "-Wl,-rpath-link=/mnt/sysroot/usr/lib"
+        env["CGO_CFLAGS"] = "--sysroot=/mnt/sysroot"
+        env["CGO_LDFLAGS"] = "--sysroot=/mnt/sysroot"
+        try:
+            env["GOARCH"] = arch.go()
+        except ValueError:
+            logging.debug(f"Not setting $GOARCH for {arch}")
+        env.update(rust_cross_native2_env(arch))
+
+    elif cross == CrossCompile.CROSSDIRECT:
+        env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}", pmb.config.chroot_path])
+    else:
+        env["CARCH"] = str(arch)
+    if not context.ccache:
+        env["CCACHE_DISABLE"] = "1"
+
+    # Use sccache without crossdirect (crossdirect uses it via rustc.sh)
+    if context.ccache and cross != CrossCompile.CROSSDIRECT:
+        env["RUSTC_WRAPPER"] = "/usr/bin/sccache"
+
+    # Cache binary objects from go in this path (like ccache)
+    env["GOCACHE"] = "/home/pmos/.cache/go-build"
+
+    # Cache go modules (git repositories). Usually these should be bundled and
+    # it should not be required to download them at build time, in that case
+    # the APKBUILD sets the GOPATH (and therefore indirectly GOMODCACHE). But
+    # e.g. when using --src they are not bundled, in that case it makes sense
+    # to point GOMODCACHE at pmbootstrap's work dir so the modules are only
+    # downloaded once.
+    if context.go_mod_cache:
+        env["GOMODCACHE"] = "/home/pmos/go/pkg/mod"
+
+    if bootstrap_stage:
+        env["BOOTSTRAP"] = str(bootstrap_stage)
+
+    # sccache listens on 127.0.0.1:4226 by default, shared by every chroot and
+    # work dir in the network namespace: a client in one chroot then talks to
+    # a server that another chroot started, which runs rustc from ITS root and
+    # fails with "No such file or directory". A socket in the chroot's own
+    # /tmp keeps one server per chroot (the foreign chroot for crossdirect,
+    # whose rustc wrapper inherits this). See kill_sccache().
+    env["SCCACHE_SERVER_UDS"] = pmb.config.sccache_server_uds
+    return env
+
+
 def run_abuild(
     context: Context,
     apkbuild: Apkbuild,
@@ -275,49 +330,7 @@ def run_abuild(
         buildchroot,
     )
 
-    # Environment variables
-    env: Env = {"SUDO_APK": "abuild-apk --no-progress", "PMB_CROSS": str(cross)}
-    if cross == CrossCompile.CROSS_NATIVE:
-        hostspec = arch.alpine_triple()
-        env["CROSS_COMPILE"] = hostspec + "-"
-        env["CC"] = hostspec + "-gcc"
-    if cross == CrossCompile.CROSS_NATIVE2:
-        env["CHOST"] = str(arch)
-        env["CBUILDROOT"] = "/mnt/sysroot"
-        env["CFLAGS"] = "-Wl,-rpath-link=/mnt/sysroot/usr/lib"
-        env["CGO_CFLAGS"] = "--sysroot=/mnt/sysroot"
-        env["CGO_LDFLAGS"] = "--sysroot=/mnt/sysroot"
-        try:
-            env["GOARCH"] = arch.go()
-        except ValueError:
-            logging.debug(f"Not setting $GOARCH for {arch}")
-        env.update(rust_cross_native2_env(arch))
-
-    elif cross == CrossCompile.CROSSDIRECT:
-        env["PATH"] = ":".join([f"/native/usr/lib/crossdirect/{arch}", pmb.config.chroot_path])
-    else:
-        env["CARCH"] = str(arch)
-    if not context.ccache:
-        env["CCACHE_DISABLE"] = "1"
-
-    # Use sccache without crossdirect (crossdirect uses it via rustc.sh)
-    if context.ccache and cross != CrossCompile.CROSSDIRECT:
-        env["RUSTC_WRAPPER"] = "/usr/bin/sccache"
-
-    # Cache binary objects from go in this path (like ccache)
-    env["GOCACHE"] = "/home/pmos/.cache/go-build"
-
-    # Cache go modules (git repositories). Usually these should be bundled and
-    # it should not be required to download them at build time, in that case
-    # the APKBUILD sets the GOPATH (and therefore indirectly GOMODCACHE). But
-    # e.g. when using --src they are not bundled, in that case it makes sense
-    # to point GOMODCACHE at pmbootstrap's work dir so the modules are only
-    # downloaded once.
-    if context.go_mod_cache:
-        env["GOMODCACHE"] = "/home/pmos/go/pkg/mod"
-
-    if bootstrap_stage:
-        env["BOOTSTRAP"] = str(bootstrap_stage)
+    env = abuild_env(context, arch, cross, bootstrap_stage)
 
     # Build the abuild command
     # Since we install dependencies with pmb, disable dependency handling in abuild.
