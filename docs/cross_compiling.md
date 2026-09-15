@@ -103,11 +103,22 @@ Put build tools (`cargo`, `cargo-auditable`, `clang-libclang` for bindgen,
 `makedepends_host`. A build system that locates cargo's output itself must
 honour `CARGO_BUILD_TARGET`, since cargo then writes to `target/<triple>/`.
 
-Rust support in crossdirect is still experimental.
-[pmaports!4234](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/merge_requests/4234)
-(cross/crossdirect: improve rust handling) describes some of the problems with
-that approach; notably, build scripts that load target libraries at run time
-(bindgen and its libclang) cannot work there.
+**crossdirect** runs rustc natively inside the foreign chroot. Which
+architecture a crate is compiled for depends on the caller:
+
+* cargo, through crossdirect's cargo wrapper (also for `cargo auditable`):
+  crates with `--target` are for the target; build scripts, proc-macros and
+  their dependencies are native. A build script that loads a target library
+  at run time (bindgen and libclang) still cannot work: use cross-native2.
+* anything else that calls rustc directly, like meson (mesa's nouveau, asahi
+  and rusticl drivers): proc-macros are native and every other crate is for the
+  target. The rlibs a proc-macro links are rebuilt for the native architecture
+  on demand, from a record of how they were compiled for the target.
+  `bindgen` runs natively too when the native chroot has it.
+
+This needs crossdirect from the porthole-dev pmaports (5.3.1-r4 or later);
+older crossdirect compiles every crate that meson builds for the native
+architecture, and the link fails with "Relocations in generic ELF".
 
 #### CARGO\_HOME
 
@@ -122,9 +133,8 @@ repository with `pmbootstrap build --src`, patch out the override of
 
 #### Packaging caveats
 
-* `cargo auditable build` is unsupported with crossdirect and falls back to
-  compiling in QEMU. Change it to `cargo build` to build the package with the
-  native compiler.
+* With crossdirect, cargo subcommands other than `build`, `test` and `run`
+  (with or without `auditable`) run in QEMU, e.g. `cargo fetch`.
 * Running tests doesn't really work (e.g. when building squeekboard, the tests
   hang and time out).
 
