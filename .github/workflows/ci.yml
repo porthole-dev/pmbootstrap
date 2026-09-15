@@ -1,0 +1,110 @@
+# Lint, test, check the docs, and check commit trailers on pushes to main and
+# on pull requests. Mirrors upstream's .gitlab-ci.yml test stage: the jobs run
+# the same .ci/*.sh scripts, as root in an Alpine container that drops to a
+# "build" user, exactly as they do on GitLab.
+#
+# Not mirrored: mr-settings (checks GitLab merge request settings),
+# deploy-docs (triggers upstream's docs site), and the integration-test stage
+# (image and cross builds that need QEMU binfmt runners and hours of runtime).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    container: docker.io/library/alpine:latest
+    steps:
+      - name: Prepare the container
+        run: |
+          apk upgrade -U
+          apk add git
+          adduser -D build
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The scripts drop to the build user, who writes tool caches here.
+      - run: chown -R build .
+      - name: Codespell
+        run: .ci/codespell.sh
+      - name: Ruff
+        # Pinned to the last release before 0.16, which enabled rules the
+        # upstream base of this fork was never linted with. .ci/ruff.sh then
+        # finds it installed and keeps it.
+        run: |
+          apk add py3-pip
+          pip install --break-system-packages --no-warn-script-location ruff==0.15.22
+          .ci/ruff.sh
+      - name: Vermin
+        run: .ci/vermin.sh
+      - name: Shellcheck and shfmt
+        run: .ci/shellcheck_and_shfmt.sh
+      - name: Mypy
+        run: .ci/mypy.sh
+      - name: Markdownlint
+        run: .ci/markdown.sh
+
+  docs:
+    runs-on: ubuntu-24.04
+    container: docker.io/library/alpine:latest
+    steps:
+      - name: Prepare the container
+        run: |
+          apk upgrade -U
+          apk add git
+          adduser -D build
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: chown -R build .
+      - name: Build the documentation
+        run: .ci/docs.sh
+
+  test:
+    runs-on: ubuntu-24.04
+    # Privileged, like the GitLab runners: the chroot tests mount tmpfs.
+    container:
+      image: docker.io/library/alpine:latest
+      options: --privileged
+    steps:
+      - name: Prepare the container
+        run: |
+          apk upgrade -U
+          apk add git android-tools multipath-tools losetup
+          adduser -D build
+          su build -c 'git config --global user.email ci@example.org'
+          su build -c 'git config --global user.name CI'
+          echo 'build ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: chown -R build .
+      - name: Run the test suite
+        run: .ci/pytest.sh
+
+  commit-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Test the check
+        run: sh .github/scripts/test-commit-check.sh
+      - name: Check trailers and DCO sign-off
+        run: |
+          base=$(sh .github/scripts/base-commit.sh)
+          if [ -z "$base" ]; then echo "no new commits"; exit 0; fi
+          sh .github/scripts/commit-check.sh "$base" HEAD \
+            ${{ github.event_name == 'pull_request' && '--dco' || '' }}
