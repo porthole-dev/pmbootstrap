@@ -1,5 +1,6 @@
-# Lint, test, check the docs, and check commit trailers on pushes to main and
-# on pull requests. Mirrors upstream's .gitlab-ci.yml test stage: the jobs run
+# Lint, test, check the docs, and check commits on pushes to main, pull
+# requests and merge groups, and weekly against the moving alpine:latest image
+# upstream's CI uses too. Mirrors upstream's .gitlab-ci.yml test stage: the jobs run
 # the same .ci/*.sh scripts, as root in an Alpine container that drops to a
 # "build" user, exactly as they do on GitLab.
 #
@@ -12,19 +13,27 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
+  schedule:
+    - cron: "53 4 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Superseded pull request runs are cancelled; every push to main keeps its result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-24.04
-    container: docker.io/library/alpine:latest
+    timeout-minutes: 15
+    # Unpinned like upstream's image: the weekly run catches what a new
+    # Alpine release breaks.
+    container: docker.io/library/alpine:latest # zizmor: ignore[unpinned-images]
     steps:
       - name: Prepare the container
         run: |
@@ -58,7 +67,8 @@ jobs:
   docs:
     name: Docs
     runs-on: ubuntu-24.04
-    container: docker.io/library/alpine:latest
+    timeout-minutes: 15
+    container: docker.io/library/alpine:latest # zizmor: ignore[unpinned-images]
     steps:
       - name: Prepare the container
         run: |
@@ -75,9 +85,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     # Privileged, like the GitLab runners: the chroot tests mount tmpfs.
     container:
-      image: docker.io/library/alpine:latest
+      image: docker.io/library/alpine:latest # zizmor: ignore[unpinned-images]
       options: --privileged
     steps:
       - name: Prepare the container
@@ -98,17 +109,27 @@ jobs:
   commit-check:
     name: Commit check
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: porthole-dev/.github/actions/commit-check@2d4d1186816e5bc3997e08b490f464082f70e85f # main
+
+  workflow-lint:
+    name: Workflow lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 100
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - name: Test the check
-        run: sh .github/scripts/test-commit-check.sh
-      - name: Check trailers and DCO sign-off
-        run: |
-          base=$(sh .github/scripts/base-commit.sh)
-          if [ -z "$base" ]; then echo "no new commits"; exit 0; fi
-          sh .github/scripts/commit-check.sh "$base" HEAD \
-            ${{ github.event_name == 'pull_request' && '--dco' || '' }}
+      - uses: porthole-dev/.github/actions/workflow-lint@2d4d1186816e5bc3997e08b490f464082f70e85f # main
+
+  ci-passed:
+    name: CI passed
+    if: ${{ !cancelled() }}
+    needs: [lint, docs, test, commit-check, workflow-lint]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: porthole-dev/.github/actions/ci-passed@2d4d1186816e5bc3997e08b490f464082f70e85f # main
+        with:
+          results: ${{ join(needs.*.result, ' ') }}
