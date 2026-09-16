@@ -56,12 +56,12 @@ and documentation. `git log upstream/main..main` is the authoritative list.
   every chroot and work dir on the host, so one build's server compiled
   another work dir's crates against the wrong root and failed them.
 
-The changes that make crossdirect handle more of Rust live in pmaports,
-because crossdirect is an aport (`cross/crossdirect`, 5.3.1-r4 in the
-porthole-dev pmaports): rustc called directly by meson compiles target crates
-for the target and proc-macros natively, `cargo auditable build` no longer
-falls back to QEMU, and `bindgen` runs natively. See
-[docs/cross_compiling.md](docs/cross_compiling.md).
+The changes that make crossdirect faster live in pmaports, because crossdirect
+is an aport (`cross/crossdirect` in the porthole-dev pmaports): GCC links,
+including LTO, run natively instead of under QEMU; rustc called directly by
+meson compiles target crates for the target and proc-macros natively; `cargo
+auditable build` no longer falls back to QEMU; and `bindgen` runs natively.
+See [docs/cross_compiling.md](docs/cross_compiling.md).
 
 ## Update from upstream
 

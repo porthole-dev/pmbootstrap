@@ -37,9 +37,22 @@ with other methods.
 This is the default method.
 
 This method works for almost all packages, and gives a good speed improvement
-over running everything in QEMU. However only the cross compilers run natively.
-Linkers and all other commands used during the build still need to run through
-QEMU and so these are still very slow.
+over running everything in QEMU. The cross compilers run natively, and with
+crossdirect 5.3.1-r6 or later (porthole-dev pmaports) so do GCC's link steps:
+`collect2`, `ld` and, for a package built with LTO, `lto-wrapper` and `lto1`.
+The rest of the build -- the build system, generators, `meson`, `python3` --
+still runs through QEMU and is still slow.
+
+Link steps get `--sysroot=/` plus `-B/usr/lib/gcc/` and `-B/usr/lib/`, so the
+driver takes the target's own GCC runtime (`crtbegin*.o`, `libgcc`,
+`libstdc++`, spec files such as `libgomp.spec`) instead of the cross
+toolchain's copies. The linked output is then byte-for-byte what the target's
+GCC produces under QEMU, apart from the build ID. Invocations that are not
+links keep running in QEMU, because their output has to describe the target's
+GCC: `-E`, `-S`, `-M`, `-v`, `--version` and `-print-*` (libtool runs the
+linker path that `-print-prog-name=ld` gives it, and the cross `ld` cannot run
+outside crossdirect's environment), and any compiler call under `fakeroot`,
+i.e. in `package()`.
 
 The native chroot gets mounted in the foreign arch chroot at `/native`. The
 [crossdirect](https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/main/cross/crossdirect/APKBUILD)
