@@ -5,6 +5,7 @@ import enum
 from pathlib import Path
 
 import pmb.chroot
+import pmb.helpers.pmaports
 import pmb.helpers.run
 from pmb.core import Context
 from pmb.core.arch import Arch
@@ -185,6 +186,37 @@ def handle_csum_failure(apkbuild: Apkbuild, chroot: Chroot) -> None:
         raise RuntimeError(f"Remote checksum mismatch for {apkbuild['pkgname']}")
 
 
+def git_provenance(aport: Path) -> Env:
+    """ABUILD_LAST_COMMIT and SOURCE_DATE_EPOCH for an aport in a git checkout.
+
+    abuild derives both from git: the last commit that touched the aport,
+    "-dirty" if the aport has uncommitted changes, and that commit's date as
+    SOURCE_DATE_EPOCH unless it is dirty. It runs git in the copy under
+    /home/pmos/build, though, whose .git link (see link_to_git_dir()) makes
+    the pmaports tree look moved to the chroot's build directory, and cannot
+    work at all for a pmaports git worktree. Every apk then said
+    "commit = -dirty" and got the copied APKBUILD's mtime, the time of the
+    build, as its date. Ask the checkout itself, the way abuild would.
+
+    :returns: an empty dict if the aport is not in a git checkout
+    """
+
+    def git(*args: str) -> str:
+        return pmb.helpers.run.user_output(
+            ["git", *args], aport, output=RunOutputTypeDefault.NULL, check=False
+        ).strip()
+
+    if git("rev-parse", "--is-inside-work-tree") != "true":
+        return {}
+    commit = ""
+    if git("ls-files", "--", "APKBUILD"):
+        commit = git("rev-list", "-n", "1", "HEAD", "--", ".")
+    if git("status", "--porcelain", "--", "."):
+        return {"ABUILD_LAST_COMMIT": f"{commit}-dirty"}
+    epoch = git("log", "-1", "--format=%cd", "--date=unix", commit, "--", ".")
+    return {"ABUILD_LAST_COMMIT": commit, "SOURCE_DATE_EPOCH": epoch}
+
+
 def rust_cross_native2_env(arch: Arch, sysroot: str = "/mnt/sysroot") -> Env:
     """Environment for cargo to cross-compile for arch in the native chroot.
 
@@ -331,6 +363,7 @@ def run_abuild(
     )
 
     env = abuild_env(context, arch, cross, bootstrap_stage)
+    env.update(git_provenance(pmb.helpers.pmaports.find(apkbuild["pkgname"])))
 
     # Build the abuild command
     # Since we install dependencies with pmb, disable dependency handling in abuild.

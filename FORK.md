@@ -47,6 +47,11 @@ and documentation. `git log upstream/main..main` is the authoritative list.
 - **crossdirect Rust's native chroot gets build dependencies only, from
   binary repositories**: runtime depends, or a newer pmaports fork of a
   library, made pmbootstrap build whole packages for the native arch first.
+- **Packages carry the commit they were built from**: abuild looked for git in
+  the copy of the aport inside the chroot, so every apk said
+  `commit = -dirty` and got the build time as its date. pmbootstrap now reads
+  the aport's checkout and passes `ABUILD_LAST_COMMIT` and
+  `SOURCE_DATE_EPOCH`.
 - **One sccache server per chroot**: sccache's default TCP port is shared by
   every chroot and work dir on the host, so one build's server compiled
   another work dir's crates against the wrong root and failed them.
