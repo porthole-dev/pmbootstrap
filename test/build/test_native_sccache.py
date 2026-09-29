@@ -1,6 +1,7 @@
 # Copyright 2026 Giuseppe Maggio
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Regression: a C dependency initializes the chroot before Rust needs sccache."""
+
 import ast
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,13 +15,20 @@ def test_cache_install_after_chroot_initialization():
     calls = []
     pmb = SimpleNamespace(
         build=SimpleNamespace(init=lambda _: False),
-        chroot=SimpleNamespace(apk=SimpleNamespace(
-            install=lambda packages, chroot: calls.append((packages, chroot)))),
+        chroot=SimpleNamespace(
+            apk=SimpleNamespace(install=lambda packages, chroot: calls.append((packages, chroot)))
+        ),
     )
-    exec(compile(ast.parse(setup), "chroot-setup", "exec"), {
-        "pmb": pmb, "hostchroot": "native", "buildchroot": "native",
-        "all_dependencies": ["cargo"],
-    })
+    # Execute only the checked-out source block, with chroot operations stubbed.
+    exec(  # ruff:ignore[exec-builtin]
+        compile(ast.parse(setup), "chroot-setup", "exec"),
+        {
+            "pmb": pmb,
+            "hostchroot": "native",
+            "buildchroot": "native",
+            "all_dependencies": ["cargo"],
+        },
+    )
     assert calls == [(["sccache"], "native")]
 
 
