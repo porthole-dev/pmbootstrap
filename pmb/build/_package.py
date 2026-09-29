@@ -625,8 +625,9 @@ def packages(
         if pmb.build.init(buildchroot):
             pmb.build.other.configure_abuild(buildchroot)
             pmb.build.other.configure_ccache(buildchroot)
-            if "rust" in all_dependencies or "cargo" in all_dependencies:
-                pmb.chroot.apk.install(["sccache"], buildchroot)
+        # A C dependency can initialize this chroot before the first Rust build.
+        if "rust" in all_dependencies or "cargo" in all_dependencies:
+            pmb.chroot.apk.install(["sccache"], buildchroot)
 
         if (strict or cross != prev_cross) and cross.enabled():
             pmb.build.init_compiler(context, pkg_depends, cross, pkg_arch)
