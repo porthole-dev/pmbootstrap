@@ -24,8 +24,8 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  # Superseded pull request runs are cancelled; every push to main keeps its result.
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # These checks never publish; keep runner time for the current revision.
+  cancel-in-progress: true
 
 jobs:
   lint:
