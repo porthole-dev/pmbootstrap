@@ -1,6 +1,10 @@
 # pmbootstrap
 
-[Website](https://porthole-dev.github.io/porthole/) · [Downloads](https://porthole-dev.github.io/porthole/downloads/) · [Device support](https://porthole-dev.github.io/porthole/devices/)
+[Website][website] · [Downloads][downloads] · [Device support][devices]
+
+[website]: https://porthole-dev.github.io/porthole/
+[downloads]: https://porthole-dev.github.io/porthole/images/
+[devices]: https://porthole-dev.github.io/porthole/devices/
 
 pmbootstrap builds packages and installable images for
 [Nura](https://nura.eco). The command and upstream repository names still use
@@ -24,8 +28,10 @@ This fork adds faster Rust and Meson cross-compilation, reliable APKBUILD
 parsing, and package source provenance. See [FORK.md](FORK.md) for the patch
 series and [AI.md](AI.md) for the contribution policy.
 
+<!-- markdownlint-disable MD033 -->
 <details>
-<summary><strong>Command reference and development guide</strong></summary>
+<summary>Command reference and development guide</summary>
+<!-- markdownlint-enable MD033 -->
 
 ## Development
 
@@ -361,4 +367,6 @@ ssh_key_glob = ~/.ssh/postmarketos-dev.pub
 
 [GPLv3](LICENSE)
 
+<!-- markdownlint-disable MD033 -->
 </details>
+<!-- markdownlint-enable MD033 -->
