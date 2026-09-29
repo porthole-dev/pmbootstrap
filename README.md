@@ -1,7 +1,7 @@
 # pmbootstrap
 
-> **Unofficial.** Not affiliated with or endorsed by postmarketOS, Google, or
-> Qualcomm. Do not report problems with this port to postmarketOS; open an
+> **Unofficial.** Not affiliated with or endorsed by Nura, Google, or
+> Qualcomm. Do not report problems with this fork to Nura; open an
 > issue here.
 >
 > **Experimental.** Flashing can brick the device or erase data. No warranty,
@@ -12,13 +12,14 @@
 > **Fork.** This is the porthole-dev fork of pmbootstrap. See
 > [FORK.md](FORK.md) for what differs and why.
 
-Sophisticated chroot/build/flash tool to develop and install
-[postmarketOS](https://postmarketos.org).
+pmbootstrap builds packages and installable images for
+[Nura](https://nura.eco). The command and upstream repository names still use
+`pmbootstrap` and `postmarketOS`.
 
 ## Development
 
-Find the location of the upstream repository for pmbootstrap on the
-[postmarketOS homepage](https://postmarketos.org/source-code/).
+Find the upstream pmbootstrap repository on the
+[Nura source page](https://nura.eco/source-code/).
 
 Run CI scripts locally with:
 
@@ -34,7 +35,10 @@ pytest -vv ./test/test_keys.py
 
 ## Issues
 
-[Issues are being tracked in the GitLab issue tracker](https://gitlab.postmarketos.org/postmarketOS/pmbootstrap/-/issues).
+Report fork-specific failures to [porthole-dev/pmbootstrap](https://github.com/porthole-dev/pmbootstrap/issues),
+with the commit and command. Reproduce with upstream before reporting an
+upstream bug. For porthole host setup, read the
+[workspace guide](https://github.com/porthole-dev/porthole/blob/main/docs/NEW-HOST.md).
 
 ## Requirements
 
@@ -63,13 +67,13 @@ pytest -vv ./test/test_keys.py
 
 For pmbootstrap to be useful, it needs to maintain a local copy of the
 [pmaports](https://gitlab.postmarketos.org/postmarketOS/pmaports) repository
-where postmarketOS-specific packages are maintained. This is set up
+where Nura packages are maintained. This is set up
 automatically, but the local copy of pmaports does not automatically get
 updated. To update it, you can run `$ pmbootstrap pull`.
 
-The latest pmbootstrap version works with currently [active postmarketOS
+The latest pmbootstrap version works with currently [active Nura
 releases](https://wiki.postmarketos.org/wiki/Releases). Attempting to use
-pmboostrap with old postmarketOS versions (old pmaports branches) may result in
+pmbootstrap with old releases (old pmaports branches) may result in
 failures and is not supported. See `pmbootstrap_min_version` in
 [pmaports.cfg](https://wiki.postmarketos.org/wiki/Pmaports.cfg_reference) for
 the oldest supported pmbootstrap version for a given pmaports revision. The
@@ -77,7 +81,7 @@ upper bound is not documented.
 
 ## Usage Examples
 
-Please refer to the [postmarketOS wiki](https://wiki.postmarketos.org) for
+Please refer to the [Nura wiki](https://wiki.postmarketos.org) for
 in-depth coverage of topics such as [porting to a new
 device](https://wiki.postmarketos.org/wiki/Porting_to_a_new_device) or
 [installation](https://wiki.postmarketos.org/wiki/Installation_guide). The help
