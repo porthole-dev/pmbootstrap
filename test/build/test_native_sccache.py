@@ -7,12 +7,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-def test_cache_install_after_chroot_initialization():
+def test_cache_install_after_chroot_initialization() -> None:
     source = (Path(__file__).parents[2] / "pmb/build/_package.py").read_text()
     setup = source.split("        # One time chroot initialization\n", 1)[1]
     setup = setup.split("        if (strict or cross != prev_cross)", 1)[0]
     setup = "\n".join(line[8:] for line in setup.splitlines())
-    calls = []
+    calls: list[tuple[list[str], str]] = []
     pmb = SimpleNamespace(
         build=SimpleNamespace(init=lambda _: False),
         chroot=SimpleNamespace(
