@@ -1,20 +1,31 @@
 # pmbootstrap
 
-> **Unofficial.** Not affiliated with or endorsed by Nura, Google, or
-> Qualcomm. Do not report problems with this fork to Nura; open an
-> issue here.
->
-> **Experimental.** Flashing can brick the device or erase data. No warranty,
-> see LICENSE.
->
-> **AI-assisted.** See [AI.md](AI.md).
->
-> **Fork.** This is the porthole-dev fork of pmbootstrap. See
-> [FORK.md](FORK.md) for what differs and why.
+[Website](https://porthole-dev.github.io/porthole/) · [Downloads](https://porthole-dev.github.io/porthole/downloads/) · [Device support](https://porthole-dev.github.io/porthole/devices/)
 
 pmbootstrap builds packages and installable images for
 [Nura](https://nura.eco). The command and upstream repository names still use
 `pmbootstrap` and `postmarketOS`.
+
+## Get started
+
+```sh
+git clone https://github.com/porthole-dev/pmbootstrap.git
+cd pmbootstrap
+./pmbootstrap.py --version
+```
+
+For Porthole device builds, use the
+[rootless workspace](https://porthole-dev.github.io/porthole/cli/sandbox/).
+It keeps build privileges inside a container.
+
+## About this fork
+
+This fork adds faster Rust and Meson cross-compilation, reliable APKBUILD
+parsing, and package source provenance. See [FORK.md](FORK.md) for the patch
+series and [AI.md](AI.md) for the contribution policy.
+
+<details>
+<summary><strong>Command reference and development guide</strong></summary>
 
 ## Development
 
@@ -349,3 +360,5 @@ ssh_key_glob = ~/.ssh/postmarketos-dev.pub
 ## License
 
 [GPLv3](LICENSE)
+
+</details>
