@@ -5,6 +5,7 @@ from pathlib import Path
 import pmb.chroot
 import pmb.core.dps
 import pmb.helpers.file
+import pmb.helpers.run
 import pmb.install.losetup
 from pmb.core import Chroot
 from pmb.helpers import logging
@@ -20,6 +21,7 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
     :param layout: partition layout from get_partition_layout()
     :param disk: path to disk block device (e.g. /dev/mmcblk0) or None
     """
+    image_disk = disk is None
     if not disk:
         img_path = Path("/home/pmos/rootfs") / f"{device}.img"
         disk = pmb.install.losetup.device_by_back_file(img_path)
@@ -46,6 +48,13 @@ def partitions_mount(device: str, layout: PartitionLayout, disk: Path | None) ->
 
     for i in partitions:
         source = Path(f"{partition_prefix}{i}")
+        # A container's private /dev does not receive runner udev nodes. Only
+        # materialize partitions of our allocated image loop device, never disks.
+        if image_disk and not source.exists():
+            sysdev = Path("/sys/class/block") / source.name / "dev"
+            if sysdev.exists():
+                major, minor = sysdev.read_text().strip().split(":")
+                pmb.helpers.run.root(["mknod", source, "b", str(int(major)), str(int(minor))])
         pmb.helpers.file.wait_until_exists(source)
         target = Chroot.native() / "dev" / f"installp{i}"
         pmb.helpers.mount.bind_file(source, target)
