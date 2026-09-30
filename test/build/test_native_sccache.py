@@ -26,7 +26,9 @@ def test_cache_install_after_chroot_initialization() -> None:
             "pmb": pmb,
             "hostchroot": "native",
             "buildchroot": "native",
-            "all_dependencies": ["cargo"],
+            "all_dependencies": [],
+            "pkg_depends": ["cargo"],
+            "context": SimpleNamespace(ccache=True),
         },
     )
     assert calls == [(["sccache"], "native")]
